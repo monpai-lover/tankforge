@@ -52,6 +52,13 @@ def apply_flak38t_folding_armor(spec):
     if len(boards) != 8:
         raise ValueError('derive folding armor after the eight board clearance stops')
     plates = [p for p in spec['plates'] if not p['id'].startswith('flap_')]
+    # The lower compartment stays on the chassis when the AA turntable rotates.
+    # Turret zones would rotate these stationary walls in the combat core.
+    for plate in plates:
+        if plate['id'] == 'comp_front':
+            plate['zone'] = 'hull_upper_front'
+        elif plate['id'] == 'comp_rear':
+            plate['zone'] = 'hull_rear'
     for i, board in enumerate(boards):
         face = board['faces'][0]
         if len(face) != 4:

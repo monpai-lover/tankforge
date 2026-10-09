@@ -208,7 +208,7 @@
  },
  {
   "id": "comp_front",
-  "zone": "turret_front",
+  "zone": "hull_upper_front",
   "material": "rha",
   "thickness_mm": 10,
   "center": {
@@ -231,7 +231,7 @@
  },
  {
   "id": "comp_rear",
-  "zone": "turret_rear",
+  "zone": "hull_rear",
   "material": "rha",
   "thickness_mm": 10,
   "center": {

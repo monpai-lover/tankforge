@@ -49,3 +49,20 @@ test('the real Flak38(t) side board stops a bullet raised and leaves that space 
   assert.equal(lowered.layers.length,0,'folded armor cannot remain as invisible upper protection');
   assert.ok(lowered.crew.length>0);
 });
+
+test('fixed Flak38(t) lower walls keep the same physical hit point when the gun traverses', () => {
+  const core=loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm',import.meta.url)),
+    {materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)});
+  for(const id of ['comp_front','comp_rear']){
+    const plate=bundle.armor.find(p=>p.id===id),n=Object.values(plate.normal),c=Object.values(plate.center);
+    const target={...bundle,armor:[plate],modules:[],crew:[]},combat=new Combat(core),initial=combat.fresh(id,target).state;
+    const shot={shell:bulletShell(data.machineGuns.mg34),origin:c.map((x,i)=>x+3*n[i]),dir:n.map(x=>-x),
+      speed_ms:450,distance_m:1000,seed:1,turret_yaw:0};
+    for(const yaw of [0,Math.PI/2,Math.PI]){
+      const report=combat.shoot(id,initial,{...shot,turret_yaw:yaw});
+      assert.equal(report.layers.length,1,`${id}: rotating the gun cannot remove a fixed compartment wall`);
+      const point=Object.values(report.layers[0].point);
+      assert.ok(Math.hypot(...point.map((x,i)=>x-c[i]))<.0001,`${id}: armor must stay on its visible lower wall`);
+    }
+  }
+});
