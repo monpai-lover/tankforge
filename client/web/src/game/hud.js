@@ -485,13 +485,10 @@ export class Hud {
     set(this.el.terrain, TERRAIN_LABEL[terrainId] || terrainId);
     const slip = Math.max(info.slipL || 0, info.slipR || 0);
     const sinkCm = (info.sink || 0) * 100;
-    const show = slip > 0.03 || sinkCm > 1.5;
-    this.el.slip.hidden = !show;
-    if (show) {
-      const text = `滑轉 ${(slip * 100).toFixed(0)}%　下陷 ${sinkCm.toFixed(0)} cm`;
-      if (this.el.slip.textContent !== text) this.el.slip.textContent = text;
-      this.el.slip.dataset.hard = slip > 0.3 ? '1' : '0';
-    }
+    this.el.slip.hidden = false;
+    const text = `滑轉 ${(slip * 100).toFixed(0)}%　下陷 ${sinkCm.toFixed(0)} cm`;
+    if (this.el.slip.textContent !== text) this.el.slip.textContent = text;
+    this.el.slip.dataset.hard = slip > 0.3 ? '1' : '0';
   }
 
   /**
@@ -1353,6 +1350,21 @@ export class Hud {
     const cy = h / 2;
     const s = h / 900;
 
+    // Scope masks only the world view; the separately rendered vehicle and
+    // hit-camera windows must remain visible through this overlay.
+    g.save();
+    if (o.statusWindow || o.hitcamRect) {
+      g.beginPath();
+      g.rect(0, 0, w, h);
+      if (o.statusWindow) {
+        const v = o.statusWindow, k = o.pixelScale || 1;
+        g.moveTo((v.cx + v.r) * k, v.cy * k);
+        g.arc(v.cx * k, v.cy * k, v.r * k, 0, Math.PI * 2);
+        g.closePath();
+      }
+      if (o.hitcamRect) g.rect(...o.hitcamRect);
+      g.clip('evenodd');
+    }
     // scope tube: black outside the circle, soft falloff near the rim
     g.fillStyle = '#000';
     g.beginPath();
@@ -1361,11 +1373,12 @@ export class Hud {
     g.fill('evenodd');
     const vg = g.createRadialGradient(cx, cy, radius * 0.78, cx, cy, radius);
     vg.addColorStop(0, 'rgba(0,0,0,0)');
-    vg.addColorStop(1, 'rgba(0,0,0,0.85)');
+    vg.addColorStop(1, `rgba(0,0,0,${o.edgeOpacity ?? .85})`);
     g.fillStyle = vg;
     g.beginPath();
     g.arc(cx, cy, radius, 0, Math.PI * 2);
     g.fill();
+    g.restore();
 
     g.save();
     g.beginPath();

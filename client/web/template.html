@@ -265,7 +265,7 @@ body:not([data-mode="battle"]) #hud { display: none; }
 #hud { position: absolute; inset: 0; pointer-events: none; }
 #hud > * { pointer-events: auto; }
 /* read-only overlays never take the clicks meant for what is under them */
-#hud > #hitcam, #hud > #cq-bar, #hud > #cq-msg, #hud > #net-score { pointer-events: none; }
+#hud > #cq-bar, #hud > #cq-msg, #hud > #net-score { pointer-events: none; }
 #topbar { position: absolute; top: var(--gutter); left: var(--gutter); display: flex; align-items: center; gap: 10px; }
 #veh-name { font-family: var(--display); font-weight: 600; letter-spacing: 0.04em; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8); }
 #help { top: var(--gutter); right: 0; width: 214px; max-height: calc(100% - 260px); overflow-y: auto; padding: 8px 10px; border-radius: 3px 0 0 3px; background: rgba(21, 24, 18, 0.66); }
@@ -831,7 +831,6 @@ body[data-touch="1"] .tr-fire { display: block; }
       <p class="credit">乘員模型：UK Gunner Officer、FR Gunner（War Thunder Crew）by KojfDiscord（CC BY 4.0），M56 Scorpion by KojfDiscord（CC BY 4.0）</p>
     </section>
 
-    <section id="hitcam" aria-label="命中回放" hidden></section>
     <div id="lock-hint">點一下畫面鎖定滑鼠（Esc 解除）</div>
     <div id="net-score" role="status" hidden></div>
     <ol id="net-feed" aria-live="polite"></ol>
@@ -853,7 +852,7 @@ body[data-touch="1"] .tr-fire { display: block; }
         </dl>
         <span id="terrain" hidden>道路</span>
       </div>
-      <div id="slip" hidden></div>
+      <div id="slip">滑轉 0%　下陷 0 cm</div>
       <div id="dmg-list" hidden></div>
     </section>
     <div id="hint" role="status"></div>
@@ -869,6 +868,8 @@ body[data-touch="1"] .tr-fire { display: block; }
       <canvas id="minimap" width="188" height="188"></canvas>
     </section>
   </div>
+
+  <section id="hitcam" aria-label="命中回放" hidden></section>
 
   <section id="workshop" class="panel" aria-label="改裝工坊" hidden>
     <header class="ws-head">

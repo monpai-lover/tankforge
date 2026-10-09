@@ -65,3 +65,4 @@ node test/online.mjs                                    # 兩個瀏覽器經 tg-
 - [Claude of Tanks 畫面、特效、後端與着色器合併研究](docs/claude-of-tanks-research.md)。
 - [2026-10-09 車輛與操作修復、來源及驗收](docs/vehicle-fixes-2026-10-09.md)，包含新增 Hetzer 假想改裝、BMP 三型、雙管導彈、G 選機槍、1–9 選彈與 I 收放側板。
 - 僅重建本輪車輛：`python tools/build_hetzer_sdkfz1401.py`、`python tools/repair_bmp_k64.py`、`python tools/repair_folding_flaps.py`；需要 NumPy／Pillow，來源檔案與雜湊隨倉庫保留。不要為局部修復重產整個車隊。
+- 原版追獵者參考修形與換頭回歸見 [修形紀錄](docs/hetzer-reference-refinement-2026-10-09.md)，定向重建用 `python tools/build_hetzer_original.py`；導彈過載與速度平方轉彎半徑見 [導彈力模型](docs/missile-flight.md)。命中回放包含彈體和漸進軌跡，瞄具依每車倍率/視場顯示不同鏡口；滑轉/下陷讀數固定顯示。

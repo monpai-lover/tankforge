@@ -9,7 +9,7 @@
   "year": 1944,
   "outline": "traced",
   "based_on": "Jagdpanzer 38(t) Hetzer with the 7.5 cm PaK 39 L/48",
-  "notes": "Rebuilt from the four-view drawing supplied with the request (122 px per metre): the casemate's measured slopes, the gun offset 0.38 m to the right in the Saukopf mantlet, traverse 5 degrees left and 11 right, the remote MG 34 on the loader's side of the roof."
+  "notes": "Procedural exterior checked against the user's cutaway and four-view drawing: low sloped casemate, broad rounded Saukopf, gun offset 0.38 m right, curved loader hatch and rear louvres. Outline sections and running-gear positions are drawing-based estimates; existing armor and interior remain simplified. Traverse 5 degrees left and 11 right; remote MG 34 on the loader's roof. Original gun and modular workshop mounts retained."
  },
  "files": {
   "armor": "armor.json",

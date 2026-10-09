@@ -1,7 +1,8 @@
 //! What a missile or rocket is (data/missiles.json) and what an active protection system is (a
 //! vehicle's weapons.json "aps"). Every number the simulation uses lives here, so another
 //! missile or another protection system is a new entry, not new code.
-use serde::{Deserialize, Serialize};
+use serde::{Deserialize, Deserializer, Serialize};
+use crate::v::G;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -15,6 +16,24 @@ pub enum Guidance {
 
 fn one() -> f64 {
     1.0
+}
+
+fn nonnegative<'de, D: Deserializer<'de>>(de: D) -> Result<f64, D::Error> {
+    let value = f64::deserialize(de)?;
+    if value.is_finite() && value >= 0.0 {
+        Ok(value)
+    } else {
+        Err(serde::de::Error::custom("must be finite and nonnegative"))
+    }
+}
+
+fn optional_nonnegative<'de, D: Deserializer<'de>>(de: D) -> Result<Option<f64>, D::Error> {
+    let value = Option::<f64>::deserialize(de)?;
+    if value.is_none_or(|v| v.is_finite() && v >= 0.0) {
+        Ok(value)
+    } else {
+        Err(serde::de::Error::custom("must be finite and nonnegative"))
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -38,10 +57,17 @@ pub struct MissileDef {
     pub max_range_m: f64,
     /// It is armed (and steerable) only beyond this distance.
     pub min_range_m: f64,
-    /// Sideways acceleration the fins can give it (m/s^2).
+    /// Legacy sideways acceleration reference (m/s^2). When `max_g` is absent this
+    /// supplies the normal-control envelope in G; the two values are not multiplied.
+    #[serde(deserialize_with = "nonnegative")]
     pub turn_accel_ms2: f64,
-    /// Guided flight holds its height (the sustainer and the body's lift carry the weight);
-    /// without guidance, or for a rocket, gravity bends the path.
+    /// Maximum normal control load in standard gravities, including weight support and
+    /// damaged-fin drift. Missing: estimate from `turn_accel_ms2 / G` for old data.
+    /// This is a game tuning envelope, not a sourced manufacturer performance claim.
+    #[serde(default, deserialize_with = "optional_nonnegative", skip_serializing_if = "Option::is_none")]
+    pub max_g: Option<f64>,
+    /// Guided flight supports its weight from the same normal-control budget. Below 1 G
+    /// it cannot fully hold height; without lift gravity bends the path.
     #[serde(default)]
     pub lift: bool,
     /// Bullet hits the structure takes before it breaks up.
@@ -58,7 +84,7 @@ pub struct MissileDef {
     /// The warhead as a projectile (data/projectiles): what it does when it strikes.
     pub warhead: String,
     /// Steering lag of the control loop (s).
-    #[serde(default = "lag")]
+    #[serde(default = "lag", deserialize_with = "nonnegative")]
     pub guidance_lag_s: f64,
     #[serde(default = "one")]
     pub smoke: f64,
@@ -198,6 +224,17 @@ impl ApsDef {
 }
 
 impl MissileDef {
+    /// One force budget, in m/s^2. An unguided rocket cannot acquire steering from
+    /// an optional G field when its legacy turn authority is zero.
+    pub fn normal_accel_limit(&self) -> f64 {
+        let value = if self.guidance == Guidance::None {
+            self.turn_accel_ms2
+        } else {
+            self.max_g.map(|g| g * G).unwrap_or(self.turn_accel_ms2)
+        };
+        if value.is_finite() { value.max(0.0) } else { 0.0 }
+    }
+
     /// BGM-71A TOW (tests; the game reads data/missiles.json).
     pub fn tow() -> MissileDef {
         MissileDef {
@@ -216,6 +253,7 @@ impl MissileDef {
             max_range_m: 3750.0,
             min_range_m: 65.0,
             turn_accel_ms2: 60.0,
+            max_g: None,
             lift: true,
             hp: 3.0,
             warhead_share: 0.35,

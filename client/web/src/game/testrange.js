@@ -7,6 +7,7 @@
 import * as ballistics from '../sim/ballistics.js';
 import * as gunnery from '../sim/gunnery.js';
 import { shellIcon, shellKind, shellTypeLabel } from './shellicons.js';
+import { designReplayReport } from './projectileReplay.js';
 
 const DEG = Math.PI / 180;
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -47,7 +48,7 @@ function el(tag, props = {}, ...children) {
 export class TestRange {
   /**
    * env: {G, data, fx, sound, hud, core() -> DesignCore, root (section#testrange),
-   *       pose() -> {pos, heading}, applyXray(), onBack(where)}
+   *       pose() -> {pos, heading}, applyXray(), onBack(where), hitcam(last)}
    */
   constructor(env) {
     this.env = env;
@@ -317,7 +318,7 @@ export class TestRange {
       return [q.t, l[0], l[1], l[2]];
     });
     try {
-      return this.env.core().shoot({
+      const response = this.env.core().shoot({
         shell: sh.shell,
         origin: localOrigin,
         dir: localDir,
@@ -328,6 +329,9 @@ export class TestRange {
         gun_elevation_deg: 0,
         path,
       });
+      // Preserve the exact hull-space input for presentation, rather than guessing from sparse samples.
+      response.shot = { origin: localOrigin.slice(), dir: localDir.slice() };
+      return response;
     } catch (e) {
       this.env.hud.toast('核心計算失敗：' + e.message, 4);
       return null;
@@ -378,9 +382,10 @@ export class TestRange {
     const ev = resp.event;
     const tl = resp.timeline;
     const total = tl.reduce((s, k) => Math.max(s, k.start_s + k.duration_s), 0);
-    const path = ev.projectile_path.map((q) => ({ t: q.t, p: W(q.pos) }));
+    const adapted = designReplayReport(this.last);
+    const path = adapted.flight_path.map((p) => ({ p: W(p) }));
     const impact = W(ev.impact_position);
-    const dir = norm3(sub3(impact, path.length > 1 ? path[path.length - 2].p : add(impact, [0, 0, -10])));
+    const dir = gunnery.toWorldDir(pose, adapted.shot.dir);
     const layers = resp.layers.map((l) => ({ a: W(l.crossing.entry), b: W(l.crossing.exit), outcome: l.outcome, l }));
     const frags = ev.fragments.map((f) => ({ a: W(f.origin), b: W(f.end), hit: f.hit, pen: f.is_penetrator, damage: f.damage }));
     // camera beside the shot line, looking at the impact

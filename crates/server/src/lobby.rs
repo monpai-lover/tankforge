@@ -1499,7 +1499,7 @@ impl Lobby {
                 continue;
             }
             let res = w.step(dt, &actors);
-            let ms: Vec<Value> = w.flying().map(|m| serde_json::json!({"id": m.id, "def": m.def, "owner": m.owner, "team": m.team, "pos": m.pos, "vel": m.vel, "motor": m.motor, "guided": m.guided, "hits": m.hits_taken})).collect();
+            let ms: Vec<Value> = w.flying().map(|m| serde_json::json!({"id": m.id, "def": m.def, "owner": m.owner, "team": m.team, "pos": m.pos, "vel": m.vel, "motor": m.motor, "guided": m.guided, "hits": m.hits_taken, "g_load": m.g_load, "lateral_g": m.lateral_g, "max_g": m.max_g})).collect();
             let aps: Vec<Value> = w
                 .aps
                 .iter()

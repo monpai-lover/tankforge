@@ -437,24 +437,26 @@ SHELLS = [
 # wire guided SACLOS); the TT-250 of the RBT-5 tank (War Thunder wiki and armedconflicts.com:
 # 420 mm, 250 kg, about 130 kg of TNT, 135 m/s, 350-1800 m, launcher +9..+50 deg). Hit points are bullet hits the
 # body takes before it breaks up; a hit on the warhead section may set it off.
+# max_g is the game-estimated normal-control load, derived from legacy turn_accel_ms2 /
+# 9.80665, not a measured manufacturer limit; supported flight shares the budget with gravity compensation.
 MISSILES = [
     {"id": "bgm71a_tow", "name": "BGM-71A TOW", "guidance": "saclos", "mass_kg": 18.9, "caliber_mm": 152.0, "length_m": 1.17,
      "span_m": 0.46, "launch_speed_ms": 70.0, "max_speed_ms": 300.0, "boost_s": 1.6, "burn_s": 1.6, "drag_k": 1.8e-4,
-     "max_range_m": 3750.0, "min_range_m": 65.0, "turn_accel_ms2": 60.0, "lift": True, "hp": 3.0, "warhead_share": 0.35,
+     "max_range_m": 3750.0, "min_range_m": 65.0, "turn_accel_ms2": 60.0, "max_g": 6.11829727786757, "lift": True, "hp": 3.0, "warhead_share": 0.35,
      "fuse_chance": 0.65, "control_loss_chance": 0.45, "warhead": "heat_152_tow", "guidance_lag_s": 0.25, "smoke": 1.0},
     {"id": "tt250_rocket", "name": "TT-250 tank torpedo", "guidance": "none", "mass_kg": 250.0, "caliber_mm": 420.0, "length_m": 2.25,
      "span_m": 0.62, "launch_speed_ms": 60.0, "max_speed_ms": 135.0, "boost_s": 1.0, "burn_s": 2.5, "drag_k": 2.0e-5,
-     "max_range_m": 1800.0, "min_range_m": 0.0, "turn_accel_ms2": 0.0, "lift": False, "hp": 8.0, "warhead_share": 0.45,
+     "max_range_m": 1800.0, "min_range_m": 0.0, "turn_accel_ms2": 0.0, "max_g": 0.0, "lift": False, "hp": 8.0, "warhead_share": 0.45,
      "fuse_chance": 0.4, "control_loss_chance": 0.0, "warhead": "he_420_tt250", "guidance_lag_s": 0.25, "smoke": 2.5},
     # 9M113 Konkurs: 14.6 kg, 135 mm, 1.165 m, about 208 m/s, 75-4000 m, wire SACLOS;
     # 9M133 Kornet: 27 kg, 152 mm, 1.2 m, about 300 m/s, 100-5500 m, laser beam riding SACLOS
     {"id": "9m113_konkurs", "name": "9M113 Konkurs", "guidance": "saclos", "mass_kg": 14.6, "caliber_mm": 135.0, "length_m": 1.165,
      "span_m": 0.47, "launch_speed_ms": 80.0, "max_speed_ms": 208.0, "boost_s": 1.2, "burn_s": 2.0, "drag_k": 1.8e-4,
-     "max_range_m": 4000.0, "min_range_m": 75.0, "turn_accel_ms2": 50.0, "lift": True, "hp": 3.0, "warhead_share": 0.35,
+     "max_range_m": 4000.0, "min_range_m": 75.0, "turn_accel_ms2": 50.0, "max_g": 5.0985810648896415, "lift": True, "hp": 3.0, "warhead_share": 0.35,
      "fuse_chance": 0.65, "control_loss_chance": 0.45, "warhead": "heat_135_konkurs", "guidance_lag_s": 0.25, "smoke": 1.0},
     {"id": "9m133_kornet", "name": "9M133 Kornet", "guidance": "saclos", "mass_kg": 27.0, "caliber_mm": 152.0, "length_m": 1.20,
      "span_m": 0.46, "launch_speed_ms": 90.0, "max_speed_ms": 300.0, "boost_s": 1.5, "burn_s": 2.5, "drag_k": 1.6e-4,
-     "max_range_m": 5500.0, "min_range_m": 100.0, "turn_accel_ms2": 60.0, "lift": True, "hp": 4.0, "warhead_share": 0.35,
+     "max_range_m": 5500.0, "min_range_m": 100.0, "turn_accel_ms2": 60.0, "max_g": 6.11829727786757, "lift": True, "hp": 4.0, "warhead_share": 0.35,
      "fuse_chance": 0.65, "control_loss_chance": 0.35, "warhead": "heat_152_kornet", "guidance_lag_s": 0.2, "smoke": 1.2},
 ]
 
@@ -2763,7 +2765,10 @@ def hz_ring(y, close=False):
 def hetzer(variant):
     L, W, c = 4.87, 2.63, 0.40
     tx = 1.15
-    wz = [1.24, 0.47, -0.47, -1.35]
+    # Four-view side elevation: four separate large road wheels. The old 0.77 m
+    # first spacing put the 0.82 m rubber rims through one another. Keep their
+    # existing diameter and terminal gear clearances, but restore the visible gaps.
+    wz = [1.30, 0.40, -0.49, -1.35]
 
     def low(z):
         # the lower hull between the tracks and the sponsons out over them, up to 1.27 m
@@ -2872,20 +2877,32 @@ def hetzer(variant):
 
         parts += [
             # the gun mount: the cast collar in the glacis, the Saukopf mantlet, the barrel
-            loft([collar_ring(-0.012, 0.36, 0.28), collar_ring(0.028, 0.36, 0.28),
-                  collar_ring(0.045, 0.345, 0.28), collar_ring(0.045, 0.30, 0.24, 1.47),
-                  collar_ring(-0.012, 0.30, 0.24, 1.47)], mat="paint_dark", crease=60, caps=(False, False)),
-            # the Saukopf through the reference model's sections: round where it sits in the
-            # collar, tapering forward and dropping onto the barrel's axis
-            loft([rrect_ring(z, 0.386, cy, r, r, n=28, p=2) for z, cy, r in
-                  ((1.62, 1.52, 0.31), (1.75, 1.53, 0.30), (1.95, 1.50, 0.23), (2.12, 1.44, 0.175), (2.28, 1.43, 0.14), (2.32, 1.43, 0.10))],
+            loft([collar_ring(-0.012, 0.49, 0.28), collar_ring(0.028, 0.49, 0.28),
+                  collar_ring(0.045, 0.475, 0.28), collar_ring(0.045, 0.43, 0.24, 1.47),
+                  collar_ring(-0.012, 0.43, 0.24, 1.47)], mat="paint_dark", crease=60, caps=(False, False)),
+            # Saukopf: the supplied top/front views show broad cast cheeks, not a
+            # narrow circular plug. Longitudinal elliptical sections sink into the
+            # shallow glacis aft and taper smoothly onto the unchanged gun axis.
+            # These are outline estimates from the drawings, not foundry measurements.
+            loft([rrect_ring(z, mount[0], cy, rx, ry, n=32, p=2) for z, cy, rx, ry in
+                  ((1.04, 1.63, 0.35, 0.23), (1.23, 1.64, 0.44, 0.24),
+                   (1.44, 1.61, 0.46, 0.27), (1.65, 1.58, 0.42, 0.26),
+                   (1.88, 1.53, 0.32, 0.23), (2.08, 1.49, 0.23, 0.18),
+                   (2.27, mount[1], 0.14, 0.14), (2.34, mount[1], 0.10, 0.10))],
                  mount="gun", crease=60),
             barrel(mount, 2.30, muzzle_z - 0.09, 0.054, 0.047),
             recoil(cyl(0.058, 0.10, "z", (0.38, mount[1], muzzle_z - 0.05), mount="gun", segs=18)),
             # the roof: the loader's hatch (the remote MG's shield turns with it), the commander's scissor
             # periscope and hatch, the driver's periscopes, ventilator, aerial
-            box((0.55, 0.03, 0.55), (-0.45, H + 0.015, -0.05), mat="paint_dark"),
-            box((0.45, 0.03, 0.45), (0.40, H + 0.015, -0.55), mat="paint_dark"),
+            # Loader's hatch: a straight rear edge and rounded forward leaf from
+            # the top view. It stays a fixed hull fitting when the workshop replaces
+            # the gun; the independently aimed remote MG retains its original mount.
+            plan([[-0.74, -0.43], [-0.16, -0.43]] +
+                 [[r3(-0.45 + 0.29 * math.cos(math.pi * i / 12)),
+                   r3(0.29 * math.sin(math.pi * i / 12))] for i in range(13)],
+                 H, H + 0.025, mount="hull", mat="paint_dark"),
+            plan(chamfer_rect(0.40, -0.775, -0.325, 0.225, 0.045), H, H + 0.025,
+                 mount="hull", mat="paint_dark"),
             cyl(0.03, 0.22, "y", (0.48, H + 0.11, -0.30), mat="black"),
             box((0.10, 0.06, 0.10), (-0.40, 1.62, 1.45), rot=(-30, 0, 0), mat="black"),
             box((0.10, 0.06, 0.10), (-0.18, 1.62, 1.45), rot=(-30, 0, 0), mat="black"),
@@ -2895,11 +2912,22 @@ def hetzer(variant):
             # the engine deck: the louvred grilles on the rear slope
             box((0.85, 0.02, 0.50), (0, hz_roof(-1.75) + 0.011, -1.75), rot=(-27, 0, 0), mat="black"),
         ]
+        # Closed hatch hinges and low handles, plus a real louvre bank on the
+        # established rear deck slope. No tall blocks project through the deck.
+        parts += [cyl(0.018, 0.09, "z", (x, H + 0.035, z), mat="steel", segs=8)
+                  for x, z in ((-0.17, -0.12), (-0.17, -0.34), (0.62, -0.42), (0.62, -0.68))]
+        parts += [box((0.12, 0.012, 0.022), (x, H + 0.056, z), mat="steel")
+                  for x, z in ((-0.44, -0.22), (0.40, -0.56))]
+        parts += [box((0.018, 0.028, 0.022), (x + dx, H + 0.038, z), mat="steel")
+                  for x, z in ((-0.44, -0.22), (0.40, -0.56)) for dx in (-0.05, 0.05)]
+        parts += [box((0.81, 0.022, 0.025), (0, hz_roof(z) + 0.032, z),
+                      rot=(-27, 0, 0), mat="paint_dark")
+                  for z in (-1.53 - i * 0.045 for i in range(11))]
         plates.append(plate("gun_mantlet", "gun_mantlet", "cha", 60, (0.38, 1.52, 2.20), (0, 0, 1), (1, 0, 0), 0.24, 0.22))
         return dict(common, **{
             "id": "de_hetzer", "name": "Jagdpanzer 38(t) Hetzer", "cls": "tank_destroyer", "year": 1944,
             "based_on": "Jagdpanzer 38(t) Hetzer with the 7.5 cm PaK 39 L/48",
-            "notes": "Rebuilt from the four-view drawing supplied with the request (122 px per metre): the casemate's measured slopes, the gun offset 0.38 m to the right in the Saukopf mantlet, traverse 5 degrees left and 11 right, the remote MG 34 on the loader's side of the roof.",
+            "notes": "Procedural exterior checked against the user's cutaway and four-view drawing: low sloped casemate, broad rounded Saukopf, gun offset 0.38 m right, curved loader hatch and rear louvres. Outline sections and running-gear positions are drawing-based estimates; existing armor and interior remain simplified. Traverse 5 degrees left and 11 right; remote MG 34 on the loader's roof. Original gun and modular workshop mounts retained.",
             "H": H, "mass": 15750, "com": (0, 0.95, 0.15), "plates": plates,
             "turret_pos": (0.38, 1.27, 1.55), "turret_size": (0.70, 0.62, 1.10), "ring": 0.5, "mount": mount, "muzzle_offset": muzzle_z - mount[2],
             "yaw_limit": [-5.0, 11.0],

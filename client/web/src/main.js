@@ -17,6 +17,7 @@ import { buildMapWorld } from './game/mapworld.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks } from './game/combat.js';
 import { HitCam } from './game/hitcam.js';
+import { designReplayReport } from './game/projectileReplay.js';
 import { Missiles } from './game/missiles.js';
 import { OnlineLaunches } from './game/onlineLaunch.js';
 import { Mods } from './game/mods.js';
@@ -38,6 +39,7 @@ import { Hud, penAt } from './game/hud.js';
 import { statusViewDistance } from './game/statusview.js';
 import { nextSightWeapon, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
 import { smoothFold, foldDepression, foldYawLimit, foldedPlate } from './game/folding.js';
+import { sightProjection } from './game/optics.js';
 import { Workshop } from './game/workshop.js';
 import { makeLoadout, buildToBundle, exportFolder, checkFolder, generatedTurretParts, reloadTime, depressionAt, PRESETS, syncGunShell, nextAmmo, refillBelt, roundsLeft, refillLauncher, launcherMount, fireLauncherRound, tickLauncher } from './game/loadout.js';
 import { Bureau, storage as designStore } from './design/bureau.js';
@@ -59,7 +61,6 @@ const THIRD_FOV = 50 * DEG;
 const THIRD_ZOOM_FOV = 22 * DEG;
 const GARAGE_FOV = 34 * DEG;
 const GARAGE_MAX_DIST = 22; // the shed stands further back than this, so the view never ends up inside it
-const SCOPE_RADIUS = 0.47; // of the shorter screen side
 // how hard firing rocks the hull on its springs (1 = the recoil impulse as it is); the hull's
 // rocking carries an unstabilized gun with it, so this is not exaggerated
 const RECOIL_ROCK = 1.0;
@@ -635,6 +636,7 @@ export function start(data, saved = {}) {
 
   function select(id, keepPose = false) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
+    const keptPose = keepPose && G.veh ? { x: G.s.x, z: G.s.z, heading: G.s.heading } : null;
     const { bundle, projectiles } = bundleFor(id);
     if (G.model) {
       scene.children = scene.children.filter((c) => c !== G.model.root);
@@ -691,7 +693,11 @@ export function start(data, saved = {}) {
     G.veh = new VehicleSim(bundle, G.model, terrain);
     G.ss = G.veh.attitude();
     G.sag = { 1: { x: 1, v: 0 }, [-1]: { x: 1, v: 0 } };
-    if (!keepPose) {
+    if (keptPose) {
+      G.veh.place(keptPose.x, keptPose.z, keptPose.heading);
+      G.veh.compat(G.s);
+      G.ss = G.veh.attitude();
+    } else {
       const yaw = G.cam.yaw;
       resetPose();
       // changing vehicle in the garage keeps the angle you were looking from
@@ -998,42 +1004,7 @@ export function start(data, saved = {}) {
    * the design's own model stands as the target.
    */
   function designReport(last) {
-    const resp = last.resp;
-    const ev = resp.event;
-    const V = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
-    const imp = V(ev.impact_position);
-    const pts = ev.projectile_path.map((q) => V(q.pos));
-    const at = pts.findIndex((p) => Math.hypot(p[0] - imp[0], p[1] - imp[1], p[2] - imp[2]) < 0.05);
-    const path = at >= 0 ? pts.slice(at) : [imp];
-    const roles = (G.innerCrew || []).map((c) => c.role);
-    const used = new Set();
-    const crew = ev.damaged_crew.map((c) => {
-      const index = roles.findIndex((r, i) => r === c.role && !used.has(i));
-      used.add(index);
-      return { index, role: c.role, damage: c.damage, health: c.killed ? 0 : 100 - c.damage, killed: c.killed };
-    });
-    const res = ev.penetration_result;
-    const kg = last.shell.explosive_mass_kg || 0;
-    const bursts = res === 'penetrated' && kg > 0.01 && path.length > 1 ? [{ pos: path[path.length - 1], radius: 3.6 * Math.cbrt(kg), inside: true, explosive_kg: kg }] : [];
-    const killed = crew.filter((c) => c.killed).length;
-    const destroyed = resp.capabilities.ammo_detonated || (roles.length >= 2 && roles.length - killed < 2);
-    const title = resp.capabilities.ammo_detonated ? '彈藥殉爆　擊毀' : destroyed ? '乘員失去戰鬥力　擊毀' : killed ? `擊傷乘員 ${killed} 名` : { penetrated: '擊穿', stopped: '未擊穿', ricochet: '跳彈', shattered: '彈體碎裂', miss: '未命中' }[res] || res;
-    return {
-      hit: res !== 'miss',
-      outcome: res,
-      impact: imp,
-      plate: null,
-      path,
-      ricochet_dir: resp.ricochet_dir ? V(resp.ricochet_dir) : null,
-      bursts,
-      fragments: ev.fragments.map((f) => ({ from: V(f.origin), to: V(f.end), hit: f.hit, damage: f.damage, kind: f.is_penetrator ? 'shell' : 'spall' })),
-      modules: ev.damaged_modules.map((m) => ({ id: m.id, kind: m.kind, damage: m.damage, destroyed: m.destroyed, health: m.destroyed ? 0 : 1, max_health: 1 })),
-      crew,
-      caps: { destroyed, crew_alive: roles.length - killed, crew_total: roles.length },
-      title,
-      turret_yaw: G.T[0] ? G.T[0].yaw : 0,
-      layers: [],
-    };
+    return designReplayReport(last, (G.innerCrew || []).map(c => c.role), G.T[0] ? G.T[0].yaw : 0);
   }
 
   const testRange = new TestRange({
@@ -3854,10 +3825,8 @@ export function start(data, saved = {}) {
       const off = selectedMg ? { yaw: 0, pitch: 0 } : layError(srt);
       fwd = dirFrom(G.cam.yaw + off.yaw + jitter() * 0.004, G.cam.pitch + off.pitch + G.cam.kick + jitter() * 0.004);
       camPos = [mz.trunnion[0] + mz.dir[0] * 0.6, mz.trunnion[1] + mz.dir[1] * 0.6, mz.trunnion[2] + mz.dir[2] * 0.6];
-      const radius = Math.min(cw, ch) * SCOPE_RADIUS;
-      const pxPerRad = radius / Math.tan((level.fov_deg * DEG) / 2);
-      fovY = 2 * Math.atan(ch / 2 / pxPerRad);
-      scope = { radius, pxPerRad, level };
+      scope = { ...sightProjection(level, cw, ch), level };
+      fovY = scope.fovY;
       G.cam.fov = fovY;
     } else {
       const speedFov = Math.min(Math.abs(G.s.u) / 16, 1) * 4 * DEG;
@@ -4075,7 +4044,7 @@ export function start(data, saved = {}) {
     hud.zero(`${G.zero > 0 ? `表尺 ${G.zero} m` : '表尺 直瞄'}　自動裝表 ${G.autoZero ? '開' : '關'}`);
     hud.tick(dt);
     hud.clear();
-    hud.overlay.style.visibility = garage && !G.xray ? 'hidden' : 'visible';
+    hud.overlay.style.visibility = garage && !G.xray && !(G.protect && hitcam.active) ? 'hidden' : 'visible';
     if (G.xray) {
       const tags = [];
       for (const l of G.interior.labels) {
@@ -4092,7 +4061,6 @@ export function start(data, saved = {}) {
       }
       hud.drawLabels(tags);
     }
-    if (hitcam.active && (G.mode === 'battle' || G.mode === 'test' || G.protect)) hitcam.draw2d(hud.ctx, insetFrame);
     if (G.map && G.map.points.length && G.mode === 'battle') {
       // the capture points, over the battlefield: their circle on the ground, a marker over them
       const pts = [];
@@ -4153,6 +4121,10 @@ export function start(data, saved = {}) {
       hud.drawSight(scope.radius, scope.pxPerRad, {
         name: selectedMg ? selectedMg.m.def.name || selectedMg.m.weapon : st.sight.name,
         magnification: level.magnification,
+        edgeOpacity: scope.edgeOpacity,
+        statusWindow: G.online && G.online.dead ? null : G.statusWin,
+        pixelScale: insetFrame.scale,
+        hitcamRect: hitcam.active ? hitcam.cur.rectPx : null,
         ammo: selectedMg ? `${selectedMg.m.def.caliber_mm} mm · ${selectedMg.st.belt} 發` : sg.shell.name,
         status: sp.empty ? '彈藥耗盡' : sp.waiting ? '等裝填手' : sp.remaining > 0 ? `裝填中 ${sp.remaining.toFixed(1)} s` : '可射擊',
         ready: sp.remaining <= 0 && !sp.waiting && !(selectedMg && selectedMg.st.hot),
@@ -4163,6 +4135,7 @@ export function start(data, saved = {}) {
         blocked: G.aim.blocked,
       });
     } else if (!orbit && !testing) hud.drawAim(gunPx, aligned, G.aim.blocked);
+    if (hitcam.active && (G.mode === 'battle' || G.mode === 'test' || G.protect)) hitcam.draw2d(hud.ctx, insetFrame);
     // the main gun's reload: a ring round the aim mark (round the middle of the sight)
     if (G.mode === 'battle' && !orbit && !testing && !G.thumbShot && G.sightM < 0) {
       const pr = loading.progress(G.T[0].loading, 0);
@@ -4286,6 +4259,7 @@ export function start(data, saved = {}) {
     deploy,
     combat: () => ({ state: G.cstate, caps: G.caps, last: G.lastCombat || null }),
     hitcam: () => (hitcam.active ? { t: hitcam.cur.t, total: hitcam.cur.total, stage: hitcam.stage().name, title: hitcam.cur.rep.title, mg: hitcam.cur.mg } : null),
+    hitcamController: hitcam,
     enemyCombat: (i) => {
       const e = (G.enemies || [])[i];
       return e ? { state: e.cstate, caps: e.caps, alive: e.alive } : null;

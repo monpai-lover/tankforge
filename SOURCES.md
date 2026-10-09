@@ -204,3 +204,5 @@ MIT 授權條款要求保留版權聲明:
 
 完整研究見 `docs/claude-of-tanks-research.md`；修復驗收、折板來源及已知限制見 `docs/vehicle-fixes-2026-10-09.md` 與各車的 `folding-source.json`。
 
+- 追加原版Hetzer外形以使用者提供的剖面與四視圖作比例參考，圖面雜湊及估計邊界見 `docs/hetzer-reference-refinement-2026-10-09.md`。未使用Claude of Tanks的車輛或美術。導彈`max_g`數值從原有加速度調校推導，為遊戲估計，來源與包絡定義見 `docs/missile-flight.md`；瞄具鏡口依既有倍率/真實視場作展示映射，未據此宣稱取得實測眼距或光學品質。
+

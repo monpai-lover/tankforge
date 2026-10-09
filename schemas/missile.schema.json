@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Missile or unguided rocket",
+  "type": "object",
+  "required": ["id", "name", "guidance", "mass_kg", "caliber_mm", "length_m", "launch_speed_ms", "max_speed_ms", "boost_s", "burn_s", "drag_k", "max_range_m", "min_range_m", "turn_accel_ms2", "hp", "warhead"],
+  "properties": {
+    "id": { "type": "string" },
+    "name": { "type": "string" },
+    "guidance": { "enum": ["none", "saclos"] },
+    "mass_kg": { "type": "number", "exclusiveMinimum": 0 },
+    "caliber_mm": { "type": "number", "exclusiveMinimum": 0 },
+    "length_m": { "type": "number", "exclusiveMinimum": 0 },
+    "span_m": { "type": "number", "minimum": 0 },
+    "launch_speed_ms": { "type": "number", "minimum": 0 },
+    "max_speed_ms": { "type": "number", "minimum": 0 },
+    "boost_s": { "type": "number", "minimum": 0 },
+    "burn_s": { "type": "number", "minimum": 0 },
+    "drag_k": { "type": "number", "minimum": 0 },
+    "max_range_m": { "type": "number", "minimum": 0 },
+    "min_range_m": { "type": "number", "minimum": 0 },
+    "turn_accel_ms2": {
+      "type": "number", "minimum": 0,
+      "description": "Legacy acceleration reference. If max_g is absent, the normal-control envelope is turn_accel_ms2 / 9.80665 G. The values are alternatives, never multipliers."
+    },
+    "max_g": {
+      "type": ["number", "null"], "minimum": 0,
+      "description": "Optional normal-control load in standard gravities, including weight support and damaged-fin drift. Current fleet values are game estimates from the legacy acceleration, not measured manufacturer limits."
+    },
+    "lift": { "type": "boolean" },
+    "hp": { "type": "number", "exclusiveMinimum": 0 },
+    "warhead_share": { "type": "number", "minimum": 0, "maximum": 1 },
+    "fuse_chance": { "type": "number", "minimum": 0, "maximum": 1 },
+    "control_loss_chance": { "type": "number", "minimum": 0, "maximum": 1 },
+    "warhead": { "type": "string" },
+    "guidance_lag_s": { "type": "number", "minimum": 0, "default": 0.25 },
+    "smoke": { "type": "number", "minimum": 0 }
+  },
+  "additionalProperties": false
+}

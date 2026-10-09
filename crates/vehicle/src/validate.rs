@@ -619,7 +619,7 @@ pub fn validate_secondaries(v: &LoadedVehicle, guns: &HashMap<String, MachineGun
     r
 }
 
-/// Validates a whole `data/` tree: materials, projectiles, machine guns, every vehicle folder.
+/// Validates a whole `data/` tree: materials, projectiles, machine guns, missiles, vehicles.
 pub fn validate_tree(root: &Path) -> Report {
     let mut r = Report::default();
 
@@ -658,6 +658,13 @@ pub fn validate_tree(root: &Path) -> Report {
             }
         }
         Err(e) => r.err("L006", "machine_guns.json", e.to_string()),
+    }
+
+    // Missile definitions use the same typed loader as server and WASM, including
+    // finite, nonnegative G/acceleration/lag fields and the legacy G fallback.
+    match read_json::<Vec<tg_missile::MissileDef>>(&root.join("missiles.json")) {
+        Ok(_) => {}
+        Err(e) => r.err("L007", "missiles.json", e.to_string()),
     }
 
     match vehicle_dirs(&root.join("vehicles")) {
@@ -702,6 +709,21 @@ mod tests {
         // Every shipped vehicle, shell and material must pass with no errors and no warnings.
         let r = validate_tree(&data_root());
         assert!(r.issues.is_empty(), "\n{}", r);
+    }
+
+    #[test]
+    fn tree_validation_rejects_invalid_missile_g_data() {
+        let root = std::env::temp_dir().join(format!("tg_missile_g_validation_{}", std::process::id()));
+        std::fs::create_dir_all(root.join("projectiles")).unwrap();
+        std::fs::create_dir_all(root.join("vehicles")).unwrap();
+        std::fs::write(root.join("materials.json"), "[]").unwrap();
+        std::fs::write(root.join("machine_guns.json"), "[]").unwrap();
+        let mut missiles: serde_json::Value = read_json(&data_root().join("missiles.json")).unwrap();
+        missiles[0]["max_g"] = (-1.0).into();
+        std::fs::write(root.join("missiles.json"), serde_json::to_vec(&missiles).unwrap()).unwrap();
+        let report = validate_tree(&root);
+        assert!(report.has("L007"), "invalid missile data must enter the strict validation report: {report}");
+        std::fs::remove_dir_all(&root).unwrap();
     }
 
     #[test]

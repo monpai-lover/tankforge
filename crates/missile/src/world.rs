@@ -56,6 +56,15 @@ pub struct Missile {
     pub sight: Option<V3>,
     pub aim: Option<V3>,
     pub steer: V3,
+    /// Normal-control load this internal step, including weight support (G).
+    #[serde(default)]
+    pub g_load: f64,
+    /// Actual path-bending acceleration, excluding motor/drag acceleration (G).
+    #[serde(default)]
+    pub lateral_g: f64,
+    /// Resolved normal-control envelope; old definitions derive it from acceleration.
+    #[serde(default)]
+    pub max_g: f64,
     pub status: MStatus,
     pub hits_taken: u32,
     /// The protection system whose bullets took its controls or motor (credited if it then falls short).
@@ -278,6 +287,9 @@ impl World {
             sight: None,
             aim: None,
             steer: dir,
+            g_load: 0.0,
+            lateral_g: 0.0,
+            max_g: d.normal_accel_limit() / G,
             status: MStatus::Flying,
             hits_taken: 0,
             crippled_by: None,
@@ -373,7 +385,7 @@ impl World {
     /// Advances everything by `dt` seconds; `actors` are the vehicles as they stand now.
     pub fn step(&mut self, dt: f64, actors: &[Actor]) -> StepOut {
         let mut out = StepOut::default();
-        if !(dt > 0.0) {
+        if !(dt > 0.0) || !dt.is_finite() {
             return out;
         }
         let n = (dt / MAX_STEP).ceil().max(1.0) as usize;
@@ -562,6 +574,9 @@ impl World {
 
 /// One step of a missile's flight.
 pub fn fly(m: &mut Missile, def: &MissileDef, h: f64) {
+    if !(h > 0.0) || !h.is_finite() {
+        return;
+    }
     m.t += h;
     // the motor's schedule; then it coasts against the air
     if m.motor && m.t < def.boost_s {
@@ -572,7 +587,8 @@ pub fn fly(m: &mut Missile, def: &MissileDef, h: f64) {
         m.motor = false;
         m.speed = (m.speed - def.drag_k * m.speed * m.speed * h).max(0.0);
     }
-    let mut d = norm(m.vel);
+    let d = norm(m.vel);
+    let mut want_heading = d;
     // out of wire: it flies on, unguided, and comes down
     if m.guided && m.travelled > def.max_range_m {
         m.guided = false;
@@ -587,30 +603,68 @@ pub fn fly(m: &mut Missile, def: &MissileDef, h: f64) {
             let want = norm(sub(q, m.pos));
             let k = (h / def.guidance_lag_s.max(h)).min(1.0);
             m.steer = norm(add(m.steer, mul(sub(want, m.steer), k)));
-            // turn towards the command no faster than the fins allow
-            let max_turn = def.turn_accel_ms2 / m.speed.max(20.0) * h;
-            let c = dot(d, m.steer).clamp(-1.0, 1.0);
-            let ang = c.acos();
-            if ang > 1e-9 {
-                let f = (max_turn / ang).min(1.0);
-                d = norm(add(mul(d, 1.0 - f), mul(m.steer, f)));
-            }
+            want_heading = m.steer;
         }
     }
     if m.wobble != [0.0, 0.0] {
-        let (yaw, pitch) = yaw_pitch(d);
-        d = dir_of(yaw + m.wobble[0] * h, (pitch + m.wobble[1] * h).clamp(-1.5, 1.5));
+        let (yaw, pitch) = yaw_pitch(want_heading);
+        want_heading = dir_of(yaw + m.wobble[0] * h, (pitch + m.wobble[1] * h).clamp(-1.5, 1.5));
     }
-    // the heading carries what gravity has already bent into it; it bends a little more
-    let mut vel = mul(d, m.speed);
-    if m.falls {
-        vel[1] -= G * h;
-        m.speed = len(vel);
-    }
+    let limit = def.normal_accel_limit();
+    // Weight support spends the same force budget as turning. A low-G missile falls
+    // even with working lift; a rocket or damaged controls receive no free support.
+    let support = [0.0, if m.falls { 0.0 } else { G.min(limit) }, 0.0];
+    let (heading, control) = limited_heading(d, want_heading, m.speed, h, support, limit);
+    let base_vel = mul(d, m.speed);
+    let mut vel = mul(heading, m.speed);
+    vel[1] += (support[1] - G) * h;
+    m.speed = len(vel);
+    m.max_g = limit / G;
+    m.g_load = len(control) / G;
+    let net = mul(sub(vel, base_vel), 1.0 / h);
+    let mid_heading = norm(add(base_vel, vel));
+    m.lateral_g = len(sub(net, mul(mid_heading, dot(net, mid_heading)))) / G;
     let avg = mul(add(m.vel, vel), 0.5);
     m.pos = add(m.pos, mul(avg, h));
     m.travelled += len(avg) * h;
     m.vel = vel;
+}
+
+/// Rotate along the great-circle arc, with bounded force. Normalized linear blends
+/// do not advance by their nominal angle and degenerate at opposite commands.
+fn limited_heading(d: V3, want: V3, speed: f64, h: f64, support: V3, limit: f64) -> (V3, V3) {
+    let cosine = dot(d, want).clamp(-1.0, 1.0);
+    let angle = cosine.acos();
+    if angle < 1e-9 || speed < 1e-6 || limit <= 0.0 {
+        return (d, support);
+    }
+    let normal = sub(want, mul(d, cosine));
+    let tangent = if len(normal) > 1e-9 {
+        norm(normal)
+    } else {
+        // Antipodal commands have no preferred turn plane: choose one deterministically.
+        let reference = if d[0].abs() < 0.9 { [1.0, 0.0, 0.0] } else { [0.0, 1.0, 0.0] };
+        norm(sub(reference, mul(d, dot(reference, d))))
+    };
+    let up = dot(support, tangent);
+    let remaining = (up * up + limit * limit - dot(support, support)).max(0.0);
+    let turn_accel = (-up + remaining.sqrt()).max(0.0);
+    let mut turn = angle.min(turn_accel * h / speed.max(20.0));
+    let at = |a: f64| norm(add(mul(d, a.cos()), mul(tangent, a.sin())));
+    let force = |heading: V3| add(support, mul(sub(heading, d), speed / h));
+    let mut heading = at(turn);
+    // The finite velocity chord and the weight-support vector must also fit. This
+    // matters on pitched/downward turns, where their alignment changes within a step.
+    if len(force(heading)) > limit {
+        let (mut lo, mut hi) = (0.0, turn);
+        for _ in 0..40 {
+            let mid = (lo + hi) * 0.5;
+            if len(force(at(mid))) <= limit { lo = mid; } else { hi = mid; }
+        }
+        turn = lo;
+        heading = at(turn);
+    }
+    (heading, force(heading))
 }
 
 /// Closest approach of segments p0-p1 and q0-q1: (distance, place along p 0..1, place along q 0..1).

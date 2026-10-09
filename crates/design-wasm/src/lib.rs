@@ -233,7 +233,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 let dt: f64 = field(req, "dt")?;
                 let actors: Vec<tg_missile::Actor> = field(req, "actors")?;
                 let out = st.missiles.step(dt, &actors);
-                let missiles: Vec<Value> = st.missiles.flying().map(|m| json!({"id": m.id, "def": m.def, "owner": m.owner, "team": m.team, "pos": m.pos, "vel": m.vel, "motor": m.motor, "guided": m.guided, "hits": m.hits_taken})).collect();
+                let missiles: Vec<Value> = st.missiles.flying().map(|m| json!({"id": m.id, "def": m.def, "owner": m.owner, "team": m.team, "pos": m.pos, "vel": m.vel, "motor": m.motor, "guided": m.guided, "hits": m.hits_taken, "g_load": m.g_load, "lateral_g": m.lateral_g, "max_g": m.max_g})).collect();
                 let aps: Vec<Value> = st.missiles.aps.iter().map(|a| json!({"owner": a.owner, "mode": a.mode, "yaw": a.yaw, "pitch": a.pitch, "spin": a.spin, "heat": a.heat, "rounds": a.rounds, "rate_rpm": a.rate_rpm, "target": a.target, "range": a.target_range, "tca": a.target_tca, "firing": a.firing, "tracks": a.tracks.iter().filter(|t| t.firm).count(), "track_pos": a.tracks.iter().filter(|t| t.firm).map(|t| t.pos).collect::<Vec<_>>(), "scan": a.scan, "kills": a.kills, "enabled": a.enabled})).collect();
                 Ok(json!({"events": out.events, "fired": out.fired, "missiles": missiles, "aps": aps}))
             }

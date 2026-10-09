@@ -40,6 +40,7 @@ fn rocket(speed: f64) -> MissileDef {
         max_range_m: 5000.0,
         min_range_m: 0.0,
         turn_accel_ms2: 0.0,
+        max_g: None,
         lift: true,
         hp: 4.0,
         warhead_share: 0.35,
@@ -55,6 +56,141 @@ fn world(extra: Vec<MissileDef>) -> World {
     let mut defs = vec![MissileDef::tow()];
     defs.extend(extra);
     World::new(defs)
+}
+
+fn g_test_world(speed: f64, max_g: Option<f64>) -> (World, u32) {
+    let mut value = serde_json::to_value(MissileDef::tow()).unwrap();
+    value["launch_speed_ms"] = speed.into();
+    value["max_speed_ms"] = speed.into();
+    value["burn_s"] = 30.0.into();
+    value["max_range_m"] = 100_000.0.into();
+    value["guidance_lag_s"] = 0.0.into();
+    if let Some(g) = max_g {
+        value["max_g"] = g.into();
+    } else {
+        value.as_object_mut().unwrap().remove("max_g");
+    }
+    let def: MissileDef = serde_json::from_value(value).unwrap();
+    let mut w = World::new(vec![def]);
+    let id = w.launch("bgm71a_tow", 99, 1, [0.0, 1000.0, 0.0], [0.0, 0.0, 1.0], 1).unwrap();
+    w.missiles[0].travelled = 100.0;
+    (w, id)
+}
+
+fn telemetry(m: &Missile, field: &str) -> f64 {
+    serde_json::to_value(m).unwrap()[field].as_f64().unwrap_or(f64::NAN)
+}
+
+#[test]
+fn max_g_caps_actual_control_load_and_high_speed_turn_radius() {
+    let max_g = 2.0;
+    let lateral_limit = ((max_g * G).powi(2) - G * G).sqrt();
+    let mut radii = Vec::new();
+    for speed in [150.0, 300.0, 600.0] {
+        let (mut w, id) = g_test_world(speed, Some(max_g));
+        let before = w.missile(id).unwrap().vel;
+        w.guide(id, 99, [0.0, 1000.0, 0.0], [10_000.0, 1000.0, 0.0]);
+        w.step(MAX_STEP, &[]);
+        let m = w.missile(id).unwrap();
+        let load = len(add(mul(sub(m.vel, before), 1.0 / MAX_STEP), [0.0, G, 0.0])) / G;
+        assert!(load <= max_g + 1e-8, "{speed} m/s turn used {load} G, limit {max_g}");
+        let angle = dot(norm(before), norm(m.vel)).clamp(-1.0, 1.0).acos();
+        let radius = speed * MAX_STEP / angle;
+        let expected = speed * speed / lateral_limit;
+        assert!(radius >= expected * (1.0 - 1e-6), "{speed} m/s: radius {radius} below {expected}");
+        assert!(radius < expected * 1.001, "saturated turn should use its available budget");
+        assert!((telemetry(m, "g_load") - load).abs() < 1e-8);
+        assert!((telemetry(m, "max_g") - max_g).abs() < 1e-12);
+        radii.push(radius);
+    }
+    assert!((radii[1] / radii[0] - 4.0).abs() < 0.001);
+    assert!((radii[2] / radii[1] - 4.0).abs() < 0.001);
+}
+
+#[test]
+fn command_jumps_and_damage_drift_share_the_normal_load_envelope() {
+    let max_g = 3.0;
+    let (mut w, id) = g_test_world(600.0, Some(max_g));
+    for direction in [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]] {
+        let sight = w.missile(id).unwrap().pos;
+        w.guide(id, 99, sight, add(sight, mul(direction, 10_000.0)));
+        for _ in 0..24 {
+            let before = w.missile(id).unwrap().vel;
+            // Even severe damaged-fin drift must not bypass the force budget.
+            w.missiles[0].wobble = [100.0, -100.0];
+            w.step(MAX_STEP, &[]);
+            let m = w.missile(id).unwrap();
+            let load = len(add(mul(sub(m.vel, before), 1.0 / MAX_STEP), [0.0, G, 0.0])) / G;
+            assert!(load <= max_g + 1e-8, "direction {direction:?}: {load} G");
+            let angle = dot(norm(before), norm(m.vel)).clamp(-1.0, 1.0).acos();
+            assert!(angle <= (max_g + 1.0) * G * MAX_STEP / 600.0 + 1e-8);
+            assert!(finite(m.vel) && finite(m.pos));
+        }
+    }
+}
+
+#[test]
+fn legacy_acceleration_and_guidance_lag_remain_compatible() {
+    let (mut w, id) = g_test_world(300.0, None);
+    w.guide(id, 99, [0.0, 1000.0, 0.0], [10_000.0, 1000.0, 0.0]);
+    w.step(MAX_STEP, &[]);
+    let m = w.missile(id).unwrap();
+    assert!((telemetry(m, "max_g") - 60.0 / G).abs() < 1e-12, "legacy acceleration supplies the G estimate");
+    assert!(telemetry(m, "g_load") <= 60.0 / G + 1e-8);
+    let fast_angle = yaw_pitch(m.vel).0;
+    let (mut lagged, lag_id) = g_test_world(300.0, None);
+    lagged.defs.get_mut("bgm71a_tow").unwrap().guidance_lag_s = 20.0;
+    lagged.guide(lag_id, 99, [0.0, 1000.0, 0.0], [10_000.0, 1000.0, 0.0]);
+    lagged.step(MAX_STEP, &[]);
+    assert!(yaw_pitch(lagged.missile(lag_id).unwrap().vel).0 < fast_angle);
+}
+
+#[test]
+fn low_g_lift_cannot_cancel_gravity_for_free() {
+    let (mut w, id) = g_test_world(300.0, Some(0.5));
+    w.step(MAX_STEP, &[]);
+    let m = w.missile(id).unwrap();
+    assert!((m.vel[1] + 0.5 * G * MAX_STEP).abs() < 1e-10);
+    assert!((telemetry(m, "g_load") - 0.5).abs() < 1e-10);
+}
+
+#[test]
+fn g_limited_guidance_is_independent_of_outer_step_size() {
+    let (mut a, id) = g_test_world(600.0, Some(2.0));
+    a.guide(id, 99, [0.0, 1000.0, 0.0], [-10_000.0, 5000.0, -10_000.0]);
+    let mut b = a.clone();
+    a.step(0.1, &[]);
+    for _ in 0..12 {
+        b.step(MAX_STEP, &[]);
+    }
+    assert!(dist(a.missile(id).unwrap().pos, b.missile(id).unwrap().pos) < 1e-10);
+    assert!(dist(a.missile(id).unwrap().vel, b.missile(id).unwrap().vel) < 1e-10);
+    assert!(telemetry(a.missile(id).unwrap(), "g_load") <= 2.0 + 1e-8);
+}
+
+#[test]
+fn unguided_rocket_ignores_guidance_even_with_an_optional_g_limit() {
+    let mut value = serde_json::to_value(rocket(135.0)).unwrap();
+    value["max_g"] = 100.0.into();
+    value["lift"] = false.into();
+    let def: MissileDef = serde_json::from_value(value).unwrap();
+    let mut w = World::new(vec![def.clone()]);
+    let id = w.launch(&def.id, 99, 1, [0.0, 1000.0, 0.0], [0.0, 0.0, 1.0], 1).unwrap();
+    w.guide(id, 99, [0.0, 1000.0, 0.0], [10_000.0, 5000.0, 0.0]);
+    w.step(MAX_STEP, &[]);
+    let m = w.missile(id).unwrap();
+    assert_eq!(m.vel[0], 0.0);
+    assert!((m.vel[1] + G * MAX_STEP).abs() < 1e-12);
+    assert_eq!(telemetry(m, "g_load"), 0.0);
+}
+
+#[test]
+fn negative_g_and_invalid_legacy_acceleration_are_rejected_when_loading() {
+    for (field, invalid) in [("max_g", -1.0), ("turn_accel_ms2", -1.0), ("guidance_lag_s", -0.1)] {
+        let mut value = serde_json::to_value(MissileDef::tow()).unwrap();
+        value[field] = invalid.into();
+        assert!(serde_json::from_value::<MissileDef>(value).is_err(), "{field} accepts {invalid}");
+    }
 }
 
 /// Elevation (rad) that brings an unguided rocket from `from` down through `target`, found by

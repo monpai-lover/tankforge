@@ -10,3 +10,4 @@ tg-shared.workspace = true
 tg-armor.workspace = true
 tg-weapon.workspace = true
 tg-damage.workspace = true
+tg-missile.workspace = true
