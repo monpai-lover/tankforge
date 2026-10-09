@@ -41,6 +41,7 @@ import { nextSightWeapon, machineGunTrigger, ammoKeyIndex } from './game/weapons
 import { smoothFold, foldDepression, foldYawLimit, foldedPlate } from './game/folding.js';
 import { sightProjection } from './game/optics.js';
 import { Workshop } from './game/workshop.js';
+import { normalizeWorkshopBuild } from './game/workshopBuild.js';
 import { makeLoadout, buildToBundle, exportFolder, checkFolder, generatedTurretParts, reloadTime, depressionAt, PRESETS, syncGunShell, nextAmmo, refillBelt, roundsLeft, refillLauncher, launcherMount, fireLauncherRound, tickLauncher } from './game/loadout.js';
 import { Bureau, storage as designStore } from './design/bureau.js';
 import { newDesign, arrange } from './design/templates.js';
@@ -268,7 +269,7 @@ export function start(data, saved = {}) {
   let storedBuild = null;
   try {
     const b = JSON.parse(store.get(STORE_BUILD) || 'null');
-    if (b && data.vehicles[b.base] && Array.isArray(b.turrets)) storedBuild = b;
+    if (b) storedBuild = normalizeWorkshopBuild(b, data);
   } catch {
     storedBuild = null;
   }
@@ -283,7 +284,7 @@ export function start(data, saved = {}) {
     sightG: 0,
     sightM: -1,
     model: null,
-    build: storedBuild || JSON.parse(JSON.stringify(PRESETS.hexa.build)),
+    build: storedBuild || normalizeWorkshopBuild(PRESETS.hexa.build, data),
     customStats: null,
     workshop: false,
     info: { speedKmh: 0, gear: 0, rpm: 0, trackSlip: 0, reversing: false, trackSpeedL: 0, trackSpeedR: 0, throttleLoad: 0, slipL: 0, slipR: 0, sinkage: 0, forceL: 0, forceR: 0 },
@@ -419,7 +420,7 @@ export function start(data, saved = {}) {
     if (b) return b;
     if (G.id === 'custom') {
       const base = data.vehicles[G.build.base];
-      const f = exportFolder(G.build, data, { armor: base.armor, modules: base.modules, crew: base.crew }, 'custom', 'custom').files;
+      const f = exportFolder(G.build, data, { armor: base.armor, modules: base.modules, crew: base.crew }, 'custom', 'custom', { includeModel: false }).files;
       return { vehicle: G.loadout.vehicle, armor: f['armor.json'], modules: f['modules.json'], crew: f['crew.json'] };
     }
     return null;
@@ -630,8 +631,7 @@ export function start(data, saved = {}) {
   /** Reload seconds shown to the player for gun gi of turret ti (first loader). */
   function reloadShown(ti, gi) {
     const t = G.loadout.turrets[ti];
-    const layout = t.guns.some((g) => g.rack);
-    return reloadTime(t, gi, 0) * (layout && t.loaders.length === 0 ? 1.6 : 1);
+    return reloadTime(t, gi, 0) * (t.guns[gi].rack && t.loaders.length === 0 ? 1.6 : 1);
   }
 
   function select(id, keepPose = false) {
@@ -651,13 +651,12 @@ export function start(data, saved = {}) {
     G.params = phys.makeParams(bundle.vehicle, bundle.engine);
     G.firedAt = [];
     G.T = G.loadout.turrets.map((t) => {
-      const layout = t.guns.some((g) => g.rack);
       return {
         yaw: t.facing,
         bearing: true,
         yawErr: 0,
         guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, recoil: 0, recoilT: -1, smoke: 0 })),
-        loading: loading.newLoading(t.guns.length, layout ? t.loaders.length : t.guns.length),
+        loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)),
       };
     });
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.loaded < 0 && (G.T[ti].loading.state[gi] = 'empty')));
@@ -679,7 +678,7 @@ export function start(data, saved = {}) {
     let inner = bundle;
     if (id === 'custom') {
       const base = data.vehicles[G.build.base];
-      const f = exportFolder(G.build, data, { armor: base.armor, modules: base.modules, crew: base.crew }, 'custom', 'custom').files;
+      const f = exportFolder(G.build, data, { armor: base.armor, modules: base.modules, crew: base.crew }, 'custom', 'custom', { includeModel: false }).files;
       inner = { modules: f['modules.json'], crew: f['crew.json'] };
     }
     const mounts = bundle.design ? { modules: bundle.design.turret_modules || [], crew: bundle.design.turret_crew || [] } : null;
@@ -893,15 +892,18 @@ export function start(data, saved = {}) {
     data,
     getBuild: () => G.build,
     apply(build) {
+      const previous = G.build;
       G.build = build;
+      try { select('custom', G.id === 'custom'); }
+      catch (err) { G.build = previous; select('custom', true); throw err; }
       store.set(STORE_BUILD, JSON.stringify(build));
-      select('custom', G.id === 'custom');
-      const off = build.keepStock ? 1 : 0;
       const st = G.customStats;
+      const off = st.stockTurrets;
       return {
         mass: st.mass,
         hpPerTon: st.hpPerTon,
         guns: st.guns,
+        stockTurrets: st.stockTurrets,
         salvoMomentum: st.salvoMomentum,
         reloads: build.turrets.map((t, i) => t.guns.map((_, gi) => (G.loadout.turrets[i + off] ? reloadShown(i + off, gi) : null))),
         traverse: st.turrets.map((t) => t.traverse_deg_s),
@@ -911,7 +913,7 @@ export function start(data, saved = {}) {
     exportText() {
       const base = data.vehicles[G.build.base];
       const out = exportFolder(G.build, data, { armor: base.armor, modules: base.modules, crew: base.crew }, 'my_tank', '自訂戰車');
-      return JSON.stringify({ build: G.build, files: out.files, projectiles: out.projectiles }, null, 1);
+      return JSON.stringify({ build: G.build, files: out.files, projectiles: out.projectiles, missiles: out.missiles, machineGuns: out.machineGuns }, null, 1);
     },
   });
 

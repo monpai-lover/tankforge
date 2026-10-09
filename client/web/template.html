@@ -392,10 +392,11 @@ body:not([data-mode="battle"]) #hud { display: none; }
 #workshop { top: 68px; right: var(--gutter); width: min(340px, calc(100% - 2 * var(--gutter))); max-height: calc(100% - 68px - var(--gutter)); overflow-y: auto; }
 .ws-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ws-head h2 { margin: 0; color: var(--ink); font-size: 15px; }
-.ws-note { margin: 6px 0 8px; font-size: 12px; color: var(--dim); }
+.ws-note { margin: 6px 0 8px; font-size: 12px; line-height: 1.5; color: var(--dim); overflow-wrap: anywhere; }
 .ws-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
 .ws-btn { padding: 4px 9px; background: rgba(236, 232, 217, 0.08); border: 1px solid var(--line); color: var(--ink); font-size: 12.5px; cursor: pointer; }
 .ws-btn:hover { border-color: var(--amber); }
+.ws-x:disabled { opacity: .45; cursor: default; }
 .ws-btn:focus-visible, .ws-x:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
 .ws-wide { width: 100%; margin: 4px 0 8px; }
 .ws-x { margin-left: 8px; padding: 1px 7px; background: transparent; border: 1px solid var(--line); color: var(--dim); font-size: 11.5px; cursor: pointer; }
@@ -405,6 +406,7 @@ body:not([data-mode="battle"]) #hud { display: none; }
 .ws-field input[type="range"] { width: 100%; min-width: 0; accent-color: var(--amber); }
 .ws-field output { text-align: right; font-family: var(--display); font-variant-numeric: tabular-nums; }
 .ws-field select { grid-column: 2 / 4; min-width: 0; padding: 3px 4px; background: #23261d; border: 1px solid var(--line); color: var(--ink); font: inherit; font-size: 12.5px; }
+.ws-field select:focus-visible, .ws-field input:focus-visible, .ws-export textarea:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
 .ws-check { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; font-size: 12.5px; }
 .ws-check input { accent-color: var(--amber); }
 .ws-card { margin: 0 0 8px; padding: 6px 8px 8px; border: 1px solid var(--line); min-width: 0; }
@@ -413,6 +415,7 @@ body:not([data-mode="battle"]) #hud { display: none; }
 .ws-gun-head { display: flex; align-items: baseline; gap: 8px; margin-bottom: 3px; font-size: 12.5px; font-weight: 600; }
 .ws-gun-head .ws-x { margin-left: auto; }
 .ws-info { display: block; font-family: var(--display); font-size: 12px; color: var(--ok); font-variant-numeric: tabular-nums; }
+.ws-info[data-error="1"] { color: var(--warn); }
 .ws-gun-head .ws-info { display: inline; }
 .ws-summary { margin: 6px 0; padding: 6px 8px; border-left: 3px solid var(--ok); background: rgba(236, 232, 217, 0.06); font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .ws-summary[data-heavy="1"] { border-left-color: var(--warn); }
@@ -876,7 +879,7 @@ body[data-touch="1"] .tr-fire { display: block; }
       <h2>改裝工坊</h2>
       <button type="button" id="ws-close" class="tool">完成</button>
     </header>
-    <p class="ws-note">按住滑鼠拖曳畫面可繞著戰車看。裝填時間由彈重、彈藥架到炮閂的距離和裝填手人數決定；一個裝填手一次只能裝一門炮。</p>
+    <p class="ws-note">選底盤、武器、瞄具和穩定器，拖曳畫面查看改裝。設計火炮依彈重與佈局裝填；機關炮與導彈沿用各自的彈鏈、發射管和裝填週期。</p>
     <div id="ws-body"></div>
   </section>
 

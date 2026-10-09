@@ -184,10 +184,10 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     top = Math.max(top, p.hi[1]);
   }
   setFold(0);
-  const impTurret = imp && imp.parts.some((p) => p.mount === 'turret' || p.mount === 'gun' || p.mount === 'barrel');
   const turrets = [];
   loadout.turrets.forEach((t, ti) => {
     const own = visual.parts.filter((p) => (p.mount === 'turret' || p.mount === 'gun') && (p.turret || 0) === ti);
+    const impTurret = imp && imp.parts.some((p) => (p.mount === 'turret' || p.mount === 'gun' || p.mount === 'barrel') && (p.turret || 0) === ti);
     const parts = own.length ? own : impTurret ? [] : generatedTurretParts(t, ti);
     const shell = new GeoBuilder();
     for (const p of parts) if (p.mount === 'turret') addPart(shell, p, t.pivot, mats);

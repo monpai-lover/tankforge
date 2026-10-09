@@ -8,6 +8,7 @@ import * as design from '../sim/design.js';
 import { rangeTable } from '../sim/ballistics.js';
 import { bulletOf } from '../sim/mg.js';
 import { fired as queueReload } from '../sim/loading.js';
+import { workshopImportedModel, exportWorkshopModel } from './workshopImported.js';
 
 export const SIGHT_RANGES = Array.from({ length: 30 }, (_, i) => (i + 1) * 100);
 export const DEFAULT_RANGEFINDER = { time_s: 2.5, error_pct: 5, max_range_m: 2500 };
@@ -171,6 +172,8 @@ export function reloadTime(turret, gunIdx, loaderIdx) {
     const interval = 60 / Math.max(1, auto.rate_rpm);
     return auto.spin_up_s > 0 ? interval / Math.max(0.12, g.spin) : interval;
   }
+  // Refill a launcher assembly using its source cycle, rather than treating missiles as shells.
+  if (g.def.missile) return g.def.reload_s;
   // Layout-driven when the vehicle says where its loaders and racks are; otherwise the gun's data value.
   if (g.rack && turret.loaders.length) {
     const loader = turret.loaders[Math.min(loaderIdx, turret.loaders.length - 1)];
@@ -272,6 +275,17 @@ export function generatedTurretParts(turret, idx) {
     const r = cal * 0.0009 + 0.02;
     const [tx, ty, tz] = g.trunnion;
     const G = (p) => T({ ...p, mount: 'gun', gun: j });
+    if (g.def.missile) {
+      const vectors = g.def.launcher?.muzzle_vectors_m || [g.muzzleVector || [0, 0, g.muzzleOffset]];
+      const len = Math.max(.1, g.def.barrel_length_mm / 1000);
+      parts.push(G({ type: 'box', mat: 'paint', size: [.24, .18, .24], pos: [tx, ty - .12, tz] }));
+      for (const v of vectors) {
+        // The renderer opens recoil-mounted cylinders at the bore. Missile recoil is zero;
+        // routing the tube through that node gives it a real open mouth without a cannon brake.
+        parts.push(G({ type: 'cyl', mat: 'paint', r: cal / 2000 + .003, len, axis: 'z', pos: [tx + v[0], ty + v[1], tz + v[2] - len / 2], segs: 18, recoil: true }));
+      }
+      return;
+    }
     parts.push(G({ type: 'box', mat: 'paint', size: [0.3 + cal * 0.004, 0.26 + cal * 0.004, 0.18], pos: [tx, ty, tz + 0.1] }));
     parts.push(G({ type: 'cyl', mat: 'paint', r: r * 1.9, r2: r * 1.4, len: 0.3, axis: 'z', pos: [tx, ty, tz + 0.3], segs: 14 }));
     const m0 = tz + 0.42;
@@ -329,10 +343,28 @@ function arcLimit(arc) {
 }
 
 /** Geometry of one workshop turret on a given hull. */
-function layoutTurret(spec, hull, idx) {
+function layoutTurret(spec, hull, idx, data) {
   const H = hull.size_m[1];
   const W = hull.size_m[0];
-  const designs = spec.guns.map((g) => design.designGun(g.cal, g.len));
+  const designs = spec.guns.map((g) => {
+    if (!g.weapon || g.weapon === 'custom') {
+      const d = design.designGun(g.cal, g.len);
+      return { ...d, shells: [d.shell] };
+    }
+    const source = data.vehicles[g.weapon];
+    if (!source?.weapons?.main_gun) throw new Error(`Unknown workshop weapon: ${g.weapon}`);
+    const gun = structuredClone(source.weapons.main_gun);
+    const shells = gun.ammo.map(id => {
+      const shell = data.projectiles[id];
+      if (!shell) throw new Error(`Missing workshop ammunition: ${id}`);
+      return shell;
+    });
+    const muzzleOffset = source.weapons.muzzle_offset_m ?? gun.barrel_length_mm / 1000;
+    // A source model may use an off-axis hinge. The generated ordinary barrel is neutral;
+    // launcher tubes keep their independently measured offsets about the shared hinge.
+    gun.muzzle_vector_m = gun.missile ? (gun.launcher?.muzzle_vectors_m?.[0] || [0, 0, muzzleOffset]).slice() : [0, 0, muzzleOffset];
+    return { gun, shell: shells[0], shells, muzzleOffset, sourceVehicle: g.weapon };
+  });
   const maxCal = Math.max(...designs.map((d) => d.gun.caliber_mm));
   const th = r3(clamp(0.5 + maxCal * 0.0035, 0.55, 1.1));
   const tw = r3(spec.ring * 1.22 + 0.1);
@@ -341,7 +373,7 @@ function layoutTurret(spec, hull, idx) {
   const n = designs.length;
   const spacing = Math.min((tw * 0.8) / n, Math.max(0.26, maxCal * 0.004 + 0.14));
   const gunsMass = designs.reduce((s, d) => s + d.gun.mass_kg, 0);
-  const traverse = Math.round(design.traverseRate(spec.ring, gunsMass) * 10) / 10;
+  const traverse = designs[0].sourceVehicle ? designs[0].gun.traverse_deg_s : Math.round(design.traverseRate(spec.ring, gunsMass) * 10) / 10;
   const rack =
     spec.rack === 'hull_floor'
       ? [r3(pivot[0] * 0.5), 0.55, pivot[2]]
@@ -353,15 +385,20 @@ function layoutTurret(spec, hull, idx) {
   for (let k = 0; k < spec.loaders; k++) loaders.push([r3(pivot[0] + (k % 2 ? -1 : 1) * spec.ring * 0.27), r3(pivot[1] + 0.3), r3(pivot[2] - 0.12 - Math.floor(k / 2) * 0.3)]);
   const guns = designs.map((d, j) => {
     const off = (j - (n - 1) / 2) * spacing;
-    d.gun.traverse_deg_s = traverse;
+    if (!d.sourceVehicle) d.gun.traverse_deg_s = traverse;
     return {
       gun: d.gun,
       shell: d.shell,
+      shells: d.shells,
+      ...(d.sourceVehicle ? { sourceVehicle: d.sourceVehicle } : {}),
       mount_m: [r3(pivot[0] + off), r3(pivot[1] + th * 0.5), r3(pivot[2] + tl / 2 - 0.12)],
-      muzzle_offset_m: r3((d.gun.barrel_length_mm / 1000) * 0.86),
-      rack_m: rack,
+      muzzle_offset_m: d.muzzleOffset ?? r3((d.gun.barrel_length_mm / 1000) * 0.86),
+      // Retain a transplanted gun's published loading cycle. Designed guns use crew layout.
+      rack_m: d.sourceVehicle ? null : rack,
     };
   });
+  const sourceSight = spec.sightSource && data.vehicles[spec.sightSource]?.weapons.sight;
+  if (spec.sightSource && !sourceSight) throw new Error(`Unknown workshop sight: ${spec.sightSource}`);
   return {
     id: 't' + idx,
     position_m: pivot,
@@ -371,7 +408,9 @@ function layoutTurret(spec, hull, idx) {
     facing_deg: spec.facing,
     yaw_limit_deg: arcLimit(spec.arc),
     loaders_m: loaders,
-    sight: { name: '工坊瞄準鏡', levels: [{ magnification: 3, fov_deg: 16 }, { magnification: 6, fov_deg: 8 }], rangefinder: { time_s: 1.8, error_pct: 3, max_range_m: 3000 } },
+    sight: sourceSight ? structuredClone(sourceSight) : { name: '工坊瞄準鏡', levels: [{ magnification: 3, fov_deg: 16 }, { magnification: 6, fov_deg: 8 }], rangefinder: { time_s: 1.8, error_pct: 3, max_range_m: 3000 } },
+    stabilizer: spec.stabilizer === 'both' ? 'two_plane' : spec.stabilizer || 'none',
+    rack_m: rack,
     guns,
     // no roof and thinner walls: an open-topped turret weighs about a quarter less
     mass: design.turretMassKg(spec.ring, gunsMass) * (spec.open ? 0.75 : 1),
@@ -388,12 +427,17 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
   const base = data.vehicles[build.base];
   const hull = base.vehicle.hull;
   const projectiles = {};
-  const layouts = build.turrets.slice(0, MAX_TURRETS).map((t, i) => layoutTurret(t, hull, i + 1));
-  for (const t of layouts) for (const g of t.guns) projectiles[g.shell.id] = g.shell;
+  const layouts = build.turrets.slice(0, MAX_TURRETS).map((t, i) => layoutTurret(t, hull, i + 1, data));
+  for (const t of layouts) for (const g of t.guns) for (const shell of g.shells) projectiles[shell.id] = shell;
+  const retainStock = build.keepStock || layouts.length === 0;
+  const stockTurrets = retainStock ? 1 + (base.weapons.extra_turrets || []).length : 0;
+  const stockGuns = retainStock ? [base.weapons.main_gun, ...(base.weapons.extra_guns || []).map(g => g.gun), ...(base.weapons.extra_turrets || []).flatMap(t => t.guns.map(g => g.gun))] : [];
+  for (const gun of stockGuns) for (const ammo of gun.ammo) projectiles[ammo] = data.projectiles[ammo];
 
-  const stockMass = design.turretMassKg(base.vehicle.turret.ring_diameter_m, base.weapons.main_gun.mass_kg);
+  const stockMass = design.turretMassKg(base.vehicle.turret.ring_diameter_m, base.weapons.main_gun.mass_kg + (base.weapons.extra_guns || []).reduce((s, g) => s + g.gun.mass_kg, 0))
+    + (base.weapons.extra_turrets || []).reduce((s, t) => s + design.turretMassKg(t.ring_diameter_m, t.guns.reduce((a, g) => a + g.gun.mass_kg, 0)), 0);
   const addedMass = layouts.reduce((s, t) => s + t.mass, 0);
-  const mass = Math.round(hull.mass_kg - (build.keepStock ? 0 : stockMass) + addedMass);
+  const mass = Math.round(hull.mass_kg - (retainStock ? 0 : stockMass) + addedMass);
 
   const strip = (t) => ({
     id: t.id,
@@ -405,6 +449,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     ...(t.yaw_limit_deg ? { yaw_limit_deg: t.yaw_limit_deg } : {}),
     loaders_m: t.loaders_m,
     sight: t.sight,
+    stabilizer: t.stabilizer,
     ...(t.open_top ? { open_top: true } : {}),
     guns: t.guns.map((g) => ({ gun: g.gun, mount_m: g.mount_m, muzzle_offset_m: g.muzzle_offset_m, rack_m: g.rack_m })),
   });
@@ -412,7 +457,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
   let weapons;
   let turretDef;
   let extra;
-  if (build.keepStock || layouts.length === 0) {
+  if (retainStock) {
     weapons = { ...base.weapons };
     turretDef = base.vehicle.turret;
     extra = layouts;
@@ -424,6 +469,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
       mount_m: g0.mount_m,
       muzzle_offset_m: g0.muzzle_offset_m,
       sight: first.sight,
+      stabilizer: first.stabilizer,
       secondary: [],
       rack_m: g0.rack_m,
       loaders_m: first.loaders_m,
@@ -434,9 +480,9 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     turretDef = { size_m: first.size_m, ring_diameter_m: first.ring_diameter_m, position_m: first.position_m, ...(first.open_top ? { open_top: true } : {}) };
     extra = rest;
   }
-  weapons.extra_turrets = extra.map(strip);
+  weapons.extra_turrets = [...(retainStock ? base.weapons.extra_turrets || [] : []), ...extra.map(strip)];
 
-  const hullParts = base.visual.parts.filter((p) => build.keepStock || !(p.mount === 'turret' || p.mount === 'gun'));
+  const hullParts = base.visual.parts.filter((p) => retainStock || !(p.mount === 'turret' || p.mount === 'gun'));
   const barbettes = layouts
     .filter((t) => t.lift > 0.02)
     .map((t) => ({ type: 'cyl', mount: 'hull', mat: 'paint_dark', r: r3(t.ring_diameter_m * 0.5), len: r3(t.lift), axis: 'y', pos: [t.position_m[0], r3(hull.size_m[1] + t.lift / 2), t.position_m[2]], segs: 20 }));
@@ -445,17 +491,21 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     ...base.vehicle,
     id,
     name,
-    meta: { nation: 'fictional', based_on: `workshop build on ${base.vehicle.id}`, notes: 'Generated by the workshop; gun and shell values come from tg_weapon::design.' },
+    meta: { nation: 'fictional', based_on: `workshop build on ${base.vehicle.id}`, notes: 'Generated by the workshop; designed guns use tg_weapon::design and source weapons retain their existing definitions.' },
     hull: { ...hull, mass_kg: mass },
     turret: turretDef,
   };
-  const bundle = { vehicle, weapons, engine: base.engine, visual: { ...base.visual, parts: [...hullParts, ...barbettes] } };
+  const imported = workshopImportedModel(base, retainStock);
+  if (imported) vehicle.model = 'model.json';
+  else delete vehicle.model;
+  const bundle = { vehicle, weapons, engine: base.engine, visual: { ...base.visual, parts: [...hullParts, ...barbettes] }, imported };
   const hp = base.engine.engine.horsepower;
   const stats = {
     mass,
     hpPerTon: hp / (mass / 1000),
-    guns: layouts.reduce((s, t) => s + t.guns.length, 0) + (build.keepStock ? 1 : 0),
-    salvoMomentum: layouts.reduce((s, t) => s + t.guns.reduce((a, g) => a + g.shell.mass_kg * g.shell.muzzle_velocity_ms * 1.3, 0), 0),
+    guns: layouts.reduce((s, t) => s + t.guns.length, 0) + stockGuns.length,
+    stockTurrets,
+    salvoMomentum: layouts.reduce((s, t) => s + t.guns.reduce((a, g) => a + (g.gun.missile ? 0 : g.shell.mass_kg * g.shell.muzzle_velocity_ms * 1.3), 0), 0),
     turrets: layouts,
   };
   return { bundle, projectiles, stats, layouts };
@@ -471,13 +521,15 @@ const crewman = (role, p) => ({ role, pos: { x: r3(p[0]), y: r3(p[1]), z: r3(p[2
  * Full vehicle folder for a workshop build, as {filename: json}. Armour, modules and crew for
  * the generated turrets are laid out automatically; base-vehicle files are needed for the hull.
  * baseFiles = {armor, modules, crew} of the base vehicle (data-format arrays).
+ * options.includeModel=false is only for live internal use; independent exports include model.json.
  */
-export function exportFolder(build, data, baseFiles, id, name) {
-  const { bundle, projectiles, layouts } = buildToBundle(build, data, id, name);
+export function exportFolder(build, data, baseFiles, id, name, options = {}) {
+  const { bundle, projectiles, layouts, stats } = buildToBundle(build, data, id, name);
+  const retainStock = stats.stockTurrets > 0;
   const TURRET_KINDS = ['gun_breech', 'gun_barrel', 'ammo_rack', 'turret_drive', 'horizontal_drive', 'vertical_drive'];
-  const armor = baseFiles.armor.filter((p) => build.keepStock || p.zone.startsWith('hull'));
-  const modules = baseFiles.modules.filter((m) => build.keepStock || !TURRET_KINDS.includes(m.kind));
-  const crew = baseFiles.crew.filter((c) => build.keepStock || c.role === 'driver' || c.role === 'radio_operator');
+  const armor = baseFiles.armor.filter((p) => retainStock || p.zone.startsWith('hull'));
+  const modules = baseFiles.modules.filter((m) => retainStock || !TURRET_KINDS.includes(m.kind));
+  const crew = baseFiles.crew.filter((c) => retainStock || c.role === 'driver' || c.role === 'radio_operator');
   layouts.forEach((t, i) => {
     const [px, py, pz] = t.position_m;
     const [tw, th, tl] = t.size_m;
@@ -494,17 +546,27 @@ export function exportFolder(build, data, baseFiles, id, name) {
       modules.push(mod(`breech${s}_${j}`, 'gun_breech', [tx, ty, tz - 0.4], [0.11, 0.11, 0.24], 90));
       modules.push(mod(`gun_barrel${s}_${j}`, 'gun_barrel', [tx, ty, tz + g.muzzle_offset_m / 2 + 0.2], [0.08, 0.08, r3(g.muzzle_offset_m / 2 - 0.2)], 110));
     });
-    const rack = t.guns[0].rack_m;
+    const rack = t.rack_m;
     modules.push(mod('ammo_rack' + s, 'ammo_rack', rack, [0.2, 0.12, 0.12], 50));
     modules.push(mod('turret_drive' + s, 'turret_drive', [px - tw * 0.3, py + 0.1, pz - tl * 0.05], [0.1, 0.08, 0.12], 70));
     crew.push(crewman('gunner', [px - t.ring_diameter_m * 0.27, py + 0.3, pz + 0.12]));
     t.loaders_m.forEach((l) => crew.push(crewman('loader', l)));
-    if (i === 0 && !build.keepStock) crew.push(crewman('commander', [px + t.ring_diameter_m * 0.05, py + 0.38, pz - t.ring_diameter_m * 0.36]));
+    if (i === 0 && !retainStock) crew.push(crewman('commander', [px + t.ring_diameter_m * 0.05, py + 0.38, pz - t.ring_diameter_m * 0.36]));
   });
   const vehicle = { ...bundle.vehicle, files: { armor: 'armor.json', weapons: 'weapons.json', engine: 'engine.json', crew: 'crew.json', modules: 'modules.json', visual: 'visual.json' } };
+  const files = { 'vehicle.json': vehicle, 'armor.json': armor, 'weapons.json': bundle.weapons, 'engine.json': bundle.engine, 'crew.json': crew, 'modules.json': modules, 'visual.json': bundle.visual };
+  if (options.includeModel !== false) {
+    const model = exportWorkshopModel(data.vehicles[build.base], retainStock, data);
+    if (model) files['model.json'] = model;
+  }
+  const guns = [bundle.weapons.main_gun, ...(bundle.weapons.extra_guns || []).map(g => g.gun), ...(bundle.weapons.extra_turrets || []).flatMap(t => t.guns.map(g => g.gun))];
+  const missiles = Object.fromEntries(guns.filter(g => g.missile).map(g => [g.missile, data.missiles[g.missile]]));
+  const machineGuns = Object.fromEntries((bundle.weapons.secondary || []).map(g => [g.weapon, data.machineGuns[g.weapon]]));
   return {
-    files: { 'vehicle.json': vehicle, 'armor.json': armor, 'weapons.json': bundle.weapons, 'engine.json': bundle.engine, 'crew.json': crew, 'modules.json': modules, 'visual.json': bundle.visual },
+    files,
     projectiles,
+    missiles,
+    machineGuns,
     layouts,
   };
 }

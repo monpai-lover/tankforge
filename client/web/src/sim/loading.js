@@ -1,14 +1,21 @@
-// TEMPORARY JS mirror of crates/weapon/src/loading.rs (tg_weapon::loading).
+// The shared loader queue mirrors crates/weapon/src/loading.rs (tg_weapon::loading).
+// The browser can also attach independent data-defined weapon cycles to a mixed workshop mount.
 // A loader serves one gun at a time. Guns that need a round wait in a queue; each free loader takes
 // the gun that has waited longest. A turret with six guns and one loader therefore fires its
 // broadside once and then reloads the guns one after another.
 
 /**
- * guns: [{reloadTime(loaderIdx) -> seconds}]  loaders: number of loaders (0 = the gunner loads, slower)
+ * loaderCount: manual loaders (0 = the gunner loads, slower).
+ * independentGuns: optional per-gun flags for source weapon cycles outside the manual queue.
  */
-export function newLoading(gunCount, loaderCount) {
+export function newLoading(gunCount, loaderCount, independentGuns = []) {
+  const independent = Array.from({ length: gunCount }, (_, gi) => !!independentGuns[gi]);
+  const sharedCount = gunCount > 0 && independent.every(Boolean) ? 0 : Math.max(1, loaderCount);
+  const loaders = Array.from({ length: sharedCount }, () => ({ gun: -1, remaining: 0, total: 0 }));
+  independent.forEach((on, gi) => { if (on) loaders.push({ gun: -1, remaining: 0, total: 0, onlyGun: gi }); });
   return {
-    loaders: Array.from({ length: Math.max(1, loaderCount) }, () => ({ gun: -1, remaining: 0, total: 0 })),
+    loaders,
+    independentGuns: independent,
     noDedicatedLoader: loaderCount <= 0,
     // per gun: 'ready' | 'waiting' | 'loading'
     state: Array.from({ length: gunCount }, () => 'ready'),
@@ -48,11 +55,12 @@ export function tick(L, dt, reloadTime) {
         let pick = -1;
         for (let g = 0; g < L.state.length; g++) {
           if (L.state[g] !== 'waiting') continue;
+          if (l.onlyGun !== undefined ? g !== l.onlyGun : L.independentGuns?.[g]) continue;
           if (pick < 0 || L.waitedSince[g] < L.waitedSince[pick]) pick = g;
         }
         if (pick < 0) break;
         l.gun = pick;
-        l.total = reloadTime(pick, i) * (L.noDedicatedLoader ? 1.6 : 1);
+        l.total = reloadTime(pick, i) * (l.onlyGun === undefined && L.noDedicatedLoader ? 1.6 : 1);
         l.remaining = l.total;
         L.state[pick] = 'loading';
       }

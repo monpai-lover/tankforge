@@ -113,7 +113,7 @@ export function partVertices(part, origin, mat) {
 // meshes and textures per renderer, shared by all vehicles of a type
 const caches = new WeakMap();
 function cacheOf(renderer) {
-  if (!caches.has(renderer)) caches.set(renderer, { meshes: new Map(), textures: new Map() });
+  if (!caches.has(renderer)) caches.set(renderer, { meshes: new WeakMap(), textures: new Map() });
   return caches.get(renderer);
 }
 
@@ -131,10 +131,15 @@ export function imageTexture(renderer, img, then) {
   return null;
 }
 
-/** A part's mesh with its origin at `origin`, made once per (key) and renderer. */
+/** A part's mesh with its origin at `origin`, shared even when a workshop filters its list. */
 export function partMesh(renderer, key, part, origin) {
   const c = cacheOf(renderer);
+  // The caller's legacy key contains a list index, which changes when stock weapon parts are
+  // removed. The decoded part itself is stable; its actual origin is the other mesh input.
+  if (!c.meshes.has(part)) c.meshes.set(part, new Map());
+  const meshes = c.meshes.get(part);
+  const originKey = origin.join(',');
   // the material's own roughness and metalness when the model gives them (older imports: paint)
-  if (!c.meshes.has(key)) c.meshes.set(key, renderer.mesh(partVertices(part, origin, { color: [1, 1, 1], rough: part.rough ?? 0.72, metal: part.metal ?? 0.18 })));
-  return c.meshes.get(key);
+  if (!meshes.has(originKey)) meshes.set(originKey, renderer.mesh(partVertices(part, origin, { color: [1, 1, 1], rough: part.rough ?? 0.72, metal: part.metal ?? 0.18 })));
+  return meshes.get(originKey);
 }
