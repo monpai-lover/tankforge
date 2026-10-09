@@ -17,7 +17,7 @@
 - [x] Generate only the new vehicle, add registry/family/localization entries, preserve old vehicles.
 - [x] Run focused tests and the existing numeric suite; run available browser render checks.
 - [x] Collect independent geometry and reality audits; verify high-impact findings and write a reviewed report.
-- [ ] Review the final diff, integrate and push the completed changes, verify remote commit.
+- [x] Review the final diff, integrate and push the completed changes, verify remote commit.
 
 ## Additional user-reported bugs
 
@@ -30,4 +30,6 @@
 - [x] Complete acknowledgement-driven online launch consumption and rejection / retry tests.
 - [x] Fold the complete high M46 cab walls and both bed board groups, and MK103 casemate panels, with measured arcs, moving armour and server consistency.
 - [x] Move the original M46 front tool, keepers and chain to low right-side horizontal storage and verify all six panels throughout their sweep.
-- [ ] Run final aggregate tests and WebGL regressions, update research/audit/rebuild documentation, integrate and push.
+- [x] Run final aggregate tests and WebGL regressions, update research/audit/rebuild documentation, integrate and push.
+
+Release verified: implementation commit `665cd79` was fast-forwarded into the clean primary `main` and pushed to `monpai-lover/tankforge`; remote `refs/heads/main` was checked. The primary checkout passed all 112 web tests and rebuilt a byte-identical `tankforge-range.html` to the WebGL-tested worktree output. Backend workspace tests, strict validation and five Python regressions passed before integration. Source archives and all 67 targeted generated JSON files are reproducible. Unconfirmed fleet geometry/historical observations remain explicitly bounded in the reports.
