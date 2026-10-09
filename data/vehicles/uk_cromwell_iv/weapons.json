@@ -1,0 +1,104 @@
+{
+ "main_gun": {
+  "id": "qf_75_mk5",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 2743,
+  "recoil_mm": 290,
+  "rounds_per_min": 12.0,
+  "reload_s": 5.0,
+  "traverse_deg_s": 24.0,
+  "elevate_deg_s": 10.0,
+  "max_depression_deg": 12.5,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 1.2,
+  "mass_kg": 315,
+  "ammo": [
+   "apcbc_75_m61",
+   "he_75_m48"
+  ],
+  "ammo_count": [
+   30,
+   34
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.98,
+  1.33
+ ],
+ "muzzle_offset_m": 1.945,
+ "sight": {
+  "name": "No. 50 x3",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 13.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_besa",
+   "weapon": "besa",
+   "mount": "coax",
+   "position_m": [
+    0.3,
+    1.98,
+    1.63
+   ]
+  },
+  {
+   "id": "bow_besa",
+   "weapon": "besa",
+   "mount": "hull",
+   "position_m": [
+    -0.52,
+    1.34,
+    2.22
+   ],
+   "arc_deg": [
+    15.0,
+    8.0,
+    17.0
+   ]
+  }
+ ],
+ "depression_by_bearing_deg": [
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  9.8,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  9.8,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5,
+  12.5
+ ]
+}

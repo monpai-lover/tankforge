@@ -1,0 +1,38 @@
+{
+ "engine": {
+  "horsepower": 500.0,
+  "max_rpm": 1800.0,
+  "idle_rpm": 600.0,
+  "weight_kg": 1000,
+  "torque_curve": [
+   [
+    600,
+    2077
+   ],
+   [
+    1200,
+    2215
+   ],
+   [
+    1500,
+    2136
+   ],
+   [
+    1800,
+    1978
+   ]
+  ]
+ },
+ "transmission": {
+  "forward_gears": 4,
+  "reverse_gears": 1,
+  "gear_ratios": [
+   5.0,
+   2.39,
+   1.45,
+   0.756
+  ],
+  "final_drive_ratio": 6.623,
+  "shift_time_s": 0.6
+ }
+}

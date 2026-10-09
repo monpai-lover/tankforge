@@ -1,0 +1,65 @@
+{
+ "id": "su_t34_85",
+ "name": "T-34-85",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "ussr",
+  "class": "medium",
+  "year": 1944,
+  "outline": "traced",
+  "based_on": "T-34-85 with 85 mm ZiS-S-53, 1944 production",
+  "notes": "Hull, turret and running gear built from the four-view drawing and the measurements of the reference model supplied with the request (hull heights and plate angles, the turret's sections, the mantlet, wheel stations). Gear ratios are estimates chosen to match the published top speed; turret traverse rate and interior layout are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.0,
+   1.52,
+   6.1
+  ],
+  "mass_kg": 32000,
+  "center_of_mass": [
+   0,
+   0.85,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.1,
+   0.86,
+   2.7
+  ],
+  "ring_diameter_m": 1.6,
+  "position_m": [
+   0.0,
+   1.52,
+   0.54
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.5,
+  "track_length_m": 3.85,
+  "suspension": {
+   "kind": "christie",
+   "travel_m": 0.24,
+   "stiffness": 220000,
+   "damping": 16000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.32,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 1.3
+ }
+}

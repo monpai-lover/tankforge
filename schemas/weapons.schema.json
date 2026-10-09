@@ -1,0 +1,355 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "weapons.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "main_gun",
+    "mount_m",
+    "secondary"
+  ],
+  "properties": {
+    "main_gun": {
+      "$ref": "#/$defs/gun"
+    },
+    "mount_m": {
+      "$ref": "#/$defs/vec3"
+    },
+    "secondary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "position_m"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "position_m": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "muzzle of a coaxial or hull gun, pivot of a roof gun; vehicle space, turret yaw 0"
+          },
+          "weapon": {
+            "type": "string",
+            "description": "id in machine_guns.json; absent = listed for reference only"
+          },
+          "mount": {
+            "enum": [
+              "coax",
+              "hull",
+              "pintle"
+            ],
+            "description": "coax: rigid with the main gun. hull: ball mount, small arc. pintle: on the turret roof, free traverse."
+          },
+          "arc_deg": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "[yaw half-angle, depression, elevation] in degrees for hull and pintle mounts"
+          },
+          "post_m": {
+            "type": "number",
+            "description": "pintle mounts: length of the post from the pivot down to the roof or ring it stands on (default 0.34)"
+          },
+          "shield_m": {
+            "type": "array",
+            "items": {"type": "number"},
+            "minItems": 3,
+            "maxItems": 3,
+            "description": "pintle mounts: a shield turning with the gun, [width, height, distance ahead of the pivot] in metres, slotted for the barrel"
+          }
+        }
+      }
+    },
+    "muzzle_offset_m": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "trunnion to muzzle; defaults to the barrel length"
+    },
+    "sight": {
+      "$ref": "#/$defs/sight"
+    },
+    "stabilizer": {
+      "type": "string",
+      "enum": [
+        "none",
+        "vertical",
+        "two_plane"
+      ],
+      "default": "none",
+      "description": "Gun stabilizer. none: the gun is geared to the hull and the gunner lays it back by hand; vertical: a gyro holds the elevation; two_plane: elevation and bearing."
+    },
+    "rack_m": {
+      "$ref": "#/$defs/vec3",
+      "description": "ammo rack of the main gun (layout-driven reload)"
+    },
+    "loaders_m": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/vec3"
+      }
+    },
+    "facing_deg": {
+      "type": "number",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "yaw_limit_deg": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 2,
+      "maxItems": 2,
+      "description": "(min, max) traverse offsets from facing_deg; absent = full 360 degrees"
+    },
+    "depression_by_bearing_deg": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 36,
+      "maxItems": 36,
+      "description": "how far the main gun may dip at each bearing (every 10 degrees clockwise from the turret's front) where the hull is in the way; absent = the gun's own limit all round"
+    },
+    "extra_guns": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/gun_mount"
+      },
+      "description": "further guns in the primary turret"
+    },
+    "extra_turrets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/turret_mount"
+      },
+      "description": "further turrets"
+    }
+  },
+  "$defs": {
+    "vec3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "gun": {
+      "type": "object",
+      "required": [
+        "id",
+        "caliber_mm",
+        "barrel_length_mm",
+        "recoil_mm",
+        "rounds_per_min",
+        "reload_s",
+        "traverse_deg_s",
+        "elevate_deg_s",
+        "max_depression_deg",
+        "max_elevation_deg",
+        "dispersion_mrad",
+        "mass_kg",
+        "ammo"
+      ],
+      "properties": {
+        "ammo": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "description": "ProjectileDef id"
+          }
+        },
+        "ammo_count": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "rounds carried of each ammo entry, same order (optional)"
+        }
+      }
+    },
+    "sight": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "name",
+        "levels"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "levels": {
+          "type": "array",
+          "minItems": 1,
+          "description": "ascending magnification; one entry = fixed-power sight",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "magnification",
+              "fov_deg"
+            ],
+            "properties": {
+              "magnification": {
+                "type": "number",
+                "minimum": 1,
+                "maximum": 40
+              },
+              "fov_deg": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "maximum": 90,
+                "description": "true field of view across the sight picture"
+              }
+            }
+          }
+        },
+        "rangefinder": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "time_s",
+            "error_pct",
+            "max_range_m"
+          ],
+          "description": "Key-press rangefinding. Absent = the default coincidence rangefinder (2.5 s, 5 %, 2500 m).",
+          "properties": {
+            "time_s": {
+              "type": "number",
+              "exclusiveMinimum": 0,
+              "maximum": 30
+            },
+            "error_pct": {
+              "type": "number",
+              "minimum": 0,
+              "maximum": 50,
+              "description": "largest error of one measurement, percent of the true range"
+            },
+            "max_range_m": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            }
+          }
+        }
+      }
+    },
+    "gun_mount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "gun",
+        "mount_m"
+      ],
+      "properties": {
+        "gun": {
+          "$ref": "#/$defs/gun"
+        },
+        "mount_m": {
+          "$ref": "#/$defs/vec3",
+          "description": "trunnion (elevation pivot), vehicle space at turret yaw 0"
+        },
+        "muzzle_offset_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rack_m": {
+          "$ref": "#/$defs/vec3",
+          "description": "ammo rack this gun is fed from; with the turret's loaders_m the reload time comes from the layout instead of reload_s"
+        }
+      }
+    },
+    "turret_mount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "position_m",
+        "ring_diameter_m",
+        "size_m",
+        "traverse_deg_s",
+        "guns"
+      ],
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "position_m": {
+          "$ref": "#/$defs/vec3",
+          "description": "ring centre (base of the turret box)"
+        },
+        "ring_diameter_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "size_m": {
+          "$ref": "#/$defs/vec3"
+        },
+        "traverse_deg_s": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "facing_deg": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "direction the turret faces at rest, clockwise from the bow"
+        },
+        "yaw_limit_deg": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "minItems": 2,
+          "maxItems": 2,
+          "description": "(min, max) traverse offsets from facing_deg; absent = full 360 degrees"
+        },
+        "loaders_m": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/vec3"
+          },
+          "description": "loader stations; each loader serves one gun at a time"
+        },
+        "sight": {
+          "$ref": "#/$defs/sight"
+        },
+        "guns": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/gun_mount"
+          }
+        },
+        "open_top": {
+          "type": "boolean"
+        },
+        "stabilizer": {
+          "type": "string",
+          "enum": [
+            "none",
+            "vertical",
+            "two_plane"
+          ],
+          "default": "none",
+          "description": "Gun stabilizer. none: the gun is geared to the hull and the gunner lays it back by hand; vertical: a gyro holds the elevation; two_plane: elevation and bearing."
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,51 @@
+{
+ "schema_version": 1,
+ "notes": "Coefficients for the vehicle designer (tg-design). Every derived number of a player design -- mass, volumes, mobility, loads, gun limits -- comes from these values and the design geometry. Game-balance estimates, not measurements of any real vehicle.",
+ "crew": {
+  "mass_kg": 90,
+  "seated_box_m": [0.5, 0.9, 0.55],
+  "loader_box_m": [0.55, 1.3, 0.55],
+  "hit_radius_m": 0.3
+ },
+ "fittings_kg_per_m3": 70,
+ "max_armor_mm": 1000,
+ "engines": {
+  "gasoline": {"label": "汽油引擎", "kg_per_hp": 1.25, "base_kg": 160, "m3_per_hp": 0.0026, "base_m3": 0.32, "max_rpm": 3000, "idle_rpm": 650, "sfc_g_kwh": 340, "fuel_density": 0.74, "torque_rise": 1.18, "min_hp": 80, "max_hp": 1600},
+  "diesel": {"label": "柴油引擎", "kg_per_hp": 1.7, "base_kg": 220, "m3_per_hp": 0.0031, "base_m3": 0.36, "max_rpm": 2200, "idle_rpm": 550, "sfc_g_kwh": 245, "fuel_density": 0.84, "torque_rise": 1.3, "min_hp": 80, "max_hp": 1600}
+ },
+ "transmissions": {
+  "manual": {"label": "手排變速箱", "efficiency": 0.82, "shift_time_s": 0.8, "kg_per_hp": 0.55, "base_kg": 320, "m3_per_hp": 0.0008, "base_m3": 0.22, "brake_force_kn": 240, "reverse_speed_ms": 3.5},
+  "synchromesh": {"label": "同步齒輪變速箱", "efficiency": 0.85, "shift_time_s": 0.5, "kg_per_hp": 0.6, "base_kg": 340, "m3_per_hp": 0.0008, "base_m3": 0.24, "brake_force_kn": 260, "reverse_speed_ms": 4.0},
+  "preselector": {"label": "預選式變速箱", "efficiency": 0.86, "shift_time_s": 0.3, "kg_per_hp": 0.7, "base_kg": 380, "m3_per_hp": 0.0009, "base_m3": 0.26, "brake_force_kn": 300, "reverse_speed_ms": 4.5},
+  "hydromechanical": {"label": "液力機械變速箱", "efficiency": 0.78, "shift_time_s": 0.15, "kg_per_hp": 0.85, "base_kg": 420, "m3_per_hp": 0.0011, "base_m3": 0.3, "brake_force_kn": 340, "reverse_speed_ms": 5.5}
+ },
+ "steering": {
+  "clutch_brake": {"label": "離合器制動式", "neutral_steer": false, "min_radius_gauge": 0.55, "steer_efficiency": 0.55, "kg": 120},
+  "controlled_differential": {"label": "受控差速器", "neutral_steer": false, "min_radius_gauge": 3.6, "steer_efficiency": 0.75, "kg": 260},
+  "regenerative": {"label": "再生式（雙差速）", "neutral_steer": true, "min_radius_gauge": 0.0, "steer_efficiency": 0.85, "kg": 420}
+ },
+ "suspensions": {
+  "leaf_bogie": {"label": "板簧轉向架", "rating_kn_per_m": 58, "station_kg": 330, "wheel_kg_per_m2": 260, "travel_m": 0.1, "freq_hz": 1.7, "damping": 0.26, "rolling_resistance": 0.045, "return_rollers": true, "floor_m": 0.0},
+  "volute": {"label": "渦形彈簧", "rating_kn_per_m": 66, "station_kg": 360, "wheel_kg_per_m2": 260, "travel_m": 0.12, "freq_hz": 1.6, "damping": 0.28, "rolling_resistance": 0.042, "return_rollers": true, "floor_m": 0.0},
+  "hvss": {"label": "水平渦形彈簧（雙輪）", "rating_kn_per_m": 92, "station_kg": 520, "wheel_kg_per_m2": 300, "travel_m": 0.15, "freq_hz": 1.45, "damping": 0.32, "rolling_resistance": 0.04, "return_rollers": true, "floor_m": 0.0},
+  "torsion_bar": {"label": "扭桿", "rating_kn_per_m": 78, "station_kg": 260, "wheel_kg_per_m2": 280, "travel_m": 0.24, "freq_hz": 1.3, "damping": 0.34, "rolling_resistance": 0.038, "return_rollers": true, "floor_m": 0.08},
+  "christie": {"label": "克里斯蒂", "rating_kn_per_m": 64, "station_kg": 300, "wheel_kg_per_m2": 240, "travel_m": 0.3, "freq_hz": 1.2, "damping": 0.3, "rolling_resistance": 0.036, "return_rollers": false, "floor_m": 0.0},
+  "interleaved": {"label": "交錯負重輪扭桿", "rating_kn_per_m": 96, "station_kg": 520, "wheel_kg_per_m2": 320, "travel_m": 0.26, "freq_hz": 1.25, "damping": 0.36, "rolling_resistance": 0.041, "return_rollers": false, "floor_m": 0.1}
+ },
+ "tracks": {"kg_per_m_per_m_width": 260, "min_width_m": 0.25, "max_width_m": 1.0, "thickness_m": 0.06, "sprocket_radius_m": 0.33},
+ "turret_ring": {"kg_per_m": 260, "rated_kg_per_m2": 7000, "max_overhang": 2.3, "drive_kg": 180, "traverse_power_w_per_m": 2600},
+ "gun": {"breech_rear_base_m": 0.25, "breech_rear_per_mm": 0.0085, "breech_width_base_m": 0.16, "breech_width_per_mm": 0.0026, "breech_height_base_m": 0.16, "breech_height_per_mm": 0.0024, "min_recoil_fraction": 0.45, "mount_kg_per_mm": 3.2},
+ "ammo": {"case_mass_fraction": 0.85, "round_length_cal": 7.5, "packing": 0.42, "rack_frame_kg_per_m3": 120},
+ "fuel": {"fill": 0.9, "tank_kg_per_m3": 90},
+ "modules": {
+  "radio": {"size_m": [0.42, 0.32, 0.32], "kg": 45},
+  "turret_drive": {"size_m": [0.3, 0.22, 0.3], "kg": 0}
+ },
+ "penetration": {"sigma_fraction": 0.06, "heat_gap_loss_per_mm": 0.0009, "heat_gap_max_loss": 0.6},
+ "mobility": {"air_cd": 0.9, "turn_mu": 0.55, "road_rolling": 1.0, "offroad_rolling": 2.4, "cruise_fraction": 0.7, "offroad_speed_fraction": 0.45},
+ "stabilizers": {
+  "none": {"label": "無穩定器", "kg_base": 0, "kg_per_mm": 0},
+  "vertical": {"label": "垂直穩定器", "kg_base": 45, "kg_per_mm": 0.9},
+  "two_plane": {"label": "雙向穩定器", "kg_base": 110, "kg_per_mm": 2.2, "powered_traverse": true}
+ }
+}

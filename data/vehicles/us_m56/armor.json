@@ -1,0 +1,232 @@
+[
+ {
+  "id": "hull_upper_front",
+  "zone": "hull_upper_front",
+  "material": "aluminium",
+  "thickness_mm": 8,
+  "center": {
+   "x": 0.0,
+   "y": 1.02,
+   "z": 2.06
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.6,
+   "z": 0.8
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 1.2,
+  "half_v": 0.26
+ },
+ {
+  "id": "hull_lower_front",
+  "zone": "hull_lower_front",
+  "material": "aluminium",
+  "thickness_mm": 8,
+  "center": {
+   "x": 0.0,
+   "y": 0.56,
+   "z": 2.16
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -0.4,
+   "z": 0.9165
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.75,
+  "half_v": 0.25
+ },
+ {
+  "id": "hull_side_r",
+  "zone": "hull_side",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": 1.27,
+   "y": 1.06,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 2.2,
+  "half_v": 0.15
+ },
+ {
+  "id": "hull_side_l",
+  "zone": "hull_side",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": -1.27,
+   "y": 1.06,
+   "z": 0.0
+  },
+  "normal": {
+   "x": -1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 2.2,
+  "half_v": 0.15
+ },
+ {
+  "id": "hull_side_low_r",
+  "zone": "hull_side",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.74,
+   "y": 0.62,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 2.1,
+  "half_v": 0.3
+ },
+ {
+  "id": "hull_side_low_l",
+  "zone": "hull_side",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": -0.74,
+   "y": 0.62,
+   "z": 0.0
+  },
+  "normal": {
+   "x": -1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 2.1,
+  "half_v": 0.3
+ },
+ {
+  "id": "hull_rear",
+  "zone": "hull_rear",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.0,
+   "y": 0.88,
+   "z": -2.26
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": -1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 1.25,
+  "half_v": 0.4
+ },
+ {
+  "id": "hull_roof",
+  "zone": "hull_roof",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.0,
+   "y": 1.2,
+   "z": 1.45
+  },
+  "normal": {
+   "x": 0,
+   "y": 1,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 1.2,
+  "half_v": 0.6
+ },
+ {
+  "id": "hull_floor",
+  "zone": "hull_floor",
+  "material": "aluminium",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.0,
+   "y": 0.33,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 0,
+   "y": -1,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.74,
+  "half_v": 2.1
+ },
+ {
+  "id": "gun_shield",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.0,
+   "y": 1.8,
+   "z": 0.48
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.81,
+  "half_v": 0.22
+ }
+]

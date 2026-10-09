@@ -1,0 +1,65 @@
+{
+ "id": "us_m901_itv",
+ "name": "M901 ITV（M113 TOW）",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "usa",
+  "class": "tank_destroyer",
+  "year": 1979,
+  "outline": "dimensions",
+  "based_on": "M113A1 armoured personnel carrier with the M27 TOW launcher ('hammerhead') of the M901 Improved TOW Vehicle",
+  "notes": "Built to the M113A1's published dimensions (length 4.86 m, width 2.69 m, roof 1.83 m, clearance 0.43 m) and the M901's launcher; no drawing was supplied, so details are placed from photographs in general terms. Armour is 5083 aluminium. The TOW is wire guided: keep the sight on the target until it strikes."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.54,
+   1.83,
+   4.86
+  ],
+  "mass_kg": 11800,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.15
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.3,
+   1.15,
+   1.0
+  ],
+  "ring_diameter_m": 0.72,
+  "position_m": [
+   0.0,
+   1.83,
+   -0.3
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.381,
+  "track_length_m": 2.67,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.18,
+   "stiffness": 140000,
+   "damping": 10000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.27,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 40.0,
+  "max_reverse_speed_ms": 4.0,
+  "min_turn_radius_m": 0.0
+ }
+}

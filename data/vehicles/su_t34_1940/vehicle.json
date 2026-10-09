@@ -1,0 +1,65 @@
+{
+ "id": "su_t34_1940",
+ "name": "T-34 (1940)",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "ussr",
+  "class": "medium",
+  "year": 1940,
+  "outline": "traced",
+  "based_on": "T-34 model 1940 with the welded turret and the 76 mm L-11",
+  "notes": "Hull as the T-34-85 build (drawing and reference measurements). The welded turret's sections and the L-11 mantlet were measured on the reference model supplied with the request (numbers only). Gear ratios, turret traverse and interior layout are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.0,
+   1.52,
+   6.1
+  ],
+  "mass_kg": 26800,
+  "center_of_mass": [
+   0,
+   0.85,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.72,
+   0.68,
+   2.14
+  ],
+  "ring_diameter_m": 1.42,
+  "position_m": [
+   0.0,
+   1.52,
+   0.68
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.5,
+  "track_length_m": 3.85,
+  "suspension": {
+   "kind": "christie",
+   "travel_m": 0.24,
+   "stiffness": 220000,
+   "damping": 16000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.32,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 1.3
+ }
+}

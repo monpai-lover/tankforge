@@ -1,0 +1,36 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/41334067-BMP_K_64_ATGM.glb",
+ "source": "BMP-K-64: the user's own model (BMP_K_64_ATGM.glb), used unchanged with the user's permission",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "barrel_meshes": [],
+ "normal_maps": false,
+ "textures": {
+  "0": 1024,
+  "1": 512,
+  "2": 512
+ },
+ "turret_nodes": [
+  "ATGM_Yaw"
+ ],
+ "gun_nodes": [
+  "ATGM_Elevation"
+ ],
+ "level_nodes": [
+  "ATGM_Elevation"
+ ],
+ "share": {
+  "from": "xp_bmp_k64",
+  "mounts": [
+   "hull",
+   "road_wheel"
+  ],
+  "keep_nodes": [
+   "ATGM_Base"
+  ]
+ }
+}

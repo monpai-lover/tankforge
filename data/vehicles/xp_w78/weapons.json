@@ -1,0 +1,47 @@
+{
+ "main_gun": {
+  "id": "xp_78_lr",
+  "caliber_mm": 78.0,
+  "barrel_length_mm": 3000,
+  "recoil_mm": 520,
+  "rounds_per_min": 12.0,
+  "reload_s": 5.0,
+  "traverse_deg_s": 40.0,
+  "elevate_deg_s": 25.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 25.0,
+  "dispersion_mrad": 0.4,
+  "mass_kg": 1100,
+  "ammo": [
+   "apfsds_78_xp",
+   "heatfs_78_xp",
+   "he_78_xp"
+  ],
+  "ammo_count": [
+   18,
+   10,
+   10
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.65,
+  0.55
+ ],
+ "muzzle_offset_m": 2.98,
+ "sight": {
+  "name": "periscope sight",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 20.0
+   },
+   {
+    "magnification": 8.0,
+    "fov_deg": 7.5
+   }
+  ]
+ },
+ "stabilizer": "two_plane",
+ "secondary": []
+}

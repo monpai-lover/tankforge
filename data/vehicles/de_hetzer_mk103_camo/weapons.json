@@ -1,0 +1,44 @@
+{
+ "main_gun": {
+  "id": "mk103_30",
+  "caliber_mm": 30.0,
+  "barrel_length_mm": 1338,
+  "recoil_mm": 40,
+  "rounds_per_min": 400,
+  "reload_s": 0.15,
+  "traverse_deg_s": 40.0,
+  "elevate_deg_s": 30.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 80.0,
+  "dispersion_mrad": 1.3,
+  "mass_kg": 600,
+  "ammo": [
+   "he_30_mgesch"
+  ],
+  "autocannon": {
+   "rate_rpm": 400,
+   "belt_rounds": 40,
+   "belt_reload_s": 6.0
+  }
+ },
+ "mount_m": [
+  0.0,
+  2.165,
+  0.26
+ ],
+ "muzzle_offset_m": 1.8,
+ "sight": {
+  "name": "Flakvisier 38",
+  "levels": [
+   {
+    "magnification": 1.0,
+    "fov_deg": 45.0
+   },
+   {
+    "magnification": 3.0,
+    "fov_deg": 15.0
+   }
+  ]
+ },
+ "secondary": []
+}

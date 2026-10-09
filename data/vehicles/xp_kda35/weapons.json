@@ -1,0 +1,56 @@
+{
+ "main_gun": {
+  "id": "kda_35",
+  "caliber_mm": 35.0,
+  "barrel_length_mm": 3850,
+  "recoil_mm": 60,
+  "rounds_per_min": 550,
+  "reload_s": 0.11,
+  "traverse_deg_s": 50.0,
+  "elevate_deg_s": 40.0,
+  "max_depression_deg": 6.0,
+  "max_elevation_deg": 70.0,
+  "dispersion_mrad": 1.0,
+  "mass_kg": 670,
+  "ammo": [
+   "apcbche_35",
+   "hei_35_kda",
+   "apds_35_kda",
+   "apfsds_35_pmc287",
+   "heatfs_35"
+  ],
+  "autocannon": {
+   "rate_rpm": 550,
+   "belt_rounds": 100,
+   "belt_reload_s": 8.0
+  },
+  "ammo_count": [
+   100,
+   100,
+   80,
+   60,
+   60
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.64,
+  0.46
+ ],
+ "muzzle_offset_m": 3.79,
+ "sight": {
+  "name": "periscope sight",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 20.0
+   },
+   {
+    "magnification": 8.0,
+    "fov_deg": 7.5
+   }
+  ]
+ },
+ "stabilizer": "two_plane",
+ "secondary": []
+}

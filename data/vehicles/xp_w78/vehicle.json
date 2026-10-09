@@ -1,0 +1,67 @@
+{
+ "id": "xp_w78",
+ "name": "78 mm 輪式試驗車",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "fictional",
+  "class": "armored_car",
+  "year": 1982,
+  "outline": "traced",
+  "based_on": "4x4 wheeled prototype from the user's four-view render, armed with a 78 mm low-recoil gun firing fin-stabilised sabot",
+  "notes": "Hull, turret, cab and gun rebuilt from the four-view render supplied with the request (see the 35 mm variant). The 78 mm gun and its rounds are a design study: a high-velocity small-calibre gun for sabot, its figures plausible for the calibre (cf. the 75 mm ARES and 76 mm guns), not a service weapon."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.55,
+   2.06,
+   6.3
+  ],
+  "mass_kg": 15800,
+  "center_of_mass": [
+   0,
+   1.35,
+   -0.05
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.8,
+   1.1,
+   4.7
+  ],
+  "ring_diameter_m": 1.7,
+  "position_m": [
+   0.0,
+   2.06,
+   -0.3
+  ]
+ },
+ "physics": {
+  "drive": "wheeled",
+  "track_width_m": 0.45,
+  "track_length_m": 3.4,
+  "suspension": {
+   "kind": "leaf_spring",
+   "travel_m": 0.26
+  },
+  "suspension_freq_hz": 1.3,
+  "suspension_damping": 0.35,
+  "rolling_resistance": 0.015,
+  "sprocket_radius_m": 0.59,
+  "drivetrain_efficiency": 0.9,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 6.0,
+  "min_turn_radius_m": 8.0,
+  "max_steer_deg": 32.0
+ }
+}

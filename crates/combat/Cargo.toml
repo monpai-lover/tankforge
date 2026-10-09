@@ -1,0 +1,12 @@
+[package]
+name = "tg-combat"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tg-shared.workspace = true
+tg-armor.workspace = true
+tg-weapon.workspace = true
+tg-damage.workspace = true

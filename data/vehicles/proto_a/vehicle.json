@@ -1,0 +1,59 @@
+{
+ "id": "proto_a",
+ "name": "Prototype A (original design)",
+ "schema_version": 1,
+ "model": "model.glb",
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.0,
+   1.1,
+   6.2
+  ],
+  "mass_kg": 28000,
+  "center_of_mass": [
+   0,
+   0.9,
+   0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.2,
+   0.9,
+   2.6
+  ],
+  "ring_diameter_m": 1.8,
+  "position_m": [
+   0,
+   1.1,
+   0.2
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.5,
+  "track_length_m": 3.6,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.25,
+   "stiffness": 180000,
+   "damping": 14000
+  },
+  "rolling_resistance": 0.04
+ },
+ "meta": {
+  "nation": "fictional",
+  "class": "prototype",
+  "year": 0,
+  "outline": "original",
+  "based_on": "original design",
+  "notes": "Test vehicle used by the unit tests."
+ }
+}

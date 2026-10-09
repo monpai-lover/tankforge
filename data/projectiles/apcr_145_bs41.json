@@ -1,0 +1,48 @@
+{
+ "id": "apcr_145_bs41",
+ "name": "14.5 mm BS-41 (API, WC core)",
+ "kind": "apcr",
+ "caliber_mm": 14.5,
+ "mass_kg": 0.0646,
+ "muzzle_velocity_ms": 976.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 54,
+ "drag_coefficient": 0.3,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 40.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 37.4
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 28.6
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 20.4
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 14.6
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 10.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 7.5
+  }
+ ],
+ "ricochet_angle_deg": 66.0,
+ "normalization_deg": 2.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

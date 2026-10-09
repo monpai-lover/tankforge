@@ -1,0 +1,66 @@
+{
+ "id": "de_sdkfz140_1",
+ "name": "Sd.Kfz. 140/1 Aufklärungspanzer 38(t)",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "light",
+  "year": 1944,
+  "outline": "model",
+  "based_on": "Aufklärungspanzer 38(t) (Sd.Kfz. 140/1) with the Hängelafette 38: 2 cm KwK 38 and MG 42",
+  "notes": "Exterior and interior: the user's own model (Sdkfz1401_Material_Refined.glb), used unchanged and cut into its moving pieces by tools/glb-vehicle.py. Figures: about 9.75 t, Praga AC of 160 hp, 42 km/h; 15 mm hull front, 10 mm sides; the turret 30 mm at the front. Gear ratios and the interior layout are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.15,
+   1.48,
+   4.61
+  ],
+  "mass_kg": 9750,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.7,
+   0.8,
+   1.8
+  ],
+  "ring_diameter_m": 1.3,
+  "position_m": [
+   0.0,
+   1.48,
+   0.35
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.29,
+  "track_length_m": 2.95,
+  "suspension": {
+   "kind": "leaf_bogie",
+   "travel_m": 0.14,
+   "stiffness": 100000,
+   "damping": 8000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.34,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 32.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

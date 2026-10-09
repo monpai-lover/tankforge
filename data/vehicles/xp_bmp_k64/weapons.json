@@ -1,0 +1,51 @@
+{
+ "main_gun": {
+  "id": "kpvt_145",
+  "caliber_mm": 14.5,
+  "barrel_length_mm": 1350,
+  "recoil_mm": 5,
+  "rounds_per_min": 600,
+  "reload_s": 0.1,
+  "traverse_deg_s": 35.0,
+  "elevate_deg_s": 30.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 30.0,
+  "dispersion_mrad": 1.2,
+  "mass_kg": 52,
+  "ammo": [
+   "api_145_b32",
+   "apit_145_bzt44",
+   "apcr_145_bs41"
+  ],
+  "ammo_count": [
+   200,
+   200,
+   100
+  ],
+  "autocannon": {
+   "rate_rpm": 600,
+   "belt_rounds": 50,
+   "belt_reload_s": 8.0
+  }
+ },
+ "mount_m": [
+  -0.115,
+  2.205,
+  -0.28
+ ],
+ "muzzle_offset_m": 1.31,
+ "sight": {
+  "name": "PP-61",
+  "levels": [
+   {
+    "magnification": 2.6,
+    "fov_deg": 23.0
+   },
+   {
+    "magnification": 6.0,
+    "fov_deg": 6.0
+   }
+  ]
+ },
+ "secondary": []
+}

@@ -1,0 +1,48 @@
+{
+ "id": "apcr_76_m93",
+ "name": "76 mm M93 shot (HVAP)",
+ "kind": "apcr",
+ "caliber_mm": 76.2,
+ "mass_kg": 4.26,
+ "muzzle_velocity_ms": 1036.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 282,
+ "drag_coefficient": 0.45,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 221.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 211.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 179.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 145.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 117.4
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 95.1
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 77.0
+  }
+ ],
+ "ricochet_angle_deg": 66.0,
+ "normalization_deg": 2.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

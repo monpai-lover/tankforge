@@ -1,0 +1,56 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/c3e7e843-VK1602_Leopard_v1_1.glb",
+ "source": "Turret and gun: the user's own VK 16.02 Leopard model (VK1602_Leopard_v1_1.glb), used with the user's permission",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0.15,
+  -0.1
+ ],
+ "drop_meshes": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  25,
+  26,
+  27,
+  28,
+  29
+ ],
+ "turret_meshes": [
+  21,
+  22,
+  24
+ ],
+ "gun_meshes": [
+  23
+ ],
+ "barrel_meshes": [
+  23
+ ],
+ "barrel_min_length": 1.5,
+ "normal_maps": false,
+ "textures": {
+  "0": 1024,
+  "1": 256,
+  "2": 256
+ }
+}

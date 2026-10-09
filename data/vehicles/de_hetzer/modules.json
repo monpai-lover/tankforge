@@ -1,0 +1,178 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.0,
+   "y": 0.95,
+   "z": -1.75
+  },
+  "half_extents": {
+   "x": 0.45,
+   "y": 0.35,
+   "z": 0.4
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.72,
+   "z": 1.9
+  },
+  "half_extents": {
+   "x": 0.45,
+   "y": 0.2,
+   "z": 0.22
+  },
+  "max_health": 100,
+  "health": 100
+ },
+ {
+  "id": "fuel_tank_l",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.48,
+   "y": 0.8,
+   "z": -0.95
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.25,
+   "z": 0.25
+  },
+  "max_health": 45,
+  "health": 45
+ },
+ {
+  "id": "fuel_tank_r",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.48,
+   "y": 0.8,
+   "z": -0.95
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.25,
+   "z": 0.25
+  },
+  "max_health": 45,
+  "health": 45
+ },
+ {
+  "id": "ammo_l",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.55,
+   "y": 0.85,
+   "z": 0.4
+  },
+  "half_extents": {
+   "x": 0.12,
+   "y": 0.25,
+   "z": 0.4
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "ammo_r",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.9,
+   "y": 1.12,
+   "z": -0.2
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.1,
+   "z": 0.45
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.38,
+   "y": 1.44,
+   "z": 1.05
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.15,
+   "z": 0.4
+  },
+  "max_health": 100,
+  "health": 100
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.38,
+   "y": 1.44,
+   "z": 3.05
+  },
+  "half_extents": {
+   "x": 0.06,
+   "y": 0.06,
+   "z": 0.7
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "radio",
+  "kind": "radio",
+  "center": {
+   "x": -0.62,
+   "y": 1.42,
+   "z": -0.9
+  },
+  "half_extents": {
+   "x": 0.12,
+   "y": 0.1,
+   "z": 0.15
+  },
+  "max_health": 30,
+  "health": 30
+ },
+ {
+  "id": "track_l",
+  "kind": "track",
+  "center": {
+   "x": -1.15,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.175,
+   "y": 0.45,
+   "z": 2.235
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "track_r",
+  "kind": "track",
+  "center": {
+   "x": 1.15,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.175,
+   "y": 0.45,
+   "z": 2.235
+  },
+  "max_health": 120,
+  "health": 120
+ }
+]

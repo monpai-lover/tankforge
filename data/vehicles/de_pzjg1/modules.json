@@ -1,0 +1,146 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.0,
+   "y": 0.72,
+   "z": -1.45
+  },
+  "half_extents": {
+   "x": 0.4,
+   "y": 0.25,
+   "z": 0.42
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.62,
+   "z": 1.55
+  },
+  "half_extents": {
+   "x": 0.35,
+   "y": 0.18,
+   "z": 0.25
+  },
+  "max_health": 80,
+  "health": 80
+ },
+ {
+  "id": "fuel_tank",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.35,
+   "y": 0.72,
+   "z": -0.8
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.2,
+   "z": 0.2
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "ammo",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.42,
+   "y": 0.8,
+   "z": 0.05
+  },
+  "half_extents": {
+   "x": 0.16,
+   "y": 0.18,
+   "z": 0.4
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.0,
+   "y": 1.69,
+   "z": 0.05
+  },
+  "half_extents": {
+   "x": 0.1,
+   "y": 0.1,
+   "z": 0.25
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.0,
+   "y": 1.69,
+   "z": 1.45
+  },
+  "half_extents": {
+   "x": 0.05,
+   "y": 0.05,
+   "z": 0.6
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "radio",
+  "kind": "radio",
+  "center": {
+   "x": 0.42,
+   "y": 1.0,
+   "z": -0.45
+  },
+  "half_extents": {
+   "x": 0.12,
+   "y": 0.08,
+   "z": 0.12
+  },
+  "max_health": 30,
+  "health": 30
+ },
+ {
+  "id": "track_l",
+  "kind": "track",
+  "center": {
+   "x": -0.85,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.14,
+   "y": 0.45,
+   "z": 2.01
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "track_r",
+  "kind": "track",
+  "center": {
+   "x": 0.85,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.14,
+   "y": 0.45,
+   "z": 2.01
+  },
+  "max_health": 120,
+  "health": 120
+ }
+]

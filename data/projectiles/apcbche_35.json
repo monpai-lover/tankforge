@@ -1,0 +1,47 @@
+{
+ "id": "apcbche_35",
+ "name": "35 mm APCBC-HE (SAPHEI-T)",
+ "kind": "apcbc",
+ "caliber_mm": 35.0,
+ "mass_kg": 0.55,
+ "muzzle_velocity_ms": 1175.0,
+ "explosive_mass_kg": 0.022,
+ "explosive_type": "hexogen",
+ "penetrator_material": "steel",
+ "length_mm": 130,
+ "drag_coefficient": 0.3,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 72.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 68.8
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 57.2
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 45.5
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 36.2
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 28.7
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 22.8
+  }
+ ],
+ "ricochet_angle_deg": 71.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0008,
+ "fuse_sensitivity_mm": 8
+}

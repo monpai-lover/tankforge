@@ -1,0 +1,508 @@
+[
+ {
+  "id": "hull_front",
+  "zone": "hull_upper_front",
+  "material": "rha",
+  "thickness_mm": 60,
+  "center": {
+   "x": 0,
+   "y": 0.55,
+   "z": 3.1
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 1.5,
+  "half_v": 0.55
+ },
+ {
+  "id": "turret_front_t1",
+  "zone": "turret_front",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": 0,
+   "y": 1.482,
+   "z": 2.835
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.904,
+  "half_v": 0.382
+ },
+ {
+  "id": "turret_side_r_t1",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": 0.884,
+   "y": 1.482,
+   "z": 1.75
+  },
+  "normal": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 1.115,
+  "half_v": 0.382
+ },
+ {
+  "id": "turret_side_l_t1",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": -0.884,
+   "y": 1.482,
+   "z": 1.75
+  },
+  "normal": {
+   "x": -1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 1.115,
+  "half_v": 0.382
+ },
+ {
+  "id": "turret_rear_t1",
+  "zone": "turret_rear",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": 0,
+   "y": 1.482,
+   "z": 0.665
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": -1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.904,
+  "half_v": 0.382
+ },
+ {
+  "id": "turret_roof_t1",
+  "zone": "turret_roof",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 0,
+   "y": 1.863,
+   "z": 1.75
+  },
+  "normal": {
+   "x": 0,
+   "y": 1,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.804,
+  "half_v": 1.015
+ },
+ {
+  "id": "gun_mantlet_t1_0",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": -0.22,
+   "y": 1.482,
+   "z": 2.925
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.3,
+  "half_v": 0.28
+ },
+ {
+  "id": "gun_mantlet_t1_1",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": 0.22,
+   "y": 1.482,
+   "z": 2.925
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.3,
+  "half_v": 0.28
+ },
+ {
+  "id": "turret_front_t2",
+  "zone": "turret_front",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": 0,
+   "y": 2.254,
+   "z": 1.057
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.965,
+  "half_v": 0.404
+ },
+ {
+  "id": "turret_side_r_t2",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": 0.945,
+   "y": 2.254,
+   "z": -0.1
+  },
+  "normal": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 1.188,
+  "half_v": 0.404
+ },
+ {
+  "id": "turret_side_l_t2",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": -0.945,
+   "y": 2.254,
+   "z": -0.1
+  },
+  "normal": {
+   "x": -1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 1.188,
+  "half_v": 0.404
+ },
+ {
+  "id": "turret_rear_t2",
+  "zone": "turret_rear",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": 0,
+   "y": 2.254,
+   "z": -1.257
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": -1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.965,
+  "half_v": 0.404
+ },
+ {
+  "id": "turret_roof_t2",
+  "zone": "turret_roof",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 0,
+   "y": 2.658,
+   "z": -0.1
+  },
+  "normal": {
+   "x": 0,
+   "y": 1,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.865,
+  "half_v": 1.088
+ },
+ {
+  "id": "gun_mantlet_t2_0",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": -0.246,
+   "y": 2.254,
+   "z": 1.148
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.326,
+  "half_v": 0.306
+ },
+ {
+  "id": "gun_mantlet_t2_1",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": 0.246,
+   "y": 2.254,
+   "z": 1.148
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.326,
+  "half_v": 0.306
+ },
+ {
+  "id": "turret_front_t3",
+  "zone": "turret_front",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": 0,
+   "y": 1.415,
+   "z": -0.937
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.843,
+  "half_v": 0.315
+ },
+ {
+  "id": "turret_side_r_t3",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": 0.823,
+   "y": 1.415,
+   "z": -1.95
+  },
+  "normal": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 1.043,
+  "half_v": 0.315
+ },
+ {
+  "id": "turret_side_l_t3",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": -0.823,
+   "y": 1.415,
+   "z": -1.95
+  },
+  "normal": {
+   "x": -1,
+   "y": 0,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "half_u": 1.043,
+  "half_v": 0.315
+ },
+ {
+  "id": "turret_rear_t3",
+  "zone": "turret_rear",
+  "material": "rha",
+  "thickness_mm": 50,
+  "center": {
+   "x": 0,
+   "y": 1.415,
+   "z": -2.962
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": -1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.843,
+  "half_v": 0.315
+ },
+ {
+  "id": "turret_roof_t3",
+  "zone": "turret_roof",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 0,
+   "y": 1.73,
+   "z": -1.95
+  },
+  "normal": {
+   "x": 0,
+   "y": 1,
+   "z": 0
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.743,
+  "half_v": 0.943
+ },
+ {
+  "id": "gun_mantlet_t3_0",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": -0.144,
+   "y": 1.415,
+   "z": -0.847
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.224,
+  "half_v": 0.204
+ },
+ {
+  "id": "gun_mantlet_t3_1",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 80,
+  "center": {
+   "x": 0.144,
+   "y": 1.415,
+   "z": -0.847
+  },
+  "normal": {
+   "x": 0,
+   "y": 0,
+   "z": 1
+  },
+  "axis_u": {
+   "x": 1,
+   "y": 0,
+   "z": 0
+  },
+  "half_u": 0.224,
+  "half_v": 0.204
+ }
+]

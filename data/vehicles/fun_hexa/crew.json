@@ -1,0 +1,92 @@
+[
+ {
+  "role": "driver",
+  "pos": {
+   "x": 0,
+   "y": 0.7,
+   "z": 2.4
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "gunner",
+  "pos": {
+   "x": -0.378,
+   "y": 1.4,
+   "z": 1.87
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "loader",
+  "pos": {
+   "x": 0.378,
+   "y": 1.4,
+   "z": 1.63
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "commander",
+  "pos": {
+   "x": 0.07,
+   "y": 1.48,
+   "z": 1.246
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "gunner",
+  "pos": {
+   "x": -0.405,
+   "y": 2.15,
+   "z": 0.02
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "loader",
+  "pos": {
+   "x": 0.405,
+   "y": 2.15,
+   "z": -0.22
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "loader",
+  "pos": {
+   "x": -0.405,
+   "y": 2.15,
+   "z": -0.22
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "gunner",
+  "pos": {
+   "x": -0.351,
+   "y": 1.4,
+   "z": -1.83
+  },
+  "radius": 0.25,
+  "health": 100
+ },
+ {
+  "role": "loader",
+  "pos": {
+   "x": 0.351,
+   "y": 1.4,
+   "z": -2.07
+  },
+  "radius": 0.25,
+  "health": 100
+ }
+]

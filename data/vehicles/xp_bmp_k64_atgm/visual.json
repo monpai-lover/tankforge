@@ -1,0 +1,58 @@
+{
+ "schema_version": 1,
+ "palette": {
+  "steel": "#6a6d70",
+  "rubber": "#1c1c1d",
+  "track": "#4a4743",
+  "black": "#151515",
+  "paint": "#5f6640",
+  "paint_dark": "#434a2e"
+ },
+ "parts": [],
+ "running_gear": {
+  "kind": "wheels",
+  "tyre_style": "military",
+  "axles": [
+   {
+    "z": 2.04,
+    "y": 0.58,
+    "r": 0.58,
+    "w": 0.43,
+    "x": 1.315,
+    "steer": 1,
+    "driven": true
+   },
+   {
+    "z": 0.72,
+    "y": 0.58,
+    "r": 0.58,
+    "w": 0.43,
+    "x": 1.315,
+    "steer": 1,
+    "driven": true
+   },
+   {
+    "z": -0.64,
+    "y": 0.58,
+    "r": 0.58,
+    "w": 0.43,
+    "x": 1.315,
+    "steer": 0,
+    "driven": true
+   },
+   {
+    "z": -2.0,
+    "y": 0.58,
+    "r": 0.58,
+    "w": 0.43,
+    "x": 1.315,
+    "steer": 0,
+    "driven": true
+   }
+  ]
+ },
+ "hull_bottom": 0.45,
+ "exhaust": {
+  "fuel": "diesel"
+ }
+}

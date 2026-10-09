@@ -1,0 +1,47 @@
+{
+ "id": "apcbc_57_mk9",
+ "name": "57 mm Shot Mk.9T (APCBC)",
+ "kind": "apcbc",
+ "caliber_mm": 57.0,
+ "mass_kg": 3.23,
+ "muzzle_velocity_ms": 831.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 211,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 100.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 97.3
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 87.1
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 75.8
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 66.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 57.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 50.1
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

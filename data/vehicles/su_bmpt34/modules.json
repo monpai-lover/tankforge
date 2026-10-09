@@ -1,0 +1,440 @@
+[
+ {
+  "id": "cannon_breech_01",
+  "kind": "gun_breech",
+  "center": {
+   "x": -0.468,
+   "y": 2.389,
+   "z": -0.032
+  },
+  "half_extents": {
+   "x": 0.088,
+   "y": 0.121,
+   "z": 0.566
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "gun_barrel_01",
+  "kind": "gun_barrel",
+  "center": {
+   "x": -0.46,
+   "y": 2.358,
+   "z": 1.046
+  },
+  "half_extents": {
+   "x": 0.035,
+   "y": 0.035,
+   "z": 0.686
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "cannon_breech_02",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.46,
+   "y": 2.389,
+   "z": -0.03
+  },
+  "half_extents": {
+   "x": 0.088,
+   "y": 0.121,
+   "z": 0.566
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "gun_barrel_02",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.46,
+   "y": 2.358,
+   "z": 1.04
+  },
+  "half_extents": {
+   "x": 0.035,
+   "y": 0.035,
+   "z": 0.686
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "drive_turret_h",
+  "kind": "turret_drive",
+  "center": {
+   "x": -0.001,
+   "y": 1.76,
+   "z": 0.704
+  },
+  "half_extents": {
+   "x": 0.756,
+   "y": 0.195,
+   "z": 0.755
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "drive_turret_v",
+  "kind": "vertical_drive",
+  "center": {
+   "x": 0.0,
+   "y": 2.368,
+   "z": -0.143
+  },
+  "half_extents": {
+   "x": 0.7,
+   "y": 0.049,
+   "z": 0.049
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "ammo_turret_03",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -1.029,
+   "y": 2.641,
+   "z": 0.002
+  },
+  "half_extents": {
+   "x": 0.212,
+   "y": 0.22,
+   "z": 0.808
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "ammo_turret_04",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 1.029,
+   "y": 2.641,
+   "z": 0.002
+  },
+  "half_extents": {
+   "x": 0.212,
+   "y": 0.22,
+   "z": 0.808
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": -0.0,
+   "y": 1.014,
+   "z": -2.175
+  },
+  "half_extents": {
+   "x": 0.897,
+   "y": 0.407,
+   "z": 0.538
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": -0.0,
+   "y": 1.068,
+   "z": -1.336
+  },
+  "half_extents": {
+   "x": 0.538,
+   "y": 0.522,
+   "z": 1.073
+  },
+  "max_health": 150,
+  "health": 150
+ },
+ {
+  "id": "track_r",
+  "kind": "track",
+  "center": {
+   "x": 1.224,
+   "y": 0.544,
+   "z": -0.039
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.534,
+   "z": 2.906
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "track_l",
+  "kind": "track",
+  "center": {
+   "x": -1.224,
+   "y": 0.544,
+   "z": -0.039
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.534,
+   "z": 2.906
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "fuel_tank_r_04",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.941,
+   "y": 1.086,
+   "z": -1.882
+  },
+  "half_extents": {
+   "x": 0.234,
+   "y": 0.418,
+   "z": 0.331
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_l_04",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.941,
+   "y": 1.086,
+   "z": -1.882
+  },
+  "half_extents": {
+   "x": 0.234,
+   "y": 0.418,
+   "z": 0.331
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_r_01",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.964,
+   "y": 1.371,
+   "z": 0.77
+  },
+  "half_extents": {
+   "x": 0.207,
+   "y": 0.155,
+   "z": 0.474
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_l_01",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.964,
+   "y": 1.371,
+   "z": 0.77
+  },
+  "half_extents": {
+   "x": 0.207,
+   "y": 0.155,
+   "z": 0.474
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_r_03",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.798,
+   "y": 1.071,
+   "z": -0.542
+  },
+  "half_extents": {
+   "x": 0.09,
+   "y": 0.428,
+   "z": 0.28
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_l_03",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.798,
+   "y": 1.071,
+   "z": -0.542
+  },
+  "half_extents": {
+   "x": 0.09,
+   "y": 0.428,
+   "z": 0.28
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_r_02",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.802,
+   "y": 0.881,
+   "z": 0.626
+  },
+  "half_extents": {
+   "x": 0.069,
+   "y": 0.243,
+   "z": 0.419
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_l_02",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.805,
+   "y": 0.943,
+   "z": 0.626
+  },
+  "half_extents": {
+   "x": 0.069,
+   "y": 0.182,
+   "z": 0.419
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "radio_station",
+  "kind": "radio",
+  "center": {
+   "x": 0.894,
+   "y": 1.274,
+   "z": 1.627
+  },
+  "half_extents": {
+   "x": 0.107,
+   "y": 0.106,
+   "z": 0.141
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "ammo_body_01",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.588,
+   "y": 0.652,
+   "z": 0.378
+  },
+  "half_extents": {
+   "x": 0.122,
+   "y": 0.225,
+   "z": 0.326
+  },
+  "max_health": 60,
+  "health": 60,
+  "rounds": 280
+ },
+ {
+  "id": "ammo_body_02",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.588,
+   "y": 0.652,
+   "z": 0.378
+  },
+  "half_extents": {
+   "x": 0.122,
+   "y": 0.225,
+   "z": 0.326
+  },
+  "max_health": 60,
+  "health": 60,
+  "rounds": 280
+ },
+ {
+  "id": "ammo_body_03",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.588,
+   "y": 0.652,
+   "z": 1.03
+  },
+  "half_extents": {
+   "x": 0.122,
+   "y": 0.225,
+   "z": 0.326
+  },
+  "max_health": 60,
+  "health": 60,
+  "rounds": 280
+ },
+ {
+  "id": "ammo_body_04",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.588,
+   "y": 0.652,
+   "z": 1.03
+  },
+  "half_extents": {
+   "x": 0.122,
+   "y": 0.225,
+   "z": 0.326
+  },
+  "max_health": 60,
+  "health": 60,
+  "rounds": 280
+ },
+ {
+  "id": "ammo_body_05",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.385,
+   "y": 0.652,
+   "z": -0.11
+  },
+  "half_extents": {
+   "x": 0.326,
+   "y": 0.225,
+   "z": 0.122
+  },
+  "max_health": 60,
+  "health": 60,
+  "rounds": 280
+ },
+ {
+  "id": "ammo_body_06",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.385,
+   "y": 0.652,
+   "z": -0.11
+  },
+  "half_extents": {
+   "x": 0.326,
+   "y": 0.225,
+   "z": 0.122
+  },
+  "max_health": 60,
+  "health": 60,
+  "rounds": 280
+ }
+]

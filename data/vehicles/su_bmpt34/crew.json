@@ -1,0 +1,45 @@
+[
+ {
+  "role": "gunner",
+  "pos": {
+   "x": 0.002,
+   "y": 1.453,
+   "z": 1.077
+  },
+  "radius": 0.28,
+  "health": 100.0,
+  "also": [
+   "commander"
+  ]
+ },
+ {
+  "role": "driver",
+  "pos": {
+   "x": -0.311,
+   "y": 1.145,
+   "z": 1.869
+  },
+  "radius": 0.28,
+  "health": 100.0
+ },
+ {
+  "role": "loader",
+  "pos": {
+   "x": 0.007,
+   "y": 1.95,
+   "z": 0.083
+  },
+  "radius": 0.28,
+  "health": 100.0
+ },
+ {
+  "role": "radio_operator",
+  "pos": {
+   "x": 0.442,
+   "y": 1.145,
+   "z": 1.869
+  },
+  "radius": 0.28,
+  "health": 100.0
+ }
+]

@@ -1,0 +1,47 @@
+{
+ "id": "hei_20_dm51",
+ "name": "20 mm DM51 (HEI-T)",
+ "kind": "he",
+ "caliber_mm": 20.0,
+ "mass_kg": 0.12,
+ "muzzle_velocity_ms": 1045.0,
+ "explosive_mass_kg": 0.011,
+ "explosive_type": "petn",
+ "penetrator_material": "steel",
+ "length_mm": 80,
+ "drag_coefficient": 0.42,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 1.5
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 1.5
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 1.5
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 1.5
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 1.5
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 1.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 1.5
+  }
+ ],
+ "ricochet_angle_deg": 79.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

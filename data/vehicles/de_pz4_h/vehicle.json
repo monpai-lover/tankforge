@@ -1,0 +1,65 @@
+{
+ "id": "de_pz4_h",
+ "name": "Pz.Kpfw. IV Ausf. H",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "medium",
+  "year": 1943,
+  "outline": "dimensions",
+  "based_on": "Panzerkampfwagen IV Ausf. H with 7.5 cm KwK 40 L/48",
+  "notes": "Built from published dimensions, not from a drawing. Gear ratios are estimates chosen to match the published top speed; interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.88,
+   1.68,
+   5.92
+  ],
+  "mass_kg": 25000,
+  "center_of_mass": [
+   0,
+   0.9,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.98,
+   0.62,
+   2.7
+  ],
+  "ring_diameter_m": 1.6,
+  "position_m": [
+   0.0,
+   1.68,
+   0.25
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.4,
+  "track_length_m": 3.52,
+  "suspension": {
+   "kind": "leaf_bogie",
+   "travel_m": 0.13,
+   "stiffness": 220000,
+   "damping": 15000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.31,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 1.8,
+  "min_turn_radius_m": 5.9
+ }
+}

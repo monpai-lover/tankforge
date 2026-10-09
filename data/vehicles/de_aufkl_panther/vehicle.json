@@ -1,0 +1,64 @@
+{
+ "id": "de_aufkl_panther",
+ "name": "Aufklärungspanzer Panther",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "light",
+  "year": 1943,
+  "outline": "model",
+  "based_on": "Aufklärungspanzer Panther: the Panther hull with the VK 16.02 Leopard's turret and the 5 cm KwK 39/1 L/60",
+  "notes": "Hull and running gear: the Panther's. Turret, gun and their materials: the user's own VK 16.02 Leopard model, set on the Panther's ring (tools/glb-vehicle.py). Turret armour and rates are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.27,
+   1.87,
+   6.87
+  ],
+  "mass_kg": 42000,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.95,
+   0.7,
+   1.9
+  ],
+  "ring_diameter_m": 1.6,
+  "position_m": [
+   0.0,
+   1.87,
+   -0.1
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.66,
+  "track_length_m": 3.92,
+  "suspension": {
+   "travel_m": 0.25,
+   "stiffness": 340000,
+   "damping": 26000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.42,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 24.0,
+  "max_reverse_speed_ms": 1.1,
+  "min_turn_radius_m": 0.0
+ }
+}

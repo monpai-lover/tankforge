@@ -1,0 +1,48 @@
+{
+ "id": "apcr_75_pzgr40_l43",
+ "name": "7.5 cm Pzgr. 40 (APCR), KwK 40 L/43",
+ "kind": "apcr",
+ "caliber_mm": 75.0,
+ "mass_kg": 4.1,
+ "muzzle_velocity_ms": 920.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 278,
+ "drag_coefficient": 0.45,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 143.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 137.1
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 115.7
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 93.6
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 75.7
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 61.2
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 49.5
+  }
+ ],
+ "ricochet_angle_deg": 66.0,
+ "normalization_deg": 2.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

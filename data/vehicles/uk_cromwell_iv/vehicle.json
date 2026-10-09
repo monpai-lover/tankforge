@@ -1,0 +1,65 @@
+{
+ "id": "uk_cromwell_iv",
+ "name": "Cromwell Mk IV",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "uk",
+  "class": "medium",
+  "year": 1944,
+  "outline": "dimensions",
+  "based_on": "Cruiser Mk VIII Cromwell IV (A27M) with QF 75 mm",
+  "notes": "Hull side/rear and turret side/rear armour, turret traverse rate, sight model and gear ratios are estimates; only overall dimensions, front armour, engine and top speed were checked against a source."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.908,
+   1.6,
+   6.35
+  ],
+  "mass_kg": 28000,
+  "center_of_mass": [
+   0,
+   0.9,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.95,
+   0.72,
+   2.3
+  ],
+  "ring_diameter_m": 1.52,
+  "position_m": [
+   0.0,
+   1.6,
+   0.35
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.394,
+  "track_length_m": 3.75,
+  "suspension": {
+   "kind": "christie",
+   "travel_m": 0.25,
+   "stiffness": 200000,
+   "damping": 15000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.33,
+  "drivetrain_efficiency": 0.85,
+  "max_brake_decel_ms2": 6.5,
+  "max_turn_rate_deg_s": 34.0,
+  "max_reverse_speed_ms": 1.0,
+  "min_turn_radius_m": 0.0
+ }
+}

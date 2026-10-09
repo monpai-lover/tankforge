@@ -1,0 +1,8 @@
+[package]
+name = "tg-ballistics"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+tg-shared.workspace = true
+tg-weapon.workspace = true

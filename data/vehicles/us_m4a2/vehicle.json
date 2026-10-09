@@ -1,0 +1,65 @@
+{
+ "id": "us_m4a2",
+ "name": "M4A2",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "usa",
+  "class": "medium",
+  "year": 1943,
+  "outline": "traced",
+  "based_on": "Medium Tank M4A2 (welded hull, 47-degree glacis) with the 75 mm M3",
+  "notes": "Hull and turret as the M4A3(75)W build, whose heights were measured on the M4A2 reference (numbers only). GM 6046 twin diesel (two 6-71s, 410 hp); final_drive_ratio combines the 3.53 bevel gear and the 2.84 final drive. Interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.62,
+   1.8,
+   5.93
+  ],
+  "mass_kg": 31800,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.2,
+   0.75,
+   2.7
+  ],
+  "ring_diameter_m": 1.753,
+  "position_m": [
+   0.0,
+   1.8,
+   -0.1
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.421,
+  "track_length_m": 3.73,
+  "suspension": {
+   "kind": "volute",
+   "travel_m": 0.11,
+   "stiffness": 300000,
+   "damping": 20000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.318,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 26.0,
+  "max_reverse_speed_ms": 1.4,
+  "min_turn_radius_m": 9.45
+ }
+}

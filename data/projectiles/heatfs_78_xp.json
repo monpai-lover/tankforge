@@ -1,0 +1,47 @@
+{
+ "id": "heatfs_78_xp",
+ "name": "78 mm HEAT-FS (試驗)",
+ "kind": "heat_fs",
+ "caliber_mm": 78.0,
+ "mass_kg": 5.8,
+ "muzzle_velocity_ms": 1150.0,
+ "explosive_mass_kg": 0.62,
+ "explosive_type": "comp_b",
+ "penetrator_material": "steel",
+ "length_mm": 328,
+ "drag_coefficient": 0.3,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 320.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 320.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 320.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 320.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 320.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 320.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 320.0
+  }
+ ],
+ "ricochet_angle_deg": 80.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

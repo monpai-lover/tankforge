@@ -1,0 +1,212 @@
+[
+ {
+  "id": "kpvt",
+  "name": "KPVT (14.5 mm)",
+  "caliber_mm": 14.5,
+  "rate_rpm": 600,
+  "muzzle_velocity_ms": 1000,
+  "bullet_mass_g": 64.0,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 50,
+  "reload_s": 8.0,
+  "dispersion_mrad": 1.4,
+  "tracer_every": 3,
+  "pen_mm_100m": 32,
+  "heat_rounds": 150,
+  "cool_s": 120,
+  "tracer_rgb": [
+   1.0,
+   0.5,
+   0.3
+  ]
+ },
+ {
+  "id": "mg34",
+  "name": "MG 34 (7.92 mm)",
+  "caliber_mm": 7.92,
+  "rate_rpm": 850,
+  "muzzle_velocity_ms": 755,
+  "bullet_mass_g": 12.8,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 150,
+  "reload_s": 6.0,
+  "dispersion_mrad": 1.6,
+  "tracer_every": 3,
+  "pen_mm_100m": 10,
+  "heat_rounds": 250,
+  "cool_s": 100,
+  "tracer_rgb": [
+   1.0,
+   0.86,
+   0.45
+  ]
+ },
+ {
+  "id": "dt",
+  "name": "DT (7.62 mm)",
+  "caliber_mm": 7.62,
+  "rate_rpm": 600,
+  "muzzle_velocity_ms": 840,
+  "bullet_mass_g": 9.6,
+  "drag_coefficient": 0.32,
+  "belt_rounds": 63,
+  "reload_s": 4.0,
+  "dispersion_mrad": 1.8,
+  "tracer_every": 3,
+  "pen_mm_100m": 9,
+  "heat_rounds": 190,
+  "cool_s": 100,
+  "tracer_rgb": [
+   0.45,
+   1.0,
+   0.5
+  ]
+ },
+ {
+  "id": "sgmt",
+  "name": "SGMT (7.62 mm)",
+  "caliber_mm": 7.62,
+  "rate_rpm": 650,
+  "muzzle_velocity_ms": 800,
+  "bullet_mass_g": 11.8,
+  "drag_coefficient": 0.31,
+  "belt_rounds": 250,
+  "reload_s": 7.0,
+  "dispersion_mrad": 1.6,
+  "tracer_every": 3,
+  "pen_mm_100m": 9,
+  "heat_rounds": 500,
+  "cool_s": 110,
+  "tracer_rgb": [
+   0.45,
+   1.0,
+   0.5
+  ]
+ },
+ {
+  "id": "dshk",
+  "name": "DShK (12.7 mm)",
+  "caliber_mm": 12.7,
+  "rate_rpm": 600,
+  "muzzle_velocity_ms": 850,
+  "bullet_mass_g": 48.3,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 50,
+  "reload_s": 9.0,
+  "dispersion_mrad": 1.4,
+  "tracer_every": 2,
+  "pen_mm_100m": 20,
+  "heat_rounds": 120,
+  "cool_s": 120,
+  "tracer_rgb": [
+   0.45,
+   1.0,
+   0.5
+  ]
+ },
+ {
+  "id": "m1919a4",
+  "name": "M1919A4 (.30)",
+  "caliber_mm": 7.62,
+  "rate_rpm": 500,
+  "muzzle_velocity_ms": 853,
+  "bullet_mass_g": 9.7,
+  "drag_coefficient": 0.32,
+  "belt_rounds": 250,
+  "reload_s": 7.0,
+  "dispersion_mrad": 1.6,
+  "tracer_every": 3,
+  "pen_mm_100m": 10,
+  "heat_rounds": 300,
+  "cool_s": 100,
+  "tracer_rgb": [
+   1.0,
+   0.42,
+   0.2
+  ]
+ },
+ {
+  "id": "m2hb",
+  "name": "M2HB (.50)",
+  "caliber_mm": 12.7,
+  "rate_rpm": 520,
+  "muzzle_velocity_ms": 890,
+  "bullet_mass_g": 45.8,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 100,
+  "reload_s": 9.0,
+  "dispersion_mrad": 1.3,
+  "tracer_every": 2,
+  "pen_mm_100m": 22,
+  "heat_rounds": 150,
+  "cool_s": 120,
+  "tracer_rgb": [
+   1.0,
+   0.42,
+   0.2
+  ]
+ },
+ {
+  "id": "besa",
+  "name": "Besa (7.92 mm)",
+  "caliber_mm": 7.92,
+  "rate_rpm": 700,
+  "muzzle_velocity_ms": 823,
+  "bullet_mass_g": 12.8,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 225,
+  "reload_s": 7.0,
+  "dispersion_mrad": 1.6,
+  "tracer_every": 3,
+  "pen_mm_100m": 10,
+  "heat_rounds": 300,
+  "cool_s": 100,
+  "tracer_rgb": [
+   1.0,
+   0.5,
+   0.25
+  ]
+ },
+ {
+  "id": "mg42",
+  "name": "MG 42 (7.92 mm)",
+  "caliber_mm": 7.92,
+  "rate_rpm": 1200,
+  "muzzle_velocity_ms": 755,
+  "bullet_mass_g": 12.8,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 150,
+  "reload_s": 6.0,
+  "dispersion_mrad": 1.8,
+  "tracer_every": 3,
+  "pen_mm_100m": 10,
+  "heat_rounds": 250,
+  "cool_s": 90,
+  "tracer_rgb": [
+   1.0,
+   0.86,
+   0.45
+  ]
+ },
+ {
+  "id": "mg_proto",
+  "name": "Prototype MG (7.62 mm)",
+  "caliber_mm": 7.62,
+  "rate_rpm": 600,
+  "muzzle_velocity_ms": 830,
+  "bullet_mass_g": 10.0,
+  "drag_coefficient": 0.32,
+  "belt_rounds": 200,
+  "reload_s": 6.0,
+  "dispersion_mrad": 1.6,
+  "tracer_every": 3,
+  "pen_mm_100m": 9,
+  "heat_rounds": 250,
+  "cool_s": 100,
+  "tracer_rgb": [
+   0.6,
+   0.85,
+   1.0
+  ]
+ }
+]

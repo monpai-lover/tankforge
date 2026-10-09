@@ -1,0 +1,47 @@
+{
+ "id": "apcbc_76_m62",
+ "name": "76 mm M62 (APCBC)",
+ "kind": "apcbc",
+ "caliber_mm": 76.2,
+ "mass_kg": 7.0,
+ "muzzle_velocity_ms": 792.0,
+ "explosive_mass_kg": 0.065,
+ "explosive_type": "explosive_d",
+ "penetrator_material": "steel",
+ "length_mm": 282,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 138.1
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 135.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 123.2
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 109.9
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 98.1
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 87.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 78.1
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

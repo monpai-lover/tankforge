@@ -1,0 +1,68 @@
+{
+ "id": "uk_cmp_portee",
+ "name": "CMP 6-pdr Portee",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "uk",
+  "class": "tank_destroyer",
+  "year": 1942,
+  "outline": "traced",
+  "based_on": "Chevrolet C60L 3-ton 4x4 (Canadian Military Pattern) portee carrying the Ordnance QF 6-pounder",
+  "notes": "Rebuilt from the four-view drawing supplied with the request; its scale is taken from the C60L's 158 in wheelbase. The gun rides on its own carriage facing the tail and fires over the tailboard, 40 degrees either side. Chevrolet 216 six of 85 hp; four gears and the transfer case's high range."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.0,
+   1.75,
+   6.0
+  ],
+  "mass_kg": 6400,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.15
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.5,
+   1.0,
+   2.2
+  ],
+  "ring_diameter_m": 1.0,
+  "position_m": [
+   0.0,
+   0.98,
+   -1.0
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "drive": "wheeled",
+  "track_width_m": 0.3,
+  "track_length_m": 3.98,
+  "suspension": {
+   "kind": "leaf_spring",
+   "travel_m": 0.18
+  },
+  "suspension_freq_hz": 1.5,
+  "suspension_damping": 0.3,
+  "rolling_resistance": 0.018,
+  "sprocket_radius_m": 0.47,
+  "drivetrain_efficiency": 0.88,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 4.0,
+  "min_turn_radius_m": 8.5,
+  "max_steer_deg": 32.0
+ }
+}

@@ -1,0 +1,48 @@
+{
+ "id": "apds_20_dm43",
+ "name": "20 mm DM43 (APDS-T)",
+ "kind": "apds",
+ "caliber_mm": 12.0,
+ "mass_kg": 0.11,
+ "muzzle_velocity_ms": 1150.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 54,
+ "drag_coefficient": 0.3,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 66.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 64.2
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 57.7
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 50.4
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 44.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 38.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 33.6
+  }
+ ],
+ "ricochet_angle_deg": 75.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

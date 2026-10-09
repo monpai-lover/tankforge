@@ -1,0 +1,47 @@
+{
+ "id": "apcbc_47_pak36t",
+ "name": "4.7 cm Pzgr. 36(t) (APCBC)",
+ "kind": "apcbc",
+ "caliber_mm": 47.0,
+ "mass_kg": 1.65,
+ "muzzle_velocity_ms": 775.0,
+ "explosive_mass_kg": 0.018,
+ "explosive_type": "tnt",
+ "penetrator_material": "steel",
+ "length_mm": 174,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 74.8
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 72.1
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 62.2
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 51.7
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 43.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 35.8
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 29.8
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

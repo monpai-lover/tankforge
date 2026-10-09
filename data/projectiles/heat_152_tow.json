@@ -1,0 +1,47 @@
+{
+ "id": "heat_152_tow",
+ "name": "BGM-71A TOW (HEAT)",
+ "kind": "heat_fs",
+ "caliber_mm": 152.0,
+ "mass_kg": 18.9,
+ "muzzle_velocity_ms": 300.0,
+ "explosive_mass_kg": 2.4,
+ "explosive_type": "comp_b",
+ "penetrator_material": "steel",
+ "length_mm": 638,
+ "drag_coefficient": 0.45,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 430.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 430.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 430.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 430.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 430.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 430.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 430.0
+  }
+ ],
+ "ricochet_angle_deg": 80.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

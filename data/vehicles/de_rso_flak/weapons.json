@@ -1,0 +1,89 @@
+{
+ "main_gun": {
+  "id": "flak38_20",
+  "caliber_mm": 20.0,
+  "barrel_length_mm": 1300,
+  "recoil_mm": 30,
+  "rounds_per_min": 420,
+  "reload_s": 0.143,
+  "traverse_deg_s": 40.0,
+  "elevate_deg_s": 30.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 90.0,
+  "dispersion_mrad": 1.4,
+  "mass_kg": 420,
+  "ammo": [
+   "hefi_20_sprgr",
+   "apt_20_pzgr39",
+   "apcr_20_pzgr40"
+  ],
+  "autocannon": {
+   "rate_rpm": 420,
+   "belt_rounds": 20,
+   "belt_reload_s": 3.5
+  },
+  "ammo_count": [
+   400,
+   240,
+   80
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.105,
+  -0.61
+ ],
+ "muzzle_offset_m": 1.79,
+ "sight": {
+  "name": "Flakvisier 38",
+  "levels": [
+   {
+    "magnification": 1.0,
+    "fov_deg": 45.0
+   },
+   {
+    "magnification": 3.0,
+    "fov_deg": 15.0
+   }
+  ]
+ },
+ "secondary": [],
+ "depression_by_bearing_deg": [
+  1.0,
+  1.0,
+  1.0,
+  3.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  3.0,
+  1.0,
+  1.0
+ ]
+}

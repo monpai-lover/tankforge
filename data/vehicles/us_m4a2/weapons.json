@@ -1,0 +1,118 @@
+{
+ "main_gun": {
+  "id": "m3_75",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 3000,
+  "recoil_mm": 305,
+  "rounds_per_min": 12.0,
+  "reload_s": 5.0,
+  "traverse_deg_s": 18.0,
+  "elevate_deg_s": 8.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 25.0,
+  "dispersion_mrad": 1.1,
+  "mass_kg": 405,
+  "ammo": [
+   "apcbc_75_m61_m3",
+   "he_75_m48",
+   "ap_75_m72"
+  ],
+  "ammo_count": [
+   44,
+   49,
+   4
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.1,
+  0.74
+ ],
+ "muzzle_offset_m": 1.96,
+ "sight": {
+  "name": "M70F",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 12.3
+   }
+  ]
+ },
+ "stabilizer": "vertical",
+ "secondary": [
+  {
+   "id": "coax_m1919",
+   "weapon": "m1919a4",
+   "mount": "coax",
+   "position_m": [
+    -0.3,
+    2.1,
+    1.04
+   ]
+  },
+  {
+   "id": "bow_m1919",
+   "weapon": "m1919a4",
+   "mount": "hull",
+   "position_m": [
+    0.62,
+    1.503,
+    2.35
+   ],
+   "arc_deg": [
+    15.0,
+    10.0,
+    20.0
+   ]
+  },
+  {
+   "id": "aa_m2",
+   "weapon": "m2hb",
+   "mount": "pintle",
+   "position_m": [
+    0.46,
+    2.8,
+    -0.02
+   ],
+   "post_m": 0.28
+  }
+ ],
+ "depression_by_bearing_deg": [
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  6.7,
+  3.3,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  3.3,
+  6.7,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0
+ ]
+}

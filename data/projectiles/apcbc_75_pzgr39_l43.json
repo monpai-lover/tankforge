@@ -1,0 +1,47 @@
+{
+ "id": "apcbc_75_pzgr39_l43",
+ "name": "7.5 cm Pzgr. 39 (APCBC), KwK 40 L/43",
+ "kind": "apcbc",
+ "caliber_mm": 75.0,
+ "mass_kg": 6.8,
+ "muzzle_velocity_ms": 740.0,
+ "explosive_mass_kg": 0.017,
+ "explosive_type": "petn",
+ "penetrator_material": "steel",
+ "length_mm": 278,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 126.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 123.2
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 112.5
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 100.4
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 89.6
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 71.4
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

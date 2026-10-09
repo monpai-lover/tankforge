@@ -1,0 +1,50 @@
+{
+ "main_gun": {
+  "id": "gun_75",
+  "caliber_mm": 75,
+  "barrel_length_mm": 3600,
+  "recoil_mm": 300,
+  "rounds_per_min": 8,
+  "reload_s": 7.5,
+  "traverse_deg_s": 20,
+  "elevate_deg_s": 12,
+  "max_depression_deg": 8,
+  "max_elevation_deg": 20,
+  "dispersion_mrad": 1.2,
+  "mass_kg": 900,
+  "ammo": [
+   "ap_75_generic"
+  ]
+ },
+ "mount_m": [
+  0,
+  1.6,
+  1.5
+ ],
+ "secondary": [
+  {
+   "id": "coax_mg",
+   "weapon": "mg_proto",
+   "mount": "coax",
+   "position_m": [
+    0.3,
+    1.6,
+    1.62
+   ]
+  }
+ ],
+ "muzzle_offset_m": 3.3,
+ "sight": {
+  "name": "Prototype sight",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 18.0
+   },
+   {
+    "magnification": 6.0,
+    "fov_deg": 9.0
+   }
+  ]
+ }
+}

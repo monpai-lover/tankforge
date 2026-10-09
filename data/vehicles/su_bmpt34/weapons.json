@@ -1,0 +1,146 @@
+{
+ "main_gun": {
+  "id": "72k_25",
+  "caliber_mm": 25.0,
+  "barrel_length_mm": 2100,
+  "recoil_mm": 40,
+  "rounds_per_min": 240,
+  "reload_s": 0.25,
+  "traverse_deg_s": 35.0,
+  "elevate_deg_s": 35.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 50.0,
+  "dispersion_mrad": 1.5,
+  "mass_kg": 240,
+  "ammo": [
+   "apt_25_br132p",
+   "hefi_25_ozr132"
+  ],
+  "ammo_count": [
+   420,
+   420
+  ],
+  "autocannon": {
+   "rate_rpm": 240,
+   "belt_rounds": 7,
+   "belt_reload_s": 0.75
+  }
+ },
+ "mount_m": [
+  -0.46,
+  2.368,
+  -0.143
+ ],
+ "muzzle_offset_m": 1.819,
+ "sight": {
+  "name": "K-8T",
+  "levels": [
+   {
+    "magnification": 1.9,
+    "fov_deg": 30.0
+   },
+   {
+    "magnification": 3.8,
+    "fov_deg": 15.0
+   }
+  ]
+ },
+ "secondary": [],
+ "extra_guns": [
+  {
+   "gun": {
+    "id": "72k_25",
+    "caliber_mm": 25.0,
+    "barrel_length_mm": 2100,
+    "recoil_mm": 40,
+    "rounds_per_min": 240,
+    "reload_s": 0.25,
+    "traverse_deg_s": 35.0,
+    "elevate_deg_s": 35.0,
+    "max_depression_deg": 10.0,
+    "max_elevation_deg": 50.0,
+    "dispersion_mrad": 1.5,
+    "mass_kg": 240,
+    "ammo": [
+     "apt_25_br132p",
+     "hefi_25_ozr132"
+    ],
+    "ammo_count": [
+     420,
+     420
+    ],
+    "autocannon": {
+     "rate_rpm": 240,
+     "belt_rounds": 7,
+     "belt_reload_s": 0.75
+    }
+   },
+   "mount_m": [
+    0.46,
+    2.368,
+    -0.143
+   ],
+   "muzzle_offset_m": 1.819
+  },
+  {
+   "gun": {
+    "id": "tt250_rail_r",
+    "caliber_mm": 420.0,
+    "barrel_length_mm": 2250,
+    "recoil_mm": 0,
+    "rounds_per_min": 60,
+    "reload_s": 1.0,
+    "traverse_deg_s": 35.0,
+    "elevate_deg_s": 5.0,
+    "max_depression_deg": 0.0,
+    "max_elevation_deg": 15.0,
+    "dispersion_mrad": 6.0,
+    "mass_kg": 300,
+    "ammo": [
+     "he_420_tt250"
+    ],
+    "ammo_count": [
+     1
+    ],
+    "missile": "tt250_rocket",
+    "trigger": "rocket"
+   },
+   "mount_m": [
+    1.01,
+    2.542,
+    -0.757
+   ],
+   "muzzle_offset_m": 0.93
+  },
+  {
+   "gun": {
+    "id": "tt250_rail_l",
+    "caliber_mm": 420.0,
+    "barrel_length_mm": 2250,
+    "recoil_mm": 0,
+    "rounds_per_min": 60,
+    "reload_s": 1.0,
+    "traverse_deg_s": 35.0,
+    "elevate_deg_s": 5.0,
+    "max_depression_deg": 0.0,
+    "max_elevation_deg": 15.0,
+    "dispersion_mrad": 6.0,
+    "mass_kg": 300,
+    "ammo": [
+     "he_420_tt250"
+    ],
+    "ammo_count": [
+     1
+    ],
+    "missile": "tt250_rocket",
+    "trigger": "rocket"
+   },
+   "mount_m": [
+    -1.01,
+    2.542,
+    -0.757
+   ],
+   "muzzle_offset_m": 0.93
+  }
+ ]
+}

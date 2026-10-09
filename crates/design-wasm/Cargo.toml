@@ -1,0 +1,16 @@
+[package]
+name = "tg-design-wasm"
+edition.workspace = true
+version.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tg-design.workspace = true
+tg-weapon.workspace = true
+tg-combat.workspace = true
+tg-shared.workspace = true
+tg-missile.workspace = true

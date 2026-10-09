@@ -1,0 +1,47 @@
+{
+ "id": "aphe_122_br472",
+ "name": "122 mm BR-472 (APHEBC)",
+ "kind": "aphe",
+ "caliber_mm": 121.92,
+ "mass_kg": 25.0,
+ "muzzle_velocity_ms": 950.0,
+ "explosive_mass_kg": 0.156,
+ "explosive_type": "tnt",
+ "penetrator_material": "steel",
+ "length_mm": 451,
+ "drag_coefficient": 0.347,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 295.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 290.8
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 274.8
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 256.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 238.5
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 222.2
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 207.0
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 5.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

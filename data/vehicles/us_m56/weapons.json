@@ -1,0 +1,52 @@
+{
+ "main_gun": {
+  "id": "m54_90mm",
+  "caliber_mm": 90,
+  "barrel_length_mm": 4500,
+  "recoil_mm": 330,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.5,
+  "traverse_deg_s": 12.0,
+  "elevate_deg_s": 5.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 15.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 1050,
+  "ammo": [
+   "apc_90_m318",
+   "heat_90_m348",
+   "he_90_m71",
+   "apcr_90_m304"
+  ],
+  "ammo_count": [
+   12,
+   6,
+   9,
+   2
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.64,
+  -0.1
+ ],
+ "muzzle_offset_m": 3.61,
+ "yaw_limit_deg": [
+  -30,
+  30
+ ],
+ "sight": {
+  "name": "M186",
+  "levels": [
+   {
+    "magnification": 4.0,
+    "fov_deg": 10.0
+   },
+   {
+    "magnification": 8.0,
+    "fov_deg": 5.0
+   }
+  ]
+ },
+ "secondary": []
+}

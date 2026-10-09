@@ -1,0 +1,280 @@
+{
+ "main_gun": {
+  "id": "m62_t2_122",
+  "caliber_mm": 121.92,
+  "barrel_length_mm": 5600,
+  "recoil_mm": 450,
+  "rounds_per_min": 4.0,
+  "reload_s": 15.0,
+  "traverse_deg_s": 18.0,
+  "elevate_deg_s": 5.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 17.0,
+  "dispersion_mrad": 0.8,
+  "mass_kg": 2650,
+  "ammo": [
+   "aphe_122_br472",
+   "apds_122_3bm11",
+   "heatfs_122_3bk9",
+   "he_122_of472"
+  ],
+  "ammo_count": [
+   10,
+   5,
+   5,
+   10
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.8,
+  1.55
+ ],
+ "muzzle_offset_m": 5.25,
+ "sight": {
+  "name": "T2S-29-14",
+  "levels": [
+   {
+    "magnification": 3.1,
+    "fov_deg": 22.0
+   },
+   {
+    "magnification": 7.9,
+    "fov_deg": 8.5
+   }
+  ]
+ },
+ "stabilizer": "two_plane",
+ "secondary": [],
+ "depression_by_bearing_deg": [
+  4.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  4.0,
+  3.8,
+  3.5,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  2.0,
+  3.5,
+  3.8,
+  4.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0
+ ],
+ "aps": {
+  "name": "奧普洛特-MO",
+  "turret": 1,
+  "gun_module": "oplot_gun",
+  "radar_module": "oplot_radar",
+  "radar_range_m": 2000.0,
+  "radar_rate_hz": 25.0,
+  "radar_elevation_deg": [
+   -10.0,
+   30.0
+  ],
+  "angle_noise_mrad": 1.5,
+  "range_noise_m": 1.0,
+  "detect_chance_far": 0.55,
+  "confirm_hits": 3,
+  "drop_after_s": 0.6,
+  "min_threat_speed_ms": 40.0,
+  "max_threat_speed_ms": 650.0,
+  "threat_miss_m": 6.0,
+  "engage_range_m": 200.0,
+  "stop_range_m": 20.0,
+  "rate_rpm": 10000.0,
+  "rate_range_rpm": [
+   9000.0,
+   11000.0
+  ],
+  "rounds": 900,
+  "spin_up_s": 0.35,
+  "traverse_deg_s": 180.0,
+  "elevate_deg_s": 120.0,
+  "max_elevation_deg": 70.0,
+  "depression_by_bearing_deg": [
+   6.0,
+   8.0,
+   10.0,
+   12.0,
+   14.0,
+   15.5,
+   16.5,
+   17.5,
+   18.5,
+   19.5,
+   19.6,
+   18.9,
+   18.2,
+   17.5,
+   16.8,
+   16.1,
+   15.4,
+   14.5,
+   13.5,
+   12.5,
+   11.5,
+   10.5,
+   9.5,
+   8.5,
+   7.5,
+   6.5,
+   5.5,
+   5.5,
+   6.5,
+   7.5,
+   8.5,
+   9.5,
+   9.6,
+   8.7,
+   7.8,
+   6.9
+  ],
+  "max_depression_deg": 20.0,
+  "servo_lag_s": 0.06,
+  "dispersion_mrad": 2.0,
+  "fire_window_mrad": 6.0,
+  "barrel_m": 1.135,
+  "bullet_speed_ms": 990.0,
+  "bullet_mass_kg": 0.064,
+  "bullet_caliber_mm": 14.5,
+  "bullet_drag": 0.3,
+  "tracer_every": 3,
+  "heat_rounds": 600.0,
+  "cool_per_s": 0.12,
+  "resume_heat": 0.5
+ },
+ "extra_turrets": [
+  {
+   "id": "oplot_mo",
+   "parent": 0,
+   "position_m": [
+    0.52,
+    2.31,
+    0.12
+   ],
+   "ring_diameter_m": 0.9,
+   "size_m": [
+    0.9,
+    0.9,
+    1.5
+   ],
+   "traverse_deg_s": 60.0,
+   "facing_deg": 0.0,
+   "sight": {
+    "name": "奧普洛特-MO 瞄準具",
+    "levels": [
+     {
+      "magnification": 1.5,
+      "fov_deg": 40.0
+     },
+     {
+      "magnification": 4.0,
+      "fov_deg": 15.0
+     }
+    ]
+   },
+   "depression_by_bearing_deg": [
+    6.0,
+    8.0,
+    10.0,
+    12.0,
+    14.0,
+    15.5,
+    16.5,
+    17.5,
+    18.5,
+    19.5,
+    19.6,
+    18.9,
+    18.2,
+    17.5,
+    16.8,
+    16.1,
+    15.4,
+    14.5,
+    13.5,
+    12.5,
+    11.5,
+    10.5,
+    9.5,
+    8.5,
+    7.5,
+    6.5,
+    5.5,
+    5.5,
+    6.5,
+    7.5,
+    8.5,
+    9.5,
+    9.6,
+    8.7,
+    7.8,
+    6.9
+   ],
+   "guns": [
+    {
+     "gun": {
+      "id": "oplot_mo_14_5x6",
+      "caliber_mm": 14.5,
+      "barrel_length_mm": 1350,
+      "recoil_mm": 5,
+      "rounds_per_min": 3000,
+      "reload_s": 0.02,
+      "traverse_deg_s": 60.0,
+      "elevate_deg_s": 40.0,
+      "max_depression_deg": 20.0,
+      "max_elevation_deg": 70.0,
+      "dispersion_mrad": 2.4,
+      "mass_kg": 200,
+      "ammo": [
+       "api_145_b32",
+       "apit_145_bzt44",
+       "apcr_145_bs41"
+      ],
+      "ammo_count": [
+       400,
+       300,
+       200
+      ],
+      "autocannon": {
+       "rate_rpm": 10000,
+       "belt_rounds": 900,
+       "belt_reload_s": 30.0,
+       "spin_up_s": 0.35
+      }
+     },
+     "mount_m": [
+      0.502,
+      2.715,
+      0.557
+     ],
+     "muzzle_offset_m": 1.135
+    }
+   ]
+  }
+ ]
+}

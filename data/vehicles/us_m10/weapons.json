@@ -1,0 +1,54 @@
+{
+ "main_gun": {
+  "id": "m7_3in",
+  "caliber_mm": 76.2,
+  "barrel_length_mm": 3810,
+  "recoil_mm": 305,
+  "rounds_per_min": 10.0,
+  "reload_s": 6.0,
+  "traverse_deg_s": 4.5,
+  "elevate_deg_s": 6.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 30.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 900,
+  "ammo": [
+   "apcbc_76_m62",
+   "he_76_m42a1",
+   "apcr_76_m93"
+  ],
+  "ammo_count": [
+   26,
+   24,
+   4
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.2,
+  1.12
+ ],
+ "muzzle_offset_m": 2.745,
+ "sight": {
+  "name": "M70G",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 12.3
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "aa_m2",
+   "weapon": "m2hb",
+   "mount": "pintle",
+   "position_m": [
+    0.0,
+    2.6,
+    -1.08
+   ],
+   "post_m": 0.06
+  }
+ ]
+}

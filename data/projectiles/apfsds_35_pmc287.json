@@ -1,0 +1,48 @@
+{
+ "id": "apfsds_35_pmc287",
+ "name": "35 mm PMC 287 APFSDS-T",
+ "kind": "apfsds",
+ "caliber_mm": 14.0,
+ "mass_kg": 0.296,
+ "muzzle_velocity_ms": 1440.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 168,
+ "drag_coefficient": 0.22,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 145.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 143.6
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 137.9
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 131.2
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 124.8
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 118.7
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 112.9
+  }
+ ],
+ "ricochet_angle_deg": 78.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 75.0
+}

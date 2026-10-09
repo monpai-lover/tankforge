@@ -1,0 +1,6 @@
+[
+  {"role":"gunner","pos":{"x":0.6,"y":1.6,"z":0.2},"radius":0.25,"health":100},
+  {"role":"commander","pos":{"x":0.6,"y":1.7,"z":-0.6},"radius":0.25,"health":100},
+  {"role":"loader","pos":{"x":-0.6,"y":1.6,"z":0.3},"radius":0.25,"health":100},
+  {"role":"driver","pos":{"x":0.0,"y":0.7,"z":2.4},"radius":0.25,"health":100}
+]

@@ -1,0 +1,66 @@
+{
+ "id": "us_m10",
+ "name": "M10 GMC",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "usa",
+  "class": "td",
+  "year": 1942,
+  "outline": "dimensions",
+  "based_on": "3-inch Gun Motor Carriage M10",
+  "notes": "Lower hull and suspension are the traced M4 chassis; upper hull and turret are built from published dimensions. Turret traverse was by hand, about 80 s for a full turn. final_drive_ratio is chosen to match the published top speed; gun elevation limits and the interior layout are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.05,
+   1.8,
+   5.93
+  ],
+  "mass_kg": 29600,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.2,
+   0.76,
+   2.9
+  ],
+  "ring_diameter_m": 1.753,
+  "position_m": [
+   0.0,
+   1.8,
+   0.2
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.421,
+  "track_length_m": 3.73,
+  "suspension": {
+   "kind": "volute",
+   "travel_m": 0.11,
+   "stiffness": 300000,
+   "damping": 20000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.318,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 26.0,
+  "max_reverse_speed_ms": 1.4,
+  "min_turn_radius_m": 9.45
+ }
+}

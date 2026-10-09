@@ -1,0 +1,47 @@
+{
+ "id": "heat_75_gr38b",
+ "name": "7.5 cm Gr. 38 Hl/B (HEAT)",
+ "kind": "heat",
+ "caliber_mm": 75.0,
+ "mass_kg": 4.57,
+ "muzzle_velocity_ms": 450.0,
+ "explosive_mass_kg": 0.44,
+ "explosive_type": "hexogen",
+ "penetrator_material": "steel",
+ "length_mm": 315,
+ "drag_coefficient": 0.5,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 80.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 80.0
+  }
+ ],
+ "ricochet_angle_deg": 80.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

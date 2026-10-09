@@ -1,0 +1,53 @@
+{
+ "main_gun": {
+  "id": "kwk39_1",
+  "caliber_mm": 50.0,
+  "barrel_length_mm": 3000,
+  "recoil_mm": 330,
+  "rounds_per_min": 15.0,
+  "reload_s": 4.0,
+  "traverse_deg_s": 24.0,
+  "elevate_deg_s": 8.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 400,
+  "ammo": [
+   "apc_50_pzgr39",
+   "he_50_sprgr38",
+   "apcr_50_pzgr40"
+  ],
+  "ammo_count": [
+   30,
+   20,
+   6
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.005,
+  0.825
+ ],
+ "muzzle_offset_m": 2.445,
+ "sight": {
+  "name": "TZF 4b",
+  "levels": [
+   {
+    "magnification": 2.4,
+    "fov_deg": 25.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_mg42",
+   "weapon": "mg42",
+   "mount": "coax",
+   "position_m": [
+    0.2,
+    2.005,
+    0.95
+   ]
+  }
+ ]
+}

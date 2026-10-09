@@ -1,0 +1,47 @@
+{
+ "id": "apcbc_88_l56",
+ "name": "8.8 cm Pzgr. 39 (APCBC)",
+ "kind": "apcbc",
+ "caliber_mm": 88.0,
+ "mass_kg": 10.2,
+ "muzzle_velocity_ms": 773.0,
+ "explosive_mass_kg": 0.059,
+ "explosive_type": "amatol",
+ "penetrator_material": "steel",
+ "length_mm": 326,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 154.9
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 151.7
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 139.6
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 125.7
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 113.3
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 102.1
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 91.9
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

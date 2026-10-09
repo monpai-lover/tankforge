@@ -1,0 +1,47 @@
+{
+ "id": "ap_custom_37_l45",
+ "name": "37 mm AP（L/45）",
+ "kind": "ap",
+ "caliber_mm": 37,
+ "mass_kg": 0.79,
+ "muzzle_velocity_ms": 705,
+ "explosive_mass_kg": 0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 137,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 53.4
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 50.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 42.1
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 33.2
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 26.1
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 20.6
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 16.2
+  }
+ ],
+ "ricochet_angle_deg": 68,
+ "normalization_deg": 4,
+ "fuse_delay_s": 0,
+ "fuse_sensitivity_mm": 0
+}

@@ -1,0 +1,67 @@
+{
+ "id": "xp_bmp_k64",
+ "name": "BMP-K-64",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "fictional",
+  "class": "armored_car",
+  "year": 1964,
+  "outline": "model",
+  "based_on": "BMP-K-64: a fictional 8x8 armoured personnel carrier prototype",
+  "notes": "Exterior: the user's own model (BMP_K_64.glb), used unchanged and cut into its moving pieces by tools/glb-vehicle.py. Built on T-64 components: the hull armour is the T-64A's (80 mm steel + 105 mm glass-textolite + 20 mm steel upper front at 68 degrees, 80 mm sides, 45 mm rear) and the 5TDF of 700 hp; 60 km/h on the road as the user specified. The interior is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.1,
+   1.86,
+   6.0
+  ],
+  "mass_kg": 26000,
+  "center_of_mass": [
+   0,
+   1.2,
+   0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.06,
+   0.74,
+   1.4
+  ],
+  "ring_diameter_m": 0.9,
+  "position_m": [
+   0.0,
+   1.885,
+   -0.45
+  ]
+ },
+ "physics": {
+  "drive": "wheeled",
+  "track_width_m": 0.43,
+  "track_length_m": 4.04,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.3
+  },
+  "suspension_freq_hz": 1.2,
+  "suspension_damping": 0.35,
+  "rolling_resistance": 0.018,
+  "sprocket_radius_m": 0.58,
+  "drivetrain_efficiency": 0.86,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 5.0,
+  "min_turn_radius_m": 9.5,
+  "max_steer_deg": 30.0
+ }
+}

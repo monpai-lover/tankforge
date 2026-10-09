@@ -1,0 +1,65 @@
+{
+ "id": "de_pzjg1",
+ "name": "Panzerjäger I",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "tank_destroyer",
+  "year": 1940,
+  "outline": "traced",
+  "based_on": "Panzerjäger I: 4.7 cm PaK(t) on the Panzer I Ausf. B chassis",
+  "notes": "Rebuilt from the four-view drawing supplied with the request (scale bar 184 px/m) and refined against the reference model and photographs (hull heights, the shield's plan and height, the gun and its recuperator, the wheel stations); the gun traverses 17.5 degrees either side behind its fixed shield."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.06,
+   1.1,
+   4.42
+  ],
+  "mass_kg": 6400,
+  "center_of_mass": [
+   0,
+   0.85,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.76,
+   1.03,
+   1.36
+  ],
+  "ring_diameter_m": 0.9,
+  "position_m": [
+   0.0,
+   1.1,
+   0.15
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.28,
+  "track_length_m": 2.45,
+  "suspension": {
+   "travel_m": 0.12,
+   "stiffness": 70000,
+   "damping": 6000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.26,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

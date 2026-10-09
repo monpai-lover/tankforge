@@ -1,0 +1,34 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/33925874-Oplot_MO_Vehicle_Module.glb",
+ "source": "Oplot-MO module: the user's own model (Oplot_MO_Vehicle_Module.glb), used unchanged with the user's permission",
+ "mirror_x": false,
+ "rotate_180": true,
+ "offset": [
+  0.52,
+  2.31,
+  0.12
+ ],
+ "turret_nodes": [
+  "FixedMount",
+  "YawPivot"
+ ],
+ "gun_nodes": [
+  "PitchPivot"
+ ],
+ "barrel_extra_nodes": [
+  "BarrelSpinPivot"
+ ],
+ "turret_index_nodes": {
+  "1": [
+   "YawPivot"
+  ]
+ },
+ "normal_maps": false,
+ "textures": {
+  "0": 512,
+  "1": 512,
+  "2": 256,
+  "3": 512,
+  "4": 512
+ }
+}

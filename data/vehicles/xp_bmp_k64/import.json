@@ -1,0 +1,23 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/5e9b732b-BMP_K_64.glb",
+ "source": "BMP-K-64: the user's own model (BMP_K_64.glb), used unchanged with the user's permission",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "barrel_meshes": [],
+ "normal_maps": false,
+ "textures": {
+  "0": 1024,
+  "1": 512,
+  "2": 512
+ },
+ "turret_nodes": [
+  "Turret_Yaw"
+ ],
+ "gun_nodes": [
+  "Gun_Elevation"
+ ]
+}

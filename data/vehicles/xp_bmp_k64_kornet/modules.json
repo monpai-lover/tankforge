@@ -1,0 +1,178 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.3,
+   "y": 1.15,
+   "z": 1.55
+  },
+  "half_extents": {
+   "x": 0.45,
+   "y": 0.3,
+   "z": 0.5
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.85,
+   "z": 0.55
+  },
+  "half_extents": {
+   "x": 0.35,
+   "y": 0.2,
+   "z": 0.3
+  },
+  "max_health": 100,
+  "health": 100
+ },
+ {
+  "id": "fuel_tank_l",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.85,
+   "y": 1.05,
+   "z": -1.7
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.3,
+   "z": 0.4
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "fuel_tank_r",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.85,
+   "y": 1.05,
+   "z": -1.7
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.3,
+   "z": 0.4
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "ammo_rack",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.0,
+   "y": 1.3,
+   "z": -0.9
+  },
+  "half_extents": {
+   "x": 0.35,
+   "y": 0.2,
+   "z": 0.3
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.0,
+   "y": 2.43,
+   "z": -0.65
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 0.2
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.0,
+   "y": 2.48,
+   "z": -0.11
+  },
+  "half_extents": {
+   "x": 0.04,
+   "y": 0.04,
+   "z": 0.34
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "radio",
+  "kind": "radio",
+  "center": {
+   "x": -0.7,
+   "y": 1.4,
+   "z": 0.9
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.14,
+   "z": 0.14
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "turret_drive",
+  "kind": "turret_drive",
+  "center": {
+   "x": 0.0,
+   "y": 1.92,
+   "z": -0.45
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.08,
+   "z": 0.15
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "wheels_l",
+  "kind": "track",
+  "center": {
+   "x": -1.315,
+   "y": 0.58,
+   "z": 0.02
+  },
+  "half_extents": {
+   "x": 0.215,
+   "y": 0.58,
+   "z": 2.6
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "wheels_r",
+  "kind": "track",
+  "center": {
+   "x": 1.315,
+   "y": 0.58,
+   "z": 0.02
+  },
+  "half_extents": {
+   "x": 0.215,
+   "y": 0.58,
+   "z": 2.6
+  },
+  "max_health": 90,
+  "health": 90
+ }
+]

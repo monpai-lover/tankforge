@@ -1,0 +1,28 @@
+# Rust build output
+/target/
+
+# Web dependencies and generated bundles
+/client/web/node_modules/
+/client/web/dist/
+/client/web/test-results/
+/client/web/playwright-report/
+
+# Python caches
+__pycache__/
+*.py[cod]
+.venv/
+
+# Local credentials and machine configuration
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+
+# Editor and operating system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.log

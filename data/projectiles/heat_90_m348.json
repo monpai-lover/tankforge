@@ -1,0 +1,47 @@
+{
+ "id": "heat_90_m348",
+ "name": "90 mm M348 (HEAT)",
+ "kind": "heat",
+ "caliber_mm": 90.0,
+ "mass_kg": 5.85,
+ "muzzle_velocity_ms": 853.0,
+ "explosive_mass_kg": 0.9,
+ "explosive_type": "comp_b",
+ "penetrator_material": "steel",
+ "length_mm": 378,
+ "drag_coefficient": 0.45,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 305.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 305.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 305.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 305.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 305.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 305.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 305.0
+  }
+ ],
+ "ricochet_angle_deg": 80.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

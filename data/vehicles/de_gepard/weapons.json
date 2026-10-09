@@ -1,0 +1,125 @@
+{
+ "main_gun": {
+  "id": "kda_35_gepard",
+  "caliber_mm": 35.0,
+  "barrel_length_mm": 3850,
+  "recoil_mm": 60,
+  "rounds_per_min": 550,
+  "reload_s": 0.11,
+  "traverse_deg_s": 90.0,
+  "elevate_deg_s": 56.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 85.0,
+  "dispersion_mrad": 1.0,
+  "mass_kg": 670,
+  "ammo": [
+   "hei_35_kda",
+   "apds_35_kda"
+  ],
+  "ammo_count": [
+   320,
+   20
+  ],
+  "autocannon": {
+   "rate_rpm": 550,
+   "belt_rounds": 320,
+   "belt_reload_s": 20.0
+  }
+ },
+ "mount_m": [
+  -0.84,
+  2.3,
+  -0.05
+ ],
+ "muzzle_offset_m": 3.71,
+ "sight": {
+  "name": "PERI (Gepard)",
+  "levels": [
+   {
+    "magnification": 1.5,
+    "fov_deg": 50.0
+   },
+   {
+    "magnification": 6.0,
+    "fov_deg": 12.0
+   }
+  ]
+ },
+ "stabilizer": "two_plane",
+ "secondary": [],
+ "depression_by_bearing_deg": [
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  8.5,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  8.5,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0
+ ],
+ "extra_guns": [
+  {
+   "gun": {
+    "id": "kda_35_gepard",
+    "caliber_mm": 35.0,
+    "barrel_length_mm": 3850,
+    "recoil_mm": 60,
+    "rounds_per_min": 550,
+    "reload_s": 0.11,
+    "traverse_deg_s": 90.0,
+    "elevate_deg_s": 56.0,
+    "max_depression_deg": 10.0,
+    "max_elevation_deg": 85.0,
+    "dispersion_mrad": 1.0,
+    "mass_kg": 670,
+    "ammo": [
+     "hei_35_kda",
+     "apds_35_kda"
+    ],
+    "ammo_count": [
+     320,
+     20
+    ],
+    "autocannon": {
+     "rate_rpm": 550,
+     "belt_rounds": 320,
+     "belt_reload_s": 20.0
+    }
+   },
+   "mount_m": [
+    0.84,
+    2.3,
+    -0.05
+   ],
+   "muzzle_offset_m": 3.71
+  }
+ ]
+}

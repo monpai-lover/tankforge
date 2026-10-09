@@ -1,0 +1,47 @@
+{
+ "id": "apc_90_m318",
+ "name": "90 mm M318 (APC)",
+ "kind": "apcbc",
+ "caliber_mm": 90.0,
+ "mass_kg": 10.9,
+ "muzzle_velocity_ms": 914.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 333,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 185.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 181.3
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 167.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 150.8
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 136.2
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 123.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 111.0
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

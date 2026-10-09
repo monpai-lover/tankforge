@@ -1,0 +1,104 @@
+{
+ "main_gun": {
+  "id": "l11_76",
+  "caliber_mm": 76.2,
+  "barrel_length_mm": 2324,
+  "recoil_mm": 500,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.0,
+  "traverse_deg_s": 24.0,
+  "elevate_deg_s": 5.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 25.0,
+  "dispersion_mrad": 1.2,
+  "mass_kg": 550,
+  "ammo": [
+   "aphe_76_br350a_l11",
+   "he_76_of350_l11"
+  ],
+  "ammo_count": [
+   30,
+   47
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.765,
+  1.25
+ ],
+ "muzzle_offset_m": 1.74,
+ "sight": {
+  "name": "TOD-6",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 26.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_dt",
+   "weapon": "dt",
+   "mount": "coax",
+   "position_m": [
+    0.24,
+    1.8,
+    1.7
+   ]
+  },
+  {
+   "id": "bow_dt",
+   "weapon": "dt",
+   "mount": "hull",
+   "position_m": [
+    0.52,
+    1.15,
+    2.26
+   ],
+   "arc_deg": [
+    12.0,
+    6.0,
+    16.0
+   ]
+  }
+ ],
+ "depression_by_bearing_deg": [
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  3.3,
+  2.5,
+  2.5,
+  2.5,
+  2.5,
+  2.5,
+  3.3,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0
+ ]
+}

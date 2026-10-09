@@ -1,0 +1,67 @@
+{
+ "id": "de_sdkfz234_2",
+ "name": "Sd.Kfz. 234/2 Puma",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "armored_car",
+  "year": 1944,
+  "outline": "traced",
+  "based_on": "Schwerer Panzerspähwagen (5 cm) Sd.Kfz. 234/2 'Puma', 8x8, with the 5 cm KwK 39/1 L/60",
+  "notes": "Side profile and axle positions traced from the IWM broadside photograph (public domain, Wikimedia Commons). Tatra 103 V12 diesel 210 hp; six gears forward and six reverse (a second driver at the rear), eight-wheel drive and eight-wheel steering (front pair one way, rear pair the other). Gear ratios are chosen to match the published 90 km/h; interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.36,
+   1.79,
+   5.88
+  ],
+  "mass_kg": 11500,
+  "center_of_mass": [
+   0,
+   1.05,
+   -0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.6,
+   0.53,
+   2.3
+  ],
+  "ring_diameter_m": 1.45,
+  "position_m": [
+   0.0,
+   1.79,
+   0.58
+  ]
+ },
+ "physics": {
+  "drive": "wheeled",
+  "track_width_m": 0.27,
+  "track_length_m": 4.23,
+  "suspension": {
+   "kind": "leaf_spring",
+   "travel_m": 0.22
+  },
+  "suspension_freq_hz": 1.3,
+  "suspension_damping": 0.35,
+  "rolling_resistance": 0.015,
+  "sprocket_radius_m": 0.52,
+  "drivetrain_efficiency": 0.9,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 20.0,
+  "min_turn_radius_m": 6.5,
+  "max_steer_deg": 28.0
+ }
+}

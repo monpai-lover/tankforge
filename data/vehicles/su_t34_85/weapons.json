@@ -1,0 +1,68 @@
+{
+ "main_gun": {
+  "id": "zis_s_53_85",
+  "caliber_mm": 85.0,
+  "barrel_length_mm": 4645,
+  "recoil_mm": 320,
+  "rounds_per_min": 7.5,
+  "reload_s": 8.0,
+  "traverse_deg_s": 22.0,
+  "elevate_deg_s": 6.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 1.1,
+  "mass_kg": 1150,
+  "ammo": [
+   "aphe_85_br365",
+   "he_85_o365k",
+   "apcr_85_br365p"
+  ],
+  "ammo_count": [
+   24,
+   31,
+   5
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.97,
+  1.4
+ ],
+ "muzzle_offset_m": 3.57,
+ "sight": {
+  "name": "TSh-16",
+  "levels": [
+   {
+    "magnification": 4.0,
+    "fov_deg": 16.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_dt",
+   "weapon": "dt",
+   "mount": "coax",
+   "position_m": [
+    0.28,
+    1.99,
+    1.8
+   ]
+  },
+  {
+   "id": "bow_dt",
+   "weapon": "dt",
+   "mount": "hull",
+   "position_m": [
+    0.52,
+    1.15,
+    2.26
+   ],
+   "arc_deg": [
+    12.0,
+    6.0,
+    16.0
+   ]
+  }
+ ]
+}

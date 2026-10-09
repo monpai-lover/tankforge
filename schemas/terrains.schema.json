@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "terrains.json", "type": "array", "minItems": 1,
+  "items": {"type":"object","additionalProperties":false,"required":["id","rolling_mult","traction_mu","lateral_mu"],
+    "properties": {
+      "id": {"type":"string"},
+      "rolling_mult": {"type":"number","exclusiveMinimum":0,"maximum":10,"description":"multiplies the vehicle's rolling_resistance; calibrated for a ground pressure of 80 kPa"},
+      "traction_mu": {"type":"number","exclusiveMinimum":0,"maximum":1.5,"description":"max longitudinal track force / normal force"},
+      "lateral_mu": {"type":"number","exclusiveMinimum":0,"maximum":1.5,"description":"sideways + turning friction"},
+      "soil": {"type":"object","additionalProperties":false,"required":["n","kc","kphi","c","phi_deg","K"],
+        "description":"Bekker / Janosi-Hanamoto soil parameters. Omit for hard ground.",
+        "properties": {
+          "n": {"type":"number","exclusiveMinimum":0,"maximum":3,"description":"sinkage exponent"},
+          "kc": {"type":"number","minimum":0,"description":"cohesive modulus, kN/m^(n+1)"},
+          "kphi": {"type":"number","exclusiveMinimum":0,"description":"frictional modulus, kN/m^(n+2)"},
+          "c": {"type":"number","minimum":0,"description":"cohesion, kPa"},
+          "phi_deg": {"type":"number","minimum":0,"maximum":60,"description":"angle of internal shearing resistance"},
+          "K": {"type":"number","exclusiveMinimum":0,"maximum":0.2,"description":"shear deformation modulus, m"},
+          "max_sinkage_m": {"type":"number","exclusiveMinimum":0,"maximum":1,"description":"depth of the soft layer"}}}}}
+}

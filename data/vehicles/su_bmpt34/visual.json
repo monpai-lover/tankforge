@@ -1,0 +1,538 @@
+{
+ "schema_version": 1,
+ "palette": {
+  "paint": "#5a6640",
+  "paint_dark": "#434d30",
+  "steel": "#6a6d70",
+  "rubber": "#1c1c1d",
+  "track": "#4a4743",
+  "black": "#151515"
+ },
+ "parts": [
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.21,
+   "len": 1.25,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.125
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.21,
+   "len": 0.45,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    0.725
+   ],
+   "segs": 22,
+   "r2": 0.185
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.185,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    1.05
+   ],
+   "segs": 22,
+   "r2": 0.13
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.13,
+   "len": 0.15,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    1.225
+   ],
+   "segs": 22,
+   "r2": 0.03
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.165,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.85
+   ],
+   "segs": 22,
+   "r2": 0.21
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "r": 0.09,
+   "len": 0.06,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.98
+   ],
+   "segs": 22,
+   "r2": 0.11
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    1.197,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    45.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    0.823,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    135.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    0.823,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    225.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    1.197,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    315.0
+   ]
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.21,
+   "len": 1.25,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.125
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.21,
+   "len": 0.45,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    0.725
+   ],
+   "segs": 22,
+   "r2": 0.185
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.185,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    1.05
+   ],
+   "segs": 22,
+   "r2": 0.13
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.13,
+   "len": 0.15,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    1.225
+   ],
+   "segs": 22,
+   "r2": 0.03
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.165,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.85
+   ],
+   "segs": 22,
+   "r2": 0.21
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "r": 0.09,
+   "len": 0.06,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.98
+   ],
+   "segs": 22,
+   "r2": 0.11
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -0.823,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    45.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -1.197,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    135.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -1.197,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    225.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -0.823,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    315.0
+   ]
+  }
+ ],
+ "running_gear": {
+  "track_width": 0.5,
+  "track_thickness": 0.05,
+  "track_x": 1.224,
+  "link_pitch": 0.172,
+  "link_style": "center_guide",
+  "track_sag": 0.036,
+  "sprocket": {
+   "z": -2.591,
+   "y": 0.608,
+   "r": 0.317,
+   "teeth": 0
+  },
+  "idler": {
+   "z": 2.578,
+   "y": 0.79,
+   "r": 0.25
+  },
+  "wheels": [
+   {
+    "z": 1.865,
+    "y": 0.463,
+    "r": 0.414,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": 0.93,
+    "y": 0.463,
+    "r": 0.414,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": -0.1,
+    "y": 0.463,
+    "r": 0.414,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": -0.97,
+    "y": 0.463,
+    "r": 0.414,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": -1.84,
+    "y": 0.463,
+    "r": 0.414,
+    "w": 0.3,
+    "x": 0.0
+   }
+  ],
+  "rollers": [],
+  "wheel_style": "rubber_dish"
+ },
+ "hull_bottom": 0.4
+}

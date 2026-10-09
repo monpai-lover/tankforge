@@ -1,0 +1,12 @@
+[package]
+name = "tg-penetration"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true
+tg-armor.workspace = true
+tg-weapon.workspace = true
+
+[dev-dependencies]
+tg-shared.workspace = true

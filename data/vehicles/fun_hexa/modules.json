@@ -1,0 +1,338 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0,
+   "y": 0.6,
+   "z": -2.3
+  },
+  "half_extents": {
+   "x": 0.7,
+   "y": 0.4,
+   "z": 0.7
+  },
+  "max_health": 150,
+  "health": 150
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0,
+   "y": 0.5,
+   "z": -1
+  },
+  "half_extents": {
+   "x": 0.4,
+   "y": 0.3,
+   "z": 0.4
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "fuel_tank",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.9,
+   "y": 0.5,
+   "z": 0
+  },
+  "half_extents": {
+   "x": 0.3,
+   "y": 0.3,
+   "z": 0.6
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "breech_t1_0",
+  "kind": "gun_breech",
+  "center": {
+   "x": -0.22,
+   "y": 1.482,
+   "z": 2.345
+  },
+  "half_extents": {
+   "x": 0.11,
+   "y": 0.11,
+   "z": 0.24
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel_t1_0",
+  "kind": "gun_barrel",
+  "center": {
+   "x": -0.22,
+   "y": 1.482,
+   "z": 4.493
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 1.348
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "breech_t1_1",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.22,
+   "y": 1.482,
+   "z": 2.345
+  },
+  "half_extents": {
+   "x": 0.11,
+   "y": 0.11,
+   "z": 0.24
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel_t1_1",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.22,
+   "y": 1.482,
+   "z": 4.493
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 1.348
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "ammo_rack_t1",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.604,
+   "y": 1.482,
+   "z": 1.259
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.12,
+   "z": 0.12
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "turret_drive_t1",
+  "kind": "turret_drive",
+  "center": {
+   "x": -0.542,
+   "y": 1.2,
+   "z": 1.639
+  },
+  "half_extents": {
+   "x": 0.1,
+   "y": 0.08,
+   "z": 0.12
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "breech_t2_0",
+  "kind": "gun_breech",
+  "center": {
+   "x": -0.246,
+   "y": 2.254,
+   "z": 0.567
+  },
+  "half_extents": {
+   "x": 0.11,
+   "y": 0.11,
+   "z": 0.24
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel_t2_0",
+  "kind": "gun_barrel",
+  "center": {
+   "x": -0.246,
+   "y": 2.254,
+   "z": 3.286
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 1.919
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "breech_t2_1",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.246,
+   "y": 2.254,
+   "z": 0.567
+  },
+  "half_extents": {
+   "x": 0.11,
+   "y": 0.11,
+   "z": 0.24
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel_t2_1",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.246,
+   "y": 2.254,
+   "z": 3.286
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 1.919
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "ammo_rack_t2",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.665,
+   "y": 2.254,
+   "z": -0.622
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.12,
+   "z": 0.12
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "turret_drive_t2",
+  "kind": "turret_drive",
+  "center": {
+   "x": -0.579,
+   "y": 1.95,
+   "z": -0.219
+  },
+  "half_extents": {
+   "x": 0.1,
+   "y": 0.08,
+   "z": 0.12
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "breech_t3_0",
+  "kind": "gun_breech",
+  "center": {
+   "x": -0.144,
+   "y": 1.415,
+   "z": -1.427
+  },
+  "half_extents": {
+   "x": 0.11,
+   "y": 0.11,
+   "z": 0.24
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel_t3_0",
+  "kind": "gun_barrel",
+  "center": {
+   "x": -0.144,
+   "y": 1.415,
+   "z": -0.111
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 0.516
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "breech_t3_1",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.144,
+   "y": 1.415,
+   "z": -1.427
+  },
+  "half_extents": {
+   "x": 0.11,
+   "y": 0.11,
+   "z": 0.24
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel_t3_1",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.144,
+   "y": 1.415,
+   "z": -0.111
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 0.516
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "ammo_rack_t3",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.543,
+   "y": 1.415,
+   "z": -2.409
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.12,
+   "z": 0.12
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "turret_drive_t3",
+  "kind": "turret_drive",
+  "center": {
+   "x": -0.506,
+   "y": 1.2,
+   "z": -2.054
+  },
+  "half_extents": {
+   "x": 0.1,
+   "y": 0.08,
+   "z": 0.12
+  },
+  "max_health": 70,
+  "health": 70
+ }
+]

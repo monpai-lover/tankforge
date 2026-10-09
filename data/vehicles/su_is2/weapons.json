@@ -1,0 +1,77 @@
+{
+ "main_gun": {
+  "id": "d25t_122",
+  "caliber_mm": 121.92,
+  "barrel_length_mm": 5250,
+  "recoil_mm": 550,
+  "rounds_per_min": 2.7,
+  "reload_s": 22.0,
+  "traverse_deg_s": 13.0,
+  "elevate_deg_s": 3.0,
+  "max_depression_deg": 3.0,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 2420,
+  "ammo": [
+   "aphe_122_br471",
+   "he_122_of471"
+  ],
+  "ammo_count": [
+   12,
+   16
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.02,
+  1.8
+ ],
+ "muzzle_offset_m": 4.715,
+ "sight": {
+  "name": "TSh-17",
+  "levels": [
+   {
+    "magnification": 4.0,
+    "fov_deg": 16.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_dt",
+   "weapon": "dt",
+   "mount": "coax",
+   "position_m": [
+    0.36,
+    2.02,
+    2.23
+   ]
+  },
+  {
+   "id": "bow_dt",
+   "weapon": "dt",
+   "mount": "hull",
+   "position_m": [
+    0.6,
+    1.28,
+    2.9
+   ],
+   "arc_deg": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  {
+   "id": "aa_dshk",
+   "weapon": "dshk",
+   "mount": "pintle",
+   "position_m": [
+    -0.45,
+    2.895,
+    0.25
+   ],
+   "post_m": 0.25
+  }
+ ]
+}

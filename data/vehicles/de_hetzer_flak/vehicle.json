@@ -1,0 +1,65 @@
+{
+ "id": "de_hetzer_flak",
+ "name": "Hetzer 2 cm FlaK",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "spaa",
+  "year": 1945,
+  "outline": "traced",
+  "based_on": "Bergepanzer 38(t) Hetzer with a 2 cm FlaK 38 in the open compartment",
+  "notes": "The Hetzer hull of the four-view drawing cut down to the open compartment of the Bergepanzer 38(t), as in the render supplied with the request, with the 2 cm FlaK 38 on its pedestal."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.63,
+   1.68,
+   4.87
+  ],
+  "mass_kg": 13800,
+  "center_of_mass": [
+   0,
+   0.92,
+   -0.05
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.6,
+   1.1,
+   2.2
+  ],
+  "ring_diameter_m": 0.8,
+  "position_m": [
+   0.0,
+   1.27,
+   -0.25
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.35,
+  "track_length_m": 2.85,
+  "suspension": {
+   "travel_m": 0.15,
+   "stiffness": 160000,
+   "damping": 12000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.3,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

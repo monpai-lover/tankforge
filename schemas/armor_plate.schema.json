@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "armor.json",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["id","zone","material","thickness_mm","center","normal","axis_u","half_u","half_v"],
+    "properties": {
+      "id": {"type":"string"},
+      "zone": {"enum":["hull_upper_front","hull_lower_front","hull_side","hull_rear","hull_roof","hull_floor","turret_front","turret_side","turret_rear","turret_roof","gun_mantlet","skirt","other"]},
+      "material": {"type":"string","description":"id from materials.json"},
+      "thickness_mm": {"type":"number","exclusiveMinimum":0},
+      "center": {"$ref":"#/$defs/vec3"}, "normal": {"$ref":"#/$defs/vec3"}, "axis_u": {"$ref":"#/$defs/vec3"},
+      "half_u": {"type":"number","exclusiveMinimum":0}, "half_v": {"type":"number","exclusiveMinimum":0},
+      "curvature": {"type":"number","default":0}
+    }
+  },
+  "$defs": {"vec3": {"type":"object","required":["x","y","z"],"properties":{"x":{"type":"number"},"y":{"type":"number"},"z":{"type":"number"}}}}
+}

@@ -1,0 +1,194 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": -2.0
+  },
+  "half_extents": {
+   "x": 0.5,
+   "y": 0.45,
+   "z": 0.7
+  },
+  "max_health": 150,
+  "health": 150
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.85,
+   "z": 2.3
+  },
+  "half_extents": {
+   "x": 0.55,
+   "y": 0.3,
+   "z": 0.4
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "fuel_tank_l",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.95,
+   "y": 1.5,
+   "z": -2.0
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.2,
+   "z": 0.6
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_r",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.95,
+   "y": 1.5,
+   "z": -2.0
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.2,
+   "z": 0.6
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "ammo_wet_floor",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.0,
+   "y": 0.62,
+   "z": -0.1
+  },
+  "half_extents": {
+   "x": 0.6,
+   "y": 0.15,
+   "z": 0.6
+  },
+  "max_health": 80,
+  "health": 80
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.0,
+   "y": 2.27,
+   "z": 0.25
+  },
+  "half_extents": {
+   "x": 0.17,
+   "y": 0.17,
+   "z": 0.4
+  },
+  "max_health": 100,
+  "health": 100
+ },
+ {
+  "id": "radio",
+  "kind": "radio",
+  "center": {
+   "x": 0.0,
+   "y": 2.25,
+   "z": -1.15
+  },
+  "half_extents": {
+   "x": 0.3,
+   "y": 0.15,
+   "z": 0.15
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "ammo_ready",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.7,
+   "y": 2.22,
+   "z": -0.8
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.15,
+   "z": 0.2
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.0,
+   "y": 2.27,
+   "z": 2.635
+  },
+  "half_extents": {
+   "x": 0.08,
+   "y": 0.08,
+   "z": 1.305
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "turret_drive",
+  "kind": "turret_drive",
+  "center": {
+   "x": 0.75,
+   "y": 2.17,
+   "z": 0.4
+  },
+  "half_extents": {
+   "x": 0.12,
+   "y": 0.12,
+   "z": 0.15
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "track_l",
+  "kind": "track",
+  "center": {
+   "x": -1.054,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.2105,
+   "y": 0.45,
+   "z": 2.72
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "track_r",
+  "kind": "track",
+  "center": {
+   "x": 1.054,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.2105,
+   "y": 0.45,
+   "z": 2.72
+  },
+  "max_health": 120,
+  "health": 120
+ }
+]

@@ -1,0 +1,65 @@
+{
+ "id": "de_hetzer_mk103",
+ "name": "Hetzer 3 cm MK 103",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "spaa",
+  "year": 1945,
+  "outline": "model",
+  "based_on": "Hetzer chassis with an open fighting compartment and the 3 cm MK 103 on a pedestal",
+  "notes": "Exterior: the user's own model (flak38t-urban-gray.glb); interior: the refined pieces of the user's Hetzer_Flak_Interior_Refined.glb; both used unchanged and cut into their moving pieces by tools/glb-vehicle.py. Hull figures and armour as the Hetzer's; the MK 103's rounds are the service 3 cm types, their penetration estimated."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.63,
+   1.96,
+   4.85
+  ],
+  "mass_kg": 13800,
+  "center_of_mass": [
+   0,
+   0.92,
+   -0.05
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.3,
+   1.1,
+   1.4
+  ],
+  "ring_diameter_m": 0.9,
+  "position_m": [
+   0.0,
+   1.575,
+   0.2
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.35,
+  "track_length_m": 2.85,
+  "suspension": {
+   "travel_m": 0.15,
+   "stiffness": 160000,
+   "damping": 12000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.3,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

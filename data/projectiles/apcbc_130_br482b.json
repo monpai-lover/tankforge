@@ -1,0 +1,47 @@
+{
+ "id": "apcbc_130_br482b",
+ "name": "130 mm BR-482B (APCBC)",
+ "kind": "apcbc",
+ "caliber_mm": 130.0,
+ "mass_kg": 33.4,
+ "muzzle_velocity_ms": 1050.0,
+ "explosive_mass_kg": 0.12,
+ "explosive_type": "tnt",
+ "penetrator_material": "steel",
+ "length_mm": 481,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 284.1
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 280.1
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 265.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 247.2
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 230.6
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 215.1
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 200.6
+  }
+ ],
+ "ricochet_angle_deg": 68.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

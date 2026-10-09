@@ -1,0 +1,66 @@
+{
+ "id": "us_m56",
+ "name": "M56 Scorpion",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "usa",
+  "class": "td",
+  "year": 1953,
+  "outline": "model",
+  "based_on": "90 mm Self-Propelled Gun M56 'Scorpion' (airborne anti-tank gun)",
+  "notes": "Exterior from the War Thunder model 'M56 Scorpion (War Thunder)' by KojfDiscord (CC BY 4.0, sketchfab.com/3d-models/m56-scorpion-war-thunder-2fbe0195de5c4ae19529c7978f433941), cut into hull, mount, gun, barrel and wheels by tools/glb-vehicle.py (import.json). Figures: 7.1 t, 4.55 m long (5.84 m with the gun), 2.57 m wide, 2.05 m over the shield, crew 4, 90 mm M54 with 29 rounds, 30 deg either side, -10/+15 deg, Continental AOI-402-5 200 hp, Allison CD-150-4 (2 ranges), 45 km/h, unarmoured but for the 5-6 mm blast shield (Wikipedia 'M56 Scorpion'; afvdatabase.com 'M56 SPAT'; M186 sight 4-8x per tanks-encyclopedia). Crew as in the vehicle: driver in a tub front left, gunner right of the gun, commander on the radio at the left, loader by the right stowage box (tankarchives.com 'Airborne Scorpion'). Interior layout, gear ratios and suspension rates are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.57,
+   1.32,
+   4.55
+  ],
+  "mass_kg": 7144,
+  "center_of_mass": [
+   0,
+   0.78,
+   0.15
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.7,
+   0.75,
+   2.7
+  ],
+  "ring_diameter_m": 0.9,
+  "position_m": [
+   0.0,
+   1.12,
+   -0.12
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.51,
+  "track_length_m": 2.4,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.2,
+   "stiffness": 140000,
+   "damping": 9000
+  },
+  "rolling_resistance": 0.035,
+  "sprocket_radius_m": 0.248,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 40.0,
+  "max_reverse_speed_ms": 3.0,
+  "min_turn_radius_m": 4.0
+ }
+}

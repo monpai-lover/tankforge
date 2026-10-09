@@ -1,0 +1,47 @@
+{
+ "id": "he_100_of412",
+ "name": "100 mm OF-412 (HE)",
+ "kind": "he",
+ "caliber_mm": 100.0,
+ "mass_kg": 15.6,
+ "muzzle_velocity_ms": 900.0,
+ "explosive_mass_kg": 1.46,
+ "explosive_type": "tnt",
+ "penetrator_material": "steel",
+ "length_mm": 400,
+ "drag_coefficient": 0.42,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 16.9
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 16.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 16.9
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 16.9
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 16.9
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 16.9
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 16.9
+  }
+ ],
+ "ricochet_angle_deg": 79.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

@@ -1,0 +1,825 @@
+{
+ "grp": "source/bmpt34.grp",
+ "blk": "source/bmpt34.blk",
+ "model": "bmpt34",
+ "ground": 0.064,
+ "vehicle": {
+  "id": "su_bmpt34",
+  "name": "BMPT-34 (1943)",
+  "meta": {
+   "nation": "ussr",
+   "class": "spaa",
+   "year": 1943,
+   "outline": "model",
+   "based_on": "BMPT-34 (obr. 1943) War Thunder CDK user mod by TunderTunder: T-34 chassis, open-topped turret with two 25 mm 72-K guns and a pair of heavy rockets",
+   "notes": "Imported one-to-one from the mod (tools/wt_import.py): the render model, skeleton and damage model out of bmpt34.grp, armour thickness and class per part, ammunition stowage, crew seats, engine, gearbox and weapon mounts out of bmpt34.blk. What a user mod takes from the game's own files (the 72-K's rounds and rate of fire, the rocket, the sight) is filled in from the 72-K's service figures; WT's textures are not part of the mod, so the model is painted in flat colours by material."
+  },
+  "hull_height_m": 1.67,
+  "turret_size_m": [
+   1.9,
+   0.9,
+   2.36
+  ],
+  "ring_diameter_m": 1.5,
+  "open_top": true,
+  "engine_weight_kg": 1000,
+  "torque_shape": [
+   [
+    600,
+    1.05
+   ],
+   [
+    1200,
+    1.12
+   ],
+   [
+    1500,
+    1.08
+   ],
+   [
+    1800,
+    1.0
+   ]
+  ],
+  "shift_time_s": 0.6,
+  "physics": {
+   "track_length_m": 3.85,
+   "suspension": {
+    "kind": "christie",
+    "travel_m": 0.24,
+    "stiffness": 220000,
+    "damping": 16000
+   },
+   "rolling_resistance": 0.04,
+   "drivetrain_efficiency": 0.82,
+   "max_brake_decel_ms2": 6.0,
+   "max_turn_rate_deg_s": 30.0,
+   "max_reverse_speed_ms": 2.0,
+   "min_turn_radius_m": 1.3
+  }
+ },
+ "armour_materials": {
+  "RHA_tank": "rha",
+  "CHA_tank": "cha",
+  "RHAHH_tank": "high_hardness_steel",
+  "tank_traks": "spaced",
+  "tank_structural_steel": "spaced"
+ },
+ "running_gear": {
+  "road_wheels": {
+   "right": [
+    "wheel_r_01",
+    "wheel_r_02",
+    "wheel_r_03",
+    "wheel_r_04",
+    "wheel_r_05"
+   ],
+   "left": [
+    "wheel_l_01",
+    "wheel_l_02",
+    "wheel_l_03",
+    "wheel_l_04",
+    "wheel_l_05"
+   ]
+  },
+  "sprocket": {
+   "right": "wheel_r_drive",
+   "left": "wheel_l_drive"
+  },
+  "idler": {
+   "right": "wheel_r_front",
+   "left": "wheel_l_front"
+  },
+  "wheel_r": 0.414,
+  "wheel_w": 0.3,
+  "sprocket_r": 0.317,
+  "idler_r": 0.25,
+  "track_width": 0.5,
+  "track_thickness": 0.05,
+  "link_pitch": 0.172,
+  "link_style": "center_guide",
+  "track_sag": 0.036,
+  "wheel_style": "rubber_dish"
+ },
+ "render": {
+  "source": "BMPT-34 War Thunder CDK user mod by TunderTunder (bmpt34.grp), decoded with tools/dagor_grp.py",
+  "mounts": {
+   "turret": [
+    "bone_turret",
+    "ring",
+    "axis",
+    "bone_commander_sight_h",
+    "launcher",
+    "launcher1",
+    "launcher2",
+    "bone_gun_03",
+    "gun_mask"
+   ],
+   "gun:0": [
+    "bone_gun_01",
+    "gun_mask_01"
+   ],
+   "gun:1": [
+    "bone_gun_02",
+    "gun_mask_02"
+   ],
+   "barrel:0": [
+    "gun_barrel_01"
+   ],
+   "barrel:1": [
+    "gun_barrel_02"
+   ],
+   "drop": [
+    "track_l",
+    "track_r"
+   ]
+  },
+  "material_colors": {
+   "0": "#56623d",
+   "1": "#3b3631",
+   "2": "#5d5f40",
+   "3": "#9fb2bd",
+   "4": "#9fb2bd",
+   "5": "#536038",
+   "8": "#4c5634",
+   "9": "#58653f"
+  },
+  "drop_materials": [
+   6,
+   7
+  ],
+  "node_colors": {
+   "root": "#56623d",
+   "ring": "#525d3a",
+   "front_armor": "#4d5835",
+   "ex_armor_*": "#4f5a37",
+   "hatch_*": "#5c6944",
+   "ex_decor_r_06": "#465031",
+   "ex_decor_l_06": "#465031",
+   "ex_decor_r_01": "#6a6d66",
+   "ex_decor_l_03": "#6a6d66",
+   "ex_decor_r_02": "#2b2e27",
+   "ex_decor_l_04": "#2b2e27",
+   "ex_lantern_*": "#2c2d2a",
+   "suspension_*": "#3f4631",
+   "wheel_*": "#56623d",
+   "bone_turret": "#56623d",
+   "gun_mask": "#4e5936",
+   "gun_mask_01": "#4e5936",
+   "gun_mask_02": "#4e5936",
+   "bone_gun_01": "#3a3d39",
+   "bone_gun_02": "#3a3d39",
+   "gun_barrel_01": "#2a2c2a",
+   "gun_barrel_02": "#2a2c2a",
+   "axis": "#2f312d",
+   "bone_commander_sight_h": "#33352f",
+   "launcher": "#454f30",
+   "bone_gun_03": "#5f625c",
+   "launcher1": "#5f625c",
+   "launcher2": "#5f625c"
+  },
+  "keep_material_colors": [
+   3,
+   4
+  ],
+  "radial_colors": {
+   "wheel_r_0*": {
+    "r_frac": 0.84,
+    "color": "#242523",
+    "hub_frac": 0.3,
+    "hub": "#3c4530"
+   },
+   "wheel_l_0*": {
+    "r_frac": 0.84,
+    "color": "#242523",
+    "hub_frac": 0.3,
+    "hub": "#3c4530"
+   },
+   "wheel_r_drive": {
+    "r_frac": 0.86,
+    "color": "#4c4d48"
+   },
+   "wheel_l_drive": {
+    "r_frac": 0.86,
+    "color": "#4c4d48"
+   },
+   "wheel_r_front": {
+    "r_frac": 0.86,
+    "color": "#242523"
+   },
+   "wheel_l_front": {
+    "r_frac": 0.86,
+    "color": "#242523"
+   }
+  }
+ },
+ "weapons": {
+  "sight": {
+   "name": "K-8T",
+   "levels": [
+    {
+     "magnification": 1.9,
+     "fov_deg": 30.0
+    },
+    {
+     "magnification": 3.8,
+     "fov_deg": 15.0
+    }
+   ]
+  },
+  "guns": [
+   {
+    "trunnion_node": "bone_gun_01",
+    "muzzle_node": "emtr_gun_flame_01",
+    "gun": {
+     "id": "72k_25",
+     "caliber_mm": 25.0,
+     "barrel_length_mm": 2100,
+     "recoil_mm": 40,
+     "rounds_per_min": 240,
+     "reload_s": 0.25,
+     "traverse_deg_s": 35.0,
+     "elevate_deg_s": 35.0,
+     "max_depression_deg": 10.0,
+     "max_elevation_deg": 50.0,
+     "dispersion_mrad": 1.5,
+     "mass_kg": 240,
+     "ammo": [
+      "apt_25_br132p",
+      "hefi_25_ozr132"
+     ],
+     "ammo_count": [
+      420,
+      420
+     ],
+     "autocannon": {
+      "rate_rpm": 240,
+      "belt_rounds": 7,
+      "belt_reload_s": 0.75
+     }
+    }
+   },
+   {
+    "trunnion_node": "bone_gun_02",
+    "muzzle_node": "emtr_gun_flame_02",
+    "gun": {
+     "id": "72k_25",
+     "caliber_mm": 25.0,
+     "barrel_length_mm": 2100,
+     "recoil_mm": 40,
+     "rounds_per_min": 240,
+     "reload_s": 0.25,
+     "traverse_deg_s": 35.0,
+     "elevate_deg_s": 35.0,
+     "max_depression_deg": 10.0,
+     "max_elevation_deg": 50.0,
+     "dispersion_mrad": 1.5,
+     "mass_kg": 240,
+     "ammo": [
+      "apt_25_br132p",
+      "hefi_25_ozr132"
+     ],
+     "ammo_count": [
+      420,
+      420
+     ],
+     "autocannon": {
+      "rate_rpm": 240,
+      "belt_rounds": 7,
+      "belt_reload_s": 0.75
+     }
+    }
+   },
+   {
+    "trunnion_node": "bone_gun_03",
+    "mount_offset_m": [
+     1.01,
+     0.0,
+     0.0
+    ],
+    "muzzle_offset_m": 0.93,
+    "gun": {
+     "id": "tt250_rail_r",
+     "caliber_mm": 420.0,
+     "barrel_length_mm": 2250,
+     "recoil_mm": 0,
+     "rounds_per_min": 60,
+     "reload_s": 1.0,
+     "traverse_deg_s": 35.0,
+     "elevate_deg_s": 5.0,
+     "max_depression_deg": 0.0,
+     "max_elevation_deg": 15.0,
+     "dispersion_mrad": 6.0,
+     "mass_kg": 300,
+     "ammo": [
+      "he_420_tt250"
+     ],
+     "ammo_count": [
+      1
+     ],
+     "missile": "tt250_rocket",
+     "trigger": "rocket"
+    }
+   },
+   {
+    "trunnion_node": "bone_gun_03",
+    "mount_offset_m": [
+     -1.01,
+     0.0,
+     0.0
+    ],
+    "muzzle_offset_m": 0.93,
+    "gun": {
+     "id": "tt250_rail_l",
+     "caliber_mm": 420.0,
+     "barrel_length_mm": 2250,
+     "recoil_mm": 0,
+     "rounds_per_min": 60,
+     "reload_s": 1.0,
+     "traverse_deg_s": 35.0,
+     "elevate_deg_s": 5.0,
+     "max_depression_deg": 0.0,
+     "max_elevation_deg": 15.0,
+     "dispersion_mrad": 6.0,
+     "mass_kg": 300,
+     "ammo": [
+      "he_420_tt250"
+     ],
+     "ammo_count": [
+      1
+     ],
+     "missile": "tt250_rocket",
+     "trigger": "rocket"
+    }
+   }
+  ]
+ },
+ "visual_parts": [
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.21,
+   "len": 1.25,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.125
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.21,
+   "len": 0.45,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    0.725
+   ],
+   "segs": 22,
+   "r2": 0.185
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.185,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    1.05
+   ],
+   "segs": 22,
+   "r2": 0.13
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.13,
+   "len": 0.15,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    1.225
+   ],
+   "segs": 22,
+   "r2": 0.03
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.165,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.85
+   ],
+   "segs": 22,
+   "r2": 0.21
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "r": 0.09,
+   "len": 0.06,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.98
+   ],
+   "segs": 22,
+   "r2": 0.11
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    1.01,
+    2.54,
+    -0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    1.197,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    45.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    0.823,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    135.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    0.823,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    225.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 2,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    1.197,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    315.0
+   ]
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.21,
+   "len": 1.25,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.125
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.21,
+   "len": 0.45,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    0.725
+   ],
+   "segs": 22,
+   "r2": 0.185
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.185,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    1.05
+   ],
+   "segs": 22,
+   "r2": 0.13
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "paint_dark",
+   "r": 0.13,
+   "len": 0.15,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    1.225
+   ],
+   "segs": 22,
+   "r2": 0.03
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "track",
+   "r": 0.165,
+   "len": 0.2,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.85
+   ],
+   "segs": 22,
+   "r2": 0.21
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "r": 0.09,
+   "len": 0.06,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.98
+   ],
+   "segs": 22,
+   "r2": 0.11
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "cyl",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "steel",
+   "r": 0.215,
+   "len": 0.05,
+   "axis": "z",
+   "pos": [
+    -1.01,
+    2.54,
+    -0.45
+   ],
+   "segs": 22
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -0.823,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    45.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -1.197,
+    2.727,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    135.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -1.197,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    225.0
+   ]
+  },
+  {
+   "type": "box",
+   "mount": "gun",
+   "turret": 0,
+   "gun": 3,
+   "payload": 0,
+   "mat": "black",
+   "size": [
+    0.11,
+    0.02,
+    0.4
+   ],
+   "pos": [
+    -0.823,
+    2.353,
+    -0.72
+   ],
+   "rot": [
+    0,
+    0,
+    315.0
+   ]
+  }
+ ]
+}

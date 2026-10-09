@@ -1,0 +1,85 @@
+{
+ "main_gun": {
+  "id": "qf6pdr_mk2",
+  "caliber_mm": 57.0,
+  "barrel_length_mm": 2565,
+  "recoil_mm": 600,
+  "rounds_per_min": 15.0,
+  "reload_s": 4.0,
+  "traverse_deg_s": 12.0,
+  "elevate_deg_s": 6.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 15.0,
+  "dispersion_mrad": 0.8,
+  "mass_kg": 1140,
+  "ammo": [
+   "ap_57_mk7",
+   "apcbc_57_mk9",
+   "he_57_mk10"
+  ],
+  "ammo_count": [
+   40,
+   20,
+   20
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.64,
+  -1.0
+ ],
+ "muzzle_offset_m": 2.27,
+ "sight": {
+  "name": "Telescope No. 22C",
+  "levels": [
+   {
+    "magnification": 1.9,
+    "fov_deg": 23.0
+   }
+  ]
+ },
+ "secondary": [],
+ "facing_deg": 180.0,
+ "depression_by_bearing_deg": [
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  1.5,
+  1.5,
+  1.5,
+  1.5,
+  1.5,
+  1.5,
+  1.5,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0
+ ],
+ "yaw_limit_deg": [
+  -40.0,
+  40.0
+ ]
+}

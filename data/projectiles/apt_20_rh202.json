@@ -1,0 +1,47 @@
+{
+ "id": "apt_20_rh202",
+ "name": "20 mm AP-T (Rh 202)",
+ "kind": "ap",
+ "caliber_mm": 20.0,
+ "mass_kg": 0.12,
+ "muzzle_velocity_ms": 1050.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 74,
+ "drag_coefficient": 0.32,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 40.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 37.2
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 27.7
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 19.2
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 13.3
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 9.2
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 6.4
+  }
+ ],
+ "ricochet_angle_deg": 68.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

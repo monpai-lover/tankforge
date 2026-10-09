@@ -1,0 +1,65 @@
+{
+ "id": "de_rso_flak",
+ "name": "RSO 2 cm FlaK 38",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "spaa",
+  "year": 1944,
+  "outline": "traced",
+  "based_on": "Raupenschlepper Ost with the 2 cm FlaK 38 on its pedestal in the bed",
+  "notes": "Rebuilt from the three-view drawing supplied with the request (3 m scale bar: 362 px per metre). Steyr 1500A V8 of 85 hp, 17 km/h on the road; the gun fires forward over the cab, the FlaK 38 all round."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   1.99,
+   2.0,
+   3.98
+  ],
+  "mass_kg": 5100,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.6,
+   1.6,
+   2.2
+  ],
+  "ring_diameter_m": 0.9,
+  "position_m": [
+   0.0,
+   0.95,
+   -0.85
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.34,
+  "track_length_m": 2.2,
+  "suspension": {
+   "travel_m": 0.12,
+   "stiffness": 90000,
+   "damping": 7000
+  },
+  "rolling_resistance": 0.05,
+  "sprocket_radius_m": 0.2,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 1.5,
+  "min_turn_radius_m": 0.0
+ }
+}

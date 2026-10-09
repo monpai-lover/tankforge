@@ -1,0 +1,194 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.0,
+   "y": 1.05,
+   "z": -1.75
+  },
+  "half_extents": {
+   "x": 0.5,
+   "y": 0.35,
+   "z": 0.5
+  },
+  "max_health": 140,
+  "health": 140
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.85,
+   "z": 2.05
+  },
+  "half_extents": {
+   "x": 0.45,
+   "y": 0.25,
+   "z": 0.3
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "fuel_tank_l",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.75,
+   "y": 0.95,
+   "z": -1.2
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.3,
+   "z": 0.35
+  },
+  "max_health": 45,
+  "health": 45
+ },
+ {
+  "id": "fuel_tank_r",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.75,
+   "y": 0.95,
+   "z": -1.2
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.3,
+   "z": 0.35
+  },
+  "max_health": 45,
+  "health": 45
+ },
+ {
+  "id": "ammo_rack_l",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.95,
+   "y": 1.35,
+   "z": 0.25
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.18,
+   "z": 0.55
+  },
+  "max_health": 55,
+  "health": 55
+ },
+ {
+  "id": "ammo_rack_r",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.95,
+   "y": 1.35,
+   "z": 0.25
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.18,
+   "z": 0.55
+  },
+  "max_health": 55,
+  "health": 55
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.0,
+   "y": 2.005,
+   "z": 0.4
+  },
+  "half_extents": {
+   "x": 0.1,
+   "y": 0.1,
+   "z": 0.25
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.0,
+   "y": 2.005,
+   "z": 2.2
+  },
+  "half_extents": {
+   "x": 0.05,
+   "y": 0.05,
+   "z": 1.0
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "turret_drive",
+  "kind": "turret_drive",
+  "center": {
+   "x": 0.0,
+   "y": 1.82,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.08,
+   "z": 0.25
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "radio",
+  "kind": "radio",
+  "center": {
+   "x": 0.55,
+   "y": 1.3,
+   "z": 1.15
+  },
+  "half_extents": {
+   "x": 0.14,
+   "y": 0.12,
+   "z": 0.14
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "track_l",
+  "kind": "track",
+  "center": {
+   "x": -1.225,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.3,
+   "y": 0.45,
+   "z": 2.5
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "track_r",
+  "kind": "track",
+  "center": {
+   "x": 1.225,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.3,
+   "y": 0.45,
+   "z": 2.5
+  },
+  "max_health": 120,
+  "health": 120
+ }
+]

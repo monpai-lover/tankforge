@@ -1,0 +1,11 @@
+[
+  {"id":"rha","kind":"rha","density_kg_m3":7850,"hardness_bhn":300,"kinetic_factor":1.0,"chemical_factor":1.0},
+  {"id":"cha","kind":"cha","density_kg_m3":7800,"hardness_bhn":280,"kinetic_factor":0.95,"chemical_factor":0.95},
+  {"id":"high_hardness_steel","kind":"high_hardness_steel","density_kg_m3":7850,"hardness_bhn":500,"kinetic_factor":1.15,"chemical_factor":1.0},
+  {"id":"aluminium","kind":"aluminium","density_kg_m3":2700,"hardness_bhn":120,"kinetic_factor":0.35,"chemical_factor":0.4},
+  {"id":"spaced","kind":"spaced","density_kg_m3":7850,"hardness_bhn":300,"kinetic_factor":1.0,"chemical_factor":1.3},
+  {"id":"composite","kind":"composite","density_kg_m3":4500,"hardness_bhn":400,"kinetic_factor":1.2,"chemical_factor":1.8},
+  {"id":"applied","kind":"applied","density_kg_m3":7850,"hardness_bhn":320,"kinetic_factor":1.0,"chemical_factor":1.0},
+  {"id":"skirt","kind":"skirt","density_kg_m3":7850,"hardness_bhn":200,"kinetic_factor":0.6,"chemical_factor":1.1},
+  {"id":"era","kind":"era","density_kg_m3":3000,"hardness_bhn":250,"kinetic_factor":1.1,"chemical_factor":2.5}
+]

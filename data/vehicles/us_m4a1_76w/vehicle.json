@@ -1,0 +1,65 @@
+{
+ "id": "us_m4a1_76w",
+ "name": "M4A1(76)W",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "usa",
+  "class": "medium",
+  "year": 1944,
+  "outline": "traced",
+  "based_on": "Medium Tank M4A1(76)W: the cast hull, T23 turret, VVSS",
+  "notes": "Cast upper hull built from cross-sections measured on a reference model (numbers only); lower hull and VVSS as the M4A3 drawing. Continental R975-C4 radial; final_drive_ratio combines the 3.53 bevel gear and the 2.84 final drive. Interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.62,
+   1.93,
+   5.84
+  ],
+  "mass_kg": 32000,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.1,
+   0.82,
+   2.9
+  ],
+  "ring_diameter_m": 1.753,
+  "position_m": [
+   0.0,
+   1.93,
+   -0.25
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.421,
+  "track_length_m": 3.73,
+  "suspension": {
+   "kind": "volute",
+   "travel_m": 0.11,
+   "stiffness": 300000,
+   "damping": 20000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.318,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 26.0,
+  "max_reverse_speed_ms": 1.4,
+  "min_turn_radius_m": 9.45
+ }
+}

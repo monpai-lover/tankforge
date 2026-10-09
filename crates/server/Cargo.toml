@@ -1,0 +1,13 @@
+[package]
+name = "tg-server"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true
+serde_json.workspace = true
+tg-combat.workspace = true
+tg-shared.workspace = true
+tg-weapon.workspace = true
+tg-armor.workspace = true
+tg-missile.workspace = true

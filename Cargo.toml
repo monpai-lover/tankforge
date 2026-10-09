@@ -1,0 +1,35 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/shared", "crates/armor", "crates/weapon", "crates/ballistics",
+  "crates/penetration", "crates/damage", "crates/replay", "crates/vehicle", "crates/physics", "crates/sim-slice", "crates/tools",
+  "crates/design", "crates/design-wasm", "crates/server", "crates/combat", "crates/missile",
+]
+
+[workspace.package]
+edition = "2021"
+version = "0.1.0"
+
+[workspace.dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tg-shared = { path = "crates/shared" }
+tg-armor = { path = "crates/armor" }
+tg-weapon = { path = "crates/weapon" }
+tg-ballistics = { path = "crates/ballistics" }
+tg-penetration = { path = "crates/penetration" }
+tg-damage = { path = "crates/damage" }
+tg-replay = { path = "crates/replay" }
+tg-vehicle = { path = "crates/vehicle" }
+tg-physics = { path = "crates/physics" }
+tg-design = { path = "crates/design" }
+tg-combat = { path = "crates/combat" }
+tg-missile = { path = "crates/missile" }
+
+# The browser loads tg-design as WebAssembly; protection maps cast thousands of rays.
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

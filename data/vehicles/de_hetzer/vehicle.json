@@ -1,0 +1,64 @@
+{
+ "id": "de_hetzer",
+ "name": "Jagdpanzer 38(t) Hetzer",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "tank_destroyer",
+  "year": 1944,
+  "outline": "traced",
+  "based_on": "Jagdpanzer 38(t) Hetzer with the 7.5 cm PaK 39 L/48",
+  "notes": "Rebuilt from the four-view drawing supplied with the request (122 px per metre): the casemate's measured slopes, the gun offset 0.38 m to the right in the Saukopf mantlet, traverse 5 degrees left and 11 right, the remote MG 34 on the loader's side of the roof."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.63,
+   1.89,
+   4.87
+  ],
+  "mass_kg": 15750,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.15
+  ]
+ },
+ "turret": {
+  "size_m": [
+   0.7,
+   0.62,
+   1.1
+  ],
+  "ring_diameter_m": 0.5,
+  "position_m": [
+   0.38,
+   1.27,
+   1.55
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.35,
+  "track_length_m": 2.85,
+  "suspension": {
+   "travel_m": 0.15,
+   "stiffness": 160000,
+   "damping": 12000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.3,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

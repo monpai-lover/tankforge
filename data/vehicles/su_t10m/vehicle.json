@@ -1,0 +1,65 @@
+{
+ "id": "su_t10m",
+ "name": "T-10M (Oplot-MO)",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "ussr",
+  "class": "heavy",
+  "year": 1962,
+  "outline": "traced",
+  "based_on": "T-10M (Object 272) fitted with the Oplot-MO anti-missile machine-gun complex",
+  "notes": "Rebuilt from the general-view drawing of the T-10M with the Oplot-MO (side, plan and front views, gridded at their scales): lofted hull sections and cast turret sections, running gear positions, the M-62-T2 and the Oplot-MO housing as drawn; the coaxial KPVT is removed as the drawing's table lists. The Oplot-MO gun's dip by bearing is from the drawing of its depression limits. Gear ratios are estimates chosen to match the published 50 km/h; the 3BM-11, 3BK-9 and the Oplot-MO's rate of fire are approximate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.52,
+   1.56,
+   6.9
+  ],
+  "mass_kg": 52200,
+  "center_of_mass": [
+   0,
+   0.98,
+   0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.8,
+   0.7799999999999998,
+   3.0
+  ],
+  "ring_diameter_m": 2.16,
+  "position_m": [
+   0.0,
+   1.56,
+   0.45
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.72,
+  "track_length_m": 4.84,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.2,
+   "stiffness": 480000,
+   "damping": 34000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.31,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.0,
+  "max_turn_rate_deg_s": 22.0,
+  "max_reverse_speed_ms": 2.8,
+  "min_turn_radius_m": 0.0
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "schema_version": 1,
+ "palette": {
+  "steel": "#6a6d70",
+  "rubber": "#1c1c1d",
+  "track": "#4a4743",
+  "black": "#151515",
+  "paint": "#8a8463",
+  "paint_dark": "#5c5944"
+ },
+ "parts": [],
+ "running_gear": {
+  "track_width": 0.4,
+  "track_thickness": 0.085,
+  "track_x": 1.045,
+  "link_pitch": 0.104,
+  "link_style": "center_guide",
+  "track_sag": 0.03,
+  "sprocket": {
+   "z": 1.991,
+   "y": 0.813,
+   "r": 0.36,
+   "teeth": 19
+  },
+  "idler": {
+   "z": -1.993,
+   "y": 0.689,
+   "r": 0.31
+  },
+  "wheels": [
+   {
+    "z": 1.397,
+    "y": 0.503,
+    "r": 0.415,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": 0.499,
+    "y": 0.503,
+    "r": 0.415,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": -0.469,
+    "y": 0.503,
+    "r": 0.415,
+    "w": 0.3,
+    "x": 0.0
+   },
+   {
+    "z": -1.367,
+    "y": 0.503,
+    "r": 0.415,
+    "w": 0.3,
+    "x": 0.0
+   }
+  ],
+  "rollers": [],
+  "wheel_style": "rubber_dish"
+ },
+ "hull_bottom": 0.53,
+ "own_breech": true,
+ "exhaust": {
+  "fuel": "petrol"
+ }
+}

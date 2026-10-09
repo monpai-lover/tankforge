@@ -1,0 +1,44 @@
+{
+ "main_gun": {
+  "id": "m46_130",
+  "caliber_mm": 130.0,
+  "barrel_length_mm": 7600,
+  "recoil_mm": 1000,
+  "rounds_per_min": 6.0,
+  "reload_s": 10.0,
+  "traverse_deg_s": 3.0,
+  "elevate_deg_s": 3.0,
+  "max_depression_deg": 2.5,
+  "max_elevation_deg": 45.0,
+  "dispersion_mrad": 0.5,
+  "mass_kg": 7700,
+  "ammo": [
+   "apcbc_130_br482b",
+   "he_130_of482m"
+  ],
+  "ammo_count": [
+   6,
+   12
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.77,
+  -0.45
+ ],
+ "muzzle_offset_m": 6.54,
+ "sight": {
+  "name": "OP4M-35",
+  "levels": [
+   {
+    "magnification": 5.5,
+    "fov_deg": 11.0
+   }
+  ]
+ },
+ "secondary": [],
+ "yaw_limit_deg": [
+  -25.0,
+  25.0
+ ]
+}

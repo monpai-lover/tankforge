@@ -1,0 +1,48 @@
+{
+ "id": "apcr_85_br365p",
+ "name": "85 mm BR-365P (APCR)",
+ "kind": "apcr",
+ "caliber_mm": 85.0,
+ "mass_kg": 4.99,
+ "muzzle_velocity_ms": 1050.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 314,
+ "drag_coefficient": 0.45,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 180.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 172.1
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 143.9
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 115.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 92.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 73.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 58.8
+  }
+ ],
+ "ricochet_angle_deg": 66.0,
+ "normalization_deg": 2.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

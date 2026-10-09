@@ -1,0 +1,106 @@
+{
+ "main_gun": {
+  "id": "kwk36_88_l56",
+  "caliber_mm": 88.0,
+  "barrel_length_mm": 4930,
+  "recoil_mm": 580,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.5,
+  "traverse_deg_s": 9.0,
+  "elevate_deg_s": 4.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 15.0,
+  "dispersion_mrad": 0.8,
+  "mass_kg": 1310,
+  "ammo": [
+   "apcbc_88_l56",
+   "he_88_sprgr",
+   "apcr_88_pzgr40"
+  ],
+  "ammo_count": [
+   46,
+   40,
+   6
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.19,
+  1.22
+ ],
+ "muzzle_offset_m": 4.072,
+ "sight": {
+  "name": "TZF 9b",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 23.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_mg34",
+   "weapon": "mg34",
+   "mount": "coax",
+   "position_m": [
+    0.36,
+    2.19,
+    1.6
+   ]
+  },
+  {
+   "id": "bow_mg34",
+   "weapon": "mg34",
+   "mount": "hull",
+   "position_m": [
+    0.56,
+    1.58,
+    2.84
+   ],
+   "arc_deg": [
+    15.0,
+    7.0,
+    20.0
+   ]
+  }
+ ],
+ "depression_by_bearing_deg": [
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  7.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0
+ ]
+}

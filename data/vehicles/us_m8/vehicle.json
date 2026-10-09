@@ -1,0 +1,68 @@
+{
+ "id": "us_m8",
+ "name": "M8 Greyhound",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "usa",
+  "class": "armored_car",
+  "year": 1943,
+  "outline": "traced",
+  "based_on": "Light Armored Car M8 (6x6) with the 37 mm gun M6 in the M23A1 open turret",
+  "notes": "Hull and turret traced from a Russian three-view drawing with a 1 m scale bar; axles, tread, clearance, armour and the Warner Gear ratios (6.499 / 3.543 / 1.752 / 1.0, reverse 6.987; axle 6.66) from TM 9-743 / TM 9-1743 and afvdatabase.com. Front axle steered, all six wheels driven (the transfer case's front declutch is left engaged). Interior layout and the side profile above the fenders are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.54,
+   1.5,
+   4.78
+  ],
+  "mass_kg": 7440,
+  "center_of_mass": [
+   0,
+   0.92,
+   -0.25
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.52,
+   0.5,
+   1.72
+  ],
+  "ring_diameter_m": 1.45,
+  "position_m": [
+   0.0,
+   1.5,
+   -0.02
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "drive": "wheeled",
+  "track_width_m": 0.24,
+  "track_length_m": 3.25,
+  "suspension": {
+   "kind": "leaf_spring",
+   "travel_m": 0.2
+  },
+  "suspension_freq_hz": 1.4,
+  "suspension_damping": 0.35,
+  "rolling_resistance": 0.015,
+  "sprocket_radius_m": 0.47,
+  "drivetrain_efficiency": 0.9,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 4.0,
+  "min_turn_radius_m": 8.0,
+  "max_steer_deg": 30.0
+ }
+}

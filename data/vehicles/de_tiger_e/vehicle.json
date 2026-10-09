@@ -1,0 +1,65 @@
+{
+ "id": "de_tiger_e",
+ "name": "Tiger I (Pz.Kpfw. VI Ausf. E)",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "heavy",
+  "year": 1943,
+  "outline": "traced",
+  "based_on": "Panzerkampfwagen VI Tiger Ausf. E, late production (cast cupola, steel-rimmed wheels)",
+  "notes": "Gear ratios are derived from the published per-gear road speeds. Turret ring diameter and interior layout are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.56,
+   1.8,
+   6.316
+  ],
+  "mass_kg": 57000,
+  "center_of_mass": [
+   0,
+   0.95,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.17,
+   0.78,
+   2.85
+  ],
+  "ring_diameter_m": 1.85,
+  "position_m": [
+   0.0,
+   1.8,
+   0.05
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.725,
+  "track_length_m": 3.605,
+  "suspension": {
+   "kind": "interleaved",
+   "travel_m": 0.22,
+   "stiffness": 420000,
+   "damping": 30000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.42,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.0,
+  "max_turn_rate_deg_s": 20.0,
+  "max_reverse_speed_ms": 3.0,
+  "min_turn_radius_m": 0.0
+ }
+}

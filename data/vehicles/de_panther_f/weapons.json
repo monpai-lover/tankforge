@@ -1,0 +1,115 @@
+{
+ "main_gun": {
+  "id": "kwk44_1_75_l70",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 5250,
+  "recoil_mm": 420,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.0,
+  "traverse_deg_s": 16.0,
+  "elevate_deg_s": 4.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 18.0,
+  "dispersion_mrad": 0.7,
+  "mass_kg": 1000,
+  "ammo": [
+   "apcbc_75_pzgr39_42",
+   "he_75_sprgr42",
+   "apcr_75_pzgr40_42"
+  ],
+  "ammo_count": [
+   40,
+   35,
+   4
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.24,
+  0.95
+ ],
+ "muzzle_offset_m": 4.275,
+ "sight": {
+  "name": "TZF 13 + EM 1.32 m R",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 28.0
+   },
+   {
+    "magnification": 5.0,
+    "fov_deg": 14.0
+   }
+  ],
+  "rangefinder": {
+   "time_s": 3.0,
+   "error_pct": 2.0,
+   "max_range_m": 4000
+  }
+ },
+ "secondary": [
+  {
+   "id": "coax_mg42",
+   "weapon": "mg42",
+   "mount": "coax",
+   "position_m": [
+    0.3,
+    2.26,
+    1.25
+   ]
+  },
+  {
+   "id": "bow_mg34",
+   "weapon": "mg34",
+   "mount": "hull",
+   "position_m": [
+    0.6,
+    1.56,
+    3.06
+   ],
+   "arc_deg": [
+    10.0,
+    10.0,
+    15.0
+   ]
+  }
+ ],
+ "depression_by_bearing_deg": [
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  6.0,
+  6.0,
+  6.0,
+  6.0,
+  6.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0
+ ]
+}

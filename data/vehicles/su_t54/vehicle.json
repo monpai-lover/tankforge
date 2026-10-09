@@ -1,0 +1,65 @@
+{
+ "id": "su_t54",
+ "name": "T-54 (1951)",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "ussr",
+  "class": "medium",
+  "year": 1951,
+  "outline": "traced",
+  "based_on": "T-54 model 1951 with 100 mm D-10T",
+  "notes": "Rebuilt from the three-view drawing supplied with the request and refined against the reference model and photographs (hull heights and glacis, wheel, idler and sprocket positions, the turret's sections and roof fittings). final_drive_ratio is chosen to match the published top speed; interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.27,
+   1.4,
+   6.04
+  ],
+  "mass_kg": 36000,
+  "center_of_mass": [
+   0,
+   0.88,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.6,
+   0.75,
+   3.0
+  ],
+  "ring_diameter_m": 1.825,
+  "position_m": [
+   0.0,
+   1.4,
+   0.17
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.58,
+  "track_length_m": 3.84,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.2,
+   "stiffness": 300000,
+   "damping": 22000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.32,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 1.9,
+  "min_turn_radius_m": 0.0
+ }
+}

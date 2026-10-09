@@ -1,0 +1,255 @@
+[
+ {
+  "id": "hull_upper_front",
+  "zone": "hull_upper_front",
+  "material": "rha",
+  "thickness_mm": 60,
+  "center": {
+   "x": 0.0,
+   "y": 1.475,
+   "z": 1.8401
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.9223,
+   "z": 0.3864
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 1.0,
+  "half_v": 0.5306
+ },
+ {
+  "id": "hull_lower_front",
+  "zone": "hull_lower_front",
+  "material": "rha",
+  "thickness_mm": 60,
+  "center": {
+   "x": 0.0,
+   "y": 0.83,
+   "z": 2.33
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -0.4141,
+   "z": 0.9102
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.68,
+  "half_v": 0.3
+ },
+ {
+  "id": "hull_side_r",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 1.1098,
+   "y": 1.475,
+   "z": -0.05
+  },
+  "normal": {
+   "x": 0.7511,
+   "y": 0.6602,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 1.9,
+  "half_v": 0.2729
+ },
+ {
+  "id": "hull_side_l",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": -1.1098,
+   "y": 1.475,
+   "z": -0.05
+  },
+  "normal": {
+   "x": -0.7511,
+   "y": 0.6602,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 1.9,
+  "half_v": 0.2729
+ },
+ {
+  "id": "hull_sponson_r",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 1.29,
+   "y": 1.145,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 2.25,
+  "half_v": 0.12
+ },
+ {
+  "id": "hull_sponson_l",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": -1.29,
+   "y": 1.145,
+   "z": 0.0
+  },
+  "normal": {
+   "x": -1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 2.25,
+  "half_v": 0.12
+ },
+ {
+  "id": "hull_lower_side_r",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 0.68,
+   "y": 0.71,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 2.2,
+  "half_v": 0.3
+ },
+ {
+  "id": "hull_lower_side_l",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": -0.68,
+   "y": 0.71,
+   "z": 0.0
+  },
+  "normal": {
+   "x": -1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 2.2,
+  "half_v": 0.3
+ },
+ {
+  "id": "hull_rear",
+  "zone": "hull_rear",
+  "material": "rha",
+  "thickness_mm": 8,
+  "center": {
+   "x": 0.0,
+   "y": 1.475,
+   "z": -2.0103
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.89,
+   "z": -0.456
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.85,
+  "half_v": 0.4495
+ },
+ {
+  "id": "hull_rear_lower",
+  "zone": "hull_rear",
+  "material": "rha",
+  "thickness_mm": 20,
+  "center": {
+   "x": 0.0,
+   "y": 0.8,
+   "z": -2.36
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -0.2,
+   "z": -0.9798
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.68,
+  "half_v": 0.3
+ },
+ {
+  "id": "hull_floor",
+  "zone": "hull_floor",
+  "material": "rha",
+  "thickness_mm": 10,
+  "center": {
+   "x": 0.0,
+   "y": 0.4,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.66,
+  "half_v": 2.0
+ }
+]

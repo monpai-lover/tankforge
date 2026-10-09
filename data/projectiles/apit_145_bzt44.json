@@ -1,0 +1,47 @@
+{
+ "id": "apit_145_bzt44",
+ "name": "14.5 mm BZT-44 (API-T)",
+ "kind": "ap",
+ "caliber_mm": 14.5,
+ "mass_kg": 0.0596,
+ "muzzle_velocity_ms": 1005.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 54,
+ "drag_coefficient": 0.3,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 28.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 26.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 19.5
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 13.5
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 9.4
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 6.5
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 4.5
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

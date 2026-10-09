@@ -1,0 +1,48 @@
+{
+ "id": "apcr_20_pzgr40",
+ "name": "2 cm Pzgr. 40 (APCR)",
+ "kind": "apcr",
+ "caliber_mm": 20.0,
+ "mass_kg": 0.1,
+ "muzzle_velocity_ms": 1050.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 74,
+ "drag_coefficient": 0.38,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 49.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 44.1
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 29.1
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 17.2
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 10.2
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 6.1
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 3.6
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

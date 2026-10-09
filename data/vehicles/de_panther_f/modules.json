@@ -1,0 +1,210 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.0,
+   "y": 1.05,
+   "z": -2.45
+  },
+  "half_extents": {
+   "x": 0.5,
+   "y": 0.42,
+   "z": 0.65
+  },
+  "max_health": 160,
+  "health": 160
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.92,
+   "z": 2.2
+  },
+  "half_extents": {
+   "x": 0.45,
+   "y": 0.3,
+   "z": 0.6
+  },
+  "max_health": 130,
+  "health": 130
+ },
+ {
+  "id": "fuel_tank_l",
+  "kind": "fuel_tank",
+  "center": {
+   "x": -0.85,
+   "y": 1.05,
+   "z": -2.45
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.4,
+   "z": 0.55
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "fuel_tank_r",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.85,
+   "y": 1.05,
+   "z": -2.45
+  },
+  "half_extents": {
+   "x": 0.25,
+   "y": 0.4,
+   "z": 0.55
+  },
+  "max_health": 50,
+  "health": 50
+ },
+ {
+  "id": "ammo_rack_l",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -1.25,
+   "y": 1.5,
+   "z": 0.3
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.2,
+   "z": 0.9
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "ammo_rack_r",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 1.25,
+   "y": 1.5,
+   "z": 0.3
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.2,
+   "z": 0.9
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.0,
+   "y": 2.31,
+   "z": 3.4
+  },
+  "half_extents": {
+   "x": 0.09,
+   "y": 0.09,
+   "z": 1.8
+  },
+  "max_health": 130,
+  "health": 130
+ },
+ {
+  "id": "radio",
+  "kind": "radio",
+  "center": {
+   "x": 0.75,
+   "y": 1.2,
+   "z": 1.7
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.12,
+   "z": 0.25
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.0,
+   "y": 2.24,
+   "z": 0.36
+  },
+  "half_extents": {
+   "x": 0.17,
+   "y": 0.17,
+   "z": 0.4
+  },
+  "max_health": 110,
+  "health": 110
+ },
+ {
+  "id": "turret_drive",
+  "kind": "turret_drive",
+  "center": {
+   "x": 0.0,
+   "y": 1.7,
+   "z": -0.09
+  },
+  "half_extents": {
+   "x": 0.3,
+   "y": 0.1,
+   "z": 0.3
+  },
+  "max_health": 80,
+  "health": 80
+ },
+ {
+  "id": "vertical_drive",
+  "kind": "vertical_drive",
+  "center": {
+   "x": -0.4,
+   "y": 1.98,
+   "z": 0.61
+  },
+  "half_extents": {
+   "x": 0.1,
+   "y": 0.1,
+   "z": 0.15
+  },
+  "max_health": 60,
+  "health": 60
+ },
+ {
+  "id": "track_l",
+  "kind": "track",
+  "center": {
+   "x": -1.305,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.33,
+   "y": 0.45,
+   "z": 3.235
+  },
+  "max_health": 120,
+  "health": 120
+ },
+ {
+  "id": "track_r",
+  "kind": "track",
+  "center": {
+   "x": 1.305,
+   "y": 0.45,
+   "z": 0.0
+  },
+  "half_extents": {
+   "x": 0.33,
+   "y": 0.45,
+   "z": 3.235
+  },
+  "max_health": 120,
+  "health": 120
+ }
+]

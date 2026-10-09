@@ -1,0 +1,47 @@
+{
+ "id": "heat_122_bk7m",
+ "name": "122 mm BK-7M (HEAT)",
+ "kind": "heat",
+ "caliber_mm": 121.92,
+ "mass_kg": 12.6,
+ "muzzle_velocity_ms": 900.0,
+ "explosive_mass_kg": 1.4,
+ "explosive_type": "a_ix_1",
+ "penetrator_material": "steel",
+ "length_mm": 512,
+ "drag_coefficient": 0.42,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 400.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 400.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 400.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 400.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 400.0
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 400.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 400.0
+  }
+ ],
+ "ricochet_angle_deg": 80.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0.1
+}

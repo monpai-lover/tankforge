@@ -1,0 +1,47 @@
+{
+ "id": "apt_30_pzgr",
+ "name": "3 cm Pzgr. (AP-T)",
+ "kind": "ap",
+ "caliber_mm": 30.0,
+ "mass_kg": 0.355,
+ "muzzle_velocity_ms": 800.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 111,
+ "drag_coefficient": 0.34,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 52.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 49.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 38.7
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 28.8
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 21.4
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 15.9
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 11.8
+  }
+ ],
+ "ricochet_angle_deg": 68.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

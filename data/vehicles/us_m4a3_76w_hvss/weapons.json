@@ -1,0 +1,118 @@
+{
+ "main_gun": {
+  "id": "m1a2_76",
+  "caliber_mm": 76.2,
+  "barrel_length_mm": 3962,
+  "recoil_mm": 305,
+  "rounds_per_min": 10.0,
+  "reload_s": 6.0,
+  "traverse_deg_s": 24.0,
+  "elevate_deg_s": 8.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 25.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 517,
+  "ammo": [
+   "apcbc_76_m62",
+   "he_76_m42a1",
+   "apcr_76_m93"
+  ],
+  "ammo_count": [
+   33,
+   32,
+   6
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.14,
+  0.93
+ ],
+ "muzzle_offset_m": 3.645,
+ "sight": {
+  "name": "M71D",
+  "levels": [
+   {
+    "magnification": 5.0,
+    "fov_deg": 13.0
+   }
+  ]
+ },
+ "stabilizer": "vertical",
+ "secondary": [
+  {
+   "id": "coax_m1919",
+   "weapon": "m1919a4",
+   "mount": "coax",
+   "position_m": [
+    -0.36,
+    2.14,
+    1.22
+   ]
+  },
+  {
+   "id": "bow_m1919",
+   "weapon": "m1919a4",
+   "mount": "hull",
+   "position_m": [
+    0.62,
+    1.503,
+    2.35
+   ],
+   "arc_deg": [
+    15.0,
+    10.0,
+    20.0
+   ]
+  },
+  {
+   "id": "aa_m2",
+   "weapon": "m2hb",
+   "mount": "pintle",
+   "position_m": [
+    0.0,
+    2.92,
+    -0.78
+   ],
+   "post_m": 0.27
+  }
+ ],
+ "depression_by_bearing_deg": [
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  6.7,
+  3.3,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  3.3,
+  6.7,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0
+ ]
+}

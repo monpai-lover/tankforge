@@ -1,0 +1,42 @@
+{
+ "engine": {
+  "horsepower": 690,
+  "max_rpm": 3000,
+  "idle_rpm": 800,
+  "weight_kg": 1200,
+  "torque_curve": [
+   [
+    800,
+    1500
+   ],
+   [
+    1500,
+    1780
+   ],
+   [
+    2100,
+    1850
+   ],
+   [
+    3000,
+    1639
+   ]
+  ]
+ },
+ "transmission": {
+  "forward_gears": 8,
+  "reverse_gears": 4,
+  "gear_ratios": [
+   15.99,
+   10.46,
+   7.35,
+   4.95,
+   3.22,
+   2.172,
+   1.489,
+   1.0
+  ],
+  "final_drive_ratio": 10.46,
+  "shift_time_s": 0.25
+ }
+}

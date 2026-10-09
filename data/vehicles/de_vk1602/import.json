@@ -1,0 +1,32 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/c3e7e843-VK1602_Leopard_v1_1.glb",
+ "source": "VK 16.02 Leopard: the user's own model (VK1602_Leopard_v1_1.glb), used with the user's permission",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "drop_meshes": [
+  19,
+  20
+ ],
+ "turret_meshes": [
+  21,
+  22,
+  24
+ ],
+ "gun_meshes": [
+  23
+ ],
+ "barrel_meshes": [
+  23
+ ],
+ "barrel_min_length": 1.5,
+ "normal_maps": false,
+ "textures": {
+  "0": 1024,
+  "1": 512,
+  "2": 512
+ }
+}

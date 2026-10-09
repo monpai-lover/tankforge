@@ -1,0 +1,110 @@
+{
+ "main_gun": {
+  "id": "kwk42_75_l70",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 5250,
+  "recoil_mm": 420,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.0,
+  "traverse_deg_s": 15.0,
+  "elevate_deg_s": 4.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 18.0,
+  "dispersion_mrad": 0.7,
+  "mass_kg": 1000,
+  "ammo": [
+   "apcbc_75_pzgr39_42",
+   "he_75_sprgr42",
+   "apcr_75_pzgr40_42"
+  ],
+  "ammo_count": [
+   40,
+   38,
+   4
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.31,
+  0.97
+ ],
+ "muzzle_offset_m": 4.255,
+ "sight": {
+  "name": "TZF 12a",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 28.0
+   },
+   {
+    "magnification": 5.0,
+    "fov_deg": 14.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_mg34",
+   "weapon": "mg34",
+   "mount": "coax",
+   "position_m": [
+    0.38,
+    2.31,
+    1.51
+   ]
+  },
+  {
+   "id": "bow_mg34",
+   "weapon": "mg34",
+   "mount": "hull",
+   "position_m": [
+    0.6,
+    1.56,
+    3.06
+   ],
+   "arc_deg": [
+    10.0,
+    10.0,
+    15.0
+   ]
+  }
+ ],
+ "depression_by_bearing_deg": [
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  7.5,
+  7.5,
+  7.5,
+  7.5,
+  7.5,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0,
+  8.0
+ ]
+}

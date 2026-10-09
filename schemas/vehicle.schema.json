@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "vehicle.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "name",
+    "schema_version",
+    "model",
+    "files",
+    "hull",
+    "turret",
+    "physics"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "type": "string"
+    },
+    "schema_version": {
+      "const": 1
+    },
+    "model": {
+      "type": "string",
+      "description": "relative path to .glb (visual only; hit detection never uses it)"
+    },
+    "files": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "armor",
+        "weapons",
+        "engine",
+        "crew",
+        "modules"
+      ],
+      "properties": {
+        "armor": {
+          "type": "string"
+        },
+        "weapons": {
+          "type": "string"
+        },
+        "engine": {
+          "type": "string"
+        },
+        "crew": {
+          "type": "string"
+        },
+        "modules": {
+          "type": "string"
+        },
+        "visual": {
+          "type": "string",
+          "description": "procedural exterior, see visual.schema.json"
+        }
+      }
+    },
+    "hull": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "size_m",
+        "mass_kg",
+        "center_of_mass"
+      ],
+      "properties": {
+        "size_m": {
+          "$ref": "#/$defs/v3pos"
+        },
+        "mass_kg": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "center_of_mass": {
+          "$ref": "#/$defs/v3"
+        }
+      }
+    },
+    "turret": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "size_m",
+        "ring_diameter_m",
+        "position_m"
+      ],
+      "properties": {
+        "size_m": {
+          "$ref": "#/$defs/v3pos"
+        },
+        "ring_diameter_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "position_m": {
+          "$ref": "#/$defs/v3"
+        },
+        "open_top": {
+          "type": "boolean",
+          "description": "no roof: the crew is exposed from above"
+        }
+      }
+    },
+    "physics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "track_width_m",
+        "track_length_m",
+        "suspension",
+        "rolling_resistance"
+      ],
+      "properties": {
+        "track_width_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "track_length_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "rolling_resistance": {
+          "type": "number",
+          "minimum": 0
+        },
+        "sprocket_radius_m": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.35
+        },
+        "drivetrain_efficiency": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "default": 0.85
+        },
+        "max_brake_decel_ms2": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 6.0
+        },
+        "max_turn_rate_deg_s": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 45.0
+        },
+        "max_reverse_speed_ms": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 4.0
+        },
+        "suspension": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "travel_m",
+            "stiffness",
+            "damping"
+          ],
+          "properties": {
+            "travel_m": {
+              "type": "number"
+            },
+            "stiffness": {
+              "type": "number",
+              "description": "Spring rate of one road-wheel station, N/m."
+            },
+            "damping": {
+              "type": "number",
+              "description": "Damping of one road-wheel station, N s/m."
+            },
+            "kind": {
+              "type": "string",
+              "enum": [
+                "torsion_bar",
+                "interleaved",
+                "christie",
+                "volute",
+                "hvss",
+                "leaf_bogie"
+              ],
+              "description": "Suspension type; volute, hvss and leaf_bogie carry two neighbouring wheels on one pivoting bogie."
+            }
+          }
+        },
+        "min_turn_radius_m": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0,
+          "description": "0 = can pivot in place; > 0 = must be moving to turn"
+        },
+        "inertia_kgm2": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "minItems": 3,
+          "maxItems": 3,
+          "description": "Moments of inertia about the centre of mass along the hull axes [x (pitch), y (yaw), z (roll)], kg m^2. Absent = estimated from the hull box."
+        },
+        "suspension_freq_hz": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "suspension_damping": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "nation": {
+          "type": "string",
+          "description": "germany | ussr | usa | uk | fictional | ..."
+        },
+        "based_on": {
+          "type": "string"
+        },
+        "notes": {
+          "type": "string",
+          "description": "which values are estimates"
+        },
+        "class": {
+          "type": "string",
+          "description": "light | medium | heavy | td | spaa | prototype (garage grouping only)"
+        },
+        "year": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "year the modelled version entered service; 0 = not a historical vehicle"
+        },
+        "outline": {
+          "enum": [
+            "traced",
+            "dimensions",
+            "original"
+          ],
+          "description": "how the exterior was made: traced from a general-arrangement drawing, built from published dimensions, or an original design"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "v3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "v3pos": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "minItems": 3,
+      "maxItems": 3
+    }
+  }
+}

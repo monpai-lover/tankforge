@@ -1,0 +1,65 @@
+{
+ "main_gun": {
+  "id": "pak39_75_l48",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 3600,
+  "recoil_mm": 400,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.5,
+  "traverse_deg_s": 6.0,
+  "elevate_deg_s": 4.0,
+  "max_depression_deg": 6.0,
+  "max_elevation_deg": 12.0,
+  "dispersion_mrad": 0.8,
+  "mass_kg": 900,
+  "ammo": [
+   "apcbc_75_pzgr39",
+   "he_75_sprgr34"
+  ],
+  "ammo_count": [
+   26,
+   15
+  ]
+ },
+ "mount_m": [
+  0.38,
+  1.44,
+  1.45
+ ],
+ "muzzle_offset_m": 2.37,
+ "sight": {
+  "name": "Sfl.Z.F. 1a",
+  "levels": [
+   {
+    "magnification": 5.0,
+    "fov_deg": 8.0
+   },
+   {
+    "magnification": 10.0,
+    "fov_deg": 4.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "roof_mg34",
+   "weapon": "mg34",
+   "mount": "pintle",
+   "position_m": [
+    -0.52,
+    1.996,
+    -0.05
+   ],
+   "post_m": 0.07,
+   "shield_m": [
+    0.28,
+    0.22,
+    0.41
+   ]
+  }
+ ],
+ "yaw_limit_deg": [
+  -5.0,
+  11.0
+ ]
+}

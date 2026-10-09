@@ -1,0 +1,65 @@
+{
+ "id": "de_panther_f",
+ "name": "Panther Ausf. F",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "medium",
+  "year": 1945,
+  "outline": "traced",
+  "based_on": "Panzerkampfwagen V Panther Ausf. F with the Schmalturm and 7.5 cm KwK 44/1 L/70",
+  "notes": "Turret traced from the Panzer Tracts drawing (Schmalturm plan and side view); hull as the Ausf. G with the Ausf. F's 40 mm roof. Rangefinder figures and the TZF 13 magnifications are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.27,
+   1.87,
+   6.87
+  ],
+  "mass_kg": 45500,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.36,
+   0.75,
+   2.37
+  ],
+  "ring_diameter_m": 1.65,
+  "position_m": [
+   0.0,
+   1.87,
+   -0.09
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.66,
+  "track_length_m": 3.92,
+  "suspension": {
+   "kind": "interleaved",
+   "travel_m": 0.25,
+   "stiffness": 340000,
+   "damping": 26000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.42,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 24.0,
+  "max_reverse_speed_ms": 1.1,
+  "min_turn_radius_m": 0.0
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "id": "su_att_m46",
+ "name": "AT-T 130 mm 自走炮（M-46）",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "ussr",
+  "class": "spg",
+  "year": 1960,
+  "outline": "model",
+  "based_on": "AT-T heavy artillery tractor with a 130 mm M-46 field gun mounted on its bed (an improvised self-propelled gun)",
+  "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), used unchanged and cut into its moving pieces by tools/glb-vehicle.py. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The gun's traverse on the bed, the crew's protection (none but the shield) and the interior are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.18,
+   3.0,
+   6.99
+  ],
+  "mass_kg": 28500,
+  "center_of_mass": [
+   0,
+   1.25,
+   0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.6,
+   1.7,
+   2.2
+  ],
+  "ring_diameter_m": 1.6,
+  "position_m": [
+   0.0,
+   1.59,
+   -0.58
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.5,
+  "track_length_m": 3.75,
+  "suspension": {
+   "travel_m": 0.2,
+   "stiffness": 320000,
+   "damping": 22000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.42,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.0,
+  "max_turn_rate_deg_s": 22.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

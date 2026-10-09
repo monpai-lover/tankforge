@@ -1,0 +1,649 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tankforge.local/schemas/vehicle_design.schema.json",
+  "title": "VehicleDesign (design bureau)",
+  "description": "A vehicle built in the design bureau. Only the player's choices are stored: geometry, armour, layout and parts. Mass, protection, mobility and every other result are recomputed by the server (crates/design) and must not be sent; fields such as weight or penetration are rejected (D100). Coordinates: +Z forward, +X right, +Y up; hull space has its origin on the ground under the hull centre; turret space has its origin at the ring centre.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "id",
+    "name",
+    "hull_geometry",
+    "armor_faces",
+    "internal_modules",
+    "crew_positions",
+    "engine",
+    "transmission",
+    "suspension",
+    "tracks"
+  ],
+  "properties": {
+    "schema": {
+      "const": "tankforge.design/1"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]{1,40}$"
+    },
+    "name": {
+      "type": "string",
+      "maxLength": 60
+    },
+    "hull_geometry": {
+      "$ref": "#/$defs/mesh"
+    },
+    "turret_geometry": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/mesh"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Turret space (origin at the ring centre)."
+    },
+    "armor_faces": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "body",
+          "face",
+          "material",
+          "thickness_mm"
+        ],
+        "properties": {
+          "body": {
+            "$ref": "#/$defs/body"
+          },
+          "face": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "material": {
+            "type": "string"
+          },
+          "thickness_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1000
+          },
+          "vertex_mm": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            },
+            "description": "Thickness at each corner of the face (interpolated at the hit point)."
+          },
+          "map": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "nu",
+              "nv",
+              "values_mm"
+            ],
+            "properties": {
+              "nu": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "nv": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "values_mm": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                }
+              }
+            },
+            "description": "Bilinear thickness map over the face."
+          }
+        }
+      }
+    },
+    "armor_layers": {
+      "type": "array",
+      "description": "Multilayer stacks replacing a face's single plate.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "body",
+          "face",
+          "layers"
+        ],
+        "properties": {
+          "body": {
+            "$ref": "#/$defs/body"
+          },
+          "face": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "layers": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "material",
+                "thickness_mm"
+              ],
+              "properties": {
+                "material": {
+                  "type": "string"
+                },
+                "thickness_mm": {
+                  "type": "number",
+                  "exclusiveMinimum": 0
+                },
+                "spacing_mm": {
+                  "type": "number",
+                  "minimum": 0,
+                  "default": 0
+                },
+                "angle_deg": {
+                  "type": "number",
+                  "default": 0
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "addons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "body",
+          "anchor_m",
+          "normal",
+          "u_axis",
+          "size_m",
+          "material",
+          "thickness_mm"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "plate",
+              "skirt",
+              "spaced",
+              "composite",
+              "era"
+            ]
+          },
+          "body": {
+            "$ref": "#/$defs/body"
+          },
+          "face": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "anchor_m": {
+            "$ref": "#/$defs/v3"
+          },
+          "normal": {
+            "$ref": "#/$defs/v3"
+          },
+          "u_axis": {
+            "$ref": "#/$defs/v3"
+          },
+          "size_m": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "material": {
+            "type": "string"
+          },
+          "thickness_mm": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "standoff_mm": {
+            "type": "number",
+            "minimum": 0,
+            "default": 0
+          }
+        }
+      }
+    },
+    "turret_ring": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "diameter_m",
+            "position_m",
+            "rotation_axis"
+          ],
+          "properties": {
+            "diameter_m": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "position_m": {
+              "$ref": "#/$defs/v3"
+            },
+            "rotation_axis": {
+              "$ref": "#/$defs/v3"
+            },
+            "drive": {
+              "enum": [
+                "manual",
+                "electric",
+                "hydraulic"
+              ],
+              "default": "electric"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gun_mount": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "position_m",
+            "elevation_axis",
+            "min_elevation_deg",
+            "max_elevation_deg",
+            "recoil_distance_m",
+            "mantlet"
+          ],
+          "properties": {
+            "position_m": {
+              "$ref": "#/$defs/v3",
+              "description": "Trunnions, turret space."
+            },
+            "elevation_axis": {
+              "$ref": "#/$defs/v3"
+            },
+            "min_elevation_deg": {
+              "type": "number"
+            },
+            "max_elevation_deg": {
+              "type": "number"
+            },
+            "recoil_distance_m": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "mantlet": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "width_m",
+                "height_m",
+                "thickness_mm",
+                "material",
+                "offset_m"
+              ],
+              "properties": {
+                "width_m": {
+                  "type": "number"
+                },
+                "height_m": {
+                  "type": "number"
+                },
+                "thickness_mm": {
+                  "type": "number"
+                },
+                "material": {
+                  "type": "string"
+                },
+                "offset_m": {
+                  "type": "number"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "internal_modules": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "kind",
+          "mount",
+          "center_m"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "engine",
+              "transmission",
+              "fuel_tank",
+              "ammo_rack",
+              "radio",
+              "turret_drive"
+            ]
+          },
+          "mount": {
+            "$ref": "#/$defs/body"
+          },
+          "center_m": {
+            "$ref": "#/$defs/v3"
+          },
+          "size_m": {
+            "$ref": "#/$defs/v3",
+            "description": "Only fuel tanks and ammunition racks are sized by the player; the rest follow from the parts."
+          }
+        }
+      }
+    },
+    "crew_positions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "role",
+          "mount",
+          "position_m"
+        ],
+        "properties": {
+          "role": {
+            "enum": [
+              "commander",
+              "gunner",
+              "loader",
+              "driver",
+              "radio_operator"
+            ]
+          },
+          "mount": {
+            "$ref": "#/$defs/body"
+          },
+          "position_m": {
+            "$ref": "#/$defs/v3"
+          }
+        }
+      }
+    },
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "power_hp"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "description": "design_catalog.json engines"
+        },
+        "power_hp": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "transmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "forward_gears",
+        "gearing_kmh",
+        "steering"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "forward_gears": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "gearing_kmh": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Road speed the top gear is geared for (not a result: the reachable top speed is computed)."
+        },
+        "steering": {
+          "type": "string"
+        }
+      }
+    },
+    "suspension": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "stations",
+        "wheel_diameter_m",
+        "front_z_m",
+        "rear_z_m",
+        "sprocket"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "leaf_bogie",
+            "volute",
+            "hvss",
+            "torsion_bar",
+            "christie",
+            "interleaved"
+          ]
+        },
+        "stations": {
+          "type": "integer",
+          "minimum": 2
+        },
+        "wheel_diameter_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "front_z_m": {
+          "type": "number"
+        },
+        "rear_z_m": {
+          "type": "number"
+        },
+        "sprocket": {
+          "enum": [
+            "front",
+            "rear"
+          ]
+        }
+      }
+    },
+    "tracks": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "width_m",
+        "center_x_m"
+      ],
+      "properties": {
+        "width_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "center_x_m": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "weapons": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "caliber_mm",
+            "length_cal"
+          ],
+          "properties": {
+            "caliber_mm": {
+              "type": "number",
+              "minimum": 20,
+              "maximum": 203
+            },
+            "length_cal": {
+              "type": "number",
+              "minimum": 12,
+              "maximum": 80
+            },
+            "stabilizer": {
+              "enum": [
+                "none",
+                "vertical",
+                "two_plane"
+              ],
+              "default": "none"
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "ammunition": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "count"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "ap",
+              "apcbc",
+              "aphe",
+              "apcr",
+              "heat",
+              "he"
+            ]
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "visual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [],
+      "properties": {
+        "paint": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^#[0-9a-fA-F]{6}$"
+        }
+      }
+    },
+    "editor": {
+      "description": "Editor state (parametric bases and the edit history). Opaque to the server."
+    }
+  },
+  "$defs": {
+    "v3": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 3,
+      "maxItems": 3
+    },
+    "body": {
+      "enum": [
+        "hull",
+        "turret"
+      ]
+    },
+    "mesh": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "vertices",
+        "faces"
+      ],
+      "properties": {
+        "vertices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/v3"
+          }
+        },
+        "faces": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "v"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "Stable face id (armour refers to it)."
+              },
+              "v": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "minItems": 3
+              },
+              "tag": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "description": "Closed polygon mesh, outward winding."
+    }
+  }
+}

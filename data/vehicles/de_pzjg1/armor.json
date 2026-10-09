@@ -1,0 +1,278 @@
+[
+ {
+  "id": "hull_upper_front",
+  "zone": "hull_upper_front",
+  "material": "rha",
+  "thickness_mm": 13,
+  "center": {
+   "x": 0.0,
+   "y": 1.025,
+   "z": 2.1797
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.3746,
+   "z": 0.9272
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.64,
+  "half_v": 0.0809
+ },
+ {
+  "id": "hull_lower_front",
+  "zone": "hull_lower_front",
+  "material": "rha",
+  "thickness_mm": 13,
+  "center": {
+   "x": 0.0,
+   "y": 0.615,
+   "z": 2.0538
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -0.4226,
+   "z": 0.9063
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.64,
+  "half_v": 0.3696
+ },
+ {
+  "id": "hull_side_r",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 13,
+  "center": {
+   "x": 0.64,
+   "y": 0.69,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 2.06,
+  "half_v": 0.41
+ },
+ {
+  "id": "hull_side_l",
+  "zone": "hull_side",
+  "material": "rha",
+  "thickness_mm": 13,
+  "center": {
+   "x": -0.64,
+   "y": 0.69,
+   "z": 0.0
+  },
+  "normal": {
+   "x": -1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 2.06,
+  "half_v": 0.41
+ },
+ {
+  "id": "hull_rear",
+  "zone": "hull_rear",
+  "material": "rha",
+  "thickness_mm": 13,
+  "center": {
+   "x": 0.0,
+   "y": 0.69,
+   "z": -2.16
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": -1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.64,
+  "half_v": 0.41
+ },
+ {
+  "id": "hull_roof",
+  "zone": "hull_roof",
+  "material": "rha",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.0,
+   "y": 1.1,
+   "z": -0.3
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.64,
+  "half_v": 1.31
+ },
+ {
+  "id": "hull_floor",
+  "zone": "hull_floor",
+  "material": "rha",
+  "thickness_mm": 5,
+  "center": {
+   "x": 0.0,
+   "y": 0.28,
+   "z": 0.0
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.34,
+  "half_v": 1.91
+ },
+ {
+  "id": "turret_front",
+  "zone": "turret_front",
+  "material": "rha",
+  "thickness_mm": 14.5,
+  "center": {
+   "x": 0.0,
+   "y": 1.615,
+   "z": 0.8
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.5,
+   "z": 0.866
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.88,
+  "half_v": 0.515
+ },
+ {
+  "id": "gun_mantlet",
+  "zone": "gun_mantlet",
+  "material": "rha",
+  "thickness_mm": 14.5,
+  "center": {
+   "x": 0.0,
+   "y": 1.69,
+   "z": 0.89
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.18,
+  "half_v": 0.15
+ },
+ {
+  "id": "turret_side_r",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 14.5,
+  "center": {
+   "x": 0.86,
+   "y": 1.615,
+   "z": 0.15
+  },
+  "normal": {
+   "x": 0.9962,
+   "y": 0.0872,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.68,
+  "half_v": 0.517
+ },
+ {
+  "id": "turret_side_l",
+  "zone": "turret_side",
+  "material": "rha",
+  "thickness_mm": 14.5,
+  "center": {
+   "x": -0.86,
+   "y": 1.615,
+   "z": 0.15
+  },
+  "normal": {
+   "x": -0.9962,
+   "y": 0.0872,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.68,
+  "half_v": 0.517
+ },
+ {
+  "id": "turret_rear",
+  "zone": "turret_rear",
+  "material": "rha",
+  "thickness_mm": 6,
+  "center": {
+   "x": 0.0,
+   "y": 1.615,
+   "z": -0.5
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": -1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.88,
+  "half_v": 0.515
+ }
+]

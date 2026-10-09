@@ -1,0 +1,146 @@
+[
+ {
+  "id": "engine",
+  "kind": "engine",
+  "center": {
+   "x": 0.0,
+   "y": 1.15,
+   "z": 2.3
+  },
+  "half_extents": {
+   "x": 0.35,
+   "y": 0.3,
+   "z": 0.4
+  },
+  "max_health": 80,
+  "health": 80
+ },
+ {
+  "id": "transmission",
+  "kind": "transmission",
+  "center": {
+   "x": 0.0,
+   "y": 0.85,
+   "z": 1.55
+  },
+  "half_extents": {
+   "x": 0.2,
+   "y": 0.14,
+   "z": 0.2
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "fuel_tank",
+  "kind": "fuel_tank",
+  "center": {
+   "x": 0.8,
+   "y": 0.78,
+   "z": -0.4
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.16,
+   "z": 0.45
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "ammo_l",
+  "kind": "ammo_rack",
+  "center": {
+   "x": -0.8,
+   "y": 0.78,
+   "z": -0.4
+  },
+  "half_extents": {
+   "x": 0.18,
+   "y": 0.16,
+   "z": 0.45
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "ammo_ready",
+  "kind": "ammo_rack",
+  "center": {
+   "x": 0.0,
+   "y": 1.25,
+   "z": 0.75
+  },
+  "half_extents": {
+   "x": 0.85,
+   "y": 0.22,
+   "z": 0.28
+  },
+  "max_health": 40,
+  "health": 40
+ },
+ {
+  "id": "breech",
+  "kind": "gun_breech",
+  "center": {
+   "x": 0.0,
+   "y": 1.64,
+   "z": -1.75
+  },
+  "half_extents": {
+   "x": 0.09,
+   "y": 0.1,
+   "z": 0.14
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "gun_barrel",
+  "kind": "gun_barrel",
+  "center": {
+   "x": 0.0,
+   "y": 1.64,
+   "z": 0.2
+  },
+  "half_extents": {
+   "x": 0.05,
+   "y": 0.05,
+   "z": 1.0
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "wheels_l",
+  "kind": "track",
+  "center": {
+   "x": -0.82,
+   "y": 0.47,
+   "z": 0.31
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.47,
+   "z": 2.46
+  },
+  "max_health": 90,
+  "health": 90
+ },
+ {
+  "id": "wheels_r",
+  "kind": "track",
+  "center": {
+   "x": 0.82,
+   "y": 0.47,
+   "z": 0.31
+  },
+  "half_extents": {
+   "x": 0.15,
+   "y": 0.47,
+   "z": 2.46
+  },
+  "max_health": 90,
+  "health": 90
+ }
+]

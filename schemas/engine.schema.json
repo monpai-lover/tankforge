@@ -1,0 +1,89 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "engine.json",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "engine",
+    "transmission"
+  ],
+  "properties": {
+    "engine": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "horsepower",
+        "max_rpm",
+        "idle_rpm",
+        "weight_kg",
+        "torque_curve"
+      ],
+      "properties": {
+        "horsepower": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "max_rpm": {
+          "type": "number"
+        },
+        "idle_rpm": {
+          "type": "number"
+        },
+        "weight_kg": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "torque_curve": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": {
+              "type": "number"
+            }
+          },
+          "description": "[rpm, torque] ascending rpm"
+        }
+      }
+    },
+    "transmission": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "forward_gears",
+        "reverse_gears",
+        "gear_ratios",
+        "final_drive_ratio"
+      ],
+      "properties": {
+        "forward_gears": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "reverse_gears": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "gear_ratios": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        },
+        "final_drive_ratio": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "shift_time_s": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 3,
+          "default": 0.35
+        }
+      }
+    }
+  }
+}

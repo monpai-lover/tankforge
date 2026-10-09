@@ -1,0 +1,103 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/de0f50fd-flakpanzer_gepard__high-quality_model.glb",
+ "source": "\"Flakpanzer Gepard | High-Quality model\" by Scout (https://sketchfab.com/scout.), CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/); scaled, its placeholder colours replaced",
+ "scale": 0.024,
+ "offset": [
+  0,
+  0.018,
+  0
+ ],
+ "drop_materials": [
+  5,
+  6
+ ],
+ "turret_nodes": [
+  "bone_turret_bone_turret_0",
+  "bone_turret_bone_turret_0.001",
+  "bone_turret_bone_turret_0.002",
+  "bone_turret_bone_turret_0.003",
+  "antenna_01_antenna_01_0",
+  "antenna_02_antenna_02_0",
+  "hatch_01_hatch_01_0",
+  "antenna_target_tagging_mount_antenna_target_tagging_mount_0",
+  "antenna_target_tagging_antenna_target_tagging_0",
+  "antenna_target_location_mount_antenna_target_location_mount_0",
+  "antenna_target_location_antenna_target_location_0",
+  "bone_commander_sight_h_bone_commander_sight_h_0"
+ ],
+ "gun_nodes": [
+  "bone_gun_bone_gun_0",
+  "bone_gun_bone_gun_0.001",
+  "gun_barrel_01_gun_barrel_01_0",
+  "gun_barrel_02_gun_barrel_02_0"
+ ],
+ "barrel_extra_nodes": [
+  "gun_barrel_01_gun_barrel_01_0",
+  "gun_barrel_02_gun_barrel_02_0"
+ ],
+ "gun_index_nodes": {
+  "1": [
+   "bone_gun_bone_gun_0",
+   "gun_barrel_02_gun_barrel_02_0"
+  ]
+ },
+ "material_colours": {
+  "flakpz_i_gepard_body_c": {
+   "colour": [
+    0.068,
+    0.072,
+    0.04
+   ],
+   "rough": 0.78,
+   "metal": 0.1
+  },
+  "flakpz_i_gepard_turret_c": {
+   "colour": [
+    0.068,
+    0.072,
+    0.04
+   ],
+   "rough": 0.78,
+   "metal": 0.1
+  },
+  "flakpz_i_gepard_gun_c": {
+   "colour": [
+    0.052,
+    0.056,
+    0.032
+   ],
+   "rough": 0.62,
+   "metal": 0.3
+  },
+  "net_f_c": {
+   "colour": [
+    0.028,
+    0.028,
+    0.024
+   ],
+   "rough": 0.9,
+   "metal": 0.0
+  },
+  "headlight_glass_c": {
+   "colour": [
+    0.55,
+    0.55,
+    0.5
+   ],
+   "rough": 0.2,
+   "metal": 0.0
+  }
+ },
+ "stagger": {
+  "1": {
+   "road_wheel": -0.105,
+   "return_roller": [
+    -0.08,
+    -0.09,
+    -0.12,
+    -0.065
+   ]
+  }
+ },
+ "normal_maps": false
+}

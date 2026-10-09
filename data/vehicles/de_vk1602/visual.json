@@ -1,0 +1,74 @@
+{
+ "schema_version": 1,
+ "palette": {
+  "steel": "#6a6d70",
+  "rubber": "#1c1c1d",
+  "track": "#4a4743",
+  "black": "#151515",
+  "paint": "#7d7a5c",
+  "paint_dark": "#55533e"
+ },
+ "parts": [],
+ "running_gear": {
+  "track_width": 0.6,
+  "track_thickness": 0.09,
+  "track_x": 1.225,
+  "link_pitch": 0.13,
+  "link_style": "twin_guide",
+  "track_sag": 0.03,
+  "sprocket": {
+   "z": 2.12,
+   "y": 0.815,
+   "r": 0.4,
+   "teeth": 18
+  },
+  "idler": {
+   "z": -1.8,
+   "y": 0.7,
+   "r": 0.33
+  },
+  "wheels": [
+   {
+    "z": 1.32,
+    "y": 0.56,
+    "r": 0.43,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": 0.725,
+    "y": 0.56,
+    "r": 0.46,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": 0.13,
+    "y": 0.56,
+    "r": 0.43,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": -0.465,
+    "y": 0.56,
+    "r": 0.46,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": -1.06,
+    "y": 0.56,
+    "r": 0.43,
+    "w": 0.18,
+    "x": 0.0
+   }
+  ],
+  "rollers": [],
+  "wheel_style": "steel_dish"
+ },
+ "hull_bottom": 0.47,
+ "exhaust": {
+  "fuel": "petrol"
+ }
+}

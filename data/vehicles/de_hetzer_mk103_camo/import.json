@@ -1,0 +1,62 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/9a01732b-flak38t-reconstruction-v2.glb",
+ "source": "Hetzer 3 cm MK 103 (camouflage): the user's own model (flak38t-reconstruction-v2.glb), used unchanged with the user's permission",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "drop_wide": {
+  "meshes": [
+   12,
+   13
+  ],
+  "x_extent_ge": 0.3
+ },
+ "turret_meshes": [
+  14,
+  16,
+  17
+ ],
+ "gun_meshes": [
+  15
+ ],
+ "barrel_meshes": [
+  15
+ ],
+ "barrel_min_length": 1.0,
+ "normal_maps": false,
+ "textures": {
+  "0": 2048
+ },
+ "add": [
+  {
+   "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/07d74613-Hetzer_Flak_Interior_Refined.glb",
+   "offset": [
+    0,
+    0.063,
+    0
+   ],
+   "only_nodes": [
+    "Refinement - receiver latches, feed magazine and recoil hardware",
+    "Refinement - traverse gearbox, elevation spring and control linkages",
+    "Refinement - adjustable seat, pedal rails and safety fittings",
+    "Refinement - two radio units, face instruments and wiring",
+    "Refinement - ammunition rack clasps, fire extinguisher and floor hardware"
+   ],
+   "turret_meshes": [],
+   "gun_meshes": [],
+   "barrel_meshes": [],
+   "drop_wide": {},
+   "drop_meshes": [],
+   "turret_nodes": [
+    "Gun traverse pivot"
+   ],
+   "gun_nodes": [
+    "Cannon elevation pivot"
+   ],
+   "textures": {}
+  }
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "id": "ap_custom_75_l48",
+ "name": "75 mm AP（L/48）",
+ "kind": "ap",
+ "caliber_mm": 75,
+ "mass_kg": 6.58,
+ "muzzle_velocity_ms": 732,
+ "explosive_mass_kg": 0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 278,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 120.1
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 117.3
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 106.8
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 94.9
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 84.4
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 75.1
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 66.7
+  }
+ ],
+ "ricochet_angle_deg": 68,
+ "normalization_deg": 4,
+ "fuse_delay_s": 0,
+ "fuse_sensitivity_mm": 0
+}

@@ -1,0 +1,48 @@
+{
+ "id": "apcr_90_m304",
+ "name": "90 mm M304 shot (HVAP)",
+ "kind": "apcr",
+ "caliber_mm": 90.0,
+ "mass_kg": 7.62,
+ "muzzle_velocity_ms": 1021.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 333,
+ "drag_coefficient": 0.45,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 300.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 290.3
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 254.5
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 216.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 183.2
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 155.4
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 131.9
+  }
+ ],
+ "ricochet_angle_deg": 66.0,
+ "normalization_deg": 2.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 62.0
+}

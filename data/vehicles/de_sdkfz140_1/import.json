@@ -1,0 +1,37 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/4de8d9e9-Sdkfz1401_Material_Refined.glb",
+ "source": "Sd.Kfz. 140/1: the user's own model (Sdkfz1401_Material_Refined.glb), used unchanged with the user's permission",
+ "mirror_x": false,
+ "rotate_180": true,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "drop_meshes": [
+  2,
+  3
+ ],
+ "turret_nodes": [
+  "vertices.002",
+  "DETAIL / Turret inner race, ring teeth and lubrication fittings",
+  "DETAIL / Combined handwheel slider, coupling and Bowden trigger cables",
+  "DETAIL / Magazine retention lips and spring catch detail",
+  "DETAIL / Seat height clamps, collars and pan underside fasteners",
+  "DETAIL / Lower crew footrest plates and anti-slip floor inserts",
+  "DETAIL / KwK 38 canvas case bag and retaining flange",
+  "DETAIL / MG42 spent case box pressed ribs and latch",
+  "DETAIL / Existing optical sight diopter rings and protective fittings",
+  "DETAIL / Cradle bearing lubrication, lid hinge keepers and tether chains"
+ ],
+ "gun_nodes": [
+  "gun_shape",
+  "DETAIL / KwK 38 receiver locking pins, recoil seals and cradle clamps"
+ ],
+ "normal_maps": false,
+ "textures": {
+  "0": 1024,
+  "2": 1024,
+  "6": 2048
+ }
+}

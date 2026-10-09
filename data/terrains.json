@@ -1,0 +1,17 @@
+[
+  {"id":"road","rolling_mult":1.0,"traction_mu":0.9,"lateral_mu":0.9},
+  {"id":"dirt","rolling_mult":1.4,"traction_mu":0.7,"lateral_mu":0.65,
+   "soil":{"n":0.7,"kc":5.27,"kphi":1515.04,"c":1.72,"phi_deg":29.0,"K":0.025,"max_sinkage_m":0.12}},
+  {"id":"grass","rolling_mult":1.6,"traction_mu":0.6,"lateral_mu":0.55,
+   "soil":{"n":1.1,"kc":74.6,"kphi":2080.0,"c":3.3,"phi_deg":33.7,"K":0.02,"max_sinkage_m":0.08}},
+  {"id":"sand","rolling_mult":2.5,"traction_mu":0.5,"lateral_mu":0.45,
+   "soil":{"n":1.1,"kc":0.99,"kphi":1528.43,"c":1.04,"phi_deg":28.0,"K":0.025,"max_sinkage_m":0.2}},
+  {"id":"mud","rolling_mult":3.0,"traction_mu":0.35,"lateral_mu":0.4,
+   "soil":{"n":0.5,"kc":13.19,"kphi":692.15,"c":4.14,"phi_deg":13.0,"K":0.03,"max_sinkage_m":0.3}},
+  {"id":"snow","rolling_mult":2.0,"traction_mu":0.3,"lateral_mu":0.3,
+   "soil":{"n":1.6,"kc":4.37,"kphi":196.72,"c":1.03,"phi_deg":19.7,"K":0.04,"max_sinkage_m":0.25}},
+  {"id":"gravel","rolling_mult":1.25,"traction_mu":0.6,"lateral_mu":0.5,
+   "soil":{"n":0.8,"kc":2.0,"kphi":3200.0,"c":0.5,"phi_deg":38.0,"K":0.015,"max_sinkage_m":0.05}},
+  {"id":"wetland","rolling_mult":3.4,"traction_mu":0.3,"lateral_mu":0.35,
+   "soil":{"n":0.6,"kc":10.0,"kphi":420.0,"c":3.0,"phi_deg":12.0,"K":0.035,"max_sinkage_m":0.4}}
+]

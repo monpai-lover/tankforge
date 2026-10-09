@@ -1,0 +1,562 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "visual.json",
+  "description": "Procedural exterior of a vehicle. Vehicle space: +Z forward, +X right, +Y up, origin on the ground under the hull centre. Coordinates of turret and gun parts are given at turret yaw 0 / gun pitch 0. Any part may carry \"hinge\": {\"a\": [x,y,z], \"b\": [x,y,z], \"angle\": degrees}: it is drawn on its own node and turned about the line a-b by angle when folded (key I), e.g. the hinged upper walls of an open fighting compartment.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "palette",
+    "parts",
+    "running_gear"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "palette": {
+      "type": "object",
+      "description": "#rrggbb per material slot",
+      "additionalProperties": {
+        "type": "string",
+        "pattern": "^#[0-9a-fA-F]{6}$"
+      }
+    },
+    "parts": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "profile",
+              "w"
+            ],
+            "properties": {
+              "type": {
+                "const": "prism"
+              },
+              "mount": {
+                "enum": [
+                  "hull",
+                  "turret",
+                  "gun"
+                ]
+              },
+              "mat": {
+                "enum": [
+                  "paint",
+                  "paint_dark",
+                  "steel",
+                  "rubber",
+                  "track",
+                  "black",
+                  "glass",
+                  "lamp",
+                  "orange",
+                  "canvas",
+                  "wood"
+                ]
+              },
+              "profile": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "description": "side silhouette [[z,y],...] extruded across X"
+              },
+              "w": {
+                "type": "number",
+                "description": "width at the lowest point"
+              },
+              "wt": {
+                "type": "number",
+                "description": "width at the highest point (tapered sides)"
+              },
+              "x": {
+                "type": "number"
+              },
+              "turret": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the turret this part belongs to (mount = turret | gun); 0 = primary"
+              },
+              "gun": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the gun within that turret (mount = gun)"
+              },
+              "recoil": {
+                "type": "boolean",
+                "description": "part slides back with the barrel when the gun fires"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "outline",
+              "y0",
+              "y1"
+            ],
+            "properties": {
+              "type": {
+                "const": "plan"
+              },
+              "mount": {
+                "enum": [
+                  "hull",
+                  "turret",
+                  "gun"
+                ]
+              },
+              "mat": {
+                "enum": [
+                  "paint",
+                  "paint_dark",
+                  "steel",
+                  "rubber",
+                  "track",
+                  "black",
+                  "glass",
+                  "lamp",
+                  "orange",
+                  "canvas",
+                  "wood"
+                ]
+              },
+              "outline": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "description": "top-view outline [[x,z],...] extruded from y0 to y1"
+              },
+              "y0": {
+                "type": "number"
+              },
+              "y1": {
+                "type": "number"
+              },
+              "scale_top": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "shift_top": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "origin": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              },
+              "smooth": {
+                "type": "boolean"
+              },
+              "turret": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the turret this part belongs to (mount = turret | gun); 0 = primary"
+              },
+              "gun": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the gun within that turret (mount = gun)"
+              },
+              "recoil": {
+                "type": "boolean",
+                "description": "part slides back with the barrel when the gun fires"
+              },
+              "hollow": {
+                "type": "number",
+                "exclusiveMinimum": 0,
+                "description": "wall thickness (m) of an open-topped shell: no roof, walls with an inside face, a floor"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "size",
+              "pos"
+            ],
+            "properties": {
+              "type": {
+                "const": "box"
+              },
+              "mount": {
+                "enum": [
+                  "hull",
+                  "turret",
+                  "gun"
+                ]
+              },
+              "mat": {
+                "enum": [
+                  "paint",
+                  "paint_dark",
+                  "steel",
+                  "rubber",
+                  "track",
+                  "black",
+                  "glass",
+                  "lamp",
+                  "orange",
+                  "canvas",
+                  "wood"
+                ]
+              },
+              "size": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "pos": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rot": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3,
+                "description": "XYZ Euler, degrees"
+              },
+              "mirror": {
+                "type": "boolean"
+              },
+              "recoil": {
+                "type": "boolean"
+              },
+              "turret": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the turret this part belongs to (mount = turret | gun); 0 = primary"
+              },
+              "gun": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the gun within that turret (mount = gun)"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "r",
+              "len",
+              "axis",
+              "pos"
+            ],
+            "properties": {
+              "type": {
+                "const": "cyl"
+              },
+              "mount": {
+                "enum": [
+                  "hull",
+                  "turret",
+                  "gun"
+                ]
+              },
+              "mat": {
+                "enum": [
+                  "paint",
+                  "paint_dark",
+                  "steel",
+                  "rubber",
+                  "track",
+                  "black",
+                  "glass",
+                  "lamp",
+                  "orange",
+                  "canvas",
+                  "wood"
+                ]
+              },
+              "r": {
+                "type": "number",
+                "description": "radius at the negative end of the axis"
+              },
+              "r2": {
+                "type": "number",
+                "description": "radius at the positive end"
+              },
+              "len": {
+                "type": "number"
+              },
+              "axis": {
+                "enum": [
+                  "x",
+                  "y",
+                  "z"
+                ]
+              },
+              "pos": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "rot": {
+                "type": "array",
+                "items": {
+                  "type": "number"
+                },
+                "minItems": 3,
+                "maxItems": 3
+              },
+              "segs": {
+                "type": "integer"
+              },
+              "mirror": {
+                "type": "boolean"
+              },
+              "recoil": {
+                "type": "boolean",
+                "description": "slides back with the barrel when firing"
+              },
+              "turret": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the turret this part belongs to (mount = turret | gun); 0 = primary"
+              },
+              "gun": {
+                "type": "integer",
+                "minimum": 0,
+                "description": "index of the gun within that turret (mount = gun)"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "running_gear": {
+      "type": "object",
+      "required": [
+        "track_width",
+        "track_thickness",
+        "track_x",
+        "sprocket",
+        "idler",
+        "wheels"
+      ],
+      "properties": {
+        "track_width": {
+          "type": "number"
+        },
+        "track_thickness": {
+          "type": "number"
+        },
+        "track_x": {
+          "type": "number",
+          "description": "track centre line, metres from the hull centre"
+        },
+        "link_pitch": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "pin-to-pin length of one track link, metres"
+        },
+        "sprocket": {
+          "type": "object",
+          "required": [
+            "z",
+            "y",
+            "r"
+          ],
+          "properties": {
+            "z": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number",
+              "description": "axle height"
+            },
+            "r": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "w": {
+              "type": "number"
+            },
+            "x": {
+              "type": "number",
+              "description": "lateral offset from the track centre (interleaved wheels)"
+            },
+            "teeth": {
+              "type": "integer"
+            }
+          }
+        },
+        "idler": {
+          "type": "object",
+          "required": [
+            "z",
+            "y",
+            "r"
+          ],
+          "properties": {
+            "z": {
+              "type": "number"
+            },
+            "y": {
+              "type": "number",
+              "description": "axle height"
+            },
+            "r": {
+              "type": "number",
+              "exclusiveMinimum": 0
+            },
+            "w": {
+              "type": "number"
+            },
+            "x": {
+              "type": "number",
+              "description": "lateral offset from the track centre (interleaved wheels)"
+            },
+            "teeth": {
+              "type": "integer"
+            }
+          }
+        },
+        "wheels": {
+          "type": "array",
+          "minItems": 2,
+          "items": {
+            "type": "object",
+            "required": [
+              "z",
+              "y",
+              "r"
+            ],
+            "properties": {
+              "z": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number",
+                "description": "axle height"
+              },
+              "r": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "w": {
+                "type": "number"
+              },
+              "x": {
+                "type": "number",
+                "description": "lateral offset from the track centre (interleaved wheels)"
+              },
+              "teeth": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "rollers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "z",
+              "y",
+              "r"
+            ],
+            "properties": {
+              "z": {
+                "type": "number"
+              },
+              "y": {
+                "type": "number",
+                "description": "axle height"
+              },
+              "r": {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              "w": {
+                "type": "number"
+              },
+              "x": {
+                "type": "number",
+                "description": "lateral offset from the track centre (interleaved wheels)"
+              },
+              "teeth": {
+                "type": "integer"
+              }
+            }
+          }
+        },
+        "wheel_style": {
+          "enum": [
+            "rubber_dish",
+            "steel_dish",
+            "spoked",
+            "starfish"
+          ]
+        },
+        "link_style": {
+          "enum": [
+            "center_guide",
+            "twin_guide",
+            "rubber_block"
+          ],
+          "description": "shape of the track links"
+        },
+        "track_sag": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 0.2,
+          "description": "droop of the upper run per square metre of free span (1/m); slack tracks ~0.03, tracks on return rollers ~0.01"
+        }
+      }
+    },
+    "own_breech": {
+      "type": "boolean",
+      "description": "An open mount whose gun is modelled in full in parts: the client draws no generic breech over it."
+    },
+    "hull_bottom": {
+      "type": "number",
+      "description": "Height of the hull's floor (m) for the belly contacts, when the parts do not give it."
+    }
+  }
+}

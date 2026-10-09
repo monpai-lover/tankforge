@@ -1,0 +1,35 @@
+{
+ "glb": "/root/.claude/uploads/f0f8a1dd-9cbc-5e68-8a44-696e7e3710e9/4a174728-AT_T_M46_130mm_PhotoReplica.glb",
+ "source": "AT-T with the 130 mm M-46: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), used unchanged with the user's permission",
+ "swap_xz": true,
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "drop_nodes": [
+  "Track_L",
+  "Track_R"
+ ],
+ "turret_nodes": [
+  "Gun_Traverse"
+ ],
+ "gun_nodes": [
+  "Gun_Elevation"
+ ],
+ "barrel_nodes": [
+  "Gun_Elevation"
+ ],
+ "barrel_min_length": 3.0,
+ "barrel_ahead_z": 0.6,
+ "level_nodes": [
+  "Gun_Elevation"
+ ],
+ "normal_maps": false,
+ "textures": {
+  "0": 1024,
+  "1": 1024,
+  "2": 1024
+ }
+}

@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "materials.json", "type": "array",
+  "items": {"type":"object","required":["id","kind","density_kg_m3","hardness_bhn","kinetic_factor","chemical_factor"],
+    "properties": {
+      "id": {"type":"string"},
+      "kind": {"enum":["rha","cha","high_hardness_steel","aluminium","spaced","composite","applied","skirt","era"]},
+      "density_kg_m3": {"type":"number","exclusiveMinimum":0}, "hardness_bhn": {"type":"number","exclusiveMinimum":0},
+      "kinetic_factor": {"type":"number","exclusiveMinimum":0}, "chemical_factor": {"type":"number","exclusiveMinimum":0}}}
+}

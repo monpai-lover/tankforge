@@ -1,0 +1,12 @@
+{
+  "id": "ap_75_generic", "name": "Generic 75mm AP", "kind": "ap",
+  "caliber_mm": 75, "mass_kg": 6.8, "muzzle_velocity_ms": 800,
+  "explosive_mass_kg": 0.0, "explosive_type": "none",
+  "penetrator_material": "steel", "length_mm": 300, "drag_coefficient": 0.3,
+  "penetration_curve": [
+    {"distance_m": 0, "pen_mm": 150}, {"distance_m": 500, "pen_mm": 135},
+    {"distance_m": 1000, "pen_mm": 120}, {"distance_m": 2000, "pen_mm": 95}
+  ],
+  "ricochet_angle_deg": 68, "normalization_deg": 5,
+  "fuse_delay_s": 0, "fuse_sensitivity_mm": 0
+}

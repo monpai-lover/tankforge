@@ -1,0 +1,64 @@
+{
+ "id": "de_vk1602",
+ "name": "VK 16.02 Leopard",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "light",
+  "year": 1943,
+  "outline": "model",
+  "based_on": "VK 16.02 Leopard reconnaissance tank (1942-43 design) with the 5 cm KwK 39/1 L/60",
+  "notes": "Exterior: the user's own model (VK1602_Leopard_v1_1.glb), used unchanged and cut into its moving pieces by tools/glb-vehicle.py. Figures: about 26 t, Maybach HL 157 P of 550 hp, 60 km/h; 80 mm front, 60 mm sides; turret 80 mm with a 100 mm mantlet. Gear ratios, suspension rates and the interior are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.16,
+   1.72,
+   5.4
+  ],
+  "mass_kg": 26000,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.95,
+   0.7,
+   1.9
+  ],
+  "ring_diameter_m": 1.6,
+  "position_m": [
+   0.0,
+   1.72,
+   0.0
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.6,
+  "track_length_m": 2.9,
+  "suspension": {
+   "travel_m": 0.25,
+   "stiffness": 230000,
+   "damping": 17000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.4,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

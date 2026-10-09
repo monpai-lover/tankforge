@@ -1,0 +1,47 @@
+{
+ "id": "api_145_b32",
+ "name": "14.5 mm B-32 (API)",
+ "kind": "ap",
+ "caliber_mm": 14.5,
+ "mass_kg": 0.064,
+ "muzzle_velocity_ms": 1000.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 54,
+ "drag_coefficient": 0.3,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 32.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 29.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 22.8
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 16.3
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 11.6
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 8.3
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 5.9
+  }
+ ],
+ "ricochet_angle_deg": 70.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

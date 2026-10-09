@@ -1,0 +1,8 @@
+[package]
+name = "tg-damage"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+serde.workspace = true
+tg-shared.workspace = true

@@ -1,0 +1,65 @@
+{
+ "id": "de_panther_g",
+ "name": "Panther Ausf. G",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "medium",
+  "year": 1944,
+  "outline": "dimensions",
+  "based_on": "Panzerkampfwagen V Panther Ausf. G",
+  "notes": "Built from published dimensions, not from a drawing. Gear ratios are the published AK 7-200 values; final_drive_ratio folds the steering unit in and is chosen to match the published top speed. One plate stands for the whole hull side. Interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.27,
+   1.87,
+   6.87
+  ],
+  "mass_kg": 44800,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.3,
+   0.8,
+   2.6
+  ],
+  "ring_diameter_m": 1.65,
+  "position_m": [
+   0.0,
+   1.87,
+   -0.05
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.66,
+  "track_length_m": 3.92,
+  "suspension": {
+   "kind": "interleaved",
+   "travel_m": 0.25,
+   "stiffness": 340000,
+   "damping": 26000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.42,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 24.0,
+  "max_reverse_speed_ms": 1.1,
+  "min_turn_radius_m": 0.0
+ }
+}

@@ -1,0 +1,65 @@
+{
+ "id": "de_pz3_j",
+ "name": "Pz.Kpfw. III Ausf. J (L/60)",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "medium",
+  "year": 1942,
+  "outline": "dimensions",
+  "based_on": "Panzerkampfwagen III Ausf. J with 5 cm KwK 39 L/60",
+  "notes": "Built from published dimensions, not from a drawing. Turret traverse was by hand (the rate is an estimate); gear ratios are estimates chosen to match the published top speed; interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.95,
+   1.52,
+   5.52
+  ],
+  "mass_kg": 21500,
+  "center_of_mass": [
+   0,
+   0.85,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.86,
+   0.6,
+   2.5
+  ],
+  "ring_diameter_m": 1.52,
+  "position_m": [
+   0.0,
+   1.52,
+   0.15
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.4,
+  "track_length_m": 2.86,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.2,
+   "stiffness": 180000,
+   "damping": 14000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.3,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 1.8,
+  "min_turn_radius_m": 5.8
+ }
+}

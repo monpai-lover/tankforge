@@ -1,0 +1,58 @@
+{
+ "main_gun": {
+  "id": "kwk38_20",
+  "caliber_mm": 20.0,
+  "barrel_length_mm": 1900,
+  "recoil_mm": 30,
+  "rounds_per_min": 450,
+  "reload_s": 0.133,
+  "traverse_deg_s": 20.0,
+  "elevate_deg_s": 20.0,
+  "max_depression_deg": 4.0,
+  "max_elevation_deg": 70.0,
+  "dispersion_mrad": 1.4,
+  "mass_kg": 110,
+  "ammo": [
+   "hefi_20_sprgr",
+   "apt_20_pzgr39",
+   "apcr_20_pzgr40"
+  ],
+  "autocannon": {
+   "rate_rpm": 450,
+   "belt_rounds": 10,
+   "belt_reload_s": 3.0
+  },
+  "ammo_count": [
+   140,
+   130,
+   60
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.9,
+  0.34
+ ],
+ "muzzle_offset_m": 1.87,
+ "sight": {
+  "name": "TZF 3a",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 25.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_mg42",
+   "weapon": "mg42",
+   "mount": "coax",
+   "position_m": [
+    -0.4,
+    1.83,
+    1.25
+   ]
+  }
+ ]
+}

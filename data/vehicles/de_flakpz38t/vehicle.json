@@ -1,0 +1,65 @@
+{
+ "id": "de_flakpz38t",
+ "name": "Flakpanzer 38(t)",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "germany",
+  "class": "spaa",
+  "year": 1943,
+  "outline": "traced",
+  "based_on": "Flakpanzer 38(t) Ausf. L (Sd.Kfz. 140) with the 2 cm FlaK 38",
+  "notes": "Rebuilt to the reference model supplied with the request (hull and compartment proportions, wheel stations, the FlaK 38's layout), cross-checked against the four-view drawing. The upper walls of the compartment are hinged flaps that fold down (key I); the FlaK 38 traverses all round."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.15,
+   1.4,
+   5.3
+  ],
+  "mass_kg": 9800,
+  "center_of_mass": [
+   0,
+   0.95,
+   -0.2
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.2,
+   1.3,
+   2.4
+  ],
+  "ring_diameter_m": 0.9,
+  "position_m": [
+   0.0,
+   1.02,
+   -1.5
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.29,
+  "track_length_m": 3.0,
+  "suspension": {
+   "travel_m": 0.14,
+   "stiffness": 100000,
+   "damping": 8000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.26,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "modules.json", "type": "array", "minItems": 1,
+  "items": {"type":"object","required":["id","kind","center","half_extents","max_health","health"],
+    "properties": {
+      "id": {"type":"string"},
+      "kind": {"enum":["engine","transmission","fuel_tank","ammo_rack","gun_breech","gun_barrel","turret_drive","horizontal_drive","vertical_drive","radio","track"]},
+      "center": {"$ref":"#/$defs/vec3"}, "half_extents": {"$ref":"#/$defs/vec3"},
+      "max_health": {"type":"number","exclusiveMinimum":0}, "health": {"type":"number","exclusiveMinimum":0}}},
+  "$defs": {"vec3": {"type":"object","required":["x","y","z"],"properties":{"x":{"type":"number"},"y":{"type":"number"},"z":{"type":"number"}}}}
+}

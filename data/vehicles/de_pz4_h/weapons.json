@@ -1,0 +1,70 @@
+{
+ "main_gun": {
+  "id": "kwk40_75_l48",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 3600,
+  "recoil_mm": 480,
+  "rounds_per_min": 10.0,
+  "reload_s": 6.0,
+  "traverse_deg_s": 14.0,
+  "elevate_deg_s": 5.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 750,
+  "ammo": [
+   "apcbc_75_pzgr39",
+   "he_75_sprgr34",
+   "apcr_75_pzgr40",
+   "heat_75_gr38c"
+  ],
+  "ammo_count": [
+   40,
+   40,
+   4,
+   3
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.98,
+  1.2
+ ],
+ "muzzle_offset_m": 2.86,
+ "sight": {
+  "name": "TZF 5f",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 25.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_mg34",
+   "weapon": "mg34",
+   "mount": "coax",
+   "position_m": [
+    0.28,
+    1.98,
+    1.43
+   ]
+  },
+  {
+   "id": "bow_mg34",
+   "weapon": "mg34",
+   "mount": "hull",
+   "position_m": [
+    0.56,
+    1.44,
+    2.1
+   ],
+   "arc_deg": [
+    15.0,
+    10.0,
+    20.0
+   ]
+  }
+ ]
+}

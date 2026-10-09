@@ -1,0 +1,48 @@
+{
+ "main_gun": {
+  "id": "pak36t_47",
+  "caliber_mm": 47.0,
+  "barrel_length_mm": 2040,
+  "recoil_mm": 300,
+  "rounds_per_min": 13.0,
+  "reload_s": 4.5,
+  "traverse_deg_s": 12.0,
+  "elevate_deg_s": 6.0,
+  "max_depression_deg": 8.0,
+  "max_elevation_deg": 12.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 290,
+  "ammo": [
+   "apcbc_47_pak36t",
+   "he_47_pak36t"
+  ],
+  "ammo_count": [
+   54,
+   32
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.69,
+  0.4
+ ],
+ "muzzle_offset_m": 1.69,
+ "sight": {
+  "name": "Sfl.Z.F.",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 24.0
+   },
+   {
+    "magnification": 5.0,
+    "fov_deg": 12.0
+   }
+  ]
+ },
+ "secondary": [],
+ "yaw_limit_deg": [
+  -17.5,
+  17.5
+ ]
+}

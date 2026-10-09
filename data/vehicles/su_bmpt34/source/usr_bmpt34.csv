@@ -1,0 +1,16 @@
+<ID|readonly|noverify>;<english>
+
+bmpt34;БМПТ-34 (об.1943);
+bmpt34_0;БМПТ-34 (об.1943);
+bmpt34_1;БМПТ-34 (об.1943);
+bmpt34_2;БМПТ-34 (об.1943);
+bmpt34_3;БМПТ-34 (об.1943);
+bmpt34_shop;БМПТ-34 (об.1943);
+
+weapons/25mm_72K_cannon;25-мм пушка 72-К;
+
+campaigns/TunderTunder;TunderTunder;
+campaigns/TunderTunder/desc;;
+chapters/bmpt34;БМПТ-34;
+chapters/bmpt34/desc;The БМПТ-34 (Russian: "heavy infantry combat vehicle") was a Soviet tracked armoured vehicle on the T-34 chassis. It was developed by the end of 1943 and built at Plant No. 174 in Omsk. It was designed to work both as a self-propelled anti-aircraft gun and as a fire support vehicle for infantry, and it carried two 25 mm 72-K guns in an open-topped turret. A first batch was completed at the end of 1943, series production ran from 1944 to 1948, and about 1,190 vehicles were built in total.;
+

@@ -1,0 +1,48 @@
+{
+ "id": "apfsds_78_xp",
+ "name": "78 mm APFSDS-T (試驗)",
+ "kind": "apfsds",
+ "caliber_mm": 26.0,
+ "mass_kg": 3.6,
+ "muzzle_velocity_ms": 1650.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "tungsten",
+ "length_mm": 312,
+ "drag_coefficient": 0.26,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 330.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 328.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 324.5
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 319.1
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 313.8
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 308.6
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 303.4
+  }
+ ],
+ "ricochet_angle_deg": 78.0,
+ "normalization_deg": 0.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0,
+ "shatter_angle_deg": 75.0
+}

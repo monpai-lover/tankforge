@@ -1,0 +1,301 @@
+[
+ {
+  "id": "bonnet_front",
+  "zone": "hull_upper_front",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": 0.0,
+   "y": 1.18,
+   "z": 2.77
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.55,
+  "half_v": 0.38
+ },
+ {
+  "id": "bonnet_side_r",
+  "zone": "hull_side",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": 0.55,
+   "y": 1.25,
+   "z": 2.05
+  },
+  "normal": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.72,
+  "half_v": 0.42
+ },
+ {
+  "id": "bonnet_side_l",
+  "zone": "hull_side",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": -0.55,
+   "y": 1.25,
+   "z": 2.05
+  },
+  "normal": {
+   "x": -1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.72,
+  "half_v": 0.42
+ },
+ {
+  "id": "bonnet_top",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": 0.0,
+   "y": 1.7,
+   "z": 2.15
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.52,
+  "half_v": 0.6
+ },
+ {
+  "id": "cab_side_r",
+  "zone": "hull_side",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": 0.95,
+   "y": 1.26,
+   "z": 1.69
+  },
+  "normal": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.36,
+  "half_v": 0.45
+ },
+ {
+  "id": "cab_side_l",
+  "zone": "hull_side",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": -0.95,
+   "y": 1.26,
+   "z": 1.69
+  },
+  "normal": {
+   "x": -1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.36,
+  "half_v": 0.45
+ },
+ {
+  "id": "cab_back",
+  "zone": "hull_rear",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": 0.0,
+   "y": 1.26,
+   "z": 1.33
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": -1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.96,
+  "half_v": 0.45
+ },
+ {
+  "id": "bed_floor",
+  "zone": "hull_floor",
+  "material": "skirt",
+  "thickness_mm": 4,
+  "center": {
+   "x": 0.0,
+   "y": 0.95,
+   "z": -0.88
+  },
+  "normal": {
+   "x": 0.0,
+   "y": -1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.98,
+  "half_v": 2.07
+ },
+ {
+  "id": "bin_r",
+  "zone": "hull_side",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": 0.98,
+   "y": 1.1,
+   "z": -2.03
+  },
+  "normal": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.92,
+  "half_v": 0.13
+ },
+ {
+  "id": "bin_l",
+  "zone": "hull_side",
+  "material": "skirt",
+  "thickness_mm": 2,
+  "center": {
+   "x": -0.98,
+   "y": 1.1,
+   "z": -2.03
+  },
+  "normal": {
+   "x": -1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "half_u": 0.92,
+  "half_v": 0.13
+ },
+ {
+  "id": "tailboard",
+  "zone": "hull_rear",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": 0.0,
+   "y": 0.78,
+   "z": -2.97
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": -1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.98,
+  "half_v": 0.15
+ },
+ {
+  "id": "gun_shield",
+  "zone": "turret_front",
+  "material": "rha",
+  "thickness_mm": 12,
+  "center": {
+   "x": 0.0,
+   "y": 1.55,
+   "z": -0.96
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.0,
+   "z": 1.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.7,
+  "half_v": 0.3
+ },
+ {
+  "id": "gun_shield_top",
+  "zone": "turret_front",
+  "material": "rha",
+  "thickness_mm": 12,
+  "center": {
+   "x": 0.0,
+   "y": 1.86,
+   "z": -1.03
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 0.6392,
+   "z": 0.769
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.7,
+  "half_v": 0.08
+ }
+]

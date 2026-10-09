@@ -1,0 +1,66 @@
+{
+ "id": "su_bmpt34",
+ "name": "BMPT-34 (1943)",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "ussr",
+  "class": "spaa",
+  "year": 1943,
+  "outline": "model",
+  "based_on": "BMPT-34 (obr. 1943) War Thunder CDK user mod by TunderTunder: T-34 chassis, open-topped turret with two 25 mm 72-K guns and a pair of heavy rockets",
+  "notes": "Imported one-to-one from the mod (tools/wt_import.py): the render model, skeleton and damage model out of bmpt34.grp, armour thickness and class per part, ammunition stowage, crew seats, engine, gearbox and weapon mounts out of bmpt34.blk. What a user mod takes from the game's own files (the 72-K's rounds and rate of fire, the rocket, the sight) is filled in from the 72-K's service figures; WT's textures are not part of the mod, so the model is painted in flat colours by material."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.044,
+   1.67,
+   6.33
+  ],
+  "mass_kg": 30600.0,
+  "center_of_mass": [
+   -0.0,
+   0.564,
+   0.05
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.635,
+   1.27,
+   3.552
+  ],
+  "ring_diameter_m": 1.5,
+  "position_m": [
+   -0.0,
+   1.61,
+   0.704
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_length_m": 3.85,
+  "suspension": {
+   "kind": "christie",
+   "travel_m": 0.24,
+   "stiffness": 220000,
+   "damping": 16000
+  },
+  "rolling_resistance": 0.04,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 30.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 1.3,
+  "track_width_m": 0.5,
+  "sprocket_radius_m": 0.317
+ }
+}

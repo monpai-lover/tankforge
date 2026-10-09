@@ -1,0 +1,65 @@
+{
+ "id": "de_gepard",
+ "name": "Flakpanzer Gepard",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "spaa",
+  "year": 1976,
+  "outline": "model",
+  "based_on": "Flakpanzer Gepard 1A1: Leopard 1 chassis, twin 35 mm Oerlikon KDA, search and tracking radars",
+  "notes": "Exterior: Scout's 'Flakpanzer Gepard | High-Quality model' (CC-BY-4.0), used 1:1 at the request of the user, scaled to the published 3.27 m width and cut into its moving pieces by tools/glb-vehicle.py; its placeholder colours replaced by RAL 6014 Gelboliv. MTU MB 838 CaM-500, 830 hp; gear ratios are estimates chosen to match the published 65 km/h. The radars are shown but not simulated; armour and interior are estimates."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.27,
+   1.5,
+   6.85
+  ],
+  "mass_kg": 47300,
+  "center_of_mass": [
+   0,
+   1.05,
+   -0.2
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.0,
+   1.2,
+   3.4
+  ],
+  "ring_diameter_m": 1.9,
+  "position_m": [
+   0.0,
+   1.5,
+   0.5
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.55,
+  "track_length_m": 4.24,
+  "suspension": {
+   "kind": "torsion_bar",
+   "travel_m": 0.3,
+   "stiffness": 380000,
+   "damping": 26000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.33,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.5,
+  "max_turn_rate_deg_s": 34.0,
+  "max_reverse_speed_ms": 6.0,
+  "min_turn_radius_m": 0.0
+ }
+}

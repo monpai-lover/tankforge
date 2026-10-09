@@ -1,0 +1,47 @@
+{
+ "id": "apbc_100_br412",
+ "name": "100 mm BR-412B (APBC)",
+ "kind": "aphe",
+ "caliber_mm": 100.0,
+ "mass_kg": 15.88,
+ "muzzle_velocity_ms": 895.0,
+ "explosive_mass_kg": 0.065,
+ "explosive_type": "a_ix_2",
+ "penetrator_material": "steel",
+ "length_mm": 370,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 199.4
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 196.0
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 182.9
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 167.7
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 153.8
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 141.1
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 129.4
+  }
+ ],
+ "ricochet_angle_deg": 68.0,
+ "normalization_deg": 5.0,
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
+}

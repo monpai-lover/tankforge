@@ -1,0 +1,47 @@
+{
+ "id": "apt_25_br132p",
+ "name": "25 mm BR-132P (AP-T)",
+ "kind": "ap",
+ "caliber_mm": 25.0,
+ "mass_kg": 0.288,
+ "muzzle_velocity_ms": 900.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 92,
+ "drag_coefficient": 0.32,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 52.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 49.6
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 41.0
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 32.3
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 25.4
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 20.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 15.8
+  }
+ ],
+ "ricochet_angle_deg": 68.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

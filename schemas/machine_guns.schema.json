@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "machine_guns.json",
+  "description": "Catalogue of machine guns. weapons.json `secondary[].weapon` refers to these ids.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+      "id",
+      "name",
+      "caliber_mm",
+      "rate_rpm",
+      "muzzle_velocity_ms",
+      "bullet_mass_g",
+      "drag_coefficient",
+      "belt_rounds",
+      "reload_s",
+      "dispersion_mrad",
+      "tracer_every",
+      "pen_mm_100m",
+      "heat_rounds",
+      "cool_s"
+    ],
+    "properties": {
+      "id": {
+        "type": "string",
+        "pattern": "^[a-z0-9_]+$"
+      },
+      "name": {
+        "type": "string"
+      },
+      "caliber_mm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 20
+      },
+      "rate_rpm": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "maximum": 2000,
+        "description": "cyclic rate"
+      },
+      "muzzle_velocity_ms": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "bullet_mass_g": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "drag_coefficient": {
+        "type": "number",
+        "exclusiveMinimum": 0
+      },
+      "belt_rounds": {
+        "type": "integer",
+        "minimum": 1,
+        "description": "rounds in one belt, drum or pan as the vehicle mount feeds it"
+      },
+      "reload_s": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "seconds to change the belt"
+      },
+      "dispersion_mrad": {
+        "type": "number",
+        "minimum": 0
+      },
+      "tracer_every": {
+        "type": "integer",
+        "minimum": 0,
+        "description": "every n-th round carries a tracer; 0 = none"
+      },
+      "pen_mm_100m": {
+        "type": "number",
+        "minimum": 0,
+        "description": "armour-piercing round at 100 m, 0 degrees (approximate)"
+      },
+      "heat_rounds": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "rounds of continuous fire that take a cold barrel to its limit (simplified heat model)"
+      },
+      "cool_s": {
+        "type": "number",
+        "exclusiveMinimum": 0,
+        "description": "seconds for a barrel at its limit to cool completely"
+      },
+      "tracer_rgb": {
+        "type": "array",
+        "items": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "minItems": 3,
+        "maxItems": 3,
+        "description": "display colour of the tracer"
+      }
+    }
+  }
+}

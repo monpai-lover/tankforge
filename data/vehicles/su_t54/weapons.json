@@ -1,0 +1,119 @@
+{
+ "main_gun": {
+  "id": "d10t_100",
+  "caliber_mm": 100.0,
+  "barrel_length_mm": 5350,
+  "recoil_mm": 570,
+  "rounds_per_min": 7.0,
+  "reload_s": 8.5,
+  "traverse_deg_s": 10.0,
+  "elevate_deg_s": 4.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 18.0,
+  "dispersion_mrad": 0.8,
+  "mass_kg": 1950,
+  "ammo": [
+   "apbc_100_br412",
+   "he_100_of412"
+  ],
+  "ammo_count": [
+   14,
+   20
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.67,
+  1.1
+ ],
+ "muzzle_offset_m": 4.3,
+ "sight": {
+  "name": "TSh-2-22",
+  "levels": [
+   {
+    "magnification": 3.5,
+    "fov_deg": 18.0
+   },
+   {
+    "magnification": 7.0,
+    "fov_deg": 9.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_sgmt",
+   "weapon": "sgmt",
+   "mount": "coax",
+   "position_m": [
+    0.2,
+    1.67,
+    1.72
+   ]
+  },
+  {
+   "id": "bow_sgmt",
+   "weapon": "sgmt",
+   "mount": "hull",
+   "position_m": [
+    0.3,
+    1.02,
+    2.66
+   ],
+   "arc_deg": [
+    2.0,
+    2.0,
+    2.0
+   ]
+  },
+  {
+   "id": "aa_dshk",
+   "weapon": "dshk",
+   "mount": "pintle",
+   "position_m": [
+    0.93,
+    2.25,
+    -0.4
+   ],
+   "post_m": 0.29
+  }
+ ],
+ "depression_by_bearing_deg": [
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  3.3,
+  1.7,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  0.0,
+  1.7,
+  3.3,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0,
+  5.0
+ ]
+}

@@ -1,0 +1,44 @@
+{
+ "main_gun": {
+  "id": "9p163_kornet",
+  "caliber_mm": 152.0,
+  "barrel_length_mm": 1200,
+  "recoil_mm": 0,
+  "rounds_per_min": 4.0,
+  "reload_s": 15.0,
+  "traverse_deg_s": 30.0,
+  "elevate_deg_s": 15.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 25.0,
+  "dispersion_mrad": 0.0,
+  "mass_kg": 110,
+  "ammo": [
+   "heat_152_kornet"
+  ],
+  "ammo_count": [
+   10
+  ],
+  "missile": "9m133_kornet",
+  "guided": true
+ },
+ "mount_m": [
+  0.0,
+  2.48,
+  -0.45
+ ],
+ "muzzle_offset_m": 0.68,
+ "sight": {
+  "name": "1P45 + thermal",
+  "levels": [
+   {
+    "magnification": 2.6,
+    "fov_deg": 23.0
+   },
+   {
+    "magnification": 8.0,
+    "fov_deg": 6.0
+   }
+  ]
+ },
+ "secondary": []
+}

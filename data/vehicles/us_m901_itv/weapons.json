@@ -1,0 +1,44 @@
+{
+ "main_gun": {
+  "id": "m220_tow",
+  "caliber_mm": 152.0,
+  "barrel_length_mm": 1270,
+  "recoil_mm": 0,
+  "rounds_per_min": 5.0,
+  "reload_s": 12.0,
+  "traverse_deg_s": 25.0,
+  "elevate_deg_s": 12.0,
+  "max_depression_deg": 30.0,
+  "max_elevation_deg": 35.0,
+  "dispersion_mrad": 0.0,
+  "mass_kg": 95,
+  "ammo": [
+   "heat_152_tow"
+  ],
+  "ammo_count": [
+   12
+  ],
+  "missile": "bgm71a_tow",
+  "guided": true
+ },
+ "mount_m": [
+  0.0,
+  2.72,
+  -0.25
+ ],
+ "muzzle_offset_m": 0.5,
+ "sight": {
+  "name": "M27 TOW sight",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 22.0
+   },
+   {
+    "magnification": 13.0,
+    "fov_deg": 4.4
+   }
+  ]
+ },
+ "secondary": []
+}

@@ -1,0 +1,10 @@
+[package]
+name = "tg-tools"
+edition.workspace = true
+version.workspace = true
+
+[dependencies]
+tg-vehicle.workspace = true
+tg-physics.workspace = true
+tg-design.workspace = true
+serde_json.workspace = true

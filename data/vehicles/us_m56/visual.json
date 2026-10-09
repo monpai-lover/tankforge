@@ -1,0 +1,64 @@
+{
+ "schema_version": 1,
+ "palette": {
+  "steel": "#6a6d70",
+  "rubber": "#1b1b1b",
+  "track": "#2b2a27",
+  "black": "#151515",
+  "paint": "#4f5236",
+  "paint_dark": "#3b3d29"
+ },
+ "hull_bottom": 0.33,
+ "parts": [],
+ "running_gear": {
+  "track_width": 0.51,
+  "track_thickness": 0.024,
+  "track_x": 0.99,
+  "link_pitch": 0.11,
+  "link_style": "band",
+  "track_sag": 0.02,
+  "sprocket": {
+   "z": 1.796,
+   "y": 0.681,
+   "r": 0.248,
+   "teeth": 12
+  },
+  "idler": {
+   "z": -1.848,
+   "y": 0.36,
+   "r": 0.205
+  },
+  "wheels": [
+   {
+    "z": 1.197,
+    "y": 0.357,
+    "r": 0.333,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": 0.361,
+    "y": 0.357,
+    "r": 0.333,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": -0.47,
+    "y": 0.357,
+    "r": 0.333,
+    "w": 0.18,
+    "x": 0.0
+   },
+   {
+    "z": -1.191,
+    "y": 0.357,
+    "r": 0.333,
+    "w": 0.18,
+    "x": 0.0
+   }
+  ],
+  "rollers": [],
+  "wheel_style": "rubber_dish"
+ }
+}

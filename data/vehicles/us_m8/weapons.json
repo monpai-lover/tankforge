@@ -1,0 +1,101 @@
+{
+ "main_gun": {
+  "id": "m6_37mm",
+  "caliber_mm": 37.0,
+  "barrel_length_mm": 2094,
+  "recoil_mm": 200,
+  "rounds_per_min": 20.0,
+  "reload_s": 3.0,
+  "traverse_deg_s": 20.0,
+  "elevate_deg_s": 12.0,
+  "max_depression_deg": 10.0,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 0.9,
+  "mass_kg": 87,
+  "ammo": [
+   "apcbc_37_m51",
+   "he_37_m63",
+   "ap_37_m74"
+  ],
+  "ammo_count": [
+   40,
+   30,
+   10
+  ]
+ },
+ "mount_m": [
+  0.0,
+  1.77,
+  0.5
+ ],
+ "muzzle_offset_m": 1.62,
+ "sight": {
+  "name": "M70D",
+  "levels": [
+   {
+    "magnification": 3.0,
+    "fov_deg": 12.3
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_m1919",
+   "weapon": "m1919a4",
+   "mount": "coax",
+   "position_m": [
+    -0.17,
+    1.77,
+    1.18
+   ]
+  },
+  {
+   "id": "aa_m2",
+   "weapon": "m2hb",
+   "mount": "pintle",
+   "position_m": [
+    0.0,
+    2.3,
+    -0.68
+   ]
+  }
+ ],
+ "depression_by_bearing_deg": [
+  10.0,
+  10.0,
+  10.0,
+  9.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  10.0,
+  9.0,
+  10.0,
+  10.0
+ ]
+}

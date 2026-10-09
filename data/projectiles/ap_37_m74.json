@@ -1,0 +1,47 @@
+{
+ "id": "ap_37_m74",
+ "name": "37 mm M74 shot (AP)",
+ "kind": "ap",
+ "caliber_mm": 37.0,
+ "mass_kg": 0.87,
+ "muzzle_velocity_ms": 884.0,
+ "explosive_mass_kg": 0.0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 137,
+ "drag_coefficient": 0.4,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 74.0
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 70.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 59.6
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 48.0
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 38.7
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 31.2
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 25.1
+  }
+ ],
+ "ricochet_angle_deg": 68.0,
+ "normalization_deg": 4.0,
+ "fuse_delay_s": 0.0,
+ "fuse_sensitivity_mm": 0
+}

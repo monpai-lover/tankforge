@@ -1,0 +1,65 @@
+{
+ "id": "us_m4a3_76w_hvss",
+ "name": "M4A3(76)W HVSS",
+ "schema_version": 1,
+ "model": "model.glb",
+ "meta": {
+  "nation": "usa",
+  "class": "medium",
+  "year": 1945,
+  "outline": "traced",
+  "based_on": "Medium Tank M4A3(76)W HVSS",
+  "notes": "Hull traced from a four-view drawing of the M4A3; the T23 turret and the HVSS suspension are built from published dimensions. final_drive_ratio combines the 3.53 bevel gear and the 2.84 final drive. Interior layout is an estimate."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.0,
+   1.8,
+   5.93
+  ],
+  "mass_kg": 33650,
+  "center_of_mass": [
+   0,
+   1.0,
+   0.0
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.1,
+   0.82,
+   2.9
+  ],
+  "ring_diameter_m": 1.753,
+  "position_m": [
+   0.0,
+   1.8,
+   -0.05
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.584,
+  "track_length_m": 3.84,
+  "suspension": {
+   "kind": "hvss",
+   "travel_m": 0.2,
+   "stiffness": 240000,
+   "damping": 18000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.318,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 26.0,
+  "max_reverse_speed_ms": 1.4,
+  "min_turn_radius_m": 9.45
+ }
+}
