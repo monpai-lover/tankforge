@@ -72,12 +72,20 @@ export function muzzleLocal(mount, t) {
   const rel = [mount.trunnion[0] - mount.pivot[0], mount.trunnion[1] - mount.pivot[1], mount.trunnion[2] - mount.pivot[2]];
   const tr = rotateYaw(rel, t.yaw);
   const dir = gunDirLocal(t);
+  // Off-axis coax and launcher mouths rotate about their shared elevation
+  // hinge; the complete offset follows pitch, including its vertical component.
+  let offset = dir.map(v => v * mount.muzzleOffset);
+  if (mount.muzzleVector) {
+    const [x, y, z] = mount.muzzleVector;
+    const c = Math.cos(t.pitch), s = Math.sin(t.pitch);
+    offset = rotateYaw([x, y * c + z * s, -y * s + z * c], t.yaw);
+  }
   return {
     trunnion: [mount.pivot[0] + tr[0], mount.pivot[1] + tr[1], mount.pivot[2] + tr[2]],
     pos: [
-      mount.pivot[0] + tr[0] + dir[0] * mount.muzzleOffset,
-      mount.pivot[1] + tr[1] + dir[1] * mount.muzzleOffset,
-      mount.pivot[2] + tr[2] + dir[2] * mount.muzzleOffset,
+      mount.pivot[0] + tr[0] + offset[0],
+      mount.pivot[1] + tr[1] + offset[1],
+      mount.pivot[2] + tr[2] + offset[2],
     ],
     dir,
   };

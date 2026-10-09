@@ -2657,6 +2657,9 @@ def flak38t():
         # the track guards, the silencer under the compartment's overhang, the jerrycans
         box((0.34, 0.02, 4.55), (tx + 0.02, 1.0, 0.25), mirror=True, mat="paint_dark"),
         cyl(0.11, 1.10, "x", (0, 0.86, -2.26), mat="steel", segs=16),
+        # Short outlet completing the existing rear silencer. Its smoke emitter is authored
+        # from this mouth; the historical bend/direction has not been photo-measured.
+        cyl(0.035, 0.17, "z", (0.53, 0.86, -2.335), mat="black", segs=12),
         box((0.14, 0.38, 0.24), (0.86, 1.30, -2.46), rot=(0, 35, 0), mat="paint_dark"),
         # inside: the magazine racks along both walls and across the back, the crew's seats
         box((0.10, 0.24, 1.30), (0.95, 1.24, -1.30), mirror=True, mat="paint_dark"),
@@ -2667,6 +2670,14 @@ def flak38t():
         cyl(0.25, 0.03, "y", (0, 1.035, pz), mat="paint_dark", segs=18),
     ]
     gun_parts, mount, muzzle_z = flak38_parts(pz, base_y)
+    # Crew figures are positioned by their chest, not by the seat cushion. On this low
+    # compartment the original cushion passed through the gunner's torso. Keep the authored
+    # crew/damage positions and lower only his chair, with its post engaged in the floor.
+    seat, backrest, seat_post = gun_parts[5:8]
+    seat["pos"][1] = r3(seat["pos"][1] - 0.34)
+    backrest["pos"][1] = r3(backrest["pos"][1] - 0.34)
+    seat_post["pos"][1] = 1.22
+    seat_post["len"] = 0.37
     parts += gun_parts
     plates = [
         plate("hull_upper_front", "hull_upper_front", "rha", 15, (0, 1.22, 2.18), (0, 0.92, 0.39), (1, 0, 0), 0.70, 0.45),
@@ -2842,9 +2853,28 @@ def hetzer(variant):
         # gun axis 1.44 m up, as on the reference model
         mount = (0.38, 1.44, 1.45)
         muzzle_z = 3.82
+
+        def collar_ring(relief, rx, ry, cy=1.505):
+            # Fixed cast collar follows the glacis, not the gun's elevation plane. The old
+            # thick box at -28 degrees stood 0.32 m off this face and made two sharp fins.
+            normal_y = 2.39 / math.hypot(2.39, 1)
+            normal_z = 1 / math.hypot(2.39, 1)
+            ring = []
+            for i in range(28):
+                a = 2 * math.pi * i / 28
+                # A rounded rectangular aperture retains width at the lower corners where
+                # the depressed, traversed barrel crosses this very shallow glacis.
+                sn, cs = math.sin(a), math.cos(a)
+                y = cy + ry * math.copysign(abs(sn) ** 0.5, sn)
+                z = 2.33 - (y - 1.27) * 2.39
+                ring.append([0.38 + rx * math.copysign(abs(cs) ** 0.5, cs), y + relief * normal_y, z + relief * normal_z])
+            return ring
+
         parts += [
             # the gun mount: the cast collar in the glacis, the Saukopf mantlet, the barrel
-            box((0.62, 0.52, 0.30), (0.38, 1.47, 1.95), rot=(-28, 0, 0), mount="turret", mat="paint_dark"),
+            loft([collar_ring(-0.012, 0.36, 0.28), collar_ring(0.028, 0.36, 0.28),
+                  collar_ring(0.045, 0.345, 0.28), collar_ring(0.045, 0.30, 0.24, 1.47),
+                  collar_ring(-0.012, 0.30, 0.24, 1.47)], mat="paint_dark", crease=60, caps=(False, False)),
             # the Saukopf through the reference model's sections: round where it sits in the
             # collar, tapering forward and dropping onto the barrel's axis
             loft([rrect_ring(z, 0.386, cy, r, r, n=28, p=2) for z, cy, r in
@@ -2863,7 +2893,7 @@ def hetzer(variant):
             cyl(0.04, 0.10, "y", (-0.65, 1.77, -1.30), mat="paint_dark"),
             cyl(0.007, 1.0, "y", (-0.65, 2.30, -1.30), mat="black", segs=6),
             # the engine deck: the louvred grilles on the rear slope
-            box((0.85, 0.02, 0.50), (0, 1.62, -1.75), rot=(27, 0, 0), mat="black"),
+            box((0.85, 0.02, 0.50), (0, hz_roof(-1.75) + 0.011, -1.75), rot=(-27, 0, 0), mat="black"),
         ]
         plates.append(plate("gun_mantlet", "gun_mantlet", "cha", 60, (0.38, 1.52, 2.20), (0, 0, 1), (1, 0, 0), 0.24, 0.22))
         return dict(common, **{
@@ -3791,7 +3821,8 @@ def m113_tow():
         "gun": {"id": "m220_tow", "caliber_mm": 152.0, "barrel_length_mm": 1270, "recoil_mm": 0, "rounds_per_min": 5.0,
                 "reload_s": 12.0, "traverse_deg_s": 25.0, "elevate_deg_s": 12.0, "max_depression_deg": 30.0, "max_elevation_deg": 35.0,
                 "dispersion_mrad": 0.0, "mass_kg": 95, "ammo": ["heat_152_tow"], "ammo_count": [12],
-                "missile": "bgm71a_tow", "guided": True},
+                "missile": "bgm71a_tow", "guided": True,
+                "launcher": {"muzzle_vectors_m": [[-0.42, 0, 0.575], [0.42, 0, 0.575]]}},
         "sight": {"name": "M27 TOW sight", "levels": [{"magnification": 3.0, "fov_deg": 22.0}, {"magnification": 13.0, "fov_deg": 4.4}]},
         "secondary": [],
         "engine": {"horsepower": 212, "max_rpm": 2800, "idle_rpm": 600, "weight_kg": 590,
@@ -4353,6 +4384,27 @@ def vk1602():
     }
 
 
+def apply_folding_recipe(s):
+    """Keep source-measured armour and arcs authored by repair_folding_flaps.py."""
+    path = os.path.join(DATA, "vehicles", s["id"], "folding-source.json")
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as source:
+            recipe = json.load(source)
+        for key in ("fold_depression_stages", "fold_yaw_limit_stages", "folded_yaw_limit_deg"):
+            if key in recipe:
+                s[key] = recipe[key]
+        if recipe.get("fold_depression_stages"):
+            s["depression_by_bearing_deg"] = recipe["fold_depression_stages"][0]["angles"]
+            s["folded_depression_by_bearing_deg"] = recipe["fold_depression_stages"][-1]["angles"]
+        if recipe.get("fold_yaw_limit_stages"):
+            s["yaw_limit"] = recipe["fold_yaw_limit_stages"][0]["limits"]
+        if recipe.get("armor_plates"):
+            s["plates"] = recipe["armor_plates"]
+        if s["id"] in ("de_hetzer_mk103", "de_hetzer_mk103_camo"):
+            s["gun"]["max_depression_deg"] = 10
+    return s
+
+
 def hetzer_mk103():
     """Hetzer anti-aircraft variant with the 3 cm MK 103: the user's own model
     (flak38t-urban-gray.glb) with the refined interior of Hetzer_Flak_Interior_Refined.glb added
@@ -4401,7 +4453,7 @@ def hetzer_mk103():
         module("breech", "gun_breech", (0, mount[1], mount[2] - 0.30), (0.08, 0.09, 0.25), 60),
         module("gun_barrel", "gun_barrel", (0, mount[1], mount[2] + 1.10), (0.04, 0.04, 0.55), 60),
     ]
-    return s
+    return apply_folding_recipe(s)
 
 
 
@@ -4417,8 +4469,9 @@ EXHAUSTS = {
     "us_m4a3_76w_hvss": [{"pos": [x, 1.20, -2.97], "dir": [0, -0.6, -0.8]} for x in (-0.5, 0.5)],
     "us_m4a1_76w": [{"pos": [x, 1.20, -2.99], "dir": [0, -0.6, -0.8]} for x in (-0.5, 0.5)],
     "us_m4a2": [{"pos": [x, 0.92, -3.00], "dir": [0, -0.7, -0.6]} for x in (-0.45, 0.45)],
-    "de_hetzer": [{"pos": [0.0, 1.05, -2.48], "dir": [0, 0.3, -1]}],
-    "de_hetzer_flak": [{"pos": [0.0, 1.05, -2.48], "dir": [0, 0.3, -1]}],
+    "de_hetzer": [{"pos": [0.55, 1.12, -2.75], "dir": [0, 0, -1]}],
+    "de_flakpz38t": [{"pos": [0.53, 0.86, -2.42], "dir": [0, 0, -1]}],
+    "de_hetzer_flak": [{"pos": [0.55, 1.12, -2.75], "dir": [0, 0, -1]}],
     "su_t10m": [{"pos": [x, 1.15, -3.10], "dir": [0, 0.4, -1]} for x in (-0.62, 0.62)],
 }
 
@@ -4439,11 +4492,20 @@ def bmp_k64(variant):
         imp = {"turret_nodes": ["ATGM_Yaw"], "gun_nodes": ["ATGM_Elevation"], "level_nodes": ["ATGM_Elevation"]}
     else:
         piv, mount = (0, 1.885, -0.45), (-0.115, 2.205, -0.28)
-        muzzle = 1.03 if variant == "base" else 0.45
-        imp = {"turret_nodes": ["Turret_Yaw"], "gun_nodes": ["Gun_Elevation"]}
+        muzzle = 1.077 if variant == "base" else 0.445
+        imp = {"turret_nodes": ["Turret_Yaw"], "gun_nodes": ["Gun_Elevation"],
+               "gun_rest_pose": {"nodes": ["Gun_Elevation"], "pivot": list(mount),
+                                 "rotation_x_deg": 15 if variant == "base" else 10}}
+        if variant == "base":
+            imp.update({"barrel_nodes": ["Gun_Elevation"], "barrel_min_length": 1.0, "barrel_ahead_z": 0.8})
     rg = {"kind": "wheels", "tyre_style": "military",
-          "axles": [axle(2.04, 0.58, 0.58, 0.43, 1.315, steer=1), axle(0.72, 0.58, 0.58, 0.43, 1.315, steer=1),
-                    axle(-0.64, 0.58, 0.58, 0.43, 1.315), axle(-2.00, 0.58, 0.58, 0.43, 1.315)]}
+          "axles": [axle(2.04, 0.58, 0.58, 0.43, 1.304, steer=1), axle(0.72, 0.58, 0.58, 0.43, 1.304, steer=1),
+                    axle(-0.64, 0.58, 0.58, 0.43, 1.304), axle(-2.00, 0.58, 0.58, 0.43, 1.304)]}
+    wheel_nodes = {f"road_wheel:{side}:{k}": [f"Wheel_{name}_{k + 1}"]
+                   for side, name in ((-1, "Left"), (1, "Right")) for k in range(4)}
+    hatches = [{"nodes": [f"Hatch_{name}"], "pivot": [x, 1.895, 0.32], "rotation_x_deg": 80}
+               for x, name in ((-0.67, "Left"), (0.67, "Right"))]
+    imp.update({"wheel_nodes": wheel_nodes, "node_rest_poses": hatches})
     guns = {
         "base": {"id": "kpvt_145", "caliber_mm": 14.5, "barrel_length_mm": 1350, "recoil_mm": 5, "rounds_per_min": 600,
                  "reload_s": 0.1, "traverse_deg_s": 35.0, "elevate_deg_s": 30.0, "max_depression_deg": 5.0, "max_elevation_deg": 30.0,
@@ -4451,19 +4513,21 @@ def bmp_k64(variant):
                  "autocannon": {"rate_rpm": 600, "belt_rounds": 50, "belt_reload_s": 8.0}},
         "atgm": {"id": "9p135_konkurs", "caliber_mm": 135.0, "barrel_length_mm": 1200, "recoil_mm": 0, "rounds_per_min": 3.0,
                  "reload_s": 18.0, "traverse_deg_s": 25.0, "elevate_deg_s": 12.0, "max_depression_deg": 10.0, "max_elevation_deg": 20.0,
-                 "dispersion_mrad": 0.0, "mass_kg": 90, "ammo": ["heat_135_konkurs"], "ammo_count": [8], "missile": "9m113_konkurs", "guided": True},
+                 "dispersion_mrad": 0.0, "mass_kg": 90, "ammo": ["heat_135_konkurs"], "ammo_count": [8], "missile": "9m113_konkurs", "guided": True,
+                 "launcher": {"muzzle_vectors_m": [[-0.09, -0.085, 0.725], [-0.09, 0.059, 0.725]]}},
         "kit": {"id": "9p163_kornet", "caliber_mm": 152.0, "barrel_length_mm": 1200, "recoil_mm": 0, "rounds_per_min": 4.0,
                 "reload_s": 15.0, "traverse_deg_s": 30.0, "elevate_deg_s": 15.0, "max_depression_deg": 10.0, "max_elevation_deg": 25.0,
-                "dispersion_mrad": 0.0, "mass_kg": 110, "ammo": ["heat_152_kornet"], "ammo_count": [10], "missile": "9m133_kornet", "guided": True},
+                "dispersion_mrad": 0.0, "mass_kg": 110, "ammo": ["heat_152_kornet"], "ammo_count": [10], "missile": "9m133_kornet", "guided": True,
+                "launcher": {"muzzle_vectors_m": [[-0.284, 0.267, 0.68], [0.284, 0.267, 0.68]]}},
     }
     names = {"base": "BMP-K-64", "atgm": "BMP-K-64 ATGM（9M113）", "kit": "BMP-K-64 ATGM 套件（9M133）"}
     years = {"base": 1964, "atgm": 1974, "kit": 1994}
-    return {
+    s = {
         "id": {"base": "xp_bmp_k64", "atgm": "xp_bmp_k64_atgm", "kit": "xp_bmp_k64_kornet"}[variant],
         "name": names[variant], "nation": "fictional", "cls": "armored_car" if variant == "base" else "tank_destroyer",
         "year": years[variant], "outline": "model",
         "based_on": "BMP-K-64: a fictional 8x8 armoured personnel carrier prototype",
-        "notes": f"Exterior: the user's own model ({glb.split('-', 1)[1]}), used unchanged and cut into its moving pieces by tools/glb-vehicle.py. Built on T-64 components: the hull armour is the T-64A's (80 mm steel + 105 mm glass-textolite + 20 mm steel upper front at 68 degrees, 80 mm sides, 45 mm rear) and the 5TDF of 700 hp; 60 km/h on the road as the user specified. The interior is an estimate.",
+        "notes": f"Exterior: the user's own model ({glb.split('-', 1)[1]}), with complete named wheel assemblies, measured level gun rest poses and closed front hatches. Built on T-64 components: the common hull protection follows the project's T-64A reference (80 mm steel + 105 mm glass-textolite + 20 mm steel upper front at 68 degrees, 80 mm sides, 45 mm rear), represented in combat as one 205 mm generic composite plate, not separate material layers. The 5TDF has 700 hp; 60 km/h on the road as the user specified. The interior is an estimate.",
         "model": "model.json", "hull_bottom": c,
         "import": dict({"glb": UPLOADS + glb, "source": f"BMP-K-64: the user's own model ({glb.split('-', 1)[1]}), used unchanged with the user's permission",
                         "mirror_x": False, "offset": [0, 0, 0], "barrel_meshes": [], "normal_maps": False,
@@ -4504,6 +4568,25 @@ def bmp_k64(variant):
         "parts": [],
         "running_gear": rg,
     }
+    s["gun"]["muzzle_vector_m"] = {"base": [0, 0.033, 1.357], "atgm": [-0.09, -0.085, 0.725], "kit": [-0.284, 0.267, 0.68]}[variant]
+    # Source Hull reaches x +/-1.53; its rear wall is z -2.72. The former generic
+    # 2.4 m body box left visible front, rear and roof strips unhittable. Keep the
+    # declared T-64A protection while sharing the same measured coverage in all fits.
+    hp = hull_plates(s)
+    for p in hp:
+        if p["zone"] in ("hull_upper_front", "hull_lower_front"):
+            p["half_u"] = 1.53
+        elif p["zone"] == "hull_side":
+            p["center"]["x"] = 1.365 if p["center"]["x"] > 0 else -1.365
+        elif p["zone"] == "hull_rear":
+            p["center"]["z"] = -2.72
+            p["half_u"] = 1.365
+        elif p["zone"] == "hull_roof":
+            p["half_u"] = 1.365
+        elif p["zone"] == "hull_floor":
+            p["half_u"] = 1.025
+    s["plates"] = hp + turret_plates(s)
+    return s
 
 
 def att_m46():
@@ -4516,10 +4599,10 @@ def att_m46():
     mount = (0, 2.77, -0.45)
     muzzle_z = 6.09
     wz = [1.91, 0.973, 0.036, -0.901, -1.838]
-    return {
+    s = {
         "id": "su_att_m46", "name": "AT-T 130 mm 自走炮（M-46）", "nation": "ussr", "cls": "spg", "year": 1960, "outline": "model",
         "based_on": "AT-T heavy artillery tractor with a 130 mm M-46 field gun mounted on its bed (an improvised self-propelled gun)",
-        "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), used unchanged and cut into its moving pieces by tools/glb-vehicle.py. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The gun's traverse on the bed, the crew's protection (none but the shield) and the interior are estimates.",
+        "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), with both original high cab-side walls and four bed-side boards on measured folding hinges (I). The original tool frame is stored horizontally in a low right-side rack alongside the engine cover, ahead of the complete panel sweep. The narrow gun shield remains fixed to the traversing mount. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The improvised bed mount gains a source-clearance-limited traverse arc with the boards down; the crew's protection and the interior are estimates.",
         "model": "model.json", "hull_bottom": 0.54, "own_breech": True, "open_top": True,
         "import": {"glb": UPLOADS + "4a174728-AT_T_M46_130mm_PhotoReplica.glb",
                    "source": "AT-T with the 130 mm M-46: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), used unchanged with the user's permission",
@@ -4561,6 +4644,7 @@ def att_m46():
                          "sprocket": {"z": 2.79, "y": 0.955, "r": 0.42, "teeth": 14}, "idler": {"z": -2.70, "y": 0.89, "r": 0.36},
                          "wheels": [{"z": z, "y": 0.58, "r": 0.47, "w": 0.30, "x": 0.0} for z in wz], "rollers": [], "wheel_style": "spoked"},
     }
+    return apply_folding_recipe(s)
 
 
 def hetzer_mk103_camo():
@@ -4785,6 +4869,10 @@ def write_vehicle(s):
         weapons["facing_deg"] = r3(s["facing"])
     if s.get("dep_table"):
         weapons["depression_by_bearing_deg"] = depression_table(s["dep_table"])
+    for key in ("depression_by_bearing_deg", "folded_depression_by_bearing_deg", "fold_depression_stages",
+                "folded_yaw_limit_deg", "fold_yaw_limit_stages"):
+        if key in s:
+            weapons[key] = s[key]
     if s.get("yaw_limit"):
         # a casemate or shielded mount: the gun traverses only this far either side
         weapons["yaw_limit_deg"] = [r3(k) for k in s["yaw_limit"]]

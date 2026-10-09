@@ -19,14 +19,33 @@
    8
   ],
   "missile": "9m113_konkurs",
-  "guided": true
+  "guided": true,
+  "launcher": {
+   "muzzle_vectors_m": [
+    [
+     -0.09,
+     -0.085,
+     0.725
+    ],
+    [
+     -0.09,
+     0.059,
+     0.725
+    ]
+   ]
+  },
+  "muzzle_vector_m": [
+   -0.09,
+   -0.085,
+   0.725
+  ]
  },
  "mount_m": [
   -0.115,
   2.205,
   -0.28
  ],
- "muzzle_offset_m": 0.73,
+ "muzzle_offset_m": 0.725,
  "sight": {
   "name": "9Sh119",
   "levels": [

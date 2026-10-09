@@ -61,9 +61,17 @@ pub enum ArmorZone {
     Other,
 }
 
+/// A foldable wall's hinge, authored in the hull frame.
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct ArmorHinge {
+    pub a: [f32; 3],
+    pub b: [f32; 3],
+    /// Outward folding rotation around a -> b, in degrees. Hull-mounted plates only.
+    pub angle: f32,
+}
+
 /// A rectangular armor plate in vehicle-local space. MVP geometry; the full
-/// `ArmorVolume` (convex mesh with per-face thickness) replaces this later behind
-/// the same `intersect` contract.
+/// `ArmorVolume` replaces this later behind the same `intersect` contract.
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ArmorPlate {
     pub id: String,
@@ -85,6 +93,8 @@ pub struct ArmorPlate {
     /// models); the rectangle half_u x half_v must contain it. Empty: the full rectangle.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub polygon: Vec<[f32; 2]>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub hinge: Option<ArmorHinge>,
 }
 
 /// Point-in-polygon (even-odd rule) in the plate's (u, v) plane.
@@ -112,6 +122,26 @@ pub struct PlateHit {
 }
 
 impl ArmorPlate {
+    /// Same hull hinge as the visible wall. The plate outline and protection values retain
+    /// their identities; only its center and orthonormal surface axes move.
+    pub fn folded(&self, fraction: f32) -> Self {
+        let mut p = self.clone();
+        let Some(h) = &self.hinge else { return p };
+        let t = if fraction.is_finite() { fraction.clamp(0.0, 1.0) } else { 0.0 };
+        if t == 0.0 || !h.angle.is_finite() || !h.a.iter().chain(&h.b).all(|v| v.is_finite()) { return p; }
+        let a = Vec3::new(h.a[0], h.a[1], h.a[2]);
+        let edge = Vec3::new(h.b[0], h.b[1], h.b[2]) - a;
+        let length = edge.length();
+        if !length.is_finite() || length < 1e-6 { return p; }
+        let axis = edge * (1.0 / length);
+        let (s, c) = (h.angle.to_radians() * t).sin_cos();
+        let turn = |v: Vec3| v * c + axis.cross(v) * s + axis * (axis.dot(v) * (1.0 - c));
+        p.center = a + turn(self.center - a);
+        p.normal = turn(self.normal).normalized();
+        p.axis_u = turn(self.axis_u).normalized();
+        p
+    }
+
     /// Ray vs plate. `dir` must be unit length.
     pub fn intersect(&self, origin: Vec3, dir: Vec3) -> Option<PlateHit> {
         let denom = self.normal.dot(dir);
@@ -173,6 +203,7 @@ mod tests {
             half_v: 1.0,
             curvature: 0.0,
             polygon: Vec::new(),
+            hinge: None,
         }
     }
 
@@ -200,5 +231,37 @@ mod tests {
         let origin = Vec3::new(0.0, 0.0, 1.0) - d * 10.0;
         let h = plate().intersect(origin, d).unwrap();
         assert!((h.incidence_deg - 60.0).abs() < 0.01);
+    }
+
+    #[test]
+    fn a_hull_hinge_moves_the_armor_surface_and_its_ray_intersections() {
+        let mut p = plate();
+        p.center = Vec3::new(0.0, 1.0, 1.0);
+        p.hinge = Some(ArmorHinge { a: [-1.0, 0.0, 1.0], b: [1.0, 0.0, 1.0], angle: 90.0 });
+        let q = p.folded(1.0);
+        assert!((q.center - Vec3::new(0.0, 0.0, 2.0)).length() < 1e-5);
+        assert!((q.normal - Vec3::new(0.0, -1.0, 0.0)).length() < 1e-5);
+        assert!(p.intersect(Vec3::new(0.0, 1.0, 10.0), Vec3::new(0.0, 0.0, -1.0)).is_some());
+        assert!(q.intersect(Vec3::new(0.0, 1.0, 10.0), Vec3::new(0.0, 0.0, -1.0)).is_none());
+        assert!(q.intersect(Vec3::new(0.0, 10.0, 2.0), Vec3::new(0.0, -1.0, 0.0)).is_some());
+        let halfway = p.folded(0.5);
+        assert!((halfway.center - Vec3::new(0.0, 0.5f32.sqrt(), 1.0 + 0.5f32.sqrt())).length() < 1e-5);
+        assert_eq!(q.id, p.id);
+        assert_eq!(q.thickness_mm, p.thickness_mm);
+        assert_eq!(q.polygon, p.polygon);
+    }
+
+    #[test]
+    fn hinge_fraction_and_bad_axes_cannot_create_nonfinite_armor() {
+        let mut p = plate();
+        p.center = Vec3::new(0.0, 1.0, 1.0);
+        p.hinge = Some(ArmorHinge { a: [-1.0, 0.0, 1.0], b: [1.0, 0.0, 1.0], angle: 90.0 });
+        assert_eq!(p.folded(f32::NAN).center, p.center);
+        assert_eq!(p.folded(-1.0).center, p.center);
+        assert_eq!(p.folded(2.0).center, p.folded(1.0).center);
+        let a = p.hinge.as_ref().unwrap().a;
+        p.hinge.as_mut().unwrap().b = a;
+        assert_eq!(p.folded(1.0).center, p.center);
+        assert_eq!(p.folded(1.0).normal, p.normal);
     }
 }

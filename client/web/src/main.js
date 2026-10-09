@@ -18,6 +18,7 @@ import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks } from './game/combat.js';
 import { HitCam } from './game/hitcam.js';
 import { Missiles } from './game/missiles.js';
+import { OnlineLaunches } from './game/onlineLaunch.js';
 import { Mods } from './game/mods.js';
 import { Exhaust, exhaustOf } from './game/exhaust.js';
 import { LANG, LANG_INDEX, setLang } from './i18n.js';
@@ -31,11 +32,14 @@ import { VehicleSim } from './game/vehicle.js';
 import { hullTilt } from './sim/tank/tank.js';
 import { PhysDebug } from './game/physdebug.js';
 import { RenderScale } from './gfx/renderscale.js';
-import { Effects } from './game/fx.js';
+import { Effects, advanceGunRecoil } from './game/fx.js';
 import { Sound } from './game/audio.js';
 import { Hud, penAt } from './game/hud.js';
+import { statusViewDistance } from './game/statusview.js';
+import { nextSightWeapon, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
+import { smoothFold, foldDepression, foldYawLimit, foldedPlate } from './game/folding.js';
 import { Workshop } from './game/workshop.js';
-import { makeLoadout, buildToBundle, exportFolder, checkFolder, generatedTurretParts, reloadTime, depressionAt, PRESETS, syncGunShell, nextAmmo, refillBelt, roundsLeft } from './game/loadout.js';
+import { makeLoadout, buildToBundle, exportFolder, checkFolder, generatedTurretParts, reloadTime, depressionAt, PRESETS, syncGunShell, nextAmmo, refillBelt, roundsLeft, refillLauncher, launcherMount, fireLauncherRound, tickLauncher } from './game/loadout.js';
 import { Bureau, storage as designStore } from './design/bureau.js';
 import { newDesign, arrange } from './design/templates.js';
 import { ringHeight } from './design/gen.js';
@@ -276,6 +280,7 @@ export function start(data, saved = {}) {
     T: [], // per turret: {yaw, bearing, yawErr, guns: [{pitch, pitchErr, recoil}], loading}
     sightT: 0,
     sightG: 0,
+    sightM: -1,
     model: null,
     build: storedBuild || JSON.parse(JSON.stringify(PRESETS.hexa.build)),
     customStats: null,
@@ -473,7 +478,7 @@ export function start(data, saved = {}) {
   const camTarget = (e) => ({
     model: e.model,
     body: e.veh.body,
-    armor: e.bundle.armor,
+    armor: e.bundle.armor.map(p => foldedPlate(p, e.fold || 0)),
     pivot: e.turret && e.turret.position_m,
     name: e.remote ? `${e.player}（${e.name}）` : e.name,
     crewRoles: (e.bundle.crew || []).map((c) => c.role),
@@ -657,6 +662,7 @@ export function start(data, saved = {}) {
     G.MG = G.loadout.machineGuns.map((m) => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true }));
     G.sightT = 0;
     G.sightG = 0;
+    G.sightM = -1;
     G.pending.length = 0;
     // overall length with the gun forward, for framing the garage pictures
     const hullL = bundle.vehicle.hull.size_m[2];
@@ -666,7 +672,7 @@ export function start(data, saved = {}) {
     G.model = buildTank(renderer, G.loadout, generatedTurretParts);
     scene.add(G.model.root);
     // hinged armour flaps start raised
-    G.fold = { cur: 0, target: 0 };
+    G.fold = { cur: 0, target: 0, pose: 0 };
     // what is inside: the same modules and crew the damage model uses
     let inner = bundle;
     if (id === 'custom') {
@@ -756,6 +762,7 @@ export function start(data, saved = {}) {
     G.caps = null;
     const bundle = data.vehicles[G.id];
     if (!G.combat || !bundle || G.mode !== 'battle') return;
+    G.combat.setFold(G.id, G.fold?.pose || 0);
     const r = G.combat.fresh(G.id, bundle);
     G.cstate = r.state;
     G.caps = r.caps;
@@ -863,11 +870,15 @@ export function start(data, saved = {}) {
     return r;
   }
   const mountOf = (t, g) => {
-    if (t.parent == null) return { pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset };
+    if (t.parent == null) return { pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector };
     const pv = pivotOf(t);
-    return { pivot: pv, trunnion: [g.trunnion[0] + pv[0] - t.pivot[0], g.trunnion[1] + pv[1] - t.pivot[1], g.trunnion[2] + pv[2] - t.pivot[2]], muzzleOffset: g.muzzleOffset };
+    return { pivot: pv, trunnion: [g.trunnion[0] + pv[0] - t.pivot[0], g.trunnion[1] + pv[1] - t.pivot[1], g.trunnion[2] + pv[2] - t.pivot[2]], muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector };
   };
-  const zeroElev = (g) => ballistics.elevationAt(g.table, G.zero);
+  const zeroElev = (g) => {
+    const selected = G.MG[G.sightM];
+    const table = selected?.m.mount === 'coax' && g === G.loadout.turrets[0].guns[0] ? selected.m.table : g.table;
+    return ballistics.elevationAt(table, G.zero);
+  };
 
   // ----------------------------------------------------------------- workshop
 
@@ -1328,20 +1339,23 @@ export function start(data, saved = {}) {
   }
 
   function cycleSightGun() {
-    const list = [];
-    G.loadout.turrets.forEach((t, ti) => list.push([ti, 0]));
-    const i = list.findIndex(([ti]) => ti === G.sightT);
-    [G.sightT, G.sightG] = list[(i + 1) % list.length];
+    const next = nextSightWeapon(G.loadout, { ti: G.sightT, gi: G.sightG, mi: G.sightM });
+    G.sightT = next.ti;
+    G.sightG = next.gi;
+    G.sightM = next.mi;
+    G.pending.length = 0;
     G.zoomIdx = 0;
-    hud.buildAmmo(sightGun(), selectAmmo);
-    hud.toast(`瞄準鏡切到炮塔 ${G.sightT + 1}`, 1.5);
+    hud.buildAmmo(G.sightM >= 0 ? null : sightGun(), selectAmmo);
+    const mg = G.MG[G.sightM];
+    hud.toast(mg ? `切到機槍 ${mg.m.def.name || mg.m.weapon}（左鍵單獨開火）` : `瞄準鏡切到炮塔 ${G.sightT + 1} · 火炮 ${G.sightG + 1}`, 1.5);
   }
 
   /**
-   * Ammunition selector of the gun in the sight (keys 1-4): the loader takes the selected type
+   * Ammunition selector of the gun in the sight (keys 1-9): the loader takes the selected type
    * next. Pressing the same key twice quickly unloads a round of another type and loads this one.
    */
   function selectAmmo(i) {
+    if (G.sightM >= 0) return;
     const g = sightGun();
     const rt = G.T[G.sightT];
     const a = g.ammo[i];
@@ -1716,6 +1730,7 @@ export function start(data, saved = {}) {
         rpm: Math.round(ns.rpm || 0),
         gear: ns.gear,
         tur: G.T.map((t) => [r(1e4)(t.yaw), r(1e4)(t.guns[0] ? t.guns[0].pitch : 0)]),
+        fold: r(1e4)(G.fold?.pose || 0),
         t: r(1000)(performance.now() / 1000),
         steer: ns.steer != null ? r(1000)(ns.steer) : undefined,
       },
@@ -1818,12 +1833,27 @@ export function start(data, saved = {}) {
     }
   });
   // a missile or rocket left a launcher: ours gets its id in the battle (to guide it); others' launch is seen
+  const onlineLaunches = new OnlineLaunches();
+  G.pendingLaunch = onlineLaunches.pending;
+  const sendOnlineLaunch = msg => net.send(msg);
+  const currentOnlineLaunch = p => p.session === G.online && G.loadout.turrets[p.ti]?.guns[p.gi] === p.gun;
   net.on('launched', (m) => {
     if (!G.online || G.mode !== 'battle' || !G.missiles) return;
     if (m.from === net.id) {
-      const p = (G.pendingLaunch || []).find((x) => x.seq === m.seq);
-      if (p && data.missiles[m.missile]?.guidance !== 'none') G.guided.push({ id: m.id, ti: p.ti, gi: p.gi, fresh: true });
+      const waiting = onlineLaunches.pending.find(p => p.msg.seq === m.seq);
+      const gun = waiting && G.loadout.turrets[waiting.ti]?.guns[waiting.gi];
+      const p = onlineLaunches.confirm(m.seq, m.missile, gun, G.online);
+      if (!p) return; // duplicate or obsolete acknowledgement: never spend a second round
+      const def = data.missiles[m.missile];
+      if (def && def.guidance !== 'none') G.guided.push({ id: m.id, ti: p.ti, gi: p.gi, fresh: true });
+      G.missiles._launchLook(m.missile, m.o || p.msg.o, m.d || p.msg.d);
+      G.cam.shake = Math.min(1.2, G.cam.shake + (def?.guidance === 'none' ? 0.9 : 0.35));
+      if (G.model.payload) G.model.payload(p.ti, p.gi, roundsLeft(p.gun));
     } else G.missiles._launchLook(m.missile, m.o, m.d);
+  });
+  net.on('launch_rejected', (m) => {
+    if (!G.online || G.mode !== 'battle') return;
+    onlineLaunches.reject(m.seq, m.retry_after_s, G.online);
   });
   net.on('fire', (m) => {
     if (!G.online || G.mode !== 'battle') return;
@@ -1831,7 +1861,11 @@ export function start(data, saved = {}) {
     if (!shell || !m.o.every(Number.isFinite) || !m.d.every(Number.isFinite)) return;
     G.shots.push({ s: ballistics.newShot(m.o, m.d, shell), shell, age: 0, origin: m.o.slice(), travelled: 0, from: m.from });
     const gy = surfaceAt(m.o[0], m.o[2]);
-    fx.muzzleBlast(m.o, m.d, shell.caliber_mm, m.o[1] - gy < 3.2 ? impactColor([m.o[0], gy, m.o[2]]) : null, gy);
+    const firingLoadout = m.from === net.id ? G.loadout : remoteOf(m.from)?.loadout;
+    const automatic = firingLoadout?.turrets.some(t => t.guns.some(g => g.def.autocannon && g.def.ammo.includes(m.shell)));
+    const dust = m.o[1] - gy < 3.2 ? impactColor([m.o[0], gy, m.o[2]]) : null;
+    if (automatic && shell.caliber_mm >= 20) fx.autocannonBlast(m.o, m.d, shell.caliber_mm, dust, gy);
+    else fx.muzzleBlast(m.o, m.d, shell.caliber_mm, dust, gy);
     if (Math.hypot(m.o[0] - G.s.x, m.o[2] - G.s.z) < 1500) sound.shot(shell.caliber_mm * 0.8);
   });
   net.on('damage', (m) => {
@@ -1948,7 +1982,10 @@ export function start(data, saved = {}) {
     if (G.online) hud.toast('與伺服器的連線中斷，重新連線中…', 18);
   });
   net.on('resumed', () => {
-    if (G.online) hud.toast('已重新連線', 2.5);
+    if (G.online) {
+      retryPendingLaunches(true);
+      hud.toast('已重新連線', 2.5);
+    }
   });
   for (const t of ['closed', 'left_room']) {
     net.on(t, () => {
@@ -2054,6 +2091,7 @@ export function start(data, saved = {}) {
   function missileBattleStart() {
     if (!G.missiles) return;
     G.missiles.reset(missileTerrain());
+    onlineLaunches.clear();
     G.guided = [];
     G.apsOn = true;
     G.apsState = null;
@@ -2063,7 +2101,8 @@ export function start(data, saved = {}) {
       const aps = e.bundle.weapons?.aps;
       if (aps && !e.remote) G.missiles.addAps(enemyOwner(i), 1, aps, 11 + i);
       e.mslT = 6 + i * 4;
-      e.msl = null;
+      e.mslIds = [];
+      e.mslLoading = null;
     });
   }
 
@@ -2080,8 +2119,39 @@ export function start(data, saved = {}) {
   function toggleFlaps() {
     if (!G.model || !G.model.hasFlaps) return hud.toast('這輛車沒有可收放的護板', 1.5);
     G.fold.target = G.fold.target > 0.5 ? 0 : 1;
+    G.fold.waiting = false;
     sound.tone(G.fold.target ? 'on' : 'off');
-    hud.toast(G.fold.target ? '護板放下：射界全開（I 收起）' : '護板升起（I 放下）', 2);
+    hud.toast(G.fold.target ? '護板放下：完成後擴大射界（I 收起）' : '護板升起（I 放下）', 2);
+  }
+
+  function advanceFold(dt) {
+    if (!G.fold || !G.model?.hasFlaps || G.fold.cur === G.fold.target) return;
+    const delta = G.fold.target - G.fold.cur;
+    const next = Math.abs(delta) < dt / 1.5 ? G.fold.target : G.fold.cur + Math.sign(delta) * dt / 1.5;
+    const pose = smoothFold(next), t = G.loadout.turrets[0], rt = G.T[0];
+    const limit = foldYawLimit(t, pose);
+    const bearing = gunnery.wrapPi(rt.yaw - t.facing);
+    const safeYaw = !limit || (bearing >= limit[0] - 1e-6 && bearing <= limit[1] + 1e-6);
+    const safePitch = t.guns.every((g, gi) => rt.guns[gi].pitch >= -foldDepression(t, rt.yaw, g.def.max_depression_deg, pose) * DEG - 1e-6);
+    if (!safeYaw || !safePitch) {
+      if (G.mode === 'garage') {
+        // Garage input only orbits the camera; move the display gun gradually
+        // into clearance so the same I control can complete there too.
+        if (!safeYaw && limit) gunnery.traverseLimited(rt, t.facing + clamp(bearing, limit[0], limit[1]), t.facing, null, t.traverse * DEG, dt);
+        t.guns.forEach((g, gi) => {
+          const clearance = -foldDepression(t, rt.yaw, g.def.max_depression_deg, pose) * DEG;
+          if (rt.guns[gi].pitch < clearance) gunnery.elevate(g.def, rt.guns[gi], clearance + .002, 1, dt);
+        });
+      }
+      if (!G.fold.waiting) hud.toast(G.mode === 'garage' ? '正在調整炮位，避讓護板' : '護板暫停：先抬炮或轉回安全射界，再繼續收放', 3);
+      G.fold.waiting = true;
+      return;
+    }
+    G.fold.waiting = false;
+    G.fold.cur = next;
+    G.fold.pose = pose;
+    G.model.setFold(pose);
+    G.combat?.setFold(G.id, pose);
   }
 
   function toggleAps() {
@@ -2113,7 +2183,7 @@ export function start(data, saved = {}) {
       const p = lo.turrets[t.parent];
       pv = gunnery.muzzleLocal({ pivot: p.pivot, trunnion: t.pivot, muzzleOffset: 0 }, { yaw: yaws[t.parent] || 0, pitch: 0 }).trunnion;
     }
-    return { pivot: pv, trunnion: [g.trunnion[0] + pv[0] - t.pivot[0], g.trunnion[1] + pv[1] - t.pivot[1], g.trunnion[2] + pv[2] - t.pivot[2]], muzzleOffset: g.muzzleOffset };
+    return { pivot: pv, trunnion: [g.trunnion[0] + pv[0] - t.pivot[0], g.trunnion[1] + pv[1] - t.pivot[1], g.trunnion[2] + pv[2] - t.pivot[2]], muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector };
   }
 
   const moduleOk = (bundle, cstate, id) => {
@@ -2165,6 +2235,7 @@ export function start(data, saved = {}) {
   /** Online: the server flies the missiles; we send our gunner's line and our missiles' building strikes. */
   function onlineMissiles(dt) {
     G.missiles.local = false;
+    retryPendingLaunches();
     G.guideAcc = (G.guideAcc || 0) + dt;
     G.guided = (G.guided || []).filter((m) => G.missiles.nodes.has(m.id) || m.fresh);
     if (G.guideAcc >= 1 / SEND_HZ) {
@@ -2349,7 +2420,7 @@ export function start(data, saved = {}) {
 
   /** Enemy missile launchers (offline): turn on the player, launch when they see them, guide. */
   function aiMissiles(dt) {
-    if (!G.missiles || G.online || G.mode !== 'battle' || (G.caps && G.caps.destroyed)) return;
+    if (!G.missiles?.ready || G.online || G.mode !== 'battle' || (G.caps && G.caps.destroyed)) return;
     const target = playerMiddle();
     (G.enemies || []).forEach((e, i) => {
       if (!e.alive || e.remote || !e.loadout) return;
@@ -2360,22 +2431,37 @@ export function start(data, saved = {}) {
       }));
       if (ti < 0) return;
       const owner = enemyOwner(i);
-      const g = e.loadout.turrets[ti].guns[gi];
+      const t = e.loadout.turrets[ti];
+      const g = t.guns[gi];
       const mdef = data.missiles[g.def.missile];
+      if (!mdef) return;
+      if (!e.mslLoading) e.mslLoading = loading.newLoading(1, 1);
+      tickLauncher(g, dt);
+      const done = loading.tick(e.mslLoading, dt, () => g.def.reload_s);
+      if (done.length) {
+        g.loaded = nextAmmo(g);
+        syncGunShell(g);
+        refillLauncher(g);
+        if (g.loaded < 0) e.mslLoading.state[0] = 'empty';
+      }
       // the launcher turns onto the player
-      e.turretYaw = gunnery.wrapPi(Math.atan2(target[0] - e.x, target[2] - e.z) - e.heading);
-      if (e.turretYaws) e.turretYaws[0] = e.turretYaw;
+      const yaw = gunnery.wrapPi(Math.atan2(target[0] - e.x, target[2] - e.z) - e.heading);
+      if (ti === 0) e.turretYaw = yaw;
+      if (!e.turretYaws && ti > 0) e.turretYaws = enemyYaws(e);
+      if (e.turretYaws) e.turretYaws[ti] = yaw;
       e.pose();
       const ps = enemyPose(e);
-      const sight = gunnery.muzzleWorld(ps, mountFor(e.loadout, enemyYaws(e), ti), { yaw: enemyYaws(e)[ti] || 0, pitch: 0 }).trunnion;
-      // a missile in flight: the gunner keeps the cross on the target, with a gunner's wander
-      if (e.msl != null && G.missiles.nodes.has(e.msl)) {
+      const firstMount = mountFor(e.loadout, enemyYaws(e), ti);
+      const mount = { ...firstMount, trunnion: firstMount.trunnion.map((v, k) => v + g.trunnion[k] - t.guns[0].trunnion[k]), muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector };
+      const sight = gunnery.muzzleWorld(ps, mount, { yaw: enemyYaws(e)[ti] || 0, pitch: 0 }).trunnion;
+      // Every live missile keeps guidance while another loaded tube is prepared.
+      e.mslIds = (e.mslIds || []).filter((id) => G.missiles.nodes.has(id));
+      for (const id of e.mslIds) {
         const w = (k) => Math.sin(G.time * (1.3 + k) + i * 2.1) * 0.35;
-        G.missiles.guide(e.msl, owner, sight, [target[0] + w(0), target[1] + w(1) * 0.5, target[2] + w(2)]);
-        return;
+        G.missiles.guide(id, owner, sight, [target[0] + w(0), target[1] + w(1) * 0.5, target[2] + w(2)]);
       }
-      e.mslT = (e.mslT ?? 6) - dt;
-      if (e.mslT > 0) return;
+      e.mslT = Math.max(0, (e.mslT ?? 6) - dt);
+      if (e.mslT > 1e-9 || e.mslLoading.state[0] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9) return;
       const d = Math.hypot(target[0] - sight[0], target[1] - sight[1], target[2] - sight[2]);
       if (d > mdef.max_range_m || d < mdef.min_range_m * 1.5 || roundsLeft(g) <= 0) {
         e.mslT = 2;
@@ -2390,15 +2476,24 @@ export function start(data, saved = {}) {
         e.mslT = 2;
         return;
       }
-      const up = [dirT[0], dirT[1] + 0.02, dirT[2]];
-      e.msl = G.missiles.launch(mdef.id, owner, 1, [sight[0] + dirT[0] * 0.8, sight[1] + 0.15, sight[2] + dirT[2] * 0.8], up, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0);
-      for (const am of g.ammo) if (am.count > 0) {
-        am.count--;
-        break;
-      }
-      e.mslT = 14;
+      const pitch = Math.atan2(target[1] - sight[1], Math.hypot(target[0] - sight[0], target[2] - sight[2])) + 0.02;
+      const mz = gunnery.muzzleWorld(ps, launcherMount(g, mount), { yaw: enemyYaws(e)[ti] || 0, pitch });
+      const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0);
+      if (id == null) return;
+      e.mslIds.push(id);
+      fireLauncherRound(g, e.mslLoading, 0);
+      e.gunPitch[ti] = pitch;
+      e.pose();
+      e.mslT = g.launcher.ready > 0 ? 0.25 : g.def.reload_s;
       hud.toast(`${e.name} 發射 ${mdef.name}！`, 2.5);
     });
+  }
+
+  /** A timeout or resumed connection repeats the same request, never a new unconfirmed shot. */
+  function retryPendingLaunches(force = false) {
+    if (!G.online || !net.open || !onlineLaunches.pending.length) return;
+    // Network timeouts keep real seconds even when the render loop clamps a slow frame's game dt.
+    onlineLaunches.retry(performance.now() / 1000, sendOnlineLaunch, currentOnlineLaunch, force);
   }
 
   /** A gun that fires missiles or rockets: launched into the missile world, guided from the sight. */
@@ -2407,22 +2502,22 @@ export function start(data, saved = {}) {
     const g = t.guns[gi];
     const rt = G.T[ti];
     const mdef = data.missiles[g.def.missile];
-    if (!G.missiles || !mdef) return false;
+    if (!G.missiles?.ready || !mdef || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
     if (G.online) {
-      // the server launches it; its id comes back with 'launched'
+      // Reserve one tube until the server confirms it; jitter must never spend a rejected round.
+      if (!net.open || onlineLaunches.has(g)) return false;
       const seq = ++G.online.seq;
-      G.pendingLaunch = [...(G.pendingLaunch || []).slice(-8), { seq, ti, gi }];
-      net.send({ t: 'launch', seq, missile: mdef.id, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: mz.dir.map((v) => Math.round(v * 1e5) / 1e5) });
-      G.missiles._launchLook(mdef.id, mz.pos, mz.dir);
+      const msg = { t: 'launch', seq, missile: mdef.id, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: mz.dir.map((v) => Math.round(v * 1e5) / 1e5) };
+      if (!onlineLaunches.begin({ gun: g, loading: rt.loading, ti, gi, msg, session: G.online }, performance.now() / 1000)) return false;
+      net.send(msg);
+      return true;
     } else {
       const id = G.missiles.launch(mdef.id, ME, 0, mz.pos, mz.dir, (rng.nextF32() * 4294967295) >>> 0);
-      if (id != null && mdef.guidance !== 'none') G.guided.push({ id, ti, gi, fresh: true });
+      if (id == null) return false;
+      if (mdef.guidance !== 'none') G.guided.push({ id, ti, gi, fresh: true });
     }
     G.cam.shake = Math.min(1.2, G.cam.shake + (mdef.guidance === 'none' ? 0.9 : 0.35));
-    g.ammo[g.loaded].count = Math.max(0, g.ammo[g.loaded].count - 1);
-    g.loaded = -1;
-    syncGunShell(g);
-    if (nextAmmo(g) < 0) rt.loading.state[gi] = 'empty';
+    fireLauncherRound(g, rt.loading, gi);
     // the round is gone from its rail
     if (G.model.payload) G.model.payload(ti, gi, roundsLeft(g));
     return true;
@@ -2495,16 +2590,18 @@ export function start(data, saved = {}) {
     const fwd = [up[0], 0, up[2]];
     const fl = Math.hypot(fwd[0], fwd[2]) || 1;
     const nose = [fwd[0] / fl, 0, fwd[2] / fl];
-    const mid = b.worldPoint([0, M.height * 0.5, (G.dims.front + G.dims.rear) * 0.25]);
-    const span = Math.max(G.dims.front - G.dims.rear, G.dims.width * 1.25) * 0.5;
+    const list = M.root.collect([]);
+    const inner = G.interior;
+    const listSet = new Set(list);
+    const statusNodes = inner ? list.concat(inner.nodes.filter((n) => !listSet.has(n))) : list;
+    // Keep the hull centred and fit the live geometry inside the HUD's measured circular window.
+    const mid = b.worldPoint([0, M.height * 0.5, 0]);
     const fovY = 9 * DEG;
-    const dist = span / Math.tan(fovY / 2);
+    const dist = statusViewDistance(statusNodes, mid, Math.tan(fovY / 2));
     const pos = [mid[0], mid[1] + dist, mid[2]];
     const la = lookAtLH(pos, [0, -1, 0], nose);
     const viewProj = mul(perspective(fovY, 1, dist * 0.5, dist * 2), la.view);
     const scam = { pos, viewProj, forward: la.forward, right: la.right, up: la.up, tanX: Math.tan(fovY / 2), tanY: Math.tan(fovY / 2), near: dist * 0.5, far: dist * 2 };
-    const list = M.root.collect([]);
-    const inner = G.interior;
     const saved = [];
     const turretSet = new Set();
     for (const t of M.turrets) for (const n of t.node.collect([])) turretSet.add(n);
@@ -2539,8 +2636,7 @@ export function start(data, saved = {}) {
         });
       }
     }
-    const listSet = new Set(list);
-    renderer.renderInset(inner ? list.concat(inner.nodes.filter((n) => !listSet.has(n))) : list, scam, rect, { sky: false, backdrop: [0.05, 0.07, 0.11], disc: 0.9 });
+    renderer.renderInset(statusNodes, scam, rect, { sky: false, backdrop: [0.05, 0.07, 0.11], disc: 0.9 });
     for (const [n, kd, hl, vis] of saved) {
       n.kind = kd;
       n.highlight = hl;
@@ -2744,7 +2840,7 @@ export function start(data, saved = {}) {
       G.autoZero = !G.autoZero;
       hud.toast(`自動裝表：${G.autoZero ? '開' : '關'}`, 1.5);
     } else if (e.code === 'KeyG') cycleSightGun();
-    else if (/^(Digit|Numpad)[1-4]$/.test(e.code)) selectAmmo(Number(e.code.slice(-1)) - 1);
+    else if (ammoKeyIndex(e.code) >= 0) selectAmmo(ammoKeyIndex(e.code));
     else if (e.code === 'Equal' || e.code === 'NumpadAdd') stepCruise(1);
     else if (e.code === 'Minus' || e.code === 'NumpadSubtract') stepCruise(-1);
     else if (e.code === 'KeyP') setPixel(G.pixelIdx + 1);
@@ -3017,6 +3113,7 @@ export function start(data, saved = {}) {
    * machine-gun key, which also fires automatic guns on the turrets not in the sight.
    */
   function trigger(mgTrigger = false, rocket = false) {
+    if (G.sightM >= 0 && !rocket) return;
     if (G.online && G.online.dead) return;
     if (G.caps && !G.caps.can_fire) return;
     let n = G.pending.length;
@@ -3051,9 +3148,10 @@ export function start(data, saved = {}) {
     const g = t.guns[gi];
     const rt = G.T[ti];
     if (rt.loading.state[gi] !== 'ready') return false;
-    loading.fired(rt.loading, gi);
-    const mz = gunnery.muzzleWorld(pose(), mountOf(t, g), { yaw: rt.yaw, pitch: rt.guns[gi].pitch + hullTilt(G.ss, rt.yaw) });
+    const mount = g.def.missile ? launcherMount(g, mountOf(t, g)) : mountOf(t, g);
+    const mz = gunnery.muzzleWorld(pose(), mount, { yaw: rt.yaw, pitch: rt.guns[gi].pitch + hullTilt(G.ss, rt.yaw) });
     if (g.def.missile) return launchFromGun(ti, gi, mz);
+    loading.fired(rt.loading, gi);
     const dir = gunnery.disperse(mz.dir, g.def.dispersion_mrad, rng);
     const shot = { s: ballistics.newShot(mz.pos, dir, g.shell), shell: g.shell, age: 0, origin: mz.pos.slice(), travelled: 0 };
     G.shots.push(shot);
@@ -3066,10 +3164,12 @@ export function start(data, saved = {}) {
     const auto = g.def.autocannon;
     if (auto) {
       // an automatic gun: a flash and a crack per round, the belt one shorter, a light shove
-      fx.mgFlash(mz.pos, mz.dir, g.def.caliber_mm);
+      if (g.def.caliber_mm >= 20) fx.autocannonBlast(mz.pos, mz.dir, g.def.caliber_mm, impactColor([mz.pos[0], gy, mz.pos[2]]), gy);
+      else fx.mgFlash(mz.pos, mz.dir, g.def.caliber_mm);
       sound.mg(g.def.caliber_mm);
       g.belt = Math.max(0, g.belt - 1);
-      rt.guns[gi].smoke = Math.min(2.5, rt.guns[gi].smoke + 0.05);
+      rt.guns[gi].recoilT = 0;
+      rt.guns[gi].smoke = Math.min(0.12, rt.guns[gi].smoke + 0.025);
       G.cam.shake = Math.min(0.5, G.cam.shake + 0.04);
       g.ammo[g.loaded].count = Math.max(0, g.ammo[g.loaded].count - 1);
       g.loaded = -1;
@@ -3115,9 +3215,13 @@ export function start(data, saved = {}) {
     if (m.mount === 'coax') {
       const g = t0.guns[0];
       const mount = { pivot: t0.pivot, trunnion: [m.pos[0], m.pos[1], g.trunnion[2]], muzzleOffset: Math.max(0.15, m.pos[2] - g.trunnion[2]) };
+      if (m.elevationPivot) {
+        mount.trunnion = m.elevationPivot;
+        mount.muzzleVector = m.pos.map((v, k) => v - m.elevationPivot[k]);
+      }
       const mz = gunnery.muzzleWorld(ps, mount, { yaw: rt0.yaw, pitch: rt0.guns[0].pitch + hullTilt(G.ss, rt0.yaw) });
       e.bearing = true;
-      return { pos: mz.pos, dir: mz.dir };
+      return mz;
     }
     const lp = gunnery.toLocalPoint(ps, G.aimPoint);
     // the pivot of a roof gun rides round with the turret
@@ -3128,14 +3232,21 @@ export function start(data, saved = {}) {
     e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew, dt);
     const dl = dirFrom(e.aim.yaw, e.aim.pitch + hullTilt(G.ss, e.aim.yaw));
     const len = m.mount === 'pintle' ? 1.0 : 0.3;
-    return { pos: gunnery.toWorldPoint(ps, [base[0] + dl[0] * len, base[1] + dl[1] * len, base[2] + dl[2] * len]), dir: gunnery.toWorldDir(ps, dl) };
+    return { pos: gunnery.toWorldPoint(ps, [base[0] + dl[0] * len, base[1] + dl[1] * len, base[2] + dl[2] * len]), dir: gunnery.toWorldDir(ps, dl), trunnion: gunnery.toWorldPoint(ps, base) };
+  }
+
+  function sightMuzzle(tilt = 0) {
+    if (G.sightM >= 0) return layMg(G.sightM, 0);
+    const t = sightTurret(), g = sightGun(), rt = G.T[G.sightT];
+    return gunnery.muzzleWorld(pose(), mountOf(t, g), { yaw: rt.yaw, pitch: rt.guns[G.sightG].pitch + tilt });
   }
 
   function stepMachineGuns(dt) {
-    const firing = G.mgHeld && G.mode === 'battle' && !G.workshop;
+    const enabled = G.mode === 'battle' && !G.workshop && !(G.online && G.online.dead) && !G.caps?.destroyed;
     for (let i = 0; i < G.MG.length; i++) {
       const e = G.MG[i];
       const mz = layMg(i, dt);
+      const firing = enabled && machineGunTrigger(G.sightM, i, G.fireHeld, G.mgHeld);
       const n = mgSim.stepMg(e.m.def, e.st, firing && e.bearing, dt);
       for (let k = 0; k < n; k++) {
         const dir = gunnery.disperse(mz.dir, e.m.def.dispersion_mrad, rng);
@@ -3417,6 +3528,7 @@ export function start(data, saved = {}) {
     const elevMult = G.caps ? G.caps.elevate_mult : 1;
     G.loadout.turrets.forEach((t0, ti) => {
       let t = travMult < 1 ? { ...t0, traverse: t0.traverse * travMult } : t0;
+      if (ti === 0 && G.model?.hasFlaps) t = { ...t, limit: foldYawLimit(t0, G.fold.pose) };
       const rt = G.T[ti];
       let base = 0;
       if (t0.parent != null) {
@@ -3455,8 +3567,8 @@ export function start(data, saved = {}) {
         // a designed vehicle's gun cannot dip as far over the hull as over the front
         // (an open mount's table holds while its armour flaps stand raised; folded down, the gun
         // dips its full amount all round)
-        const flapsDown = G.model?.hasFlaps && G.fold.cur > 0.5;
-        let def = t.depByYaw && !flapsDown ? { ...g.def, max_depression_deg: depressionAt(t, rt.yaw - base, g.def.max_depression_deg) } : g.def;
+        const depression = ti === 0 && G.model?.hasFlaps ? foldDepression(t0, rt.yaw - base, g.def.max_depression_deg, G.fold.pose) : depressionAt(t, rt.yaw - base, g.def.max_depression_deg);
+        let def = depression !== g.def.max_depression_deg ? { ...g.def, max_depression_deg: depression } : g.def;
         if (elevMult < 1) def = { ...def, elevate_deg_s: def.elevate_deg_s * elevMult };
         if (stab.elev) {
           // the gunner lays the line of sight at the elevating rate; the gyro holds it against
@@ -3475,6 +3587,7 @@ export function start(data, saved = {}) {
   // ------------------------------------------------------------------- update
 
   function update(dt) {
+    advanceFold(dt);
     G.time += dt;
     const k = G.keys;
     const input = {
@@ -3515,6 +3628,8 @@ export function start(data, saved = {}) {
     const sg = sightGun();
     const srt = G.T[G.sightT];
     const sgs = srt.guns[G.sightG];
+    const selectedMg = G.MG[G.sightM];
+    const sightTable = selectedMg ? selectedMg.m.table : sg.table;
 
     // ---- mouse -> camera / aim
     const dx = G.mdx;
@@ -3522,7 +3637,7 @@ export function start(data, saved = {}) {
     G.mdx = G.mdy = 0;
     const levels = sightLevels();
     const level = levels[clamp(G.zoomIdx, 0, levels.length - 1)];
-    const ze = zeroElev(sg);
+    const ze = ballistics.elevationAt(sightTable, G.zero);
     if (G.thumbShot || testing) {
       /* the card picture is taken from a fixed angle; the test range aims with its own camera */
     } else if (G.ret) {
@@ -3540,7 +3655,11 @@ export function start(data, saved = {}) {
       let hi = 0.38;
       if (garage) [lo, hi] = [-0.95, 0.04];
       else if (orbit) [lo, hi] = [-1.25, 1.1];
-      else if (inSight) [lo, hi] = [-sg.def.max_depression_deg * DEG - ze - 0.06, sg.def.max_elevation_deg * DEG - ze + 0.06];
+      else if (inSight) {
+        const arc = selectedMg && selectedMg.m.mount !== 'coax' ? selectedMg.m.arc : null;
+        [lo, hi] = [-(arc ? arc[1] : sg.def.max_depression_deg * DEG) - ze - .06,
+          (arc ? arc[2] : sg.def.max_elevation_deg * DEG) - ze + .06];
+      }
       G.cam.pitch = clamp(G.cam.pitch - dy * sens, lo, hi);
       // the garage turntable: the view drifts round the vehicle until you take hold of it
       G.spinHold = Math.max(0, G.spinHold - dt);
@@ -3584,6 +3703,7 @@ export function start(data, saved = {}) {
       if (G.mode === 'battle') aimTurrets(SIM_DT);
       stepMachineGuns(SIM_DT);
       G.loadout.turrets.forEach((t, ti) => {
+        t.guns.forEach((g) => tickLauncher(g, SIM_DT));
         const done = loading.tick(G.T[ti].loading, SIM_DT / (G.caps ? G.caps.reload_mult : 1), (gi, li) => reloadTime(t, gi, li));
         for (const gi of done) {
           const g = t.guns[gi];
@@ -3592,13 +3712,14 @@ export function start(data, saved = {}) {
           if (g.loaded < 0) G.T[ti].loading.state[gi] = 'empty';
           else g.selected = g.ammo[g.selected].count > 0 ? g.selected : g.loaded;
           syncGunShell(g);
+          refillLauncher(g);
         }
         if (done.length && !t.guns[done[0]].def.autocannon) sound.click();
         // a rotary gun's barrels spin up while its trigger is held and run down after
         t.guns.forEach((g) => {
           const a = g.def.autocannon;
           if (!a || !(a.spin_up_s > 0)) return;
-          const held = ti === G.sightT ? G.fireHeld || G.mgHeld : G.mgHeld;
+          const held = G.sightM < 0 && (ti === G.sightT ? G.fireHeld || G.mgHeld : G.mgHeld);
           g.spin = clamp(g.spin + (held ? SIM_DT : -2 * SIM_DT) / a.spin_up_s, 0, 1);
         });
       });
@@ -3634,25 +3755,8 @@ export function start(data, saved = {}) {
       mt.node.visible = !(inSight && ti === G.sightT);
       mt.guns.forEach((mg, gi) => {
         const gs = rt.guns[gi];
-        // recoil cycle: a few hundredths of a second back against the brake, a short dwell, then
-        // the slower run-out as the recuperator pushes the barrel home
-        if (gs.recoilT >= 0) {
-          gs.recoilT += dt;
-          const stroke = G.loadout.turrets[ti].guns[gi].def.recoil_mm / 1000;
-          const back = 0.05;
-          const dwell = 0.04;
-          const home = 0.45 + stroke * 0.6;
-          const t = gs.recoilT;
-          let x;
-          if (t < back) x = Math.sin(((t / back) * Math.PI) / 2);
-          else if (t < back + dwell) x = 1;
-          else {
-            const k = Math.min((t - back - dwell) / home, 1);
-            x = 1 - k * k * (3 - 2 * k);
-          }
-          gs.recoil = stroke * x;
-          if (t >= back + dwell + home) gs.recoilT = -1;
-        }
+        // Automatic guns complete this travel within their cycle; large guns keep their slower run-out.
+        advanceGunRecoil(gs, G.loadout.turrets[ti].guns[gi].def, dt);
         if (gs.smoke > 0) {
           gs.smoke -= dt;
           if (Math.random() < dt * 28 * Math.min(1, gs.smoke)) {
@@ -3743,11 +3847,11 @@ export function start(data, saved = {}) {
       const c = [G.s.x + Math.sin(G.s.heading) * mid, M.height * 0.46, G.s.z + Math.cos(G.s.heading) * mid];
       camPos = [c[0] - fwd[0] * dist, c[1] - fwd[1] * dist, c[2] - fwd[2] * dist];
     } else if (inSight) {
-      const mz = gunnery.muzzleWorld(pose(), mountOf(st, sg), { yaw: srt.yaw, pitch: sgs.pitch + tilt });
+      const mz = sightMuzzle(tilt);
       // The eyepiece sits on the gun, but the picture turns with the mouse straight away; the
       // graticule shows where the gun really points and closes on the middle as the turret arrives.
       // ... and is carried off with the gun by the hull's motion until the laying catches up
-      const off = layError(srt);
+      const off = selectedMg ? { yaw: 0, pitch: 0 } : layError(srt);
       fwd = dirFrom(G.cam.yaw + off.yaw + jitter() * 0.004, G.cam.pitch + off.pitch + G.cam.kick + jitter() * 0.004);
       camPos = [mz.trunnion[0] + mz.dir[0] * 0.6, mz.trunnion[1] + mz.dir[1] * 0.6, mz.trunnion[2] + mz.dir[2] * 0.6];
       const radius = Math.min(cw, ch) * SCOPE_RADIUS;
@@ -3833,27 +3937,28 @@ export function start(data, saved = {}) {
       const hit = losHit(camPos, ad, 2500);
       const t = Math.max(hit ? hit.t : 2500, inSight ? 25 : G.cam.dist + 12);
       G.aimPoint = [camPos[0] + ad[0] * t, camPos[1] + ad[1] * t, camPos[2] + ad[2] * t];
-      const tr = gunnery.muzzleWorld(pose(), mountOf(st, sg), { yaw: srt.yaw, pitch: 0 }).trunnion;
+      const tr = selectedMg ? sightMuzzle().trunnion : gunnery.muzzleWorld(pose(), mountOf(st, sg), { yaw: srt.yaw, pitch: 0 }).trunnion;
       const d = [G.aimPoint[0] - tr[0], G.aimPoint[1] - tr[1], G.aimPoint[2] - tr[2]];
       G.aim.yaw = Math.atan2(d[0], d[2]);
       G.aim.pitch = Math.atan2(d[1], Math.hypot(d[0], d[2]));
       G.aim.dist = Math.hypot(d[0], d[1], d[2]);
-      G.aim.blocked = !!sgs.limited || !srt.bearing;
+      G.aim.blocked = selectedMg ? !selectedMg.bearing : !!sgs.limited || !srt.bearing;
     }
     if (!inSight && !orbit && !testing) {
       // the ring shows the sight line of the sighting gun: bore direction minus the set elevation
-      const mz = gunnery.muzzleWorld(pose(), mountOf(st, sg), { yaw: srt.yaw, pitch: sgs.pitch + tilt });
-      const sl = dirFrom(G.s.heading + srt.yaw, sgs.pitch + tilt - ze);
+      const mz = sightMuzzle(tilt);
+      const sl = selectedMg ? dirFrom(Math.atan2(mz.dir[0], mz.dir[2]), Math.asin(clamp(mz.dir[1], -1, 1)) - ze) : dirFrom(G.s.heading + srt.yaw, sgs.pitch + tilt - ze);
       let reach = Math.max(G.aim.dist - sg.muzzleOffset, 5);
       if (sl[1] < -1e-4) reach = Math.min(reach, mz.pos[1] / -sl[1]);
       const gp = [mz.pos[0] + sl[0] * reach, mz.pos[1] + sl[1] * reach, mz.pos[2] + sl[2] * reach];
       const pr = project(viewProj, gp);
       if (pr[2] > 0) gunPx = [(pr[0] * 0.5 + 0.5) * cw, (1 - (pr[1] * 0.5 + 0.5)) * ch];
-      aligned = Math.abs(srt.yawErr) < 0.004 && Math.abs(sgs.pitchErr) < 0.004;
+      aligned = selectedMg ? selectedMg.bearing && Math.abs(gunnery.wrapPi(Math.atan2(sl[0], sl[2]) - G.aim.yaw)) < .01 && Math.abs(Math.asin(clamp(sl[1], -1, 1)) - G.aim.pitch) < .01 : Math.abs(srt.yawErr) < 0.004 && Math.abs(sgs.pitchErr) < 0.004;
     }
     if (inSight) {
       // where the gun's sight line falls in the picture
-      const sl = dirFrom(G.s.heading + srt.yaw, sgs.pitch + tilt - ze);
+      const mz = selectedMg ? sightMuzzle(tilt) : null;
+      const sl = mz ? dirFrom(Math.atan2(mz.dir[0], mz.dir[2]), Math.asin(clamp(mz.dir[1], -1, 1)) - ze) : dirFrom(G.s.heading + srt.yaw, sgs.pitch + tilt - ze);
       const pr = project(viewProj, [camPos[0] + sl[0] * 2000, camPos[1] + sl[1] * 2000, camPos[2] + sl[2] * 2000]);
       G.sightOffset = pr[2] > 0 ? [pr[0] * 0.5 * cw, -pr[1] * 0.5 * ch] : [fwd[0] * sl[2] - fwd[2] * sl[0] > 0 ? -cw : cw, 0];
     }
@@ -3884,8 +3989,7 @@ export function start(data, saved = {}) {
     if (G.exhaust && !G.thumbShot && !(G.caps && G.caps.destroyed) && !(G.online && G.online.dead)) {
       const idleR = G.params.engine.idle_rpm;
       const r01 = clamp(((G.rpmShown || idleR) - idleR) / Math.max(1, G.params.engine.max_rpm - idleR), 0, 1);
-      const fw = gunnery.toWorldDir(pose(), [0, 0, 1]);
-      G.exhaust.update(dt, (p) => gunnery.toWorldPoint(pose(), p), (d) => gunnery.toWorldDir(pose(), d), G.info.throttleLoad || 0, r01, [fw[0] * G.s.u, fw[1] * G.s.u, fw[2] * G.s.u]);
+      G.exhaust.updateHull(dt, G.veh.body, G.info.throttleLoad || 0, r01);
     }
     // ruts: where the tracks pressed into soft ground
     G.rutAcc += (Math.abs(G.info.groundSpeedL || 0) + Math.abs(G.info.groundSpeedR || 0)) * 0.5 * dt;
@@ -3949,7 +4053,7 @@ export function start(data, saved = {}) {
     G.loadout.turrets.forEach((t, ti) => {
       t.guns.forEach((g, gi) => {
         const pr = loading.progress(G.T[ti].loading, gi);
-        states.push({ ...pr, bearing: G.T[ti].bearing, sighting: ti === G.sightT && gi === G.sightG });
+        states.push({ ...pr, bearing: G.T[ti].bearing, sighting: G.sightM < 0 && ti === G.sightT && gi === G.sightG });
       });
     });
     if (G.thumbShot) return;
@@ -3962,11 +4066,11 @@ export function start(data, saved = {}) {
       G.statusWin = hud.drawStatus({
         ...dv.shape,
         stab: (G.loadout.turrets[0].stabilizer || 'none') !== 'none',
-        ready: sel ? sel.count : null,
+        ready: selectedMg ? selectedMg.st.belt : sel ? sel.count : null,
         fire: !!(G.caps && G.caps.on_fire),
       });
     }
-    hud.mgs(G.MG.map((e) => ({ belt: e.st.belt, heat: e.st.heat, hot: e.st.hot, reload: e.st.reload, bearing: e.bearing })));
+    hud.mgs(G.MG.map((e, i) => ({ belt: e.st.belt, heat: e.st.heat, hot: e.st.hot, reload: e.st.reload, bearing: e.bearing, sighting: i === G.sightM })));
     hud.viewLabel(G.xray ? '內構透視' : G.free ? '自由視角' : inSight ? `炮手瞄準鏡 ${level.magnification}×` : '第三人稱');
     hud.zero(`${G.zero > 0 ? `表尺 ${G.zero} m` : '表尺 直瞄'}　自動裝表 ${G.autoZero ? '開' : '關'}`);
     hud.tick(dt);
@@ -4044,15 +4148,15 @@ export function start(data, saved = {}) {
         return { ok: pr[2] > 0, x: (pr[0] * 0.5 + 0.5) * cw, y: (1 - (pr[1] * 0.5 + 0.5)) * ch };
       }, G.veh, ch / 900);
     }
-    const sp = loading.progress(srt.loading, G.sightG);
+    const sp = selectedMg ? { remaining: selectedMg.st.reload, waiting: false, empty: false } : loading.progress(srt.loading, G.sightG);
     if (scope) {
       hud.drawSight(scope.radius, scope.pxPerRad, {
-        name: st.sight.name,
+        name: selectedMg ? selectedMg.m.def.name || selectedMg.m.weapon : st.sight.name,
         magnification: level.magnification,
-        ammo: sg.shell.name,
+        ammo: selectedMg ? `${selectedMg.m.def.caliber_mm} mm · ${selectedMg.st.belt} 發` : sg.shell.name,
         status: sp.empty ? '彈藥耗盡' : sp.waiting ? '等裝填手' : sp.remaining > 0 ? `裝填中 ${sp.remaining.toFixed(1)} s` : '可射擊',
-        ready: sp.remaining <= 0 && !sp.waiting,
-        table: sg.table,
+        ready: sp.remaining <= 0 && !sp.waiting && !(selectedMg && selectedMg.st.hot),
+        table: sightTable,
         zeroElev: ze,
         zero: G.zero,
         offset: G.sightOffset,
@@ -4060,7 +4164,7 @@ export function start(data, saved = {}) {
       });
     } else if (!orbit && !testing) hud.drawAim(gunPx, aligned, G.aim.blocked);
     // the main gun's reload: a ring round the aim mark (round the middle of the sight)
-    if (G.mode === 'battle' && !orbit && !testing && !G.thumbShot) {
+    if (G.mode === 'battle' && !orbit && !testing && !G.thumbShot && G.sightM < 0) {
       const pr = loading.progress(G.T[0].loading, 0);
       const g0 = G.loadout.turrets[0].guns[0];
       if (!g0.def.autocannon && !g0.def.missile) {
@@ -4112,13 +4216,6 @@ export function start(data, saved = {}) {
     } else if (!G.paused && G.thumbs.length) thumbStep();
     else if (!G.paused) {
       if (dt > 0) G.fps = lerp(G.fps || 60, 1 / dt, 0.05);
-      // the flaps swing on their hinges in about a second and a half
-      if (G.fold && G.model && G.fold.cur !== G.fold.target) {
-        const d = G.fold.target - G.fold.cur;
-        G.fold.cur = Math.abs(d) < dt / 1.5 ? G.fold.target : G.fold.cur + Math.sign(d) * (dt / 1.5);
-        const e = G.fold.cur * G.fold.cur * (3 - 2 * G.fold.cur);
-        G.model.setFold(e);
-      }
       update(dt);
       // slow frames: first the scene's resolution goes down (and comes back when there is room)
       const scaled = G.mode === 'battle' || G.mode === 'test' ? renderScale.sample(dt) : null;
@@ -4144,7 +4241,9 @@ export function start(data, saved = {}) {
     /** Sets the hinged flaps at once (0 raised, 1 folded down). */
     fold(t) {
       G.fold.cur = G.fold.target = t;
+      G.fold.pose = t;
       if (G.model && G.model.setFold) G.model.setFold(t);
+      if (G.combat) G.combat.setFold(G.id, t);
     },
     /** Puts the vehicle standing still at (x, z) facing `heading`. */
     place(x, z, heading = 0) {

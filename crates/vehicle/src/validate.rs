@@ -206,8 +206,13 @@ fn check_gun(r: &mut Report, path: &str, g: &GunDef, mount: [f32; 3], muzzle_off
     if g.rounds_per_min > 0.0 && g.reload_s > 0.0 && ((60.0 / g.rounds_per_min) - g.reload_s).abs() / g.reload_s > 0.25 {
         r.warn("W008", path, "rounds_per_min and reload_s disagree by more than 25% (reload_s is the one used)");
     }
-    if muzzle_offset <= 0.0 || muzzle_offset > g.barrel_length_mm * 0.001 + 0.5 {
-        r.err("W010", path, "muzzle offset must be > 0 and not longer than the barrel");
+    // barrel_length_mm is the nominal tube (e.g. KwK 38 L/55), whereas the
+    // trunnion-to-mouth offset can include receiver and mounting geometry.
+    // Check the mouth against the vehicle envelope plus its barrel overhang,
+    // rather than equating those two different measurements.
+    let mouth = [mount[0], mount[1], mount[2] + muzzle_offset];
+    if !muzzle_offset.is_finite() || muzzle_offset <= 0.0 || !vol.contains(mouth, g.barrel_length_mm * 0.001 + 0.1) {
+        r.err("W010", path, "muzzle offset must be finite and > 0, with the mouth within the vehicle and barrel overhang");
     }
     if !vol.contains(mount, 0.5) {
         r.err("W006", path, "gun mount is far outside its turret");
@@ -242,6 +247,35 @@ fn check_arc(r: &mut Report, path: &str, facing_deg: f32, limit: Option<[f32; 2]
     let bad_limit = limit.map_or(false, |l| !(l[0] < l[1]) || l[0] < -180.0 || l[1] > 180.0);
     if !(-180.0..=180.0).contains(&facing_deg) || bad_limit {
         r.err("W013", path, "facing_deg must be in [-180,180] and yaw_limit_deg must be [min,max] with min < max inside [-180,180]");
+    }
+}
+
+fn check_fold_angles(r: &mut Report, path: &str, angles: &[f32]) {
+    if angles.len() != 36 || angles.iter().any(|d| !d.is_finite() || !(-90.0..=90.0).contains(d)) {
+        r.err("W016", path, "fold depression needs 36 finite values (every 10 degrees) in -90..90; negative values require gun elevation");
+    }
+}
+
+fn check_fold_fractions(r: &mut Report, path: &str, fractions: &[f32]) {
+    if !fractions.is_empty() && (fractions.len() < 2
+        || fractions.iter().any(|f| !f.is_finite() || !(0.0..=1.0).contains(f))
+        || fractions.windows(2).any(|f| f[0] >= f[1])) {
+        r.err("W016", path, "fold stages need at least two strictly increasing fractions in 0..1");
+    }
+}
+
+fn check_fold_arcs(r: &mut Report, w: &crate::files::WeaponsFile) {
+    if !w.folded_depression_by_bearing_deg.is_empty() {
+        check_fold_angles(r, "weapons.json:folded_depression_by_bearing_deg", &w.folded_depression_by_bearing_deg);
+    }
+    check_fold_fractions(r, "weapons.json:fold_depression_stages", &w.fold_depression_stages.iter().map(|s| s.fold).collect::<Vec<_>>());
+    for (i, s) in w.fold_depression_stages.iter().enumerate() {
+        check_fold_angles(r, &format!("weapons.json:fold_depression_stages[{i}].angles"), &s.angles);
+    }
+    check_arc(r, "weapons.json:folded_yaw_limit_deg", 0.0, w.folded_yaw_limit_deg);
+    check_fold_fractions(r, "weapons.json:fold_yaw_limit_stages", &w.fold_yaw_limit_stages.iter().map(|s| s.fold).collect::<Vec<_>>());
+    for (i, s) in w.fold_yaw_limit_stages.iter().enumerate() {
+        check_arc(r, &format!("weapons.json:fold_yaw_limit_stages[{i}].limits"), 0.0, Some(s.limits));
     }
 }
 
@@ -450,6 +484,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
     if !w.depression_by_bearing_deg.is_empty() && (w.depression_by_bearing_deg.len() != 36 || w.depression_by_bearing_deg.iter().any(|d| !d.is_finite() || *d < -10.0 || *d > 90.0)) {
         r.err("W011", "weapons.json", "depression_by_bearing_deg needs 36 values (every 10 degrees) in -10..90");
     }
+    check_fold_arcs(&mut r, w);
     for (i, gm) in w.extra_guns.iter().enumerate() {
         let path = format!("weapons.json:extra_guns[{}]", i);
         check_gun(&mut r, &path, &gm.gun, gm.mount_m, gm.muzzle_offset(), &vol, shells);
@@ -488,6 +523,11 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
     for (i, s) in v.weapons.secondary.iter().enumerate() {
         if !vol.contains(s.position_m, 0.5) {
             r.err("W007", format!("weapons.json:secondary[{}]", i), "secondary weapon is far outside the vehicle");
+        }
+        if let Some(pivot) = s.elevation_pivot_m {
+            if !pivot.iter().all(|v| v.is_finite()) || !vol.contains(pivot, 0.5) {
+                r.err("W007", format!("weapons.json:secondary[{}].elevation_pivot_m", i), "secondary elevation hinge is invalid or far outside the vehicle");
+            }
         }
     }
 
@@ -718,6 +758,35 @@ mod tests {
     }
 
     #[test]
+    fn fold_safe_arcs_allow_required_elevation_and_reject_malformed_stages() {
+        use crate::files::{FoldDepressionStage, FoldYawLimitStage};
+        let (mut v, db, shells) = fixtures();
+        v.weapons.folded_depression_by_bearing_deg = vec![6.0; 36];
+        v.weapons.fold_depression_stages = vec![
+            FoldDepressionStage { fold: 0.0, angles: vec![0.0; 36] },
+            FoldDepressionStage { fold: 0.5, angles: vec![-0.5; 36] },
+            FoldDepressionStage { fold: 1.0, angles: vec![6.0; 36] },
+        ];
+        v.weapons.folded_yaw_limit_deg = Some([-75.0, 75.0]);
+        v.weapons.fold_yaw_limit_stages = vec![
+            FoldYawLimitStage { fold: 0.0, limits: [-20.0, 20.0] },
+            FoldYawLimitStage { fold: 1.0, limits: [-75.0, 75.0] },
+        ];
+        let clean = validate_vehicle(&v, &db, &shells);
+        assert!(!clean.has("W016") && !clean.has("W013"), "\n{clean}");
+        v.weapons.folded_depression_by_bearing_deg[0] = f32::NAN;
+        v.weapons.fold_depression_stages[1].angles.pop();
+        v.weapons.fold_depression_stages[2].fold = 0.25;
+        v.weapons.fold_yaw_limit_stages[1].fold = 1.5;
+        v.weapons.fold_yaw_limit_stages[1].limits = [75.0, -75.0];
+        let bad = validate_vehicle(&v, &db, &shells);
+        for field in ["folded_depression_by_bearing_deg", "fold_depression_stages", "fold_yaw_limit_stages"] {
+            assert!(bad.issues.iter().any(|i| i.code == "W016" && i.path.contains(field)), "\n{bad}");
+        }
+        assert!(bad.has("W013"));
+    }
+
+    #[test]
     fn engine_and_gearbox_rules() {
         let (mut v, db, s) = fixtures();
         v.engine.transmission.forward_gears = 4;
@@ -777,6 +846,19 @@ mod tests {
         v.weapons.muzzle_offset_m = Some(9.0);
         let r = validate_vehicle(&v, &db, &s);
         assert!(r.has("W008") && r.has("W009") && r.has("W010"));
+    }
+
+    #[test]
+    fn nominal_tube_and_measured_trunnion_offset_are_independent_but_the_mouth_is_bounded() {
+        let (_, db, shells) = fixtures();
+        let mut v = load_vehicle(&data_root().join("vehicles/de_hetzer_sdkfz1401")).unwrap();
+        assert_eq!(v.weapons.main_gun.barrel_length_mm, 1100.0);
+        assert!(v.weapons.muzzle_offset() > 1.8);
+        assert!(!validate_vehicle(&v, &db, &shells).has("W010"));
+        for offset in [100.0, 0.0, f32::NAN, f32::INFINITY] {
+            v.weapons.muzzle_offset_m = Some(offset);
+            assert!(validate_vehicle(&v, &db, &shells).has("W010"));
+        }
     }
 
     #[test]

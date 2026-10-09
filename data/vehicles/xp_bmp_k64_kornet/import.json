@@ -23,6 +23,56 @@
  "level_nodes": [
   "ATGM_Elevation"
  ],
+ "wheel_nodes": {
+  "road_wheel:-1:0": [
+   "Wheel_Left_1"
+  ],
+  "road_wheel:-1:1": [
+   "Wheel_Left_2"
+  ],
+  "road_wheel:-1:2": [
+   "Wheel_Left_3"
+  ],
+  "road_wheel:-1:3": [
+   "Wheel_Left_4"
+  ],
+  "road_wheel:1:0": [
+   "Wheel_Right_1"
+  ],
+  "road_wheel:1:1": [
+   "Wheel_Right_2"
+  ],
+  "road_wheel:1:2": [
+   "Wheel_Right_3"
+  ],
+  "road_wheel:1:3": [
+   "Wheel_Right_4"
+  ]
+ },
+ "node_rest_poses": [
+  {
+   "nodes": [
+    "Hatch_Left"
+   ],
+   "pivot": [
+    -0.67,
+    1.895,
+    0.32
+   ],
+   "rotation_x_deg": 80
+  },
+  {
+   "nodes": [
+    "Hatch_Right"
+   ],
+   "pivot": [
+    0.67,
+    1.895,
+    0.32
+   ],
+   "rotation_x_deg": 80
+  }
+ ],
  "share": {
   "from": "xp_bmp_k64",
   "mounts": [

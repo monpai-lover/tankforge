@@ -1,4 +1,4 @@
-// TEMPORARY JS mirror of crates/physics/src/wheeled.rs -- keep the two in lockstep.
+// Browser wheeled-vehicle simulation; a corresponding Rust wheeled backend is not implemented.
 //
 // A wheeled vehicle (armoured car) as the chain the forces follow:
 //   terrain -> tyre contact -> wheel -> spring and damper -> hull rigid body
@@ -15,6 +15,7 @@ import { RigidBody, GRAVITY } from '../tank/body.js';
 import { boxInertia } from '../tank/tank.js';
 import { applyObstacles } from '../tank/obstacles.js';
 import { dot, cross, scale, len, clamp, norm, add } from '../tank/math3.js';
+import { advanceDriveForce } from '../drivetrain.js';
 
 const AIR_RHO = 1.225;
 const MOUNT = 0.3; // m from the axle (at static load) up to the spring's top mount
@@ -125,7 +126,7 @@ export function newWheeled(tm) {
   return {
     body,
     wheels: tm.wheels.map(() => ({ L: MOUNT, omega: 0, spin: 0, steer: 0, grounded: false, load: 0, slip: 0, fx: 0 })),
-    ds: { gear: 0, rpm: tm.p.engine.idle_rpm, shiftTimer: 0, reversing: false, braking: false, load: 0, steer: 0 },
+    ds: { gear: 0, rpm: tm.p.engine.idle_rpm, shiftTimer: 0, reversing: false, braking: false, load: 0, steer: 0, driveForce: 0, driveDirection: 0 },
     ss: { comp: new Array(n).fill(0), load: new Array(n).fill(0), grounded: new Array(n).fill(false) },
     contacts: [],
     info: {},
@@ -237,12 +238,14 @@ export function stepWheeled(tm, t, input, terrain, dt) {
     const rpm = clamp((wheelW * ratio(p, ds.gear) * 60) / (2 * Math.PI), p.launchRpm, p.engine.max_rpm);
     ds.rpm = clamp((wheelW * ratio(p, ds.gear) * 60) / (2 * Math.PI), p.engine.idle_rpm, p.engine.max_rpm);
     const governor = rpm <= 0.95 * p.engine.max_rpm ? 1 : clamp((p.engine.max_rpm - rpm) / (0.05 * p.engine.max_rpm), 0, 1);
-    const tEngine = ds.shiftTimer > 0 ? 0 : torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, ds.gear) * p.efficiency;
+    const torqueAvailable = torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, ds.gear) * p.efficiency;
+    const tEngine = ds.shiftTimer > 0 ? 0 : torqueAvailable;
     // throttle up to the speed asked for; past it the engine holds back
     const vWant = throttle >= 0 ? throttle * p.vTop : throttle * p.maxReverseSpeed;
     const short = vWant - u;
     const pushing = Math.abs(vWant) > 0.05 && short * Math.sign(vWant) > 0;
-    const drive = pushing ? Math.sign(vWant) * tEngine * clamp(Math.abs(short) / 0.6, 0, 1) : -Math.sign(u) * ENGINE_BRAKE * tEngine * (Math.abs(throttle) < 0.05 ? 1 : 0.3);
+    const transmitted = advanceDriveForce(ds, pushing ? Math.sign(vWant) : 0, torqueAvailable / tm.tyreR, tm.mass, h) * tm.tyreR;
+    const drive = pushing ? Math.sign(vWant) * Math.min(tEngine, transmitted) * clamp(Math.abs(short) / 0.6, 0, 1) : -Math.sign(u) * ENGINE_BRAKE * tEngine * (Math.abs(throttle) < 0.05 ? 1 : 0.3);
     const perWheel = drive / Math.max(tm.driven, 1);
     // brakes: asked for, parking, or a reversal at speed
     const reversal = vWant * u < 0 && Math.abs(u) > 0.6;

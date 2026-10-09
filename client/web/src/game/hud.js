@@ -452,6 +452,7 @@ export class Hud {
       if (r.st.textContent !== text) r.st.textContent = text;
       const state = s.hot ? 'hot' : s.heat > 0.6 ? 'warm' : 'cool';
       if (r.row.dataset.state !== state) r.row.dataset.state = state;
+      r.row.dataset.sighting = s.sighting ? '1' : '0';
     });
   }
 

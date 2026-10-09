@@ -12,8 +12,12 @@
       "thickness_mm": {"type":"number","exclusiveMinimum":0},
       "center": {"$ref":"#/$defs/vec3"}, "normal": {"$ref":"#/$defs/vec3"}, "axis_u": {"$ref":"#/$defs/vec3"},
       "half_u": {"type":"number","exclusiveMinimum":0}, "half_v": {"type":"number","exclusiveMinimum":0},
-      "curvature": {"type":"number","default":0}
+      "curvature": {"type":"number","default":0},
+      "hinge": {"type":"object","required":["a","b","angle"],"additionalProperties":false,
+        "properties":{"a":{"$ref":"#/$defs/point3"},"b":{"$ref":"#/$defs/point3"},"angle":{"type":"number","minimum":-180,"maximum":180}},
+        "description":"Hull-mounted folding panel: rotate center, normal and axis_u around a-b by angle times fold. Coordinates are metres and angle is degrees."}
     }
   },
-  "$defs": {"vec3": {"type":"object","required":["x","y","z"],"properties":{"x":{"type":"number"},"y":{"type":"number"},"z":{"type":"number"}}}}
+  "$defs": {"vec3": {"type":"object","required":["x","y","z"],"properties":{"x":{"type":"number"},"y":{"type":"number"},"z":{"type":"number"}}},
+    "point3":{"type":"array","minItems":3,"maxItems":3,"items":{"type":"number"}}}
 }

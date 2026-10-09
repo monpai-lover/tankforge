@@ -1,0 +1,875 @@
+{
+ "baseline_revision": "bf197b39c4f904298e61c2599a9203f1e388adee",
+ "archive": "tools/sources/flak38t-reconstruction-v2.glb.gz",
+ "glb_sha256": "7323641ce937a8951d27ee9e947c155005a32f1596ecdf297b47c75ee12f25f9",
+ "glb_bytes": 9858920,
+ "source_asset": {
+  "version": "2.0",
+  "generator": "Independent multi-angle Flak 38(t) reconstruction revision 5",
+  "copyright": "Independent geometry. Visual reference: Basic Hsu, Sketchfab 071822b9d2384664a964996cfb788544."
+ },
+ "ownership": "User-supplied source; existing permission, no new licence inferred",
+ "panel_triangles": {
+  "Folding casemate armor 2": 220,
+  "Folding casemate armor 3": 412,
+  "Folding casemate armor 4": 220,
+  "Folding casemate armor 5": 220,
+  "Folding casemate armor 6": 220,
+  "Folding casemate armor 7": 412,
+  "Folding casemate armor 8": 220
+ },
+ "hinges": {
+  "Folding casemate armor 2": {
+   "a": [
+    1.26332,
+    1.26293004,
+    2.03417809
+   ],
+   "b": [
+    1.30104005,
+    1.26293004,
+    1.94789
+   ],
+   "angle": 90
+  },
+  "Folding casemate armor 3": {
+   "a": [
+    1.30104005,
+    1.26293004,
+    1.94789
+   ],
+   "b": [
+    1.30104005,
+    1.26293004,
+    -0.54118
+   ],
+   "angle": 90
+  },
+  "Folding casemate armor 4": {
+   "a": [
+    1.30104005,
+    1.26293004,
+    -0.54118
+   ],
+   "b": [
+    0.887,
+    1.26293004,
+    -2.1121
+   ],
+   "angle": 90
+  },
+  "Folding casemate armor 5": {
+   "a": [
+    0.887,
+    1.26293004,
+    -2.1121
+   ],
+   "b": [
+    -0.887,
+    1.26293004,
+    -2.1121
+   ],
+   "angle": 90
+  },
+  "Folding casemate armor 6": {
+   "a": [
+    -0.887,
+    1.26293004,
+    -2.1121
+   ],
+   "b": [
+    -1.30104005,
+    1.26293004,
+    -0.54118
+   ],
+   "angle": 90
+  },
+  "Folding casemate armor 7": {
+   "a": [
+    -1.30104005,
+    1.26293004,
+    -0.54118
+   ],
+   "b": [
+    -1.30104005,
+    1.26293004,
+    1.94789
+   ],
+   "angle": 90
+  },
+  "Folding casemate armor 8": {
+   "a": [
+    -1.30104005,
+    1.26293004,
+    1.94789
+   ],
+   "b": [
+    -1.26332,
+    1.26293004,
+    2.03417809
+   ],
+   "angle": 90
+  }
+ },
+ "narrow_gun_shield": "Retained on original traversing gun; never folded",
+ "original_triangles": 156060,
+ "repaired_triangles": 156060,
+ "clearance_m": 0.025,
+ "fold_depression_stages": [
+  {
+   "fold": 0,
+   "angles": [
+    5.0,
+    5.0,
+    5.0,
+    5.0,
+    4.5,
+    -9.0,
+    -9.0,
+    5.0,
+    5.0,
+    5.0,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    5,
+    4.0,
+    4.0,
+    5.0,
+    5.0,
+    5.0
+   ]
+  },
+  {
+   "fold": 0.25,
+   "angles": [
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    3.5,
+    -12.0,
+    -12.0,
+    -0.5,
+    -2.5,
+    -2.5,
+    -2.5,
+    -2.0,
+    -2.0,
+    -2.0,
+    7.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    7.0,
+    -2.0,
+    -2.25,
+    -2.25,
+    -2.5,
+    -2.5,
+    -2.5,
+    -2.0,
+    -2.0,
+    -5.0,
+    -5.0,
+    10.0,
+    10.0,
+    10.0
+   ]
+  },
+  {
+   "fold": 0.5,
+   "angles": [
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    -1.75,
+    -2.0,
+    -2.0,
+    -2.0,
+    -2.0,
+    -2.0,
+    -1.75,
+    -0.875,
+    7.5,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    4.5,
+    -0.5,
+    -1.75,
+    -2.0,
+    -2.0,
+    -2.0,
+    -2.0,
+    -2.0,
+    -1.75,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0
+   ]
+  },
+  {
+   "fold": 0.75,
+   "angles": [
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    4.0,
+    1.0,
+    1.5,
+    1.5,
+    1.5,
+    1.0,
+    2.5,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    2.5,
+    1.0,
+    1.5,
+    1.5,
+    1.5,
+    1.0,
+    4.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0
+   ]
+  },
+  {
+   "fold": 1,
+   "angles": [
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0,
+    10.0
+   ]
+  }
+ ],
+ "folded_yaw_limit_deg": [
+  -180,
+  180
+ ],
+ "fold_yaw_limit_stages": [
+  {
+   "fold": 0,
+   "limits": [
+    -45,
+    95
+   ]
+  },
+  {
+   "fold": 0.25,
+   "limits": [
+    -180,
+    180
+   ]
+  },
+  {
+   "fold": 0.5,
+   "limits": [
+    -180,
+    180
+   ]
+  },
+  {
+   "fold": 0.75,
+   "limits": [
+    -180,
+    180
+   ]
+  },
+  {
+   "fold": 1,
+   "limits": [
+    -180,
+    180
+   ]
+  }
+ ],
+ "clearance_method": "All preserved weapon triangle edges against convex source panel outlines; 1/16 fold and 5 degree bearing checks",
+ "unsafe_fixed_mount_policy": "Bearings where original traverse hardware intersects a raised panel are gated; no sentinel elevation bypass",
+ "armor_plates": [
+  {
+   "id": "hull_upper_front",
+   "zone": "hull_upper_front",
+   "material": "rha",
+   "thickness_mm": 60,
+   "center": {
+    "x": 0.0,
+    "y": 1.475,
+    "z": 1.8401
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.9223,
+    "z": 0.3864
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.0,
+   "half_v": 0.5306
+  },
+  {
+   "id": "hull_lower_front",
+   "zone": "hull_lower_front",
+   "material": "rha",
+   "thickness_mm": 60,
+   "center": {
+    "x": 0.0,
+    "y": 0.83,
+    "z": 2.33
+   },
+   "normal": {
+    "x": 0.0,
+    "y": -0.4141,
+    "z": 0.9102
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.68,
+   "half_v": 0.3
+  },
+  {
+   "id": "hull_side_r",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 1.1098,
+    "y": 0.89,
+    "z": -0.05
+   },
+   "normal": {
+    "x": 0.7511,
+    "y": 0.6602,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 1.9,
+   "half_v": 0.37
+  },
+  {
+   "id": "hull_side_l",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": -1.1098,
+    "y": 0.89,
+    "z": -0.05
+   },
+   "normal": {
+    "x": -0.7511,
+    "y": 0.6602,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 1.9,
+   "half_v": 0.37
+  },
+  {
+   "id": "hull_sponson_r",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 1.29,
+    "y": 1.145,
+    "z": 0.0
+   },
+   "normal": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 2.25,
+   "half_v": 0.12
+  },
+  {
+   "id": "hull_sponson_l",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": -1.29,
+    "y": 1.145,
+    "z": 0.0
+   },
+   "normal": {
+    "x": -1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 2.25,
+   "half_v": 0.12
+  },
+  {
+   "id": "hull_lower_side_r",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 0.68,
+    "y": 0.71,
+    "z": 0.0
+   },
+   "normal": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 2.2,
+   "half_v": 0.3
+  },
+  {
+   "id": "hull_lower_side_l",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": -0.68,
+    "y": 0.71,
+    "z": 0.0
+   },
+   "normal": {
+    "x": -1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 2.2,
+   "half_v": 0.3
+  },
+  {
+   "id": "hull_rear",
+   "zone": "hull_rear",
+   "material": "rha",
+   "thickness_mm": 8,
+   "center": {
+    "x": 0.0,
+    "y": 1.475,
+    "z": -2.0103
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.89,
+    "z": -0.456
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.85,
+   "half_v": 0.4495
+  },
+  {
+   "id": "hull_rear_lower",
+   "zone": "hull_rear",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 0.0,
+    "y": 0.8,
+    "z": -2.36
+   },
+   "normal": {
+    "x": 0.0,
+    "y": -0.2,
+    "z": -0.9798
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.68,
+   "half_v": 0.3
+  },
+  {
+   "id": "hull_floor",
+   "zone": "hull_floor",
+   "material": "rha",
+   "thickness_mm": 10,
+   "center": {
+    "x": 0.0,
+    "y": 0.4,
+    "z": 0.0
+   },
+   "normal": {
+    "x": 0.0,
+    "y": -1.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.66,
+   "half_v": 2.0
+  },
+  {
+   "id": "folding_folding_casemate_armor_2",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 0.99456,
+    "y": 1.60797,
+    "z": 1.43477
+   },
+   "normal": {
+    "x": 0.53372,
+    "y": 0.81284,
+    "z": 0.23331
+   },
+   "axis_u": {
+    "x": 0.40054,
+    "y": 0.0,
+    "z": -0.91628
+   },
+   "half_u": 0.44157353602349775,
+   "half_v": 0.5963655380698292,
+   "hinge": {
+    "a": [
+     1.26332,
+     1.26293004,
+     2.03417809
+    ],
+    "b": [
+     1.30104005,
+     1.26293004,
+     1.94789
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_folding_casemate_armor_3",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 1.01375,
+    "y": 1.60771,
+    "z": 0.70336
+   },
+   "normal": {
+    "x": 0.77229,
+    "y": 0.63528,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "half_u": 1.244534969329834,
+   "half_v": 0.44885868715857585,
+   "hinge": {
+    "a": [
+     1.30104005,
+     1.26293004,
+     1.94789
+    ],
+    "b": [
+     1.30104005,
+     1.26293004,
+     -0.54118
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_folding_casemate_armor_4",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 0.83664,
+    "y": 1.61695,
+    "z": -1.25882
+   },
+   "normal": {
+    "x": 0.75562,
+    "y": 0.624,
+    "z": -0.19916
+   },
+   "axis_u": {
+    "x": -0.25486,
+    "y": 0.0,
+    "z": -0.96698
+   },
+   "half_u": 0.8122981970125371,
+   "half_v": 0.44803088700656857,
+   "hinge": {
+    "a": [
+     1.30104005,
+     1.26293004,
+     -0.54118
+    ],
+    "b": [
+     0.887,
+     1.26293004,
+     -2.1121
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_folding_casemate_armor_5",
+   "zone": "hull_rear",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": 0.0,
+    "y": 1.29675,
+    "z": -2.1121
+   },
+   "normal": {
+    "x": -0.0,
+    "y": -0.1247,
+    "z": -0.99219
+   },
+   "axis_u": {
+    "x": -1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.8868899941444397,
+   "half_v": 0.034611000730912944,
+   "hinge": {
+    "a": [
+     0.887,
+     1.26293004,
+     -2.1121
+    ],
+    "b": [
+     -0.887,
+     1.26293004,
+     -2.1121
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_folding_casemate_armor_6",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": -0.83072,
+    "y": 1.61204,
+    "z": -1.25726
+   },
+   "normal": {
+    "x": -0.75688,
+    "y": 0.62236,
+    "z": -0.19949
+   },
+   "axis_u": {
+    "x": -0.25486,
+    "y": 0.0,
+    "z": 0.96698
+   },
+   "half_u": 0.8122980727557515,
+   "half_v": 0.44280046990634075,
+   "hinge": {
+    "a": [
+     -0.887,
+     1.26293004,
+     -2.1121
+    ],
+    "b": [
+     -1.30104005,
+     1.26293004,
+     -0.54118
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_folding_casemate_armor_7",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": -1.01375,
+    "y": 1.60771,
+    "z": 0.70336
+   },
+   "normal": {
+    "x": -0.77229,
+    "y": 0.63528,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 1.244534969329834,
+   "half_v": 0.4488586871585758,
+   "hinge": {
+    "a": [
+     -1.30104005,
+     1.26293004,
+     -0.54118
+    ],
+    "b": [
+     -1.30104005,
+     1.26293004,
+     1.94789
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_folding_casemate_armor_8",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 20,
+   "center": {
+    "x": -0.9904,
+    "y": 1.60797,
+    "z": 1.43984
+   },
+   "normal": {
+    "x": -0.53243,
+    "y": 0.81384,
+    "z": 0.23275
+   },
+   "axis_u": {
+    "x": 0.40054,
+    "y": 0.0,
+    "z": 0.91628
+   },
+   "half_u": 0.4352621491998435,
+   "half_v": 0.5978125357896689,
+   "hinge": {
+    "a": [
+     -1.30104005,
+     1.26293004,
+     1.94789
+    ],
+    "b": [
+     -1.26332,
+     1.26293004,
+     2.03417809
+    ],
+    "angle": 90
+   }
+  }
+ ]
+}

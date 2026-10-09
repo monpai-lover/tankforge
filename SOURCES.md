@@ -1,7 +1,7 @@
 # 歷史戰車資料來源與可信度
 
-`data/vehicles/` 下的歷史戰車外形是用 `tools/gen_vehicles.py` 依公開史料的尺寸做的**原創程序幾何**
-(稜柱、平面擠出、方塊、圓柱),沒有使用任何第三方模型、貼圖或遊戲素材。例外只有車內透視用的乘員人形與彈種圖示,見最後的「第三方素材」。炮彈穿深由 De Marre 公式依彈重、
+`data/vehicles/` 同時包含程序幾何與直接導入的模型。程序幾何由 `tools/gen_vehicles.py` 依公開尺寸建立
+(稜柱、平面擠出、方塊、圓柱)；直接導入的車輛、乘員與其他第三方素材及修改紀錄見後文，不應將整份車庫統稱為原創程序幾何。炮彈穿深由 De Marre 公式依彈重、
 初速、口徑估算,不取自任何遊戲。
 
 ## 已對照來源的數值
@@ -193,4 +193,14 @@ MIT 授權條款要求保留版權聲明:
 > Copyright (c) 2026 Kevin B. Liu — Permission is hereby granted, free of charge, to any person obtaining a copy of this
 > software and associated documentation files (the "Software"), to deal in the Software without restriction … THE SOFTWARE IS
 > PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.(全文見其 `LICENSE`)
+
+## 2026-10-09 模型與火控修復的來源
+
+- 新增 Hetzer · Sd.Kfz.140/1 炮塔為使用者核准的假想改裝，保留既有車型。來源 GLB 及原作者／CC-BY 等聲明見 `data/vehicles/de_hetzer_sdkfz1401/source/README.md`；沒有將整份模型改標為 MIT 或原創。主炮 25° 展示姿勢以實測铰軸歸零，槍口、輪組與新增首上裝甲按源網格校準。改裝重量、內裝及底盤性能仍為估計。
+- BMP-K-64 共同底盤／Konkurs 原模型從使用者 HTML 的純文字 gzip/base64 內容恢復，GLB 原檔與雜湊保留在 `data/vehicles/xp_bmp_k64/source/`；未執行查看器腳本。KPVT 和 Kornet 的獨立原始 GLB 尚缺，其完整幾何取自工具鎖定的原 Git packed 模型。胎紋改按真正 Wheel 節點綁定；KPVT／Konkurs 實際展示仰角各為 15°／10°；舱蓋按原铰軸閉合。三款防護共用 T-64A 參數；205 mm 通用複合材料為近似，未實作逐層 80／105／20 mm 材料計算。
+- 程序式 Hetzer 炮座法蘭及後格柵依本模型甲板面修復；防空車座椅按現有乘員胸部原點校正。FlakPz 38(t) 短尾管是對既有消音器的程序裝配補全，其朝向沒有實車照片量測認證。Hetzer、Hetzer Flak、FlakPz 38(t) 與新改裝版排氣點均有對應模型管口；其它使用引擎位置推算的出口仍屬近似，不能視為全車隊已實車核准。
+- 雙管發射位置取自 M901 程序模型及 BMP 原管口，兩枚待發彈與同時導引為明確火控狀態。機關炮側向噴流與後座、HUD 縮放、機槍獨立選擇、數字鍵彈種選擇及漸接合傳動是本專案修復，未匯入 Claude of Tanks 專有素材。
+- AT-T／M46 原始 Cab_Cut_Down 高護板與四塊床欄共六組來源鉸鏈，完整移動6,680個原三角面；原前铲具、架與鏈條2,636個三角面整體移至右前側水平收納。來源壓縮GLB、雜湊、實測射界與65階段避讓紀錄保留在 `tools/sources/` 和該車 `folding-source.json`。MK103兩塗裝同樣保留七組來源護板；沒有據這些自訂折板宣稱為歷史量產配置。
+
+完整研究見 `docs/claude-of-tanks-research.md`；修復驗收、折板來源及已知限制見 `docs/vehicle-fixes-2026-10-09.md` 與各車的 `folding-source.json`。
 

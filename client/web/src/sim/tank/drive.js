@@ -11,6 +11,7 @@
 import { torqueAt } from '../physics.js';
 import { GRAVITY } from './body.js';
 import { clamp } from './math3.js';
+import { advanceDriveForce } from '../drivetrain.js';
 
 const SPEED_ERR_SAT = 0.5;
 const ENGINE_BRAKE = 0.25;
@@ -35,6 +36,8 @@ export function newDriveState(dr) {
     brakes: { 1: 0, [-1]: 0 },
     load: 0,
     reversing: false,
+    driveForce: 0,
+    driveDirection: 0,
   };
 }
 
@@ -128,9 +131,10 @@ export function driveStep(dr, ds, input, env, dt) {
   // the engine pushes whenever the tracks are short of the way the driver wants to go (also when
   // rolling back on a slope); slowing them is engine braking
   const pushing = Math.abs(meanTarget) > 0.05 ? (meanTarget - mean) * Math.sign(meanTarget) > 0 : false;
+  const transmitted = advanceDriveForce(ds, pushing ? Math.sign(meanTarget) : 0, forceAt(ds.gear), dr.mass, dt);
   // the steering gear can push the tracks apart as hard as they can grip, within the engine power
   const steerCap = Math.min(0.45 * dr.mass * GRAVITY, p.power / (2 * Math.max(Math.abs(diff) / 2, 0.5)));
-  ds.motor = { mean: meanTarget, meanCap: pushing ? fEng : ENGINE_BRAKE * fEng, diff: diffTarget, diffCap: steerCap, pushing };
+  ds.motor = { mean: meanTarget, meanCap: pushing ? Math.min(fEng, transmitted) : ENGINE_BRAKE * fEng, diff: diffTarget, diffCap: steerCap, pushing };
   ds.fEng = fEng;
 
   // ---- brakes: asked for, parking, or a reversal at speed

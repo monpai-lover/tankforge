@@ -1,0 +1,65 @@
+{
+ "id": "de_hetzer_sdkfz1401",
+ "name": "Hetzer · Sd.Kfz.140/1 炮塔（假想改裝）",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "spaa",
+  "year": 0,
+  "outline": "model",
+  "based_on": "Custom Hetzer chassis with transplanted Sd.Kfz.140/1 Hanglafette 38 turret",
+  "notes": "User-supplied hypothetical custom conversion, not a historical production vehicle. Source: Hetzer_Sdkfz1401_Turret.glb, SHA-256 e2bca986bb858916221338dfdeb91c9b2051321783102a507fc9b3b1d7be1005. Original geometry retained; the baked 25 degree gun display pose is neutralized at import. Chassis mass, suspension and armour inherit the existing Hetzer gameplay estimates; conversion mass, interior and mobility have no historical measured validation. The KwK 38 L/55 nominal tube length is 1100 mm; the longer muzzle offset includes its mounting geometry."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   2.63,
+   1.96,
+   4.85
+  ],
+  "mass_kg": 13800,
+  "center_of_mass": [
+   0,
+   0.92,
+   -0.05
+  ]
+ },
+ "turret": {
+  "size_m": [
+   1.7,
+   0.75,
+   1.78
+  ],
+  "ring_diameter_m": 1.36,
+  "position_m": [
+   0.0,
+   1.92,
+   0.15
+  ],
+  "open_top": true
+ },
+ "physics": {
+  "track_width_m": 0.35,
+  "track_length_m": 2.85,
+  "suspension": {
+   "travel_m": 0.15,
+   "stiffness": 160000,
+   "damping": 12000
+  },
+  "rolling_resistance": 0.04,
+  "sprocket_radius_m": 0.3,
+  "drivetrain_efficiency": 0.82,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 28.0,
+  "max_reverse_speed_ms": 2.0,
+  "min_turn_radius_m": 0.0
+ }
+}

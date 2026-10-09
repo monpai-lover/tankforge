@@ -15,6 +15,8 @@ use crate::Input;
 const SPEED_ERR_SAT: f64 = 0.5;
 const ENGINE_BRAKE: f64 = 0.25;
 const CREEP_SPEED: f64 = 2.0;
+const FORCE_RISE_ACCEL_S: f64 = 4.0;
+const MAX_TAKEUP_S: f64 = 1.5;
 /// Each track's effective mass (links, wheels and drivetrain inertia), share of the vehicle's.
 pub const BELT_MASS_SHARE: f64 = 0.06;
 
@@ -44,6 +46,9 @@ pub struct DriveState {
     pub load: f64,
     pub reversing: bool,
     pub braking: bool,
+    /// Engine/clutch take-up, mirrored by sim/drivetrain.js; service brakes remain immediate.
+    pub drive_force: f64,
+    pub drive_direction: f64,
 }
 
 impl DriveState {
@@ -60,6 +65,8 @@ impl DriveState {
             load: 0.0,
             reversing: false,
             braking: false,
+            drive_force: 0.0,
+            drive_direction: 0.0,
         }
     }
 }
@@ -106,9 +113,20 @@ pub fn drive_step(pt: &Powertrain, mass: f64, ds: &mut DriveState, input: Input,
     // the engine pushes whenever the tracks are short of the way the driver wants to go (also
     // when rolling back on a slope); slowing them is engine braking
     let pushing = if mean_target.abs() > 0.05 { (mean_target - mean) * sign(mean_target) > 0.0 } else { false };
+    let direction = if pushing { sign(mean_target) } else { 0.0 };
+    if direction != 0.0 && ds.drive_direction != 0.0 && direction != ds.drive_direction {
+        ds.drive_force = 0.0;
+    }
+    if direction != 0.0 { ds.drive_direction = direction; }
+    let available = pt.force_at(pt.wheel_rpm(avg_track), ds.gearbox.gear);
+    // A gear/governor power cut retains clutch take-up; the delivered motor force below is
+    // still limited by the current engine output (and is zero during the actual shift).
+    let target = if direction != 0.0 { available.max(ds.drive_force) } else { 0.0 };
+    let rise = (mass * FORCE_RISE_ACCEL_S).max(available / MAX_TAKEUP_S);
+    ds.drive_force = target.min(ds.drive_force + rise * dt);
     // the steering gear can push the tracks apart as hard as they can grip, within the engine power
     let steer_cap = (0.45 * mass * GRAVITY).min(pt.power / (2.0 * (diff.abs() / 2.0).max(0.5)));
-    ds.motor = Motor { mean: mean_target, mean_cap: if pushing { f_eng } else { ENGINE_BRAKE * f_eng }, diff: diff_target, diff_cap: steer_cap, pushing, broken: [false; 2], f_mean: 0.0, f_steer: 0.0 };
+    ds.motor = Motor { mean: mean_target, mean_cap: if pushing { f_eng.min(ds.drive_force) } else { ENGINE_BRAKE * f_eng }, diff: diff_target, diff_cap: steer_cap, pushing, broken: [false; 2], f_mean: 0.0, f_steer: 0.0 };
     ds.f_eng = f_eng;
 
     // ---- brakes: asked for, parking, or a reversal at speed

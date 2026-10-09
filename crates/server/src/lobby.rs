@@ -297,6 +297,8 @@ pub enum ServerMsg {
     },
     /// A missile left a launcher: its id in the battle (the shooter's `seq` tells it which).
     Launched { from: u32, seq: u32, id: u32, missile: String, o: [f64; 3], d: [f64; 3] },
+    /// The requested tube did not fire. The client retains it and may retry after this interval.
+    LaunchRejected { seq: u32, reason: String, retry_after_s: f64 },
     Fire { from: u32, seq: u32, o: [f64; 3], d: [f64; 3], shell: String },
     Damage {
         target: u32,
@@ -372,6 +374,8 @@ pub struct Player {
     /// Missiles and rockets still on board (by missile id) and when the last one left.
     missiles_left: HashMap<String, u32>,
     last_launch: f64,
+    /// Retries replay across reconnects and respawns; reset on leaving or starting a new round.
+    launch_receipts: HashMap<u32, ServerMsg>,
 }
 
 #[derive(Clone, Debug)]
@@ -547,7 +551,7 @@ impl Lobby {
         let token = self.new_token(id);
         self.players.insert(
             id,
-            Player { id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY },
+            Player { id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new() },
         );
         (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token }), (id, self.room_list())])
     }
@@ -680,6 +684,7 @@ impl Lobby {
             p.room = None;
             p.ready = false;
             p.state = None;
+            p.launch_receipts.clear();
         }
         let mut out = vec![(id, ServerMsg::LeftRoom)];
         let empty = match self.rooms.get_mut(&room) {
@@ -904,6 +909,7 @@ impl Lobby {
                     r.world = Some(w);
                 }
                 for m in &members {
+                    if let Some(p) = self.players.get_mut(m) { p.launch_receipts.clear(); }
                     if deploy {
                         self.bench(*m);
                     } else {
@@ -1276,6 +1282,9 @@ impl Lobby {
     fn apply_shot(&mut self, id: u32, room: u32, target: u32, shell: ProjectileDef, o: Vec3, d: Vec3, speed: f32, dist: f32, seed: u64, yaw: f32, mg: bool, now: f64) -> Out {
         let vehicle = self.players[&target].vehicle.clone();
         let Some(tgt) = self.targets.get(&vehicle) else { return Vec::new() };
+        let fold = self.players[&target].state.as_ref().map(crate::missiles::fold_of).unwrap_or(0.0);
+        let folded = if fold > 0.0 && tgt.has_hinges() { Some(tgt.folded(fold)) } else { None };
+        let tgt = folded.as_ref().unwrap_or(tgt);
         let before = self.players[&target].combat.clone().unwrap_or_else(|| tgt.fresh_state());
         let r = tg_combat::shoot(tgt, &before, &tg_combat::Shot { shell, origin: o, dir: d, speed_ms: speed, distance_m: dist, seed, turret_yaw: yaw });
         if mg && r.modules.is_empty() && r.crew.is_empty() && !r.caps.destroyed {
@@ -1423,28 +1432,51 @@ impl Lobby {
 type Sky = (Vec<Value>, Vec<Value>, Vec<Value>, Vec<Value>);
 
 impl Lobby {
+    fn reject_launch(id: u32, seq: u32, reason: &str, retry_after_s: f64) -> Out {
+        vec![(id, ServerMsg::LaunchRejected { seq, reason: reason.into(), retry_after_s })]
+    }
+
     /// A player launches a missile or rocket their vehicle carries.
     fn launch(&mut self, id: u32, seq: u32, missile: &str, o: [f64; 3], d: [f64; 3], now: f64) -> Out {
-        let Some(p) = self.players.get(&id) else { return Vec::new() };
-        let Some(room) = p.room else { return Vec::new() };
-        if !p.alive || !o.iter().chain(d.iter()).all(|x| x.is_finite()) {
-            return Vec::new();
+        let Some(p) = self.players.get(&id) else { return Self::reject_launch(id, seq, "unknown_player", 0.0) };
+        if let Some(receipt) = p.launch_receipts.get(&seq) {
+            if let ServerMsg::Launched { missile: original, o: origin, d: direction, .. } = receipt {
+                if original.as_str() == missile && *origin == o && *direction == d {
+                    return vec![(id, receipt.clone())];
+                }
+            }
+            return Self::reject_launch(id, seq, "sequence_conflict", 0.0);
+        }
+        let Some(room) = p.room else { return Self::reject_launch(id, seq, "not_in_room", 0.0) };
+        if !p.alive { return Self::reject_launch(id, seq, "destroyed", 0.0); }
+        let direction_length_sq: f64 = d.iter().map(|v| v * v).sum();
+        if !o.iter().chain(d.iter()).all(|x| x.is_finite()) || !direction_length_sq.is_finite() || direction_length_sq < 1e-12 {
+            return Self::reject_launch(id, seq, "invalid_launch", 0.0);
+        }
+        if !self.rooms.get(&room).is_some_and(|r| r.playing && r.world.is_some()) {
+            return Self::reject_launch(id, seq, "not_in_battle", 0.0);
         }
         // from the vehicle, from what it carries, not faster than a launcher can
         let near = p.state.as_ref().and_then(pos_of).map(|q| ((q[0] - o[0]).powi(2) + (q[2] - o[2]).powi(2)).sqrt() < 12.0).unwrap_or(false);
-        if !near || p.missiles_left.get(missile).copied().unwrap_or(0) == 0 || now - p.last_launch < 0.25 {
-            return Vec::new();
+        if !near { return Self::reject_launch(id, seq, "invalid_origin", 0.0); }
+        if p.missiles_left.get(missile).copied().unwrap_or(0) == 0 {
+            return Self::reject_launch(id, seq, "no_ammo", 0.0);
+        }
+        if now - p.last_launch < 0.25 {
+            return Self::reject_launch(id, seq, "rate_limited", 0.25 - (now - p.last_launch));
         }
         let team = team_index(p.team);
         let seed = (shot_seed(id, seq) & 0xffff_ffff) as u32;
-        let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) else { return Vec::new() };
-        let Some(mid) = w.launch(missile, id, team, o, d, seed) else { return Vec::new() };
+        let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) else { return Self::reject_launch(id, seq, "not_in_battle", 0.0) };
+        let Some(mid) = w.launch(missile, id, team, o, d, seed) else { return Self::reject_launch(id, seq, "launch_failed", 0.0) };
         let p = self.players.get_mut(&id).expect("player");
         if let Some(n) = p.missiles_left.get_mut(missile) {
             *n -= 1;
         }
         p.last_launch = now;
-        self.to_room(room, ServerMsg::Launched { from: id, seq, id: mid, missile: missile.into(), o, d })
+        let receipt = ServerMsg::Launched { from: id, seq, id: mid, missile: missile.into(), o, d };
+        p.launch_receipts.insert(seq, receipt.clone());
+        self.to_room(room, receipt)
     }
 
     /// Every battle's missiles and protection systems for `dt`: what the clients draw, and the
@@ -1917,6 +1949,36 @@ mod tests {
     }
 
     #[test]
+    fn shot_resolution_uses_the_defenders_current_folded_wall_pose() {
+        let (mut l, a, b) = battle();
+        let room = l.players[&b].room.unwrap();
+        let vehicle = l.players[&b].vehicle.clone();
+        let def = serde_json::from_value(json!({
+            "id": vehicle, "modules": [], "crew": [],
+            "plates": [{ "id": "fold_side", "zone": "hull_side", "material": "rha", "thickness_mm": 200,
+                "center": { "x": 1.5, "y": 2.2, "z": 0 }, "normal": { "x": 1, "y": 0, "z": 0 },
+                "axis_u": { "x": 0, "y": 0, "z": 1 }, "half_u": 3, "half_v": 0.4,
+                "hinge": { "a": [1.5, 1.8, -3], "b": [1.5, 1.8, 3], "angle": -90 } }]
+        })).unwrap();
+        l.targets.insert(vehicle.clone(), Target::new(def, &[]));
+        let initial = l.targets[&vehicle].fresh_state();
+        for (fold, expected_plate) in [(0.0, Some("fold_side")), (0.5, Some("fold_side")), (1.0, None), (0.0, Some("fold_side"))] {
+            let mut s = state(0.0);
+            s["fold"] = json!(fold);
+            l.handle(b, ClientMsg::State { s }, 0.1);
+            l.players.get_mut(&b).unwrap().combat = Some(initial.clone());
+            let out = l.apply_shot(a, room, b, ProjectileDef::generic_ap(75.0, 120.0),
+                Vec3::new(4.0, 2.2, 0.0), Vec3::new(-1.0, 0.0, 0.0), 800.0, 0.0, 17, 0.0, false, 0.1);
+            let plate = msgs_to(&out, b).into_iter().find_map(|m| match m {
+                ServerMsg::Damage { plate, .. } => Some(plate.as_deref()),
+                _ => None,
+            }).expect("the authoritative shot report goes to the defender");
+            assert_eq!(plate, expected_plate, "fold = {fold}");
+        }
+        assert_eq!(l.targets[&vehicle].def.plates[0].center, Vec3::new(1.5, 2.2, 0.0));
+    }
+
+    #[test]
     fn hits_are_resolved_by_the_combat_model_and_the_report_goes_to_the_room() {
         let (mut l, a, b, _) = combat_lobby();
         assert!(l.players[&b].combat.is_some());
@@ -2063,6 +2125,90 @@ mod tests {
         (ev, msgs)
     }
 
+    fn launch_rejection(out: &Out, player: u32, seq: u32, reason: &str) -> Value {
+        let message = out.iter().find(|(to, _)| *to == player).expect("every refused launch must reply to its shooter");
+        let value = serde_json::to_value(&message.1).unwrap();
+        assert_eq!(value["t"], "launch_rejected");
+        assert_eq!(value["seq"], seq);
+        assert_eq!(value["reason"], reason);
+        value
+    }
+
+    #[test]
+    fn every_launch_rejection_preserves_ammunition_and_releases_the_client_request() {
+        for (case, reason) in [
+            ("not_in_room", "not_in_room"), ("destroyed", "destroyed"),
+            ("invalid_launch", "invalid_launch"), ("invalid_origin", "invalid_origin"),
+            ("no_state", "invalid_origin"), ("no_ammo", "no_ammo"),
+            ("rate_limited", "rate_limited"), ("not_in_battle", "not_in_battle"),
+            ("missing_world", "not_in_battle"), ("launch_failed", "launch_failed"),
+        ] {
+            let (mut l, a, _) = missile_lobby();
+            let room = l.players[&a].room.unwrap();
+            let mut origin = [0.0, 2.3, 2.0];
+            let mut dir = [0.0, 0.0, 1.0];
+            let mut missile = "bgm71a_tow";
+            match case {
+                "not_in_room" => l.players.get_mut(&a).unwrap().room = None,
+                "destroyed" => l.players.get_mut(&a).unwrap().alive = false,
+                "invalid_launch" => dir = [0.0; 3],
+                "invalid_origin" => origin[2] = 300.0,
+                "no_state" => l.players.get_mut(&a).unwrap().state = None,
+                "no_ammo" => { l.players.get_mut(&a).unwrap().missiles_left.insert(missile.into(), 0); },
+                "rate_limited" => l.players.get_mut(&a).unwrap().last_launch = 1.0,
+                "not_in_battle" => l.rooms.get_mut(&room).unwrap().playing = false,
+                "missing_world" => l.rooms.get_mut(&room).unwrap().world = None,
+                "launch_failed" => {
+                    missile = "unknown_test_missile";
+                    l.players.get_mut(&a).unwrap().missiles_left.insert(missile.into(), 1);
+                },
+                _ => unreachable!(),
+            }
+            let before = l.players[&a].missiles_left.clone();
+            let out = l.launch(a, 41, missile, origin, dir, 1.1);
+            let rejected = launch_rejection(&out, a, 41, reason);
+            assert_eq!(l.players[&a].missiles_left, before, "{case}");
+            if case == "rate_limited" {
+                assert!(rejected["retry_after_s"].as_f64().unwrap() > 0.14);
+            }
+        }
+    }
+
+    #[test]
+    fn a_lost_launch_ack_can_be_retried_with_the_same_sequence_without_launching_twice() {
+        let (mut l, a, _) = missile_lobby();
+        let origin = [0.0, 2.3, 2.0];
+        let dir = [0.0, 0.0, 1.0];
+        let first = l.launch(a, 51, "bgm71a_tow", origin, dir, 0.1);
+        let receipt = first.iter().find(|(to, _)| *to == a).unwrap().1.clone();
+        assert!(matches!(&receipt, ServerMsg::Launched { .. }));
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 11);
+        let repeated = l.launch(a, 51, "bgm71a_tow", origin, dir, 0.2);
+        assert_eq!(repeated, vec![(a, receipt.clone())], "only the shooter needs its original ACK replayed");
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 11);
+        l.spawn(a, 1.0);
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 12);
+        let after_respawn = l.launch(a, 51, "bgm71a_tow", origin, dir, 1.1);
+        assert_eq!(after_respawn, vec![(a, receipt.clone())], "retrying an old launch cannot spend a respawn's new ammunition");
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 12);
+        let conflict = l.launch(a, 51, "bgm71a_tow", [0.1, 2.3, 2.0], dir, 0.5);
+        launch_rejection(&conflict, a, 51, "sequence_conflict");
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 12);
+    }
+
+    #[test]
+    fn a_rate_rejected_second_missile_keeps_its_ammunition_for_a_later_retry() {
+        let (mut l, a, _) = missile_lobby();
+        let origin = [0.0, 2.3, 2.0];
+        let dir = [0.0, 0.0, 1.0];
+        assert!(l.launch(a, 61, "bgm71a_tow", origin, dir, 0.1).iter().any(|(_, m)| matches!(m, ServerMsg::Launched { .. })));
+        let rejected = l.launch(a, 62, "bgm71a_tow", origin, dir, 0.3);
+        launch_rejection(&rejected, a, 62, "rate_limited");
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 11);
+        assert!(l.launch(a, 62, "bgm71a_tow", origin, dir, 0.4).iter().any(|(_, m)| matches!(m, ServerMsg::Launched { .. })));
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 10);
+    }
+
     #[test]
     fn the_server_flies_missiles_and_the_oplot_mo_shoots_them_down() {
         let (mut l, a, b) = missile_lobby();
@@ -2070,8 +2216,8 @@ mod tests {
         // the protection system is the T-10M's, registered at spawn
         assert!(l.rooms.values().any(|r| r.world.as_ref().map(|w| w.aps_of(b).is_some()).unwrap_or(false)));
         // a launch from far away from the launcher, or of a missile it does not carry, is refused
-        assert!(l.handle(a, ClientMsg::Launch { seq: 1, missile: "bgm71a_tow".into(), o: [0.0, 2.0, 300.0], d: [0.0, 0.0, 1.0] }, 1.0).is_empty());
-        assert!(l.handle(a, ClientMsg::Launch { seq: 2, missile: "tt250_rocket".into(), o: [0.0, 2.0, 2.0], d: [0.0, 0.0, 1.0] }, 1.0).is_empty());
+        launch_rejection(&l.handle(a, ClientMsg::Launch { seq: 1, missile: "bgm71a_tow".into(), o: [0.0, 2.0, 300.0], d: [0.0, 0.0, 1.0] }, 1.0), a, 1, "invalid_origin");
+        launch_rejection(&l.handle(a, ClientMsg::Launch { seq: 2, missile: "tt250_rocket".into(), o: [0.0, 2.0, 2.0], d: [0.0, 0.0, 1.0] }, 1.0), a, 2, "no_ammo");
         let kind = |e: &Value| e["type"].as_str().unwrap_or("").to_string();
         let mut downed = 0;
         for k in 0..4u32 {

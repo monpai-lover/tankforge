@@ -134,6 +134,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   const hinges = [];
   for (const { h, b } of hingeGroups.values()) {
     const node = meshNode('hinged_flap', body, b);
+    hingeGroups.get(JSON.stringify([h.a, h.b, h.angle])).node = node;
     shellNodes.push(node);
     const d = [h.b[0] - h.a[0], h.b[1] - h.a[1], h.b[2] - h.a[2]];
     const l = Math.hypot(d[0], d[1], d[2]) || 1;
@@ -160,12 +161,29 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   };
   let hullLow = hullBuilder.vertexCount ? hullBuilder.min[1] : Infinity;
   let top = hullBuilder.vertexCount ? hullBuilder.max[1] : 0;
-  for (const [p, i] of impParts('hull')) {
+  for (const [p, i] of impParts('hull', p => !p.hinge)) {
     shellNodes.push(impNode(body, 'hull_model', p, i, [0, 0, 0]));
     // the belly: the lowest of the hull's pieces between the tracks
     if (Math.abs((p.lo[0] + p.hi[0]) / 2) < 0.5) hullLow = Math.min(hullLow, p.lo[1]);
     top = Math.max(top, p.hi[1]);
   }
+  // Source-textured armour panels keep the same hinge contract as procedural
+  // flaps. Their vertices remain in hull space; only the named panel node folds.
+  for (const [p, i] of impParts('hull', p => !!p.hinge)) {
+    const h = p.hinge;
+    const key = JSON.stringify([h.a, h.b, h.angle]);
+    if (!hingeGroups.has(key)) {
+      const node = body.add(new Node('imported_flap'));
+      const d = h.b.map((v, k) => v - h.a[k]);
+      const len = Math.hypot(...d) || 1;
+      hingeGroups.set(key, { h, node });
+      hinges.push({ node, a: h.a, k: d.map(v => v / len), angle: h.angle * Math.PI / 180 });
+    }
+    const node = hingeGroups.get(key).node;
+    shellNodes.push(impNode(node, 'flap_model', p, i, h.a));
+    top = Math.max(top, p.hi[1]);
+  }
+  setFold(0);
   const impTurret = imp && imp.parts.some((p) => p.mount === 'turret' || p.mount === 'gun' || p.mount === 'barrel');
   const turrets = [];
   loadout.turrets.forEach((t, ti) => {

@@ -22,6 +22,11 @@ by the rules in the vehicle's import.json:
   add               [{glb, only_nodes, offset, ...}]: pieces taken from other files (only those
                     under only_nodes), each with its own placement and mount rules
   level_nodes       nodes whose own rotation is dropped (a gun modelled elevated is set level)
+  wheel_nodes       {"road_wheel:<side>:<index>": [node, ...]}: explicit ownership of every
+                    piece of a named wheel, including disconnected tread blocks. When supplied,
+                    geometric wheel guessing is disabled so fixed axle bearings stay on the hull.
+  node_rest_poses   [{nodes, pivot, rotation_x_deg}]: measured rotations in the game hull frame
+                    to remove a source display pose (for example, close a raised hatch).
   offset            [x, y, z] added after mirroring (the game's hull frame: ground at y = 0,
                     +z forward, the middle of the vehicle at x = z = 0)
   drop_materials    materials left out (the track belts: the game's own tracks run instead;
@@ -68,8 +73,6 @@ import zlib
 
 import numpy as np
 from PIL import Image
-from scipy.sparse import coo_matrix
-from scipy.sparse.csgraph import connected_components
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from gltf_util import load, scene_meshes, diffuse_texture, normal_texture  # noqa: E402
@@ -82,10 +85,27 @@ def components(P, I):
     inv = inv.ravel()
     F = inv[I]
     n = int(inv.max()) + 1
-    e = np.concatenate([F[:, [0, 1]], F[:, [1, 2]]])
-    g = coo_matrix((np.ones(len(e)), (e[:, 0], e[:, 1])), shape=(n, n))
-    _, lab = connected_components(g, directed=False)
-    return lab[F[:, 0]]
+    # Position-welded union-find avoids a SciPy runtime requirement for this
+    # otherwise NumPy/Pillow-only importer. Triangle adjacency is undirected.
+    parent = list(range(n))
+    rank = [0] * n
+
+    def root(i):
+        while parent[i] != i:
+            parent[i] = parent[parent[i]]
+            i = parent[i]
+        return i
+
+    for a, b in np.concatenate([F[:, [0, 1]], F[:, [1, 2]]]):
+        a, b = root(int(a)), root(int(b))
+        if a == b:
+            continue
+        if rank[a] < rank[b]:
+            a, b = b, a
+        parent[b] = a
+        if rank[a] == rank[b]:
+            rank[a] += 1
+    return np.array([root(int(i)) for i in F[:, 0]])
 
 
 def wheel_specs(visual):
@@ -164,6 +184,23 @@ def collect(si, j, acc, cfg, groups, counts, wheels, track_x, shared_mounts):
             P = P * np.array([-1, 1, -1])
             N = N * np.array([-1, 1, -1])
         P = P + offset
+        # Some supplied models bake a display elevation into the vertex data.
+        # Restore only the named moving gun pieces around their measured hinge;
+        # leave the fixed turret, hull and original source GLB untouched.
+        rest_tag = ''
+        rests = ([cfg['gun_rest_pose']] if cfg.get('gun_rest_pose') else []) + cfg.get('node_rest_poses', [])
+        for rest in rests:
+            selected = set(rest['nodes']) & set(names)
+            if not selected:
+                continue
+            angle = np.deg2rad(float(rest['rotation_x_deg']))
+            ca, sa = np.cos(angle), np.sin(angle)
+            R = np.array([[1, 0, 0], [0, ca, -sa], [0, sa, ca]])
+            pivot = np.asarray(rest['pivot'], float)
+            P = (P - pivot) @ R.T + pivot
+            N = N @ R.T
+            if rest in cfg.get('node_rest_poses', []):
+                rest_tag = sorted(selected)[0]
         tex = colour_key(mat)
         if tex[1] is None and 'COLOR_0' in prim['attributes']:
             # vertex colours: each triangle takes its corners' colour (sRGB, 16 levels a channel)
@@ -219,7 +256,14 @@ def collect(si, j, acc, cfg, groups, counts, wheels, track_x, shared_mounts):
             if mesh in barrel_x or under(names, 'barrel_extra_nodes') or ((mesh in barrel_m or under(names, 'barrel_nodes')) and (hi[2] - lo[2] >= min_len or (ahead is not None and lo[2] > ahead))):
                 key = 'barrel'
             shift = 0.0
-            if key == 'hull' and abs(mid[0]) > track_x - 0.35:
+            named_wheels = cfg.get('wheel_nodes')
+            if key == 'hull' and named_wheels:
+                for wk, node_names in named_wheels.items():
+                    if set(node_names) & set(names):
+                        key = wk
+                        shift = -side_dz(wk)
+                        break
+            if key == 'hull' and not named_wheels and abs(mid[0]) > track_x - 0.35:
                 # a wheel's: on its axle, no bigger than the wheel (on a side whose stations are
                 # staggered, found where they are and moved onto the game's stations)
                 for wk, wc, wr in wheels:
@@ -246,7 +290,7 @@ def collect(si, j, acc, cfg, groups, counts, wheels, track_x, shared_mounts):
             for g_i, g_nodes in (cfg.get('gun_index_nodes') or {}).items():
                 if set(g_nodes) & set(names):
                     gix = int(g_i)
-            g = groups.setdefault((key, tex, nrm, rm, tix, gix), {'P': [], 'N': [], 'UV': [], 'I': [], 'n': 0})
+            g = groups.setdefault((key, tex, nrm, rm, tix, gix, rest_tag), {'P': [], 'N': [], 'UV': [], 'I': [], 'n': 0})
             T = I[sel]
             used, inv = np.unique(T.ravel(), return_inverse=True)
             g['P'].append(P[used])
@@ -338,7 +382,7 @@ def main():
     parts = []
     lo_all = np.full(3, np.inf)
     hi_all = np.full(3, -np.inf)
-    for (key, tex, nrm, rm, tix, gix), g in sorted(groups.items(), key=lambda kv: (kv[0][0], str(kv[0][1]), kv[0][3], kv[0][4], kv[0][5])):
+    for (key, tex, nrm, rm, tix, gix, rest_tag), g in sorted(groups.items(), key=lambda kv: (kv[0][0], str(kv[0][1]), kv[0][3], kv[0][4], kv[0][5], kv[0][6])):
         P = np.concatenate(g['P'])
         N = np.concatenate(g['N'])
         UV = np.concatenate(g['UV'])
@@ -365,6 +409,8 @@ def main():
             part['turret'] = int(tix)
         if gix:
             part['gun'] = int(gix)
+        if rest_tag:
+            part['rest_pose'] = rest_tag
         if ':' in key:
             _, side, k = key.split(':')
             part['side'] = int(side)

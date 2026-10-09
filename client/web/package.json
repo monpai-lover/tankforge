@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "build": "node build.mjs",
-    "test": "node --test test/sim.test.mjs test/tank.test.mjs test/combat.test.mjs test/wheeled.test.mjs test/renderscale.test.mjs",
+    "test": "node --test test/*.test.mjs",
     "test:browser": "node test/browser.mjs"
   },
   "devDependencies": {

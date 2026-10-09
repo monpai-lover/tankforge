@@ -1,0 +1,925 @@
+{
+ "baseline_revision": "bf197b39c4f904298e61c2599a9203f1e388adee",
+ "archive": "tools/sources/AT_T_M46_130mm_PhotoReplica.glb.gz",
+ "glb_sha256": "1cc94f1313b9d10d1f3a27dd2963e13e16559713276ca60b68e24a73322d72b9",
+ "glb_bytes": 14849084,
+ "source_asset": {
+  "version": "2.0",
+  "generator": "https://github.com/mikedh/trimesh"
+ },
+ "ownership": "User-supplied source; existing permission, no new licence inferred",
+ "panel_triangles": {
+  "bed_front_left": 834,
+  "bed_front_right": 834,
+  "bed_rear_left": 1330,
+  "bed_rear_right": 1330,
+  "cab_side_left": 1176,
+  "cab_side_right": 1176
+ },
+ "hinges": {
+  "cab_side_left": {
+   "a": [
+    -1.245,
+    1.53,
+    -0.49
+   ],
+   "b": [
+    -1.245,
+    1.53,
+    1.065
+   ],
+   "angle": 90
+  },
+  "bed_front_left": {
+   "a": [
+    -1.3,
+    1.58,
+    -1.47
+   ],
+   "b": [
+    -1.3,
+    1.58,
+    -0.49
+   ],
+   "angle": 90
+  },
+  "bed_rear_left": {
+   "a": [
+    -1.315,
+    1.58,
+    -3.34
+   ],
+   "b": [
+    -1.315,
+    1.58,
+    -1.49
+   ],
+   "angle": 90
+  },
+  "cab_side_right": {
+   "a": [
+    1.245,
+    1.53,
+    -0.49
+   ],
+   "b": [
+    1.245,
+    1.53,
+    1.065
+   ],
+   "angle": -90
+  },
+  "bed_front_right": {
+   "a": [
+    1.3,
+    1.58,
+    -1.47
+   ],
+   "b": [
+    1.3,
+    1.58,
+    -0.49
+   ],
+   "angle": -90
+  },
+  "bed_rear_right": {
+   "a": [
+    1.315,
+    1.58,
+    -3.34
+   ],
+   "b": [
+    1.315,
+    1.58,
+    -1.49
+   ],
+   "angle": -90
+  }
+ },
+ "narrow_gun_shield": "Retained on original traversing gun; never folded",
+ "original_triangles": 162461,
+ "repaired_triangles": 162461,
+ "clearance_m": 0.025,
+ "fold_depression_stages": [
+  {
+   "fold": 0,
+   "angles": [
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5
+   ]
+  },
+  {
+   "fold": 0.25,
+   "angles": [
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5
+   ]
+  },
+  {
+   "fold": 0.5,
+   "angles": [
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5
+   ]
+  },
+  {
+   "fold": 0.75,
+   "angles": [
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5
+   ]
+  },
+  {
+   "fold": 1,
+   "angles": [
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5,
+    2.5
+   ]
+  }
+ ],
+ "folded_yaw_limit_deg": [
+  -90,
+  90
+ ],
+ "fold_yaw_limit_stages": [
+  {
+   "fold": 0,
+   "limits": [
+    -25,
+    25
+   ]
+  },
+  {
+   "fold": 0.25,
+   "limits": [
+    -40,
+    40
+   ]
+  },
+  {
+   "fold": 0.5,
+   "limits": [
+    -50,
+    50
+   ]
+  },
+  {
+   "fold": 0.75,
+   "limits": [
+    -90,
+    90
+   ]
+  },
+  {
+   "fold": 1,
+   "limits": [
+    -90,
+    90
+   ]
+  }
+ ],
+ "clearance_method": "All preserved weapon triangle edges against convex source panel outlines; 1/16 fold and 5 degree bearing checks",
+ "unsafe_fixed_mount_policy": "Bearings where original traverse hardware intersects a raised panel are gated; no sentinel elevation bypass",
+ "armor_plates": [
+  {
+   "id": "hull_upper_front",
+   "zone": "hull_upper_front",
+   "material": "rha",
+   "thickness_mm": 6,
+   "center": {
+    "x": 0.0,
+    "y": 2.15,
+    "z": 3.0043
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.5,
+    "z": 0.866
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.1,
+   "half_v": 0.9815
+  },
+  {
+   "id": "hull_lower_front",
+   "zone": "hull_lower_front",
+   "material": "rha",
+   "thickness_mm": 6,
+   "center": {
+    "x": 0.0,
+    "y": 0.86,
+    "z": 3.3349
+   },
+   "normal": {
+    "x": 0.0,
+    "y": -0.342,
+    "z": 0.9397
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.1,
+   "half_v": 0.4682
+  },
+  {
+   "id": "hull_side_r",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": 1.1,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "normal": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 3.345,
+   "half_v": 0.53
+  },
+  {
+   "id": "hull_side_l",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": -1.1,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "normal": {
+    "x": -1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 3.345,
+   "half_v": 0.53
+  },
+  {
+   "id": "hull_rear",
+   "zone": "hull_rear",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": 0.0,
+    "y": 1.71,
+    "z": -3.445
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.1,
+   "half_v": 1.29
+  },
+  {
+   "id": "hull_roof",
+   "zone": "hull_roof",
+   "material": "rha",
+   "thickness_mm": 3,
+   "center": {
+    "x": 0.0,
+    "y": 3.0,
+    "z": -0.3
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 1.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.1,
+   "half_v": 2.595
+  },
+  {
+   "id": "hull_floor",
+   "zone": "hull_floor",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": 0.0,
+    "y": 0.42,
+    "z": 0.0
+   },
+   "normal": {
+    "x": 0.0,
+    "y": -1.0,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.8,
+   "half_v": 3.195
+  },
+  {
+   "id": "turret_front",
+   "zone": "turret_front",
+   "material": "rha",
+   "thickness_mm": 6,
+   "center": {
+    "x": 0.0,
+    "y": 2.44,
+    "z": 0.49
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.2588,
+    "z": 0.9659
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.3,
+   "half_v": 0.85
+  },
+  {
+   "id": "gun_mantlet",
+   "zone": "gun_mantlet",
+   "material": "rha",
+   "thickness_mm": 6,
+   "center": {
+    "x": 0.0,
+    "y": 2.77,
+    "z": 0.58
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 0.4,
+   "half_v": 0.5
+  },
+  {
+   "id": "turret_side_r",
+   "zone": "turret_side",
+   "material": "rha",
+   "thickness_mm": 1,
+   "center": {
+    "x": 1.09,
+    "y": 2.7,
+    "z": -0.3785
+   },
+   "normal": {
+    "x": 0.9308,
+    "y": -0.3655,
+    "z": 0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.1875,
+   "half_v": 0.6123
+  },
+  {
+   "id": "turret_side_l",
+   "zone": "turret_side",
+   "material": "rha",
+   "thickness_mm": 1,
+   "center": {
+    "x": -1.09,
+    "y": 2.7,
+    "z": -0.3785
+   },
+   "normal": {
+    "x": -0.9308,
+    "y": -0.3655,
+    "z": 0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.1875,
+   "half_v": 0.6123
+  },
+  {
+   "id": "turret_rear",
+   "zone": "turret_rear",
+   "material": "rha",
+   "thickness_mm": 1,
+   "center": {
+    "x": 0.0,
+    "y": 2.44,
+    "z": -1.65
+   },
+   "normal": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": -1.0
+   },
+   "axis_u": {
+    "x": 1.0,
+    "y": 0.0,
+    "z": 0.0
+   },
+   "half_u": 1.3,
+   "half_v": 0.85
+  },
+  {
+   "id": "folding_cab_side_left",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": -1.24446,
+    "y": 2.10051,
+    "z": 0.2875
+   },
+   "normal": {
+    "x": -0.99993,
+    "y": -0.01183,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.7775000333786011,
+   "half_v": 0.5706198050437143,
+   "hinge": {
+    "a": [
+     -1.245,
+     1.53,
+     -0.49
+    ],
+    "b": [
+     -1.245,
+     1.53,
+     1.065
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_bed_front_left",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": -1.30022,
+    "y": 2.065,
+    "z": -0.98
+   },
+   "normal": {
+    "x": -0.99994,
+    "y": -0.01134,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.49000000953674316,
+   "half_v": 0.48509350608123636,
+   "hinge": {
+    "a": [
+     -1.3,
+     1.58,
+     -1.47
+    ],
+    "b": [
+     -1.3,
+     1.58,
+     -0.49
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_bed_rear_left",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": -1.31562,
+    "y": 1.80498,
+    "z": -2.415
+   },
+   "normal": {
+    "x": -0.99964,
+    "y": -0.02666,
+    "z": 0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.9249999523162842,
+   "half_v": 0.22523989412476741,
+   "hinge": {
+    "a": [
+     -1.315,
+     1.58,
+     -3.34
+    ],
+    "b": [
+     -1.315,
+     1.58,
+     -1.49
+    ],
+    "angle": 90
+   }
+  },
+  {
+   "id": "folding_cab_side_right",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": 1.24554,
+    "y": 2.10051,
+    "z": 0.2875
+   },
+   "normal": {
+    "x": 0.99993,
+    "y": 0.01183,
+    "z": -0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.7775000333786011,
+   "half_v": 0.5706198049873082,
+   "hinge": {
+    "a": [
+     1.245,
+     1.53,
+     -0.49
+    ],
+    "b": [
+     1.245,
+     1.53,
+     1.065
+    ],
+    "angle": -90
+   }
+  },
+  {
+   "id": "folding_bed_front_right",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": 1.29978,
+    "y": 2.065,
+    "z": -0.98
+   },
+   "normal": {
+    "x": 0.99994,
+    "y": 0.01134,
+    "z": -0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.49000000953674316,
+   "half_v": 0.4850935059460769,
+   "hinge": {
+    "a": [
+     1.3,
+     1.58,
+     -1.47
+    ],
+    "b": [
+     1.3,
+     1.58,
+     -0.49
+    ],
+    "angle": -90
+   }
+  },
+  {
+   "id": "folding_bed_rear_right",
+   "zone": "hull_side",
+   "material": "rha",
+   "thickness_mm": 4,
+   "center": {
+    "x": 1.31438,
+    "y": 1.80498,
+    "z": -2.415
+   },
+   "normal": {
+    "x": 0.99964,
+    "y": 0.02666,
+    "z": -0.0
+   },
+   "axis_u": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 1.0
+   },
+   "half_u": 0.9249999523162842,
+   "half_v": 0.22523989418827817,
+   "hinge": {
+    "a": [
+     1.315,
+     1.58,
+     -3.34
+    ],
+    "b": [
+     1.315,
+     1.58,
+     -1.49
+    ],
+    "angle": -90
+   }
+  }
+ ],
+ "front_tool_rigid_relocation": {
+  "triangles": 2636,
+  "original_source_group": "Exterior_Details front tool, keepers and chain",
+  "pivot_m": [
+   0.0,
+   2.18,
+   3.32
+  ],
+  "target_m": [
+   1.72,
+   1.68,
+   2.3
+  ],
+  "rotation_matrix": [
+   [
+    0,
+    0,
+    1
+   ],
+   [
+    1,
+    0,
+    0
+   ],
+   [
+    0,
+    1,
+    0
+   ]
+  ],
+  "placement": "Low right-side rack alongside the engine cover, forward of the complete cab/bed fold sweep and outside running gear; horizontal longitudinal storage"
+ },
+ "storage_sweep_clearance": {
+  "result": "PASS",
+  "clearance_m": 0.025,
+  "fold_samples": 65,
+  "panel_count": 6,
+  "tool_triangles": 2636,
+  "tool_bounds_m": [
+   [
+    1.64,
+    1.403,
+    1.538
+   ],
+   [
+    1.757,
+    1.992,
+    3.064
+   ]
+  ],
+  "method": "Every retained tool/frame/chain and source wheel/track triangle edge against six convex panel outlines; each crew collision sphere expanded by 25 mm",
+  "tool_to_running_gear_lateral_gap_m": 0.06949998378753652,
+  "hinge_source": "Cab_Cut_Down lower painted edges; Rear_Bed lower board edges, with fixed lower keepers retained"
+ },
+ "panel_source_nodes": {
+  "cab_side_left": "Cab_Cut_Down",
+  "bed_front_left": "Rear_Bed",
+  "bed_rear_left": "Rear_Bed",
+  "cab_side_right": "Cab_Cut_Down",
+  "bed_front_right": "Rear_Bed",
+  "bed_rear_right": "Rear_Bed"
+ },
+ "additional_firing_envelope_check": {
+  "result": "PASS",
+  "panel_count": 6,
+  "clearance_m": 0.025,
+  "fold_samples": 17,
+  "bearing_step_deg": 5,
+  "elevations_deg": [
+   -2.5,
+   0,
+   20,
+   45
+  ],
+  "pose_samples": 1524,
+  "collision_count": 0,
+  "method": "Every retained traversing/elevating weapon triangle edge at each conservative legal bearing interval against source panel outlines"
+ }
+}

@@ -14,6 +14,7 @@ export const FAMILIES = [
       { id: 'de_hetzer_flak', weapon: ['2 cm FlaK 38 防空', '2 cm FlaK 38 AA'], paint: ['標準', 'Standard'] },
       { id: 'de_hetzer_mk103', weapon: ['3 cm MK 103 防空', '3 cm MK 103 AA'], paint: ['城市灰', 'Urban grey'] },
       { id: 'de_hetzer_mk103_camo', weapon: ['3 cm MK 103 防空', '3 cm MK 103 AA'], paint: ['三色迷彩', 'Three-colour camouflage'] },
+      { id: 'de_hetzer_sdkfz1401', weapon: ['2 cm KwK 38 · SDK 炮塔（假想改裝）', '2 cm KwK 38 · SDK turret (custom)'], paint: ['沙黃色', 'Sand yellow'] },
     ],
   },
   {

@@ -78,6 +78,7 @@ pub struct Target {
 }
 
 fn is_turret_zone(p: &ArmorPlate) -> bool {
+    if p.hinge.is_some() { return false; } // current foldable walls are fixed to the hull
     matches!(p.zone, ArmorZone::TurretFront | ArmorZone::TurretSide | ArmorZone::TurretRear | ArmorZone::TurretRoof | ArmorZone::GunMantlet)
         || p.id.starts_with("turret")
         || p.id.starts_with("mantlet")
@@ -152,6 +153,21 @@ impl Target {
             extinguishers: 1,
             ..Default::default()
         }
+    }
+
+    pub fn has_hinges(&self) -> bool {
+        self.def.plates.iter().any(|p| p.hinge.is_some())
+    }
+
+    /// A view of the cached neutral target at the defender's current wall fold. Preserve
+    /// module/crew ordering for existing damage state, and rebuild the broadphase bounds.
+    pub fn folded(&self, fraction: f32) -> Target {
+        let t = if fraction.is_finite() { fraction.clamp(0.0, 1.0) } else { 0.0 };
+        if t == 0.0 || !self.has_hinges() { return self.clone(); }
+        let mut def = self.def.clone();
+        for p in &mut def.plates { *p = p.folded(t); }
+        let materials: Vec<Material> = self.materials.values().cloned().collect();
+        Target::new(def, &materials)
     }
 
     fn material(&self, id: &str) -> Material {

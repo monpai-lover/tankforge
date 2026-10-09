@@ -136,6 +136,10 @@ test('tank: differential drive turns, pivots, and a fast turn slides; mud spins 
     const q = rig('su_t34_85');
     placeTank(q.tm, q.t, g, 0, 0, 0);
     run(q, g, { throttle: 0, steer: 0, brake: 0 }, 1);
+    // Isolate full-engagement terrain traction here; launch-driving.test.mjs separately
+    // checks the real W-key start with its driveline force initially zero.
+    q.t.ds.driveForce = q.tm.mass * 9.81;
+    q.t.ds.driveDirection = 1;
     let worst = 0;
     run(q, g, { throttle: 1, steer: 0, brake: 0 }, 1, 1 / 120, (t, i) => (worst = Math.max(worst, i.trackSlip)));
     return worst;

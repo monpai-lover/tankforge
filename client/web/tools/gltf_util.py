@@ -9,7 +9,8 @@ from PIL import Image
 
 def load(path):
     """(gltf json, accessor(i) -> numpy array, image(i) -> PIL image)."""
-    b = open(path, 'rb').read()
+    with open(path, 'rb') as source:
+        b = source.read()
     off = 12
     chunks = []
     while off < len(b):

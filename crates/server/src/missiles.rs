@@ -39,6 +39,12 @@ fn arr3(v: &Value) -> Option<[f64; 3]> {
     Some([a.first()?.as_f64()?, a.get(1)?.as_f64()?, a.get(2)?.as_f64()?])
 }
 
+/// Defender wall pose in the existing state payload; reject nonfinite values before casting.
+pub fn fold_of(s: &Value) -> f32 {
+    let value = s["fold"].as_f64().unwrap_or(0.0);
+    if value.is_finite() { value.clamp(0.0, 1.0) as f32 } else { 0.0 }
+}
+
 /// Loads data/missiles.json, every map's height grid and every vehicle's launchers and APS.
 pub fn load(data: &Path) -> MissileData {
     let read = |p: &Path| std::fs::read_to_string(p).ok().and_then(|t| serde_json::from_str::<Value>(&t).ok());
@@ -174,6 +180,9 @@ fn module_ok(t: &Target, st: Option<&TargetState>, id: &Option<String>) -> bool 
 pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, aps: Option<&ApsSpec>, st: Option<&TargetState>) -> Option<Actor> {
     let p = pose_of(s)?;
     let v = arr3(&s["v"]).unwrap_or([0.0; 3]);
+    let fold = fold_of(s);
+    let folded = t.filter(|t| fold > 0.0 && t.has_hinges()).map(|t| t.folded(fold));
+    let t = folded.as_ref().or(t);
     let (center, obb) = match t {
         Some(t) => {
             // the combat target's bounds carry 0.3 m of padding
@@ -203,4 +212,49 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
         a.aps_radar_ok = module_ok(t, st, &spec.radar_module);
     }
     Some(a)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn fold_state_defaults_and_clamps_before_the_float_cast() {
+        for value in [json!({}), json!({ "fold": null }), json!({ "fold": "1" }), json!({ "fold": -0.5 })] {
+            assert_eq!(fold_of(&value), 0.0);
+        }
+        assert_eq!(fold_of(&json!({ "fold": 0.4 })), 0.4);
+        assert_eq!(fold_of(&json!({ "fold": 2.0 })), 1.0);
+        assert_eq!(fold_of(&json!({ "fold": 1e300 })), 1.0);
+    }
+
+    #[test]
+    fn missile_box_follows_a_hull_wall_without_mutating_the_cached_target() {
+        let def = serde_json::from_value(json!({
+            "id": "fold-test", "modules": [], "crew": [],
+            "plates": [{ "id": "side", "zone": "hull_side", "material": "rha", "thickness_mm": 20,
+                "center": { "x": 1.5, "y": 2.2, "z": 0 }, "normal": { "x": 1, "y": 0, "z": 0 },
+                "axis_u": { "x": 0, "y": 0, "z": 1 }, "half_u": 3, "half_v": 0.4,
+                "hinge": { "a": [1.5, 1.8, -3], "b": [1.5, 1.8, 3], "angle": -90 } }]
+        })).unwrap();
+        let t = Target::new(def, &[]);
+        let original_center = t.def.plates[0].center;
+        let original_hi = t.hi;
+        let mut state = json!({ "pos": [10, 0, 20], "ex": [1, 0, 0], "ez": [0, 0, 1], "fold": 0 });
+        let raised = actor_of(7, 1, true, &state, Some(&t), None, None).unwrap().obb.unwrap();
+        state["fold"] = json!(1);
+        let lowered = actor_of(7, 1, true, &state, Some(&t), None, None).unwrap().obb.unwrap();
+        assert!(lowered.center[0] + lowered.half[0] > raised.center[0] + raised.half[0] + 0.6,
+            "an outward horizontal wall must expand the missile hit box");
+        assert!(lowered.center[1] + lowered.half[1] < raised.center[1] + raised.half[1] - 0.6,
+            "the old vertical wall must not remain in the missile hit box");
+        assert_eq!(lowered.axes, raised.axes);
+        assert_eq!(t.def.plates[0].center, original_center);
+        assert_eq!(t.hi, original_hi);
+        state["fold"] = json!(0);
+        let raised_again = actor_of(7, 1, true, &state, Some(&t), None, None).unwrap().obb.unwrap();
+        assert_eq!(raised_again.center, raised.center);
+        assert_eq!(raised_again.half, raised.half);
+    }
 }

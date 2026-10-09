@@ -110,6 +110,7 @@ mod tests {
             half_v: 1.0,
             curvature: 0.0,
             polygon: Vec::new(),
+            hinge: None,
         }
     }
 

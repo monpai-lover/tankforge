@@ -144,6 +144,9 @@ pub struct SecondaryDef {
     pub id: String,
     /// Muzzle of a coaxial or hull gun, pivot of a roof gun; vehicle space, turret yaw 0.
     pub position_m: [f32; 3],
+    /// Optional shared elevation hinge for an off-axis coax muzzle, in vehicle space.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub elevation_pivot_m: Option<[f32; 3]>,
     /// Id in `machine_guns.json`. Absent = listed for reference only, cannot be fired.
     #[serde(default)]
     pub weapon: Option<String>,
@@ -263,6 +266,21 @@ pub struct TurretMount {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
+pub struct FoldDepressionStage {
+    pub fold: f32,
+    /// 36 bearings. Negative depression requires a positive minimum elevation.
+    pub angles: Vec<f32>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct FoldYawLimitStage {
+    pub fold: f32,
+    pub limits: [f32; 2],
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
 pub struct WeaponsFile {
     pub main_gun: GunDef,
     /// Gun trunnion (elevation pivot) at turret yaw 0, vehicle space.
@@ -291,6 +309,14 @@ pub struct WeaponsFile {
     /// the gun's own limit all round.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub depression_by_bearing_deg: Vec<f32>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub folded_depression_by_bearing_deg: Vec<f32>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub fold_depression_stages: Vec<FoldDepressionStage>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub folded_yaw_limit_deg: Option<[f32; 2]>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub fold_yaw_limit_stages: Vec<FoldYawLimitStage>,
     /// Further guns in the primary turret.
     #[serde(default)]
     pub extra_guns: Vec<GunMount>,
@@ -337,4 +363,55 @@ pub struct TransmissionDef {
 pub struct EngineFile {
     pub engine: EngineDef,
     pub transmission: TransmissionDef,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{SecondaryDef, WeaponsFile};
+
+    #[test]
+    fn fold_safe_weapon_stages_roundtrip_negative_depression_and_default_for_legacy_data() {
+        let source = include_str!("../../../data/vehicles/de_hetzer/weapons.json");
+        let legacy: WeaponsFile = serde_json::from_str(source).unwrap();
+        assert!(legacy.fold_depression_stages.is_empty());
+        assert!(legacy.fold_yaw_limit_stages.is_empty());
+        assert_eq!(legacy.folded_yaw_limit_deg, None);
+        let mut value: serde_json::Value = serde_json::from_str(source).unwrap();
+        value["folded_depression_by_bearing_deg"] = serde_json::json!(vec![6.0; 36]);
+        value["fold_depression_stages"] = serde_json::json!([
+            { "fold": 0.0, "angles": vec![0.0; 36] },
+            { "fold": 0.5, "angles": vec![-8.0; 36] },
+            { "fold": 1.0, "angles": vec![6.0; 36] }
+        ]);
+        value["folded_yaw_limit_deg"] = serde_json::json!([-75.0, 75.0]);
+        value["fold_yaw_limit_stages"] = serde_json::json!([
+            { "fold": 0.0, "limits": [-20.0, 20.0] },
+            { "fold": 1.0, "limits": [-75.0, 75.0] }
+        ]);
+        let weapons: WeaponsFile = serde_json::from_value(value).unwrap();
+        assert_eq!(weapons.fold_depression_stages[1].angles[0], -8.0);
+        assert_eq!(weapons.folded_yaw_limit_deg, Some([-75.0, 75.0]));
+        let restored: WeaponsFile = serde_json::from_str(&serde_json::to_string(&weapons).unwrap()).unwrap();
+        assert_eq!(restored.fold_depression_stages[1].angles[0], -8.0);
+        assert_eq!(restored.fold_yaw_limit_stages[1].limits, [-75.0, 75.0]);
+    }
+
+    #[test]
+    fn source_conversion_coax_hinge_survives_weapon_roundtrip() {
+        let source = include_str!("../../../data/vehicles/de_hetzer_sdkfz1401/weapons.json");
+        let weapons: WeaponsFile = serde_json::from_str(source).unwrap();
+        let hinge = weapons.secondary[0].elevation_pivot_m.unwrap();
+        for (actual, expected) in hinge.into_iter().zip([0.006439672, 2.2742, 0.13780131]) {
+            assert!((actual - expected).abs() < 1e-6, "source hinge coordinates must survive f32 decoding");
+        }
+        let restored: WeaponsFile = serde_json::from_str(&serde_json::to_string(&weapons).unwrap()).unwrap();
+        assert_eq!(restored.secondary[0].elevation_pivot_m, weapons.secondary[0].elevation_pivot_m);
+    }
+
+    #[test]
+    fn legacy_secondary_without_hinge_still_loads() {
+        let gun: SecondaryDef = serde_json::from_str(r#"{"id":"coax","position_m":[0,1,2]}"#).unwrap();
+        assert_eq!(gun.elevation_pivot_m, None);
+        assert!(!serde_json::to_value(gun).unwrap().as_object().unwrap().contains_key("elevation_pivot_m"));
+    }
 }

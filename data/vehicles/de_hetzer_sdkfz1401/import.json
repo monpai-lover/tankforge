@@ -1,0 +1,108 @@
+{
+ "glb": "source/Hetzer_Sdkfz1401_Turret.glb",
+ "source": "User-provided custom Hetzer/Sd.Kfz.140/1 conversion. Original credits and license records are in source/README.md and GLB asset.extras.",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "drop_meshes": [
+  2,
+  3
+ ],
+ "turret_nodes": [
+  "Sd.Kfz1401 turret transplant"
+ ],
+ "gun_nodes": [
+  "SDK turret / gun_shape_tank_gun_skinned_0",
+  "SDK turret / gun_shape_mg42_skinned_0",
+  "SDK turret / gun_shape_mg34_skinned_0",
+  "SDK turret / DETAIL / KwK 38 receiver locking pins, recoil seals and cradle clamps"
+ ],
+ "barrel_nodes": [
+  "SDK turret / gun_shape_tank_gun_skinned_0"
+ ],
+ "barrel_min_length": 0.9,
+ "gun_rest_pose": {
+  "nodes": [
+   "SDK turret / gun_shape_tank_gun_skinned_0",
+   "SDK turret / gun_shape_mg42_skinned_0",
+   "SDK turret / gun_shape_mg34_skinned_0",
+   "SDK turret / DETAIL / KwK 38 receiver locking pins, recoil seals and cradle clamps"
+  ],
+  "pivot": [
+   0.006439672112464905,
+   2.2742,
+   0.137801312804222
+  ],
+  "rotation_x_deg": 25.0
+ },
+ "normal_maps": true,
+ "textures": {
+  "0": 1024,
+  "1": 1024,
+  "2": 1024,
+  "3": 1024,
+  "4": 1024,
+  "5": 1024,
+  "6": 1024,
+  "7": 1024,
+  "8": 1024,
+  "9": 1024,
+  "10": 1024,
+  "11": 1024,
+  "12": 1024,
+  "13": 1024,
+  "14": 1024,
+  "15": 1024,
+  "16": 1024,
+  "17": 1024,
+  "18": 1024,
+  "19": 1024,
+  "20": 1024,
+  "21": 1024,
+  "22": 1024,
+  "23": 1024,
+  "24": 1024,
+  "25": 1024,
+  "26": 1024,
+  "27": 1024,
+  "28": 1024,
+  "29": 1024,
+  "30": 1024,
+  "31": 1024,
+  "32": 1024,
+  "33": 1024,
+  "34": 1024,
+  "35": 1024,
+  "36": 1024,
+  "37": 1024,
+  "38": 1024,
+  "39": 1024,
+  "40": 1024,
+  "41": 1024,
+  "42": 1024,
+  "43": 1024,
+  "44": 1024,
+  "45": 1024,
+  "46": 1024,
+  "47": 1024,
+  "48": 1024,
+  "49": 1024,
+  "50": 1024,
+  "51": 1024,
+  "52": 1024,
+  "53": 1024,
+  "54": 1024,
+  "55": 1024,
+  "56": 1024,
+  "57": 1024,
+  "58": 1024,
+  "59": 1024,
+  "60": 1024,
+  "61": 1024,
+  "62": 1024,
+  "63": 1024
+ }
+}

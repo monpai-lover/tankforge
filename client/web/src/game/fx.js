@@ -22,6 +22,35 @@ function perp2(n, r) {
 const FLOATS = 9; // pos3 uv2 rgba4
 export const SOFT_FLOATS = 13; // pos3 uv2 rgba4 + seed, life fraction, size, spare
 
+/** Display-only barrel travel; automatic guns return to battery inside their firing interval. */
+export function advanceGunRecoil(state, def, dt) {
+  if (state.recoilT < 0) return;
+  const stroke = Math.max(0, def.recoil_mm || 0) / 1000;
+  let back = 0.05;
+  let dwell = 0.04;
+  let home = 0.45 + stroke * 0.6;
+  if (def.autocannon) {
+    const cycle = Math.min(back + dwell + home, 0.85 * 60 / Math.max(1, def.autocannon.rate_rpm));
+    back = cycle * 0.18;
+    dwell = cycle * 0.06;
+    home = cycle - back - dwell;
+  }
+  const t = state.recoilT += dt;
+  if (t >= back + dwell + home) {
+    state.recoil = 0;
+    state.recoilT = -1;
+    return;
+  }
+  let x;
+  if (t < back) x = Math.sin(((t / back) * Math.PI) / 2);
+  else if (t < back + dwell) x = 1;
+  else {
+    const k = (t - back - dwell) / home;
+    x = 1 - k * k * (3 - 2 * k);
+  }
+  state.recoil = stroke * x;
+}
+
 export class Effects {
   constructor(maxQuads = 1600) {
     this.maxVerts = maxQuads * 6;
@@ -213,6 +242,39 @@ export class Effects {
   }
 
   // ------------------------------------------------------------------ presets
+
+  /** Small automatic cannon: forward flash and opposed brake-port jets, never an artillery plume. */
+  autocannonBlast(pos, dir, caliber, dust, groundY = 0) {
+    const s = caliber / 20;
+    const side = perp(dir, 1);
+    this.spawn({ pos: [pos[0] + dir[0] * 0.12 * s, pos[1] + dir[1] * 0.12 * s, pos[2] + dir[2] * 0.12 * s], life: 0.045, size0: 0.2 * s, size1: 0.3 * s, color: [1, 0.82, 0.46], alpha: 0.95, additive: true });
+    for (let i = 0; i < 2; i++) {
+      for (const sign of [-1, 1]) {
+        const offset = sign * (0.06 + i * 0.16) * s;
+        const speed = sign * (5 + i * 2) * s;
+        this.spawn({
+          pos: pos.map((v, k) => v - dir[k] * 0.06 * s + side[k] * offset),
+          vel: side.map(v => v * speed),
+          life: 0.045 + i * 0.015,
+          size0: (0.16 - i * 0.035) * s,
+          size1: (0.3 - i * 0.04) * s,
+          color: [1, 0.73, 0.3], alpha: 0.9, additive: true, drag: 8,
+        });
+      }
+    }
+    for (const sign of [-1, 1]) {
+      this.spawn({
+        pos: pos.map((v, k) => v - dir[k] * 0.06 * s + side[k] * sign * 0.1 * s),
+        vel: side.map(v => v * sign * 4.5 * s),
+        life: 0.24 + Math.random() * 0.04, size0: 0.1 * s, size1: 0.48 * s,
+        color: [0.72, 0.7, 0.66], alpha: 0.3, drag: 7, gravity: -0.4, fadeIn: 0.015,
+      });
+      if (dust && pos[1] - groundY < 1.8) {
+        this.spawn({ pos: [pos[0] + side[0] * sign * 0.3 * s, groundY + 0.08, pos[2] + side[2] * sign * 0.3 * s], vel: [side[0] * sign * 2 * s, 0.4, side[2] * sign * 2 * s], life: 0.22, size0: 0.12 * s, size1: 0.5 * s, color: dust, alpha: 0.16, drag: 6, fadeIn: 0.02 });
+      }
+    }
+    this.spawn({ pos, vel: dir.map(v => v * 2 * s), life: 0.2, size0: 0.08 * s, size1: 0.3 * s, color: [0.72, 0.7, 0.66], alpha: 0.2, drag: 6, gravity: -0.3, fadeIn: 0.015 });
+  }
 
   muzzleBlast(pos, dir, caliber, dust, groundY = 0) {
     const s = caliber / 88;

@@ -7,7 +7,7 @@ fn rha() -> Vec<Material> {
 }
 
 fn plate(id: &str, zone: ArmorZone, mm: f32, c: [f32; 3], n: [f32; 3], u: [f32; 3], hu: f32, hv: f32) -> ArmorPlate {
-    ArmorPlate { id: id.into(), zone, material: "rha".into(), thickness_mm: mm, center: Vec3::new(c[0], c[1], c[2]), normal: Vec3::new(n[0], n[1], n[2]), axis_u: Vec3::new(u[0], u[1], u[2]), half_u: hu, half_v: hv, curvature: 0.0, polygon: Vec::new() }
+    ArmorPlate { id: id.into(), zone, material: "rha".into(), thickness_mm: mm, center: Vec3::new(c[0], c[1], c[2]), normal: Vec3::new(n[0], n[1], n[2]), axis_u: Vec3::new(u[0], u[1], u[2]), half_u: hu, half_v: hv, curvature: 0.0, polygon: Vec::new(), hinge: None }
 }
 
 fn module(id: &str, kind: ModuleKind, c: [f32; 3], h: [f32; 3], hp: f32) -> Module {
@@ -350,6 +350,46 @@ fn an_he_shell_landing_beside_an_open_vehicle_hurts_its_crew() {
     let closed = box_tank(false);
     let r = splash(&closed, &closed.fresh_state(), Vec3::new(2.4, 0.3, 0.0), 0.68, 0.0, 3);
     assert!(r.crew.is_empty());
+}
+
+#[test]
+fn folding_hull_side_armor_changes_shell_and_splash_protection_without_reindexing_the_crew() {
+    let mut base = box_tank(true).def;
+    let mut flap = plate("fold_side", ArmorZone::TurretSide, 200.0,
+        [1.5, 2.2, 0.0], [1.0, 0.0, 0.0], [0.0, 0.0, 1.0], 3.0, 0.4);
+    flap.hinge = Some(tg_armor::ArmorHinge { a: [1.5, 1.8, -3.0], b: [1.5, 1.8, 3.0], angle: -90.0 });
+    base.plates.push(flap);
+    let upright = Target::new(base, &rha());
+    let folded = upright.folded(1.0);
+    let idx = folded.def.plates.len() - 1;
+    assert!((folded.posed(1.2).plates[idx].center - folded.def.plates[idx].center).length() < 1e-5,
+        "a hull-mounted foldable wall must not turn with the gun");
+    assert_eq!(upright.def.modules.len(), folded.def.modules.len());
+    assert_eq!(upright.def.crew.len(), folded.def.crew.len());
+    for (a, b) in upright.def.modules.iter().zip(&folded.def.modules) { assert_eq!(a.id, b.id); }
+    for (a, b) in upright.def.crew.iter().zip(&folded.def.crew) { assert_eq!(a.pos, b.pos); }
+    let state = upright.fresh_state();
+    let shot = Shot { shell: ProjectileDef::generic_ap(75.0, 120.0), origin: Vec3::new(4.0, 2.2, 0.0),
+        dir: Vec3::new(-1.0, 0.0, 0.0), speed_ms: 800.0, distance_m: 0.0, seed: 17, turret_yaw: 0.0 };
+    let raised_hit = shoot(&upright, &state, &shot);
+    let lowered_hit = shoot(&folded, &state, &shot);
+    assert_eq!(raised_hit.plate.as_deref(), Some("fold_side"));
+    assert_ne!(lowered_hit.plate.as_deref(), Some("fold_side"));
+    let blast_at = Vec3::new(2.4, 1.6, 0.0);
+    // Keep the burst outside the lowered wall's 2.3 m tip, and close enough to reach the
+    // gunner: 0.68 kg only reaches 2.67 m of open crew, short of this 2.91 m line.
+    let blast_kg = 1.2;
+    assert!((upright.def.crew[2].pos - blast_at).length() < outside_radius_m(blast_kg) * 1.4);
+    let raised_blast = splash(&upright, &state, blast_at, blast_kg, 0.0, 31);
+    let lowered_blast = splash(&folded, &state, blast_at, blast_kg, 0.0, 31);
+    assert!(!raised_blast.crew.iter().any(|c| c.index == 2 && c.damage > 0.0));
+    assert!(lowered_blast.crew.iter().any(|c| c.index == 2 && c.damage > 0.0));
+    let mut narrow = upright.def.clone();
+    narrow.plates = vec![narrow.plates.last().unwrap().clone()];
+    narrow.modules.clear(); narrow.crew.clear(); narrow.turret = None;
+    let narrow = Target::new(narrow, &rha());
+    assert!(narrow.folded(1.0).hi.x > narrow.hi.x + 0.6,
+        "folded wall corners must remain inside the shot/missile broadphase bounds");
 }
 
 /// Every vehicle in data/ loads as a target and takes a side shot without trouble.

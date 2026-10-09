@@ -210,12 +210,45 @@ fn differential_drive_turns_pivots_and_a_fast_turn_slides() {
         let (tm, mut t) = rig("su_t34_85");
         place(&tm, &mut t, &g, 0.0, 0.0, 0.0);
         hold(&tm, &mut t, &g, IDLE, 1.0);
+        // Isolate fully engaged terrain traction. The separate driveline launch test
+        // starts with zero take-up and checks the real W-key force buildup.
+        t.ds.drive_force = tm.mass * 9.81;
+        t.ds.drive_direction = 1.0;
         let mut worst = 0.0f64;
         run(&tm, &mut t, &g, |_| input(1.0, 0.0, 0.0), 1.0, |_, t| worst = worst.max(t.info.track_slip));
         worst
     };
     let (mud, road_slip) = (launch("mud"), launch("road"));
     assert!(mud > 0.15 && mud > 2.0 * road_slip, "launch slip mud {mud} road {road_slip}");
+}
+
+#[test]
+fn driveline_launch_builds_force_and_restarts_without_reusing_the_previous_peak() {
+    let road = terrain("road");
+    let flat = FnGround { height: |_x: f64, _z: f64| 0.0, surface: &road };
+    for id in ["de_flakpz38t", "de_hetzer", "de_tiger_e"] {
+        let (tm, mut t) = rig(id);
+        place(&tm, &mut t, &flat, 0.0, 0.0, 0.0);
+        hold(&tm, &mut t, &flat, IDLE, 2.0);
+        let first = step(&tm, &mut t, input(1.0, 0.0, 0.0), &flat, DT);
+        assert!(first.ax.abs() < 1.0, "{id}: abrupt first-frame acceleration {}", first.ax);
+        let mut max_pitch = 0.0f64;
+        run(&tm, &mut t, &flat, |_| input(1.0, 0.0, 0.0), 2.0, |_, t| {
+            max_pitch = max_pitch.max(t.info.pitch);
+        });
+        if id == "de_flakpz38t" {
+            assert!(max_pitch.to_degrees() < 3.5 && max_pitch > 0.005,
+                "natural nose rise remains, without the launch jolt: {max_pitch}");
+        }
+        step(&tm, &mut t, input(-1.0, 0.0, 0.0), &flat, DT);
+        assert_eq!(t.ds.drive_direction, -1.0);
+        assert!(t.ds.drive_force <= tm.mass * 4.0 * DT + 1e-6);
+        hold(&tm, &mut t, &flat, input(0.0, 0.0, 1.0), 3.0);
+        assert!(t.info.u.abs() < 0.1);
+        assert_eq!(t.ds.drive_force, 0.0);
+        let again = step(&tm, &mut t, input(1.0, 0.0, 0.0), &flat, DT);
+        assert!(again.ax.abs() < 1.0, "{id}: relaunch reused the previous force");
+    }
 }
 
 #[test]

@@ -19,7 +19,10 @@
    12
   ],
   "missile": "bgm71a_tow",
-  "guided": true
+  "guided": true,
+  "launcher": {
+   "muzzle_vectors_m": [[-0.42, 0, 0.575], [0.42, 0, 0.575]]
+  }
  },
  "mount_m": [
   0.0,

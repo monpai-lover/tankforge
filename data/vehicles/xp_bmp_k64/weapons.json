@@ -26,14 +26,19 @@
    "rate_rpm": 600,
    "belt_rounds": 50,
    "belt_reload_s": 8.0
-  }
+  },
+  "muzzle_vector_m": [
+   0,
+   0.033,
+   1.357
+  ]
  },
  "mount_m": [
   -0.115,
   2.205,
   -0.28
  ],
- "muzzle_offset_m": 1.31,
+ "muzzle_offset_m": 1.357,
  "sight": {
   "name": "PP-61",
   "levels": [

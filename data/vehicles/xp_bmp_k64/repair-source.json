@@ -1,0 +1,22 @@
+{
+  "source_html": "BMP_K_64_ATGM.html",
+  "source_html_sha256": "44214bd352f5a1df1d349253fea72843dc308fdaa6e587418cb3f08552d1037f",
+  "recovered_glb_sha256": "5be15d88ed8899c724d67a68f8beae1f1b8c93c3afeb22584ca4010beaeb5805",
+  "recovered_glb_bytes": 8208292,
+  "baseline_revision": "bf197b39c4f904298e61c2599a9203f1e388adee",
+  "ownership": "User-created supplied model, used with the user's existing permission; no third-party licence inferred",
+  "available_source": "Embedded Konkurs GLB; common chassis matches the original packed base model",
+  "unavailable_source": "Original standalone KPVT and Kornet GLBs; retained from the pinned packed models",
+  "measured_rest_poses": {
+    "KPVT_deg": 15,
+    "Konkurs_deg": 10,
+    "front_hatches_deg": 80,
+    "cupola_hatch_deg": 80,
+    "cupola_hatch_pivot_m": [
+      0,
+      2.076,
+      -0.815
+    ]
+  },
+  "armour": "Shared T-64A reference; 205 mm generic composite approximation, not explicit 80/105/20 material layers"
+}

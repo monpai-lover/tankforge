@@ -7,6 +7,7 @@
 import { onPlate } from './plates.js';
 import { VehicleSim } from './vehicle.js';
 import { penAt } from './hud.js';
+import { foldedPlate } from './folding.js';
 
 const DEG = Math.PI / 180;
 const v3 = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
@@ -65,6 +66,7 @@ export class Enemy {
     this.alive = true;
     this.hits = [];
     this.gunPitch = [];
+    this.fold = 0;
     this.turretYaws = null;
     // another player's vehicle (online): its state comes from the server, hits are scored there
     this.remote = false;
@@ -130,6 +132,7 @@ export class Enemy {
     this.x = o[0];
     this.z = o[2];
     this.heading = this.veh.body.attitude().heading;
+    this.fold = Number.isFinite(s.fold) ? Math.max(0, Math.min(1, s.fold)) : 0;
     if (Array.isArray(s.tur) && s.tur.length) {
       this.turretYaws = s.tur.map((x) => x[0]);
       this.gunPitch = s.tur.map((x) => x[1] || 0);
@@ -144,6 +147,8 @@ export class Enemy {
     M.root.pos = [this.x, 0, this.z];
     M.root.yaw = this.heading;
     M.body.local = this.veh.hullLocal(this.heading);
+    M.setFold(this.fold);
+    this.combat?.setFold(this.combatKey, this.fold);
     M.turrets.forEach((mt, i) => {
       let yaw = this.turretYaws ? this.turretYaws[i] ?? 0 : i === 0 ? this.turretYaw : mt.node.yaw;
       // a turret riding on another: its yaw comes in the hull frame, its node turns with the other's
@@ -158,6 +163,10 @@ export class Enemy {
 
   /** A plate's corners in the hull frame (turret plates turned with the turret). */
   _plate(p) {
+    if (p.def.hinge) {
+      const posed = foldedPlate(p.def, this.fold);
+      p = { ...p, turret: false, c: v3(posed.center), n: v3(posed.normal), u: v3(posed.axis_u) };
+    }
     if (!p.turret || !this.turretYaw) return p;
     const piv = this.turret.position_m;
     const c = Math.cos(this.turretYaw);
@@ -295,7 +304,7 @@ export function mixState(a, b, k) {
   const d = ex[0] * ez[0] + ex[1] * ez[1] + ex[2] * ez[2];
   ex = unit([ex[0] - ez[0] * d, ex[1] - ez[1] * d, ex[2] - ez[2] * d]);
   const tur = Array.isArray(a.tur) && Array.isArray(b.tur) && a.tur.length === b.tur.length ? b.tur.map((x, i) => [a.tur[i][0] + wrap(x[0] - a.tur[i][0]) * k, a.tur[i][1] + (x[1] - a.tur[i][1]) * k]) : b.tur;
-  return { ...b, pos: mix(a.pos, b.pos), ex, ez, v: mix(a.v, b.v), w: mix(a.w, b.w), track: mix(a.track, b.track), tur };
+  return { ...b, pos: mix(a.pos, b.pos), ex, ez, v: mix(a.v, b.v), w: mix(a.w, b.w), track: mix(a.track, b.track), tur, fold: mix(a.fold || 0, b.fold || 0) };
 }
 
 function wrap(a) {

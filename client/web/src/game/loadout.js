@@ -7,6 +7,7 @@
 import * as design from '../sim/design.js';
 import { rangeTable } from '../sim/ballistics.js';
 import { bulletOf } from '../sim/mg.js';
+import { fired as queueReload } from '../sim/loading.js';
 
 export const SIGHT_RANGES = Array.from({ length: 30 }, (_, i) => (i + 1) * 100);
 export const DEFAULT_RANGEFINDER = { time_s: 2.5, error_pct: 5, max_range_m: 2500 };
@@ -38,7 +39,7 @@ function gunEntry(def, shells, trunnion, muzzleOffset, rack) {
     if (def.guided) return { shell, count: n, max: n, table: SIGHT_RANGES.map((range) => ({ range, elevation: 0, tof: range / 250, speed: 250 })) };
     return { shell, count: n, max: n, table: rangeTable(shell, SIGHT_RANGES, undefined, lob) };
   });
-  return {
+  const gun = {
     def,
     ammo,
     // an automatic gun: rounds left in the belt (or magazine) on the gun, how far the barrels
@@ -52,9 +53,12 @@ function gunEntry(def, shells, trunnion, muzzleOffset, rack) {
     table: ammo[0].table,
     trunnion,
     muzzleOffset,
+    muzzleVector: def.muzzle_vector_m?.slice(),
     breech: [trunnion[0], trunnion[1], trunnion[2] - 0.4],
     rack: rack || null,
   };
+  refillLauncher(gun);
+  return gun;
 }
 
 /** Points `shell` / `table` at the round in the breech, or at the next one when empty. */
@@ -80,6 +84,42 @@ export function refillBelt(g) {
 /** Rounds left of every type together. */
 export function roundsLeft(g) {
   return g.ammo.reduce((s, a) => s + a.count, 0);
+}
+
+/** A missile assembly reloads its tube set; the rounds in those tubes are part of its total ammo. */
+export function refillLauncher(g) {
+  if (!g.def.missile) return;
+  const capacity = g.def.launcher?.muzzle_vectors_m?.length || 1;
+  if (!g.launcher) g.launcher = { ready: 0, nextTube: 0 };
+  g.launcher.ready = Math.min(capacity, roundsLeft(g));
+  g.launcher.nextTube = 0;
+  g.launcher.cooldown = 0;
+}
+
+/** Mirrors the server's minimum 0.25 s between missile launches without emptying a loaded tube. */
+export function tickLauncher(g, dt) {
+  if (g.launcher) g.launcher.cooldown = Math.max(0, g.launcher.cooldown - dt);
+}
+
+/** Tube mouths share one elevation hinge, including vertically stacked or off-axis tubes. */
+export function launcherMount(g, mount) {
+  const vector = g.def.launcher?.muzzle_vectors_m?.[g.launcher?.nextTube || 0];
+  return vector ? { ...mount, muzzleVector: vector } : mount;
+}
+
+/** Consume one successful missile launch; the remaining loaded tube stays ready. */
+export function fireLauncherRound(g, L, gi) {
+  if (L.state[gi] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
+  g.ammo[g.loaded].count--;
+  g.launcher.ready = Math.min(g.launcher.ready - 1, roundsLeft(g));
+  g.launcher.nextTube++;
+  g.launcher.cooldown = 0.25;
+  const next = nextAmmo(g);
+  g.loaded = g.launcher.ready > 0 ? next : -1;
+  if (next < 0) L.state[gi] = 'empty';
+  else if (g.launcher.ready <= 0) queueReload(L, gi);
+  syncGunShell(g);
+  return true;
 }
 
 /**
@@ -166,6 +206,10 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
     turretEntry('main', v.turret.position_m, v.turret.ring_diameter_m, v.turret.size_m, w.main_gun.traverse_deg_s, w.facing_deg, w.yaw_limit_deg, w.sight, w.loaders_m, mainGuns, !partsFor(0), v.turret.open_top, w.stabilizer, null, w.depression_by_bearing_deg),
   ];
   // designer vehicles: how far the gun may dip at each turret bearing (the barrel must clear the hull)
+  turrets[0].foldedDepByYaw = w.folded_depression_by_bearing_deg;
+  turrets[0].foldDepStages = w.fold_depression_stages;
+  turrets[0].foldedLimit = w.folded_yaw_limit_deg?.map(d => d * DEG);
+  turrets[0].foldYawStages = w.fold_yaw_limit_stages;
   if (bundle.design?.depression_by_yaw?.length) turrets[0].depByYaw = bundle.design.depression_by_yaw;
   (w.extra_turrets || []).forEach((t, i) => {
     const guns = t.guns.map((g) => gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m));
@@ -177,7 +221,7 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
     const def = machineGuns[sec.weapon];
     if (!def || !sec.mount) continue;
     const arc = (sec.arc_deg || MG_ARC[sec.mount] || [0, 0, 0]).map((d) => d * DEG);
-    mgs.push({ id: sec.id, weapon: sec.weapon, mount: sec.mount, def, bullet: bulletOf(def), table: mgTable(def), pos: sec.position_m, post: sec.post_m ?? 0.34, shield: sec.shield_m || null, arc, slew: (MG_SLEW[sec.mount] || 0) * DEG });
+    mgs.push({ id: sec.id, weapon: sec.weapon, mount: sec.mount, def, bullet: bulletOf(def), table: mgTable(def), pos: sec.position_m, elevationPivot: sec.elevation_pivot_m, post: sec.post_m ?? 0.34, shield: sec.shield_m || null, arc, slew: (MG_SLEW[sec.mount] || 0) * DEG });
   }
   return { id, name: v.name, vehicle: v, engine: bundle.engine, visual: bundle.visual, imported: bundle.imported || null, weapons: w, turrets, machineGuns: mgs, gunCount: turrets.reduce((s, t) => s + t.guns.length, 0) };
 }

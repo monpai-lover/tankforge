@@ -3,6 +3,8 @@
 // what it met and broke, and the vehicle's state (module and crew health, who sits where, fire,
 // repairs) is kept here between shots. The same Rust code resolves hits on the online server.
 
+import { foldedPlate } from './folding.js';
+
 const v3 = (p) => (Array.isArray(p) ? { x: p[0], y: p[1], z: p[2] } : p);
 export const arr3 = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
 
@@ -40,13 +42,16 @@ export function emptyRacks(bundle, state) {
 }
 
 /** The target description the Rust model wants, from a vehicle's data files. */
-export function targetDef(id, bundle) {
+export function targetDef(id, bundle, fold = 0) {
   const v = bundle.vehicle;
   const t = v.turret || {};
   const turret = t.ring_diameter_m > 0 && t.position_m ? { pivot: v3(t.position_m), size: v3(t.size_m || [1.5, 0.8, 1.8]) } : null;
   return {
     id,
-    plates: (bundle.armor || []).map((p) => ({ ...p, center: v3(p.center), normal: v3(p.normal), axis_u: v3(p.axis_u) })),
+    plates: (bundle.armor || []).map((p) => {
+      const { hinge, ...posed } = foldedPlate(p, fold);
+      return { ...posed, center: v3(posed.center), normal: v3(posed.normal), axis_u: v3(posed.axis_u) };
+    }),
     modules: (bundle.modules || []).map((m) => ({ ...m, center: v3(m.center), half_extents: v3(m.half_extents), health: m.max_health })),
     crew: (bundle.crew || []).map((c) => ({ role: c.role, pos: v3(c.pos), radius: c.radius ?? 0.25, health: 100 })),
     turret,
@@ -103,6 +108,9 @@ export class Combat {
   constructor(core) {
     this.core = core;
     this.known = new Set();
+    this.bundles = new Map();
+    this.foldPose = new Map();
+    this.appliedFold = new Map();
   }
 
   get ready() {
@@ -115,16 +123,36 @@ export class Combat {
     if (!this.known.has(id)) {
       this.core.combatTarget(targetDef(id, bundle));
       this.known.add(id);
+      this.bundles.set(id, bundle);
+      if (!this.foldPose.has(id)) this.foldPose.set(id, 0);
+      this.appliedFold.set(id, 0);
     }
+    this._applyFold(id);
     return this.core.combatNew(id);
+  }
+
+  /** Geometry changes are resolved on a hit, avoiding target serialization on every frame. */
+  setFold(id, fraction) {
+    this.foldPose.set(id, Number.isFinite(fraction) ? Math.max(0, Math.min(1, fraction)) : 0);
+  }
+
+  _applyFold(id) {
+    const fold = this.foldPose.get(id) || 0;
+    if (this.appliedFold.get(id) === fold) return;
+    const bundle = this.bundles.get(id);
+    if (!bundle) return;
+    this.core.combatTarget(targetDef(id, bundle, fold));
+    this.appliedFold.set(id, fold);
   }
 
   /** shot: {shell, origin, dir (hull space), speed_ms, distance_m, seed, turret_yaw} */
   shoot(id, state, shot) {
+    this._applyFold(id);
     return this.core.combatShoot(id, state, { ...shot, shell: shellDef(shot.shell), origin: v3(shot.origin), dir: v3(shot.dir) });
   }
 
   splash(id, state, at, kg, yaw, seed) {
+    this._applyFold(id);
     return this.core.combatSplash(id, state, v3(at), kg, yaw, seed);
   }
 

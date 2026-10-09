@@ -25,6 +25,7 @@ export const ORDER = [
   'de_hetzer_mk103',
   'de_hetzer_mk103_camo',
   'de_sdkfz140_1',
+  'de_hetzer_sdkfz1401',
   'xp_bmp_k64',
   'xp_bmp_k64_atgm',
   'xp_bmp_k64_kornet',

@@ -19,7 +19,26 @@
    10
   ],
   "missile": "9m133_kornet",
-  "guided": true
+  "guided": true,
+  "launcher": {
+   "muzzle_vectors_m": [
+    [
+     -0.284,
+     0.267,
+     0.68
+    ],
+    [
+     0.284,
+     0.267,
+     0.68
+    ]
+   ]
+  },
+  "muzzle_vector_m": [
+   -0.284,
+   0.267,
+   0.68
+  ]
  },
  "mount_m": [
   0.0,

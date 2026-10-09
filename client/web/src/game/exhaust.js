@@ -49,6 +49,11 @@ export class Exhaust {
     this.burst = 0;
   }
 
+  /** Follow the same rigid-body frame as the visible hull, including pitch and roll. */
+  updateHull(dt, body, load, rpm01) {
+    this.update(dt, p => body.worldPoint(p), d => body.worldDir(d), load, rpm01, body.v);
+  }
+
   /**
    * dt; toWorld(p) / toWorldDir(d) from the hull frame; load 0..1 (throttle against the engine);
    * rpm01 0..1 between idle and the governed speed; vel the hull's velocity (world).
