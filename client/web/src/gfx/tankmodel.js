@@ -253,7 +253,11 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     const pn = meshNode('mg_post', tn, post);
     pn.pos = rel;
     // the gun itself, after the real one's proportions where we have them (DShK, M2HB)
-    const { geo: gun, muzzle } = pintleGun(mg.weapon, mg.def.caliber_mm, mats);
+    mg.displayVariant = visual.mg_variants?.[mg.id] || null;
+    const { geo: gun, muzzle, muzzleVector } = pintleGun(mg.weapon, mg.def.caliber_mm, mats, mg.displayVariant);
+    // Bind render-derived bore metadata once for the runtime firing path.
+    mg.muzzleVector = muzzleVector;
+    mg.muzzleOffset = muzzle;
     if (mg.shield) {
       // the shield on the mount, turning with the gun: two plates either side of the barrel's
       // slot and the plate under it
@@ -267,7 +271,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     const gn = meshNode('mg_gun', tn, gun);
     gn.pos = rel;
     shellNodes.push(pn, gn);
-    mgs.push({ index: mi, node: gn, muzzle });
+    mgs.push({ index: mi, node: gn, muzzle, muzzleVector });
   });
 
   // ---- an armoured car: tyres on their axles, steered and sprung, no tracks
@@ -291,6 +295,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   const linkCount = Math.max(8, Math.round(staticLoop.length / (rg.link_pitch || 0.14)));
   const pitch = staticLoop.length / linkCount;
   const teeth = Math.max(8, Math.round((Math.PI * 2 * (rg.sprocket.r + rg.track_thickness / 2)) / pitch));
+  const idlerTeeth = rg.idler.teeth ? Math.max(8, Math.round((Math.PI * 2 * (rg.idler.r + rg.track_thickness / 2)) / pitch)) : 0;
   const wheels = [];
   const cache = new Map();
   const shared = (key, make) => {
@@ -336,11 +341,16 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       ring.mesh = shared('sprocket_teeth', () => sg().teeth);
       ring.kind = 5;
     }
-    addWheel('idler', rg.idler, shared('idler', () => wheelGeometry(rg.idler.r, rg.track_width * 0.6, 'steel_dish', mats)));
+    const idler = addWheel('idler', rg.idler, shared('idler', () => wheelGeometry(rg.idler.r, rg.track_width * 0.6, 'steel_dish', mats)));
+    if (idlerTeeth && !idler.node.imported) {
+      const ring = idler.node.add(new Node('idler_teeth'));
+      ring.mesh = shared('idler_teeth', () => sprocketGeometry({ ...rg, sprocket: rg.idler }, idlerTeeth, pitch, mats, side).teeth);
+      ring.kind = 5;
+    }
     (rg.rollers || []).forEach((rl, k) => {
       addWheel('return_roller', rl, shared(`r${rl.r}_${rl.w}`, () => wheelGeometry(rl.r, rl.w, 'rubber_dish', mats)), 0, k);
     });
-    sides.push({ side, sprocket });
+    sides.push({ side, sprocket, idler, idlerPhaseLoop: { front: staticLoop.front, rear: staticLoop.rear, sprocketFront: !staticLoop.sprocketFront } });
   }
   const matrices = new Float32Array(linkCount * 2 * 16);
   const pins = new Float32Array((linkCount + 1) * 2);
@@ -364,6 +374,12 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       // the ground run stands still on the ground, so seen from the hull it runs backwards
       o = placeLinks(loop, linkCount, -dyn.travel[side], side * rg.track_x, matrices, o, pins);
       sd.sprocket.node.pitch = sprocketPhase(loop, pins, linkCount, rg.sprocket, teeth);
+      if (idlerTeeth && !sd.idler.node.imported) {
+        sd.idlerPhaseLoop.front = loop.front;
+        sd.idlerPhaseLoop.rear = loop.rear;
+        sd.idlerPhaseLoop.sprocketFront = !loop.sprocketFront;
+        sd.idler.node.pitch = sprocketPhase(sd.idlerPhaseLoop, pins, linkCount, rg.idler, idlerTeeth);
+      }
       sd.length = loop.length;
       sd.idlerShift = loop.idlerShift || 0;
     }
@@ -371,7 +387,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     for (const w of wheels) {
       if (w.station >= 0) w.node.pos[1] = w.node.baseY + (lod >= 2 ? 0 : dyn.lifts[w.side][w.station]);
       if (w.role === 'idler') w.node.pos[2] = rg.idler.z + (sides.find((sd) => sd.side === w.side).idlerShift || 0);
-      if (w.role !== 'sprocket') w.node.pitch = (dyn.travel[w.side] / w.r) % (Math.PI * 2);
+      if (w.role !== 'sprocket' && !(w.role === 'idler' && idlerTeeth && !w.node.imported)) w.node.pitch = (dyn.travel[w.side] / w.r) % (Math.PI * 2);
     }
   }
   const baseSag = rg.track_sag ?? ((rg.rollers || []).length ? 0.012 : 0.03);

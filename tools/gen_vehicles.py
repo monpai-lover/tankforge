@@ -12,6 +12,7 @@ Exterior shapes are original procedural geometry (prisms / plan extrusions / box
 cylinders) built from those dimensions -- no third-party meshes are used.
 """
 import json, math, os, sys
+from procedural_refinements import refine_procedural_spec
 
 ROOT = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 DATA = os.path.join(ROOT, "data")
@@ -4844,7 +4845,16 @@ def check(spec, plates, modules, crew_list):
 def dump(path, obj, compact_lists=True):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     text = json.dumps(obj, indent=1, ensure_ascii=False)
-    with open(path, "w", encoding="utf-8") as f:
+    # Preserve already equivalent files (including their harmless compact lists).
+    # Authoring on Windows must not rewrite a whole fleet solely for line endings.
+    if os.path.exists(path):
+        try:
+            with open(path, encoding="utf-8") as existing:
+                if json.load(existing) == json.loads(text):
+                    return
+        except (OSError, ValueError):
+            pass
+    with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(text + "\n")
 
 
@@ -4868,6 +4878,7 @@ def with_kind(vid, physics):
 
 
 def write_vehicle(s):
+    s = refine_procedural_spec(s)
     d = os.path.join(DATA, "vehicles", s["id"])
     plates = s["plates"] if "plates" in s else hull_plates(s) + turret_plates(s)
     wheeled = s["running_gear"].get("kind") == "wheels"
@@ -4916,6 +4927,8 @@ def write_vehicle(s):
     if s.get("own_breech"):
         # the open mount's gun is modelled in full: no generic breech drawn over it
         visual["own_breech"] = True
+    if s.get("mg_variants"):
+        visual["mg_variants"] = s["mg_variants"]
     dump(os.path.join(d, "vehicle.json"), vehicle)
     dump(os.path.join(d, "armor.json"), plates)
     dump(os.path.join(d, "weapons.json"), weapons)

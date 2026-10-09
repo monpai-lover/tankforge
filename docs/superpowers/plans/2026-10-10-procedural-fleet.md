@@ -8,9 +8,10 @@
 
 **Tech Stack:** Existing Python vehicle builders, JavaScript WebGL geometry, Node tests, real Edge WebGL browser captures.
 
-- [ ] Freeze target/excluded model inventory and baseline receipts; archive the 27 procedural models from multiple actual rendered views.
-- [ ] Extend geometry evidence to fixed part connectivity, running gear, turret/gun extreme and intermediate poses, recoil and existing folding boards. Record witnesses and filter intentional joints/openings.
-- [ ] Check all target historical shapes against type-correct references; keep fictional/unfinished vehicle identity explicit. Prioritize confirmed silhouettes and wheel/track structures over micro-detail.
-- [ ] For each verified family issue, add a failing focused regression, fix its source builder/rendering contract, regenerate only named models and confirm untouched imported asset hashes.
-- [ ] Re-scan and re-render changed families; check gun/muzzle alignment, closed hull surfaces, ground support, source-defined wheels, armor/interior fit, workshop replace/retain and relevant existing fold paths.
-- [ ] Run complete web suite/build, strict data validation and reproducible targeted builders; review diff, document per-vehicle coverage and uncertainty, merge/push clean main, preserve screenshots and clean temporary checkout.
+- [x] Freeze target/excluded model inventory and baseline receipts; archive the 27 procedural models from multiple actual rendered views.
+- [x] Extend geometry evidence to fixed part connectivity, running gear, turret/gun extreme and intermediate poses, recoil and existing folding boards. Record witnesses and filter intentional joints/openings.
+- [x] Check all target historical shapes against type-correct references; keep fictional/unfinished vehicle identity explicit. Prioritize confirmed silhouettes and wheel/track structures over micro-detail.
+- [x] For each verified family issue, add a failing focused regression, fix its source builder/rendering contract, regenerate only named models and confirm untouched imported asset hashes.
+- [x] Re-scan and re-render changed families; check gun/muzzle alignment, closed hull surfaces, ground support, source-defined wheels, armor/interior fit, workshop replace/retain and relevant existing fold paths.
+- [x] Run complete web suite/build, strict data validation and reproducible targeted builders; review diff and document per-vehicle coverage and uncertainty.
+- [ ] Merge/push clean main, preserve screenshots and clean temporary checkout.

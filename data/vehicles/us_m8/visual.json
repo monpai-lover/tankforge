@@ -2040,7 +2040,8 @@
     0.0,
     1.77,
     0.38
-   ]
+   ],
+   "recoil": true
   },
   {
    "type": "cyl",
@@ -2090,6 +2091,7 @@
    }
   ]
  },
+ "own_breech": true,
  "exhaust": {
   "fuel": "petrol"
  }

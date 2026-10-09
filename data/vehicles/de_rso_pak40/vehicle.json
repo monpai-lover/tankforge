@@ -9,7 +9,7 @@
   "year": 1943,
   "outline": "traced",
   "based_on": "7.5 cm PaK 40/4 auf Raupenschlepper Ost (Sfl.), the armoured cab and the PaK 40 on a turntable",
-  "notes": "Rebuilt from the three-view drawing supplied with the request (3 m scale bar: 362 px per metre). Steyr 1500A V8 of 85 hp, 17 km/h on the road; the gun fires forward over the cab and traverses 30 deg either side on its turntable."
+  "notes": "Rebuilt from the three-view drawing supplied with the request (3 m scale bar: 362 px per metre). Steyr 1500A V8 of 85 hp, 17 km/h on the road; the gun fires forward over the cab. The two driving covers open with I; full-open firing permits360-degree traverse. The retained parked arc, transition centering, front-cover hinge stops and per-bearing depression table are engineering clearance adaptations to this model."
  },
  "files": {
   "armor": "armor.json",

@@ -4196,45 +4196,15 @@
    "mount": "gun",
    "mat": "paint",
    "r": 0.072,
-   "len": 2.62,
+   "len": 2.9,
    "axis": "z",
    "pos": [
     0.0,
     2.27,
-    2.35
+    2.49
    ],
    "segs": 20,
    "r2": 0.052,
-   "recoil": true
-  },
-  {
-   "type": "cyl",
-   "mount": "gun",
-   "mat": "paint_dark",
-   "r": 0.085,
-   "len": 0.28,
-   "axis": "z",
-   "pos": [
-    0.0,
-    2.27,
-    3.8
-   ],
-   "segs": 18,
-   "recoil": true
-  },
-  {
-   "type": "cyl",
-   "mount": "gun",
-   "mat": "paint_dark",
-   "r": 0.1,
-   "len": 0.05,
-   "axis": "z",
-   "pos": [
-    0.0,
-    2.27,
-    3.91
-   ],
-   "segs": 18,
    "recoil": true
   },
   {

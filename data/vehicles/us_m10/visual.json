@@ -591,7 +591,8 @@
     0.0,
     2.2,
     0.65
-   ]
+   ],
+   "recoil": true
   },
   {
    "type": "box",
@@ -709,6 +710,7 @@
   ],
   "wheel_style": "rubber_dish"
  },
+ "own_breech": true,
  "exhaust": {
   "fuel": "diesel"
  }

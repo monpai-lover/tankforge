@@ -13,6 +13,11 @@
     "schema_version": {
       "const": 1
     },
+    "mg_variants": {
+      "type": "object",
+      "description": "Display variants by secondary weapon id. The Hetzer remote MG34 omits the infantry buttstock; the shared source asset and weapon tuning are preserved.",
+      "additionalProperties": { "enum": ["mg34_remote"] }
+    },
     "palette": {
       "type": "object",
       "description": "#rrggbb per material slot",
@@ -529,6 +534,7 @@
         "wheel_style": {
           "enum": [
             "rubber_dish",
+            "hvss_dish",
             "steel_dish",
             "spoked",
             "starfish"

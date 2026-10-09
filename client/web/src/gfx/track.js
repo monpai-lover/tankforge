@@ -348,6 +348,25 @@ export function sprocketGeometry(rg, teeth, pitch, mats, side = 1) {
 /** Road wheel / idler / roller: tyre or steel rim, dished disc, hub and bolt circle. */
 export function wheelGeometry(r, w, style, mats) {
   const b = new GeoBuilder();
+  if (style === 'hvss_dish') {
+    // One C135843-style HVSS wheel disc. The paired disc is a separate wheel
+    // entry at the same longitudinal station, not a second tyre at this x.
+    // Keep the solid dished plates and short face bolts within that disc; only
+    // the small axle/hub bridges toward its mate, leaving the guide slot open.
+    b.cyl(IDENTITY, false, 'x', r, r, w, 24, mats.rubber);
+    b.cyl(IDENTITY, false, 'x', r * .86, r * .86, w + .008, 24, mats.paint);
+    for (const sx of [-1, 1]) {
+      b.cyl(translation(sx * (w * .5 + .006), 0, 0), false, 'x',
+        r * (sx > 0 ? .8 : .34), r * (sx > 0 ? .34 : .8), .02, 20, mats.paint);
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * TAU;
+        b.cyl(translation(sx * (w * .5 + .016), Math.cos(a) * r * .5, Math.sin(a) * r * .5),
+          false, 'x', r * .028, r * .028, .014, 6, mats.steel);
+      }
+    }
+    b.cyl(IDENTITY, false, 'x', r * .22, r * .18, w + .10, 12, mats.paint_dark);
+    return b.build();
+  }
   if (style === 'spoked') {
     // rubber tyre on a narrow rim, six flat spokes to the hub on each face
     b.cyl(IDENTITY, false, 'x', r, r, w, 24, mats.rubber);
@@ -391,7 +410,16 @@ export function wheelGeometry(r, w, style, mats) {
   const bolts = r > 0.3 ? 8 : 6;
   for (let i = 0; i < bolts; i++) {
     const a = (i / bolts) * TAU;
-    b.cyl(translation(0, Math.cos(a) * r * 0.36, Math.sin(a) * r * 0.36), false, 'x', r * 0.035, r * 0.035, w + 0.075, 6, mats.steel);
+    if (w < .10) {
+      // Narrow paired discs (M113) need short bolt heads on each face. A single
+      // through-rod protrudes into the guide slot and makes the pair look joined.
+      for (const sx of [-1, 1]) {
+        b.cyl(translation(sx * (w * .5 + .015), Math.cos(a) * r * .36, Math.sin(a) * r * .36),
+          false, 'x', r * .035, r * .035, .015, 6, mats.steel);
+      }
+    } else {
+      b.cyl(translation(0, Math.cos(a) * r * 0.36, Math.sin(a) * r * 0.36), false, 'x', r * 0.035, r * 0.035, w + 0.075, 6, mats.steel);
+    }
   }
   if (!steel) {
     // lightening holes in the disc

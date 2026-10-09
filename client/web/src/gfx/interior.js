@@ -441,7 +441,8 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
         n.kind = 3;
         // in an open mount the breech shows all the time -- unless the model has its own (an
         // imported one, or a gun built in full in visual.json: own_breech)
-        n.always = !!t.openTop && !model.imported && !loadout.visual?.own_breech;
+        const sourceGun = loadout.imported?.parts.some(p => (p.mount === 'gun' || p.mount === 'barrel') && (p.turret || 0) === ti && (p.gun || 0) === gi);
+        n.always = !!t.openTop && !sourceGun && !(loadout.visual?.own_breech && !t.generated);
         n.visible = n.always;
         n.castShadow = false;
         nodes.push(n);

@@ -1665,6 +1665,68 @@
    ],
    "segs": 18,
    "recoil": true
+  },
+  {
+   "name": "crew_clearance_gunner_cushion",
+   "type": "box",
+   "mount": "turret",
+   "mat": "black",
+   "size": [
+    0.3,
+    0.05,
+    0.28
+   ],
+   "pos": [
+    -0.3,
+    1.45,
+    -1.6
+   ]
+  },
+  {
+   "name": "crew_clearance_gunner_post",
+   "type": "cyl",
+   "mount": "turret",
+   "mat": "steel",
+   "axis": "y",
+   "r": 0.025,
+   "len": 0.415,
+   "pos": [
+    -0.3,
+    1.2175,
+    -1.6
+   ],
+   "segs": 12
+  },
+  {
+   "name": "crew_clearance_loader_cushion",
+   "type": "box",
+   "mount": "turret",
+   "mat": "black",
+   "size": [
+    0.3,
+    0.05,
+    0.28
+   ],
+   "pos": [
+    0.3,
+    1.45,
+    -1.7
+   ]
+  },
+  {
+   "name": "crew_clearance_loader_post",
+   "type": "cyl",
+   "mount": "turret",
+   "mat": "steel",
+   "axis": "y",
+   "r": 0.025,
+   "len": 0.415,
+   "pos": [
+    0.3,
+    1.2175,
+    -1.7
+   ],
+   "segs": 12
   }
  ],
  "running_gear": {

@@ -14,16 +14,30 @@ export function setMgModels(m) {
   MODELS = m || null;
 }
 
-function fromAsset(a, mats) {
+function fromAsset(a, mats, remoteMg34 = false) {
   const b = new GeoBuilder();
   const pal = a.palette.map((c) => ({ ...mats.black, color: c.map((v) => Math.pow(v, 2.2)), rough: 0.55, metal: 0.45 }));
   const p = a.pos;
   for (let t = 0; t < a.triangles; t++) {
     const o = t * 9;
+    // The supplied MG34's infantry stock is a separate component ending at
+    // z=-332 mm. The Hetzer remote cradle holds the stockless receiver instead.
+    // No triangle crosses this seam; retain the complete original receiver.
+    if (remoteMg34 && Math.max(p[o + 2], p[o + 5], p[o + 8]) <= -332) continue;
     const v = (k) => [p[o + k * 3] / 1000, p[o + k * 3 + 1] / 1000, p[o + k * 3 + 2] / 1000];
     b.tri(IDENTITY, false, v(0), v(1), v(2), pal[a.col[t]]);
   }
   return b;
+}
+
+function assetMuzzle(a) {
+  // Centre of the muzzle's outer ring in the quantized asset, computed only
+  // when the gun is built. The scalar reach alone loses the off-axis bore.
+  const tip = Math.round(a.muzzle * 1000), lo = [Infinity, Infinity], hi = [-Infinity, -Infinity];
+  for (let i = 0; i < a.pos.length; i += 3) if (a.pos[i + 2] === tip) {
+    for (let k = 0; k < 2; k++) { lo[k] = Math.min(lo[k], a.pos[i + k]); hi[k] = Math.max(hi[k], a.pos[i + k]); }
+  }
+  return [0, 1].map(k => Number.isFinite(lo[k]) ? (lo[k] + hi[k]) / 2000 : 0).concat(a.muzzle);
 }
 
 /** DShK 1938: receiver with the spade grips, the 50-round box on the left, the finned barrel,
@@ -86,13 +100,17 @@ function generic(b, m, heavy) {
 }
 
 /** The pintle gun for this weapon id: { geo: GeoBuilder, muzzle: m ahead of the swivel }. */
-export function pintleGun(weapon, caliber, mats) {
-  if (MODELS && MODELS[weapon]) return { geo: fromAsset(MODELS[weapon], mats), muzzle: MODELS[weapon].muzzle };
+export function pintleGun(weapon, caliber, mats, displayVariant = null) {
+  if (MODELS && MODELS[weapon]) {
+    const a = MODELS[weapon];
+    return { geo: fromAsset(a, mats, weapon === 'mg34' && displayVariant === 'mg34_remote'), muzzle: a.muzzle, muzzleVector: assetMuzzle(a) };
+  }
   const b = new GeoBuilder();
   let muzzle;
   if (weapon === 'dshk') muzzle = dshk(b, mats);
   else if (weapon === 'm2hb') muzzle = m2hb(b, mats);
   else muzzle = generic(b, mats, caliber > 10);
-  return { geo: b, muzzle };
+  const boreY = weapon === 'dshk' ? .19 : weapon === 'm2hb' ? .18 : .06;
+  return { geo: b, muzzle, muzzleVector: [0, boreY, muzzle] };
 }
 

@@ -9,7 +9,7 @@ use std::fmt;
 use std::path::Path;
 use tg_armor::{ArmorZone, Material, MaterialDb};
 use tg_damage::{CrewRole, ModuleKind};
-use crate::files::SightDef;
+use crate::files::{MgMount, SightDef};
 use tg_weapon::mg::MachineGunDef;
 use tg_weapon::{GunDef, ProjectileDef, ProjectileKind};
 
@@ -176,6 +176,15 @@ impl Volume {
     }
     fn contains(&self, p: [f32; 3], m: f32) -> bool {
         self.boxes.iter().any(|b| (0..3).all(|i| p[i] >= b.0[i] - m && p[i] <= b.1[i] + m))
+    }
+    fn contains_pintle_anchor(&self, p: [f32; 3]) -> bool {
+        // The volume boxes omit roof cupolas (the IS-2 anchor is 225 mm above
+        // its coarse turret box). Allow that vertical accessory height, while
+        // requiring a close horizontal attachment to the vehicle footprint.
+        self.boxes.iter().any(|b| (0..3).all(|i| {
+            let above = if i == 1 { 0.25 } else { 0.05 };
+            p[i] >= b.0[i] - 0.05 && p[i] <= b.1[i] + above
+        }))
     }
 }
 
@@ -521,7 +530,17 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
         }
     }
     for (i, s) in v.weapons.secondary.iter().enumerate() {
-        if !vol.contains(s.position_m, 0.5) {
+        if s.mount == Some(MgMount::Pintle) {
+            // position_m is this gun's elevated firing hinge, not its anchor.
+            // Match the renderer's existing default and actual downward post;
+            // a finite roof support cannot justify an arbitrary tall mast.
+            let post = s.post_m.unwrap_or(0.34);
+            let anchor = [s.position_m[0], s.position_m[1] - post, s.position_m[2]];
+            if !s.position_m.iter().all(|v| v.is_finite()) || !post.is_finite() || post <= 0.0 || post > 1.0
+                || !vol.contains_pintle_anchor(anchor) {
+                r.err("W007", format!("weapons.json:secondary[{}]", i), "pintle needs a finite post in (0,1] m anchored within the vehicle");
+            }
+        } else if !vol.contains(s.position_m, 0.5) {
             r.err("W007", format!("weapons.json:secondary[{}]", i), "secondary weapon is far outside the vehicle");
         }
         if let Some(pivot) = s.elevation_pivot_m {
@@ -702,6 +721,56 @@ mod tests {
         let db = MaterialDb::from_vec(load_materials(&root.join("materials.json")).unwrap());
         let shells = load_projectiles(&root.join("projectiles")).unwrap().into_iter().map(|(_, p)| (p.id.clone(), p)).collect();
         (load_vehicle(&root.join("vehicles/proto_a")).unwrap(), db, shells)
+    }
+
+    #[test]
+    fn roof_pintles_are_valid_when_their_actual_posts_reach_the_original_vehicle_anchor() {
+        let (_, db, shells) = fixtures();
+        for id in ["su_is2", "su_t54", "us_m8", "us_m10", "us_m4a2", "us_m4a3_75w", "us_m4a1_76w", "us_m4a3_76w_hvss", "de_hetzer"] {
+            let v = load_vehicle(&data_root().join("vehicles").join(id)).unwrap();
+            let report = validate_vehicle(&v, &db, &shells);
+            assert!(!report.has("W007"), "{id}: anchored firing-position pintle rejected:\n{report}");
+        }
+    }
+
+    #[test]
+    fn roof_pintles_reject_bad_posts_and_unsupported_vertical_or_lateral_anchors() {
+        let (_, db, shells) = fixtures();
+        let source = load_vehicle(&data_root().join("vehicles/us_m10")).unwrap();
+        for post in [0.0, -0.1, f32::NAN, f32::INFINITY, f32::NEG_INFINITY, 1.01] {
+            let mut v = source.clone();
+            v.weapons.secondary[0].post_m = Some(post);
+            assert!(validate_vehicle(&v, &db, &shells).has("W007"), "invalid pintle post {post} was accepted");
+        }
+        for (position, post) in [([0.0, 2.993, -1.08], 0.01), ([1.625, 1.8, 0.0], 0.3),
+                                  ([0.0, 4.0, -1.08], 0.453), ([f32::NAN, 2.993, -1.08], 0.453),
+                                  ([0.0, f32::INFINITY, -1.08], 0.453)] {
+            let mut v = source.clone();
+            v.weapons.secondary[0].position_m = position;
+            v.weapons.secondary[0].post_m = Some(post);
+            assert!(validate_vehicle(&v, &db, &shells).has("W007"), "unsupported pintle {position:?}, post {post} was accepted");
+        }
+    }
+
+    #[test]
+    fn ordinary_secondary_bounds_and_legacy_pintle_default_remain_effective() {
+        let (_, db, shells) = fixtures();
+        let source = load_vehicle(&data_root().join("vehicles/us_m10")).unwrap();
+        for mount in [crate::files::MgMount::Coax, crate::files::MgMount::Hull] {
+            let mut v = source.clone();
+            v.weapons.secondary[0].mount = Some(mount);
+            v.weapons.secondary[0].position_m = [0.0, 2.993, -1.08];
+            v.weapons.secondary[0].post_m = None;
+            assert!(!validate_vehicle(&v, &db, &shells).has("W007"));
+            v.weapons.secondary[0].position_m = [0.0, 5.0, 0.0];
+            assert!(validate_vehicle(&v, &db, &shells).has("W007"));
+        }
+        let mut v = source;
+        v.weapons.secondary[0].post_m = None;
+        v.weapons.secondary[0].position_m = [0.0, 2.88, -1.08];
+        assert!(!validate_vehicle(&v, &db, &shells).has("W007"), "legacy pintle uses the renderer's .34 m default");
+        v.weapons.secondary[0].elevation_pivot_m = Some([0.0, f32::NAN, 0.0]);
+        assert!(validate_vehicle(&v, &db, &shells).has("W007"), "ordinary optional hinge validation is still active");
     }
 
     #[test]

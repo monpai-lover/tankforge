@@ -71,10 +71,10 @@
    "mount": "pintle",
    "position_m": [
     0.46,
-    2.8,
+    3.193,
     -0.02
    ],
-   "post_m": 0.28
+   "post_m": 0.673
   }
  ],
  "depression_by_bearing_deg": [

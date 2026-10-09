@@ -67,3 +67,4 @@ node test/online.mjs                                    # 兩個瀏覽器經 tg-
 - 僅重建本輪車輛：`python tools/build_hetzer_sdkfz1401.py`、`python tools/repair_bmp_k64.py`、`python tools/repair_folding_flaps.py`；需要 NumPy／Pillow，來源檔案與雜湊隨倉庫保留。不要為局部修復重產整個車隊。
 - 原版追獵者參考修形與換頭回歸見 [修形紀錄](docs/hetzer-reference-refinement-2026-10-09.md)，定向重建用 `python tools/build_hetzer_original.py`；導彈過載與速度平方轉彎半徑見 [導彈力模型](docs/missile-flight.md)。命中回放包含彈體和漸進軌跡，瞄具依每車倍率/視場顯示不同鏡口；滑轉/下陷讀數固定顯示。
 - [2026-10-10 改裝工坊更新](docs/workshop-refresh-2026-10-10.md)：現有武器／瞄具／穩定器、實用預設、導入底盤保留、獨立模型匯出与資料包再匯入；原設計槍與換頭繼續保留。
+- [2026-10-10 全程序車隊模型檢查與修復](docs/procedural-fleet-refinement-2026-10-10.md)：27 款車逐車多視角、活動部件與歷史型別核對；排除 15 款已有整車模型的車輛。局部重建用 `python tools/rebuild_procedural_models.py --ids=<IDs>`。

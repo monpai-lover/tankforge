@@ -3203,9 +3203,13 @@ export function start(data, saved = {}) {
     const range = Math.hypot(d[0], d[1], d[2]);
     const want = { yaw: Math.atan2(d[0], d[2]), pitch: Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, range) };
     e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew, dt);
-    const dl = dirFrom(e.aim.yaw, e.aim.pitch + hullTilt(G.ss, e.aim.yaw));
-    const len = m.mount === 'pintle' ? 1.0 : 0.3;
-    return { pos: gunnery.toWorldPoint(ps, [base[0] + dl[0] * len, base[1] + dl[1] * len, base[2] + dl[2] * len]), dir: gunnery.toWorldDir(ps, dl), trunnion: gunnery.toWorldPoint(ps, base) };
+    const pitch = e.aim.pitch + hullTilt(G.ss, e.aim.yaw);
+    if (m.mount === 'pintle') {
+      const local = gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch });
+      return { pos: gunnery.toWorldPoint(ps, local.pos), dir: gunnery.toWorldDir(ps, local.dir), trunnion: gunnery.toWorldPoint(ps, base) };
+    }
+    const dl = dirFrom(e.aim.yaw, pitch);
+    return { pos: gunnery.toWorldPoint(ps, [base[0] + dl[0] * 0.3, base[1] + dl[1] * 0.3, base[2] + dl[2] * 0.3]), dir: gunnery.toWorldDir(ps, dl), trunnion: gunnery.toWorldPoint(ps, base) };
   }
 
   function sightMuzzle(tilt = 0) {

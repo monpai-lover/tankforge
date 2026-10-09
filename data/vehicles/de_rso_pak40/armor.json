@@ -276,29 +276,6 @@
   "half_v": 0.22
  },
  {
-  "id": "cab_roof",
-  "zone": "hull_roof",
-  "material": "rha",
-  "thickness_mm": 5,
-  "center": {
-   "x": 0.0,
-   "y": 1.38,
-   "z": 1.0
-  },
-  "normal": {
-   "x": 0.0,
-   "y": 1.0,
-   "z": 0.0
-  },
-  "axis_u": {
-   "x": 1.0,
-   "y": 0.0,
-   "z": 0.0
-  },
-  "half_u": 0.95,
-  "half_v": 0.3
- },
- {
   "id": "cab_rear",
   "zone": "hull_rear",
   "material": "rha",
@@ -389,5 +366,238 @@
   },
   "half_u": 0.3,
   "half_v": 0.33
+ },
+ {
+  "id": "cab_roof_cell_0",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": -0.835,
+   "y": 1.38,
+   "z": 1.01
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.115,
+  "half_v": 0.3
+ },
+ {
+  "id": "cab_roof_cell_1",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": -0.5,
+   "y": 1.38,
+   "z": 0.79
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.22,
+  "half_v": 0.08
+ },
+ {
+  "id": "cab_roof_cell_2",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": -0.5,
+   "y": 1.38,
+   "z": 1.24
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.22,
+  "half_v": 0.07
+ },
+ {
+  "id": "cab_roof_cell_3",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": -0.005,
+   "y": 1.38,
+   "z": 1.01
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.275,
+  "half_v": 0.3
+ },
+ {
+  "id": "cab_roof_cell_4",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": 0.52,
+   "y": 1.38,
+   "z": 0.755
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.25,
+  "half_v": 0.045
+ },
+ {
+  "id": "cab_roof_cell_5",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": 0.52,
+   "y": 1.38,
+   "z": 1.235
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.25,
+  "half_v": 0.075
+ },
+ {
+  "id": "cab_roof_cell_6",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": 0.86,
+   "y": 1.38,
+   "z": 1.01
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.09,
+  "half_v": 0.3
+ },
+ {
+  "id": "cab_driving_lid_0",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": 0.52,
+   "y": 1.3815,
+   "z": 0.98
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.25,
+  "half_v": 0.18,
+  "hinge": {
+   "a": [
+    0.27,
+    1.384,
+    1.16
+   ],
+   "b": [
+    0.77,
+    1.384,
+    1.16
+   ],
+   "angle": 180
+  }
+ },
+ {
+  "id": "cab_driving_lid_1",
+  "zone": "hull_roof",
+  "material": "skirt",
+  "thickness_mm": 3,
+  "center": {
+   "x": -0.5,
+   "y": 1.3815,
+   "z": 1.02
+  },
+  "normal": {
+   "x": 0.0,
+   "y": 1.0,
+   "z": 0.0
+  },
+  "axis_u": {
+   "x": 1.0,
+   "y": 0.0,
+   "z": 0.0
+  },
+  "half_u": 0.22,
+  "half_v": 0.15,
+  "hinge": {
+   "a": [
+    -0.72,
+    1.384,
+    1.17
+   ],
+   "b": [
+    -0.28,
+    1.384,
+    1.17
+   ],
+   "angle": 180
+  }
  }
 ]

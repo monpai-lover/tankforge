@@ -791,7 +791,7 @@
     0.95
    ],
    "pos": [
-    0.2,
+    0.33,
     2.0,
     -0.18
    ],
@@ -802,14 +802,14 @@
    "mount": "turret",
    "mat": "paint_dark",
    "size": [
-    0.4,
+    0.66,
     0.1,
-    0.5
+    0.1
    ],
    "pos": [
     0.0,
     1.74,
-    -0.15
+    0.245
    ]
   },
   {
@@ -820,7 +820,7 @@
    "len": 0.03,
    "axis": "x",
    "pos": [
-    0.235,
+    0.36,
     2.165,
     -0.01
    ],
@@ -835,7 +835,7 @@
    "len": 0.035,
    "axis": "x",
    "pos": [
-    0.235,
+    0.36,
     2.165,
     -0.01
    ],
@@ -899,7 +899,7 @@
    "len": 0.02,
    "axis": "x",
    "pos": [
-    0.25,
+    0.4,
     1.96,
     -0.35
    ],
@@ -911,10 +911,10 @@
    "mount": "turret",
    "mat": "steel",
    "r": 0.012,
-   "len": 0.06,
+   "len": 0.1,
    "axis": "x",
    "pos": [
-    0.225,
+    0.37,
     1.96,
     -0.35
    ],
@@ -1201,13 +1201,14 @@
    "size": [
     0.14,
     0.16,
-    1.0
+    0.6
    ],
    "pos": [
     0.0,
     2.165,
-    -0.37
-   ]
+    -0.17
+   ],
+   "name": "flak38_receiver"
   },
   {
    "type": "box",
@@ -1216,12 +1217,12 @@
    "size": [
     0.1,
     0.08,
-    0.8
+    0.56
    ],
    "pos": [
     0.0,
     2.055,
-    -0.31
+    -0.19
    ]
   },
   {
@@ -1313,7 +1314,7 @@
    "pos": [
     0.2,
     2.315,
-    -0.56
+    -0.21
    ]
   },
   {
@@ -1328,7 +1329,7 @@
    "pos": [
     0.22,
     2.465,
-    -0.56
+    -0.21
    ]
   },
   {
@@ -1341,10 +1342,136 @@
    "pos": [
     0.22,
     2.485,
-    -0.35
+    -0.0
    ],
    "segs": 18,
    "r2": 0.065
+  },
+  {
+   "name": "flak38_sight_bracket",
+   "type": "box",
+   "mount": "gun",
+   "mat": "steel",
+   "size": [
+    0.24,
+    0.035,
+    0.05
+   ],
+   "pos": [
+    0.1,
+    2.205,
+    -0.21
+   ]
+  },
+  {
+   "name": "flak38_shield_stays",
+   "type": "box",
+   "mount": "turret",
+   "mat": "paint_dark",
+   "size": [
+    0.04,
+    0.04,
+    0.26
+   ],
+   "pos": [
+    0.33,
+    2.24,
+    0.4
+   ],
+   "mirror": true
+  },
+  {
+   "name": "flak38_seat_back_bracket",
+   "type": "box",
+   "mount": "turret",
+   "mat": "steel",
+   "size": [
+    0.06,
+    0.12,
+    0.08
+   ],
+   "pos": [
+    0.0,
+    2.0,
+    -0.87
+   ]
+  },
+  {
+   "name": "flak38_elevation_pins",
+   "type": "cyl",
+   "mount": "gun",
+   "mat": "steel",
+   "axis": "x",
+   "r": 0.035,
+   "len": 0.72,
+   "pos": [
+    0.0,
+    2.165,
+    -0.01
+   ],
+   "segs": 16
+  },
+  {
+   "name": "crew_clearance_commander_cushion",
+   "type": "box",
+   "mount": "turret",
+   "mat": "black",
+   "size": [
+    0.3,
+    0.05,
+    0.28
+   ],
+   "pos": [
+    0.35,
+    1.3,
+    -0.75
+   ]
+  },
+  {
+   "name": "crew_clearance_commander_post",
+   "type": "cyl",
+   "mount": "turret",
+   "mat": "steel",
+   "axis": "y",
+   "r": 0.025,
+   "len": 0.02,
+   "pos": [
+    0.35,
+    1.2725,
+    -0.75
+   ],
+   "segs": 12
+  },
+  {
+   "name": "crew_clearance_loader_cushion",
+   "type": "box",
+   "mount": "turret",
+   "mat": "black",
+   "size": [
+    0.3,
+    0.05,
+    0.28
+   ],
+   "pos": [
+    -0.3,
+    1.35,
+    -0.65
+   ]
+  },
+  {
+   "name": "crew_clearance_loader_post",
+   "type": "cyl",
+   "mount": "turret",
+   "mat": "steel",
+   "axis": "y",
+   "r": 0.025,
+   "len": 0.055,
+   "pos": [
+    -0.3,
+    1.2975,
+    -0.65
+   ],
+   "segs": 12
   }
  ],
  "running_gear": {
