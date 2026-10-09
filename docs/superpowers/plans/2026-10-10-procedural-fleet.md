@@ -14,4 +14,4 @@
 - [x] For each verified family issue, add a failing focused regression, fix its source builder/rendering contract, regenerate only named models and confirm untouched imported asset hashes.
 - [x] Re-scan and re-render changed families; check gun/muzzle alignment, closed hull surfaces, ground support, source-defined wheels, armor/interior fit, workshop replace/retain and relevant existing fold paths.
 - [x] Run complete web suite/build, strict data validation and reproducible targeted builders; review diff and document per-vehicle coverage and uncertainty.
-- [ ] Merge/push clean main, preserve screenshots and clean temporary checkout.
+- [x] Merge/push clean main, preserve screenshots and clean temporary checkout.
