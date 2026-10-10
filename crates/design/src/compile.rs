@@ -270,7 +270,7 @@ pub fn compile(m: &Model, r: &DesignReport, engine: Option<&EngineFile>) -> Opti
         sight: Some(SightDef {
             name: "設計局瞄準鏡".into(),
             levels: vec![SightLevel { magnification: 3.0, fov_deg: 16.0 }, SightLevel { magnification: 6.0, fov_deg: 8.0 }],
-            rangefinder: Some(RangefinderDef { time_s: 2.0, error_pct: 4.0, max_range_m: 3000.0 }),
+            rangefinder: Some(RangefinderDef { kind: None, time_s: 2.0, error_pct: 4.0, max_range_m: 3000.0 }),
         }),
         stabilizer: d.weapons.as_ref().map(|w| w.stabilizer.clone()).filter(|s| s != "none"),
         secondary: vec![],

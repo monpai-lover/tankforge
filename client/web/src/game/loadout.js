@@ -10,9 +10,10 @@ import { bulletOf } from '../sim/mg.js';
 import { fired as queueReload } from '../sim/loading.js';
 import { workshopImportedModel, exportWorkshopModel } from './workshopImported.js';
 import { workshopTurretSeat } from './turretSeat.js';
+import { resolveRangefinder, equipmentSight } from './rangefinderEquipment.js';
+export { DEFAULT_RANGEFINDER } from './rangefinderEquipment.js';
 
 export const SIGHT_RANGES = Array.from({ length: 30 }, (_, i) => (i + 1) * 100);
-export const DEFAULT_RANGEFINDER = { time_s: 2.5, error_pct: 5, max_range_m: 2500 };
 const DEFAULT_SIGHT = { name: '直瞄鏡', levels: [{ magnification: 3, fov_deg: 16 }, { magnification: 6, fov_deg: 8 }] };
 const DEG = Math.PI / 180;
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -138,7 +139,7 @@ export function sightLevels(sight) {
   return { ...s, levels };
 }
 
-function turretEntry(id, pivot, ring, size, traverse, facingDeg, limitDeg, sight, loaders, guns, generated, openTop, stabilizer, parent = null, depression = null) {
+function turretEntry(id, pivot, ring, size, traverse, facingDeg, limitDeg, sight, loaders, guns, generated, openTop, stabilizer, parent = null, depression = null, sourceVehicle = null) {
   return {
     id,
     // a turret riding on another (its index): the ring turns with that turret
@@ -153,7 +154,8 @@ function turretEntry(id, pivot, ring, size, traverse, facingDeg, limitDeg, sight
     facing: (facingDeg || 0) * DEG,
     limit: limitDeg ? [limitDeg[0] * DEG, limitDeg[1] * DEG] : null,
     sight: sightLevels(sight),
-    rangefinder: { ...DEFAULT_RANGEFINDER, ...(sight?.rangefinder || {}) },
+    sourceVehicle,
+    rangefinder: resolveRangefinder(sight, sourceVehicle),
     loaders: loaders || [],
     guns,
     generated,
@@ -207,7 +209,7 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
   const mainGuns = [gunEntry(w.main_gun, shellsOf(w.main_gun), w.mount_m, w.muzzle_offset_m ?? w.main_gun.barrel_length_mm / 1000, w.rack_m)];
   for (const g of w.extra_guns || []) mainGuns.push(gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m));
   const turrets = [
-    turretEntry('main', v.turret.position_m, v.turret.ring_diameter_m, v.turret.size_m, w.main_gun.traverse_deg_s, w.facing_deg, w.yaw_limit_deg, w.sight, w.loaders_m, mainGuns, !partsFor(0), v.turret.open_top, w.stabilizer, null, w.depression_by_bearing_deg),
+    turretEntry('main', v.turret.position_m, v.turret.ring_diameter_m, v.turret.size_m, w.main_gun.traverse_deg_s, w.facing_deg, w.yaw_limit_deg, w.sight, w.loaders_m, mainGuns, !partsFor(0), v.turret.open_top, w.stabilizer, null, w.depression_by_bearing_deg, v.id),
   ];
   // designer vehicles: how far the gun may dip at each turret bearing (the barrel must clear the hull)
   turrets[0].foldedDepByYaw = w.folded_depression_by_bearing_deg;
@@ -217,7 +219,7 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
   if (bundle.design?.depression_by_yaw?.length) turrets[0].depByYaw = bundle.design.depression_by_yaw;
   (w.extra_turrets || []).forEach((t, i) => {
     const guns = t.guns.map((g) => gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m));
-    turrets.push(turretEntry(t.id, t.position_m, t.ring_diameter_m, t.size_m, t.traverse_deg_s, t.facing_deg, t.yaw_limit_deg, t.sight, t.loaders_m, guns, !partsFor(i + 1), t.open_top, t.stabilizer, t.parent, t.depression_by_bearing_deg));
+    turrets.push(turretEntry(t.id, t.position_m, t.ring_diameter_m, t.size_m, t.traverse_deg_s, t.facing_deg, t.yaw_limit_deg, t.sight, t.loaders_m, guns, !partsFor(i + 1), t.open_top, t.stabilizer, t.parent, t.depression_by_bearing_deg, v.id));
   });
   turrets.forEach((t, ti) => t.guns.forEach((g, gi) => { g.damageKey = `gun:${ti}:${gi}`; g.noDedicatedLoader = !!g.rack && t.loaders.length === 0; }));
   // machine guns: coaxial ones follow the main gun, hull and roof mounts are aimed by hand
@@ -410,7 +412,7 @@ function layoutTurret(spec, hull, idx, data) {
     facing_deg: spec.facing,
     yaw_limit_deg: arcLimit(spec.arc),
     loaders_m: loaders,
-    sight: sourceSight ? structuredClone(sourceSight) : { name: '工坊瞄準鏡', levels: [{ magnification: 3, fov_deg: 16 }, { magnification: 6, fov_deg: 8 }], rangefinder: { time_s: 1.8, error_pct: 3, max_range_m: 3000 } },
+    sight: equipmentSight(sourceSight || { name: '工坊瞄準鏡', levels: [{ magnification: 3, fov_deg: 16 }, { magnification: 6, fov_deg: 8 }], rangefinder: { time_s: 1.8, error_pct: 3, max_range_m: 3000 } }, spec.sightSource, spec.rangefinderKind),
     stabilizer: spec.stabilizer === 'both' ? 'two_plane' : spec.stabilizer || 'none',
     rack_m: rack,
     guns,
@@ -460,7 +462,9 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
   let turretDef;
   let extra;
   if (retainStock) {
-    weapons = { ...base.weapons };
+    weapons = structuredClone(base.weapons);
+    weapons.sight = equipmentSight(base.weapons.sight, base.vehicle.id);
+    weapons.extra_turrets = (base.weapons.extra_turrets || []).map(t => ({ ...structuredClone(t), sight: equipmentSight(t.sight, base.vehicle.id) }));
     turretDef = base.vehicle.turret;
     extra = layouts;
   } else {
@@ -482,7 +486,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     turretDef = { size_m: first.size_m, ring_diameter_m: first.ring_diameter_m, position_m: first.position_m, ...(first.open_top ? { open_top: true } : {}) };
     extra = rest;
   }
-  weapons.extra_turrets = [...(retainStock ? base.weapons.extra_turrets || [] : []), ...extra.map(strip)];
+  weapons.extra_turrets = [...(retainStock ? weapons.extra_turrets : []), ...extra.map(strip)];
 
   const hullParts = base.visual.parts.filter((p) => retainStock || !(p.mount === 'turret' || p.mount === 'gun'));
   const seats = layouts.map(t => workshopTurretSeat(base, t));
@@ -572,7 +576,8 @@ export function exportFolder(build, data, baseFiles, id, name, options = {}) {
     t.loaders_m.forEach((l) => crew.push(crewman('loader', l)));
     if (i === 0 && !retainStock) crew.push(crewman('commander', [px + t.ring_diameter_m * 0.05, py + 0.38, pz - t.ring_diameter_m * 0.36]));
   });
-  const vehicle = { ...bundle.vehicle, files: { armor: 'armor.json', weapons: 'weapons.json', engine: 'engine.json', crew: 'crew.json', modules: 'modules.json', visual: 'visual.json' } };
+  // The strict vehicle format reserves a model path even when visual.json supplies the exterior.
+  const vehicle = { ...bundle.vehicle, model: bundle.vehicle.model || 'model.glb', files: { armor: 'armor.json', weapons: 'weapons.json', engine: 'engine.json', crew: 'crew.json', modules: 'modules.json', visual: 'visual.json' } };
   const files = { 'vehicle.json': vehicle, 'armor.json': armor, 'weapons.json': bundle.weapons, 'engine.json': bundle.engine, 'crew.json': crew, 'modules.json': modules, 'visual.json': bundle.visual };
   if (options.includeModel !== false) {
     const model = exportWorkshopModel(data.vehicles[build.base], retainStock, data);

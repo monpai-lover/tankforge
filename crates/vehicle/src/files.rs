@@ -191,9 +191,21 @@ pub struct SightLevel {
 }
 
 /// How range is measured from this sight. Absent = crew estimation with default values.
+#[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum RangefinderKind {
+    Manual,
+    Coincidence,
+    Stereoscopic,
+    Laser,
+}
+
 #[derive(Clone, Copy, Debug, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct RangefinderDef {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<RangefinderKind>,
+    /// Positive legacy crew time; laser completion is selected by kind, never a zero delay.
     pub time_s: f32,
     /// Maximum error of a measurement, percent of the true range.
     pub error_pct: f32,
@@ -382,6 +394,28 @@ pub struct EngineFile {
 #[cfg(test)]
 mod tests {
     use super::{SecondaryDef, WeaponsFile};
+
+    #[test]
+    fn rangefinder_kind_is_optional_strict_and_roundtrips_through_weapons() {
+        let source = include_str!("../../../data/vehicles/de_panther_f/weapons.json");
+        let legacy: WeaponsFile = serde_json::from_str(source).unwrap();
+        let old = serde_json::to_value(&legacy).unwrap();
+        assert!(old["sight"]["rangefinder"].get("kind").is_none());
+        for kind in ["manual", "coincidence", "stereoscopic", "laser"] {
+            let mut value = old.clone();
+            value["sight"]["rangefinder"]["kind"] = serde_json::json!(kind);
+            let typed: WeaponsFile = serde_json::from_value(value).expect("supported equipment kind");
+            let written = serde_json::to_value(&typed).unwrap();
+            assert_eq!(written["sight"]["rangefinder"]["kind"], kind);
+            assert_eq!(written["sight"]["rangefinder"]["time_s"], 3.0);
+            let _: WeaponsFile = serde_json::from_value(written).unwrap();
+        }
+        for kind in [serde_json::json!("radar"), serde_json::json!("LASER"), serde_json::json!(0)] {
+            let mut value = old.clone();
+            value["sight"]["rangefinder"]["kind"] = kind;
+            assert!(serde_json::from_value::<WeaponsFile>(value).is_err());
+        }
+    }
 
     #[test]
     fn authored_weapon_damage_metadata_loads_from_an_actual_vehicle_folder() {

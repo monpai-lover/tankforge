@@ -277,8 +277,12 @@
             "error_pct",
             "max_range_m"
           ],
-          "description": "Key-press rangefinding. Absent = the default coincidence rangefinder (2.5 s, 5 %, 2500 m).",
+          "description": "Key-press rangefinding. Absent kind or rangefinder = crew estimation (default 2.5 s, 5 %, 2500 m). Optical delays are authored game approximations; laser uses immediate completion with positive legacy time data.",
           "properties": {
+            "kind": {
+              "type": "string",
+              "enum": ["manual", "coincidence", "stereoscopic", "laser"]
+            },
             "time_s": {
               "type": "number",
               "exclusiveMinimum": 0,

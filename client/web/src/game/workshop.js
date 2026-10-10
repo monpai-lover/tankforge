@@ -186,6 +186,7 @@ export class Workshop {
         this._select(p + 'loaders', '裝填手', [[0, '無（炮手自己裝）'], [1, '1 人'], [2, '2 人'], [3, '3 人']], t.loaders, (v) => (t.loaders = Number(v))),
         this._select(p + 'rack', '彈藥架', [['ready', '炮塔內待發彈架（最近）'], ['hull_side', '車體側面'], ['hull_floor', '車體底板（最遠）']], t.rack, (v) => (t.rack = v)),
         this._select(p + 'sight', '瞄具', [['', '通用直瞄鏡（3×／6×）'], ...this.sights.map(s => [s.id, s.label])], t.sightSource || '', v => { if (v) t.sightSource = v; else delete t.sightSource; }, true),
+        this._select(p + 'rangefinder', '測距設備', [['inherit', '繼承瞄具'], ['manual', '乘員估距'], ['coincidence', '合像測距'], ['stereoscopic', '立體測距'], ['laser', '激光測距']], t.rangefinderKind || 'inherit', v => t.rangefinderKind = v),
         this._select(p + 'stabilizer', '穩定器', [['none', '無'], ['vertical', '垂直穩定'], ['both', '雙向穩定']], t.stabilizer || 'none', v => t.stabilizer = v),
       );
       const sight = this.sights.find(s => s.id === t.sightSource)?.sight;

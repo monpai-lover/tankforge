@@ -16,6 +16,7 @@ import { loadBattleMap, FORD_DEPTH } from './game/battlemap.js';
 import { buildMapWorld } from './game/mapworld.js';
 import { CameraObstruction } from './game/cameraObstruction.js';
 import { VehicleActions, VehicleActionIndicator } from './game/vehicleActions.js';
+import { rangefinderForWeapon } from './game/rangefinderEquipment.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
@@ -1272,6 +1273,7 @@ export function start(data, saved = {}) {
   }
 
   function setMode(mode) {
+    G.ranging = null;
     hud.hideHitMarker();
     G.mode = mode;
     document.body.dataset.mode = mode;
@@ -1372,6 +1374,7 @@ export function start(data, saved = {}) {
   }
 
   function cycleSightGun() {
+    G.ranging = null;
     const next = nextSightWeapon(G.loadout, { ti: G.sightT, gi: G.sightG, mi: G.sightM });
     G.sightT = next.ti;
     G.sightG = next.gi;
@@ -2078,6 +2081,7 @@ export function start(data, saved = {}) {
   const chatIn = document.getElementById('net-chat');
   function openChat() {
     vehicleActions.cancel();
+    G.ranging = null;
     chatIn.hidden = false;
     chatIn.focus();
   }
@@ -2728,6 +2732,7 @@ export function start(data, saved = {}) {
 
   function updateVehicleActions(now) {
     const available = vehicleActionAllowed();
+    if (!available) G.ranging = null;
     performVehicleAction(vehicleActions.tick(now, available, Math.abs(G.s.u) <= 1));
     vehicleActionIndicator.update(vehicleActions.readout(now, G.caps?.repair_s || 0, vehicleActionAllowed()));
   }
@@ -2886,8 +2891,43 @@ export function start(data, saved = {}) {
   }
 
   function startRanging() {
-    if (G.ranging || G.workshop || G.mode !== 'battle') return;
-    G.ranging = { t: 0, total: sightTurret().rangefinder.time_s };
+    if (G.ranging || !vehicleActionAllowed()) return;
+    const rf = sightRangefinder();
+    if (rf.kind === 'laser') {
+      finishRanging(rf);
+      return;
+    }
+    const turret = sightTurret();
+    const weapon = G.sightM >= 0 ? G.loadout.machineGuns[G.sightM] : turret.guns[G.sightG];
+    G.ranging = { t: 0, total: rf.delay_s, rf, id: G.id, model: G.model, loadout: G.loadout, ti: G.sightT, gi: G.sightG, mi: G.sightM, turret, weapon };
+  }
+
+  function sightRangefinder() {
+    return rangefinderForWeapon(G.loadout, { ti: G.sightT, mi: G.sightM });
+  }
+
+  function rangingContextValid() {
+    const r = G.ranging;
+    return !!r && vehicleActionAllowed() && r.id === G.id && r.model === G.model && r.loadout === G.loadout && r.ti === G.sightT && r.gi === G.sightG && r.mi === G.sightM && r.turret === sightTurret() && r.weapon === (G.sightM >= 0 ? G.loadout.machineGuns[G.sightM] : sightTurret().guns[G.sightG]);
+  }
+
+  function updateRanging(dt) {
+    if (!G.ranging) return;
+    if (!rangingContextValid()) {
+      G.ranging = null;
+      return;
+    }
+    G.ranging.t += Number.isFinite(dt) && dt > 0 ? dt : 0;
+    if (G.ranging.t >= G.ranging.total) finishRanging(G.ranging.rf);
+  }
+
+  function rangingProgress() {
+    if (!rangingContextValid()) {
+      G.ranging = null;
+      return 0;
+    }
+    const { t, total } = G.ranging;
+    return Number.isFinite(t) && Number.isFinite(total) && total > 0 ? clamp(t / total, 0, 1) : 0;
   }
 
   /** Line of sight used for ranging: the sight line in the gunner view, the camera ray otherwise. */
@@ -2897,9 +2937,9 @@ export function start(data, saved = {}) {
     return { origin: G.camPos, dir: G.free ? G.camFwd : dirFrom(G.cam.yaw, G.cam.pitch), from: mz.pos };
   }
 
-  function finishRanging() {
+  function finishRanging(rf) {
     G.ranging = null;
-    const rf = sightTurret().rangefinder;
+    if (!vehicleActionAllowed()) return;
     const los = currentLos();
     const hit = losHit(los.origin, los.dir, 6000);
     const truth = hit ? Math.hypot(hit.point[0] - los.from[0], hit.point[1] - los.from[1], hit.point[2] - los.from[2]) : Infinity;
@@ -3041,6 +3081,7 @@ export function start(data, saved = {}) {
   });
   window.addEventListener('blur', () => {
     vehicleActions.cancel();
+    G.ranging = null;
     G.keys.clear();
     G.fireHeld = false;
     G.mgHeld = false;
@@ -3051,12 +3092,14 @@ export function start(data, saved = {}) {
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       vehicleActions.cancel();
+      G.ranging = null;
       vehicleActionIndicator.update(null);
     }
   });
   document.addEventListener('focusin', (e) => {
     if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target?.tagName)) {
       vehicleActions.cancel();
+      G.ranging = null;
       vehicleActionIndicator.update(null);
     }
   });
@@ -3952,10 +3995,7 @@ export function start(data, saved = {}) {
       missileStep(dt);
     }
     const terrainId = terrainAt(G.s.x, G.s.z);
-    if (G.ranging) {
-      G.ranging.t += dt;
-      if (G.ranging.t >= G.ranging.total) finishRanging();
-    }
+    updateRanging(dt);
 
     // ---- model: hull on its springs, wheels on the ground, tracks round them
     const M = G.model;
@@ -4382,7 +4422,8 @@ export function start(data, saved = {}) {
       // shown in the sight, and elsewhere only for a moment after the wheel sets it
       if (scope || G.zeroFlash > 0) hud.drawZeroTag(G.zero, G.zeroFlash, scope ? { radius: scope.radius, magnification: level.magnification, zoomFlash: G.zoomFlash } : null);
     }
-    if (G.ranging && !orbit) hud.drawRanging(G.ranging.t / G.ranging.total, 30 * (ch / 900));
+    const rangeProgress = G.ranging ? rangingProgress() : 0;
+    if (G.ranging && !orbit) hud.drawRanging(rangeProgress, 30 * (ch / 900));
     if (G.mode === 'battle') {
       const touch = document.body.dataset.touch === '1';
       hud.drawCompass(orbit ? G.s.heading + srt.yaw : G.cam.yaw, G.s.heading, G.s.heading + srt.yaw, touch || canvas.clientWidth < 760);

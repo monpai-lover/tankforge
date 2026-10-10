@@ -8,6 +8,7 @@ import { buildTank } from '../src/gfx/tankmodel.js';
 import { transformPoint } from '../src/gfx/math.js';
 import { STRIDE } from '../src/gfx/geo.js';
 import { decodeAllImported, decodeImported } from '../src/gfx/imported.js';
+import {equipmentSight} from '../src/game/rangefinderEquipment.js';
 
 const data = loadData();
 await decodeAllImported(data.vehicles);
@@ -113,9 +114,9 @@ test('generated source gun and tube mouths agree with the simulation through yaw
 test('source optics and selected stabilizer reach main and extra turrets as ordinary data', () => {
   const build = { base: 'de_hetzer', keepStock: false, turrets: [turret('xp_kda35', { sightSource: 'us_m901_itv', stabilizer: 'both' }), turret('xp_bmp_k64_atgm', { z: -1, sightSource: 'xp_bmp_k64_atgm', stabilizer: 'vertical' })] };
   const compiled = buildToBundle(build, data), lo = runtime(compiled);
-  assert.deepEqual(compiled.bundle.weapons.sight, data.vehicles.us_m901_itv.weapons.sight);
+  assert.deepEqual(compiled.bundle.weapons.sight, equipmentSight(data.vehicles.us_m901_itv.weapons.sight, 'us_m901_itv'));
   assert.equal(compiled.bundle.weapons.stabilizer, 'two_plane');
-  assert.deepEqual(compiled.bundle.weapons.extra_turrets[0].sight, data.vehicles.xp_bmp_k64_atgm.weapons.sight);
+  assert.deepEqual(compiled.bundle.weapons.extra_turrets[0].sight, equipmentSight(data.vehicles.xp_bmp_k64_atgm.weapons.sight, 'xp_bmp_k64_atgm'));
   assert.equal(compiled.bundle.weapons.extra_turrets[0].stabilizer, 'vertical');
   assert.deepEqual(lo.turrets[0].sight.levels, data.vehicles.us_m901_itv.weapons.sight.levels);
   assert.equal(lo.turrets[0].stabilizer, 'two_plane');

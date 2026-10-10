@@ -1,6 +1,7 @@
 // Normalize editable settings before applying them. Generated export files never override
 // the game's weapon, projectile or model catalog on settings import.
 import { MAX_TURRETS, MAX_GUNS_PER_TURRET } from './loadout.js';
+import { RANGEFINDER_KINDS } from './rangefinderEquipment.js';
 const object = v => v !== null && typeof v === 'object' && !Array.isArray(v);
 const fail = message => { throw new Error(message); };
 const number = (v, fallback, min, max, label, integer = false) => {
@@ -56,6 +57,7 @@ export function normalizeWorkshopBuild(value, data) {
       if (!vehicle(t.sightSource, data, '瞄具').weapons?.sight) fail('瞄具沒有光學資料');
       n.sightSource = t.sightSource;
     }
+    if (t.rangefinderKind !== undefined) n.rangefinderKind = choice(t.rangefinderKind, 'inherit', ['inherit', ...RANGEFINDER_KINDS], '測距設備');
     return n;
   });
   return { base: b.base, keepStock: flag(b.keepStock, false, '保留原武器') || !turrets.length, turrets };

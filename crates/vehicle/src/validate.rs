@@ -239,7 +239,7 @@ fn check_sight(r: &mut Report, path: &str, sight: &SightDef) {
         r.err("W009", path, "zoom levels must be in ascending magnification");
     }
     if let Some(rf) = &sight.rangefinder {
-        if rf.time_s <= 0.0 || rf.error_pct < 0.0 || rf.error_pct > 50.0 || rf.max_range_m <= 0.0 {
+        if !rf.time_s.is_finite() || rf.time_s <= 0.0 || !rf.error_pct.is_finite() || rf.error_pct < 0.0 || rf.error_pct > 50.0 || !rf.max_range_m.is_finite() || rf.max_range_m <= 0.0 {
             r.err("W009", path, "rangefinder needs time_s > 0, error_pct in [0,50] and max_range_m > 0");
         }
     }
@@ -726,6 +726,31 @@ pub fn validate_tree(root: &Path) -> Report {
 mod tests {
     use super::*;
     use std::path::PathBuf;
+
+    #[test]
+    fn rangefinder_rejects_nonfinite_numbers_and_requires_positive_legacy_time() {
+        let mut sight: SightDef = serde_json::from_value(serde_json::json!({
+            "name":"test", "levels":[{"magnification":3.0,"fov_deg":16.0}],
+            "rangefinder":{"time_s":2.5,"error_pct":5.0,"max_range_m":2500.0}
+        })).unwrap();
+        for bad in [0.0, -1.0, f32::NAN, f32::INFINITY] {
+            sight.rangefinder.as_mut().unwrap().time_s = bad;
+            let mut r = Report::default(); check_sight(&mut r, "sight", &sight);
+            assert!(r.has("W009"), "invalid time {bad}");
+        }
+        sight.rangefinder.as_mut().unwrap().time_s = 2.5;
+        for bad in [f32::NAN, f32::INFINITY] {
+            sight.rangefinder.as_mut().unwrap().error_pct = bad;
+            let mut r = Report::default(); check_sight(&mut r, "sight", &sight);
+            assert!(r.has("W009"), "invalid error {bad}");
+        }
+        sight.rangefinder.as_mut().unwrap().error_pct = 5.0;
+        for bad in [0.0, f32::NAN, f32::INFINITY] {
+            sight.rangefinder.as_mut().unwrap().max_range_m = bad;
+            let mut r = Report::default(); check_sight(&mut r, "sight", &sight);
+            assert!(r.has("W009"), "invalid range {bad}");
+        }
+    }
 
     fn data_root() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
