@@ -9,6 +9,7 @@ import { VehicleSim } from './vehicle.js';
 import { penAt } from './hud.js';
 import { foldedPlate } from './folding.js';
 import { moduleDamageLabels } from './weaponDamage.js';
+import { captureImpactPose, rememberImpactPose } from './replayPose.js';
 
 const DEG = Math.PI / 180;
 const v3 = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
@@ -285,7 +286,9 @@ export function combatHit(e, p0, dir, shell, speed, distance, seed) {
   const o = b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]);
   const d = b.localDir(dir);
   const shot = { shell, origin: o, dir: d, speed_ms: speed, distance_m: distance, seed, turret_yaw: e.turretYaw || 0 };
+  const pose = captureImpactPose(e);
   const r = e.combat.shoot(e.combatKey, e.cstate, shot);
+  rememberImpactPose(r, pose);
   e.cstate = r.state;
   e.caps = r.caps;
   if (r.caps.destroyed && e.alive) {

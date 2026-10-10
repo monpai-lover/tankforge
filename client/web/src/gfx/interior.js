@@ -421,6 +421,17 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
   const nodes = [];
   const labels = [];
   const attached = [];
+  let disposed = false;
+  const dispose = () => {
+    if (disposed) return;
+    disposed = true;
+    for (const [parent, node] of attached) {
+      const index = parent.children.indexOf(node);
+      if (index >= 0) parent.children.splice(index, 1);
+    }
+    for (const m of meshes) renderer.freeMesh(m);
+  };
+  try {
   const attach = (parent, node) => { attached.push([parent, node]); return parent.add(node); };
   // which nodes show which module and crew member (the hit camera lights them up)
   const byModule = new Map();
@@ -584,10 +595,11 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
         n.visible = !!apparatus.visible && gun.loaded >= 0 && (gun.ammo[gun.loaded]?.count || 0) > 0 && tube >= next && tube < next + ready;
       }
     },
-    dispose() {
-      for (const [parent, node] of attached) parent.children = parent.children.filter(n => n !== node);
-      for (const m of meshes) renderer.freeMesh(m);
-    },
+    dispose,
   };
+  } catch (error) {
+    dispose();
+    throw error;
+  }
 }
 

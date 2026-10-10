@@ -10,6 +10,7 @@
 import { mul, perspective, lookAtLH, project } from '../gfx/math.js';
 import { MODULE_NAME, CREW_NAME, arr3 } from './combat.js';
 import { replayTrack, replayState, sampleReplay, ReplayProjectile } from './projectileReplay.js';
+import { snapshotReplayTarget } from './replayPose.js';
 
 const DEG = Math.PI / 180;
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
@@ -66,6 +67,15 @@ export class HitCam {
   show(target, rep, shell, dist, mg = false, detail = '') {
     if (!rep || !rep.impact) return;
     if (mg && this.cur && !this.cur.mg && this.cur.t < this.cur.total - 0.4) return;
+    let snapshot;
+    try {
+      snapshot = snapshotReplayTarget(this.env.renderer, target, rep);
+      if (!this.projectile) this.projectile = new ReplayProjectile(this.env.renderer);
+    } catch {
+      snapshot?.dispose();
+      return; // Preserve the previous replay if a new target cannot be acquired.
+    }
+    target = snapshot;
     const times = mg ? TIMES.mg : TIMES.full;
     const xray = rep.outcome === 'penetrated' || rep.outcome === 'overpressure' || rep.outcome === 'unarmoured' || rep.modules.length > 0 || rep.crew.length > 0;
     const [ta, ti, tx, th] = times;
@@ -73,12 +83,13 @@ export class HitCam {
     // the shot's direction in the hull frame: from the report's shot, or along its path
     const track = replayTrack(rep, shell);
     const d = track.dir;
+    const previous = this.cur;
     this.cur = {
       target, rep, shell, dist, mg, t: 0, total, times, xray, dir: d, impact: arr3(rep.impact), track, motion: replayState(), nodeList: [], saved: [], touched: [], insideSet: null,
       bursts: rep.bursts.map(b => { const pos = arr3(b.pos); return { ...b, pos, arrival: traceArrival(track.inside, pos) }; }),
       fragments: rep.fragments.map(f => { const from = arr3(f.from); return { ...f, from, to: arr3(f.to), arrival: traceArrival(track.inside, from) }; }),
     };
-    if (!this.projectile) this.projectile = new ReplayProjectile(this.env.renderer);
+    previous?.target.dispose();
     // the panel under the picture: what was lost
     const mods = rep.modules.filter((m) => m.damage > 0 || m.destroyed || m.health <= m.max_health * 0.5);
     this.el.mods.innerHTML = mods.map((m) => {
@@ -93,6 +104,7 @@ export class HitCam {
   }
 
   hide() {
+    this.cur?.target.dispose();
     this.cur = null;
     this.root.hidden = true;
   }
@@ -189,7 +201,11 @@ export class HitCam {
     const tgt = c.target;
     const model = tgt.model;
     if (st.name === 'approach' || st.name === 'impact' || st.name === 'after') {
-      this.env.renderer.renderInset(this._withProjectile(frame.nodes), cam, rect, { sky: true });
+      const list = c.nodeList;
+      list.length = 0;
+      for (const n of frame.nodes) if (!tgt.sources.has(n)) list.push(n);
+      model.root.collect(list);
+      this.env.renderer.renderInset(this._withProjectile(list), cam, rect, { sky: true });
     } else {
       // x-ray: only the target, its hull dark glass, the inside lit by what was hit
       if (!c.insideSet) {

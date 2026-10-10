@@ -7,6 +7,8 @@ import { arr3 } from '../src/game/combat.js';
 import { NetClient } from '../src/game/net.js';
 import { Missiles } from '../src/game/missiles.js';
 import * as ballistics from '../src/sim/ballistics.js';
+import { Node } from '../src/gfx/math.js';
+import { RigidBody } from '../src/sim/tank/body.js';
 
 const feedback = await import('../src/game/hitFeedback.js').catch(() => null);
 const main = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -26,7 +28,8 @@ function combatFixture({ route = 'enemy', rep = report(), online = false, friend
   const markers = [], xray = [], sent = [];
   const e = { id: 2, name: 'target', netId: 2, team: friend ? 'blue' : 'red', remote: online, alive: true,
     combat: legacy ? null : { shoot: () => rep }, combatKey: 'target', cstate: {},
-    veh: { body: { localPoint: p => p, localDir: d => d, worldDir: d => d } }, pose() {},
+    model: { root: new Node('target'), turrets: [] }, gunPitch: [],
+    veh: { body: new RigidBody(1000, [1, 1, 1], [0, 0, 0]) }, pose() {},
     resolve: () => ({ result: 'nopen', pen: 0 }) };
   const projectile = { s: ballistics.newShot([0, 2, 0], [0, 0, 1], shell), def: { ...shell, id: 'mg34' },
     shell, origin: [0, 2, 0], age: 0, travelled: 0, seq: 1, from: other ? 3 : null };

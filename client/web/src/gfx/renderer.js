@@ -79,6 +79,7 @@ export class Renderer {
     this.opts = opts;
     /** Every mesh and image texture handed out, with what it was made from, to rebuild after a lost context. */
     this._live = new Set();
+    this._meshLeases = new WeakMap();
     this._texSrc = new Map();
     /** Old texture -> its replacement after a restore (nodes keep the old handles). */
     this._remap = null;
@@ -462,7 +463,13 @@ export class Renderer {
   /** Uploads an interleaved vertex array built by GeoBuilder. */
   mesh(data) {
     const m = { vao: null, buf: null, count: data.length / STRIDE, _src: { kind: 'mesh', data } };
-    this._upload(m);
+    try {
+      this._upload(m);
+    } catch (error) {
+      this.gl.deleteVertexArray(m.vao);
+      this.gl.deleteBuffer(m.buf);
+      throw error;
+    }
     this._live.add(m);
     return m;
   }
@@ -470,7 +477,14 @@ export class Renderer {
   /** A mesh drawn many times, each copy with its own 4x4 matrix (applied before the node's). */
   instancedMesh(data, maxInstances) {
     const m = { vao: null, buf: null, count: data.length / STRIDE, instanced: true, instances: 0, maxInstances, _src: { kind: 'instanced', data } };
-    this._upload(m);
+    try {
+      this._upload(m);
+    } catch (error) {
+      this.gl.deleteVertexArray(m.vao);
+      this.gl.deleteBuffer(m.buf);
+      if (m.ibuf) this.gl.deleteBuffer(m.ibuf);
+      throw error;
+    }
     this._live.add(m);
     return m;
   }
@@ -624,8 +638,26 @@ export class Renderer {
     gl.texSubImage2D(gl.TEXTURE_2D, 0, slotI * n, slotJ * n, n, n, gl.RG, gl.FLOAT, data);
   }
 
+  /** Keep a target-owned mesh alive while detached replays still use it. */
+  retainMesh(m) {
+    const leases = this._meshLeases ||= new WeakMap();
+    const lease = leases.get(m) || { count: 0, pending: false };
+    lease.count++;
+    leases.set(m, lease);
+  }
+
+  releaseMesh(m) {
+    const lease = this._meshLeases?.get(m);
+    if (!lease || !lease.count) return;
+    if (--lease.count) return;
+    this._meshLeases.delete(m);
+    if (lease.pending) this.freeMesh(m);
+  }
+
   freeMesh(m) {
-    if (!m) return;
+    if (!m || !this._live.has(m)) return;
+    const lease = this._meshLeases?.get(m);
+    if (lease?.count) { lease.pending = true; return; }
     this._live.delete(m);
     this.gl.deleteVertexArray(m.vao);
     this.gl.deleteBuffer(m.buf);

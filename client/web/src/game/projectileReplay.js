@@ -130,10 +130,15 @@ export class ReplayProjectile {
   constructor(renderer) {
     this.shell = new Node('replay_projectile');
     this.jet = new Node('replay_jet');
-    for (const n of [this.shell, this.jet]) {
-      n.mesh = renderer.mesh(geometry(n === this.jet));
-      n.kind = 3;
-      n.castShadow = false;
+    try {
+      for (const n of [this.shell, this.jet]) {
+        n.mesh = renderer.mesh(geometry(n === this.jet));
+        n.kind = 3;
+        n.castShadow = false;
+      }
+    } catch (error) {
+      for (const n of [this.shell, this.jet]) if (n.mesh) renderer.freeMesh(n.mesh);
+      throw error;
     }
     this.jet.highlight = [1, .55, .15, .85];
     this.pos = [0, 0, 0];
