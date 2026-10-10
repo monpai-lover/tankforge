@@ -15,6 +15,7 @@ import { setActiveMap } from './game/relief.js';
 import { loadBattleMap, FORD_DEPTH } from './game/battlemap.js';
 import { buildMapWorld } from './game/mapworld.js';
 import { CameraObstruction } from './game/cameraObstruction.js';
+import { VehicleActions, VehicleActionIndicator } from './game/vehicleActions.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
@@ -367,6 +368,8 @@ export function start(data, saved = {}) {
   // modifications: one garage card per chassis family, fitted with the variant chosen
   const mods = new Mods(store, STORE_MODS, (id) => !!data.vehicles[id]);
   const hud = new Hud((cid) => select(mods.variantOf(cid)));
+  const vehicleActions = new VehicleActions();
+  const vehicleActionIndicator = new VehicleActionIndicator(document.getElementById('vehicle-action'));
   // the War Thunder-style hit camera (game/hitcam.js)
   const hitcam = new HitCam({ renderer, root: document.getElementById('hitcam') });
   // ---- protection analysis (garage): the armour coloured for a round, a click fires it
@@ -820,6 +823,8 @@ export function start(data, saved = {}) {
     G.pending.length = 0;
     G.cam.pivot = null;
     cameraObstruction.reset();
+    vehicleActions.reset();
+    vehicleActionIndicator.update(null);
     if (G.mode === 'garage') {
       G.s.x = GARAGE.x;
       G.s.z = GARAGE.z;
@@ -1255,7 +1260,7 @@ export function start(data, saved = {}) {
     hud.freeLook(false);
     resetPose();
     missileBattleStart();
-    if (G.online) hud.toast(`聯機戰鬥：${mapName(G.mapId)}　你在${G.online.team === 'blue' ? '藍方' : '紅方'}　Enter 聊天，R 重生／棄車，Tab 離開房間`, 6);
+    if (G.online) hud.toast(`聯機戰鬥：${mapName(G.mapId)}　你在${G.online.team === 'blue' ? '藍方' : '紅方'}　F 長按修復，J 長按棄車，R 重生，Enter 聊天`, 6);
     else if (G.conquest) hud.toast(`${G.loadout.name} 出擊：${G.map.name}・佔領模式　佔領 ${G.conquest.points.map((p) => p.id).join('／')} 點讓敵方兵力歸零，Tab 回車庫`, 6);
     else hud.toast(G.map ? `${G.loadout.name} 出擊：${G.map.name}　藍方出發點 ${spawnLabel()}，Tab 回車庫` : `${G.loadout.name} 出擊　100–2000 m 靶車：近處薄裝甲，遠處先進裝甲，Tab 回車庫`, 5);
     updateNetHud(true);
@@ -1679,6 +1684,7 @@ export function start(data, saved = {}) {
     const o = G.online;
     if (!o || o.dead) return;
     o.dead = true;
+    vehicleActions.cancel();
     o.diedAt = performance.now();
     G.fireHeld = false;
     G.pending.length = 0;
@@ -1691,7 +1697,7 @@ export function start(data, saved = {}) {
     updateNetHud(true);
   }
 
-  /** R online: back in after the wait when knocked out; while alive, twice to abandon the vehicle. */
+  /** R online: respawn after the wait; deliberate abandonment is now a J hold. */
   function onlineRespawn() {
     const o = G.online;
     if (o.dead && net.room?.deploy) return openDeploy(o.benched ? '選擇出戰載具' : '重新出擊');
@@ -1701,14 +1707,7 @@ export function start(data, saved = {}) {
       net.send({ t: 'respawn' });
       return;
     }
-    const now = performance.now();
-    if (now - (o.scuttleAsk || 0) < 3000) {
-      o.scuttleAsk = 0;
-      net.send({ t: 'respawn' });
-    } else {
-      o.scuttleAsk = now;
-      hud.toast('聯機時不能直接回出發點：3 秒內再按一次 R 棄車（算一次陣亡，5 秒後重生）', 3);
-    }
+    hud.toast('按住 J 3 秒放棄載具，松開即可取消', 3);
   }
 
   /** Every frame of an online battle: the others where their snapshots say, ours out at 20 Hz. */
@@ -2008,6 +2007,7 @@ export function start(data, saved = {}) {
   }
   const chatIn = document.getElementById('net-chat');
   function openChat() {
+    vehicleActions.cancel();
     chatIn.hidden = false;
     chatIn.focus();
   }
@@ -2584,7 +2584,7 @@ export function start(data, saved = {}) {
     }
   }
 
-  /** J: field repair of what is broken (standing still). K: the fire extinguisher. */
+  /** F hold: field repair of what is broken (standing still). K: extinguisher. */
   function repairVehicle() {
     if (!G.cstate || G.mode !== 'battle') return;
     if (G.caps.repair_s > 0) return hud.toast(`修理中，還要 ${Math.ceil(G.caps.repair_s)} 秒`, 2);
@@ -2604,6 +2604,40 @@ export function start(data, saved = {}) {
     G.cstate = r.state;
     G.caps = r.caps;
     hud.toast('滅火中', 2);
+  }
+
+  function abandonVehicle() {
+    if (G.mode !== 'battle' || !G.cstate || G.caps?.destroyed || G.online?.dead) return;
+    vehicleActions.cancel();
+    if (G.online) return net.send({ t: 'respawn' });
+    const state = { ...G.cstate, destroyed: true, repair_s: 0 };
+    const result = G.combat.advance(G.id, state, 0, 0);
+    G.cstate = result.state;
+    G.caps = result.caps;
+    G.fireHeld = G.mgHeld = false;
+    G.keys.clear();
+    G.pending.length = 0;
+    G.cruise = null;
+    if (G.view === 'sight') toggleSight();
+    hud.toast('已放棄載具 · 按 R 回到起點', 4);
+  }
+
+  function vehicleActionAllowed() {
+    const tag = document.activeElement?.tagName;
+    return G.mode === 'battle' && !G.paused && !G.workshop && !G.thumbs.length && !deploy.visible && chatIn.hidden && !document.hidden && !['INPUT', 'SELECT', 'TEXTAREA'].includes(tag) && !G.caps?.destroyed && !G.online?.dead && (!G.online || net.open);
+  }
+
+  function performVehicleAction(action) {
+    if (action === 'range') startRanging();
+    else if (action === 'repair') repairVehicle();
+    else if (action === 'abandon') abandonVehicle();
+    else if (action === 'moving') hud.toast('停車後按住 F 3 秒修復', 2);
+  }
+
+  function updateVehicleActions(now) {
+    const available = vehicleActionAllowed();
+    performVehicleAction(vehicleActions.tick(now, available, Math.abs(G.s.u) <= 1));
+    vehicleActionIndicator.update(vehicleActions.readout(now, G.caps?.repair_s || 0, vehicleActionAllowed()));
   }
 
   /**
@@ -2847,6 +2881,11 @@ export function start(data, saved = {}) {
       e.preventDefault();
       return openChat();
     }
+    if (e.code === 'KeyF' || e.code === 'KeyJ') {
+      e.preventDefault();
+      if (!e.repeat && vehicleActionAllowed()) vehicleActions.press(e.code, performance.now() / 1000);
+      return;
+    }
     if (KEYMAP[e.code]) {
       G.keys.add(KEYMAP[e.code]);
       e.preventDefault();
@@ -2867,7 +2906,6 @@ export function start(data, saved = {}) {
     if (e.code === 'KeyC') setFreeLook(true);
     else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight' || e.code === 'KeyV') toggleSight();
     else if (e.code === 'KeyZ') toggleZoom();
-    else if (e.code === 'KeyF') startRanging();
     else if (e.code === 'KeyX') setZero(0);
     else if (e.code === 'KeyB') {
       G.autoZero = !G.autoZero;
@@ -2882,18 +2920,18 @@ export function start(data, saved = {}) {
     else if (e.code === 'KeyL') setQuality(QUALITY_ORDER[(QUALITY_ORDER.indexOf(renderer.quality) + 1) % QUALITY_ORDER.length]);
     else if (e.code === 'KeyR') {
       // R: the rockets, on a vehicle that carries them; otherwise back to the start
-      if (G.mode === 'battle' && G.loadout.turrets.some((t) => t.guns.some((g) => g.def.trigger === 'rocket'))) trigger(false, true);
+      if (G.mode === 'battle' && !G.online?.dead && !G.caps?.destroyed && G.loadout.turrets.some((t) => t.guns.some((g) => g.def.trigger === 'rocket'))) trigger(false, true);
       else resetVehicle();
     } else if (e.code === 'Backspace') resetVehicle();
     else if (e.code === 'KeyU') toggleAps();
     else if (e.code === 'KeyI') toggleFlaps();
     else if (e.code === 'KeyY') cycleApsRate();
-    else if (e.code === 'KeyJ') repairVehicle();
     else if (e.code === 'KeyK') extinguishFire();
     else if (e.code === 'KeyM') hud.toast(sound.toggleMute() ? '音效已關閉' : '音效已開啟', 1.5);
     else if (e.code === 'KeyH') document.getElementById('help').toggleAttribute('data-collapsed');
   });
   window.addEventListener('keyup', (e) => {
+    if (e.code === 'KeyF' || e.code === 'KeyJ') performVehicleAction(vehicleActions.release(e.code, performance.now() / 1000, vehicleActionAllowed(), Math.abs(G.s.u) <= 1));
     if (KEYMAP[e.code]) G.keys.delete(KEYMAP[e.code]);
     if (e.code === 'KeyN') G.mgHeld = false;
     if (e.code === 'KeyC' && !G.xray && G.mode === 'battle') setFreeLook(false);
@@ -2906,12 +2944,25 @@ export function start(data, saved = {}) {
     }
   });
   window.addEventListener('blur', () => {
+    vehicleActions.cancel();
     G.keys.clear();
     G.fireHeld = false;
     G.mgHeld = false;
     G.rmb = false;
     if (G.xray && !G.xrayLatched && G.mode !== 'test') setXray(false);
     if (G.mode === 'battle' && !G.xray) setFreeLook(false);
+  });
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      vehicleActions.cancel();
+      vehicleActionIndicator.update(null);
+    }
+  });
+  document.addEventListener('focusin', (e) => {
+    if (['INPUT', 'SELECT', 'TEXTAREA'].includes(e.target?.tagName)) {
+      vehicleActions.cancel();
+      vehicleActionIndicator.update(null);
+    }
   });
   document.getElementById('help-toggle').addEventListener('click', () => document.getElementById('help').toggleAttribute('data-collapsed'));
   document.getElementById('to-garage').addEventListener('click', (e) => {
@@ -4253,6 +4304,7 @@ export function start(data, saved = {}) {
   function frame(now) {
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
+    updateVehicleActions(now / 1000);
     if (G.mode === 'bureau') {
       /* the design bureau has its own view; the range waits */
     } else if (!G.paused && G.thumbs.length) thumbStep();
@@ -4334,6 +4386,7 @@ export function start(data, saved = {}) {
       return e ? { state: e.cstate, caps: e.caps, alive: e.alive } : null;
     },
     repairVehicle,
+    abandonVehicle,
     extinguishFire,
     online: () => (G.online ? { team: G.online.team, slot: G.online.slot, dead: G.online.dead, hp: G.online.hp, seq: G.online.seq, members: [...G.online.members.values()] } : null),
     mapState: () => ({ id: G.mapId, active: G.map ? G.map.id : 'range', water: G.waterDepth || 0, flooded: G.flooded, treesDown: G.treesDown || 0, standing: G.mapEntry ? G.mapEntry.world.standing() : 0 }),

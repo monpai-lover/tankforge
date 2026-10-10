@@ -435,6 +435,15 @@ body[data-touch="1"][data-mode="battle"] #touch { display: block; }
 .tb:active { background: rgba(226, 179, 74, 0.5); }
 
 #freelook-tag { position: absolute; left: 50%; top: 18%; transform: translateX(-50%); padding: 5px 14px; background: var(--panel); border-left: 3px solid var(--amber); font-family: var(--display); letter-spacing: 0.1em; white-space: nowrap; }
+#vehicle-action { position: absolute; left: 50%; top: 66%; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; gap: 3px; pointer-events: none; color: var(--amber); text-align: center; text-shadow: 0 1px 3px #000; font-variant-numeric: tabular-nums; }
+#vehicle-action[hidden] { display: none; }
+#vehicle-action svg { width: clamp(70px, 12vh, 100px); height: auto; overflow: visible; filter: drop-shadow(0 2px 4px #000a); }
+#vehicle-action [data-action-title] { color: #f0eee3; font: 700 15px var(--body); }
+#vehicle-action [data-action-note] { color: #d5d7cc; font-size: 12px; white-space: nowrap; }
+#vehicle-action[data-kind="abandon"] { color: var(--warn); }
+#vehicle-action [data-action-abandon] { display: none; }
+#vehicle-action[data-kind="abandon"] [data-action-abandon] { display: inline; }
+#vehicle-action[data-kind="abandon"] [data-action-wrench] { display: none; }
 #toast { position: absolute; left: 50%; top: 66px; transform: translateX(-50%); max-width: min(680px, calc(100% - 2 * var(--gutter))); padding: 8px 16px; background: var(--panel); border-left: 3px solid var(--ok); font-size: 13.5px; text-align: center; opacity: 0; transition: opacity 0.25s; pointer-events: none; font-variant-numeric: tabular-nums; }
 #toast[data-show="1"] { opacity: 1; }
 #hit-marker { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: 0.12em; color: #f2f0e6; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0, 0, 0, 0.6); opacity: 0; pointer-events: none; }
@@ -814,7 +823,7 @@ body[data-touch="1"] .tr-fire { display: block; }
         <dt>右鍵</dt><dd>按住拉近</dd>
         <dt><kbd>Shift</kbd></dt><dd>切換炮手瞄準鏡</dd>
         <dt><kbd>C</kbd></dt><dd>按住自由視角</dd>
-        <dt><kbd>F</kbd></dt><dd>測距（自動裝表）</dd>
+        <dt><kbd>F</kbd></dt><dd>短按測距（自動裝表）；停車後按住 3 秒開始修復</dd>
         <dt><kbd>E</kbd> <kbd>Q</kbd> <kbd>X</kbd></dt><dd>表尺 ＋50／−50／歸零</dd>
         <dt><kbd>B</kbd></dt><dd>自動裝表 開／關</dd>
         <dt><kbd>G</kbd></dt><dd>切換火炮／機槍，左鍵單獨射擊所選機槍</dd>
@@ -825,8 +834,9 @@ body[data-touch="1"] .tr-fire { display: block; }
         <dt>Ctrl＋滾輪</dt><dd>鏡頭距離</dd>
         <dt><kbd>O</kbd></dt><dd>按住看內構（模塊與乘員）</dd>
         <dt><kbd>T</kbd> <kbd>L</kbd> <kbd>P</kbd></dt><dd>時間／畫質／像素風格</dd>
-        <dt><kbd>R</kbd> <kbd>M</kbd></dt><dd>回到起點／靜音（聯機：被擊毀 5 秒後重生；活著連按兩下棄車）</dd>
-        <dt><kbd>J</kbd> <kbd>K</kbd></dt><dd>修理壞掉的模組（要停車）／用滅火器</dd>
+        <dt><kbd>R</kbd> <kbd>M</kbd></dt><dd>回到起點／靜音（聯機：被擊毀 5 秒後重生；火箭車活著時 R 發射火箭）</dd>
+        <dt><kbd>J</kbd></dt><dd>按住 3 秒放棄載具，松開取消</dd>
+        <dt><kbd>K</kbd></dt><dd>使用滅火器</dd>
         <dt><kbd>I</kbd></dt><dd>收放防空護板／平台側板；放下後擴大射界，炮位干涉時先抬炮或轉回安全範圍</dd>
         <dt><kbd>Enter</kbd></dt><dd>聯機聊天</dd>
         <dt><kbd>Tab</kbd></dt><dd>回車庫換車（聯機：離開房間）</dd>
@@ -835,6 +845,21 @@ body[data-touch="1"] .tr-fire { display: block; }
     </section>
 
     <div id="lock-hint">點一下畫面鎖定滑鼠（Esc 解除）</div>
+    <div id="vehicle-action" role="progressbar" aria-label="車輛操作" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden>
+      <svg viewBox="0 0 104 104" aria-hidden="true">
+        <circle cx="52" cy="52" r="44" fill="none" stroke="#bcc4b1" stroke-opacity=".25" stroke-width="4"/>
+        <circle data-action-ring cx="52" cy="52" r="44" pathLength="1" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="1" stroke-dashoffset="1" transform="rotate(-90 52 52)"/>
+        <g data-action-rim fill="none" stroke="#a9b19f" stroke-width="2.5">
+          <circle cx="52" cy="52" r="31" fill="#171c17" fill-opacity=".9"/>
+          <circle cx="52" cy="52" r="24"/>
+          <path d="M52 22v12m0 36v12M26 37l11 6m30 18 11 6M26 67l11-6m30-18 11-6"/>
+        </g>
+        <circle cx="52" cy="52" r="19" fill="#171c17"/>
+        <path data-action-wrench d="M65 33a11 11 0 0 0-13 14L36 63a5 5 0 0 0 7 7l16-16a11 11 0 0 0 14-13l-8 8-9-9z" fill="#e9eddd" stroke="#171c17" stroke-width="1.5" stroke-linejoin="round"/>
+        <g data-action-abandon fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M49 34H37v36h12M49 52h22m-8-8 8 8-8 8"/></g>
+      </svg>
+      <div data-action-title></div><div data-action-note></div>
+    </div>
     <div id="net-score" role="status" hidden></div>
     <ol id="net-feed" aria-live="polite"></ol>
     <input id="net-chat" maxlength="200" placeholder="聊天（Enter 送出，Esc 取消）" autocomplete="off" hidden>
