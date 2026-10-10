@@ -70,3 +70,4 @@ node test/online.mjs                                    # 兩個瀏覽器經 tg-
 - [2026-10-10 全程序車隊模型檢查與修復](docs/procedural-fleet-refinement-2026-10-10.md)：27 款車逐車多視角、活動部件與歷史型別核對；排除 15 款已有整車模型的車輛。局部重建用 `python tools/rebuild_procedural_models.py --ids=<IDs>`。
 - [2026-10-10 AT-T／M-46 工具移除更正](docs/m46-front-tool-removal-2026-10-10.md)：前輪刪除竪架與鏈條，本輪補刪引擎罩橫放鏟子及固定扣；保留原 GLB 與六組 I 鍵折板。
 - [2026-10-10 起步、獨立武器與發射車修復](docs/runtime-bugfixes-2026-10-10.md)：輪式加速、機槍瞄具、Oplot 獨立開火、導彈／火箭內構，以及海岸河口 ABC。
+- [2026-10-10 第三人稱防空仰角修復](docs/third-person-aa-2026-10-10.md)：戰鬥視線可抬至 89°，高仰角鏡頭保留車外位置，火炮仍按自己的機械俯仰範圍瞄準。

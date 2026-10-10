@@ -59,6 +59,8 @@ import { Rng } from './sim/rng.js';
 const DEG = Math.PI / 180;
 const SIM_DT = 1 / 120;
 const THIRD_FOV = 50 * DEG;
+const THIRD_PITCH_MAX = 89 * DEG; // look almost overhead without crossing the vertical view pole
+const THIRD_ORBIT_PITCH_MAX = 0.38; // keep the eye behind the hull while the view looks higher
 const THIRD_ZOOM_FOV = 22 * DEG;
 const GARAGE_FOV = 34 * DEG;
 const GARAGE_MAX_DIST = 22; // the shed stands further back than this, so the view never ends up inside it
@@ -1153,7 +1155,7 @@ export function start(data, saved = {}) {
     } else {
       G.view = 'third';
       G.cam.yaw = G.aim.yaw;
-      G.cam.pitch = clamp(G.aim.pitch - 0.1, -0.6, 0.35);
+      G.cam.pitch = clamp(G.aim.pitch - 0.1, -0.6, THIRD_PITCH_MAX);
     }
   }
 
@@ -3673,15 +3675,15 @@ export function start(data, saved = {}) {
       const sens = 0.0023 * (G.cam.fov / THIRD_FOV);
       G.cam.yaw = gunnery.wrapPi(G.cam.yaw + dx * sens);
       let lo = -0.6;
-      let hi = 0.38;
+      let hi = THIRD_PITCH_MAX;
       if (garage) [lo, hi] = [-0.95, 0.04];
-      else if (orbit) [lo, hi] = [-1.25, 1.1];
+      else if (orbit) [lo, hi] = [-1.25, THIRD_PITCH_MAX];
       else if (inSight) {
         const arc = selectedMg && selectedMg.m.mount !== 'coax' ? selectedMg.m.arc : null;
         [lo, hi] = [-(arc ? arc[1] : sg.def.max_depression_deg * DEG) - ze - .06,
           (arc ? arc[2] : sg.def.max_elevation_deg * DEG) - ze + .06];
       }
-      G.cam.pitch = clamp(G.cam.pitch - dy * sens, lo, hi);
+      G.cam.pitch = clamp(G.cam.pitch - dy * sens, lo, Math.min(hi, THIRD_PITCH_MAX));
       // the garage turntable: the view drifts round the vehicle until you take hold of it
       G.spinHold = Math.max(0, G.spinHold - dt);
       if (garage && !G.workshop && !G.xray && !G.protect && G.spinHold <= 0) G.cam.yaw = gunnery.wrapPi(G.cam.yaw + dt * 0.1);
@@ -3873,7 +3875,8 @@ export function start(data, saved = {}) {
       // graticule shows where the gun really points and closes on the middle as the turret arrives.
       // ... and is carried off with the gun by the hull's motion until the laying catches up
       const off = selectedMg ? { yaw: 0, pitch: 0 } : layError(srt);
-      fwd = dirFrom(G.cam.yaw + off.yaw + jitter() * 0.004, G.cam.pitch + off.pitch + G.cam.kick + jitter() * 0.004);
+      // Hull lag and recoil can push a high view past the zenith even after input was clamped.
+      fwd = dirFrom(G.cam.yaw + off.yaw + jitter() * 0.004, clamp(G.cam.pitch + off.pitch + G.cam.kick + jitter() * 0.004, -THIRD_PITCH_MAX, THIRD_PITCH_MAX));
       camPos = [mz.trunnion[0] + mz.dir[0] * 0.6, mz.trunnion[1] + mz.dir[1] * 0.6, mz.trunnion[2] + mz.dir[2] * 0.6];
       scope = { ...sightProjection(level, cw, ch), level };
       fovY = scope.fovY;
@@ -3899,7 +3902,9 @@ export function start(data, saved = {}) {
       }
       fovY = G.cam.fov;
       fwd = dirFrom(G.cam.yaw + jitter() * 0.012, G.cam.pitch + jitter() * 0.012);
-      camPos = [G.cam.pivot[0] - fwd[0] * G.cam.dist, G.cam.pivot[1] - fwd[1] * G.cam.dist, G.cam.pivot[2] - fwd[2] * G.cam.dist];
+      // A high skyward view must not swing the eye under the tank and into its own hull.
+      const orbitFwd = !garage && G.cam.pitch > THIRD_ORBIT_PITCH_MAX ? dirFrom(Math.atan2(fwd[0], fwd[2]), THIRD_ORBIT_PITCH_MAX) : fwd;
+      camPos = [G.cam.pivot[0] - orbitFwd[0] * G.cam.dist, G.cam.pivot[1] - orbitFwd[1] * G.cam.dist, G.cam.pivot[2] - orbitFwd[2] * G.cam.dist];
       if (garage && !G.camOverride) {
         // slide the view so the vehicle sits in the part of the screen the panels leave free
         const b = lookAtLH(camPos, fwd);
