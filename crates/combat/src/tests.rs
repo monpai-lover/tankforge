@@ -2,6 +2,325 @@ use super::*;
 use tg_armor::ArmorKind;
 use tg_weapon::CurvePoint;
 
+fn weapon_target(id: &str) -> Target {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+    let read = |f: &str| serde_json::from_str::<serde_json::Value>(&std::fs::read_to_string(root.join(f)).unwrap()).unwrap();
+    let vehicle = read(&format!("vehicles/{id}/vehicle.json"));
+    let def = target_from_files(id, &vehicle,
+        serde_json::from_value(read(&format!("vehicles/{id}/armor.json"))).unwrap(),
+        serde_json::from_value(read(&format!("vehicles/{id}/modules.json"))).unwrap(),
+        serde_json::from_value(read(&format!("vehicles/{id}/crew.json"))).unwrap());
+    let mut value = serde_json::to_value(def).unwrap();
+    value["weapons"] = read(&format!("vehicles/{id}/weapons.json"));
+    value["machine_guns"] = read("machine_guns.json");
+    value["visual"] = read(&format!("vehicles/{id}/visual.json"));
+    Target::new(serde_json::from_value(value).unwrap(), &rha())
+}
+
+fn weapon_caps_json(t: &Target, st: &TargetState) -> serde_json::Value {
+    serde_json::to_value(caps(t, st)).unwrap()["weapons"].clone()
+}
+
+fn break_part(t: &Target, st: &mut TargetState, id: &str) {
+    st.modules[t.def.modules.iter().position(|m| m.id == id).unwrap()] = 0.0;
+}
+
+#[test]
+fn weapon_bindings_oplot_survives_main_breech_and_radar_damage() {
+    let t = weapon_target("su_t10m");
+    let mut st = t.fresh_state();
+    break_part(&t, &mut st, "breech");
+    break_part(&t, &mut st, "oplot_radar");
+    let c = weapon_caps_json(&t, &st);
+    assert_eq!(c["gun:0:0"]["can_fire"], false);
+    assert_eq!(c["gun:1:0"]["can_fire"], true);
+    assert!(caps(&t, &st).can_fire);
+    break_part(&t, &mut st, "oplot_gun");
+    assert_eq!(weapon_caps_json(&t, &st)["gun:1:0"]["can_fire"], false);
+}
+
+#[test]
+fn weapon_bindings_duplicate_models_and_launcher_instances_are_independent() {
+    for (id, part) in [("de_gepard", "breech"), ("su_bmpt34", "cannon_breech_01")] {
+        let t = weapon_target(id);
+        let mut st = t.fresh_state();
+        break_part(&t, &mut st, part);
+        let c = weapon_caps_json(&t, &st);
+        assert_eq!(c["gun:0:0"]["can_fire"], false, "{id}");
+        assert_eq!(c["gun:0:1"]["can_fire"], true, "{id}");
+        if id == "su_bmpt34" {
+            assert_eq!(c["gun:0:2"]["can_fire"], true);
+            assert_eq!(c["gun:0:3"]["can_fire"], true);
+            break_part(&t, &mut st, "launcher_tt250_rail_r");
+            let c = weapon_caps_json(&t, &st);
+            assert_eq!(c["gun:0:2"]["can_fire"], false);
+            assert_eq!(c["gun:0:3"]["can_fire"], true);
+            assert_eq!(c["gun:0:2"]["dispersion_mult"], 1.0);
+        }
+    }
+}
+
+#[test]
+fn weapon_bindings_mg_survives_main_gun_damage_and_has_own_real_parts() {
+    let t = weapon_target("de_hetzer");
+    let original: Vec<Module> = serde_json::from_str(include_str!("../../../data/vehicles/de_hetzer/modules.json")).unwrap();
+    assert!(t.def.modules.len() > original.len());
+    assert_eq!(t.def.modules[..original.len()].iter().map(|m| &m.id).collect::<Vec<_>>(), original.iter().map(|m| &m.id).collect::<Vec<_>>());
+    let mut st = t.fresh_state();
+    break_part(&t, &mut st, "breech");
+    assert_eq!(weapon_caps_json(&t, &st)["mg:roof_mg34"]["can_fire"], true);
+    let mg: Vec<_> = t.def.modules.iter().enumerate().filter(|(_, m)| m.weapon_group.as_deref() == Some("mg:roof_mg34")).collect();
+    assert_eq!(mg.len(), 2);
+    assert!(mg.iter().all(|(_, m)| m.kind.as_str() == "machine_gun"));
+    // Stockless receiver stays ahead of the renderer's -332mm seam.
+    assert!(mg.iter().all(|(_, m)| m.center.z - m.half_extents.z >= -0.05 - 0.332 - 1e-5));
+    st.modules[mg[0].0] = 0.0;
+    assert_eq!(weapon_caps_json(&t, &st)["mg:roof_mg34"]["can_fire"], false);
+    let again = Target::new(t.def.clone(), &rha());
+    assert_eq!(serde_json::to_value(&again.def.modules).unwrap(), serde_json::to_value(&t.def.modules).unwrap());
+}
+
+#[test]
+fn weapon_bindings_shared_drives_and_partial_damage_use_instance_curves() {
+    let mut def = weapon_target("de_gepard").def;
+    // Gepard itself has no loader seat; add one to exercise the legacy seat multiplier.
+    def.crew.push(crew(CrewRole::Loader, [0.0, 2.0, 0.0]));
+    let t = Target::new(def, &rha());
+    let mut st = t.fresh_state();
+    let set_ratio = |st: &mut TargetState, id: &str, ratio: f32| {
+        let i = t.def.modules.iter().position(|m| m.id == id).unwrap();
+        st.modules[i] = t.def.modules[i].max_health * ratio;
+    };
+    set_ratio(&mut st, "breech", 0.25);
+    set_ratio(&mut st, "gun_barrel", 0.4);
+    set_ratio(&mut st, "turret_drive", 0.25);
+    set_ratio(&mut st, "ammo_drum", 0.25);
+    let c = weapon_caps_json(&t, &st);
+    assert_eq!(c["gun:0:0"]["dispersion_mult"], 1.5);
+    assert_eq!(c["gun:0:1"]["dispersion_mult"], 1.0);
+    for key in ["gun:0:0", "gun:0:1"] {
+        assert!((c[key]["traverse_mult"].as_f64().unwrap() - 0.675).abs() < 1e-6);
+        assert_eq!(c[key]["reload_mult"], 1.25);
+    }
+    st.rack_fill = vec![1.0; t.def.modules.len()];
+    st.rack_fill[t.def.modules.iter().position(|m| m.id == "ammo_drum").unwrap()] = 0.0;
+    assert_eq!(weapon_caps_json(&t, &st)["gun:0:0"]["reload_mult"], 1.0);
+    for (i, c) in t.def.crew.iter().enumerate() { if c.role == CrewRole::Loader { st.crew[i] = 0.0; } }
+    assert!((weapon_caps_json(&t, &st)["gun:0:0"]["reload_mult"].as_f64().unwrap() - 1.6).abs() < 1e-6);
+}
+
+#[test]
+fn weapon_bindings_common_restrictions_and_legacy_defaults() {
+    let t = weapon_target("su_t10m");
+    for mode in 0..3 {
+        let mut st = t.fresh_state();
+        match mode { 0 => st.destroyed = true, 1 => st.repair_s = 1.0, _ => { for (i, c) in t.def.crew.iter().enumerate() { if c.role == CrewRole::Gunner { st.crew[i] = 0.0; } } } }
+        let c = weapon_caps_json(&t, &st);
+        assert_eq!(c["gun:0:0"]["can_fire"], false);
+        assert_eq!(c["gun:1:0"]["can_fire"], false);
+    }
+    let legacy = narrow_turret_module(ModuleKind::GunBreech);
+    let mut value = serde_json::to_value(&legacy.def).unwrap();
+    value.as_object_mut().unwrap().remove("weapons");
+    let old = Target::new(serde_json::from_value(value).unwrap(), &rha());
+    assert_eq!(weapon_caps_json(&old, &old.fresh_state()), serde_json::json!({}));
+    assert!(caps(&old, &old.fresh_state()).can_fire);
+}
+
+#[test]
+fn weapon_bindings_every_fleet_and_workshop_mount_is_usable() {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/vehicles");
+    let mut counts = (0, 0, 0);
+    for e in std::fs::read_dir(root).unwrap().flatten() {
+        let id = e.file_name().to_string_lossy().into_owned();
+        let t = weapon_target(&id);
+        let c = weapon_caps_json(&t, &t.fresh_state());
+        let map = c.as_object().expect("ordered instance capabilities");
+        for (key, value) in map { assert_eq!(value["can_fire"], true, "{id}/{key}: {value}"); }
+        if id != "fun_hexa" {
+            counts.0 += 1;
+            counts.1 += map.keys().filter(|k| k.starts_with("gun:")).count();
+            counts.2 += map.keys().filter(|k| k.starts_with("mg:")).count();
+        } else { assert_eq!(map.keys().filter(|k| k.starts_with("gun:")).count(), 6); }
+    }
+    assert_eq!(counts, (42, 47, 45));
+}
+
+#[test]
+fn weapon_bindings_rotated_long_barrel_tip_stays_in_broadphase() {
+    let t=weapon_target("su_t10m");
+    let i=t.def.modules.iter().position(|m| m.id=="gun_barrel").unwrap();
+    let m=&t.def.modules[i];
+    let pivot=t.def.turret.as_ref().unwrap().pivot;
+    let yaw=std::f32::consts::FRAC_PI_2;
+    let tip=pivot+rotate_yaw(m.center-pivot+Vec3::new(0.0,0.0,m.half_extents.z-0.05),yaw);
+    assert!(tip.x<t.hi.x && tip.x>t.lo.x && tip.z<t.hi.z && tip.z>t.lo.z);
+    let r=shoot(&t,&t.fresh_state(),&Shot {origin:tip+Vec3::new(0.0,5.0,0.0),dir:Vec3::new(0.0,-1.0,0.0),turret_yaw:yaw,..side_shot(ap(),1)});
+    assert!(r.modules.iter().any(|m| m.id=="gun_barrel"));
+}
+
+#[test]
+fn weapon_bindings_shared_critical_part_is_ambiguous_for_both_mounts() {
+    let mut def=weapon_target("de_gepard").def;
+    let p=def.weapons["mount_m"].clone();
+    def.weapons["extra_guns"][0]["mount_m"]=p;
+    def.modules.retain(|m| m.id!="breech_r" && m.id!="gun_barrel_r");
+    let t=Target::new(def,&rha());
+    let c=weapon_caps_json(&t,&t.fresh_state());
+    for key in ["gun:0:0","gun:0:1"] {
+        assert_eq!(c[key]["can_fire"],false);
+        assert!(c[key]["reason"].as_str().unwrap().contains("ambiguous"));
+    }
+}
+
+#[test]
+fn weapon_bindings_feed_groups_only_affect_their_instance() {
+    let mut def=weapon_target("de_gepard").def;
+    let i=def.modules.iter().position(|m| m.id=="ammo_drum").unwrap();
+    def.modules[i].weapon_group=Some("gun:0:0".into());
+    let mut right=def.modules[i].clone(); right.id="ammo_right".into(); right.weapon_group=Some("gun:0:1".into());
+    def.modules.push(right);
+    let t=Target::new(def,&rha());
+    let mut st=t.fresh_state(); st.modules[i]=t.def.modules[i].max_health*0.25;
+    let c=weapon_caps_json(&t,&st);
+    assert_eq!(c["gun:0:0"]["reload_mult"],1.25);
+    assert_eq!(c["gun:0:1"]["reload_mult"],1.0);
+}
+
+#[test]
+fn weapon_bindings_invalid_aps_turret_and_group_metadata_report_errors() {
+    let mut def=weapon_target("su_t10m").def;
+    def.weapons["aps"]["turret"]=serde_json::json!(0);
+    let t=Target::new(def,&rha());
+    assert!(t.binding_errors.contains_key("gun:0:0"));
+    let mut def=weapon_target("de_gepard").def;
+    def.weapons["damage"]=serde_json::json!({"traverse":["breech"]});
+    let t=Target::new(def,&rha());
+    assert!(t.binding_errors.contains_key("gun:0:0"),"wrong-kind drive reference must fail closed");
+}
+
+#[test]
+fn weapon_bindings_instance_selection_is_unique_eligible_and_ammo_checked() {
+    use crate::weapon_damage::select_weapon;
+    let t=weapon_target("de_gepard");
+    let mut st=t.fresh_state();
+    assert!(select_weapon(&t,&st,None,Some("kda_35_gepard"),Some("hei_35_kda"),None).unwrap_err().contains("ambiguous"));
+    assert_eq!(select_weapon(&t,&st,Some("gun:0:1"),Some("kda_35_gepard"),Some("hei_35_kda"),None).unwrap().key,"gun:0:1");
+    assert!(select_weapon(&t,&st,Some("gun:0:1"),None,Some("foreign_shell"),None).is_err());
+    assert!(select_weapon(&t,&st,Some("gun:0:9"),None,None,None).is_err());
+    break_part(&t,&mut st,"breech");
+    assert_eq!(select_weapon(&t,&st,None,Some("kda_35_gepard"),None,None).unwrap().key,"gun:0:1");
+    let t=weapon_target("su_bmpt34");
+    let st=t.fresh_state();
+    assert!(select_weapon(&t,&st,None,None,None,Some("tt250_rocket")).unwrap_err().contains("ambiguous"));
+    let binding=select_weapon(&t,&st,Some("gun:0:3"),None,None,Some("tt250_rocket")).unwrap();
+    assert_eq!(binding.missile.as_deref(),Some("tt250_rocket"));
+    assert_eq!(binding.model_id,"tt250_rail_l");
+    assert!(select_weapon(&t,&st,Some("gun:0:0"),None,None,Some("tt250_rocket")).is_err());
+}
+
+#[test]
+fn weapon_bindings_explicit_groups_and_module_refs_override_ambiguous_geometry() {
+    let mut def=weapon_target("de_gepard").def;
+    for m in &mut def.modules { if ["breech","gun_barrel"].contains(&m.id.as_str()) { m.weapon_group=Some("left_cannon".into()); } }
+    def.weapons["weapon_group"]=serde_json::json!("left_cannon");
+    def.weapons["extra_guns"][0]["damage"]=serde_json::json!({"critical":["breech_r","gun_barrel_r"]});
+    def.weapons["extra_guns"][0]["mount_m"]=def.weapons["mount_m"].clone();
+    let t=Target::new(def,&rha());
+    assert!(t.binding_errors.is_empty(),"{:?}",t.binding_errors);
+    let mut st=t.fresh_state(); break_part(&t,&mut st,"breech");
+    assert!(!caps(&t,&st).weapons["gun:0:0"].can_fire);
+    assert!(caps(&t,&st).weapons["gun:0:1"].can_fire);
+}
+
+#[test]
+fn weapon_bindings_oplot_has_its_own_drives_and_cannon_curves() {
+    let t=weapon_target("su_t10m");
+    let mut st=t.fresh_state();
+    break_part(&t,&mut st,"turret_drive"); break_part(&t,&mut st,"vertical_drive");
+    let c=caps(&t,&st);
+    assert_eq!(c.weapons["gun:0:0"].traverse_mult,0.15);
+    assert_eq!(c.weapons["gun:0:0"].elevate_mult,0.3);
+    assert_eq!(c.weapons["gun:1:0"].traverse_mult,1.0);
+    assert_eq!(c.weapons["gun:1:0"].elevate_mult,1.0);
+    let i=t.def.modules.iter().position(|m| m.id=="oplot_gun").unwrap();
+    st.modules[i]=t.def.modules[i].max_health*0.25;
+    assert_eq!(caps(&t,&st).weapons["gun:1:0"].dispersion_mult,1.5);
+}
+
+#[test]
+fn weapon_bindings_mg_external_frame_and_origin_metadata_are_respected() {
+    let hetzer=weapon_target("de_hetzer");
+    let pivot=hetzer.def.modules.iter().find(|m| m.id=="mg:roof_mg34:receiver").unwrap().center;
+    let i=hetzer.def.modules.iter().position(|m| m.id=="mg:roof_mg34:receiver").unwrap();
+    assert_eq!(hetzer.posed(std::f32::consts::FRAC_PI_2).boxes[i].center,pivot,"Hetzer roof gun anchored to hull");
+    let t=weapon_target("su_t54");
+    for (i,m) in t.def.modules.iter().enumerate().filter(|(_,m)| m.kind.as_str()=="machine_gun") {
+        if m.turret_index==Some(0) { assert_ne!(t.posed(std::f32::consts::FRAC_PI_2).boxes[i].center,m.center); }
+        if m.id.contains("coax") && m.id.ends_with("receiver") {
+            assert!(!m.is_external());
+            let mut w=work(&t,&t.fresh_state(),0.0); w.blast_outside(m.center,0.001);
+            assert_eq!(w.st.modules[i],m.max_health,"armoured coax receiver excludes outside blast");
+        }
+    }
+}
+
+#[test]
+fn weapon_bindings_omitted_catalog_uses_shared_measured_geometry() {
+    let supplied=weapon_target("su_t54");
+    let mut def=supplied.def.clone();
+    def.modules.retain(|m| m.kind.as_str()!="machine_gun");
+    def.machine_guns=serde_json::Value::Null;
+    let legacy=Target::new(def,&rha());
+    assert!(legacy.binding_errors.is_empty(),"{:?}",legacy.binding_errors);
+    assert_eq!(serde_json::to_value(&legacy.def.modules).unwrap(),serde_json::to_value(&supplied.def.modules).unwrap());
+}
+
+#[test]
+fn weapon_bindings_stable_module_groups_resolve_same_pose_mounts() {
+    let mut def=weapon_target("de_gepard").def;
+    for m in &mut def.modules {
+        if ["breech","gun_barrel"].contains(&m.id.as_str()) { m.weapon_group=Some("gun:0:0".into()); }
+        if ["breech_r","gun_barrel_r"].contains(&m.id.as_str()) { m.weapon_group=Some("gun:0:1".into()); m.center.x=-0.84; }
+    }
+    def.weapons["extra_guns"][0]["mount_m"]=def.weapons["mount_m"].clone();
+    let t=Target::new(def,&rha());
+    assert!(t.binding_errors.is_empty(),"{:?}",t.binding_errors);
+    let mut st=t.fresh_state(); break_part(&t,&mut st,"breech");
+    assert!(!caps(&t,&st).weapons["gun:0:0"].can_fire);
+    assert!(caps(&t,&st).weapons["gun:0:1"].can_fire);
+}
+
+#[test]
+fn weapon_bindings_single_legacy_cannon_keeps_all_ungrouped_parts() {
+    let mut def=weapon_target("de_hetzer").def;
+    let mut segment=def.modules.iter().find(|m| m.id=="gun_barrel").unwrap().clone();
+    segment.id="barrel_segment".into(); def.modules.push(segment);
+    let t=Target::new(def,&rha());
+    assert!(t.binding_errors.is_empty(),"{:?}",t.binding_errors);
+    let mut st=t.fresh_state(); break_part(&t,&mut st,"barrel_segment");
+    assert!(!caps(&t,&st).weapons["gun:0:0"].can_fire);
+    assert!(caps(&t,&st).weapons["mg:roof_mg34"].can_fire);
+}
+
+#[test]
+fn weapon_bindings_module_schema_accepts_runtime_rounds_and_frame_metadata() {
+    let schema:serde_json::Value=serde_json::from_str(include_str!("../../../schemas/modules.schema.json")).unwrap();
+    let props=&schema["items"]["properties"];
+    assert_eq!(props["rounds"]["type"],"integer");
+    assert_eq!(props["rounds"]["minimum"],0);
+    assert_eq!(props["external"]["type"],"boolean");
+    assert_eq!(props["turret_index"]["minimum"],0);
+    for kind in [ModuleKind::MachineGun,ModuleKind::ApsGun,ModuleKind::ApsRadar,ModuleKind::Launcher] {
+        assert!(props["kind"]["enum"].as_array().unwrap().iter().any(|v| v==kind.as_str()));
+    }
+    let mut value=serde_json::to_value(module("rack",ModuleKind::AmmoRack,[0.0,0.0,0.0],[0.1,0.1,0.1],40.0)).unwrap();
+    assert_eq!(serde_json::from_value::<Module>(value.clone()).unwrap().rounds,None);
+    for rounds in [0,42] { value["rounds"]=serde_json::json!(rounds); assert_eq!(serde_json::from_value::<Module>(value.clone()).unwrap().rounds,Some(rounds)); }
+    value["rounds"]=serde_json::json!(-1); assert!(serde_json::from_value::<Module>(value.clone()).is_err());
+    value["rounds"]=serde_json::json!(0.5); assert!(serde_json::from_value::<Module>(value).is_err());
+}
+
 fn rha() -> Vec<Material> {
     vec![Material { id: "rha".into(), kind: ArmorKind::Rha, density_kg_m3: 7850.0, hardness_bhn: 300.0, kinetic_factor: 1.0, chemical_factor: 1.0 }]
 }
@@ -11,7 +330,7 @@ fn plate(id: &str, zone: ArmorZone, mm: f32, c: [f32; 3], n: [f32; 3], u: [f32; 
 }
 
 fn module(id: &str, kind: ModuleKind, c: [f32; 3], h: [f32; 3], hp: f32) -> Module {
-    Module { id: id.into(), kind, center: Vec3::new(c[0], c[1], c[2]), half_extents: Vec3::new(h[0], h[1], h[2]), max_health: hp, health: hp, rounds: None, weapon_group: None }
+    Module { id: id.into(), kind, center: Vec3::new(c[0], c[1], c[2]), half_extents: Vec3::new(h[0], h[1], h[2]), max_health: hp, health: hp, rounds: None, weapon_group: None, external: None, turret_index: None }
 }
 
 fn crew(role: CrewRole, p: [f32; 3]) -> Crew {
@@ -23,7 +342,7 @@ fn narrow_turret_module(kind: ModuleKind) -> Target {
         id: "narrow_turret".into(), plates: vec![],
         modules: vec![module("narrow", kind, [0.0, 1.0, 0.0], [0.1, 0.1, 1.0], 100.0)],
         crew: vec![], turret: Some(TurretGeom { pivot: Vec3::new(0.0, 0.5, 0.0), size: Vec3::new(2.0, 1.0, 2.0) }),
-        open_top: false, ammo_capacity: 0,
+        open_top: false, ammo_capacity: 0, weapons: serde_json::Value::Null, machine_guns: serde_json::Value::Null, visual: serde_json::Value::Null,
     }, &rha())
 }
 
@@ -366,7 +685,7 @@ fn box_tank(open_top: bool) -> Target {
         crew(CrewRole::Commander, [-0.45, 2.3, -0.6]),
         crew(CrewRole::Loader, [0.45, 2.0, -0.2]),
     ];
-    let def = TargetDef { id: "box".into(), plates, modules, crew, turret: Some(TurretGeom { pivot: Vec3::new(0.0, 1.8, 0.0), size: Vec3::new(2.0, 0.9, 2.4) }), open_top, ammo_capacity: 0 };
+    let def = TargetDef { id: "box".into(), plates, modules, crew, turret: Some(TurretGeom { pivot: Vec3::new(0.0, 1.8, 0.0), size: Vec3::new(2.0, 0.9, 2.4) }), open_top, ammo_capacity: 0, weapons: serde_json::Value::Null, machine_guns: serde_json::Value::Null, visual: serde_json::Value::Null };
     Target::new(def, &rha())
 }
 

@@ -87,6 +87,7 @@
         "exclusiveMinimum": 0,
         "description": "seconds for a barrel at its limit to cool completely"
       },
+      "damage_geometry": {"$ref":"#/$defs/damageGeometry"},
       "tracer_rgb": {
         "type": "array",
         "items": {
@@ -99,5 +100,10 @@
         "description": "display colour of the tracer"
       }
     }
+  },
+  "$defs": {
+    "vec3": {"type":"array","items":{"type":"number"},"minItems":3,"maxItems":3},
+    "damageBox": {"type":"object","additionalProperties":false,"required":["center","half_extents"],"properties":{"center":{"$ref":"#/$defs/vec3"},"half_extents":{"type":"array","items":{"type":"number","exclusiveMinimum":0},"minItems":3,"maxItems":3}}},
+    "damageGeometry": {"type":"object","additionalProperties":false,"required":["source","muzzle","receiver","barrel"],"properties":{"source":{"type":"string"},"muzzle":{"$ref":"#/$defs/vec3"},"receiver":{"$ref":"#/$defs/damageBox"},"barrel":{"$ref":"#/$defs/damageBox"},"variants":{"type":"object","additionalProperties":{"$ref":"#/$defs/damageGeometry"}}}}
   }
 }

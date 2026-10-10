@@ -804,7 +804,7 @@ pub fn propagate_inside(frags: &[Fragment], ranges: &[f64], modules: &mut [Modul
             }
         }
         for (i, m) in modules.iter().enumerate() {
-            if m.health <= 0.0 || m.kind.is_external() {
+            if m.health <= 0.0 || m.is_external() {
                 continue;
             }
             let a = Aabb::from_center(V3::from_f32(m.center), V3::from_f32(m.half_extents) * 2.0);

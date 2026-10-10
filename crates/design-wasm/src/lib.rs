@@ -241,7 +241,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 let def: TargetDef = field(req, "def")?;
                 let id = def.id.clone();
                 let t = Target::new(def, &st.db.material_list);
-                let out = json!({"modules": t.def.modules.len(), "crew": t.def.crew.len()});
+                let out = json!({"modules": t.def.modules.len(), "crew": t.def.crew.len(), "modules_def": t.def.modules, "binding_errors": t.binding_errors});
                 st.targets.insert(id, t);
                 Ok(out)
             }
@@ -322,6 +322,36 @@ pub unsafe extern "C" fn tg_call(ptr: *const u8, len: usize) -> *const u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn combat_target_returns_idempotent_normalized_modules_and_instance_caps() {
+        let value=|s:&str| serde_json::from_str::<Value>(s).unwrap();
+        let vehicle=value(include_str!("../../../data/vehicles/de_hetzer/vehicle.json"));
+        let mut def=tg_combat::target_from_files("binding_wasm_test",&vehicle,
+            serde_json::from_value(value(include_str!("../../../data/vehicles/de_hetzer/armor.json"))).unwrap(),
+            serde_json::from_value(value(include_str!("../../../data/vehicles/de_hetzer/modules.json"))).unwrap(),
+            serde_json::from_value(value(include_str!("../../../data/vehicles/de_hetzer/crew.json"))).unwrap());
+        def.weapons=value(include_str!("../../../data/vehicles/de_hetzer/weapons.json"));
+        def.machine_guns=value(include_str!("../../../data/machine_guns.json"));
+        let visual=value(include_str!("../../../data/vehicles/de_hetzer/visual.json"));
+        def.visual=json!({"mg_anchors":visual["mg_anchors"],"mg_variants":visual["mg_variants"]});
+        let call=|req:Value| serde_json::from_str::<Value>(&call_json(&req.to_string())).unwrap();
+        assert_eq!(call(json!({"op":"init",
+            "materials":value(include_str!("../../../data/materials.json")),
+            "catalog":value(include_str!("../../../data/design_catalog.json")),
+            "terrains":value(include_str!("../../../data/terrains.json"))}))["ok"],true);
+        let first=call(json!({"op":"combat_target","def":def}));
+        assert_eq!(first["ok"],true);
+        assert_eq!(first["result"]["modules"].as_u64().unwrap() as usize,def.modules.len()+2);
+        assert_eq!(first["result"]["crew"].as_u64().unwrap() as usize,def.crew.len());
+        assert_eq!(first["result"]["binding_errors"],json!({}));
+        def.modules=serde_json::from_value(first["result"]["modules_def"].clone()).unwrap();
+        let second=call(json!({"op":"combat_target","def":def}));
+        assert_eq!(first["result"],second["result"]);
+        let fresh=call(json!({"op":"combat_new","key":"binding_wasm_test"}));
+        assert_eq!(fresh["result"]["caps"]["weapons"]["mg:roof_mg34"]["can_fire"],true);
+        assert_eq!(fresh["result"]["state"]["modules"].as_array().unwrap().len(),def.modules.len());
+    }
 
     #[test]
     fn init_then_unknown_design_errors_cleanly() {

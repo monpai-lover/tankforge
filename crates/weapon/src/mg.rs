@@ -38,6 +38,25 @@ pub struct MachineGunDef {
     /// Display colour of the tracer (client only).
     #[serde(default)]
     pub tracer_rgb: Option<[f32; 3]>,
+    /// Neutral receiver/barrel boxes used by the shared combat target registrar.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage_geometry: Option<MgDamageGeometry>,
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MgDamageBox {
+    pub center: [f32; 3],
+    pub half_extents: [f32; 3],
+}
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct MgDamageGeometry {
+    pub source: String,
+    pub muzzle: [f32; 3],
+    pub receiver: MgDamageBox,
+    pub barrel: MgDamageBox,
+    #[serde(default, skip_serializing_if = "std::collections::BTreeMap::is_empty")]
+    pub variants: std::collections::BTreeMap<String, MgDamageGeometry>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -159,6 +178,7 @@ mod tests {
             heat_rounds: 250.0,
             cool_s: 100.0,
             tracer_rgb: None,
+            damage_geometry: None,
         }
     }
 

@@ -15,6 +15,8 @@ pub enum ModuleKind {
     GunBarrel,
     /// Missile/rocket launch rails, tubes and firing apparatus; no cannon breech or recoil unit.
     Launcher,
+    /// Machine-gun receiver or barrel; per-module external metadata distinguishes them.
+    MachineGun,
     TurretDrive,
     HorizontalDrive,
     VerticalDrive,
@@ -46,6 +48,7 @@ impl ModuleKind {
             ModuleKind::GunBreech => "gun_breech",
             ModuleKind::GunBarrel => "gun_barrel",
             ModuleKind::Launcher => "launcher",
+            ModuleKind::MachineGun => "machine_gun",
             ModuleKind::TurretDrive => "turret_drive",
             ModuleKind::HorizontalDrive => "horizontal_drive",
             ModuleKind::VerticalDrive => "vertical_drive",
@@ -89,6 +92,16 @@ pub struct Module {
     /// None preserves legacy data by treating all ungrouped launcher parts as one assembly.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weapon_group: Option<String>,
+    /// Overrides kind defaults for mixed internal/external assemblies (e.g. coax MG).
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub external: Option<bool>,
+    /// Parent turret in neutral vehicle space; absent preserves legacy kind/geometry rules.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub turret_index: Option<usize>,
+}
+
+impl Module {
+    pub fn is_external(&self) -> bool { self.external.unwrap_or_else(|| self.kind.is_external()) }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -371,7 +384,7 @@ mod tests {
     }
 
     fn module(kind: ModuleKind) -> Module {
-        Module { id: "m".into(), kind, center: Vec3::new(5.0, 0.0, 0.0), half_extents: Vec3::new(0.2, 0.2, 0.2), max_health: 100.0, health: 100.0, rounds: None, weapon_group: None }
+        Module { id: "m".into(), kind, center: Vec3::new(5.0, 0.0, 0.0), half_extents: Vec3::new(0.2, 0.2, 0.2), max_health: 100.0, health: 100.0, rounds: None, weapon_group: None, external: None, turret_index: None }
     }
 
     #[test]

@@ -18,7 +18,39 @@
    1.0,
    0.5,
    0.3
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/assets/mg_models.json; clipped receiver and bore ROI",
+   "muzzle": [
+    -0.0015,
+    0.224,
+    1.688
+   ],
+   "receiver": {
+    "center": [
+     -0.0095,
+     0.1645,
+     -0.1095
+    ],
+    "half_extents": [
+     0.3335,
+     0.1895,
+     0.2595
+    ]
+   },
+   "barrel": {
+    "center": [
+     -0.0015,
+     0.224,
+     0.919
+    ],
+    "half_extents": [
+     0.065,
+     0.065,
+     0.769
+    ]
+   }
+  }
  },
  {
   "id": "mg34",
@@ -39,7 +71,73 @@
    1.0,
    0.86,
    0.45
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/assets/mg_models.json; clipped receiver and bore ROI",
+   "muzzle": [
+    0.037,
+    0.0585,
+    0.719
+   ],
+   "receiver": {
+    "center": [
+     -0.0005,
+     0.04,
+     -0.1755
+    ],
+    "half_extents": [
+     0.1195,
+     0.115,
+     0.3255
+    ]
+   },
+   "barrel": {
+    "center": [
+     0.0345,
+     0.0585,
+     0.4345
+    ],
+    "half_extents": [
+     0.0305,
+     0.035,
+     0.2845
+    ]
+   },
+   "variants": {
+    "mg34_remote": {
+     "source": "client/web/assets/mg_models.json; clipped receiver and bore ROI",
+     "muzzle": [
+      0.037,
+      0.0585,
+      0.719
+     ],
+     "receiver": {
+      "center": [
+       -0.0005,
+       0.04,
+       -0.091
+      ],
+      "half_extents": [
+       0.1195,
+       0.115,
+       0.241
+      ]
+     },
+     "barrel": {
+      "center": [
+       0.0345,
+       0.0585,
+       0.4345
+      ],
+      "half_extents": [
+       0.0305,
+       0.035,
+       0.2845
+      ]
+     }
+    }
+   }
+  }
  },
  {
   "id": "dt",
@@ -60,7 +158,39 @@
    0.45,
    1.0,
    0.5
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
  },
  {
   "id": "sgmt",
@@ -81,7 +211,39 @@
    0.45,
    1.0,
    0.5
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
  },
  {
   "id": "dshk",
@@ -102,7 +264,39 @@
    0.45,
    1.0,
    0.5
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/assets/mg_models.json; clipped receiver and bore ROI",
+   "muzzle": [
+    0.0095,
+    0.232,
+    1.047
+   ],
+   "receiver": {
+    "center": [
+     -0.111,
+     0.135,
+     -0.217
+    ],
+    "half_extents": [
+     0.257,
+     0.227,
+     0.367
+    ]
+   },
+   "barrel": {
+    "center": [
+     0.0135,
+     0.232,
+     0.5985
+    ],
+    "half_extents": [
+     0.0545,
+     0.065,
+     0.4485
+    ]
+   }
+  }
  },
  {
   "id": "m1919a4",
@@ -123,7 +317,39 @@
    1.0,
    0.42,
    0.2
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
  },
  {
   "id": "m2hb",
@@ -144,7 +370,39 @@
    1.0,
    0.42,
    0.2
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/assets/mg_models.json; clipped receiver and bore ROI",
+   "muzzle": [
+    0.002,
+    0.155,
+    1.09
+   ],
+   "receiver": {
+    "center": [
+     -0.1525,
+     0.114,
+     -0.21
+    ],
+    "half_extents": [
+     0.3105,
+     0.147,
+     0.36
+    ]
+   },
+   "barrel": {
+    "center": [
+     0.002,
+     0.143669,
+     0.62
+    ],
+    "half_extents": [
+     0.04,
+     0.053669,
+     0.47
+    ]
+   }
+  }
  },
  {
   "id": "besa",
@@ -165,7 +423,39 @@
    1.0,
    0.5,
    0.25
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
  },
  {
   "id": "mg42",
@@ -186,7 +476,39 @@
    1.0,
    0.86,
    0.45
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
  },
  {
   "id": "mg_proto",
@@ -207,6 +529,38 @@
    0.6,
    0.85,
    1.0
-  ]
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
  }
 ]

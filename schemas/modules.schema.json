@@ -4,8 +4,11 @@
   "items": {"type":"object","required":["id","kind","center","half_extents","max_health","health"],
     "properties": {
       "id": {"type":"string"},
-      "weapon_group": {"type":"string","minLength":1,"description":"Mounted launcher instance; every critical apparatus component shares one group. Missing metadata groups legacy launcher components together."},
-      "kind": {"enum":["engine","transmission","fuel_tank","ammo_rack","gun_breech","gun_barrel","launcher","turret_drive","horizontal_drive","vertical_drive","radio","track"]},
+      "rounds": {"type":"integer","minimum":0,"description":"Ammo rack capacity; absent/zero preserves the runtime's legacy volume-based capacity fallback."},
+      "weapon_group": {"type":"string","minLength":1,"description":"Mounted weapon or shared turret dependency. Existing main_launcher/launcher_mount_N names remain valid; normalized secondary assemblies use mg:<secondaryId>."},
+      "external": {"type":"boolean","description":"Overrides kind defaults; an internal coax receiver stays protected while its barrel is external."},
+      "turret_index": {"type":"integer","minimum":0,"description":"Parent turret index in the neutral vehicle frame; generated hull-anchored machine guns omit it."},
+      "kind": {"enum":["engine","transmission","fuel_tank","ammo_rack","gun_breech","gun_barrel","launcher","machine_gun","turret_drive","horizontal_drive","vertical_drive","radio","track","aps_gun","aps_radar"]},
       "center": {"$ref":"#/$defs/vec3"}, "half_extents": {"$ref":"#/$defs/vec3"},
       "max_health": {"type":"number","exclusiveMinimum":0}, "health": {"type":"number","exclusiveMinimum":0}}},
   "$defs": {"vec3": {"type":"object","required":["x","y","z"],"properties":{"x":{"type":"number"},"y":{"type":"number"},"z":{"type":"number"}}}}

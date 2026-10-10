@@ -23,12 +23,14 @@
 //! block a lot, a fuel tank little) and a fragment that is still going after it goes on with what
 //! is left. Fragments stop at the armour from the inside.
 use serde::{Deserialize, Serialize};
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use tg_armor::{ArmorPlate, ArmorZone, Material};
 use tg_damage::module_state::{self, apply_health_damage, health_ratio};
 pub use tg_damage::{Crew, CrewRole, Module, ModuleKind};
 use tg_shared::{rotate_yaw, Rng, Vec3};
 use tg_weapon::{ProjectileDef, ProjectileKind};
+pub mod weapon_damage;
+mod weapon_mg;
 
 #[cfg(test)]
 mod tests;
@@ -63,11 +65,23 @@ pub struct TargetDef {
     /// Rounds the main guns' racks hold in all (0: unknown, every rack is always full).
     #[serde(default)]
     pub ammo_capacity: u32,
+    /// Raw authored instance layout. Missing: retain the legacy vehicle-wide capabilities.
+    #[serde(default)]
+    pub weapons: serde_json::Value,
+    /// Shared machine-gun catalogue array, including measured neutral damage geometry.
+    /// Missing/null uses the same embedded catalogue for legacy adapters.
+    #[serde(default)]
+    pub machine_guns: serde_json::Value,
+    /// Only mg_anchors/mg_variants are needed; callers should send a slim object.
+    #[serde(default)]
+    pub visual: serde_json::Value,
 }
 
 #[derive(Clone, Debug)]
 pub struct Target {
     pub def: TargetDef,
+    pub weapon_bindings: BTreeMap<String, weapon_damage::WeaponBinding>,
+    pub binding_errors: BTreeMap<String, String>,
     materials: HashMap<String, Material>,
     turret_plate: Vec<bool>,
     turret_module: Vec<bool>,
@@ -86,7 +100,9 @@ fn is_turret_zone(p: &ArmorPlate) -> bool {
 }
 
 impl Target {
-    pub fn new(def: TargetDef, materials: &[Material]) -> Target {
+    pub fn new(mut def: TargetDef, materials: &[Material]) -> Target {
+        let weapon_bindings = weapon_damage::register(&mut def);
+        let binding_errors = weapon_bindings.iter().filter_map(|(key,b)| b.binding_error.clone().map(|e| (key.clone(),e))).collect();
         let materials: HashMap<String, Material> = materials.iter().map(|m| (m.id.clone(), m.clone())).collect();
         let inside_turret = |p: Vec3| -> bool {
             match &def.turret {
@@ -98,12 +114,13 @@ impl Target {
             }
         };
         let turret_plate = def.plates.iter().map(|p| def.turret.is_some() && is_turret_zone(p)).collect();
-        let turret_module = def
+        let turret_module: Vec<bool> = def
             .modules
             .iter()
             .map(|m| {
                 def.turret.is_some()
                     && match m.kind {
+                        ModuleKind::MachineGun => m.turret_index.is_some(),
                         ModuleKind::GunBarrel | ModuleKind::GunBreech | ModuleKind::Launcher => true,
                         ModuleKind::VerticalDrive | ModuleKind::TurretDrive | ModuleKind::HorizontalDrive | ModuleKind::AmmoRack | ModuleKind::ApsGun | ModuleKind::ApsRadar => inside_turret(m.center),
                         _ => false,
@@ -122,6 +139,19 @@ impl Target {
         for m in &def.modules {
             pts.push(m.center - m.half_extents);
             pts.push(m.center + m.half_extents);
+        }
+        // Rotating module corners sweep a circle about the parent pivot. Derive the
+        // envelope from every box instead of assuming a fixed maximum barrel reach.
+        if let Some(t) = &def.turret {
+            for (m, &rotates) in def.modules.iter().zip(&turret_module) {
+                if rotates {
+                    let dx = (m.center.x - t.pivot.x).abs() + m.half_extents.x;
+                    let dz = (m.center.z - t.pivot.z).abs() + m.half_extents.z;
+                    let radius = dx.hypot(dz);
+                    pts.push(Vec3::new(t.pivot.x - radius, m.center.y - m.half_extents.y, t.pivot.z - radius));
+                    pts.push(Vec3::new(t.pivot.x + radius, m.center.y + m.half_extents.y, t.pivot.z + radius));
+                }
+            }
         }
         for c in &def.crew {
             pts.push(c.pos);
@@ -143,7 +173,7 @@ impl Target {
             hi = Vec3::new(hi.x.max(p.x), hi.y.max(p.y), hi.z.max(p.z));
         }
         let pad = Vec3::new(0.3, 0.3, 0.3);
-        Target { def, materials, turret_plate, turret_module, turret_crew, track_side, lo: lo - pad, hi: hi + pad }
+        Target { def, weapon_bindings, binding_errors, materials, turret_plate, turret_module, turret_crew, track_side, lo: lo - pad, hi: hi + pad }
     }
 
     pub fn fresh_state(&self) -> TargetState {
@@ -366,6 +396,8 @@ pub struct Caps {
     pub track_left: bool,
     pub track_right: bool,
     pub can_fire: bool,
+    #[serde(default)]
+    pub weapons: BTreeMap<String, weapon_damage::WeaponCaps>,
     pub traverse_mult: f32,
     pub elevate_mult: f32,
     pub reload_mult: f32,
@@ -415,14 +447,17 @@ pub fn caps(t: &Target, st: &TargetState) -> Caps {
     let commander = seat_filled(t, st, CrewRole::Commander);
     let working = !st.destroyed && st.repair_s <= 0.0;
     let crew_alive = st.crew.iter().filter(|h| **h > 0.0).count() as u32;
+    let weapons = weapon_damage::capabilities(t, st, gunner, loader);
     Caps {
         can_move: working && driver && drive_power > 0.0,
         engine_power,
         drive_power,
         track_left: side_ok(-1),
         track_right: side_ok(1),
-        can_fire: working && gunner && module_ok(t, st, ModuleKind::GunBreech) && module_ok(t, st, ModuleKind::GunBarrel)
-            && (t.def.modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(t, st)),
+        can_fire: if weapons.is_empty() { working && gunner && module_ok(t, st, ModuleKind::GunBreech) && module_ok(t, st, ModuleKind::GunBarrel)
+            && (t.def.modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(t, st)) }
+            else { weapons.values().any(|w| w.can_fire) },
+        weapons,
         traverse_mult: factor(&[ModuleKind::TurretDrive, ModuleKind::HorizontalDrive], module_state::traverse_factor),
         elevate_mult: factor(&[ModuleKind::VerticalDrive], module_state::elevation_factor),
         reload_mult: if loader { 1.0 } else { 1.6 },
@@ -722,6 +757,7 @@ fn absorb_mm(kind: ModuleKind) -> f32 {
         ModuleKind::GunBreech => 45.0,
         ModuleKind::GunBarrel => 25.0,
         ModuleKind::Launcher => 8.0,
+        ModuleKind::MachineGun => 8.0,
         ModuleKind::Track => 20.0,
         ModuleKind::AmmoRack => 10.0,
         ModuleKind::FuelTank => 6.0,
@@ -1013,7 +1049,7 @@ impl<'a> Work<'a> {
             }
         }
         for i in 0..self.p.boxes.len() {
-            if self.t.def.modules[i].kind.is_external() {
+            if self.t.def.modules[i].is_external() {
                 continue;
             }
             // distance to the box, not to its middle
@@ -1032,7 +1068,7 @@ impl<'a> Work<'a> {
         let power = (kg / 0.7).powf(0.35);
         for i in 0..self.p.boxes.len() {
             let m = &self.t.def.modules[i];
-            if !m.kind.is_external() {
+            if !m.is_external() {
                 continue;
             }
             let c = self.p.boxes[i].center;
@@ -1336,7 +1372,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                     // an open vehicle or the running gear: it bursts on the first thing it touches
                     w.rep.path.push(point);
                     let kg = shell.explosive_mass_kg.max(0.01);
-                    if inside || !m.kind.is_external() {
+                    if inside || !m.is_external() {
                         w.burst_fragments(point, d, speed * 0.3, shell);
                     } else {
                         w.blast_outside(point, kg);
@@ -1350,7 +1386,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 let damage = w.hurt_module(i, dmg, 0.8);
                 w.rep.fragments.push(Frag { from: point, to: point, hit: Some(m.id.clone()), damage, kind: if chemical { "jet" } else { "shell" } });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
-                    w.rep.outcome = if m.kind.is_external() { Outcome::External } else { Outcome::Unarmoured };
+                    w.rep.outcome = if m.is_external() { Outcome::External } else { Outcome::Unarmoured };
                 }
                 let a = absorb_mm(m.kind) * if w.st.modules[i] > 0.0 { 1.0 } else { 0.5 };
                 let before = pen;
@@ -1474,6 +1510,7 @@ fn finish(w: &mut Work) {
                 ModuleKind::GunBreech => "breech".into(),
                 ModuleKind::GunBarrel => "barrel".into(),
                 ModuleKind::Launcher => "launcher".into(),
+                ModuleKind::MachineGun => "machine_gun".into(),
                 ModuleKind::TurretDrive | ModuleKind::HorizontalDrive => "turret_drive".into(),
                 ModuleKind::VerticalDrive => "elevation_drive".into(),
                 ModuleKind::FuelTank => "fuel_tank".into(),
@@ -1556,5 +1593,6 @@ pub fn target_from_files(id: &str, vehicle: &serde_json::Value, plates: Vec<Armo
     } else {
         None
     };
-    TargetDef { id: id.into(), plates, modules, crew, turret, open_top: tv["open_top"].as_bool().unwrap_or(false), ammo_capacity: 0 }
+    TargetDef { id: id.into(), plates, modules, crew, turret, open_top: tv["open_top"].as_bool().unwrap_or(false), ammo_capacity: 0,
+        weapons: serde_json::Value::Null, machine_guns: serde_json::Value::Null, visual: serde_json::Value::Null }
 }

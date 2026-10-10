@@ -114,6 +114,7 @@ fn bullet(mg: &serde_json::Value) -> Option<tg_weapon::ProjectileDef> {
 pub fn load_combat(data: &Path) -> CombatData {
     let read = |p: PathBuf| std::fs::read_to_string(p).ok();
     let mats: Vec<tg_armor::Material> = read(data.join("materials.json")).and_then(|t| serde_json::from_str(&t).ok()).unwrap_or_default();
+    let machine_guns = read(data.join("machine_guns.json")).and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()).unwrap_or_default();
     let mut targets = HashMap::new();
     if let Ok(dir) = std::fs::read_dir(data.join("vehicles")) {
         for e in dir.flatten() {
@@ -122,7 +123,12 @@ pub fn load_combat(data: &Path) -> CombatData {
             let (Some(v), Some(a), Some(m), Some(c)) = (read(d.join("vehicle.json")), read(d.join("armor.json")), read(d.join("modules.json")), read(d.join("crew.json"))) else { continue };
             let (Ok(v), Ok(a), Ok(m), Ok(c)) = (serde_json::from_str::<serde_json::Value>(&v), serde_json::from_str(&a), serde_json::from_str(&m), serde_json::from_str(&c)) else { continue };
             let mut def = tg_combat::target_from_files(&id, &v, a, m, c);
-            def.ammo_capacity = read(d.join("weapons.json")).and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()).map(|w| tg_combat::ammo_capacity(&w)).unwrap_or(0);
+            def.weapons = read(d.join("weapons.json")).and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()).unwrap_or_default();
+            def.ammo_capacity = tg_combat::ammo_capacity(&def.weapons);
+            def.machine_guns = machine_guns.clone();
+            if let Some(v) = read(d.join("visual.json")).and_then(|t| serde_json::from_str::<serde_json::Value>(&t).ok()) {
+                def.visual = serde_json::json!({"mg_anchors": v["mg_anchors"], "mg_variants": v["mg_variants"]});
+            }
             targets.insert(id, tg_combat::Target::new(def, &mats));
         }
     }

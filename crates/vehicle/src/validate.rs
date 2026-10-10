@@ -424,7 +424,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
             let s = |bit: usize, i: usize| if (k >> bit) & 1 == 1 { c[i] + he[i] } else { c[i] - he[i] };
             vol.contains([s(0, 0), s(1, 1), s(2, 2)], 0.05)
         });
-        if m.kind.is_external() {
+        if m.is_external() {
             // barrel / tracks live outside the armoured volume; only sanity-check the distance
             if c.iter().any(|x| x.abs() > 12.0) {
                 r.err("M004", &path, "external module is implausibly far from the vehicle");
@@ -464,7 +464,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
     let imported = v.def.meta.as_ref().is_some_and(|m| m.outline == "model");
     for i in 0..v.modules.len() {
         for j in (i + 1)..v.modules.len() {
-            if imported || v.modules[i].kind.is_external() || v.modules[j].kind.is_external() {
+            if imported || v.modules[i].is_external() || v.modules[j].is_external() {
                 continue;
             }
             if overlap(&v.modules[i], &v.modules[j]) {
