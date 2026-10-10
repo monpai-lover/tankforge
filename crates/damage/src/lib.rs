@@ -2,6 +2,7 @@
 //! per-module / per-crew damage, and derived vehicle capabilities.
 use serde::{Deserialize, Serialize};
 use tg_shared::{Rng, Vec3};
+pub mod module_state;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -246,7 +247,7 @@ fn ray_aabb(o: Vec3, d: Vec3, c: Vec3, h: Vec3, max_t: f32) -> Option<f32> {
     Some(tmin)
 }
 
-/// Each fragment stops at the first living crew member / intact module on its ray.
+/// Each fragment stops at the first living crew member / physical module on its ray.
 pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], p: &DamageParams) -> DamageSummary {
     let mut s = DamageSummary::default();
     for f in frags {
@@ -262,9 +263,6 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
             }
         }
         for (i, m) in modules.iter().enumerate() {
-            if m.health <= 0.0 {
-                continue;
-            }
             if let Some(t) = ray_aabb(f.origin, f.dir, m.center, m.half_extents, p.frag_range_m) {
                 if best.map_or(true, |(bt, _)| t < bt) {
                     best = Some((t, TargetRef::Module(i)));
@@ -273,29 +271,32 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
         }
         match best {
             Some((t, target)) => {
-                match target {
+                let damage = match target {
                     TargetRef::Crew(i) => {
                         let was = crew[i].health > 0.0;
-                        crew[i].health -= f.damage;
-                        s.crew_damage.push((i, f.damage));
+                        let damage = module_state::apply_health_damage(&mut crew[i].health, 100.0, f.damage);
+                        if damage > 0.0 { s.crew_damage.push((i, damage)); }
                         if was && crew[i].health <= 0.0 {
                             s.newly_killed_crew.push(i);
                         }
+                        damage
                     }
                     TargetRef::Module(i) => {
                         let was = modules[i].health > 0.0;
-                        modules[i].health -= f.damage;
-                        s.module_damage.push((i, f.damage));
+                        let max_health = modules[i].max_health;
+                        let damage = module_state::apply_health_damage(&mut modules[i].health, max_health, f.damage);
+                        if damage > 0.0 { s.module_damage.push((i, damage)); }
                         if was && modules[i].health <= 0.0 {
                             s.newly_destroyed_modules.push(i);
                         }
+                        damage
                     }
-                }
+                };
                 s.traces.push(FragmentTrace {
                     origin: f.origin,
                     end: f.origin + f.dir * t,
                     target: Some(target),
-                    damage: f.damage,
+                    damage,
                     is_penetrator: f.is_penetrator,
                 });
             }
@@ -438,5 +439,34 @@ mod tests {
         let s = propagate(&[f], &mut mods, &mut [], &DamageParams { frag_range_m: 10.0, ..Default::default() });
         assert_eq!(s.module_damage.len(), 1);
         assert_eq!(mods[0].health, 70.0);
+    }
+
+    #[test]
+    fn excessive_module_damage_is_clamped_and_destroyed_module_keeps_shielding() {
+        let mut mods = vec![module(ModuleKind::Engine)];
+        mods[0].health = 10.0;
+        let mut crew = vec![crew(CrewRole::Driver, 0.0)];
+        crew[0].pos = Vec3::new(6.0, 0.0, 0.0);
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 150.0, is_penetrator: false };
+        let s = propagate(&[f, f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
+        assert_eq!(mods[0].health, 0.0);
+        assert_eq!(s.module_damage, vec![(0, 10.0)]);
+        assert_eq!(s.newly_destroyed_modules, vec![0]);
+        assert_eq!(s.traces[0].damage, 10.0);
+        assert_eq!(s.traces[1].damage, 0.0);
+        assert_eq!(s.traces[1].target, Some(TargetRef::Module(0)));
+        assert_eq!(crew[0].health, 100.0);
+    }
+
+    #[test]
+    fn excessive_crew_damage_is_clamped_and_records_actual_loss() {
+        let mut crew = vec![crew(CrewRole::Driver, -1.0)];
+        crew[0].health = 10.0;
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(0.0, 0.0, -1.0), energy_j: 1.0, damage: 150.0, is_penetrator: false };
+        let s = propagate(&[f, f], &mut [], &mut crew, &DamageParams::default());
+        assert_eq!(crew[0].health, 0.0);
+        assert_eq!(s.crew_damage, vec![(0, 10.0)]);
+        assert_eq!(s.newly_killed_crew, vec![0]);
+        assert_eq!(s.traces[0].damage, 10.0);
     }
 }

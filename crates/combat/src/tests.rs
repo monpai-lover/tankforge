@@ -18,6 +18,293 @@ fn crew(role: CrewRole, p: [f32; 3]) -> Crew {
     Crew { role, pos: Vec3::new(p[0], p[1], p[2]), radius: 0.28, health: 100.0, also: Vec::new(), pose: None }
 }
 
+fn narrow_turret_module(kind: ModuleKind) -> Target {
+    Target::new(TargetDef {
+        id: "narrow_turret".into(), plates: vec![],
+        modules: vec![module("narrow", kind, [0.0, 1.0, 0.0], [0.1, 0.1, 1.0], 100.0)],
+        crew: vec![], turret: Some(TurretGeom { pivot: Vec3::new(0.0, 0.5, 0.0), size: Vec3::new(2.0, 1.0, 2.0) }),
+        open_top: false, ammo_capacity: 0,
+    }, &rha())
+}
+
+fn work<'a>(t: &'a Target, st: &TargetState, yaw: f32) -> Work<'a> {
+    let rep = shoot(t, st, &Shot { origin: Vec3::new(20.0, 20.0, 20.0), dir: Vec3::new(0.0, 1.0, 0.0), ..side_shot(ap(), 1) });
+    Work { t, p: t.posed(yaw), st: st.clone(), rng: Rng::new(1), rep,
+        mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] }
+}
+
+#[test]
+fn rotated_barrel_empty_corner_is_not_a_direct_hit() {
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    for yaw in [0.0, std::f32::consts::FRAC_PI_4, std::f32::consts::FRAC_PI_2] {
+        let r = shoot(&t, &t.fresh_state(), &Shot {
+            origin: Vec3::new(0.7, 10.0, -0.7), dir: Vec3::new(0.0, -1.0, 0.0), turret_yaw: yaw, ..side_shot(ap(), 1)
+        });
+        assert!(!r.hit && r.modules.is_empty(), "yaw {yaw}: the expanded box corner must miss");
+        assert_eq!(r.state.modules, vec![100.0]);
+    }
+}
+
+#[test]
+fn rotated_barrel_true_volume_remains_a_direct_hit() {
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    for yaw in [0.0, std::f32::consts::FRAC_PI_4, std::f32::consts::FRAC_PI_2] {
+        let at = Vec3::new(0.0, 1.0, 0.0) + rotate_yaw(Vec3::new(0.0, 0.0, 0.8), yaw);
+        let r = shoot(&t, &t.fresh_state(), &Shot {
+            origin: at + Vec3::new(0.0, 9.0, 0.0), dir: Vec3::new(0.0, -1.0, 0.0), turret_yaw: yaw, ..side_shot(ap(), 1)
+        });
+        assert!(r.hit && r.modules.iter().any(|m| m.id == "narrow"), "yaw {yaw}: the true volume must hit");
+    }
+}
+
+#[test]
+fn fragment_ray_misses_rotated_empty_corner() {
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    let mut w = work(&t, &t.fresh_state(), std::f32::consts::FRAC_PI_4);
+    w.fragment(Vec3::new(0.7, 2.0, -0.7), Vec3::new(0.0, -1.0, 0.0), 8000.0, "spall", 4.0);
+    assert_eq!(w.st.modules, vec![100.0]);
+    assert!(w.rep.fragments.last().unwrap().hit.is_none());
+}
+
+#[test]
+fn fragment_starting_in_expanded_corner_is_not_excluded_from_true_module() {
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    let mut w = work(&t, &t.fresh_state(), std::f32::consts::FRAC_PI_4);
+    w.fragment(Vec3::new(0.7, 1.0, -0.7), Vec3::new(-1.0, 0.0, 1.0).normalized(), 8000.0, "spall", 4.0);
+    assert!(w.st.modules[0] < 100.0, "the fragment starts outside the actual oriented box");
+    let mut inside = work(&t, &t.fresh_state(), std::f32::consts::FRAC_PI_4);
+    inside.fragment(Vec3::new(0.0, 1.0, 0.0), Vec3::new(1.0, 0.0, 0.0), 8000.0, "spall", 4.0);
+    assert_eq!(inside.st.modules[0], 100.0, "a fragment starting inside the true box is excluded");
+}
+
+#[test]
+fn blast_distance_uses_rotated_box_for_external_and_internal_modules() {
+    let corner = Vec3::new(0.7, 1.0, -0.7);
+    let yaw = std::f32::consts::FRAC_PI_4;
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    assert!(splash(&t, &t.fresh_state(), corner, 0.000001, yaw, 1).modules.is_empty());
+    let t = narrow_turret_module(ModuleKind::GunBreech);
+    let mut w = work(&t, &t.fresh_state(), yaw);
+    w.blast_inside(corner, 0.001);
+    assert_eq!(w.st.modules, vec![100.0]);
+    w.blast_inside(Vec3::new(0.0, 1.0, 0.0), 0.001);
+    assert!(w.st.modules[0] < 100.0);
+}
+
+#[test]
+fn rotated_module_shields_crew_even_after_it_is_destroyed() {
+    let mut def = narrow_turret_module(ModuleKind::GunBreech).def;
+    def.crew = vec![crew(CrewRole::Driver, [0.0, -0.1, 0.0])];
+    let t = Target::new(def, &rha());
+    for health in [100.0, 0.0] {
+        let mut st = t.fresh_state();
+        st.modules[0] = health;
+        let mut w = work(&t, &st, std::f32::consts::FRAC_PI_4);
+        w.fragment(Vec3::new(0.0, 2.0, 0.0), Vec3::new(0.0, -1.0, 0.0), 8000.0, "spall", 4.0);
+        assert_eq!(w.st.crew[0], 100.0);
+        assert_eq!(w.rep.fragments.last().unwrap().hit.as_deref(), Some("narrow"));
+    }
+}
+
+#[test]
+fn excessive_and_repeated_direct_damage_records_only_actual_loss() {
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    let shot = Shot { origin: Vec3::new(0.0, 10.0, 0.0), dir: Vec3::new(0.0, -1.0, 0.0), ..side_shot(ap(), 1) };
+    let first = shoot(&t, &t.fresh_state(), &shot);
+    assert_eq!(first.state.modules[0], 0.0);
+    assert_eq!(first.modules[0].health, first.state.modules[0]);
+    assert_eq!(first.modules[0].damage, 100.0);
+    assert_eq!(first.fragments[0].damage, 100.0);
+    assert_eq!(first.events.iter().filter(|e| *e == "barrel").count(), 1);
+    let second = shoot(&t, &first.state, &shot);
+    assert!(second.hit, "the destroyed physical barrel remains in the ray");
+    assert_eq!(second.state.modules[0], 0.0);
+    assert!(second.modules.is_empty() && !second.events.iter().any(|e| e == "barrel"));
+    assert_eq!(second.fragments[0].damage, 0.0);
+}
+
+#[test]
+fn repeated_fragment_damage_is_clamped_and_records_one_transition() {
+    let t = narrow_turret_module(ModuleKind::GunBarrel);
+    let mut st = t.fresh_state();
+    st.modules[0] = 2.0;
+    let mut w = work(&t, &st, 0.0);
+    for _ in 0..3 { w.fragment(Vec3::new(0.0, 2.0, 0.0), Vec3::new(0.0, -1.0, 0.0), 8000.0, "spall", 4.0); }
+    assert_eq!(w.st.modules[0], 0.0);
+    assert_eq!(w.mod_dmg[&0], 2.0);
+    assert_eq!(w.newly_destroyed, vec![0]);
+    assert_eq!(w.rep.fragments.iter().map(|f| f.damage).sum::<f32>(), 2.0);
+}
+
+#[test]
+fn excessive_crew_damage_reports_actual_loss_and_one_death() {
+    let t = box_tank(false);
+    let mut st = t.fresh_state(); st.crew[0] = 3.0;
+    let mut w = work(&t, &st, 0.0);
+    w.hurt_crew(0, 300.0); w.hurt_crew(0, 300.0);
+    assert_eq!(w.st.crew[0], 0.0);
+    assert_eq!(w.crew_dmg[&0], 3.0);
+    assert_eq!(w.newly_killed, vec![0]);
+}
+
+#[test]
+fn fire_clamps_health_and_emits_crew_death_once() {
+    let t = box_tank(false);
+    let mut st = t.fresh_state();
+    st.modules[1] = 1.0; st.crew[0] = 1.0;
+    st.fire_s = FIRE_S; st.fire_at = Some(Vec3::new(0.0, 1.0, 2.0));
+    let first = advance(&t, &mut st, 1.0, 1);
+    assert_eq!(st.modules[1], 0.0);
+    assert_eq!(st.crew[0], 0.0);
+    assert_eq!(first.iter().filter(|e| *e == "crew_burned:driver").count(), 1);
+    assert!(!advance(&t, &mut st, 1.0, 1).iter().any(|e| e == "crew_burned:driver"));
+}
+
+#[test]
+fn partially_damaged_engine_and_aim_drives_use_continuous_curves() {
+    let mut def = box_tank(false).def;
+    def.modules.push(module("elevation", ModuleKind::VerticalDrive, [0.0, 2.0, 0.0], [0.1, 0.1, 0.1], 80.0));
+    let t = Target::new(def, &rha());
+    let mut st = t.fresh_state();
+    st.modules[0] = 0.25 * t.def.modules[0].max_health;
+    st.modules[8] = 0.25 * t.def.modules[8].max_health;
+    st.modules[9] = 0.25 * t.def.modules[9].max_health;
+    let c = caps(&t, &st);
+    assert!((c.engine_power - 0.8).abs() < 1e-6);
+    assert!((c.traverse_mult - 0.675).abs() < 1e-6);
+    assert!((c.elevate_mult - 0.75).abs() < 1e-6);
+}
+
+#[test]
+fn drive_power_combines_engine_and_transmission_and_old_caps_deserialize() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    assert_eq!(caps(&t, &st).drive_power, 1.0);
+    st.modules[0] = t.def.modules[0].max_health * 0.25;
+    st.modules[1] = t.def.modules[1].max_health * 0.25;
+    let c = caps(&t, &st);
+    assert!((c.engine_power - 0.8).abs() < 1e-6);
+    assert!((c.drive_power - 0.6).abs() < 1e-6);
+    assert!(c.can_move);
+    st.modules[1] = 0.0;
+    assert_eq!(caps(&t, &st).drive_power, 0.0);
+    assert!(!caps(&t, &st).can_move);
+    let mut old = serde_json::to_value(c).unwrap();
+    old.as_object_mut().unwrap().remove("drive_power");
+    assert_eq!(serde_json::from_value::<Caps>(old).unwrap().drive_power, 1.0);
+}
+
+#[test]
+fn rotated_module_centres_follow_a_translated_turret_pivot() {
+    let mut def = narrow_turret_module(ModuleKind::GunBarrel).def;
+    def.turret.as_mut().unwrap().pivot = Vec3::new(1.0, 0.5, 1.0);
+    def.modules[0].center = Vec3::new(1.0, 1.0, 2.0);
+    let t = Target::new(def, &rha());
+    for yaw in [0.0, std::f32::consts::FRAC_PI_4, std::f32::consts::FRAC_PI_2] {
+        let centre = Vec3::new(1.0, 1.0, 1.0) + rotate_yaw(Vec3::new(0.0, 0.0, 1.0), yaw);
+        let r = shoot(&t, &t.fresh_state(), &Shot {
+            origin: centre + Vec3::new(0.0, 9.0, 0.0), dir: Vec3::new(0.0, -1.0, 0.0), turret_yaw: yaw, ..side_shot(ap(), 1)
+        });
+        assert!(r.hit && r.modules.len() == 1);
+    }
+}
+
+#[test]
+fn field_repair_does_not_refill_empty_racks_or_put_out_a_fire() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    st.rack_fill = vec![1.0; st.modules.len()]; st.rack_fill[3] = 0.0;
+    st.fire_at = Some(t.def.modules[3].center); st.fire_s = FIRE_S;
+    st.modules[0] = 0.0;
+    assert!(start_repair(&t, &mut st));
+    advance(&t, &mut st, 10.0, 1);
+    assert_eq!(st.rack(3), 0.0);
+    assert_eq!(st.modules[3], t.def.modules[3].max_health);
+    assert_eq!(st.fire_s, FIRE_S - 10.0);
+    assert!(!st.ammo_detonated);
+}
+
+#[test]
+fn partially_damaged_modules_can_be_repaired_with_weighted_duration() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    st.modules[0] = 0.3 * t.def.modules[0].max_health;
+    st.crew[4] = 0.0;
+    assert!(start_repair(&t, &mut st));
+    assert!((st.repair_s - 10.0).abs() < 1e-5);
+    assert_eq!(serde_json::to_value(&st).unwrap()["repair_targets"], serde_json::json!([0]));
+    assert!(!caps(&t, &st).can_move && !caps(&t, &st).can_fire);
+    let duration = st.repair_s;
+    assert_eq!(advance(&t, &mut st, duration, 1).iter().filter(|e| *e == "repaired").count(), 1);
+    assert!((st.modules[0] - 0.6 * t.def.modules[0].max_health).abs() < 1e-5);
+    assert!(!start_repair(&t, &mut st), "the 60% repair cap is not a full-health refill");
+}
+
+#[test]
+fn repair_only_restores_original_targets_and_does_not_reset_when_hit() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    st.modules[0] = 0.0;
+    assert!(start_repair(&t, &mut st));
+    assert_eq!(st.repair_s, 10.0);
+    advance(&t, &mut st, 3.0, 1);
+    st.modules[1] = 0.0;
+    assert!(!start_repair(&t, &mut st));
+    assert_eq!(st.repair_s, 7.0);
+    advance(&t, &mut st, 7.0, 1);
+    assert_eq!(st.modules[0], t.def.modules[0].max_health * 0.6);
+    assert_eq!(st.modules[1], 0.0, "new damage on an unrelated module is not part of this repair");
+}
+
+#[test]
+fn repair_targets_survive_serialization_and_keep_later_hits_on_the_same_target() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    st.modules[0] = t.def.modules[0].max_health * 0.3;
+    assert!(start_repair(&t, &mut st));
+    advance(&t, &mut st, 2.0, 1);
+    let st: TargetState = serde_json::from_value(serde_json::to_value(st).unwrap()).unwrap();
+    let mut w = work(&t, &st, 0.0); w.hurt_module(0, 400.0, 0.0);
+    assert_eq!(w.st.repair_s, 6.0);
+    let mut st = w.st; advance(&t, &mut st, 6.0, 1);
+    assert_eq!(st.modules[0], t.def.modules[0].max_health * 0.6);
+}
+
+#[test]
+fn repair_cancels_after_abandonment_or_insufficient_crew() {
+    let t = box_tank(false);
+    for abandoned in [false, true] {
+        let mut st = t.fresh_state(); st.modules[0] = 0.0;
+        assert!(start_repair(&t, &mut st));
+        if abandoned { st.destroyed = true; } else { for health in st.crew.iter_mut().skip(1) { *health = 0.0; } }
+        assert!(!advance(&t, &mut st, 20.0, 1).iter().any(|e| e == "repaired"));
+        assert_eq!(st.repair_s, 0.0);
+        assert_eq!(st.modules[0], 0.0);
+        assert!(serde_json::to_value(&st).unwrap()["repair_targets"].is_null());
+    }
+}
+
+#[test]
+fn repair_excludes_ammo_and_preserves_empty_racks_and_old_completion() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    st.modules[3] = 0.0; st.rack_fill = vec![1.0; st.modules.len()]; st.rack_fill[3] = 0.0;
+    assert!(!start_repair(&t, &mut st));
+    st.modules[0] = 0.0;
+    assert!(start_repair(&t, &mut st));
+    advance(&t, &mut st, 10.0, 1);
+    assert_eq!(st.modules[3], 0.0); assert_eq!(st.rack(3), 0.0);
+    let mut old = serde_json::to_value(t.fresh_state()).unwrap();
+    old.as_object_mut().unwrap().remove("repair_targets");
+    old["repair_s"] = serde_json::json!(1.0); old["modules"][0] = serde_json::json!(0.0); old["modules"][1] = serde_json::json!(1.0);
+    let mut old: TargetState = serde_json::from_value(old).unwrap();
+    advance(&t, &mut old, 1.0, 1);
+    assert_eq!(old.modules[0], t.def.modules[0].max_health * 0.6);
+    assert_eq!(old.modules[1], t.def.modules[1].max_health * 0.6);
+}
+
+#[test]
+fn all_destroyed_repairable_modules_preserve_original_duration() {
+    let t = box_tank(false); let mut st = t.fresh_state();
+    st.modules.fill(0.0); st.crew[4] = 0.0;
+    assert!(start_repair(&t, &mut st));
+    assert_eq!(st.repair_s, 6.0 + 4.0 * 8.0 + 2.0);
+}
+
 #[test]
 fn launcher_apparatus_has_its_own_damage_kind_and_disables_firing_when_destroyed() {
     let kind: ModuleKind = serde_json::from_str("\"launcher\"").expect("launcher apparatus must deserialize independently of cannon parts");

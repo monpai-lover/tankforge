@@ -25,6 +25,7 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use tg_armor::{ArmorPlate, ArmorZone, Material};
+use tg_damage::module_state::{self, apply_health_damage, health_ratio};
 pub use tg_damage::{Crew, CrewRole, Module, ModuleKind};
 use tg_shared::{rotate_yaw, Rng, Vec3};
 use tg_weapon::{ProjectileDef, ProjectileKind};
@@ -36,7 +37,7 @@ mod tests;
 pub const SWAP_S: f32 = 5.0;
 /// How long a fire burns if nobody puts it out.
 pub const FIRE_S: f32 = 25.0;
-/// Field repairs: a base time and so much per broken module.
+/// Field repairs: a base time and so much per fully broken module's worth of work.
 pub const REPAIR_BASE_S: f32 = 6.0;
 pub const REPAIR_PER_MODULE_S: f32 = 4.0;
 
@@ -201,13 +202,7 @@ impl Target {
             .iter()
             .zip(&self.turret_module)
             .map(|(m, &t)| {
-                if t && yaw != 0.0 {
-                    let (s, c) = yaw.sin_cos();
-                    let h = m.half_extents;
-                    (turn(m.center), Vec3::new(h.x * c.abs() + h.z * s.abs(), h.y, h.x * s.abs() + h.z * c.abs()))
-                } else {
-                    (m.center, m.half_extents)
-                }
+                ModuleBox { center: if t { turn(m.center) } else { m.center }, half_extents: m.half_extents, yaw: if t { yaw } else { 0.0 } }
             })
             .collect();
         let crew = self.def.crew.iter().zip(&self.turret_crew).map(|(c, &t)| if t && yaw != 0.0 { turn(c.pos) } else { c.pos }).collect();
@@ -217,8 +212,38 @@ impl Target {
 
 struct Posed {
     plates: Vec<ArmorPlate>,
-    boxes: Vec<(Vec3, Vec3)>,
+    boxes: Vec<ModuleBox>,
     crew: Vec<Vec3>,
+}
+
+/// Exact local module box; the target's cached bounds remain the conservative broadphase.
+#[derive(Clone, Copy)]
+struct ModuleBox {
+    center: Vec3,
+    half_extents: Vec3,
+    yaw: f32,
+}
+
+impl ModuleBox {
+    fn local_point(self, p: Vec3) -> Vec3 {
+        rotate_yaw(p - self.center, -self.yaw)
+    }
+
+    fn intersect(self, origin: Vec3, dir: Vec3) -> Option<(f32, f32)> {
+        ray_box(self.local_point(origin), rotate_yaw(dir, -self.yaw), Vec3::ZERO, self.half_extents)
+    }
+
+    fn contains(self, p: Vec3) -> bool {
+        let p = self.local_point(p);
+        let h = self.half_extents;
+        p.x.abs() <= h.x && p.y.abs() <= h.y && p.z.abs() <= h.z
+    }
+
+    fn distance(self, p: Vec3) -> f32 {
+        let p = self.local_point(p);
+        let h = self.half_extents;
+        Vec3::new((p.x.abs() - h.x).max(0.0), (p.y.abs() - h.y).max(0.0), (p.z.abs() - h.z).max(0.0)).length()
+    }
 }
 
 // -------------------------------------------------------------------------- state
@@ -249,6 +274,9 @@ pub struct TargetState {
     pub destroyed: bool,
     #[serde(default)]
     pub repair_s: f32,
+    /// Fixed selection for this repair. None preserves old states' completion behavior.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub repair_targets: Option<Vec<usize>>,
     #[serde(default)]
     pub extinguishers: u32,
     /// How full each ammo rack is (0..1 by module index, see `rack_fill`); empty: all full.
@@ -331,8 +359,10 @@ pub fn load_ammo(t: &Target, st: &mut TargetState, carried: u32) {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 pub struct Caps {
     pub can_move: bool,
-    /// 0 engine out, 0.6 damaged, 1 sound.
+    /// Engine output alone; driving also includes the transmission factor.
     pub engine_power: f32,
+    #[serde(default = "full_factor")]
+    pub drive_power: f32,
     pub track_left: bool,
     pub track_right: bool,
     pub can_fire: bool,
@@ -350,6 +380,8 @@ pub struct Caps {
     pub crew_total: u32,
     pub repair_s: f32,
 }
+
+fn full_factor() -> f32 { 1.0 }
 
 fn module_ok(t: &Target, st: &TargetState, kind: ModuleKind) -> bool {
     t.def.modules.iter().enumerate().filter(|(_, m)| m.kind == kind).all(|(i, _)| st.modules.get(i).copied().unwrap_or(1.0) > 0.0)
@@ -369,13 +401,13 @@ fn seat_filled(t: &Target, st: &TargetState, role: CrewRole) -> bool {
 }
 
 pub fn caps(t: &Target, st: &TargetState) -> Caps {
-    let mut engine_power: f32 = 1.0;
-    for (i, m) in t.def.modules.iter().enumerate() {
-        if m.kind == ModuleKind::Engine {
-            let h = st.modules.get(i).copied().unwrap_or(m.max_health);
-            engine_power = engine_power.min(if h <= 0.0 { 0.0 } else if h < m.max_health * 0.5 { 0.6 } else { 1.0 });
-        }
-    }
+    let factor = |kinds: &[ModuleKind], curve: fn(f32) -> f32| {
+        t.def.modules.iter().enumerate().filter(|(_, m)| kinds.contains(&m.kind))
+            .map(|(i, m)| curve(health_ratio(st.modules.get(i).copied().unwrap_or(m.max_health), m.max_health)))
+            .fold(1.0f32, f32::min)
+    };
+    let engine_power = factor(&[ModuleKind::Engine], module_state::engine_power_factor);
+    let drive_power = engine_power * factor(&[ModuleKind::Transmission], module_state::transmission_factor);
     let side_ok = |side: i8| t.track_side.iter().enumerate().filter(|(_, s)| **s == side).all(|(i, _)| st.modules.get(i).copied().unwrap_or(1.0) > 0.0);
     let driver = seat_filled(t, st, CrewRole::Driver);
     let gunner = seat_filled(t, st, CrewRole::Gunner);
@@ -384,14 +416,15 @@ pub fn caps(t: &Target, st: &TargetState) -> Caps {
     let working = !st.destroyed && st.repair_s <= 0.0;
     let crew_alive = st.crew.iter().filter(|h| **h > 0.0).count() as u32;
     Caps {
-        can_move: working && driver && engine_power > 0.0 && module_ok(t, st, ModuleKind::Transmission),
+        can_move: working && driver && drive_power > 0.0,
         engine_power,
+        drive_power,
         track_left: side_ok(-1),
         track_right: side_ok(1),
         can_fire: working && gunner && module_ok(t, st, ModuleKind::GunBreech) && module_ok(t, st, ModuleKind::GunBarrel)
             && (t.def.modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(t, st)),
-        traverse_mult: if module_ok(t, st, ModuleKind::TurretDrive) && module_ok(t, st, ModuleKind::HorizontalDrive) { 1.0 } else { 0.15 },
-        elevate_mult: if module_ok(t, st, ModuleKind::VerticalDrive) { 1.0 } else { 0.3 },
+        traverse_mult: factor(&[ModuleKind::TurretDrive, ModuleKind::HorizontalDrive], module_state::traverse_factor),
+        elevate_mult: factor(&[ModuleKind::VerticalDrive], module_state::elevation_factor),
         reload_mult: if loader { 1.0 } else { 1.6 },
         driver,
         gunner,
@@ -410,10 +443,11 @@ pub fn caps(t: &Target, st: &TargetState) -> Caps {
 fn check_destroyed(st: &mut TargetState) -> bool {
     let alive = st.crew.iter().filter(|h| **h > 0.0).count();
     let total = st.crew.len();
-    if st.ammo_detonated || (total >= 2 && alive < 2) || (total > 0 && alive == 0) {
+    if st.destroyed || st.ammo_detonated || (total >= 2 && alive < 2) || (total > 0 && alive == 0) {
         st.destroyed = true;
         st.fire_s = st.fire_s.max(if st.ammo_detonated { 60.0 } else { 0.0 });
         st.repair_s = 0.0;
+        st.repair_targets = None;
         st.swaps.clear();
     }
     st.destroyed
@@ -455,13 +489,17 @@ fn plan_swaps(t: &Target, st: &mut TargetState) {
 /// Time passing for a vehicle: fire, crew changing seats, repairs. Returns what happened.
 pub fn advance(t: &Target, st: &mut TargetState, dt: f32, seed: u64) -> Vec<String> {
     let mut out = Vec::new();
+    if st.destroyed || st.crew.iter().filter(|h| **h > 0.0).count() < 2 {
+        st.repair_s = 0.0;
+        st.repair_targets = None;
+    }
     if st.fire_s > 0.0 {
         st.fire_s = (st.fire_s - dt).max(0.0);
         if !st.destroyed {
             if let Some(at) = st.fire_at {
                 for (i, c) in t.def.crew.iter().enumerate() {
                     if st.alive(i) && (c.pos - at).length() < 1.8 {
-                        st.crew[i] -= 3.0 * dt;
+                        apply_health_damage(&mut st.crew[i], 100.0, 3.0 * dt);
                         if st.crew[i] <= 0.0 {
                             out.push(format!("crew_burned:{}", c.role.as_str()));
                         }
@@ -470,7 +508,7 @@ pub fn advance(t: &Target, st: &mut TargetState, dt: f32, seed: u64) -> Vec<Stri
                 let mut rng = Rng::new(seed);
                 for (i, m) in t.def.modules.iter().enumerate() {
                     if (m.center - at).length() < 1.6 && st.modules[i] > 0.0 && !empty_rack(t, st, i) {
-                        st.modules[i] -= 2.0 * dt;
+                        apply_health_damage(&mut st.modules[i], m.max_health, 2.0 * dt);
                         if m.kind == ModuleKind::AmmoRack && rng.next_f32() < 0.03 * dt * (0.4 + 0.6 * st.rack(i)) {
                             st.ammo_detonated = true;
                             out.push("ammo_detonation".into());
@@ -506,8 +544,9 @@ pub fn advance(t: &Target, st: &mut TargetState, dt: f32, seed: u64) -> Vec<Stri
     if st.repair_s > 0.0 {
         st.repair_s = (st.repair_s - dt).max(0.0);
         if st.repair_s <= 0.0 {
+            let targets = st.repair_targets.take();
             for (i, m) in t.def.modules.iter().enumerate() {
-                if repairable(m.kind) && st.modules[i] < m.max_health * 0.6 {
+                if targets.as_ref().map_or(true, |indices| indices.contains(&i)) && repairable(m.kind) && st.modules[i] < m.max_health * 0.6 {
                     st.modules[i] = m.max_health * 0.6;
                 }
             }
@@ -521,18 +560,22 @@ fn repairable(k: ModuleKind) -> bool {
     !matches!(k, ModuleKind::AmmoRack)
 }
 
-/// Starts a field repair of everything broken; false if there is nothing to do or nobody to do it.
+/// Fix the repair's targets below 60% health and duration; new damage never adds work mid-repair.
 pub fn start_repair(t: &Target, st: &mut TargetState) -> bool {
     if st.destroyed || st.repair_s > 0.0 {
         return false;
     }
-    let broken = t.def.modules.iter().enumerate().filter(|(i, m)| repairable(m.kind) && st.modules[*i] <= 0.0).count();
+    let targets: Vec<usize> = t.def.modules.iter().enumerate()
+        .filter(|(i, m)| repairable(m.kind) && m.max_health > 0.0 && st.modules[*i] < m.max_health * 0.6)
+        .map(|(i, _)| i).collect();
     let alive = st.crew.iter().filter(|h| **h > 0.0).count();
-    if broken == 0 || alive < 2 {
+    if targets.is_empty() || alive < 2 {
         return false;
     }
     let missing = st.crew.len() - alive;
-    st.repair_s = REPAIR_BASE_S + REPAIR_PER_MODULE_S * broken as f32 + 2.0 * missing as f32;
+    let work: f32 = targets.iter().map(|&i| (0.6 - health_ratio(st.modules[i], t.def.modules[i].max_health)) / 0.6).sum();
+    st.repair_s = REPAIR_BASE_S + REPAIR_PER_MODULE_S * work + 2.0 * missing as f32;
+    st.repair_targets = Some(targets);
     true
 }
 
@@ -807,11 +850,11 @@ impl<'a> Work<'a> {
                 }
             }
         }
-        for (i, (c, h)) in self.p.boxes.iter().enumerate() {
+        for (i, box_) in self.p.boxes.iter().enumerate() {
             if empty_rack(self.t, &self.st, i) {
                 continue;
             }
-            if let Some((t0, _)) = ray_box(o, d, *c, *h) {
+            if let Some((t0, _)) = box_.intersect(o, d) {
                 if t0 <= max_t {
                     ev.push(Ev { t: t0, kind: EvKind::Module(i) });
                 }
@@ -841,12 +884,13 @@ impl<'a> Work<'a> {
         best
     }
 
-    fn hurt_module(&mut self, i: usize, dmg: f32, ammo_chance: f32) {
+    fn hurt_module(&mut self, i: usize, dmg: f32, ammo_chance: f32) -> f32 {
         if dmg <= 0.0 || i >= self.st.modules.len() || empty_rack(self.t, &self.st, i) {
-            return;
+            return 0.0;
         }
         let was = self.st.modules[i] > 0.0;
-        self.st.modules[i] -= dmg;
+        let dmg = apply_health_damage(&mut self.st.modules[i], self.t.def.modules[i].max_health, dmg);
+        if dmg <= 0.0 { return 0.0; }
         *self.mod_dmg.entry(i).or_default() += dmg;
         if was && self.st.modules[i] <= 0.0 {
             self.newly_destroyed.push(i);
@@ -870,6 +914,7 @@ impl<'a> Work<'a> {
                 _ => {}
             }
         }
+        dmg
     }
 
     fn start_fire(&mut self, at: Vec3) {
@@ -880,16 +925,18 @@ impl<'a> Work<'a> {
         self.st.fire_at = Some(at);
     }
 
-    fn hurt_crew(&mut self, i: usize, dmg: f32) {
+    fn hurt_crew(&mut self, i: usize, dmg: f32) -> f32 {
         if dmg <= 0.0 || i >= self.st.crew.len() || self.st.crew[i] <= 0.0 {
-            return;
+            return 0.0;
         }
-        self.st.crew[i] -= dmg;
+        let dmg = apply_health_damage(&mut self.st.crew[i], 100.0, dmg);
+        if dmg <= 0.0 { return 0.0; }
         *self.crew_dmg.entry(i).or_default() += dmg;
         if self.st.crew[i] <= 0.0 {
             self.st.crew[i] = 0.0;
             self.newly_killed.push(i);
         }
+        dmg
     }
 
     /// A fragment from `o` along `d`: hits crew and modules in its way, slowed by each, and stops
@@ -901,10 +948,7 @@ impl<'a> Work<'a> {
             .events(o, d, reach, false)
             .into_iter()
             .filter(|ev| match ev.kind {
-                EvKind::Module(i) => {
-                    let (c, h) = self.p.boxes[i];
-                    !((o.x - c.x).abs() <= h.x && (o.y - c.y).abs() <= h.y && (o.z - c.z).abs() <= h.z)
-                }
+                EvKind::Module(i) => !self.p.boxes[i].contains(o),
                 EvKind::Crew(i) => (o - self.p.crew[i]).length() > self.t.def.crew[i].radius,
                 EvKind::Plate(_) => true,
             })
@@ -924,8 +968,7 @@ impl<'a> Work<'a> {
                         continue;
                     }
                     let dmg = crew_damage(e);
-                    self.hurt_crew(i, dmg);
-                    dealt += dmg;
+                    dealt += self.hurt_crew(i, dmg);
                     hit.get_or_insert_with(|| format!("crew:{}", i));
                     end = o + d * ev.t;
                     if pen <= CREW_ABSORB_MM {
@@ -938,8 +981,7 @@ impl<'a> Work<'a> {
                     let m = &self.t.def.modules[i];
                     let kind_m = m.kind;
                     let dmg = module_damage(e);
-                    self.hurt_module(i, dmg, 0.5);
-                    dealt += dmg;
+                    dealt += self.hurt_module(i, dmg, 0.5);
                     hit.get_or_insert_with(|| self.t.def.modules[i].id.clone());
                     end = o + d * ev.t;
                     let a = absorb_mm(kind_m);
@@ -971,13 +1013,11 @@ impl<'a> Work<'a> {
             }
         }
         for i in 0..self.p.boxes.len() {
-            let (c, h) = self.p.boxes[i];
             if self.t.def.modules[i].kind.is_external() {
                 continue;
             }
             // distance to the box, not to its middle
-            let q = Vec3::new((at.x - c.x).abs() - h.x, (at.y - c.y).abs() - h.y, (at.z - c.z).abs() - h.z);
-            let dist = Vec3::new(q.x.max(0.0), q.y.max(0.0), q.z.max(0.0)).length();
+            let dist = self.p.boxes[i].distance(at);
             if dist < r * 0.8 {
                 let k = 1.0 - (dist / (r * 0.8)).powi(2);
                 self.hurt_module(i, 70.0 * k, 0.6);
@@ -995,14 +1035,14 @@ impl<'a> Work<'a> {
             if !m.kind.is_external() {
                 continue;
             }
-            let (c, h) = self.p.boxes[i];
-            let q = Vec3::new((at.x - c.x).abs() - h.x, (at.y - c.y).abs() - h.y, (at.z - c.z).abs() - h.z);
-            let dist = Vec3::new(q.x.max(0.0), q.y.max(0.0), q.z.max(0.0)).length();
+            let c = self.p.boxes[i].center;
+            let dist = self.p.boxes[i].distance(at);
             if dist < r {
                 let k = 1.0 - (dist / r).powi(2);
                 let dmg = 140.0 * k * power;
-                self.hurt_module(i, dmg, 0.0);
-                self.rep.fragments.push(Frag { from: at, to: c, hit: Some(m.id.clone()), damage: dmg, kind: "blast" });
+                let id = m.id.clone();
+                let damage = self.hurt_module(i, dmg, 0.0);
+                self.rep.fragments.push(Frag { from: at, to: c, hit: Some(id), damage, kind: "blast" });
             }
         }
         if self.t.def.open_top {
@@ -1014,8 +1054,8 @@ impl<'a> Work<'a> {
                 if dist < r * 1.4 && (at.y > c.y - 0.2 || at.y > top - 0.3) {
                     let k = 1.0 - (dist / (r * 1.4)).powi(2);
                     let dmg = 120.0 * k * power;
-                    self.hurt_crew(i, dmg);
-                    self.rep.fragments.push(Frag { from: at, to: c, hit: Some(format!("crew:{}", i)), damage: dmg, kind: "blast" });
+                    let damage = self.hurt_crew(i, dmg);
+                    self.rep.fragments.push(Frag { from: at, to: c, hit: Some(format!("crew:{}", i)), damage, kind: "blast" });
                 }
             }
         }
@@ -1307,8 +1347,8 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 }
                 let e = energy(speed);
                 let dmg = if chemical { if jet_end.is_some() { 150.0 } else { 60.0 } } else { module_damage(e) };
-                w.hurt_module(i, dmg, 0.8);
-                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(m.id.clone()), damage: dmg, kind: if chemical { "jet" } else { "shell" } });
+                let damage = w.hurt_module(i, dmg, 0.8);
+                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(m.id.clone()), damage, kind: if chemical { "jet" } else { "shell" } });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
                     w.rep.outcome = if m.kind.is_external() { Outcome::External } else { Outcome::Unarmoured };
                 }
@@ -1339,8 +1379,8 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 }
                 let e = energy(speed);
                 let dmg = if chemical { 160.0 } else { crew_damage(e).max(60.0) };
-                w.hurt_crew(i, dmg);
-                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(format!("crew:{}", i)), damage: dmg, kind: if chemical { "jet" } else { "shell" } });
+                let damage = w.hurt_crew(i, dmg);
+                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(format!("crew:{}", i)), damage, kind: if chemical { "jet" } else { "shell" } });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
                     w.rep.outcome = Outcome::Unarmoured;
                 }
