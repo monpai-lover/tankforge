@@ -15,5 +15,5 @@
 - [x] 最小修改crates/server/src/lobby.rs的无损MG早退：有效非miss发送仅射手的既有damage形状回执，HP／能力不变；实际大厅射击证明测试验证拒绝／miss无提示、旁人不收到假伤害。
 - [x] 改client/web/src/game/hud.js和client/web/template.html：Hit主标签与短结果，共用短TTL，连射刷新而不强制读取offsetWidth，不重置可见动画；击毁优先，切屏过期清除。添加必要的小型CPU生命周期单元及测试。
 - [x] 跑新测试和已有HUD／武器／网络相关测试，精确检查差异；根因routing测试须有行为证据，不能只搜索调用字符串。36项相关web测试及47项server lib测试PASS；不进行浏览器／构建／发布。
-- [ ] 精确提交仅本项文件／main命中区块，不混入未完成Task2履带改动或B规格文档。新规格代理PASS后新质量代理APPROVE，修复后复审。
+- [x] 精确提交仅本项文件／main命中区块，不混入未完成Task2履带改动或B规格文档。提交 `edaf79f7ea6e69e2dedfd86fb41a5502f9ab6b30`；新 SPEC `hit_feedback_spec_review` PASS，新 QUALITY `hit_feedback_quality_review` APPROVE。Root 独立 36 项相关 web 与 47 项 server lib PASS。质量审查独立 13 项 hit-feedback 与 server targeted ack PASS。
 - [ ] 恢复Task2原实现代理继续完整B；本项随最终构建发布，不提前发布未完成的履带核心。
