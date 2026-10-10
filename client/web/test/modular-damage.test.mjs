@@ -18,6 +18,7 @@ import * as phys from '../src/sim/physics.js';
 import * as gunnery from '../src/sim/gunnery.js';
 import * as folding from '../src/game/folding.js';
 import { Protection } from '../src/game/protection.js';
+import { OnlineFires } from '../src/game/onlineFire.js';
 
 const data = loadData();
 await decodeAllImported(data.vehicles);
@@ -278,11 +279,12 @@ test('actual ammo synchronization clears empty damaged-rack penalties from ongoi
 });
 
 test('live select registers before actual stock/workshop models, interior and status, including same-id replacement', () => {
+  const onlineFires = new OnlineFires();
   const c = combat(), terrain = new Terrain(data.terrains, humpLift);
   const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}, freeTexture() {}};
   const G = {mode: 'battle', combat: c, model: null, s: phys.newState(), veh: {}, cam: {yaw: 0}, pending: [], designs: new Map()};
   const scene = {children: [], add(n) {this.children.push(n);}}, order = [];
-  const deps = {G, data, renderer, terrain, scene, VehicleSim, phys, loading, mgSim, ...loadout, ...helper,
+  const deps = {G, onlineFires, data, renderer, terrain, scene, VehicleSim, phys, loading, mgSim, ...loadout, ...helper,
     buildTank(r, lo, parts) { assert.ok(c.describe(G.combatKey), 'registration exists before real model construction'); order.push('model'); return buildTank(r, lo, parts); },
     buildInterior(...args) {order.push('interior'); return buildInterior(...args);},
     isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
@@ -295,7 +297,16 @@ test('live select registers before actual stock/workshop models, interior and st
   app.select('xp_bmp_k64', true);
   assert.ok(G.loadout.imported, 'real GLB-backed stock fixture remains loaded');
   assert.equal(G.loadout.imported, data.vehicles.xp_bmp_k64.imported);
+  const firedGun = G.loadout.turrets[0].guns[0], firedAmmo = firedGun.ammo[0], oldSession = {};
+  const spent = firedAmmo.count - 1;
+  firedAmmo.count = spent;
+  onlineFires.begin({seq: 91, gun: firedGun, ammo: firedAmmo, loading: G.T[0].loading, ti: 0, gi: 0, session: oldSession, shot: {}}, 0);
+  assert.equal(onlineFires.pending.length, 1);
   app.select('de_hetzer', true);
+  assert.equal(onlineFires.pending.length, 0, 'live vehicle selection clears ordinary-fire receipts');
+  const replacementAmmo = G.loadout.turrets[0].guns[0].ammo[0], replacementCount = replacementAmmo.count;
+  assert.equal(onlineFires.reject(91, firedGun, oldSession, .1), null, 'an old rejection cannot revive a selected-away receipt');
+  assert.equal(firedAmmo.count, spent); assert.equal(replacementAmmo.count, replacementCount);
   assert.equal(G.bundle.imported, data.vehicles.de_hetzer.imported, 'stock source representation remains unchanged');
   assert.deepEqual(order.slice(0, 2), ['model', 'interior']);
   assert.equal(G.cstate.modules.length, G.bundle.modules.length);
@@ -305,9 +316,12 @@ test('live select registers before actual stock/workshop models, interior and st
   assert.ok(G.caps.weapons['gun:1:0'].can_fire, 'retained Oplot gun');
   assert.ok(G.caps.weapons['gun:2:0'].can_fire, 'added source launcher');
   const old = G.bundle;
+  const customGun = G.loadout.turrets[0].guns[0];
+  onlineFires.begin({seq: 92, gun: customGun, ammo: customGun.ammo[0], loading: G.T[0].loading, ti: 0, gi: 0, session: oldSession, shot: {}}, 0);
   G.build = {base: 'de_hetzer', keepStock: false, turrets: [{...loadout.newTurretSpec(), guns: [{weapon: 'us_m901_itv'}, {weapon: 'us_m901_itv'}]}]};
   app.select('custom', true);
   assert.notEqual(G.bundle, old);
+  assert.equal(onlineFires.pending.length, 0, 'same-id workshop replacement also clears ordinary-fire receipts');
   assert.equal(c.describe('player:custom'), G.bundle);
   assert.deepEqual(Object.keys(G.caps.weapons), ['gun:0:0', 'gun:0:1']);
   assert.equal(G.cstate.modules.length, G.bundle.modules.length);
@@ -329,7 +343,7 @@ test('actual garage protection shots use the current actor fold and restore rais
   protection.dist = 100;
   const plate = original.armor.find(p => p.hinge), n = Object.values(plate.normal), p = Object.values(plate.center);
   const ray = {o: p.map((v, i) => v + n[i] * 3), d: n.map(v => -v / Math.hypot(...n))};
-  const replays = [], deps = {G, data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...loadout, ...helper, ...folding,
+  const replays = [], deps = {G, onlineFires: new OnlineFires(), data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...loadout, ...helper, ...folding,
     buildTank, buildInterior, isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
     clamp: (v, a, b) => Math.max(a, Math.min(b, v)), DEG: Math.PI / 180,
     mods: {choose() {}, cardOf: id => id, slots: () => []}, hud: new Proxy({}, {get: () => () => {}}),
