@@ -401,6 +401,71 @@ fn weapon_bindings_main_gun_damage_refs_are_used_and_mount_refs_take_priority() 
     assert!(caps(&t,&st).weapons["gun:0:0"].can_fire);assert!(!caps(&t,&st).weapons["gun:0:1"].can_fire);
 }
 
+#[test]
+fn quality_weapon_bindings_cannon_critical_requires_breech_and_barrel_kinds() {
+    for refs in [serde_json::json!(["track_l"]),serde_json::json!(["gun_barrel"]),serde_json::json!(["breech"]),serde_json::json!(["oplot_gun"])] {
+        let id=if refs[0]=="oplot_gun" {"su_t10m"} else {"de_gepard"};
+        let mut def=weapon_target(id).def;
+        def.weapons["damage"]=serde_json::json!({"critical":refs});
+        let t=Target::new(def.clone(),&rha());
+        assert!(t.binding_errors.contains_key("gun:0:0"),"invalid/partial cannon references must fail closed: {:?}",def.weapons["damage"]);
+        let mut st=t.fresh_state();break_part(&t,&mut st,"breech");
+        assert!(!caps(&t,&st).weapons["gun:0:0"].can_fire);
+        let again=Target::new(def,&rha());assert_eq!(t.binding_errors,again.binding_errors,"stable registration error");
+    }
+}
+
+#[test]
+fn quality_weapon_bindings_missile_and_mg_critical_reject_other_module_kinds() {
+    let mut def=weapon_target("su_bmpt34").def;
+    let wrong=def.modules.iter().find(|m| m.kind==ModuleKind::Engine).unwrap().id.clone();
+    def.weapons["extra_guns"][1]["damage"]=serde_json::json!({"critical":[wrong]});
+    let t=Target::new(def,&rha());
+    assert!(t.binding_errors.contains_key("gun:0:2"));
+    let mut st=t.fresh_state();break_part(&t,&mut st,"launcher_tt250_rail_r");
+    assert!(!caps(&t,&st).weapons["gun:0:2"].can_fire);
+    assert!(caps(&t,&st).weapons["gun:0:3"].can_fire);
+    let mut def=weapon_target("de_hetzer").def;
+    def.weapons["secondary"][0]["weapon_group"]=serde_json::json!("authored_roof_assembly");
+    for m in &mut def.modules { if m.weapon_group.as_deref()==Some("mg:roof_mg34") { m.weapon_group=Some("authored_roof_assembly".into()); if m.id.ends_with("receiver") {m.kind=ModuleKind::Track;} } }
+    let count=def.modules.len();let t=Target::new(def,&rha());
+    assert!(t.binding_errors.contains_key("mg:roof_mg34"));assert_eq!(t.def.modules.len(),count);
+    assert!(!caps(&t,&t.fresh_state()).weapons["mg:roof_mg34"].can_fire);
+}
+
+#[test]
+fn quality_weapon_bindings_independent_aps_critical_is_the_named_complete_gun() {
+    let mut def=weapon_target("su_t10m").def;
+    def.weapons["extra_turrets"][0]["guns"][0]["damage"]=serde_json::json!({"critical":["oplot_gun"]});
+    let t=Target::new(def.clone(),&rha());assert!(t.binding_errors.is_empty());
+    let mut st=t.fresh_state();break_part(&t,&mut st,"breech");break_part(&t,&mut st,"oplot_radar");
+    assert!(caps(&t,&st).weapons["gun:1:0"].can_fire);
+    for refs in [serde_json::json!(["oplot_radar"]),serde_json::json!(["breech","gun_barrel"])] {
+        def.weapons["extra_turrets"][0]["guns"][0]["damage"]=serde_json::json!({"critical":refs});
+        let t=Target::new(def.clone(),&rha());assert!(t.binding_errors.contains_key("gun:1:0"));assert!(!caps(&t,&t.fresh_state()).weapons["gun:1:0"].can_fire);
+    }
+}
+
+#[test]
+fn quality_weapon_bindings_drives_keep_full_instance_and_shared_turret_groups() {
+    for (group,owners) in [(Some("gun:0:0"),[true,false]),(Some("gun:0:1"),[false,true]),(Some("left_assembly"),[true,false]),(Some("turret:0"),[true,true]),(None,[true,true])] {
+        let mut def=weapon_target("de_gepard").def;
+        if group==Some("left_assembly") {
+            def.weapons["weapon_group"]=serde_json::json!("left_assembly");def.weapons["extra_guns"][0]["weapon_group"]=serde_json::json!("right_assembly");
+            for m in &mut def.modules {
+                if ["breech","gun_barrel"].contains(&m.id.as_str()) {m.weapon_group=Some("left_assembly".into());}
+                if ["breech_r","gun_barrel_r"].contains(&m.id.as_str()) {m.weapon_group=Some("right_assembly".into());}
+            }
+        }
+        def.modules.iter_mut().find(|m| m.id=="turret_drive").unwrap().weapon_group=group.map(String::from);
+        let mut elevation=module("own_elevation",ModuleKind::VerticalDrive,[0.0,2.3,0.0],[0.1,0.1,0.1],60.0);elevation.weapon_group=group.map(String::from);def.modules.push(elevation);
+        let t=Target::new(def,&rha());assert!(t.binding_errors.is_empty(),"{group:?}: {:?}",t.binding_errors);
+        let mut st=t.fresh_state();break_part(&t,&mut st,"turret_drive");break_part(&t,&mut st,"own_elevation");
+        let c=caps(&t,&st);
+        for gi in 0..2 {let key=format!("gun:0:{gi}");assert_eq!(c.weapons[&key].traverse_mult,if owners[gi] {0.15} else {1.0},"{group:?}/{key}");assert_eq!(c.weapons[&key].elevate_mult,if owners[gi] {0.3} else {1.0},"{group:?}/{key}");assert!(c.weapons[&key].can_fire);}
+    }
+}
+
 fn rha() -> Vec<Material> {
     vec![Material { id: "rha".into(), kind: ArmorKind::Rha, density_kg_m3: 7850.0, hardness_bhn: 300.0, kinetic_factor: 1.0, chemical_factor: 1.0 }]
 }

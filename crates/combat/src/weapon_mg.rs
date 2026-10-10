@@ -1,6 +1,6 @@
 //! Neutral-frame MG receiver/barrel boxes from the measured shared catalogue. Independent
 //! pintle/hull yaw and elevation are not represented by the current combat Shot pose API.
-use super::weapon_damage::{vec3, WeaponBinding, WeaponKind};
+use super::weapon_damage::{validate_critical, vec3, WeaponBinding, WeaponKind};
 use crate::{Module, ModuleKind, TargetDef};
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -70,12 +70,7 @@ pub(crate) fn register(def: &mut TargetDef, out: &mut BTreeMap<String, WeaponBin
                 .map(|(i, _)| i)
                 .collect();
             if !existing.is_empty() {
-                if existing
-                    .iter()
-                    .any(|&i| def.modules[i].kind != ModuleKind::MachineGun)
-                {
-                    return Err("MG group has wrong module kind".into());
-                }
+                validate_critical(&def.modules, WeaponKind::MachineGun, &existing, None)?;
                 b.critical = existing;
             } else {
                 if explicit_group.is_some() {

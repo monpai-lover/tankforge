@@ -98,6 +98,67 @@ fn damage<'a>(mount: &'a Value, gun: &'a Value, field: &str) -> &'a Value {
     mount["damage"].get(field).unwrap_or(&gun["damage"][field])
 }
 
+pub(crate) fn validate_critical(
+    modules: &[Module],
+    kind: WeaponKind,
+    indices: &[usize],
+    aps_gun: Option<&str>,
+) -> Result<(), String> {
+    if indices.is_empty() {
+        return Err("empty critical module references".into());
+    }
+    for &i in indices {
+        let m = &modules[i];
+        let allowed = match kind {
+            WeaponKind::Cannon if aps_gun.is_some() => {
+                m.kind == ModuleKind::ApsGun && Some(m.id.as_str()) == aps_gun
+            }
+            WeaponKind::Cannon => matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel),
+            WeaponKind::Missile => m.kind == ModuleKind::Launcher,
+            WeaponKind::MachineGun => m.kind == ModuleKind::MachineGun,
+        };
+        if !allowed {
+            return Err(format!(
+                "critical module reference {} has wrong module kind for {:?}",
+                m.id, kind
+            ));
+        }
+    }
+    if kind == WeaponKind::Cannon
+        && aps_gun.is_none()
+        && (!indices
+            .iter()
+            .any(|&i| modules[i].kind == ModuleKind::GunBreech)
+            || !indices
+                .iter()
+                .any(|&i| modules[i].kind == ModuleKind::GunBarrel))
+    {
+        return Err(
+            "incomplete cannon critical modules: requires gun_breech and gun_barrel".into(),
+        );
+    }
+    Ok(())
+}
+
+fn independent_aps_gun(w: &Value, kind: WeaponKind, ti: usize) -> Result<Option<&str>, String> {
+    let gun = w["aps"]["gun_module"].as_str();
+    if kind != WeaponKind::Cannon || w["aps"]["turret"].as_u64() != Some(ti as u64) || gun.is_none()
+    {
+        return Ok(None);
+    }
+    if ti == 0 {
+        return Err("invalid APS turret association".into());
+    }
+    if w["extra_turrets"][ti - 1]["guns"]
+        .as_array()
+        .map_or(0, Vec::len)
+        != 1
+    {
+        return Err("ambiguous APS gun instance".into());
+    }
+    Ok(gun)
+}
+
 /// Extra turret IDs are authored identities, not ordinal labels. A legacy workshop
 /// primary is t1 only when that identity is not already carried by an extra turret.
 fn turret_identity(def: &TargetDef, ti: usize) -> Option<&str> {
@@ -233,13 +294,6 @@ fn turret_owner(def: &TargetDef, m: &Module, turret_count: usize) -> Result<Opti
         if let Some(index) = group.strip_prefix("turret:").and_then(|s| s.parse().ok()) {
             return Ok(Some(index));
         }
-        if let Some(index) = group
-            .strip_prefix("gun:")
-            .and_then(|s| s.split(':').next())
-            .and_then(|s| s.parse().ok())
-        {
-            return Ok(Some(index));
-        }
     }
     if let Some(owner) = authored_owner(def, m)? {
         return Ok(Some(owner));
@@ -282,6 +336,7 @@ fn dependencies(
     ti: usize,
     gi: usize,
     kind: WeaponKind,
+    critical: &[usize],
     turret_count: usize,
 ) -> Result<(Vec<usize>, Vec<usize>, Vec<usize>), String> {
     let drives = |field: &str, kinds: &[ModuleKind]| -> Result<Vec<usize>, String> {
@@ -301,7 +356,21 @@ fn dependencies(
             .enumerate()
             .filter(|(_, m)| kinds.contains(&m.kind))
         {
-            if turret_owner(def, m, turret_count)? == Some(ti) {
+            if let Some(g) = m.weapon_group.as_deref() {
+                // Reserved keys keep the entire mounted identity. Only turret:ti
+                // explicitly shares a grouped drive with every gun of that turret.
+                let reserved = g.starts_with("gun:") || g.starts_with("turret:");
+                let own = g == format!("gun:{ti}:{gi}")
+                    || g == format!("turret:{ti}")
+                    || (!reserved
+                        && (group(mount, gun) == Some(g)
+                            || critical
+                                .iter()
+                                .any(|&i| def.modules[i].weapon_group.as_deref() == Some(g))));
+                if own {
+                    out.push(i);
+                }
+            } else if turret_owner(def, m, turret_count)? == Some(ti) {
                 out.push(i);
             }
         }
@@ -394,6 +463,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
         };
         let result = (|| -> Result<(), String> {
             let p = vec3(&mount["mount_m"]).ok_or("missing/invalid mount_m")?;
+            let aps_gun = independent_aps_gun(&w, kind, ti)?;
             let instance_group = def.modules.iter().any(|m| {
                 m.weapon_group.as_deref() == Some(&key)
                     && match kind {
@@ -411,24 +481,9 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
                     return Err("empty critical module references".into());
                 }
                 b.critical = explicit;
-            } else if ti == w["aps"]["turret"].as_u64().unwrap_or(u64::MAX) as usize
-                && w["aps"]["gun_module"].is_string()
-            {
-                if ti == 0 {
-                    return Err("invalid APS turret association".into());
-                }
-                let guns = w["extra_turrets"][ti - 1]["guns"]
-                    .as_array()
-                    .map_or(0, Vec::len);
-                if guns != 1 {
-                    return Err("ambiguous APS gun instance".into());
-                }
-                b.critical = refs(
-                    def,
-                    &serde_json::json!([w["aps"]["gun_module"]]),
-                    Some(ModuleKind::ApsGun),
-                )?
-                .unwrap();
+            } else if let Some(aps_gun) = aps_gun {
+                b.critical =
+                    refs(def, &serde_json::json!([aps_gun]), Some(ModuleKind::ApsGun))?.unwrap();
             } else if kind == WeaponKind::Missile {
                 let conventional = if ti == 0 && gi == 0 {
                     "main_launcher".into()
@@ -489,6 +544,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
                     gi,
                 )?);
             }
+            validate_critical(&def.modules, kind, &b.critical, aps_gun)?;
             b.dispersion_parts = if kind == WeaponKind::Missile {
                 vec![]
             } else {
@@ -504,7 +560,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
                     .collect()
             };
             let (traverse, elevation, racks) =
-                dependencies(def, &mount, &gun, ti, gi, kind, turret_count)?;
+                dependencies(def, &mount, &gun, ti, gi, kind, &b.critical, turret_count)?;
             b.traverse = traverse;
             b.elevation = elevation;
             b.ammo_racks = racks;
