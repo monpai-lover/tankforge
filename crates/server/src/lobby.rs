@@ -1465,7 +1465,8 @@ impl Lobby {
     }
 
     /// Time passing for the battles' damage: fire, crew changing seats, repairs. A vehicle that
-    /// burns out is credited to whoever last hit it.
+    /// burns out is credited to whoever last hit it. Every active advance publishes state,
+    /// including continuous damage and timers that produce no named event.
     pub fn advance_combat(&mut self, dt: f64) -> Broadcast {
         self.combat_clock += dt;
         let mut out: Broadcast = Vec::new();
@@ -1496,9 +1497,7 @@ impl Lobby {
                 if burned_out {
                     self.count_death(id);
                 }
-                if !events.is_empty() {
-                    out.push((members.clone(), ServerMsg::Status { id, state: serde_json::to_value(&st).unwrap_or(Value::Null), caps: serde_json::to_value(&caps).unwrap_or(Value::Null), events }));
-                }
+                out.push((members.clone(), ServerMsg::Status { id, state: serde_json::to_value(&st).unwrap_or(Value::Null), caps: serde_json::to_value(&caps).unwrap_or(Value::Null), events }));
                 if burned_out {
                     let from = attacker.unwrap_or(id);
                     if from != id {
@@ -2226,6 +2225,99 @@ mod tests {
         l.handle(b, ClientMsg::Respawn, 100.0);
         let st = l.players[&b].combat.clone().unwrap();
         assert!(!st.destroyed && st.crew.iter().all(|h| *h == 100.0));
+    }
+
+    #[test]
+    fn active_combat_status_broadcasts_eventless_burn_health_and_caps() {
+        let (mut l, a, b, _) = combat_lobby();
+        let t = &l.targets["de_pz3_j"];
+        let engine = t.def.modules.iter().position(|m| m.kind == tg_combat::ModuleKind::Engine).unwrap();
+        let mut st = t.fresh_state();
+        st.modules[engine] = t.def.modules[engine].max_health * 0.5;
+        st.fire_s = 20.0; st.fire_at = Some(t.def.modules[engine].center);
+        let before_power = tg_combat::caps(t, &st).drive_power;
+        let p = l.players.get_mut(&a).unwrap(); p.vehicle = "de_pz3_j".into(); p.combat = Some(st.clone());
+        let mut expected = st;
+        let events = tg_combat::advance(t, &mut expected, 0.25, shot_seed(a, 1));
+        assert!(events.is_empty(), "the reproduction must have no named event");
+        assert_eq!(expected.modules[engine], 69.5);
+        let expected_caps = tg_combat::caps(t, &expected);
+        assert!(expected_caps.drive_power < before_power);
+        let expected_state = serde_json::to_value(&expected).unwrap();
+        let expected_caps = serde_json::to_value(&expected_caps).unwrap();
+        let out = l.advance_combat(0.25);
+        assert_eq!(out.len(), 1, "only the burning actor broadcasts; dormant room member remains quiet");
+        let (members, message) = &out[0];
+        assert!(members.contains(&a) && members.contains(&b), "the damaged player and the room both receive status");
+        let ServerMsg::Status { id, state, caps, events } = message else { panic!("expected authoritative status") };
+        assert_eq!(*id, a); assert!(events.is_empty());
+        assert_eq!(*state, expected_state); assert_eq!(*caps, expected_caps);
+        assert_eq!(serde_json::to_value(l.players[&a].combat.as_ref().unwrap()).unwrap(), expected_state);
+        let next = l.advance_combat(0.25);
+        assert_eq!(next.len(), 1);
+        assert!(matches!(&next[0].1, ServerMsg::Status { id, state, events, .. }
+            if *id == a && state["modules"][engine] == json!(69.0) && events.is_empty()));
+    }
+
+    #[test]
+    fn active_combat_status_broadcasts_ongoing_repair_and_swap_timers() {
+        for repairing in [true, false] {
+            let (mut l, a, b, _) = combat_lobby();
+            let t = &l.targets["de_pz3_j"];
+            let mut st = t.fresh_state();
+            if repairing {
+                let engine = t.def.modules.iter().position(|m| m.kind == tg_combat::ModuleKind::Engine).unwrap();
+                st.modules[engine] = 0.0;
+                assert!(tg_combat::start_repair(t, &mut st));
+            } else {
+                let gunner = t.def.crew.iter().position(|c| c.role == tg_combat::CrewRole::Gunner).unwrap();
+                st.crew[gunner] = 0.0;
+                assert!(tg_combat::advance(t, &mut st, 0.0, 1).is_empty());
+                assert!(!st.swaps.is_empty(), "a real crew seat swap is pending");
+            }
+            let timer = if repairing { st.repair_s } else { st.swaps[0].left_s };
+            let p = l.players.get_mut(&a).unwrap(); p.vehicle = "de_pz3_j".into(); p.combat = Some(st);
+            for step in 1..=2 {
+                let out = l.advance_combat(0.25);
+                assert_eq!(out.len(), 1, "an active timer sends one status, without broadcasting the dormant actor");
+                assert!(out[0].0.contains(&a) && out[0].0.contains(&b));
+                let ServerMsg::Status { id, state, caps, events } = &out[0].1 else { panic!("expected timer status") };
+                assert_eq!(*id, a); assert!(events.is_empty());
+                let remaining = timer - step as f32 * 0.25;
+                if repairing { assert_eq!(state["repair_s"], json!(remaining)); assert_eq!(caps["repair_s"], json!(remaining)); }
+                else { assert_eq!(state["swaps"][0]["left_s"], json!(remaining)); assert_eq!(caps["gunner"], false); }
+                assert_eq!(*state, serde_json::to_value(l.players[&a].combat.as_ref().unwrap()).unwrap());
+            }
+        }
+    }
+
+    #[test]
+    fn active_combat_status_preserves_fire_events_and_counts_burnout_once() {
+        let (mut l, a, b, _) = combat_lobby();
+        let t = &l.targets["de_pz3_j"];
+        let mut st = t.fresh_state();
+        let driver = t.def.crew.iter().position(|c| c.role == tg_combat::CrewRole::Driver).unwrap();
+        let commander = t.def.crew.iter().position(|c| c.role == tg_combat::CrewRole::Commander).unwrap();
+        st.crew.fill(0.0); st.crew[driver] = 100.0; st.crew[commander] = 0.5;
+        st.rack_fill.fill(0.0); st.fire_s = 1.0; st.fire_at = Some(t.def.crew[commander].pos);
+        let mut expected = st.clone();
+        let expected_events = tg_combat::advance(t, &mut expected, 0.25, shot_seed(a, 1));
+        assert!(expected_events.contains(&"destroyed".into()));
+        let p = l.players.get_mut(&a).unwrap(); p.vehicle = "de_pz3_j".into(); p.combat = Some(st); p.last_attacker = Some(b);
+        let out = l.advance_combat(0.25);
+        let statuses: Vec<_> = out.iter().filter_map(|(_, m)| if let ServerMsg::Status { events, .. } = m { Some(events) } else { None }).collect();
+        assert_eq!(statuses, vec![&expected_events], "named events remain exactly those produced by combat");
+        assert_eq!(out.iter().filter(|(_, m)| matches!(m, ServerMsg::Damage { target, from, killed: true, result, .. } if *target == a && *from == b && result == "fire")).count(), 1);
+        assert_eq!((l.players[&a].deaths, l.players[&b].kills, l.players[&a].alive), (1, 1, false));
+        let mut fire_out = 0;
+        for _ in 0..3 {
+            let out = l.advance_combat(0.25);
+            assert!(!out.iter().any(|(_, m)| matches!(m, ServerMsg::Damage { killed: true, .. })));
+            for (_, m) in out { if let ServerMsg::Status { events, .. } = m { fire_out += events.iter().filter(|e| *e == "fire_out").count(); } }
+        }
+        assert_eq!(fire_out, 1);
+        assert_eq!((l.players[&a].deaths, l.players[&b].kills), (1, 1));
+        assert!(l.advance_combat(0.25).is_empty(), "finished fire and dormant vehicles stop broadcasting");
     }
 
     /// An M901 against the T-10M with its Oplot-MO, 600 m apart on the range: the server
