@@ -1,6 +1,6 @@
-# 模块化损伤改进设计（待确认）
+# 模块化损伤改进设计（方案 A 已确认）
 
-基线：`eba77fc3df79dfa78e305f61d5eb13fbc76fe91e`。调研与复现见 `docs/modular-damage-research-2026-10-10.md`。本文件为可审阅提案，尚未实施。
+基线：`eba77fc3df79dfa78e305f61d5eb13fbc76fe91e`。调研与复现见 `docs/modular-damage-research-2026-10-10.md`。用户于 2026-10-10 确认采用方案 A；按下列范围实施和验收。
 
 ## 三种范围
 
