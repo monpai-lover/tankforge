@@ -66,8 +66,9 @@ test('runtime pintle muzzle vector matches its transformed rendered mesh after t
     assert.ok(pm.muzzleVector);
     const yaw = .43, mgYaw = .72, pitch = .91;
     rt.at({ yaw, mgYaw, mgPitch: pitch });
-    const base = muzzleLocal({ pivot: rt.loadout.turrets[0].pivot, trunnion: mg.pos, muzzleOffset: 0 }, { yaw, pitch: 0 }).trunnion;
-    const shot = muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: pm.muzzle, muzzleVector: mg.muzzleVector }, { yaw: yaw + mgYaw, pitch });
+    const parentYaw = mg.anchor === 'hull' ? 0 : yaw;
+    const base = muzzleLocal({ pivot: rt.loadout.turrets[0].pivot, trunnion: mg.pos, muzzleOffset: 0 }, { yaw: parentYaw, pitch: 0 }).trunnion;
+    const shot = muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: pm.muzzle, muzzleVector: mg.muzzleVector }, { yaw: parentYaw + mgYaw, pitch });
     const visible = transformPoint(pm.node.world, pm.muzzleVector);
     for (let k = 0; k < 3; k++) assert.ok(Math.abs(shot.pos[k] - visible[k]) < 1e-6);
   }

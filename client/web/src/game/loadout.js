@@ -224,7 +224,7 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
     const def = machineGuns[sec.weapon];
     if (!def || !sec.mount) continue;
     const arc = (sec.arc_deg || MG_ARC[sec.mount] || [0, 0, 0]).map((d) => d * DEG);
-    mgs.push({ id: sec.id, weapon: sec.weapon, mount: sec.mount, def, bullet: bulletOf(def), table: mgTable(def), pos: sec.position_m, elevationPivot: sec.elevation_pivot_m, post: sec.post_m ?? 0.34, shield: sec.shield_m || null, arc, slew: (MG_SLEW[sec.mount] || 0) * DEG });
+    mgs.push({ id: sec.id, weapon: sec.weapon, mount: sec.mount, anchor: bundle.visual?.mg_anchors?.[sec.id] || 'turret', def, bullet: bulletOf(def), table: mgTable(def), pos: sec.position_m, elevationPivot: sec.elevation_pivot_m, post: sec.post_m ?? 0.34, shield: sec.shield_m || null, arc, slew: (MG_SLEW[sec.mount] || 0) * DEG });
   }
   return { id, name: v.name, vehicle: v, engine: bundle.engine, visual: bundle.visual, imported: bundle.imported || null, weapons: w, turrets, machineGuns: mgs, gunCount: turrets.reduce((s, t) => s + t.guns.length, 0) };
 }

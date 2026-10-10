@@ -3258,8 +3258,8 @@ export function start(data, saved = {}) {
       e.bearing = true;
       return mz;
     }
-    // the pivot of a roof gun rides round with the turret
-    const base = m.mount === 'pintle' ? gunnery.muzzleLocal({ pivot: t0.pivot, trunnion: m.pos, muzzleOffset: 0 }, { yaw: rt0.yaw, pitch: 0 }).trunnion : m.pos;
+    // Fixed casemate pintles stay on the hull; other roof pivots ride with the turret.
+    const base = m.mount === 'pintle' && m.anchor !== 'hull' ? gunnery.muzzleLocal({ pivot: t0.pivot, trunnion: m.pos, muzzleOffset: 0 }, { yaw: rt0.yaw, pitch: 0 }).trunnion : m.pos;
     const oldPitch = e.aim.pitch;
     const localMuzzle = m.mount === 'pintle'
       ? gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch: oldPitch }).pos
@@ -3830,7 +3830,7 @@ export function start(data, saved = {}) {
     });
     for (const pm of M.mgs) {
       const e = G.MG[pm.index];
-      pm.node.yaw = e.aim.yaw - G.T[0].yaw;
+      pm.node.yaw = e.aim.yaw - (e.m.anchor === 'hull' ? 0 : G.T[0].yaw);
       pm.node.pitch = -e.aim.pitch;
     }
     // the running gear is drawn in the hull's frame: road wheels where the springs hold them

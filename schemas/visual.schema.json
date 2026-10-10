@@ -18,6 +18,11 @@
       "description": "Display variants by secondary weapon id. The Hetzer remote MG34 omits the infantry buttstock; the shared source asset and weapon tuning are preserved.",
       "additionalProperties": { "enum": ["mg34_remote"] }
     },
+    "mg_anchors": {
+      "type": "object",
+      "description": "Pintle attachment frames by secondary weapon id. Omitted entries ride with the main turret; hull entries stay fixed to the casemate roof.",
+      "additionalProperties": { "enum": ["hull", "turret"] }
+    },
     "palette": {
       "type": "object",
       "description": "#rrggbb per material slot",

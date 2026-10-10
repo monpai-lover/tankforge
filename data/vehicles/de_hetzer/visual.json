@@ -3267,5 +3267,8 @@
  },
  "mg_variants": {
   "roof_mg34": "mg34_remote"
+ },
+ "mg_anchors": {
+  "roof_mg34": "hull"
  }
 }

@@ -224,10 +224,10 @@ export function runtimeParts(id, data) {
   // Pintle post and actual gun mesh (including game-created shield) also matter.
   const machineGunPieces = model.mgs.length * 2;
   for (const mg of model.mgs) {
-    const post = model.turrets[0].node.children.filter(n => n.name === 'mg_post')[model.mgs.indexOf(mg)];
+    const post = mg.post;
     for (const [suffix, node] of [['post', post], ['gun', mg.node]])
-      records.push({ id: `mg${mg.index}:${suffix}`, part: { type: 'machine-gun', mount: 'turret' }, node,
-        local: makePiece(`mg${mg.index}:${suffix}`, node.mesh.data), ti: 0, gi: null, group: 'turret0', mg: mg.index, mgGun: suffix === 'gun' });
+      records.push({ id: `mg${mg.index}:${suffix}`, part: { type: 'machine-gun', mount: mg.anchor }, node,
+        local: makePiece(`mg${mg.index}:${suffix}`, node.mesh.data), ti: 0, gi: null, group: mg.anchor === 'hull' ? 'hull' : 'turret0', mg: mg.index, mgGun: suffix === 'gun' });
   }
   const at = ({ turret = 0, yaw = 0, pitch = 0, recoil = 0, fold = 0, mgYaw = 0, mgPitch = 0 } = {}) => {
     model.setFold(fold);

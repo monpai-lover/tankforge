@@ -239,13 +239,14 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     turrets.push({ node, guns });
   });
 
-  // ---- roof machine guns on their pintles: the post rides on the turret, the gun swings on it
+  // ---- roof pintles: fixed casemates carry the post on the hull; normal turrets carry it with them
   const mgs = [];
   (loadout.machineGuns || []).forEach((mg, mi) => {
     if (mg.mount !== 'pintle') return;
     const t = loadout.turrets[0];
-    const tn = turrets[0].node;
-    const rel = [mg.pos[0] - t.pivot[0], mg.pos[1] - t.pivot[1], mg.pos[2] - t.pivot[2]];
+    const hullMounted = mg.anchor === 'hull';
+    const tn = hullMounted ? body : turrets[0].node;
+    const rel = hullMounted ? mg.pos.slice() : [mg.pos[0] - t.pivot[0], mg.pos[1] - t.pivot[1], mg.pos[2] - t.pivot[2]];
     const post = new GeoBuilder();
     const pl = mg.post ?? 0.34;
     post.cyl(translation(0, -pl / 2, 0), false, 'y', 0.035, 0.028, pl, 10, mats.steel);
@@ -271,7 +272,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     const gn = meshNode('mg_gun', tn, gun);
     gn.pos = rel;
     shellNodes.push(pn, gn);
-    mgs.push({ index: mi, node: gn, muzzle, muzzleVector });
+    mgs.push({ index: mi, node: gn, post: pn, anchor: hullMounted ? 'hull' : 'turret', muzzle, muzzleVector });
   });
 
   // ---- an armoured car: tyres on their axles, steered and sprung, no tracks

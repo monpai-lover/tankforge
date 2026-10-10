@@ -4930,6 +4930,8 @@ def write_vehicle(s):
         visual["own_breech"] = True
     if s.get("mg_variants"):
         visual["mg_variants"] = s["mg_variants"]
+    if s.get("mg_anchors"):
+        visual["mg_anchors"] = s["mg_anchors"]
     dump(os.path.join(d, "vehicle.json"), vehicle)
     dump(os.path.join(d, "armor.json"), plates)
     dump(os.path.join(d, "weapons.json"), weapons)

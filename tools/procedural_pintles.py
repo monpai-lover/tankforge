@@ -34,4 +34,5 @@ def apply_procedural_pintles(spec):
         gun['post_m'] = round(gun.get('post_m', .34) + lift, 3)
         if vehicle_id == 'de_hetzer':
             spec.setdefault('mg_variants', {})[gun['id']] = 'mg34_remote'
+            spec.setdefault('mg_anchors', {})[gun['id']] = 'hull'
     return spec
