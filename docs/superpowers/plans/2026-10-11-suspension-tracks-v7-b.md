@@ -19,6 +19,7 @@
 - [ ] 实现耦合矩阵而非额外全车质量。每轮 `B_i=[I,-skew(r_i)]`，`A=A_s+Σm_i B_iᵀB_i`，`b_i=m_i B_iᵀey`，`D_i=m_i`；`S=A-Σb_i b_iᵀ/D_i`，复用6×6 Cholesky求解。重组静态簧上剩余质心和惯量，包括偏移项；正定性不足确定性缩小6%估计。
 - [ ] 外力和重力解 `(A b;bᵀ D)Δv=hQ`；隐式弹簧使用当前相对速度与正定刚度／阻尼、单边接触不得拉地面。现有摩擦、反冲及障碍冲量使用同一算子，不只用簧上质量推进车体。台车 heave/rock 由两轮 q 推导并保留原 travel/lim。
 - [ ] 更换过时 `unitPrev`／run/belly 穿透差分的速度来源；接触零负载样本无摩擦，失去接触清空暖启动。按裸轮或完整带厚度生成支撑。新增热循环缓冲复用，不重构无关系统。
+- [ ] 原远端3cm门槛揭示新离地轮q无法由旧姿态恢复，Task1提前加入可选 `rg:{version:1,q,qv}` 最小姿态提示，两端NetState／apply／reconstruct一致。精确计数、有限和有界检查；非法／缺提示安全退回旧重建；合法提示不得再次被地面覆盖。测试真实离地snapshot、旧包和错误数组／NaN／越界。Task5仍负责拓扑、revision、epoch、服务器和远端插值。
 - [ ] 跑新用例、`tank.test.mjs`、`wheeled.test.mjs` 和 `client/web/tools/tank-lockstep.mjs`，Rust对照更新记录必须来自新实现，原阈值不放宽。精确提交，规格／质量双审及修复。
 
 ## Task 2：固定销距的完整带与张紧
