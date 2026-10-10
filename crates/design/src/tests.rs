@@ -367,3 +367,75 @@ fn print_sample_summary() {
         println!("{:?} {} {}", i.severity, i.code, i.message);
     }
 }
+
+#[test]
+fn workshop_fragments_clamp_loss_and_broken_module_keeps_blocking() {
+    use tg_damage::{Module, Crew, ModuleKind, CrewRole, Fragment, TargetRef};
+    use tg_shared::Vec3;
+    let mut modules = vec![Module { id:"engine".into(), kind:ModuleKind::Engine, center:Vec3::new(1.0,0.0,0.0), half_extents:Vec3::new(0.2,0.2,0.2),max_health:100.0,health:10.0, rounds:None,weapon_group:None,external:None,turret_index:None }];
+    let mut crew = vec![Crew {role:CrewRole::Driver,pos:Vec3::new(2.0,0.0,0.0),radius:0.2,health:100.0,also:vec![],pose:None}];
+    let f=Fragment {origin:Vec3::ZERO,dir:Vec3::new(1.0,0.0,0.0),energy_j:1.0,damage:400.0,is_penetrator:true};
+    let s=crate::trace::propagate_inside(&[f,f], &[4.0,4.0], &mut modules,&mut crew);
+    assert_eq!(modules[0].health,0.0);
+    assert_eq!(s.module_damage,vec![(0,10.0)]);
+    assert_eq!(s.newly_destroyed_modules,vec![0]);
+    assert_eq!(s.traces[1].target,Some(TargetRef::Module(0)));
+    assert_eq!(s.traces[1].damage,0.0);
+    assert_eq!(crew[0].health,100.0);
+}
+
+#[test]
+fn workshop_saved_health_is_clamped_without_reviving_crew() {
+    let db=db(); let d=sample(); let m=layout::Model::new(&d,&db);
+    let mut state=TargetState::default();
+    let (mods,crew)=crate::compile::damage_targets(&m,0.0);
+    for md in &mods {state.module_health.insert(md.id.clone(),-500.0);}
+    for (i,c) in crew.iter().enumerate(){state.crew_health.insert(format!("{}_{}",c.role.as_str(),i),-500.0);}
+    let req=ShotRequest {shell:shells::design_shell("ap",75.0,48.0).unwrap(),origin:v3(30.0,30.0,30.0),dir:v3(1.0,0.0,0.0),speed_ms:700.0,distance_m:0.0,seed:1,turret_yaw_deg:0.0,gun_elevation_deg:0.0,path:vec![]};
+    let r=shoot(&m,&state,&req);
+    assert!(r.state.module_health.values().all(|h|*h==0.0));
+    assert!(r.state.crew_health.values().all(|h|*h==0.0));
+}
+
+#[test]
+fn workshop_empty_ammo_never_creates_rounds_or_cookoff_on_real_shoot() {
+    let db=db(); let mut d=sample(); d.ammunition.clear();
+    let m=layout::Model::new(&d,&db);
+    let (mods,_)=crate::compile::damage_targets(&m,0.0);
+    assert!(mods.iter().filter(|m|m.kind==tg_damage::ModuleKind::AmmoRack).all(|m|m.rounds==Some(0)));
+    let mut state=TargetState::default();
+    for m in &mods {if m.kind==tg_damage::ModuleKind::AmmoRack {state.module_health.insert(m.id.clone(),0.0);}}
+    let req=ShotRequest {shell:shells::design_shell("aphe",88.0,56.0).unwrap(),origin:v3(30.0,0.95,-0.9),dir:v3(-1.0,0.0,0.0),speed_ms:780.0,distance_m:300.0,seed:42,turret_yaw_deg:0.0,gun_elevation_deg:0.0,path:vec![]};
+    let r=shoot(&m,&state,&req);
+    assert!(!r.capabilities.ammo_detonated);
+    assert!(!r.event.outcomes.contains(&tg_replay::ShotOutcome::AmmoDetonation));
+}
+
+#[test]
+fn workshop_rack_rounds_and_feed_do_not_change_when_the_target_turret_turns() {
+    let db=db();let mut d=sample();
+    d.ammunition=vec![AmmoLoad {kind:"apcbc".into(),count:200}];
+    let m=layout::Model::new(&d,&db);
+    let rounds=|yaw|crate::compile::damage_targets(&m,yaw).0.into_iter().filter(|m|m.kind==tg_damage::ModuleKind::AmmoRack).map(|m|(m.id,m.rounds)).collect::<Vec<_>>();
+    assert_eq!(rounds(0.0),rounds(std::f64::consts::FRAC_PI_4));
+    assert_eq!(rounds(0.0),rounds(std::f64::consts::FRAC_PI_2));
+}
+
+#[test]
+fn workshop_legacy_capabilities_deserialize_with_healthy_new_curve_defaults() {
+    let value=serde_json::json!({"can_fire":true,"can_move":true,"reload_multiplier":1.0,"spotting_multiplier":1.0,"on_fire":false,"ammo_detonated":false});
+    let parsed=serde_json::from_value::<tg_damage::Capabilities>(value);
+    assert!(parsed.is_ok(),"old single-design capability snapshots must remain readable");
+    let caps=parsed.unwrap();
+    assert_eq!((caps.drive_power,caps.traverse_multiplier,caps.elevation_multiplier,caps.dispersion_multiplier),(1.0,1.0,1.0,1.0));
+}
+
+#[test]
+fn workshop_explicit_zero_rounds_stays_empty_across_real_shots() {
+    let db=db();let d=sample();let m=layout::Model::new(&d,&db);
+    let mut state=TargetState {rounds:Some(0),..Default::default()};
+    for md in crate::compile::damage_targets(&m,0.0).0.iter().filter(|md|md.kind==tg_damage::ModuleKind::AmmoRack) {state.module_health.insert(md.id.clone(),0.0);}
+    let req=ShotRequest {shell:shells::design_shell("aphe",88.0,56.0).unwrap(),origin:v3(30.0,0.95,-0.9),dir:v3(-1.0,0.0,0.0),speed_ms:780.0,distance_m:300.0,seed:42,turret_yaw_deg:45.0,gun_elevation_deg:0.0,path:vec![]};
+    let r=shoot(&m,&state,&req);let again=shoot(&m,&r.state,&req);
+    for r in [&r,&again] {assert_eq!(r.state.rounds,Some(0));assert!(!r.capabilities.ammo_detonated);assert!(!r.event.outcomes.contains(&tg_replay::ShotOutcome::AmmoDetonation));}
+}

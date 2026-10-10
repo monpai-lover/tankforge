@@ -201,6 +201,42 @@ impl Target {
         Target::new(def, &materials)
     }
 
+    /// Hull-space contact envelope at the current main turret yaw and wall fold. This
+    /// simple OBB proxy is separate from the cached all-rotation ray broadphase, and
+    /// does not allocate or mutate the target. Extra turret and gun pitch sync are outside it.
+    pub fn contact_bounds(&self, yaw: f32, fold: f32) -> (Vec3, Vec3) {
+        let yaw = if yaw.is_finite() { yaw } else { 0.0 };
+        let pivot = self.def.turret.as_ref().map(|t| t.pivot).unwrap_or(Vec3::ZERO);
+        let turn = |p: Vec3| pivot + rotate_yaw(p - pivot, yaw);
+        let mut lo = Vec3::new(f32::INFINITY, f32::INFINITY, f32::INFINITY);
+        let mut hi = Vec3::new(f32::NEG_INFINITY, f32::NEG_INFINITY, f32::NEG_INFINITY);
+        let mut add = |p: Vec3| {
+            lo = Vec3::new(lo.x.min(p.x), lo.y.min(p.y), lo.z.min(p.z));
+            hi = Vec3::new(hi.x.max(p.x), hi.y.max(p.y), hi.z.max(p.z));
+        };
+        for (p, &rotates) in self.def.plates.iter().zip(&self.turret_plate) {
+            let (center, normal, u) = p.folded_geometry(fold);
+            let v = normal.cross(u);
+            for (a,b) in [(-1.0,-1.0),(1.0,-1.0),(1.0,1.0),(-1.0,1.0)] {
+                let point = center + u * (a * p.half_u) + v * (b * p.half_v);
+                add(if rotates { turn(point) } else { point });
+            }
+        }
+        for (m, &rotates) in self.def.modules.iter().zip(&self.turret_module) {
+            for x in [-1.0,1.0] { for y in [-1.0,1.0] { for z in [-1.0,1.0] {
+                let point = m.center + Vec3::new(x*m.half_extents.x,y*m.half_extents.y,z*m.half_extents.z);
+                add(if rotates { turn(point) } else { point });
+            } } }
+        }
+        for (c,&rotates) in self.def.crew.iter().zip(&self.turret_crew) { add(if rotates { turn(c.pos) } else { c.pos }); }
+        if let Some(t) = &self.def.turret {
+            for x in [-0.5,0.5] { for y in [0.0,1.0] { for z in [-0.5,0.5] {
+                add(turn(t.pivot + Vec3::new(x*t.size.x,y*t.size.y,z*t.size.z)));
+            } } }
+        }
+        if !lo.x.is_finite() { (Vec3::new(-2.0,0.0,-3.0),Vec3::new(2.0,2.5,3.0)) } else { (lo,hi) }
+    }
+
     fn material(&self, id: &str) -> Material {
         self.materials.get(id).cloned().unwrap_or(Material {
             id: id.into(),

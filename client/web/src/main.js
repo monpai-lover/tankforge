@@ -24,6 +24,7 @@ import { HitCam } from './game/hitcam.js';
 import { designReplayReport } from './game/projectileReplay.js';
 import { Missiles } from './game/missiles.js';
 import { OnlineLaunches } from './game/onlineLaunch.js';
+import { OnlineFires } from './game/onlineFire.js';
 import { Mods } from './game/mods.js';
 import { Exhaust, exhaustOf } from './game/exhaust.js';
 import { LANG, LANG_INDEX, setLang } from './i18n.js';
@@ -650,6 +651,7 @@ export function start(data, saved = {}) {
 
   function select(id, keepPose = false) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
+    onlineFires.clear();
     const keptPose = keepPose && G.veh ? { x: G.s.x, z: G.s.z, heading: G.s.heading } : null;
     const { bundle: sourceBundle, projectiles } = bundleFor(id);
     G.sourceBundle = sourceBundle;
@@ -1892,6 +1894,21 @@ export function start(data, saved = {}) {
   });
   // a missile or rocket left a launcher: ours gets its id in the battle (to guide it); others' launch is seen
   const onlineLaunches = new OnlineLaunches();
+  const onlineFires = new OnlineFires();
+  const currentFireGun = seq => {
+    const p = onlineFires.pending.find(p => p.seq === seq);
+    return p && G.loadout.turrets[p.ti]?.guns[p.gi];
+  };
+  net.on('fire_accepted', m => {
+    onlineFires.confirm(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000);
+  });
+  net.on('fire_rejected', m => {
+    const p = onlineFires.reject(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000);
+    if (!p) return;
+    const i = G.shots.indexOf(p.shot);
+    if (i >= 0) G.shots.splice(i, 1);
+    hud.toast('炮彈未射出，已退回彈藥。', 2.5);
+  });
   G.pendingLaunch = onlineLaunches.pending;
   const sendOnlineLaunch = msg => net.send(msg);
   const currentOnlineLaunch = p => p.session === G.online && G.loadout.turrets[p.ti]?.guns[p.gi] === p.gun;
@@ -2586,6 +2603,7 @@ export function start(data, saved = {}) {
 
   /** A timeout or resumed connection repeats the same request, never a new unconfirmed shot. */
   function retryPendingLaunches(force = false) {
+    onlineFires.retire(performance.now() / 1000, p => p.session === G.online && G.loadout.turrets[p.ti]?.guns[p.gi] === p.gun);
     if (!G.online || !net.open || !onlineLaunches.pending.length) return;
     // Network timeouts keep real seconds even when the render loop clamps a slow frame's game dt.
     onlineLaunches.retry(performance.now() / 1000, sendOnlineLaunch, currentOnlineLaunch, force);
@@ -3306,7 +3324,7 @@ export function start(data, saved = {}) {
     const g = t.guns[gi];
     const rt = G.T[ti];
     const damage = weaponDamage(G.caps, g.damageKey);
-    if (!damage.can_fire || G.online?.dead) return false;
+    if (!damage.can_fire || G.online?.dead || (G.online && !net.open)) return false;
     if (rt.loading.state[gi] !== 'ready' || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
     if (G.aps && ti === (G.aps.turret ?? 1) && !moduleOk(G.bundle || data.vehicles[G.id], G.cstate, G.aps.gun_module)) return false;
     const mount = g.def.missile ? launcherMount(g, mountOf(t, g)) : mountOf(t, g);
@@ -3319,6 +3337,7 @@ export function start(data, saved = {}) {
     if (G.online) {
       // the others see the shot; a hit only counts on the server if it names this one
       shot.seq = ++G.online.seq;
+      onlineFires.begin({ seq: shot.seq, gun: g, ammo: g.ammo[g.loaded], loading: rt.loading, ti, gi, session: G.online, shot }, performance.now() / 1000);
       net.send({ t: 'fire', seq: shot.seq, instance: g.damageKey, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: g.shell.id });
     }
     const gy = surfaceAt(mz.pos[0], mz.pos[2]);

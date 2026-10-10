@@ -171,8 +171,8 @@ fn turn(v: [f64; 3], yaw: f64) -> [f64; 3] {
 fn module_ok(t: &Target, st: Option<&TargetState>, id: &Option<String>) -> bool {
     let (Some(id), Some(st)) = (id, st) else { return true };
     match t.def.modules.iter().position(|m| &m.id == id) {
-        Some(i) => st.modules.get(i).copied().unwrap_or(1.0) > 0.0,
-        None => true,
+        Some(i) => t.def.modules[i].max_health > 0.0 && st.modules.get(i).copied().unwrap_or(t.def.modules[i].max_health) > 0.0,
+        None => false,
     }
 }
 
@@ -181,13 +181,12 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
     let p = pose_of(s)?;
     let v = arr3(&s["v"]).unwrap_or([0.0; 3]);
     let fold = fold_of(s);
-    let folded = t.filter(|t| fold > 0.0 && t.has_hinges()).map(|t| t.folded(fold));
-    let t = folded.as_ref().or(t);
+    let yaw = yaws_of(s).first().copied().unwrap_or(0.0);
     let (center, obb) = match t {
         Some(t) => {
-            // the combat target's bounds carry 0.3 m of padding
-            let lo = [t.lo.x as f64 + 0.3, t.lo.y as f64 + 0.3, t.lo.z as f64 + 0.3];
-            let hi = [t.hi.x as f64 - 0.3, t.hi.y as f64 - 0.3, t.hi.z as f64 - 0.3];
+            let (lo,hi) = t.contact_bounds(yaw as f32, fold);
+            let lo = [lo.x as f64, lo.y as f64, lo.z as f64];
+            let hi = [hi.x as f64, hi.y as f64, hi.z as f64];
             let mid = [(lo[0] + hi[0]) / 2.0, (lo[1] + hi[1]) / 2.0, (lo[2] + hi[2]) / 2.0];
             let half = [(hi[0] - lo[0]) / 2.0, (hi[1] - lo[1]) / 2.0, (hi[2] - lo[2]) / 2.0];
             let c = p.point(mid);
@@ -208,8 +207,19 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
         let off = turn([spec.trunnion[0] - spec.pivot[0], spec.trunnion[1] - spec.pivot[1], spec.trunnion[2] - spec.pivot[2]], py);
         a.aps_pivot = Some(p.point([piv[0] + off[0], piv[1] + off[1], piv[2] + off[2]]));
         a.aps_base_yaw = p.heading() + if spec.turret == 0 { 0.0 } else { py };
-        a.aps_gun_ok = module_ok(t, st, &spec.gun_module);
-        a.aps_radar_ok = module_ok(t, st, &spec.radar_module);
+        let fresh;
+        let st = if let Some(st) = st { st } else { fresh = t.fresh_state(); &fresh };
+        let caps = tg_combat::caps(t, st);
+        let binding = t.weapon_bindings.values().find(|b| b.kind == tg_combat::weapon_damage::WeaponKind::Cannon
+            && b.turret_index == Some(spec.turret) && b.critical.iter().any(|&i| Some(&t.def.modules[i].id) == spec.gun_module.as_ref()));
+        a.aps_gun_ok = false;
+        if let Some(c) = binding.and_then(|b| caps.weapons.get(&b.key)) {
+            a.aps_gun_ok = c.can_fire;
+            a.aps_traverse_mult = c.traverse_mult as f64;
+            a.aps_elevate_mult = c.elevate_mult as f64;
+            a.aps_dispersion_mult = c.dispersion_mult as f64;
+        }
+        a.aps_radar_ok = module_ok(t, Some(st), &spec.radar_module);
     }
     Some(a)
 }
@@ -257,4 +267,54 @@ mod tests {
         assert_eq!(raised_again.center, raised.center);
         assert_eq!(raised_again.half, raised.half);
     }
+    #[test]
+    fn contact_box_follows_long_barrel_yaw_without_rotation_sweep_inflation() {
+        let def = serde_json::from_value(json!({"id":"long", "plates":[], "crew":[],
+            "turret":{"pivot":{"x":0,"y":1,"z":0},"size":{"x":2,"y":1,"z":2}},
+            "modules":[{"id":"barrel","kind":"gun_barrel","center":{"x":0,"y":1.5,"z":5},"half_extents":{"x":0.1,"y":0.1,"z":4},"max_health":100,"health":100}]})).unwrap();
+        let t = Target::new(def,&[]);
+        let broad = (t.lo,t.hi);
+        let mut s = json!({"pos":[0,0,0],"ex":[1,0,0],"ez":[0,0,1],"tur":[[0,0]]});
+        let straight = actor_of(1,0,true,&s,Some(&t),None,None).unwrap().obb.unwrap();
+        assert!(straight.half[0] < 2.0,"future barrel rotation incorrectly inflated contact width");
+        s["tur"] = json!([[std::f64::consts::FRAC_PI_2,0]]);
+        let sideways = actor_of(1,0,true,&s,Some(&t),None,None).unwrap().obb.unwrap();
+        assert!(sideways.half[0] > straight.half[0] + 2.0);
+        assert!(sideways.half[2] < straight.half[2] - 2.0);
+        assert_eq!((t.lo,t.hi),broad);
+    }
+
+    #[test]
+    fn aps_actor_uses_its_authoritative_instance_curves_and_crew_constraints() {
+        let data=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let c=crate::server::load_combat(&data); let md=load(&data);
+        let t=&c.targets["su_t10m"]; let sp=&md.aps["su_t10m"];
+        let mut st=t.fresh_state();
+        let main=t.weapon_bindings["gun:0:0"].critical[0]; st.modules[main]=0.0;
+        let s=json!({"pos":[0,0,0],"ex":[1,0,0],"ez":[0,0,1],"tur":[[0,0],[0,0]],"caps":{"can_fire":false,"aps_traverse_mult":0.01}});
+        let actor=actor_of(1,0,true,&s,Some(t),Some(sp),Some(&st)).unwrap();
+        assert!(actor.aps_gun_ok,"broken main cannot disable Oplot");
+        let binding=t.weapon_bindings.values().find(|b| b.critical.iter().any(|&i| Some(&t.def.modules[i].id)==sp.gun_module.as_ref())).unwrap();
+        for &i in binding.critical.iter().chain(&binding.traverse).chain(&binding.elevation){ st.modules[i]=t.def.modules[i].max_health*0.25; }
+        let expected=tg_combat::caps(t,&st).weapons[&binding.key].clone();
+        let actor=actor_of(1,0,true,&s,Some(t),Some(sp),Some(&st)).unwrap();
+        assert_eq!(actor.aps_dispersion_mult,expected.dispersion_mult as f64);
+        assert_eq!(actor.aps_traverse_mult,expected.traverse_mult as f64);
+        assert_eq!(actor.aps_elevate_mult,expected.elevate_mult as f64);
+        assert!(actor.aps_dispersion_mult>1.0);
+        st.repair_s=1.0;
+        assert!(!actor_of(1,0,true,&s,Some(t),Some(sp),Some(&st)).unwrap().aps_gun_ok);
+        st.repair_s=0.0;st.modules[binding.critical[0]]=0.0;
+        assert!(!actor_of(1,0,true,&s,Some(t),Some(sp),Some(&st)).unwrap().aps_gun_ok);
+    }
+
+    #[test]
+    fn an_invalid_own_radar_reference_cannot_be_reported_healthy() {
+        let data=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let c=crate::server::load_combat(&data);let md=load(&data);let t=&c.targets["su_t10m"];
+        let mut sp=md.aps["su_t10m"].clone();sp.radar_module=Some("foreign_radar".into());
+        let s=json!({"pos":[0,0,0],"ex":[1,0,0],"ez":[0,0,1]});
+        assert!(!actor_of(1,0,true,&s,Some(t),Some(&sp),Some(&t.fresh_state())).unwrap().aps_radar_ok);
+    }
+
 }

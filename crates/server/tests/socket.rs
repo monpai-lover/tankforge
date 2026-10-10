@@ -13,9 +13,11 @@ fn start(page: Option<PathBuf>) -> u16 {
     let listener = TcpListener::bind("127.0.0.1:0").unwrap();
     let port = listener.local_addr().unwrap().port();
     let mut shells = HashMap::new();
-    shells.insert("aphe".to_string(), Shell { kind: "aphe".into(), filler_kg: 0.1, caliber_mm: 75.0 });
+    shells.insert("aphe_85_br365".to_string(), Shell { kind: "aphe".into(), filler_kg: 0.1, caliber_mm: 85.0 });
     let vehicles: HashSet<String> = ["su_t34_85".to_string()].into_iter().collect();
-    let lobby = Lobby::new(shells, vehicles, vec!["range".into(), "coast".into()]);
+    let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+    let combat = server::load_combat(&data);
+    let lobby = Lobby::new(shells, vehicles, vec!["range".into(), "coast".into()]).with_combat(combat.targets, combat.projectiles, combat.bullets);
     std::thread::spawn(move || server::serve(listener, lobby, page));
     port
 }
@@ -116,10 +118,17 @@ fn two_players_meet_in_a_room_and_fight() {
         }
     };
     assert!(snap["players"].as_array().unwrap().iter().any(|p| p["id"].as_u64() == Some(id_b) && p["s"]["pos"][0] == -10.0));
-    // a fires; b sees the shot; a reports the penetration; both see b knocked out
-    a.send(json!({"t": "fire", "seq": 1, "o": [10, 2, 5], "d": [-1, 0, 0], "shell": "aphe"}));
+    // An explicit foreign mount is refused and never relayed. The own gun is
+    // accepted once; a duplicate replies to its owner without relaying another shot.
+    a.send(json!({"t":"fire","seq":0,"instance":"gun:99:0","o":[10,2,5],"d":[-1,0,0],"shell":"aphe_85_br365"}));
+    let refused = a.expect("fire_rejected");
+    assert_eq!(refused["seq"],0);assert_eq!(refused["reason"],"weapon_disabled");
+    a.send(json!({"t": "fire", "seq": 1, "instance":"gun:0:0", "o": [10, 2, 5], "d": [-1, 0, 0], "shell": "aphe_85_br365"}));
+    assert_eq!(a.expect("fire_accepted")["seq"],1);
     let f = b.expect("fire");
-    assert_eq!(f["from"].as_u64(), Some(id_a));
+    assert_eq!(f["from"].as_u64(), Some(id_a));assert_eq!(f["seq"],1);
+    a.send(json!({"t":"fire","seq":1,"instance":"gun:0:0","o":[10,2,5],"d":[-1,0,0],"shell":"aphe_85_br365"}));
+    let duplicate=a.expect("fire_rejected");assert_eq!(duplicate["seq"],1);assert_eq!(duplicate["reason"],"sequence_conflict");
     a.send(json!({"t": "hit", "seq": 1, "target": id_b, "result": "pen", "plate": "hull_side"}));
     let d = b.expect("damage");
     assert_eq!((d["killed"].as_bool(), d["hp"].as_f64()), (Some(true), Some(0.0)));

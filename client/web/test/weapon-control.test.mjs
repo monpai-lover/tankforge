@@ -16,6 +16,7 @@ import { runtimeParts } from '../tools/procedural-fleet-audit.mjs';
 import { project, perspective, mul, lookAtLH, transformPoint, transformDir, translation, rotX, rotY, rotZ } from '../src/gfx/math.js';
 import { loadCoreSync } from '../src/design/core.js';
 import { Hud } from '../src/game/hud.js';
+import { OnlineFires } from '../src/game/onlineFire.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { decodeImported } from '../src/gfx/imported.js';
 import { STRIDE } from '../src/gfx/geo.js';
@@ -64,7 +65,7 @@ function controls(id, mesh = false) {
   const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
-    net: { send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
+    onlineFires: new OnlineFires(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
     sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},

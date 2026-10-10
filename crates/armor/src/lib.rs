@@ -125,21 +125,24 @@ impl ArmorPlate {
     /// Same hull hinge as the visible wall. The plate outline and protection values retain
     /// their identities; only its center and orthonormal surface axes move.
     pub fn folded(&self, fraction: f32) -> Self {
-        let mut p = self.clone();
-        let Some(h) = &self.hinge else { return p };
+        let (center, normal, axis_u) = self.folded_geometry(fraction);
+        Self { center, normal, axis_u, ..self.clone() }
+    }
+
+    /// Current fold geometry without cloning strings or polygon storage.
+    pub fn folded_geometry(&self, fraction: f32) -> (Vec3, Vec3, Vec3) {
+        let unchanged = (self.center, self.normal, self.axis_u);
+        let Some(h) = &self.hinge else { return unchanged };
         let t = if fraction.is_finite() { fraction.clamp(0.0, 1.0) } else { 0.0 };
-        if t == 0.0 || !h.angle.is_finite() || !h.a.iter().chain(&h.b).all(|v| v.is_finite()) { return p; }
+        if t == 0.0 || !h.angle.is_finite() || !h.a.iter().chain(&h.b).all(|v| v.is_finite()) { return unchanged; }
         let a = Vec3::new(h.a[0], h.a[1], h.a[2]);
         let edge = Vec3::new(h.b[0], h.b[1], h.b[2]) - a;
         let length = edge.length();
-        if !length.is_finite() || length < 1e-6 { return p; }
+        if !length.is_finite() || length < 1e-6 { return unchanged; }
         let axis = edge * (1.0 / length);
         let (s, c) = (h.angle.to_radians() * t).sin_cos();
         let turn = |v: Vec3| v * c + axis.cross(v) * s + axis * (axis.dot(v) * (1.0 - c));
-        p.center = a + turn(self.center - a);
-        p.normal = turn(self.normal).normalized();
-        p.axis_u = turn(self.axis_u).normalized();
-        p
+        (a + turn(self.center - a), turn(self.normal).normalized(), turn(self.axis_u).normalized())
     }
 
     /// Ray vs plate. `dir` must be unit length.

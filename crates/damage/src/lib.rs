@@ -325,11 +325,25 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
     s
 }
 
+fn healthy_multiplier() -> f32 { 1.0 }
+
 #[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
 pub struct Capabilities {
     pub can_fire: bool,
     pub can_move: bool,
     pub reload_multiplier: f32,
+    #[serde(default = "healthy_multiplier")]
+    pub engine_power: f32,
+    #[serde(default = "healthy_multiplier")]
+    pub transmission: f32,
+    #[serde(default = "healthy_multiplier")]
+    pub drive_power: f32,
+    #[serde(default = "healthy_multiplier")]
+    pub traverse_multiplier: f32,
+    #[serde(default = "healthy_multiplier")]
+    pub elevation_multiplier: f32,
+    #[serde(default = "healthy_multiplier")]
+    pub dispersion_multiplier: f32,
     pub spotting_multiplier: f32,
     pub on_fire: bool,
     pub ammo_detonated: bool,
@@ -348,7 +362,7 @@ fn role_ok(crew: &[Crew], role: CrewRole) -> bool {
 }
 
 fn kind_ok(modules: &[Module], kind: ModuleKind) -> bool {
-    modules.iter().filter(|m| m.kind == kind).all(|m| m.health > 0.0)
+    modules.iter().filter(|m| m.kind == kind).all(|m| module_state::health_ratio(m.health,m.max_health) > 0.0)
 }
 
 /// At least one complete launcher assembly works. No launcher modules imposes no restriction.
@@ -364,14 +378,27 @@ pub fn launcher_groups_operational(modules: &[Module], mut healthy: impl FnMut(u
 }
 
 pub fn capabilities(modules: &[Module], crew: &[Crew]) -> Capabilities {
+    let factor = |kinds: &[ModuleKind], curve: fn(f32) -> f32| modules.iter()
+        .filter(|m| kinds.contains(&m.kind))
+        .map(|m| curve(module_state::health_ratio(m.health, m.max_health))).fold(1.0, f32::min);
+    let engine_power = factor(&[ModuleKind::Engine], module_state::engine_power_factor);
+    let transmission = factor(&[ModuleKind::Transmission], module_state::transmission_factor);
+    let drive_power = engine_power * transmission;
+    let feed = modules.iter().filter(|m| m.kind == ModuleKind::AmmoRack && m.rounds != Some(0))
+        .map(|m| module_state::ammo_reload_multiplier(module_state::health_ratio(m.health,m.max_health))).fold(1.0, f32::max);
+    let dispersion_multiplier = modules.iter().filter(|m| matches!(m.kind,ModuleKind::GunBreech|ModuleKind::GunBarrel))
+        .map(|m| module_state::dispersion_multiplier(module_state::health_ratio(m.health,m.max_health))).fold(1.0,f32::max);
     Capabilities {
         can_fire: role_ok(crew, CrewRole::Gunner) && kind_ok(modules, ModuleKind::GunBreech) && kind_ok(modules, ModuleKind::GunBarrel)
-            && (modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(modules, |_, m| m.health > 0.0)),
-        can_move: role_ok(crew, CrewRole::Driver) && kind_ok(modules, ModuleKind::Engine) && kind_ok(modules, ModuleKind::Transmission),
-        reload_multiplier: if role_ok(crew, CrewRole::Loader) { 1.0 } else { 2.0 },
+            && (modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(modules, |_, m| module_state::health_ratio(m.health,m.max_health) > 0.0)),
+        can_move: role_ok(crew, CrewRole::Driver) && drive_power > 0.0,
+        reload_multiplier: feed * if crew.iter().any(|c| (c.role == CrewRole::Loader || c.also.contains(&CrewRole::Loader)) && c.health > 0.0) { 1.0 } else { 1.6 },
+        engine_power, transmission, drive_power, dispersion_multiplier,
+        traverse_multiplier: factor(&[ModuleKind::TurretDrive,ModuleKind::HorizontalDrive],module_state::traverse_factor),
+        elevation_multiplier: factor(&[ModuleKind::VerticalDrive],module_state::elevation_factor),
         spotting_multiplier: if role_ok(crew, CrewRole::Commander) { 1.0 } else { 0.5 },
         on_fire: modules.iter().any(|m| m.kind == ModuleKind::FuelTank && m.health <= 0.0),
-        ammo_detonated: modules.iter().any(|m| m.kind == ModuleKind::AmmoRack && m.health <= 0.0),
+        ammo_detonated: modules.iter().any(|m| m.kind == ModuleKind::AmmoRack && m.rounds != Some(0) && m.health <= 0.0),
     }
 }
 
@@ -416,7 +443,7 @@ mod tests {
         c[0].health = 0.0;
         assert!(!capabilities(&mods, &c).can_fire);
         c[1].health = 0.0;
-        assert_eq!(capabilities(&mods, &c).reload_multiplier, 2.0);
+        assert_eq!(capabilities(&mods, &c).reload_multiplier, 1.6);
     }
 
     #[test]
@@ -482,4 +509,43 @@ mod tests {
         assert_eq!(s.newly_killed_crew, vec![0]);
         assert_eq!(s.traces[0].damage, 10.0);
     }
+    #[test]
+    fn workshop_capability_curves_respect_combined_crew_and_empty_racks() {
+        let mut mods = vec![module(ModuleKind::Engine),module(ModuleKind::Transmission),module(ModuleKind::HorizontalDrive),module(ModuleKind::VerticalDrive),module(ModuleKind::GunBreech),module(ModuleKind::AmmoRack)];
+        for m in &mut mods {m.health=25.0;}
+        mods[5].rounds=Some(0);
+        mods[5].health=0.0;
+        let mut c=vec![crew(CrewRole::Gunner,0.0)];
+        c[0].also.push(CrewRole::Loader);
+        let cap=capabilities(&mods,&c);
+        assert!(!cap.ammo_detonated,"an explicitly empty rack cannot cook off");
+        assert_eq!(cap.reload_multiplier,1.0);
+        assert!((cap.drive_power-0.6).abs()<1e-5);
+        assert!((cap.traverse_multiplier-0.675).abs()<1e-5);
+        assert!((cap.elevation_multiplier-0.75).abs()<1e-5);
+        assert_eq!(cap.dispersion_multiplier,1.5);
+        c[0].health=0.0;
+        assert!((capabilities(&mods,&c).reload_multiplier-1.6).abs()<1e-5);
+        mods[5].rounds=Some(1);
+        mods[5].health=25.0;
+        assert!((capabilities(&mods,&c).reload_multiplier-2.0).abs()<1e-5);
+    }
+
+    #[test]
+    fn a_missing_dedicated_loader_uses_the_same_gunner_loading_fallback() {
+        let mods=vec![module(ModuleKind::GunBreech),module(ModuleKind::GunBarrel)];
+        let mut c=vec![crew(CrewRole::Gunner,0.0)];
+        assert!((capabilities(&mods,&c).reload_multiplier-1.6).abs()<1e-6);
+        c[0].also.push(CrewRole::Loader);
+        assert_eq!(capabilities(&mods,&c).reload_multiplier,1.0);
+    }
+
+    #[test]
+    fn unsupported_zero_capacity_weapon_parts_are_not_operational() {
+        let mut mods=vec![module(ModuleKind::GunBreech)];mods[0].max_health=0.0;
+        assert!(!capabilities(&mods,&[]).can_fire);
+        mods[0].kind=ModuleKind::Launcher;
+        assert!(!capabilities(&mods,&[]).can_fire);
+    }
+
 }

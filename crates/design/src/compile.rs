@@ -147,6 +147,19 @@ pub fn damage_targets(m: &Model, yaw: f64) -> (Vec<Module>, Vec<Crew>) {
         let h = health(ModuleKind::GunBarrel);
         modules.push(Module { id: "gun_barrel".into(), kind: ModuleKind::GunBarrel, center: mid.to_f32(), half_extents: he.to_f32(), max_health: h, health: h, rounds: None, weapon_group: None, external: None, turret_index: None });
     }
+    // Use the same rack order/capacity as design evaluation. Empty designs do not
+    // acquire implicit ammunition when entering the damage model or being exported.
+    let mut carried: u32 = m.gun.as_ref().map(|g| g.def.ammo_count.iter().sum()).unwrap_or(0);
+    let cal = m.gun.as_ref().map(|g| g.cal).unwrap_or(0.0);
+    for md in &mut modules {
+        if md.kind == ModuleKind::AmmoRack {
+            let size = m.boxes.iter().find(|b| b.id == md.id).map(|b| b.size).unwrap_or(v3(0.0, 0.0, 0.0));
+            let capacity = crate::layout::rack_capacity(&m.db.catalog, size, cal);
+            let rounds = carried.min(capacity);
+            md.rounds = Some(rounds);
+            carried -= rounds;
+        }
+    }
     let env = m.gear.envelope;
     for (id, side) in [("track_r", 1.0), ("track_l", -1.0)] {
         let c = env.center();

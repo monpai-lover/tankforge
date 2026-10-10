@@ -505,6 +505,9 @@ pub struct TargetState {
     pub crew_health: HashMap<String, f32>,
     pub spent_era: Vec<String>,
     pub shots: u32,
+    /// Rounds left on the target; absent uses the design load, zero is empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rounds: Option<u32>,
 }
 
 #[derive(Clone, Debug, Deserialize)]
@@ -570,12 +573,22 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
     let (mut modules, mut crew) = damage_targets(m, scene.yaw);
     for md in &mut modules {
         if let Some(h) = state.module_health.get(&md.id) {
-            md.health = *h;
+            md.health = tg_damage::module_state::clamp_health(*h, md.max_health);
         }
     }
     for (i, c) in crew.iter_mut().enumerate() {
         if let Some(h) = state.crew_health.get(&format!("{}_{}", c.role.as_str(), i)) {
-            c.health = *h;
+            c.health = tg_damage::module_state::clamp_health(*h, 100.0);
+        }
+    }
+    if let Some(rounds) = state.rounds {
+        let mut left = rounds;
+        for md in &mut modules {
+            if md.kind == ModuleKind::AmmoRack {
+                let carried = md.rounds.unwrap_or(0).min(left);
+                md.rounds = Some(carried);
+                left -= carried;
+            }
         }
     }
     let mut path: Vec<PathPoint> = req.path.iter().map(|p| PathPoint { t: p[0] as f32, pos: Vec3::new(p[1] as f32, p[2] as f32, p[3] as f32) }).collect();
@@ -602,6 +615,9 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
         outcomes: vec![ShotOutcome::Miss],
     };
     let mut resp = ShotResponse { event: ev.clone(), layers: vec![], timeline: vec![], capabilities: capabilities(&modules, &crew), pen_nominal_mm: pen_nominal, pen_rolled_mm: pen, hit: false, interior_point: None, stopped_point: None, ricochet_dir: None, state: state.clone(), note: String::new() };
+    // Normalize saved state even when the incoming shot misses.
+    for md in &modules { resp.state.module_health.insert(md.id.clone(),md.health); }
+    for (i,c) in crew.iter().enumerate() { resp.state.crew_health.insert(format!("{}_{}",c.role.as_str(),i),c.health); }
     if !tr.hit_anything {
         resp.event.projectile_path = path;
         resp.timeline = build_timeline(&resp.event, &TimelineOptions::default());
@@ -804,7 +820,7 @@ pub fn propagate_inside(frags: &[Fragment], ranges: &[f64], modules: &mut [Modul
             }
         }
         for (i, m) in modules.iter().enumerate() {
-            if m.health <= 0.0 || m.is_external() {
+            if m.is_external() || (m.kind == ModuleKind::AmmoRack && m.rounds == Some(0)) {
                 continue;
             }
             let a = Aabb::from_center(V3::from_f32(m.center), V3::from_f32(m.half_extents) * 2.0);
@@ -816,25 +832,28 @@ pub fn propagate_inside(frags: &[Fragment], ranges: &[f64], modules: &mut [Modul
         }
         match best {
             Some((t, target)) => {
-                match target {
+                let damage = match target {
                     TargetRef::Crew(i) => {
                         let was = crew[i].health > 0.0;
-                        crew[i].health -= f.damage;
-                        s.crew_damage.push((i, f.damage));
+                        let damage = tg_damage::module_state::apply_health_damage(&mut crew[i].health, 100.0, f.damage);
+                        if damage > 0.0 { s.crew_damage.push((i, damage)); }
                         if was && crew[i].health <= 0.0 {
                             s.newly_killed_crew.push(i);
                         }
+                        damage
                     }
                     TargetRef::Module(i) => {
                         let was = modules[i].health > 0.0;
-                        modules[i].health -= f.damage;
-                        s.module_damage.push((i, f.damage));
+                        let max_health = modules[i].max_health;
+                        let damage = tg_damage::module_state::apply_health_damage(&mut modules[i].health, max_health, f.damage);
+                        if damage > 0.0 { s.module_damage.push((i, damage)); }
                         if was && modules[i].health <= 0.0 {
                             s.newly_destroyed_modules.push(i);
                         }
+                        damage
                     }
-                }
-                s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * t).to_f32(), target: Some(target), damage: f.damage, is_penetrator: f.is_penetrator });
+                };
+                s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * t).to_f32(), target: Some(target), damage, is_penetrator: f.is_penetrator });
             }
             None => s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * range).to_f32(), target: None, damage: 0.0, is_penetrator: f.is_penetrator }),
         }

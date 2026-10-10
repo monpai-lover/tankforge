@@ -4,8 +4,8 @@
 //!
 //! What the server decides (authoritative): who is in which room and team, when a room's battle
 //! starts, every vehicle's hit points, kills, deaths and respawns. A hit only counts when it
-//! names a shot the shooter really fired (once, within a few seconds), from a living vehicle at an
-//! enemy in the same battle; the damage comes from the shell's own data (an explosive filler knocks
+//! names an accepted shot the shooter really fired (once, within a few seconds), at an
+//! enemy in the same battle; an in-flight shot remains valid after its shooter is lost; the damage comes from the shell's own data (an explosive filler knocks
 //! a vehicle out with one penetration, solid shot needs two). What the clients decide: their own
 //! vehicle's motion (the server relays it to the room 20 times a second, refusing jumps faster than
 //! any vehicle can drive) and which armour plate a shell met (the shooter resolves it against the
@@ -23,6 +23,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::{BTreeMap, HashMap, HashSet, VecDeque};
 use tg_combat::{Target, TargetState as CombatState};
+use tg_combat::weapon_damage::{select_weapon, WeaponKind};
 use tg_shared::Vec3;
 use tg_weapon::ProjectileDef;
 
@@ -129,7 +130,9 @@ pub enum ClientMsg {
     Team { team: Team },
     /// The client's own vehicle: its NetState plus what the turret and gun do.
     State { s: Value },
-    Fire { seq: u32, o: [f64; 3], d: [f64; 3], shell: String },
+    Fire { seq: u32, #[serde(default)] instance: Option<String>, o: [f64; 3], d: [f64; 3], shell: String },
+    /// A verified MG discharge; the following hit may name this proof once.
+    MgFire { seq: u32, #[serde(default)] instance: Option<String>, gun: String, o: [f64; 3], d: [f64; 3] },
     /// What shot `seq` did; `shot` is the shell's line in the target's frame (combat model).
     Hit {
         seq: u32,
@@ -140,7 +143,7 @@ pub enum ClientMsg {
         shot: Option<WireShot>,
     },
     /// A machine-gun bullet that struck another vehicle (bullets are not relayed one by one).
-    MgHit { target: u32, gun: String, shot: WireShot },
+    MgHit { #[serde(default)] seq: Option<u32>, #[serde(default)] instance: Option<String>, target: u32, gun: String, shot: WireShot },
     /// Field repair of the player's own broken modules; the fire extinguisher.
     Repair,
     Extinguish,
@@ -165,7 +168,7 @@ pub enum ClientMsg {
         rtt: Option<f64>,
     },
     /// A missile or rocket leaves the player's launcher (o, d in the world).
-    Launch { seq: u32, missile: String, o: [f64; 3], d: [f64; 3] },
+    Launch { seq: u32, #[serde(default)] instance: Option<String>, missile: String, o: [f64; 3], d: [f64; 3] },
     /// The gunner's line for a wire-guided missile: from the sight through the aim point.
     Guide { id: u32, sight: [f64; 3], aim: [f64; 3] },
     /// The player's own missile struck something the server does not know of (a building).
@@ -300,6 +303,8 @@ pub enum ServerMsg {
     /// The requested tube did not fire. The client retains it and may retry after this interval.
     LaunchRejected { seq: u32, reason: String, retry_after_s: f64 },
     Fire { from: u32, seq: u32, o: [f64; 3], d: [f64; 3], shell: String },
+    FireAccepted { seq: u32 },
+    FireRejected { seq: u32, reason: String },
     Damage {
         target: u32,
         from: u32,
@@ -328,6 +333,18 @@ pub type Broadcast = Vec<(Vec<u32>, ServerMsg)>;
 
 // ------------------------------------------------------------------ state
 
+const MAX_SEQUENCES: usize = 2048;
+const MAX_LAUNCH_RECEIPTS: usize = 256;
+const LAUNCH_RECEIPT_LIFE: f64 = 60.0;
+
+#[derive(Clone, Debug)]
+struct LaunchReceipt {
+    at: f64,
+    instance: String,
+    request_instance: Option<String>,
+    message: ServerMsg,
+}
+
 #[derive(Clone, Debug)]
 struct Fired {
     seq: u32,
@@ -336,6 +353,8 @@ struct Fired {
     used: bool,
     /// From an automatic gun (counted against its own, larger burst limit).
     small: bool,
+    kind: WeaponKind,
+    instance: String,
 }
 
 #[derive(Clone, Debug)]
@@ -374,8 +393,55 @@ pub struct Player {
     /// Missiles and rockets still on board (by missile id) and when the last one left.
     missiles_left: HashMap<String, u32>,
     last_launch: f64,
-    /// Retries replay across reconnects and respawns; reset on leaving or starting a new round.
-    launch_receipts: HashMap<u32, ServerMsg>,
+    /// Retries replay on reconnect within this spawn, bounded in time and count.
+    launch_receipts: HashMap<u32, LaunchReceipt>,
+    sequences: VecDeque<u32>,
+    retired_seq: Option<u32>,
+}
+
+impl Player {
+    fn reset_shots(&mut self) {
+        self.fired.clear();
+        self.launch_receipts.clear();
+        self.sequences.clear();
+        self.retired_seq = None;
+        self.mg_window = (0.0, 0);
+        self.last_launch = f64::NEG_INFINITY;
+    }
+
+    fn reset_spawn_shots(&mut self) {
+        // The client keeps its sequence monotonic across respawns. A scalar floor
+        // prevents a delayed old discharge from spending a fresh vehicle's ammo,
+        // while all old hit proofs, weapon identities and launch receipts are cleared.
+        let floor = self.sequences.iter().copied().chain(self.retired_seq).max();
+        self.reset_shots();
+        self.retired_seq = floor;
+    }
+
+    fn sequence_used(&self, seq: u32) -> bool {
+        self.retired_seq.is_some_and(|floor| seq <= floor) || self.sequences.contains(&seq)
+    }
+
+    fn remember_sequence(&mut self, seq: u32) {
+        self.sequences.push_back(seq);
+        if self.sequences.len() > MAX_SEQUENCES {
+            let old = self.sequences.pop_front().unwrap();
+            self.retired_seq = Some(self.retired_seq.unwrap_or(0).max(old));
+        }
+    }
+
+    fn spend_round(&mut self, t: &Target) {
+        if let Some(before) = self.rounds.or_else(|| (t.def.ammo_capacity > 0).then_some(t.def.ammo_capacity)) {
+            let left = before - 1; // zero is refused before accepting the discharge
+            self.rounds = Some(left);
+            if let Some(st) = self.combat.as_mut() { tg_combat::load_ammo(t, st, left); }
+        }
+    }
+
+    fn prune_fired(&mut self, now: f64) {
+        // Keep the entire burst window, even after a proof's hit validity expires.
+        while self.fired.front().is_some_and(|f| now - f.at > 10.0) { self.fired.pop_front(); }
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -551,7 +617,7 @@ impl Lobby {
         let token = self.new_token(id);
         self.players.insert(
             id,
-            Player { id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new() },
+            Player { id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
         );
         (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token }), (id, self.room_list())])
     }
@@ -684,7 +750,7 @@ impl Lobby {
             p.room = None;
             p.ready = false;
             p.state = None;
-            p.launch_receipts.clear();
+            p.reset_shots();
         }
         let mut out = vec![(id, ServerMsg::LeftRoom)];
         let empty = match self.rooms.get_mut(&room) {
@@ -735,6 +801,7 @@ impl Lobby {
             p.state = None;
             p.combat = None;
             p.died_at = f64::NEG_INFINITY;
+            p.reset_shots();
             p.last_pos = None;
             p.trail.clear();
         }
@@ -767,6 +834,7 @@ impl Lobby {
             p.last_pos = None;
             p.trail.clear();
             p.combat = fresh;
+            p.reset_spawn_shots();
             p.last_attacker = None;
         }
     }
@@ -909,7 +977,7 @@ impl Lobby {
                     r.world = Some(w);
                 }
                 for m in &members {
-                    if let Some(p) = self.players.get_mut(m) { p.launch_receipts.clear(); }
+                    if let Some(p) = self.players.get_mut(m) { p.reset_shots(); }
                     if deploy {
                         self.bench(*m);
                     } else {
@@ -976,59 +1044,17 @@ impl Lobby {
                 p.state = Some(s);
                 Vec::new()
             }
-            ClientMsg::Fire { seq, o, d, shell } => {
-                let small = self.shells.get(&shell).is_some_and(|s| s.caliber_mm > 0.0 && s.caliber_mm <= AUTOCANNON_MM);
-                let p = self.players.get_mut(&id).expect("player");
-                let Some(room) = p.room else { return Vec::new() };
-                if !p.alive || !o.iter().chain(d.iter()).all(|x| x.is_finite()) {
-                    return Vec::new();
-                }
-                while p.fired.front().map(|f| now - f.at > SHOT_LIFE).unwrap_or(false) {
-                    p.fired.pop_front();
-                }
-                let burst = if small { AUTO_BURST } else { FIRE_BURST };
-                let (big, auto) = p.fired.iter().filter(|f| now - f.at < 10.0).fold((0, 0), |(b, a), f| if f.small { (b, a + 1) } else { (b + 1, a) });
-                if (if small { auto } else { big }) >= burst || p.fired.iter().any(|f| f.seq == seq) {
-                    return Vec::new();
-                }
-                let aps_shell = self.mdata.aps.get(&p.vehicle).is_some_and(|spec|
-                    self.shells.get(&shell).is_some_and(|s| (s.caliber_mm - spec.def.bullet_caliber_mm).abs() < 1e-6));
-                if aps_shell {
-                    // The server owns this shared magazine. Manual fire is accepted
-                    // only after automatic interception releases the protection gun.
-                    let spec = &self.mdata.aps[&p.vehicle];
-                    if let (Some(t), Some(st)) = (self.targets.get(&p.vehicle), p.combat.as_ref()) {
-                        if t.def.modules.iter().enumerate().any(|(i, m)| Some(&m.id) == spec.gun_module.as_ref() && st.modules.get(i).copied().unwrap_or(1.0) <= 0.0) {
-                            return Vec::new();
-                        }
-                    }
-                    let Some(w) = self.rooms.get_mut(&room).filter(|r| r.playing).and_then(|r| r.world.as_mut()) else { return Vec::new() };
-                    let Some(a) = w.aps_of(id) else { return Vec::new() };
-                    if a.enabled || a.rounds == 0 { return Vec::new(); }
-                    let left = a.rounds - 1;
-                    w.set_aps_rounds(id, false, None, Some(left));
-                }
-                p.fired.push_back(Fired { seq, at: now, shell: shell.clone(), used: false, small });
-                // one round fewer in the racks
-                if let (false, Some(t), Some(st)) = (aps_shell, self.targets.get(&p.vehicle), p.combat.as_mut()) {
-                    if t.def.ammo_capacity > 0 && (self.shells.contains_key(&shell) || self.projectiles.contains_key(&shell)) {
-                        let left = p.rounds.unwrap_or(t.def.ammo_capacity).saturating_sub(1);
-                        p.rounds = Some(left);
-                        tg_combat::load_ammo(t, st, left);
-                    }
-                }
-                let msg = ServerMsg::Fire { from: id, seq, o, d, shell };
-                self.to_room(room, msg).into_iter().filter(|(to, _)| *to != id).collect()
-            }
+            ClientMsg::Fire { seq, instance, o, d, shell } => self.fire(id, seq, instance.as_deref(), o, d, &shell, now),
+            ClientMsg::MgFire { seq, instance, gun, o, d } => self.mg_fire(id, seq, instance.as_deref(), &gun, o, d, now),
             ClientMsg::Hit { seq, target, result, plate, shot } => match shot {
-                Some(shot) if self.can_resolve(target) => self.combat_hit(id, Some(seq), None, target, &shot, now),
+                Some(shot) if self.can_resolve(target) => self.combat_hit(id, Some(seq), None, None, target, &shot, now),
                 _ => self.hit(id, seq, target, &result, plate, now),
             },
-            ClientMsg::MgHit { target, gun, shot } => {
+            ClientMsg::MgHit { seq, instance, target, gun, shot } => {
                 if !self.can_resolve(target) {
                     return Vec::new();
                 }
-                self.combat_hit(id, None, Some(gun), target, &shot, now)
+                self.combat_hit(id, seq, Some(gun), instance.as_deref(), target, &shot, now)
             }
             ClientMsg::Repair => self.repair(id, true),
             ClientMsg::Extinguish => self.repair(id, false),
@@ -1095,7 +1121,7 @@ impl Lobby {
                 out.extend(self.room_changed(room));
                 out
             }
-            ClientMsg::Launch { seq, missile, o, d } => self.launch(id, seq, &missile, o, d, now),
+            ClientMsg::Launch { seq, instance, missile, o, d } => self.launch_instance(id, seq, instance.as_deref(), &missile, o, d, now),
             ClientMsg::Guide { id: mid, sight, aim } => {
                 let Some(room) = self.players.get(&id).and_then(|p| if p.alive { p.room } else { None }) else { return Vec::new() };
                 let near = self.players[&id].state.as_ref().and_then(pos_of).map(|p| ((p[0] - sight[0]).powi(2) + (p[2] - sight[2]).powi(2)).sqrt() < 20.0).unwrap_or(false);
@@ -1162,7 +1188,7 @@ impl Lobby {
         // the shot must be one this player fired, not too long ago, and not counted yet
         let shell = {
             let p = self.players.get_mut(&id).expect("player");
-            let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && !f.used && now - f.at <= SHOT_LIFE) else { return Vec::new() };
+            let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && f.kind == WeaponKind::Cannon && !f.used && now - f.at <= SHOT_LIFE) else { return Vec::new() };
             f.used = true;
             f.shell.clone()
         };
@@ -1192,18 +1218,95 @@ impl Lobby {
         out
     }
 
+    /// Authoritative mount selection; no damage/capability fields in NetState are trusted.
+    fn own_weapon(&self, id: u32, instance: Option<&str>, model: Option<&str>, ammo: Option<&str>, missile: Option<&str>, kind: WeaponKind) -> Result<String, String> {
+        let p = &self.players[&id];
+        if let Some(t) = self.targets.get(&p.vehicle) {
+            let fresh;
+            let st = if let Some(st) = &p.combat { st } else { fresh = t.fresh_state(); &fresh };
+            let b = select_weapon(t, st, instance, model, ammo, missile)?;
+            if b.kind != kind { return Err("wrong weapon kind".into()); }
+            return Ok(b.key.clone());
+        }
+        Err("vehicle weapon data unavailable".into())
+    }
+
+    fn reject_fire(id: u32, seq: u32, reason: &str) -> Out {
+        vec![(id, ServerMsg::FireRejected { seq, reason: reason.into() })]
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn fire(&mut self, id: u32, seq: u32, instance: Option<&str>, o: [f64; 3], d: [f64; 3], shell: &str, now: f64) -> Out {
+        let p = &self.players[&id];
+        let Some(room) = p.room else { return Self::reject_fire(id, seq, "not_in_room") };
+        if !p.alive { return Self::reject_fire(id, seq, "destroyed"); }
+        if !self.rooms.get(&room).is_some_and(|r| r.playing) { return Self::reject_fire(id, seq, "not_in_battle"); }
+        let length: f64 = d.iter().map(|x| x*x).sum();
+        if !o.iter().chain(d.iter()).all(|x| x.is_finite()) || (length.sqrt()-1.0).abs() > 0.05 { return Self::reject_fire(id, seq, "invalid_shot"); }
+        if p.sequence_used(seq) { return Self::reject_fire(id, seq, "sequence_conflict"); }
+        if !self.shells.contains_key(shell) && !self.projectiles.contains_key(shell) { return Self::reject_fire(id, seq, "unknown_ammo"); }
+        let selected = match self.own_weapon(id, instance, None, Some(shell), None, WeaponKind::Cannon) {
+            Ok(key) => key,
+            Err(_) => return Self::reject_fire(id, seq, "weapon_disabled"),
+        };
+        let aps_shell = self.mdata.aps.get(&p.vehicle).is_some_and(|spec| {
+            let Some(t) = self.targets.get(&p.vehicle) else { return false };
+            t.weapon_bindings[&selected].critical.iter().any(|&i| Some(&t.def.modules[i].id) == spec.gun_module.as_ref())
+        });
+        if !aps_shell && p.rounds == Some(0) { return Self::reject_fire(id, seq, "no_ammo"); }
+        let small = self.shells.get(shell).map(|s| s.caliber_mm).or_else(|| self.projectiles.get(shell).map(|s| s.caliber_mm as f64)).is_some_and(|c| c > 0.0 && c <= AUTOCANNON_MM);
+        let p = self.players.get_mut(&id).unwrap();
+        p.prune_fired(now);
+        let count = p.fired.iter().filter(|f| f.small == small).count();
+        if count >= if small { AUTO_BURST } else { FIRE_BURST } { return Self::reject_fire(id, seq, "rate_limited"); }
+        if aps_shell {
+            let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) else { return Self::reject_fire(id, seq, "weapon_disabled") };
+            let Some(a) = w.aps_of(id) else { return Self::reject_fire(id, seq, "weapon_disabled") };
+            if a.enabled { return Self::reject_fire(id, seq, "automatic_protection"); }
+            if a.rounds == 0 { return Self::reject_fire(id, seq, "no_ammo"); }
+            let left = a.rounds - 1;
+            w.set_aps_rounds(id, false, None, Some(left));
+        } else if let Some(t) = self.targets.get(&p.vehicle) {
+            p.spend_round(t);
+        }
+        p.remember_sequence(seq);
+        p.fired.push_back(Fired { seq, at: now, shell: shell.into(), used: false, small, kind: WeaponKind::Cannon, instance: selected });
+        let msg = ServerMsg::Fire { from: id, seq, o, d, shell: shell.into() };
+        let mut out: Out = self.to_room(room, msg).into_iter().filter(|(to,_)| *to != id).collect();
+        out.push((id, ServerMsg::FireAccepted { seq }));
+        out
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn mg_fire(&mut self, id: u32, seq: u32, instance: Option<&str>, gun: &str, o: [f64; 3], d: [f64; 3], now: f64) -> Out {
+        let p = &self.players[&id];
+        if !p.alive || p.sequence_used(seq) || !p.room.and_then(|r| self.rooms.get(&r)).is_some_and(|r| r.playing) { return Vec::new(); }
+        let length: f64 = d.iter().map(|x| x*x).sum();
+        if !o.iter().chain(d.iter()).all(|x| x.is_finite()) || (length.sqrt()-1.0).abs() > 0.05 || !self.bullets.contains_key(gun) { return Vec::new(); }
+        let selected = match self.own_weapon(id, instance, Some(gun), None, None, WeaponKind::MachineGun) {
+            Ok(key) => key,
+            Err(_) => return Vec::new(),
+        };
+        let p = self.players.get_mut(&id).unwrap();
+        p.prune_fired(now);
+        if p.fired.iter().filter(|f| f.small).count() >= AUTO_BURST { return Vec::new(); }
+        p.remember_sequence(seq);
+        p.fired.push_back(Fired { seq, at: now, shell: gun.into(), used: false, small: true, kind: WeaponKind::MachineGun, instance: selected });
+        Vec::new()
+    }
+
     /// Whether a hit on `target` can go through the combat model (its vehicle's data is loaded).
     fn can_resolve(&self, target: u32) -> bool {
         self.players.get(&target).map(|t| t.combat.is_some() && self.targets.contains_key(&t.vehicle)).unwrap_or(false)
     }
 
     /// A shell (`seq`) or a bullet (`gun`) that struck `target`, resolved by the combat model.
-    fn combat_hit(&mut self, id: u32, seq: Option<u32>, gun: Option<String>, target: u32, shot: &WireShot, now: f64) -> Out {
+    fn combat_hit(&mut self, id: u32, seq: Option<u32>, gun: Option<String>, instance: Option<&str>, target: u32, shot: &WireShot, now: f64) -> Out {
         let Some(shooter) = self.players.get(&id) else { return Vec::new() };
         let (room, team, alive) = (shooter.room, shooter.team, shooter.alive);
         let Some(room) = room else { return Vec::new() };
         let Some(t) = self.players.get(&target) else { return Vec::new() };
-        if !alive || t.room != Some(room) || target == id || t.team == team || !t.alive || !self.rooms.get(&room).map(|r| r.playing).unwrap_or(false) {
+        if (seq.is_none() && !alive) || t.room != Some(room) || target == id || t.team == team || !t.alive || !self.rooms.get(&room).map(|r| r.playing).unwrap_or(false) {
             return Vec::new();
         }
         // a sane line: finite, a unit direction, starting near the vehicle
@@ -1216,7 +1319,7 @@ impl Lobby {
         // the round: a shell this player fired (once, recently), or a bullet within the burst limit
         // where the two were when the round flew, as the shooter saw it
         let fired_at = match seq {
-            Some(seq) => self.players[&id].fired.iter().find(|f| f.seq == seq && !f.used).map(|f| f.at),
+            Some(seq) => self.players[&id].fired.iter().find(|f| f.seq == seq && !f.used && now - f.at <= SHOT_LIFE).map(|f| f.at),
             None => Some(now - (shot.dist / shot.speed) as f64),
         };
         if let Some(at) = fired_at {
@@ -1226,26 +1329,24 @@ impl Lobby {
             }
         }
         let (shell, seed) = match (seq, &gun) {
-            (Some(seq), _) => {
+            (Some(seq), g) => {
+                let kind = if g.is_some() { WeaponKind::MachineGun } else { WeaponKind::Cannon };
                 let p = self.players.get_mut(&id).expect("player");
-                let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && !f.used && now - f.at <= SHOT_LIFE) else { return Vec::new() };
+                let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && f.kind == kind && !f.used && now - f.at <= SHOT_LIFE
+                    && g.as_ref().is_none_or(|g| *g == f.shell) && (g.is_none() || instance == Some(f.instance.as_str()))) else { return Vec::new() };
+                let def = if kind == WeaponKind::MachineGun { self.bullets.get(&f.shell) } else { self.projectiles.get(&f.shell) };
+                let Some(def) = def else { return Vec::new() };
                 f.used = true;
-                let name = f.shell.clone();
-                let Some(def) = self.projectiles.get(&name) else { return Vec::new() };
                 (def.clone(), shot_seed(id, seq))
             }
             (None, Some(g)) => {
+                if self.own_weapon(id, instance, Some(g), None, None, WeaponKind::MachineGun).is_err() { return Vec::new(); }
                 let p = self.players.get_mut(&id).expect("player");
-                if now - p.mg_window.0 > 1.0 {
-                    p.mg_window = (now, 0);
-                }
-                p.mg_window.1 += 1;
-                if p.mg_window.1 > 40 {
-                    return Vec::new();
-                }
-                let n = p.mg_window.1;
+                if now - p.mg_window.0 > 1.0 { p.mg_window = (now, 0); }
+                if p.mg_window.1 >= 40 { return Vec::new(); }
                 let Some(def) = self.bullets.get(g) else { return Vec::new() };
-                (def.clone(), shot_seed(id, 1_000_000 + n + (now * 20.0) as u32))
+                p.mg_window.1 += 1;
+                (def.clone(), shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32))
             }
             _ => return Vec::new(),
         };
@@ -1454,16 +1555,24 @@ impl Lobby {
     }
 
     /// A player launches a missile or rocket their vehicle carries.
+    #[cfg(test)]
     fn launch(&mut self, id: u32, seq: u32, missile: &str, o: [f64; 3], d: [f64; 3], now: f64) -> Out {
+        self.launch_instance(id, seq, None, missile, o, d, now)
+    }
+
+    fn launch_instance(&mut self, id: u32, seq: u32, instance: Option<&str>, missile: &str, o: [f64; 3], d: [f64; 3], now: f64) -> Out {
+        if let Some(p) = self.players.get_mut(&id) { p.launch_receipts.retain(|_, r| now - r.at <= LAUNCH_RECEIPT_LIFE); }
         let Some(p) = self.players.get(&id) else { return Self::reject_launch(id, seq, "unknown_player", 0.0) };
         if let Some(receipt) = p.launch_receipts.get(&seq) {
-            if let ServerMsg::Launched { missile: original, o: origin, d: direction, .. } = receipt {
-                if original.as_str() == missile && *origin == o && *direction == d {
-                    return vec![(id, receipt.clone())];
+            if let ServerMsg::Launched { missile: original, o: origin, d: direction, .. } = &receipt.message {
+                if original.as_str() == missile && *origin == o && *direction == d
+                    && (instance == receipt.request_instance.as_deref() || (instance.is_some() && instance == Some(receipt.instance.as_str()))) {
+                    return vec![(id, receipt.message.clone())];
                 }
             }
             return Self::reject_launch(id, seq, "sequence_conflict", 0.0);
         }
+        if p.sequence_used(seq) { return Self::reject_launch(id, seq, "sequence_conflict", 0.0); }
         let Some(room) = p.room else { return Self::reject_launch(id, seq, "not_in_room", 0.0) };
         if !p.alive { return Self::reject_launch(id, seq, "destroyed", 0.0); }
         let direction_length_sq: f64 = d.iter().map(|v| v * v).sum();
@@ -1473,20 +1582,14 @@ impl Lobby {
         if !self.rooms.get(&room).is_some_and(|r| r.playing && r.world.is_some()) {
             return Self::reject_launch(id, seq, "not_in_battle", 0.0);
         }
-        if let (Some(t), Some(st)) = (self.targets.get(&p.vehicle), p.combat.as_ref()) {
-            if !tg_combat::caps(t, st).can_fire {
-                return Self::reject_launch(id, seq, "weapon_disabled", 0.0);
-            }
-            // The wire identifies the missile, not its mounted instance. At least
-            // one complete assembly must work; independent cannons stay usable.
-            if !tg_combat::launcher_groups_operational(t, st) {
-                return Self::reject_launch(id, seq, "weapon_disabled", 0.0);
-            }
-        }
+        let selected = match self.own_weapon(id, instance, None, None, Some(missile), WeaponKind::Missile) {
+            Ok(key) => key,
+            Err(_) => return Self::reject_launch(id, seq, "weapon_disabled", 0.0),
+        };
         // from the vehicle, from what it carries, not faster than a launcher can
         let near = p.state.as_ref().and_then(pos_of).map(|q| ((q[0] - o[0]).powi(2) + (q[2] - o[2]).powi(2)).sqrt() < 12.0).unwrap_or(false);
         if !near { return Self::reject_launch(id, seq, "invalid_origin", 0.0); }
-        if p.missiles_left.get(missile).copied().unwrap_or(0) == 0 {
+        if p.rounds == Some(0) || p.missiles_left.get(missile).copied().unwrap_or(0) == 0 {
             return Self::reject_launch(id, seq, "no_ammo", 0.0);
         }
         if now - p.last_launch < 0.25 {
@@ -1500,9 +1603,14 @@ impl Lobby {
         if let Some(n) = p.missiles_left.get_mut(missile) {
             *n -= 1;
         }
+        if let Some(t) = self.targets.get(&p.vehicle) { p.spend_round(t); }
+        p.remember_sequence(seq);
         p.last_launch = now;
         let receipt = ServerMsg::Launched { from: id, seq, id: mid, missile: missile.into(), o, d };
-        p.launch_receipts.insert(seq, receipt.clone());
+        if p.launch_receipts.len() >= MAX_LAUNCH_RECEIPTS {
+            if let Some(oldest) = p.launch_receipts.iter().min_by(|a,b| a.1.at.total_cmp(&b.1.at)).map(|(&seq,_)| seq) { p.launch_receipts.remove(&oldest); }
+        }
+        p.launch_receipts.insert(seq, LaunchReceipt { at: now, instance: selected, request_instance: instance.map(String::from), message: receipt.clone() });
         self.to_room(room, receipt)
     }
 
@@ -1576,7 +1684,7 @@ impl Lobby {
                 p.ready = false;
                 p.hp = FULL_HP;
                 p.alive = true;
-                p.fired.clear();
+                p.reset_shots();
             }
         }
         let board: Vec<Member> = members.iter().filter_map(|m| self.member(*m)).collect();
@@ -1656,7 +1764,16 @@ mod tests {
         let mut shells = HashMap::new();
         shells.insert("ap".into(), Shell { kind: "ap".into(), filler_kg: 0.0, caliber_mm: 75.0 });
         shells.insert("aphe".into(), Shell { kind: "aphe".into(), filler_kg: 0.16, caliber_mm: 85.0 });
-        Lobby::new(shells, ["su_t34_85", "de_tiger_e"].into_iter().map(String::from).collect(), vec!["range".into(), "coast".into()])
+        let mut l = Lobby::new(shells, ["su_t34_85", "de_tiger_e"].into_iter().map(String::from).collect(), vec!["range".into(), "coast".into()]);
+        for id in ["su_t34_85", "de_tiger_e"] {
+            let def = serde_json::from_value(json!({"id":id,"plates":[],"crew":[],
+                "weapons":{"mount_m":[0,1,0],"main_gun":{"id":"test-cannon","ammo":["ap","aphe","api_14"]}},
+                "modules":[
+                    {"id":"breech","kind":"gun_breech","center":{"x":0,"y":1,"z":0},"half_extents":{"x":0.2,"y":0.2,"z":0.2},"max_health":100,"health":100},
+                    {"id":"barrel","kind":"gun_barrel","center":{"x":0,"y":1,"z":1},"half_extents":{"x":0.1,"y":0.1,"z":1},"max_health":100,"health":100}]})).unwrap();
+            l.targets.insert(id.into(),Target::new(def,&[]));
+        }
+        l
     }
     fn msgs_to(out: &Out, id: u32) -> Vec<&ServerMsg> {
         out.iter().filter(|(to, _)| *to == id).map(|(_, m)| m).collect()
@@ -1853,21 +1970,21 @@ mod tests {
         // a hit without a shot fired does nothing
         assert!(l.handle(a, ClientMsg::Hit { seq: 1, target: b, result: "pen".into(), plate: None, shot: None }, 1.0).is_empty());
         // a shot is relayed to the others, not back to the shooter
-        let out = l.handle(a, ClientMsg::Fire { seq: 1, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "ap".into() }, 1.0);
-        assert!(msgs_to(&out, a).is_empty() && !msgs_to(&out, b).is_empty());
+        let out = l.handle(a, ClientMsg::Fire { seq: 1, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "ap".into() }, 1.0);
+        assert!(msgs_to(&out, a).iter().any(|m| matches!(m,ServerMsg::FireAccepted {seq:1})) && !msgs_to(&out, b).is_empty());
         // solid shot: 55 per penetration, and the same shot cannot count twice
         let out = l.handle(a, ClientMsg::Hit { seq: 1, target: b, result: "pen".into(), plate: Some("hull_upper_front".into()), shot: None }, 1.2);
         assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Damage { hp, killed: false, .. } if (*hp - 45.0).abs() < 1e-9)));
         assert!(l.handle(a, ClientMsg::Hit { seq: 1, target: b, result: "pen".into(), plate: None, shot: None }, 1.3).is_empty());
         // no friendly fire
-        l.handle(a, ClientMsg::Fire { seq: 2, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe".into() }, 2.0);
+        l.handle(a, ClientMsg::Fire { seq: 2, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe".into() }, 2.0);
         assert!(l.handle(a, ClientMsg::Hit { seq: 2, target: c, result: "pen".into(), plate: None, shot: None }, 2.1).is_empty());
         // an explosive-filled round knocks it out; the kill and the death are counted
         let out = l.handle(a, ClientMsg::Hit { seq: 2, target: b, result: "pen".into(), plate: None, shot: None }, 2.2);
         assert!(msgs_to(&out, c).iter().any(|m| matches!(m, ServerMsg::Damage { killed: true, result, .. } if result == "kill")));
         assert_eq!((l.players[&a].kills, l.players[&b].deaths, l.players[&b].alive), (1, 1, false));
         // a wreck cannot be hit again, nor respawn too early; after the delay it can
-        l.handle(a, ClientMsg::Fire { seq: 3, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe".into() }, 3.0);
+        l.handle(a, ClientMsg::Fire { seq: 3, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe".into() }, 3.0);
         assert!(l.handle(a, ClientMsg::Hit { seq: 3, target: b, result: "pen".into(), plate: None, shot: None }, 3.1).is_empty());
         assert!(matches!(msgs_to(&l.handle(b, ClientMsg::Respawn, 4.0), b)[0], ServerMsg::Error { .. }));
         let out = l.handle(b, ClientMsg::Respawn, 2.2 + RESPAWN_DELAY + 0.1);
@@ -1879,16 +1996,16 @@ mod tests {
         assert_eq!((l.players[&c].alive, l.players[&c].deaths, l.players[&a].kills), (false, 1, 1));
         assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Respawn, 10.0), c)[0], ServerMsg::Error { .. }));
         // a shot reported too late does not count; nor do more than the burst limit
-        l.handle(a, ClientMsg::Fire { seq: 4, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe".into() }, 10.0);
+        l.handle(a, ClientMsg::Fire { seq: 4, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe".into() }, 10.0);
         assert!(l.handle(a, ClientMsg::Hit { seq: 4, target: b, result: "pen".into(), plate: None, shot: None }, 10.0 + SHOT_LIFE + 1.0).is_empty());
         for s in 10..10 + FIRE_BURST as u32 + 5 {
-            l.handle(a, ClientMsg::Fire { seq: s, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "ap".into() }, 30.0);
+            l.handle(a, ClientMsg::Fire { seq: s, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "ap".into() }, 30.0);
         }
         assert!(l.players[&a].fired.len() <= FIRE_BURST);
         // an automatic gun's rounds have a burst limit of their own
         l.shells.insert("api_14".into(), Shell { kind: "ap".into(), filler_kg: 0.0, caliber_mm: 14.5 });
         for s in 1000..1200 {
-            l.handle(a, ClientMsg::Fire { seq: s, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "api_14".into() }, 31.0 + (s - 1000) as f64 * 0.02);
+            l.handle(a, ClientMsg::Fire { seq: s, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "api_14".into() }, 31.0 + (s - 1000) as f64 * 0.02);
         }
         assert_eq!(l.players[&a].fired.iter().filter(|f| f.small).count(), 200);
     }
@@ -2013,7 +2130,7 @@ mod tests {
         let side = WireShot { o: [3.0, 1.9, 0.3], d: [-1.0, 0.0, 0.0], yaw: 0.0, speed: 700.0, dist: 400.0 };
         let mut killed = false;
         for seq in 1..=6u32 {
-            l.handle(a, ClientMsg::Fire { seq, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "apcbc_88_l56".into() }, seq as f64);
+            l.handle(a, ClientMsg::Fire { seq, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "apcbc_88_l56".into() }, seq as f64);
             let out = l.handle(a, ClientMsg::Hit { seq, target: b, result: "penetrated".into(), plate: None, shot: Some(side.clone()) }, seq as f64 + 0.3);
             let dmg = msgs_to(&out, b).into_iter().find_map(|m| match m {
                 ServerMsg::Damage { report, killed, .. } => Some((report.clone(), *killed)),
@@ -2054,7 +2171,7 @@ mod tests {
         assert!(r.iter().any(|f| *f == 0.0) && r.iter().any(|f| *f > 0.0), "{r:?}");
         let held: f32 = r.iter().sum();
         for seq in 1..=10u32 {
-            l.handle(a, ClientMsg::Fire { seq, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe_85_br365".into() }, 2.0 + seq as f64 * 9.0);
+            l.handle(a, ClientMsg::Fire { seq, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "aphe_85_br365".into() }, 2.0 + seq as f64 * 9.0);
         }
         assert_eq!(l.players[&a].rounds, Some(10));
         assert!(racks(&l).iter().sum::<f32>() < held);
@@ -2067,7 +2184,7 @@ mod tests {
         let rear = WireShot { o: [0.0, 1.2, -6.0], d: [0.0, 0.0, 1.0], yaw: 0.0, speed: 700.0, dist: 300.0 };
         let mut broken = false;
         for seq in 1..=4u32 {
-            l.handle(a, ClientMsg::Fire { seq, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "apcbc_88_l56".into() }, seq as f64);
+            l.handle(a, ClientMsg::Fire { seq, instance: None, o: [0.0; 3], d: [0.0, 0.0, 1.0], shell: "apcbc_88_l56".into() }, seq as f64);
             l.handle(a, ClientMsg::Hit { seq, target: b, result: "penetrated".into(), plate: None, shot: Some(rear.clone()) }, seq as f64 + 0.2);
             let st = l.players[&b].combat.clone().unwrap();
             let t = &l.targets["us_m4a3_75w"];
@@ -2125,7 +2242,7 @@ mod tests {
 
     /// Fires one TOW from a at b and steers it until it is over; the events and messages seen.
     fn tow_at_b(l: &mut Lobby, a: u32, seq: u32, now: f64) -> (Vec<Value>, Out) {
-        let out = l.handle(a, ClientMsg::Launch { seq, missile: "bgm71a_tow".into(), o: [0.0, 2.3, 2.0], d: [0.0, 0.01, 1.0] }, now);
+        let out = l.handle(a, ClientMsg::Launch { seq, instance: None, missile: "bgm71a_tow".into(), o: [0.0, 2.3, 2.0], d: [0.0, 0.01, 1.0] }, now);
         let mid = out
             .iter()
             .find_map(|(_, m)| match m {
@@ -2174,7 +2291,7 @@ mod tests {
             let room = l.players[&a].room.unwrap();
             let mut origin = [0.0, 2.3, 2.0];
             let mut dir = [0.0, 0.0, 1.0];
-            let mut missile = "bgm71a_tow";
+            let missile = "bgm71a_tow";
             match case {
                 "not_in_room" => l.players.get_mut(&a).unwrap().room = None,
                 "destroyed" => l.players.get_mut(&a).unwrap().alive = false,
@@ -2186,8 +2303,7 @@ mod tests {
                 "not_in_battle" => l.rooms.get_mut(&room).unwrap().playing = false,
                 "missing_world" => l.rooms.get_mut(&room).unwrap().world = None,
                 "launch_failed" => {
-                    missile = "unknown_test_missile";
-                    l.players.get_mut(&a).unwrap().missiles_left.insert(missile.into(), 1);
+                    l.rooms.get_mut(&room).unwrap().world.as_mut().unwrap().defs.remove(missile);
                 },
                 _ => unreachable!(),
             }
@@ -2225,7 +2341,7 @@ mod tests {
         let rails: Vec<usize> = l.targets["su_bmpt34"].def.modules.iter().enumerate().filter_map(|(i, m)| (m.kind == tg_combat::ModuleKind::Launcher).then_some(i)).collect();
         assert_eq!(rails.len(), 2);
         l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[rails[0]] = 0.0;
-        let shot = |seq| ClientMsg::Launch { seq, missile: "tt250_rocket".into(), o: [0.0, 2.3, 2.0], d: [0.0, 0.0, 1.0] };
+        let shot = |seq| ClientMsg::Launch { seq, instance: None, missile: "tt250_rocket".into(), o: [0.0, 2.3, 2.0], d: [0.0, 0.0, 1.0] };
         l.handle(a, ClientMsg::State { s: state(0.0) }, 1.0);
         let first = l.handle(a, shot(80), 1.1);
         assert!(first.iter().any(|(_, m)| matches!(m, ServerMsg::Launched { seq: 80, .. })), "the other rocket rail remains usable");
@@ -2281,12 +2397,24 @@ mod tests {
         assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 11);
         l.spawn(a, 1.0);
         assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 12);
+        assert!(l.players[&a].launch_receipts.is_empty() && l.players[&a].sequences.is_empty());
+        l.handle(a,ClientMsg::State {s:state(0.0)},1.0);
+        let fresh_ammo=l.players[&a].rounds;
+        let fresh_state=serde_json::to_value(&l.players[&a].combat).unwrap();
+        let room=l.players[&a].room.unwrap();
+        let missiles=l.rooms[&room].world.as_ref().unwrap().missiles.len();
         let after_respawn = l.launch(a, 51, "bgm71a_tow", origin, dir, 1.1);
-        assert_eq!(after_respawn, vec![(a, receipt.clone())], "retrying an old launch cannot spend a respawn's new ammunition");
-        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 12);
-        let conflict = l.launch(a, 51, "bgm71a_tow", [0.1, 2.3, 2.0], dir, 0.5);
-        launch_rejection(&conflict, a, 51, "sequence_conflict");
-        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 12);
+        launch_rejection(&after_respawn,a,51,"sequence_conflict");
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"],12);
+        assert_eq!(l.players[&a].rounds,fresh_ammo);assert_eq!(serde_json::to_value(&l.players[&a].combat).unwrap(),fresh_state);
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().missiles.len(),missiles);
+        let fresh=l.launch(a,52,"bgm71a_tow",origin,dir,1.2);
+        assert!(fresh.iter().any(|(_,m)|matches!(m,ServerMsg::Launched {id:2,..})));
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"],11);
+        l.end_battle(room,None);
+        l.handle(a,ClientMsg::Start,2.0);
+        l.handle(a,ClientMsg::State {s:state(0.0)},2.0);
+        assert!(l.launch(a,1,"bgm71a_tow",origin,dir,2.1).iter().any(|(_,m)|matches!(m,ServerMsg::Launched {seq:1,..})), "a new round resets the accepted sequence floor");
     }
 
     #[test]
@@ -2307,10 +2435,10 @@ mod tests {
         let (mut l, a, b) = missile_lobby();
         l.shells.insert("api_145_b32".into(), Shell { kind: "ap".into(), filler_kg: 0.0, caliber_mm: 14.5 });
         let room = l.players[&b].room.unwrap();
-        let shot = |seq, o| ClientMsg::Fire { seq, o, d: [0.0, 0.0, -1.0], shell: "api_145_b32".into() };
+        let shot = |seq, o| ClientMsg::Fire { seq, instance: None, o, d: [0.0, 0.0, -1.0], shell: "api_145_b32".into() };
         let rounds = |l: &Lobby| l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds;
         // Automatic control owns the mount until the client hands it to the gunner.
-        assert!(l.handle(b, shot(100, [0.0, 3.0, 600.0]), 1.0).is_empty());
+        assert!(matches!(l.handle(b, shot(100, [0.0, 3.0, 600.0]), 1.0)[0].1,ServerMsg::FireRejected {..}));
         assert_eq!(rounds(&l), 900);
         assert!(l.players[&b].fired.is_empty());
         l.handle(b, ClientMsg::Aps { enabled: false, rate: None }, 1.0);
@@ -2319,14 +2447,14 @@ mod tests {
         assert!(msgs_to(&out, a).iter().any(|m| matches!(m, ServerMsg::Fire { from, seq: 101, .. } if *from == b)));
         assert_eq!(rounds(&l), 899);
         assert_eq!(l.players[&b].rounds, main_before, "protection rounds do not empty the main gun's racks");
-        assert!(l.handle(b, shot(101, [0.0, 3.0, 600.0]), 1.2).is_empty());
+        assert!(matches!(l.handle(b, shot(101, [0.0, 3.0, 600.0]), 1.2)[0].1,ServerMsg::FireRejected {..}));
         assert_eq!(rounds(&l), 899, "retrying a sequence cannot spend a second round");
-        assert!(l.handle(b, shot(102, [f64::NAN, 3.0, 600.0]), 1.3).is_empty());
+        assert!(matches!(l.handle(b, shot(102, [f64::NAN, 3.0, 600.0]), 1.3)[0].1,ServerMsg::FireRejected {..}));
         assert_eq!(rounds(&l), 899, "rejected fire consumes no rounds");
         l.rooms.get_mut(&room).unwrap().world.as_mut().unwrap().set_aps_rounds(b, false, None, Some(1));
         assert!(!l.handle(b, shot(103, [0.0, 3.0, 600.0]), 1.4).is_empty());
         assert_eq!(rounds(&l), 0);
-        assert!(l.handle(b, shot(104, [0.0, 3.0, 600.0]), 1.5).is_empty());
+        assert!(matches!(l.handle(b, shot(104, [0.0, 3.0, 600.0]), 1.5)[0].1,ServerMsg::FireRejected {..}));
         assert!(!l.players[&b].fired.iter().any(|f| f.seq == 104));
         l.handle(b, ClientMsg::Aps { enabled: true, rate: None }, 1.6);
         assert_eq!(rounds(&l), 0, "returning to interception cannot refill the magazine");
@@ -2341,8 +2469,8 @@ mod tests {
         let target = &l.targets["su_t10m"];
         let gun = target.def.modules.iter().position(|m| m.id == "oplot_gun").unwrap();
         l.players.get_mut(&b).unwrap().combat.as_mut().unwrap().modules[gun] = 0.0;
-        let shot = |seq| ClientMsg::Fire { seq, o: [0.0, 3.0, 600.0], d: [0.0, 0.0, -1.0], shell: "api_145_b32".into() };
-        assert!(l.handle(b, shot(100), 1.1).is_empty());
+        let shot = |seq| ClientMsg::Fire { seq, instance: None, o: [0.0, 3.0, 600.0], d: [0.0, 0.0, -1.0], shell: "api_145_b32".into() };
+        assert!(matches!(l.handle(b, shot(100), 1.1)[0].1,ServerMsg::FireRejected {..}));
         assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds, 900);
         assert!(l.players[&b].fired.is_empty());
         l.players.get_mut(&b).unwrap().combat.as_mut().unwrap().modules[gun] = 1.0;
@@ -2357,8 +2485,8 @@ mod tests {
         // the protection system is the T-10M's, registered at spawn
         assert!(l.rooms.values().any(|r| r.world.as_ref().map(|w| w.aps_of(b).is_some()).unwrap_or(false)));
         // a launch from far away from the launcher, or of a missile it does not carry, is refused
-        launch_rejection(&l.handle(a, ClientMsg::Launch { seq: 1, missile: "bgm71a_tow".into(), o: [0.0, 2.0, 300.0], d: [0.0, 0.0, 1.0] }, 1.0), a, 1, "invalid_origin");
-        launch_rejection(&l.handle(a, ClientMsg::Launch { seq: 2, missile: "tt250_rocket".into(), o: [0.0, 2.0, 2.0], d: [0.0, 0.0, 1.0] }, 1.0), a, 2, "no_ammo");
+        launch_rejection(&l.handle(a, ClientMsg::Launch { seq: 1, instance: None, missile: "bgm71a_tow".into(), o: [0.0, 2.0, 300.0], d: [0.0, 0.0, 1.0] }, 1.0), a, 1, "invalid_origin");
+        launch_rejection(&l.handle(a, ClientMsg::Launch { seq: 2, instance: None, missile: "tt250_rocket".into(), o: [0.0, 2.0, 2.0], d: [0.0, 0.0, 1.0] }, 1.0), a, 2, "weapon_disabled");
         let kind = |e: &Value| e["type"].as_str().unwrap_or("").to_string();
         let mut downed = 0;
         for k in 0..4u32 {
@@ -2420,4 +2548,234 @@ mod tests {
         let m: ClientMsg = serde_json::from_str(r#"{"t":"create","name":"a","map":"normandy","max":8,"deploy":true}"#).unwrap();
         assert!(matches!(m, ClientMsg::Create { deploy: true, .. }));
     }
+    #[test]
+    fn fire_selects_an_owned_healthy_cannon_before_spending_rounds() {
+        let (mut l, a, _, _) = combat_lobby();
+        let before = l.players[&a].rounds;
+        for instance in ["gun:99:0", "mg:coax"] {
+            let msg = serde_json::from_value(json!({"t":"fire","seq":50,"instance":instance,"shell":"apcbc_88_l56","o":[0,0,0],"d":[0,0,1]})).unwrap();
+            let out = l.handle(a, msg, 1.0);
+            assert!(!out.iter().any(|(_,m)| matches!(m, ServerMsg::Fire {..})), "foreign/wrong-kind request was fired");
+            assert_eq!(l.players[&a].rounds, before);
+            assert!(l.players[&a].fired.is_empty());
+        }
+        let t = &l.targets["de_tiger_e"];
+        let i = t.weapon_bindings["gun:0:0"].critical[0];
+        l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[i] = 0.0;
+        l.handle(a, serde_json::from_value(json!({"t":"fire","seq":51,"instance":"gun:0:0","shell":"apcbc_88_l56","o":[0,0,0],"d":[0,0,1]})).unwrap(), 1.1);
+        assert_eq!(l.players[&a].rounds, before);
+        assert!(l.players[&a].fired.is_empty());
+    }
+
+    #[test]
+    fn empty_cannon_and_empty_launcher_do_not_consume_or_discharge() {
+        let (mut l, a, _, _) = combat_lobby();
+        l.players.get_mut(&a).unwrap().rounds = Some(0);
+        l.handle(a, serde_json::from_value(json!({"t":"fire","seq":51,"instance":"gun:0:0","shell":"apcbc_88_l56","o":[0,0,0],"d":[0,0,1]})).unwrap(), 1.0);
+        assert!(l.players[&a].fired.is_empty());
+        let (mut l, a, _) = missile_lobby();
+        l.players.get_mut(&a).unwrap().rounds = Some(0);
+        let before = l.players[&a].missiles_left.clone();
+        let out = l.handle(a, serde_json::from_value(json!({"t":"launch","seq":51,"instance":"gun:0:0","missile":"bgm71a_tow","o":[0,2.3,2],"d":[0,0,1]})).unwrap(), 1.0);
+        launch_rejection(&out,a,51,"no_ammo");
+        assert_eq!(l.players[&a].missiles_left,before);
+    }
+
+    #[test]
+    fn mg_fire_protocol_is_defined_and_requires_an_own_instance() {
+        let (mut l, a, _, _) = combat_lobby();
+        let parsed = serde_json::from_value::<ClientMsg>(json!({"t":"mg_fire","seq":61,"instance":"mg:foreign","gun":"mg34","o":[0,0,0],"d":[0,0,1]}));
+        assert!(parsed.is_ok(), "mg_fire packet missing from protocol");
+        l.handle(a,parsed.unwrap(),1.0);
+        assert!(l.players[&a].fired.is_empty());
+    }
+
+    fn wire(value: Value) -> ClientMsg { serde_json::from_value(value).unwrap() }
+
+    #[test]
+    fn mg_hit_requires_matching_discharge_proof_and_survives_later_shooter_damage() {
+        let (mut l,a,b,_) = combat_lobby();
+        let binding=l.targets["de_tiger_e"].weapon_bindings.values().find(|b|b.kind==WeaponKind::MachineGun).unwrap().clone();
+        let barrel=l.targets["us_m4a3_75w"].def.modules.iter().find(|m|m.kind==tg_combat::ModuleKind::GunBarrel).unwrap();
+        let origin=[barrel.center.x+2.0,barrel.center.y,barrel.center.z+barrel.half_extents.z*0.7];
+        let shot=json!({"o":origin,"d":[-1,0,0],"speed":800,"dist":10});
+        let before=serde_json::to_value(&l.players[&b].combat).unwrap();
+        for value in [
+            json!({"t":"mg_hit","seq":80,"instance":binding.key,"gun":binding.model_id,"target":b,"shot":shot}),
+            json!({"t":"mg_hit","gun":"foreign","target":b,"shot":shot})] {
+            assert!(l.handle(a,wire(value),1.0).is_empty());
+            assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(),before);
+        }
+        l.handle(a,wire(json!({"t":"mg_fire","seq":80,"instance":binding.key,"gun":binding.model_id,"o":[0,2,0],"d":[0,0,1]})),1.0);
+        assert_eq!(l.players[&a].fired.len(),1);
+        for (gun,instance) in [(binding.model_id.as_str(),Some("mg:foreign")),("foreign",Some(binding.key.as_str())),(binding.model_id.as_str(),None)] {
+            let out=l.handle(a,wire(json!({"t":"mg_hit","seq":80,"instance":instance,"gun":gun,"target":b,"shot":shot})),1.1);
+            assert!(out.is_empty()); assert!(!l.players[&a].fired[0].used);
+            assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(),before);
+        }
+        // Later weapon damage, repair or shooter death cannot recall an accepted bullet.
+        let p=l.players.get_mut(&a).unwrap();p.alive=false;
+        let st=p.combat.as_mut().unwrap();st.modules[binding.critical[0]]=0.0;st.repair_s=5.0;st.destroyed=true;
+        let hit=json!({"t":"mg_hit","seq":80,"instance":binding.key,"gun":binding.model_id,"target":b,"shot":shot});
+        l.handle(a,wire(hit.clone()),1.2);
+        assert!(l.players[&a].fired[0].used);
+        let after=serde_json::to_value(&l.players[&b].combat).unwrap();
+        assert_ne!(after,before,"the proven bullet must damage the external barrel");
+        assert!(l.handle(a,wire(hit),1.3).is_empty());
+        assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(),after);
+    }
+
+    #[test]
+    fn sequence_proofs_are_unique_across_packet_kinds_and_replays_keep_ammo_unchanged() {
+        let (mut l,a,_) = missile_lobby();
+        l.players.get_mut(&a).unwrap().vehicle="su_bmpt34".into();l.spawn(a,0.0);
+        l.handle(a,ClientMsg::State {s:state(0.0)},0.0);
+        // BMPT has no secondary MG in source; add one real Tiger installation in
+        // this test-only mixed fixture so all three packet kinds share one vehicle.
+        let mut def=l.targets["su_bmpt34"].def.clone();
+        def.weapons["secondary"]=json!([l.targets["de_tiger_e"].def.weapons["secondary"][0]]);
+        l.targets.insert("su_bmpt34".into(),Target::new(def,&[]));l.spawn(a,0.0);
+        let t=&l.targets["su_bmpt34"];
+        let cannon=t.weapon_bindings.values().find(|b|b.kind==WeaponKind::Cannon).unwrap().clone();
+        let mg=t.weapon_bindings.values().find(|b|b.kind==WeaponKind::MachineGun).unwrap().clone();
+        let launcher=t.weapon_bindings.values().find(|b|b.kind==WeaponKind::Missile && b.binding_error.is_none()).unwrap().clone();
+        let fire=|seq|wire(json!({"t":"fire","seq":seq,"instance":cannon.key,"shell":cannon.ammo[0],"o":[0,2,0],"d":[0,0,1]}));
+        let mgfire=|seq|wire(json!({"t":"mg_fire","seq":seq,"instance":mg.key,"gun":mg.model_id,"o":[0,2,0],"d":[0,0,1]}));
+        l.handle(a,fire(90),1.0);
+        let rounds=l.players[&a].rounds;
+        let before=l.players[&a].missiles_left.clone();
+        l.handle(a,mgfire(90),1.1);
+        let out=l.launch_instance(a,90,Some(&launcher.key),launcher.missile.as_ref().unwrap(),[0.0,2.0,0.0],[0.0,0.0,1.0],1.1);
+        launch_rejection(&out,a,90,"sequence_conflict");
+        l.handle(a,fire(90),1.1);
+        assert_eq!(l.players[&a].rounds,rounds);assert_eq!(l.players[&a].missiles_left,before);
+        assert_eq!(l.players[&a].fired.len(),1);
+        l.handle(a,mgfire(91),1.2);
+        l.handle(a,fire(91),1.2);
+        assert_eq!(l.players[&a].rounds,rounds);assert_eq!(l.players[&a].fired.len(),2);
+        let accepted=l.launch_instance(a,92,Some(&launcher.key),launcher.missile.as_ref().unwrap(),[0.0,2.0,0.0],[0.0,0.0,1.0],1.3);
+        assert!(accepted.iter().any(|(_,m)|matches!(m,ServerMsg::Launched {seq:92,..})));
+        assert_eq!(l.players[&a].rounds,rounds.map(|r|r-1));
+        let state=serde_json::to_value(&l.players[&a].combat).unwrap();
+        let ammo=l.players[&a].missiles_left.clone();
+        l.handle(a,fire(92),1.4);l.handle(a,mgfire(92),1.4);
+        let replay=l.launch_instance(a,92,Some(&launcher.key),launcher.missile.as_ref().unwrap(),[0.0,2.0,0.0],[0.0,0.0,1.0],1.4);
+        assert_eq!(replay.len(),1);
+        let conflict=l.launch_instance(a,92,Some("gun:99:0"),launcher.missile.as_ref().unwrap(),[0.0,2.0,0.0],[0.0,0.0,1.0],1.5);
+        launch_rejection(&conflict,a,92,"sequence_conflict");
+        assert_eq!(l.players[&a].missiles_left,ammo);assert_eq!(serde_json::to_value(&l.players[&a].combat).unwrap(),state);
+    }
+
+    #[test]
+    fn legacy_mg_is_unique_and_currently_healthy_while_cannon_proofs_outlive_shooter() {
+        let (mut l,a,b,_) = combat_lobby();
+        let t=&l.targets["de_tiger_e"];
+        let mg=t.weapon_bindings.values().find(|b|b.kind==WeaponKind::MachineGun).unwrap().clone();
+        assert!(t.weapon_bindings.values().filter(|b|b.kind==WeaponKind::MachineGun && b.model_id==mg.model_id).count()>1);
+        let shot=json!({"o":[3,1.9,0.3],"d":[-1,0,0],"speed":700,"dist":400});
+        let before=serde_json::to_value(&l.players[&b].combat).unwrap();
+        assert!(l.handle(a,wire(json!({"t":"mg_hit","gun":mg.model_id,"target":b,"shot":shot})),1.0).is_empty());
+        assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(),before);
+        l.handle(a,wire(json!({"t":"fire","seq":101,"instance":"gun:0:0","shell":"apcbc_88_l56","o":[0,2,0],"d":[0,0,1]})),1.0);
+        let p=l.players.get_mut(&a).unwrap();p.alive=false;p.combat.as_mut().unwrap().destroyed=true;
+        let out=l.handle(a,wire(json!({"t":"hit","seq":101,"target":b,"result":"penetrated","shot":shot})),1.1);
+        assert!(out.iter().any(|(_,m)|matches!(m,ServerMsg::Damage {..})));
+        assert!(l.players[&a].fired[0].used);
+    }
+
+    #[test]
+    fn aps_world_uses_own_authority_after_main_damage_and_stops_for_own_gun_damage() {
+        for broken_aps in [false,true] {
+            let (mut l,a,b)=missile_lobby();
+            let t=&l.targets["su_t10m"];
+            let main=t.weapon_bindings["gun:0:0"].critical[0];
+            let aps=t.def.modules.iter().position(|m|m.id=="oplot_gun").unwrap();
+            let st=l.players.get_mut(&b).unwrap().combat.as_mut().unwrap();
+            st.modules[main]=0.0;if broken_aps {st.modules[aps]=0.0;}
+            // A fake client health/capability object has no say in World control.
+            l.players.get_mut(&b).unwrap().state.as_mut().unwrap()["caps"]=json!({"can_fire":!broken_aps,"weapons":{},"aps_dispersion_mult":99});
+            let (events,_) = tow_at_b(&mut l,a,120,1.0);
+            let fired=events.iter().any(|e|e["type"]=="fire_start");
+            assert_eq!(fired,!broken_aps);
+            let room=l.players[&b].room.unwrap();
+            let left=l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds;
+            assert_eq!(left<900,!broken_aps);
+        }
+    }
+
+    #[test]
+    fn manual_aps_ammo_ownership_comes_from_binding_not_shell_caliber() {
+        let (mut l,_,b)=missile_lobby();let room=l.players[&b].room.unwrap();
+        let mut def=l.targets["su_t10m"].def.clone();
+        // A test main cannon with the same declared round as Oplot remains a different magazine.
+        def.weapons["main_gun"]["ammo"]=json!(["api_145_b32"]);
+        l.targets.insert("su_t10m".into(),Target::new(def,&[]));l.spawn(b,0.0);
+        let cap=l.targets["su_t10m"].def.ammo_capacity;
+        let fire=|seq,instance|wire(json!({"t":"fire","seq":seq,"instance":instance,"shell":"api_145_b32","o":[0,3,600],"d":[0,0,-1]}));
+        let out=l.handle(b,fire(130,"gun:0:0"),1.0);
+        assert!(out.iter().any(|(_,m)|matches!(m,ServerMsg::FireAccepted {..})));
+        assert_eq!(l.players[&b].rounds,Some(cap-1));
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds,900);
+        // Disabled main does not bar manual protection fire; protection still owns its own rounds.
+        let main=l.targets["su_t10m"].weapon_bindings["gun:0:0"].critical[0];
+        l.players.get_mut(&b).unwrap().combat.as_mut().unwrap().modules[main]=0.0;
+        l.handle(b,ClientMsg::Aps {enabled:false,rate:None},1.1);
+        let aps=l.targets["su_t10m"].weapon_bindings.values().find(|w|w.critical.iter().any(|&i|l.targets["su_t10m"].def.modules[i].kind==tg_combat::ModuleKind::ApsGun)).unwrap().key.clone();
+        let out=l.handle(b,fire(131,&aps),1.2);
+        assert!(out.iter().any(|(_,m)|matches!(m,ServerMsg::FireAccepted {..})));
+        assert_eq!(l.players[&b].rounds,Some(cap-1));
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds,899);
+    }
+
+    #[test]
+    fn missing_weapon_data_wrong_kind_and_ambiguous_legacy_discharge_fail_closed() {
+        let (mut l,a,_)=missile_lobby();
+        let t=&l.targets["us_m901_itv"];let shell=t.weapon_bindings["gun:0:0"].ammo[0].clone();
+        let before=(l.players[&a].rounds,l.players[&a].missiles_left.clone(),serde_json::to_value(&l.players[&a].combat).unwrap());
+        l.handle(a,wire(json!({"t":"fire","seq":140,"instance":"gun:0:0","shell":shell,"o":[0,2,0],"d":[0,0,1]})),1.0);
+        assert!(l.players[&a].fired.is_empty());
+        assert_eq!((l.players[&a].rounds,l.players[&a].missiles_left.clone(),serde_json::to_value(&l.players[&a].combat).unwrap()),before);
+        l.targets.remove("us_m901_itv");
+        launch_rejection(&l.launch(a,141,"bgm71a_tow",[0.0,2.0,0.0],[0.0,0.0,1.0],1.1),a,141,"weapon_disabled");
+        assert_eq!((l.players[&a].rounds,l.players[&a].missiles_left.clone(),serde_json::to_value(&l.players[&a].combat).unwrap()),before);
+        let (mut l,a,_)=missile_lobby();l.players.get_mut(&a).unwrap().vehicle="su_bmpt34".into();l.spawn(a,0.0);
+        let shell=l.targets["su_bmpt34"].weapon_bindings.values().find(|b|b.kind==WeaponKind::Cannon).unwrap().ammo[0].clone();
+        let before=serde_json::to_value(&l.players[&a].combat).unwrap();
+        let out=l.handle(a,wire(json!({"t":"fire","seq":142,"shell":shell,"o":[0,2,0],"d":[0,0,1]})),1.2);
+        assert!(matches!(out[0].1,ServerMsg::FireRejected {..}));assert!(l.players[&a].fired.is_empty());
+        assert_eq!(serde_json::to_value(&l.players[&a].combat).unwrap(),before);
+    }
+
+    #[test]
+    fn expired_proofs_do_not_reopen_sequences_and_cache_storage_is_bounded() {
+        let (mut l,a,b,_) = combat_lobby();
+        let mg=l.targets["de_tiger_e"].weapon_bindings.values().find(|b|b.kind==WeaponKind::MachineGun).unwrap().clone();
+        for seq in 1..=2200 {
+            l.mg_fire(a,seq,Some(&mg.key),&mg.model_id,[0.0,2.0,0.0],[0.0,0.0,1.0],seq as f64*0.03);
+        }
+        assert_eq!(l.players[&a].sequences.len(),MAX_SEQUENCES);
+        assert!(l.players[&a].fired.len()<=AUTO_BURST);
+        let before=l.players[&a].fired.len();
+        l.mg_fire(a,1,Some(&mg.key),&mg.model_id,[0.0,2.0,0.0],[0.0,0.0,1.0],70.0);
+        assert_eq!(l.players[&a].fired.len(),before);
+        let st=serde_json::to_value(&l.players[&b].combat).unwrap();
+        assert!(l.handle(a,wire(json!({"t":"mg_hit","seq":2200,"instance":mg.key,"gun":mg.model_id,"target":b,"shot":{"o":[3,2,4],"d":[-1,0,0],"speed":800,"dist":10}})),80.0).is_empty());
+        assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(),st);
+        l.spawn(a,81.0);
+        assert!(l.players[&a].sequences.is_empty()&&l.players[&a].fired.is_empty()&&l.players[&a].retired_seq==Some(2200));
+    }
+
+    #[test]
+    fn missing_legacy_damage_state_still_spends_authoritative_cannon_and_missile_rounds() {
+        let (mut l,a,_,_)=combat_lobby();let cap=l.targets["de_tiger_e"].def.ammo_capacity;
+        l.players.get_mut(&a).unwrap().combat=None;
+        l.handle(a,wire(json!({"t":"fire","seq":151,"instance":"gun:0:0","shell":"apcbc_88_l56","o":[0,2,0],"d":[0,0,1]})),1.0);
+        assert_eq!(l.players[&a].rounds,Some(cap-1));
+        let (mut l,a,_)=missile_lobby();let cap=l.targets["us_m901_itv"].def.ammo_capacity;
+        l.players.get_mut(&a).unwrap().combat=None;
+        let out=l.launch(a,151,"bgm71a_tow",[0.0,2.0,0.0],[0.0,0.0,1.0],1.0);
+        assert!(out.iter().any(|(_,m)|matches!(m,ServerMsg::Launched {..})));
+        assert_eq!(l.players[&a].rounds,Some(cap-1));
+    }
+
 }
