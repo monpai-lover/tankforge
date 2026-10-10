@@ -28,6 +28,7 @@ pub mod obstacle;
 pub mod powertrain;
 pub mod rigid_body;
 pub mod road_wheel;
+pub mod running_gear_dynamics;
 pub mod suspension;
 pub mod terrain;
 pub mod track_contact;
@@ -39,7 +40,9 @@ use math::*;
 use obstacle::{apply_obstacles, collision_points, HullBox, Obstacle};
 use powertrain::Powertrain;
 use rigid_body::{VehicleRigidBody, GRAVITY};
-use road_wheel::{si, support_under, GearGeometry};
+use running_gear_dynamics::RunningGearModel;
+use std::sync::Arc;
+use road_wheel::{si, support_under_mode, GearGeometry};
 use serde::{Deserialize, Serialize};
 use suspension::{SuspensionOpts, SuspensionState, SuspensionSystem};
 use terrain::{ContactGeometry, ContactState, Ground};
@@ -76,6 +79,7 @@ pub struct TankModel {
     pub mass: f64,
     pub com: V3,
     pub inertia: V3,
+    pub running_gear: Arc<RunningGearModel>,
     pub gear: GearGeometry,
     pub sp: SuspensionSystem,
     pub ct: ContactGeometry,
@@ -94,7 +98,7 @@ impl TankModel {
         let com = hull.center_of_mass.map(|x| x as f64);
         let height = hull.size_m[1] as f64 + 0.5 * def.turret.size_m[1] as f64;
         let inertia = ph.inertia_kgm2.map(|i| i.map(|x| x as f64)).unwrap_or_else(|| box_inertia(mass, [hull.size_m[0] as f64, height, hull.size_m[2] as f64]));
-        let sp = SuspensionSystem::new(
+        let mut sp = SuspensionSystem::new(
             &gear,
             &SuspensionOpts {
                 mass,
@@ -107,10 +111,12 @@ impl TankModel {
                 damping_ratio: ph.suspension_damping.map(|x| x as f64),
             },
         );
+        let running_gear = Arc::new(RunningGearModel::new(mass, com, inertia, &sp.stations, &gear.station_volume_proxy, ph.suspension.station_mass_kg.as_deref(), sp.travel, sp.rebound));
+        for u in &mut sp.units { u.p -= u.members.iter().map(|&i| running_gear.wheel_mass[i] * GRAVITY).sum::<f64>(); }
         let ct = ContactGeometry::new(&gear, &sp, opts.belly_y, opts.contacts_per_side);
         let ground_pressure = terra::ground_pressure(mass as f32, gear.track_width as f32, ct.contact_length as f32) as f64;
         let collide = collision_points(&gear, HullBox { hw: hull.size_m[0] as f64 / 2.0, y0: opts.belly_y, y1: hull.size_m[1] as f64, hl: hull.size_m[2] as f64 / 2.0 });
-        Self { pt: Powertrain::new(params), mass, com, inertia, gear, sp, ct, substeps: opts.substeps.max(1), ground_pressure, collide }
+        Self { pt: Powertrain::new(params), mass, com, inertia, running_gear, gear, sp, ct, substeps: opts.substeps.max(1), ground_pressure, collide }
     }
 
     /// From a loaded vehicle; None without a running gear in its visual description.
@@ -175,8 +181,10 @@ pub struct Tank {
 
 impl Tank {
     pub fn new(tm: &TankModel) -> Self {
+        let mut body = VehicleRigidBody::new(tm.mass, tm.inertia, tm.com);
+        body.install_running_gear(Arc::clone(&tm.running_gear));
         Self {
-            body: VehicleRigidBody::new(tm.mass, tm.inertia, tm.com),
+            body,
             ss: tm.sp.new_state(),
             cs: tm.ct.new_state(),
             ds: DriveState::new(&tm.pt, tm.mass),
@@ -231,8 +239,6 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
     let mut solved = Vec::new();
     for _ in 0..n {
         tm.ct.sample_ground(&mut t.cs, &t.body, terrain);
-        let side_load = tm.sp.apply(&mut t.ss, &mut t.body, &t.cs.prof, h);
-        let extra = tm.ct.apply_rigid_contacts(&mut t.cs, &mut t.body, terrain, h, &tm.sp, &t.ss);
         // walls, buildings, other vehicles: the track belts and the hull are solid against them
         apply_obstacles(&tm.collide, &mut t.body, &t.obstacles, h);
         let speed = len(t.body.v);
@@ -241,6 +247,8 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
             t.body.add_force(drag);
         }
         t.body.integrate_velocity(h);
+        let side_load = tm.sp.apply(&mut t.ss, &mut t.body, &t.cs.prof, h, t.broken);
+        let extra = tm.ct.apply_rigid_contacts(&mut t.cs, &mut t.body, terrain, h, &tm.sp, &t.ss, t.broken);
 
         // drive: targets, engine, steering, brakes
         let u = dot(t.body.v, t.body.ez);
@@ -259,9 +267,9 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
             b.v = if b.v.abs() <= dv { 0.0 } else { b.v - dv * sign(b.v) };
         }
 
-        let mut contacts = track_contacts(&tm.ct, &t.cs, &t.body, &tm.sp, &t.ss, terrain);
+        let mut contacts = track_contacts(&tm.ct, &t.cs, &t.body, &tm.sp, &t.ss, terrain, t.broken);
         contacts.extend(extra);
-        solve_friction(&mut contacts, &mut t.body, &mut t.ds.belts, t.ds.brakes, h, 10, Some(&mut t.ds.motor));
+        solve_friction(&mut contacts, &mut t.body, &mut t.ds.belts, t.ds.brakes, h, 10, Some(&mut t.ds.motor), &mut t.cs.response_pool);
         let mo = t.ds.motor;
         t.ds.drive = [mo.f_mean / 2.0 + mo.f_steer, mo.f_mean / 2.0 - mo.f_steer];
         t.ds.load = if mo.pushing && t.ds.f_eng > 0.0 {
@@ -270,6 +278,7 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
             0.0
         };
         t.body.integrate_position(h);
+        tm.sp.sync_pose(&mut t.ss, &t.body, t.broken);
         for i in 0..2 {
             t.travel[i] += t.ds.belts[i].v * h;
         }
@@ -328,7 +337,7 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
 /// What the server sends for a tank (authoritative): hull position (hull-frame origin, world),
 /// orientation (hull axes x and z; y follows), velocities, track speeds, engine speed and gear.
 /// Wheels, track shape and sprocket phase are rebuilt by each client from this.
-#[derive(Clone, Copy, Debug, PartialEq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct NetState {
     pub pos: [f32; 3],
     pub ex: [f32; 3],
@@ -339,6 +348,15 @@ pub struct NetState {
     pub track: [f32; 2],
     pub rpm: f32,
     pub gear: u8,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rg: Option<RunningGearHint>,
+}
+
+#[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
+pub struct RunningGearHint {
+    pub version: u8,
+    pub q: Vec<f64>,
+    pub qv: Vec<f64>,
 }
 
 fn f3(v: V3) -> [f32; 3] {
@@ -359,6 +377,7 @@ pub fn net_state(t: &Tank) -> NetState {
         track: [t.ds.belts[0].v as f32, t.ds.belts[1].v as f32],
         rpm: t.ds.gearbox.rpm as f32,
         gear: t.ds.gearbox.gear as u8,
+        rg: t.body.running_gear.as_ref().map(|rg| RunningGearHint { version: 1, q: rg.q.clone(), qv: rg.qv.clone() }),
     }
 }
 
@@ -371,6 +390,15 @@ pub fn apply_net_state(t: &mut Tank, s: &NetState) {
     b.pos = add(d3(s.pos), b.world_dir(b.com));
     b.v = d3(s.v);
     b.w = d3(s.w);
+    if let Some(rg) = &mut b.running_gear { rg.reset(); }
+    if let (Some(rg), Some(hint)) = (&mut b.running_gear, &s.rg) {
+        if hint.version == 1 && hint.q.len() == rg.q.len() && hint.qv.len() == rg.qv.len() && hint.q.iter().all(|q| q.is_finite() && *q >= rg.model.q_min && *q <= rg.model.q_max) && hint.qv.iter().all(|qv| qv.is_finite() && qv.abs() <= rg.model.qv_limit) {
+            rg.q.copy_from_slice(&hint.q); rg.qv.copy_from_slice(&hint.qv); rg.remote_pose = true; rg.refresh();
+        }
+    }
+    if let Some(rg) = &b.running_gear { for (i, q) in rg.q.iter().enumerate() { t.ss.comp[i] = *q; } }
+    t.cs.run_prev.iter_mut().for_each(|v| v.fill(0.0)); t.cs.belly_prev.fill(0.0);
+    t.ss.load.fill(0.0); t.ss.grounded.fill(false);
     t.ds.belts[0].v = s.track[0] as f64;
     t.ds.belts[1].v = s.track[1] as f64;
     t.ds.gearbox.rpm = s.rpm as f64;
@@ -382,14 +410,21 @@ pub fn apply_net_state(t: &mut Tank, s: &NetState) {
 pub fn reconstruct_running_gear(tm: &TankModel, t: &mut Tank, terrain: &dyn Ground, dt: f64) {
     tm.ct.sample_ground(&mut t.cs, &t.body, terrain);
     let sp = &tm.sp;
+    if t.body.running_gear.as_ref().is_some_and(|rg| rg.remote_pose) {
+        sp.sync_pose(&mut t.ss, &t.body, t.broken);
+        for i in 0..2 { t.travel[i] += t.ds.belts[i].v * dt; }
+        return;
+    }
     let up_y = t.body.ey[1].max(0.2);
     for (i, s) in sp.stations.iter().enumerate() {
-        let sup = support_under(sp.window, &t.cs.prof[si(s.side)], s);
+        let sup = support_under_mode(sp.window, &t.cs.prof[si(s.side)], s, t.broken[si(s.side)]);
         let h = t.body.world_point([s.x, s.y, s.z])[1];
-        let x = (sup + s.r + sp.thickness - h) / up_y;
+        let x = (sup + s.r + if t.broken[si(s.side)] { 0.0 } else { sp.thickness } - h) / up_y;
         t.ss.grounded[i] = x >= -sp.rebound;
         t.ss.comp[i] = x.clamp(-sp.rebound, sp.travel + 0.03);
+        if let Some(rg) = &mut t.body.running_gear { rg.q[i] = t.ss.comp[i]; rg.qv[i] = 0.0; rg.normal_impulse[i] = 0.0; }
     }
+    t.body.refresh_running_gear();
     for i in 0..2 {
         t.travel[i] += t.ds.belts[i].v * dt;
     }

@@ -9,7 +9,8 @@
 import { makeParams } from '../physics.js';
 import { pressureFactor, groundPressure } from '../terra.js';
 import { RigidBody, GRAVITY } from './body.js';
-import { makeSuspension, newSuspensionState, applySuspension, supportUnder } from './suspension.js';
+import { makeSuspension, newSuspensionState, applySuspension, supportUnder, syncSuspensionPose } from './suspension.js';
+import { makeRunningGear } from './runningGearDynamics.js';
 import { makeContacts, newContactState, sampleGround, applyRigidContacts, trackContacts, solveFriction } from './contacts.js';
 import { makeDrive, newDriveState, driveStep, rollingForce } from './drive.js';
 import { collisionPoints, applyObstacles } from './obstacles.js';
@@ -23,7 +24,11 @@ const AIR_RHO = 1.225;
  */
 export function gearFromVisual(rg) {
   const byZ = new Map();
-  for (const w of rg.wheels) if (!byZ.has(w.z.toFixed(3))) byZ.set(w.z.toFixed(3), { z: w.z, y: w.y, r: w.r });
+  for (const w of rg.wheels) {
+    const key = w.z.toFixed(3);
+    if (!byZ.has(key)) byZ.set(key, { z: w.z, y: w.y, r: w.r, volumeProxy: 0 });
+    byZ.get(key).volumeProxy += w.r * w.r * (w.w || rg.track_width);
+  }
   const stations = [...byZ.values()].sort((a, b) => b.z - a.z);
   return { stations, trackX: rg.track_x, trackWidth: rg.track_width, thickness: rg.track_thickness, sprocket: rg.sprocket, idler: rg.idler };
 }
@@ -56,15 +61,18 @@ export function makeTank(vehicle, engineFile, gear, opts = {}) {
     freqHz: ph.suspension_freq_hz,
     dampingRatio: ph.suspension_damping,
   });
+  const runningGear = makeRunningGear(mass, com, inertia, sp.stations, gear.stations.map(s => s.volumeProxy), ph.suspension?.station_mass_kg, sp);
+  for (let ui = 0; ui < sp.units.length; ui++) sp.units[ui].p -= sp.units[ui].members.reduce((sum, i) => sum + runningGear.wheelMass[i] * GRAVITY, 0);
   const ct = makeContacts(gear, sp, { bellyY: opts.bellyY, contactsPerSide: opts.contactsPerSide });
   const dr = makeDrive(p, mass);
   // the outline that collides with obstacles: both track belts and the hull box
   const collide = collisionPoints(gear, { hw: hull.size_m[0] / 2, y0: opts.bellyY ?? 0.4, y1: hull.size_m[1], hl: hull.size_m[2] / 2 });
-  return { p, mass, com, inertia, sp, ct, dr, collide, substeps: opts.substeps ?? 2, groundPressure: groundPressure(mass, gear.trackWidth, ct.contactLength) };
+  return { p, mass, com, inertia, runningGear, sp, ct, dr, collide, substeps: opts.substeps ?? 2, groundPressure: groundPressure(mass, gear.trackWidth, ct.contactLength) };
 }
 
 export function newTank(tm) {
   const body = new RigidBody(tm.mass, tm.inertia, tm.com);
+  body.installRunningGear(tm.runningGear);
   return { body, ss: newSuspensionState(tm.sp), cs: newContactState(tm.ct), ds: newDriveState(tm.dr), contacts: [], info: {}, travel: { 1: 0, [-1]: 0 }, rut: 1, obstacles: [], obstacleContacts: [] };
 }
 
@@ -120,13 +128,13 @@ export function stepTank(tm, t, input, terrain, dt) {
   const u0 = dot(body.v, body.ez);
   for (let i = 0; i < n; i++) {
     sampleGround(tm.ct, t.cs, body, terrain);
-    sideLoad = applySuspension(tm.sp, t.ss, body, t.cs.prof, h);
-    const extra = applyRigidContacts(tm.ct, t.cs, body, terrain, surfaceOf, h, tm.sp, t.ss);
     // walls, buildings, other vehicles: the track belts and the hull are solid against them
     if (t.obstacles && t.obstacles.length) t.obstacleContacts = applyObstacles(tm.collide, body, t.obstacles, tm.mass, h);
     const sp = len(body.v);
     if (sp > 0.01) body.addForce(scale(body.v, -0.5 * AIR_RHO * tm.p.cdA * sp));
     body.integrateVelocity(h);
+    sideLoad = applySuspension(tm.sp, t.ss, body, t.cs.prof, h, t.broken);
+    const extra = applyRigidContacts(tm.ct, t.cs, body, terrain, surfaceOf, h, tm.sp, t.ss, t.broken);
 
     // drive: targets, engine, steering, brakes
     const u = dot(body.v, body.ez);
@@ -145,13 +153,14 @@ export function stepTank(tm, t, input, terrain, dt) {
       b.v = Math.abs(b.v) <= dv ? 0 : b.v - dv * Math.sign(b.v);
     }
 
-    const contacts = trackContacts(tm.ct, t.cs, body, tm.sp, t.ss, surfaceOf).concat(extra);
-    solved = solveFriction(contacts, body, t.ds.belts, t.ds.brakes, h, 10, t.ds.motor);
+    const contacts = trackContacts(tm.ct, t.cs, body, tm.sp, t.ss, surfaceOf, t.broken).concat(extra);
+    solved = solveFriction(contacts, body, t.ds.belts, t.ds.brakes, h, 10, t.ds.motor, t.cs.responsePool);
     const mo = t.ds.motor;
     t.ds.drive[-1] = mo.fMean / 2 + mo.fSteer;
     t.ds.drive[1] = mo.fMean / 2 - mo.fSteer;
     t.ds.load = mo.pushing && t.ds.fEng > 0 ? Math.min(1, Math.abs(mo.fMean) / t.ds.fEng + Math.abs(mo.fSteer * (t.ds.belts[-1].v - t.ds.belts[1].v)) / tm.p.power) : 0;
     body.integratePosition(h);
+    syncSuspensionPose(tm.sp, t.ss, body, t.broken);
     for (const side of [1, -1]) t.travel[side] += t.ds.belts[side].v * h;
   }
   t.contacts = solved;
@@ -230,6 +239,7 @@ export function netState(t) {
     track: [t.ds.belts[-1].v, t.ds.belts[1].v],
     rpm: t.ds.rpm,
     gear: t.ds.gear,
+    rg: b.runningGear ? { version: 1, q: Array.from(b.runningGear.q), qv: Array.from(b.runningGear.qv) } : undefined,
   };
 }
 
@@ -244,6 +254,15 @@ export function applyNetState(tm, t, s) {
   b.pos = [s.pos[0] + d[0], s.pos[1] + d[1], s.pos[2] + d[2]];
   b.v = s.v.slice();
   b.w = s.w.slice();
+  b.runningGear?.reset();
+  const rg = b.runningGear, hint = s.rg;
+  if (rg && hint?.version === 1 && Array.isArray(hint.q) && Array.isArray(hint.qv) && hint.q.length === rg.q.length && hint.qv.length === rg.qv.length && hint.q.every(q => Number.isFinite(q) && q >= rg.model.qMin && q <= rg.model.qMax) && hint.qv.every(qv => Number.isFinite(qv) && Math.abs(qv) <= rg.model.qvLimit)) {
+    rg.q.set(hint.q); rg.qv.set(hint.qv); rg.remotePose = true;
+    rg.refresh();
+  }
+  if (rg) syncSuspensionPose(tm.sp, t.ss, b, t.broken);
+  t.cs.runPrev[1].fill(0); t.cs.runPrev[-1].fill(0); t.cs.bellyPrev.fill(0);
+  t.ss.load.fill(0); t.ss.grounded.fill(false);
   t.ds.belts[-1].v = s.track[0];
   t.ds.belts[1].v = s.track[1];
   t.ds.rpm = s.rpm;
@@ -258,13 +277,20 @@ export function reconstructRunningGear(tm, t, terrain, dt) {
   sampleGround(tm.ct, t.cs, t.body, terrain);
   const sp = tm.sp;
   const b = t.body;
+  if (b.runningGear?.remotePose) {
+    syncSuspensionPose(sp, t.ss, b, t.broken);
+    for (const side of [1, -1]) t.travel[side] += t.ds.belts[side].v * dt;
+    return;
+  }
   const upY = Math.max(0.2, b.ey[1]);
   sp.stations.forEach((s, i) => {
-    const sup = supportUnder(sp, t.cs.prof[s.side], s);
+    const sup = supportUnder(sp, t.cs.prof[s.side], s, !!t.broken?.[s.side]);
     const h = b.worldPoint([s.x, s.y, s.z])[1];
-    const x = (sup + s.r + sp.thickness - h) / upY;
+    const x = (sup + s.r + (t.broken?.[s.side] ? 0 : sp.thickness) - h) / upY;
     t.ss.grounded[i] = x >= -sp.rebound;
     t.ss.comp[i] = Math.min(Math.max(x, -sp.rebound), sp.travel + 0.03);
+    if (b.runningGear) { b.runningGear.q[i] = t.ss.comp[i]; b.runningGear.qv[i] = 0; b.runningGear.normalImpulse[i] = 0; }
   });
+  b.refreshRunningGear();
   for (const side of [1, -1]) t.travel[side] += t.ds.belts[side].v * dt;
 }

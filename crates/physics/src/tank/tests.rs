@@ -10,6 +10,20 @@ use std::path::{Path, PathBuf};
 const DT: f64 = 1.0 / 120.0;
 const IDLE: Input = Input { throttle: 0.0, steer: 0.0, brake: 0.0, drive_power: None };
 
+#[test]
+fn running_gear_terrain_step_is_inertial() {
+    let road = terrain("road");
+    let flat = FnGround { height: |_: f64, _: f64| 0.0, surface: &road };
+    let raised = FnGround { height: |_: f64, _: f64| 0.12, surface: &road };
+    let (tm, mut t) = rig("su_t34_85");
+    place(&tm, &mut t, &flat, 0.0, 0.0, 0.0);
+    hold(&tm, &mut t, &flat, IDLE, 1.0);
+    let before = t.ss.comp.clone();
+    step(&tm, &mut t, IDLE, &raised, DT);
+    let change = t.ss.comp.iter().zip(before).map(|(a, b)| (a - b).abs()).fold(0.0, f64::max);
+    assert!(change < 0.11, "wheel terrain step must be inertial, got {change}");
+}
+
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
 }
@@ -350,6 +364,10 @@ fn the_js_mirror_and_this_model_stay_in_lockstep() {
             let d = len(sub(t.body.origin(), v3(&snap["origin"])));
             let a = len(sub(t.body.ez, v3(&snap["ez"]))) + len(sub(t.body.ey, v3(&snap["ey"])));
             let comp = snap["comp"].as_array().unwrap().iter().zip(&t.ss.comp).map(|(j, r)| (j.as_f64().unwrap() - r).abs()).fold(0.0, f64::max);
+            let rg = t.body.running_gear.as_ref().unwrap();
+            let q = snap["q"].as_array().unwrap().iter().zip(&rg.q).map(|(j, r)| (j.as_f64().unwrap() - r).abs()).fold(0.0, f64::max);
+            let qv = snap["qv"].as_array().unwrap().iter().zip(&rg.qv).map(|(j, r)| (j.as_f64().unwrap() - r).abs()).fold(0.0, f64::max);
+            assert!(q < 2e-3 && qv < 1e-2, "{id} step {k}: running gear q {q}, qv {qv}");
             let belts = snap["belts"].as_array().unwrap().iter().zip(&t.ds.belts).map(|(j, r)| (j.as_f64().unwrap() - r.v).abs()).fold(0.0, f64::max);
             if comp >= 2e-3 { eprintln!("js {:?}\nrs {:?}", snap["comp"], t.ss.comp); }
             assert!(d < 2e-3 && a < 2e-3 && comp < 2e-3 && belts < 1e-2, "{id} step {k}: position {d}, axes {a}, wheels {comp}, tracks {belts}");
@@ -391,4 +409,163 @@ fn a_track_shot_off_leaves_the_vehicle_all_but_stuck() {
     let (left, d_left) = go([true, false]);
     assert!(d_left < d_sound * 0.4 && left.speed_kmh < sound.speed_kmh * 0.4, "{d_left} vs {d_sound}");
     assert!(left.track_speed_left.abs() < 0.05 && left.track_speed_right > 0.2, "{} {}", left.track_speed_left, left.track_speed_right);
+}
+
+#[test]
+fn running_gear_static_mass_com_and_tensor_recombine_exactly() {
+    for id in ["de_tiger_e", "su_t34_85", "us_m4a3_76w_hvss"] {
+        let (tm, t) = rig(id); let rg = t.body.running_gear.as_ref().unwrap(); let m = &rg.model;
+        let total = m.sprung_mass + m.wheel_mass.iter().sum::<f64>();
+        assert!((total - tm.mass).abs() < 1e-8);
+        let mut moment = scale(m.sprung_com, m.sprung_mass);
+        for i in 0..m.wheel_mass.len() { moment = madd(moment, m.points[i], m.wheel_mass[i]); }
+        assert!(len(sub(scale(moment, 1.0 / total), tm.com)) < 1e-10);
+        let mut tensor = m.sprung_inertia;
+        let mut add_point = |mass: f64, p: V3| {
+            let d = sub(p, tm.com); let d2 = dot(d, d);
+            for a in 0..3 { for b in 0..3 { tensor[a * 3 + b] += mass * ((if a == b { d2 } else { 0.0 }) - d[a] * d[b]); } }
+        };
+        add_point(m.sprung_mass, m.sprung_com);
+        for i in 0..m.wheel_mass.len() { add_point(m.wheel_mass[i], m.points[i]); }
+        for a in 0..3 { for b in 0..3 { assert!((tensor[a * 3 + b] - if a == b { tm.inertia[a] } else { 0.0 }).abs() < 1e-6); } }
+        assert_eq!(m.estimated_ratio, 0.06);
+        assert!((tm.sp.units.iter().map(|u| u.p).sum::<f64>() + m.wheel_mass.iter().sum::<f64>() * GRAVITY - tm.mass * GRAVITY).abs() < 1e-6);
+    }
+}
+
+#[test]
+fn running_gear_force_accelerates_assembly_and_freefall_is_shared() {
+    let (tm, mut t) = rig("us_m4a3_76w_hvss");
+    t.body.linear_damping = 0.0; t.body.angular_damping = 0.0;
+    t.body.add_force([10000.0, 0.0, 0.0]); t.body.integrate_velocity(1.0 / 240.0);
+    assert!((t.body.v[0] * 240.0 - 10000.0 / tm.mass).abs() < 1e-10);
+    assert!((t.body.v[1] + GRAVITY / 240.0).abs() < 1e-10);
+    assert!(t.body.running_gear.as_ref().unwrap().qv.iter().all(|v| v.abs() < 1e-10));
+}
+
+fn running_gear_kinetic(body: &VehicleRigidBody) -> (f64, V3) {
+    let rg = body.running_gear.as_ref().unwrap(); let m = &rg.model;
+    let v = body.local_dir(body.v); let w = body.local_dir(body.w);
+    let velocity = |r: V3, qv: f64| add(add(v, cross(w, r)), [0.0, qv, 0.0]);
+    let vs = velocity(sub(m.sprung_com, m.com), 0.0);
+    let mut energy = 0.5 * m.sprung_mass * dot(vs, vs); let mut momentum = scale(vs, m.sprung_mass);
+    for a in 0..3 { for b in 0..3 { energy += 0.5 * w[a] * m.sprung_inertia[a * 3 + b] * w[b]; } }
+    for i in 0..rg.q.len() {
+        let mut r = sub(m.points[i], m.com); r[1] += rg.q[i]; let vi = velocity(r, rg.qv[i]);
+        energy += 0.5 * m.wheel_mass[i] * dot(vi, vi); momentum = madd(momentum, vi, m.wheel_mass[i]);
+    }
+    (energy, body.world_dir(momentum))
+}
+
+#[test]
+fn running_gear_internal_impulse_preserves_free_assembly_momentum_and_bias_energy() {
+    let (tm, mut t) = rig("us_m4a3_76w_hvss");
+    t.body.v = [1.2, -0.5, 0.7]; t.body.w = [0.7, 0.5, -0.4];
+    let rg = t.body.running_gear.as_mut().unwrap();
+    for i in 0..rg.q.len() { rg.q[i] = 0.03 * (i as f64).sin(); rg.qv[i] = 0.2 * (i as f64).cos(); }
+    t.body.refresh_running_gear();
+    let before = running_gear_kinetic(&t.body).1;
+    t.body.apply_relative_impulse(tm.sp.units[0].heave, -120.0); t.body.apply_relative_impulse(tm.sp.units[0].rock, 75.0);
+    assert!(len(sub(running_gear_kinetic(&t.body).1, before)) < 1e-8);
+    let energy = running_gear_kinetic(&t.body).0;
+    for _ in 0..2000 {
+        let w = t.body.local_dir(t.body.w);
+        let (dv, dw) = t.body.running_gear.as_mut().unwrap().integrate_velocity([0.0; 3], [0.0; 3], w, [0.0; 3], 0.0001);
+        t.body.v = add(t.body.v, t.body.world_dir(dv)); t.body.w = add(t.body.w, t.body.world_dir(dw));
+        t.body.integrate_position(0.0001);
+    }
+    assert!((running_gear_kinetic(&t.body).0 / energy - 1.0).abs() < 0.0002);
+}
+
+#[test]
+fn running_gear_hint_roundtrip_and_invalid_legacy_fallback() {
+    let road = terrain("road"); let flat = FnGround { height: |_: f64, _: f64| 0.0, surface: &road };
+    let (tm, mut t) = rig("su_t34_85");
+    let rg = t.body.running_gear.as_mut().unwrap(); rg.q[0] = 0.15; rg.qv[0] = -0.8;
+    let sent = net_state(&t); let mut remote = Tank::new(&tm);
+    apply_net_state(&mut remote, &sent); reconstruct_running_gear(&tm, &mut remote, &flat, DT);
+    let rg = remote.body.running_gear.as_ref().unwrap();
+    assert_eq!(rg.q[0], 0.15); assert_eq!(rg.qv[0], -0.8); assert_eq!(remote.ss.comp[0], 0.15);
+    assert!(rg.normal_impulse.iter().all(|x| *x == 0.0));
+    for invalid in [None, Some(RunningGearHint { version: 1, q: vec![], qv: vec![] }), Some(RunningGearHint { version: 1, q: vec![f64::NAN; t.ss.comp.len()], qv: vec![0.0; t.ss.comp.len()] }), Some(RunningGearHint { version: 1, q: vec![100.0; t.ss.comp.len()], qv: vec![100.0; t.ss.comp.len()] })] {
+        let mut packet = sent.clone(); packet.rg = invalid;
+        apply_net_state(&mut remote, &packet); reconstruct_running_gear(&tm, &mut remote, &flat, DT);
+        let rg = remote.body.running_gear.as_ref().unwrap();
+        assert!(rg.q.iter().all(|q| q.is_finite() && q.abs() < 0.3)); assert!(rg.qv.iter().all(|qv| *qv == 0.0));
+    }
+    let mut legacy = serde_json::to_value(sent).unwrap(); legacy.as_object_mut().unwrap().remove("rg");
+    assert!(serde_json::from_value::<NetState>(legacy).unwrap().rg.is_none());
+}
+
+#[test]
+fn running_gear_unload_landing_bogie_decay_and_stops_are_finite() {
+    let road = terrain("road"); let flat = FnGround { height: |_: f64, _: f64| 0.0, surface: &road };
+    let (tm, mut t) = rig("su_t34_85"); place(&tm, &mut t, &flat, 0.0, 0.0, 0.0); hold(&tm, &mut t, &flat, IDLE, 1.0);
+    t.body.running_gear.as_mut().unwrap().q[0] += 0.2; t.body.refresh_running_gear(); step(&tm, &mut t, IDLE, &flat, DT);
+    assert_eq!(t.ss.load[0], 0.0); assert!(t.ss.load[1..].iter().any(|l| *l > 0.0));
+    t.body.pos[1] += 0.8; step(&tm, &mut t, IDLE, &flat, DT); assert_eq!(t.ss.load.iter().sum::<f64>(), 0.0); assert!(t.contacts.is_empty());
+    let mut max: f64 = 0.0;
+    run(&tm, &mut t, &flat, |_| IDLE, 3.0, |_, t| { max = max.max(t.ss.load.iter().copied().fold(0.0, f64::max)); assert!(t.ss.comp.iter().all(|x| x.is_finite())); });
+    assert!(max < 30.0 * tm.mass * GRAVITY / t.ss.load.len() as f64);
+    assert!((t.ss.load.iter().sum::<f64>() / (tm.mass * GRAVITY) - 1.0).abs() < 0.02);
+    let far = FnGround { height: |_: f64, _: f64| -100.0, surface: &road };
+    let (tm, mut t) = rig("us_m4a3_76w_hvss"); t.body.pos[1] = 20.0;
+    let rg = t.body.running_gear.as_mut().unwrap(); rg.q[0] = 0.04; rg.q[1] = -0.04; t.body.refresh_running_gear();
+    hold(&tm, &mut t, &far, IDLE, 1.0);
+    let rg = t.body.running_gear.as_ref().unwrap(); assert!(((rg.q[0] - rg.q[1]) / 2.0).abs() < 0.015);
+    t.body.running_gear.as_mut().unwrap().q[0] = 2.0; t.body.refresh_running_gear(); hold(&tm, &mut t, &far, IDLE, 2.0);
+    let rg = t.body.running_gear.as_ref().unwrap(); assert!(rg.q.iter().chain(&rg.qv).all(|x| x.is_finite())); assert!(rg.q[0].abs() < 0.5);
+}
+
+#[test]
+fn running_gear_estimate_shrinks_and_interleaved_volume_is_preserved() {
+    let mut v = tg_vehicle::load_vehicle(&root().join("vehicles").join("de_tiger_e")).unwrap();
+    let gear = GearGeometry::from_visual(v.visual.as_ref().unwrap().get("running_gear").unwrap()).unwrap();
+    assert_eq!(gear.stations.len(), 8);
+    let source = v.visual.as_ref().unwrap()["running_gear"]["wheels"].as_array().unwrap();
+    assert_eq!(source.len(), 16);
+    for (i, st) in gear.stations.iter().enumerate() {
+        let proxy = source.iter().filter(|w| (w["z"].as_f64().unwrap() - st.z).abs() < 5e-4).map(|w| w["r"].as_f64().unwrap().powi(2) * w["w"].as_f64().unwrap_or(gear.track_width)).sum::<f64>();
+        assert!((gear.station_volume_proxy[i] - proxy).abs() < 1e-12);
+    }
+    v.def.physics.inertia_kgm2 = Some([100.0; 3]);
+    let tiny = TankModel::from_vehicle(&v, TankOpts::default()).unwrap();
+    assert!(tiny.running_gear.estimated_ratio > 0.0 && tiny.running_gear.estimated_ratio < 0.06);
+    let t = Tank::new(&tiny); let a = t.body.running_gear.as_ref().unwrap().a;
+    for i in 0..3 { assert!((a[i * 6 + i] - tiny.mass).abs() < 1e-6); assert!((a[(i + 3) * 6 + i + 3] - tiny.inertia[i]).abs() < 1e-6); }
+    v.def.physics.inertia_kgm2 = None; v.def.physics.suspension.station_mass_kg = Some(vec![100.0; gear.stations.len()]);
+    let explicit = TankModel::from_vehicle(&v, TankOpts::default()).unwrap();
+    assert!(explicit.running_gear.explicit_masses); assert_eq!(explicit.running_gear.wheel_mass, vec![100.0; 16]);
+    assert_eq!(explicit.running_gear.sprung_mass, explicit.mass - 1600.0);
+}
+
+#[test]
+fn running_gear_coupled_damping_cannot_add_energy_for_opposing_velocities() {
+    let (_, mut damped) = rig("su_t34_85"); damped.body.v = [0.0, 1.0, 0.0];
+    damped.body.running_gear.as_mut().unwrap().qv.fill(-20.0); damped.body.angular_damping = 0.0;
+    let mut free = damped.clone(); damped.body.linear_damping = 0.5; free.body.linear_damping = 0.0;
+    damped.body.integrate_velocity(0.01); free.body.integrate_velocity(0.01);
+    assert!(running_gear_kinetic(&damped.body).0 <= running_gear_kinetic(&free.body).0);
+}
+
+#[test]
+fn running_gear_cached_response_matches_the_mass_solve_and_expires() {
+    use super::running_gear_dynamics::{MassResponse, WheelBlend};
+    let (tm, mut t) = rig("de_tiger_e"); t.body.place([0.0, 3.0, 0.0], 0.4);
+    let rg = t.body.running_gear.as_mut().unwrap();
+    for i in 0..rg.q.len() { rg.q[i] = 0.02 * (i as f64).sin(); rg.qv[i] = 0.3 * (i as f64).cos(); }
+    t.body.refresh_running_gear(); let mut direct = t.body.clone();
+    let n = [0.1, 0.97, 0.2]; let blend = WheelBlend::pair(0, 0.4, 1, 0.6); let p = t.body.world_point([1.5, 0.1, 1.1]);
+    let mut cache = MassResponse::new(tm.sp.stations.len()); t.body.prepare_contact_response(n, p, blend, &mut cache);
+    assert!((cache.inv_mass - t.body.coupled_inv_mass_along(n, p, blend)).abs() < 1e-12);
+    let before = dot(t.body.coupled_point_velocity(p, blend), n);
+    direct.coupled_apply_impulse_at(scale(n, 123.0), p, blend); t.body.apply_cached_response(&cache, 123.0);
+    assert!(len(sub(t.body.v, direct.v)) < 1e-12 && len(sub(t.body.w, direct.w)) < 1e-12);
+    let a = t.body.running_gear.as_ref().unwrap(); let b = direct.running_gear.as_ref().unwrap();
+    assert!(a.qv.iter().zip(&b.qv).all(|(a, b)| (a - b).abs() < 1e-12));
+    assert!((dot(t.body.coupled_point_velocity(p, blend), n) - before - 123.0 * cache.inv_mass).abs() < 1e-12);
+    t.body.refresh_running_gear();
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| t.body.apply_cached_response(&cache, 1.0))).is_err());
+    t.body.prepare_contact_response(n, p, blend, &mut cache); t.body.install_running_gear(Arc::clone(&tm.running_gear));
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| t.body.apply_cached_response(&cache, 1.0))).is_err());
 }

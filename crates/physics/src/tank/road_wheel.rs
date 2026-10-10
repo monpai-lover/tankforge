@@ -1,8 +1,8 @@
 //! RoadWheelSystem: where each road wheel is. One station per road-wheel axle and side; the wheel
 //! stands on the track, not on the bare ground: the track bridges a dip narrower than the wheel
-//! spacing and wraps round a hump before the wheel reaches it ([`BRIDGE`]). Wheels have no mass
-//! of their own, so they follow the ground at once while the hull, with all the mass, follows
-//! through the springs (wheel response is faster than hull response).
+//! spacing and wraps round a hump before the wheel reaches it ([`BRIDGE`]). Wheels have
+//! tracked inertial coordinates owned by running_gear_dynamics; terrain cannot set their
+//! displacement instantaneously. Wheel spin still comes only from the existing belt equivalent.
 //! (client/web/src/sim/tank/suspension.js mirrors this file and suspension.rs.)
 use super::math::*;
 
@@ -22,6 +22,8 @@ pub struct Wheel {
 pub struct GearGeometry {
     /// One per axle, front first (interleaved wheels on one axle count once).
     pub stations: Vec<Wheel>,
+    /// Disc-volume proxy per axle, preserving all interleaved discs before geometry dedup.
+    pub station_volume_proxy: Vec<f64>,
     pub track_x: f64,
     pub track_width: f64,
     pub thickness: f64,
@@ -38,21 +40,24 @@ impl GearGeometry {
     pub fn from_visual(rg: &serde_json::Value) -> Option<Self> {
         let num = |v: &serde_json::Value, k: &str| v.get(k).and_then(|x| x.as_f64());
         let wheel = |v: &serde_json::Value| -> Option<Wheel> { Some(Wheel { z: num(v, "z")?, y: num(v, "y")?, r: num(v, "r")? }) };
-        let mut stations: Vec<Wheel> = Vec::new();
-        for w in rg.get("wheels")?.as_array()? {
-            let w = wheel(w)?;
-            if !stations.iter().any(|s| (s.z - w.z).abs() < 5e-4) {
-                stations.push(w);
-            }
+        let mut entries: Vec<(Wheel, f64)> = Vec::new();
+        for v in rg.get("wheels")?.as_array()? {
+            let w = wheel(v)?;
+            let proxy = w.r * w.r * num(v, "w").unwrap_or(num(rg, "track_width")?);
+            if let Some(e) = entries.iter_mut().find(|e| (e.0.z - w.z).abs() < 5e-4) { e.1 += proxy; }
+            else { entries.push((w, proxy)); }
         }
-        if stations.is_empty() {
+        if entries.is_empty() {
             return None;
         }
-        stations.sort_by(|a, b| b.z.total_cmp(&a.z));
+        entries.sort_by(|a, b| b.0.z.total_cmp(&a.0.z));
+        let stations = entries.iter().map(|e| e.0).collect();
+        let station_volume_proxy = entries.iter().map(|e| e.1).collect();
         let rollers: Vec<Wheel> = rg.get("rollers").and_then(|r| r.as_array()).map(|a| a.iter().filter_map(wheel).collect()).unwrap_or_default();
         let sag = num(rg, "track_sag").unwrap_or(if rollers.is_empty() { 0.03 } else { 0.012 });
         Some(Self {
             stations,
+            station_volume_proxy,
             track_x: num(rg, "track_x")?,
             track_width: num(rg, "track_width")?,
             thickness: num(rg, "track_thickness").unwrap_or(0.08),
@@ -98,6 +103,10 @@ pub struct GroundProfile {
 /// Height of the track under station `s` (world y): the highest of the ground under the wheel
 /// and the ground nearby, falling away round the wheel's rim and then at the bridging angle.
 pub fn support_under(window: f64, prof: &GroundProfile, s: &Station) -> f64 {
+    support_under_mode(window, prof, s, false)
+}
+
+pub fn support_under_mode(window: f64, prof: &GroundProfile, s: &Station, bare: bool) -> f64 {
     let zs = &prof.zs;
     let g = &prof.h;
     let mut j = 1;
@@ -108,11 +117,11 @@ pub fn support_under(window: f64, prof: &GroundProfile, s: &Station) -> f64 {
     let mut best = g[j - 1] + (g[j] - g[j - 1]) * u;
     for k in 0..zs.len() {
         let dz = (zs[k] - s.z).abs();
-        if dz > window || prof.run[k] >= 0.0 {
+        if dz > window || prof.run[k] >= 0.0 || (bare && dz >= s.r) {
             continue;
         }
         let round = if dz < s.r { s.r - (s.r * s.r - dz * dz).sqrt() } else { f64::INFINITY };
-        let v = g[k] - round.min(BRIDGE * dz);
+        let v = g[k] - if bare { round } else { round.min(BRIDGE * dz) };
         if v > best {
             best = v;
         }

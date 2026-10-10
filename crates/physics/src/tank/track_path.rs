@@ -241,7 +241,7 @@ mod tests {
 
     fn gear() -> GearGeometry {
         let stations = (0..5).map(|i| Wheel { z: 1.6 - 0.8 * i as f64, y: 0.4, r: 0.33 }).collect();
-        GearGeometry { stations, track_x: 1.2, track_width: 0.5, thickness: 0.08, sprocket: Wheel { z: 2.5, y: 0.7, r: 0.32 }, idler: Wheel { z: -2.4, y: 0.6, r: 0.3 }, rollers: vec![], sag: 0.03 }
+        GearGeometry { stations, station_volume_proxy: vec![], track_x: 1.2, track_width: 0.5, thickness: 0.08, sprocket: Wheel { z: 2.5, y: 0.7, r: 0.32 }, idler: Wheel { z: -2.4, y: 0.6, r: 0.3 }, rollers: vec![], sag: 0.03 }
     }
 
     #[test]

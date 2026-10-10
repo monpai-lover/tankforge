@@ -5,6 +5,7 @@
 //! push, capped so a buried hull is lifted out, not launched).
 //! (client/web/src/sim/tank/contacts.js mirrors this file and track_contact.rs.)
 use super::math::*;
+use super::running_gear_dynamics::{ResponsePair, WheelBlend};
 use super::rigid_body::VehicleRigidBody;
 use super::road_wheel::{si, GearGeometry, GroundProfile};
 use super::suspension::{SuspensionState, SuspensionSystem};
@@ -61,6 +62,7 @@ pub struct ContactGeometry {
     pub contact_length: f64,
     pub track_width: f64,
     pub track_x: f64,
+    pub station_count: usize,
     /// Points on the hull floor between the tracks.
     pub belly: Vec<V3>,
     pub run_k: f64,
@@ -77,6 +79,7 @@ pub struct ContactState {
     pub belly_prev: Vec<f64>,
     /// Total belly load, N.
     pub belly: f64,
+    pub response_pool: Vec<ResponsePair>,
 }
 
 impl ContactGeometry {
@@ -138,6 +141,7 @@ impl ContactGeometry {
             contact_length: fw.z - rw.z + (fw.r + rw.r) * 0.5,
             track_width: gear.track_width,
             track_x: gear.track_x,
+            station_count: gear.stations.len() * 2,
             belly,
             run_k: RUN_K * sp.k * share,
             run_c: RUN_C * sp.c * share,
@@ -149,7 +153,7 @@ impl ContactGeometry {
     pub fn new_state(&self) -> ContactState {
         let n = self.zs.len();
         let row = || GroundProfile { zs: self.zs.clone(), run: self.run.clone(), h: vec![0.0; n], pts: vec![[0.0; 3]; n] };
-        ContactState { prof: [row(), row()], run_prev: [vec![0.0; n], vec![0.0; n]], belly_prev: vec![0.0; self.belly.len()], belly: 0.0 }
+        ContactState { prof: [row(), row()], run_prev: [vec![0.0; n], vec![0.0; n]], belly_prev: vec![0.0; self.belly.len()], belly: 0.0, response_pool: (0..2 * self.cz.len() + 2 * self.zs.len() + self.belly.len()).map(|_| ResponsePair::new(self.station_count)).collect() }
     }
 
     /// Samples the ground under both tracks.
@@ -184,53 +188,43 @@ impl ContactGeometry {
         norm([-along * f[0] - across * r[0], 1.0, -along * f[2] - across * r[2]])
     }
 
-    /// Rigid contacts (track runs to the end wheels, the belly): penalty forces, only pushing.
-    /// Returns them as friction contacts with their normal loads.
-    pub fn apply_rigid_contacts(&self, cs: &mut ContactState, body: &mut VehicleRigidBody, terrain: &dyn Ground, dt: f64, sp: &SuspensionSystem, ss: &SuspensionState) -> Vec<Contact> {
-        let mut extra = Vec::new();
-        let per = sp.per_side();
+    /// Soft implicit normal impulses using current contact velocity and the coupled mass operator.
+    pub fn apply_rigid_contacts(&self, cs: &mut ContactState, body: &mut VehicleRigidBody, terrain: &dyn Ground, dt: f64, sp: &SuspensionSystem, ss: &SuspensionState, broken: [bool; 2]) -> Vec<Contact> {
+        let mut extra = Vec::new(); let per = sp.per_side();
         for side in [1i8, -1] {
+            if broken[si(side)] { cs.run_prev[si(side)].fill(0.0); continue; }
             let base = if side > 0 { 0 } else { per };
-            let fw = sp.stations[base];
-            let rw = sp.stations[base + per - 1];
+            let fw = sp.stations[base]; let rw = sp.stations[base + per - 1];
             for k in 0..self.zs.len() {
-                if self.run[k] < 0.0 {
-                    continue;
-                }
-                // the run leaves the end road wheel where that wheel is now, and reaches the fixed end wheel
-                let z = self.zs[k];
-                let front = z > 0.0;
+                if self.run[k] < 0.0 { continue; }
+                let z = self.zs[k]; let front = z > 0.0;
                 let (w, e) = if front { (fw, self.front) } else { (rw, self.rear) };
                 let u = ((z - w.z) / (e.z - w.z)).clamp(0.0, 1.0);
-                let lift = ss.comp[if front { base } else { base + per - 1 }] * (1.0 - u);
-                let pw = body.world_point([side as f64 * self.track_x, self.ground + self.run[k] + lift, z]);
-                let pen = cs.prof[si(side)].h[k] - pw[1];
-                let rate = (pen - cs.run_prev[si(side)][k]) / dt;
-                cs.run_prev[si(side)][k] = pen;
-                if pen <= 0.0 {
-                    continue;
-                }
-                let f = (self.run_k * pen + self.run_c * rate.max(0.0)).min(self.run_k * 0.3);
+                let i = if front { base } else { base + per - 1 };
+                let blend = WheelBlend::single(i, 1.0 - u);
+                let p = body.world_point([side as f64 * self.track_x, self.ground + self.run[k] + ss.comp[i] * (1.0 - u), z]);
+                let pen = cs.prof[si(side)].h[k] - p[1]; cs.run_prev[si(side)][k] = pen;
                 let n = self.ground_normal(cs, body, side, z);
-                body.add_force_at(scale(n, f), pw);
-                extra.push(Contact::new(pw, n, f, side, Grip::of(terrain.surface(pw[0], pw[2])), None));
+                let load = normal_impulse(body, p, n, pen * n[1], self.run_k, self.run_c, self.run_k * 0.3, dt, blend);
+                if load > 0.0 {
+                    let mut c = Contact::new(p, n, load, side, Grip::of(terrain.surface(p[0], p[2])), None); c.wheels = blend; extra.push(c);
+                }
             }
         }
         let mut belly = 0.0;
         for (i, b) in self.belly.iter().enumerate() {
-            let pw = body.world_point(*b);
-            let pen = terrain.height(pw[0], pw[2]) - pw[1];
-            let rate = (pen - cs.belly_prev[i]) / dt;
-            cs.belly_prev[i] = pen;
-            if pen <= 0.0 {
-                continue;
-            }
-            let f = (self.belly_k * pen + self.belly_c * rate.max(0.0)).min(self.belly_k * 0.15);
-            body.add_force_at([0.0, f, 0.0], pw);
-            belly += f;
-            extra.push(Contact::new(pw, [0.0, 1.0, 0.0], f, 0, Grip { traction_mu: BELLY_MU, lateral_mu: BELLY_MU, shear_k: None }, None));
+            let p = body.world_point(*b); let pen = terrain.height(p[0], p[2]) - p[1]; cs.belly_prev[i] = pen;
+            let load = normal_impulse(body, p, [0.0, 1.0, 0.0], pen, self.belly_k, self.belly_c, self.belly_k * 0.15, dt, WheelBlend::default());
+            belly += load;
+            if load > 0.0 { extra.push(Contact::new(p, [0.0, 1.0, 0.0], load, 0, Grip { traction_mu: BELLY_MU, lateral_mu: BELLY_MU, shear_k: None }, None)); }
         }
-        cs.belly = belly;
-        extra
+        cs.belly = belly; extra
     }
+}
+
+fn normal_impulse(body: &mut VehicleRigidBody, p: V3, n: V3, pen: f64, k: f64, c: f64, cap: f64, dt: f64, blend: WheelBlend) -> f64 {
+    if pen <= 0.0 { return 0.0; }
+    let inv = body.coupled_inv_mass_along(n, p, blend); let vn = dot(body.coupled_point_velocity(p, blend), n);
+    let j = (dt * (k * pen - (c + dt * k) * vn) / (1.0 + dt * (c + dt * k) * inv)).clamp(0.0, cap * dt);
+    body.coupled_apply_impulse_at(scale(n, j), p, blend); j / dt
 }

@@ -174,6 +174,12 @@
               "type": "number",
               "description": "Damping of one road-wheel station, N s/m."
             },
+            "station_mass_kg": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "type": "number", "exclusiveMinimum": 0 },
+              "description": "Unsprung wheel/arm mass per axle of one side, front first; split from existing assembly mass. Absent: deterministic 6% wheel-volume estimate."
+            },
             "kind": {
               "type": "string",
               "enum": [

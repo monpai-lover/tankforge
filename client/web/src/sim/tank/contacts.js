@@ -11,6 +11,7 @@
 // without creeping and nothing overshoots at any stiffness.
 import { add, sub, scale, dot, cross, norm, clamp } from './math3.js';
 import { shearRatio } from '../terra.js';
+import { newMassResponse } from './runningGearDynamics.js';
 
 const RUN_K = 6; // in units of one station's spring rate: the idler and the run of track to it are nearly rigid
 const RUN_C = 4;
@@ -75,6 +76,7 @@ export function makeContacts(gear, sp, opts = {}) {
     contactLength: fw.z - rw.z + (fw.r + rw.r) * 0.5,
     trackWidth: gear.trackWidth,
     trackX: gear.trackX,
+    stationCount: gear.stations.length * 2,
     belly,
     runK: RUN_K * sp.k * share,
     runC: RUN_C * sp.c * share,
@@ -95,6 +97,7 @@ export function newContactState(ct) {
     slip: { 1: 0, [-1]: 0 },
     groundForce: { 1: 0, [-1]: 0 },
     belly: 0,
+    responsePool: Array.from({ length: 2 * ct.cz.length + 2 * ct.zs.length + ct.belly.length }, () => ({ l: newMassResponse(ct.stationCount), t: newMassResponse(ct.stationCount) })),
   };
 }
 
@@ -133,81 +136,89 @@ function groundNormal(ct, cs, body, side, z) {
  * Rigid contacts (track runs to the end wheels, the belly): penalty forces, only pushing.
  * Returns extra friction contacts (with their normal loads).
  */
-export function applyRigidContacts(ct, cs, body, terrain, surfaceOf, dt, sp, ss) {
+function normalImpulse(body, p, n, pen, k, c, cap, dt, wheels = null) {
+  if (pen <= 0) return 0;
+  const inv = body.invMassAlong(n, p, wheels);
+  const vn = dot(body.pointVelocity(p, wheels), n);
+  const j = clamp(dt * (k * pen - (c + dt * k) * vn) / (1 + dt * (c + dt * k) * inv), 0, cap * dt);
+  body.applyImpulseAt(scale(n, j), p, wheels);
+  return j / dt;
+}
+
+export function applyRigidContacts(ct, cs, body, terrain, surfaceOf, dt, sp, ss, broken = null) {
   const extra = [];
   const per = sp.stations.length / 2;
   for (const side of [1, -1]) {
-    const prof = cs.prof[side];
-    const prev = cs.runPrev[side];
-    const base = side > 0 ? 0 : per;
-    const fw = sp.stations[base];
-    const rw = sp.stations[base + per - 1];
+    if (broken?.[side]) { cs.runPrev[side].fill(0); continue; }
+    const prof = cs.prof[side], base = side > 0 ? 0 : per;
+    const fw = sp.stations[base], rw = sp.stations[base + per - 1];
     for (let k = 0; k < ct.zs.length; k++) {
       if (ct.run[k] < 0) continue;
-      // the run leaves the end road wheel where that wheel is now, and reaches the fixed end wheel
-      const z = ct.zs[k];
-      const front = z > 0;
-      const w = front ? fw : rw;
-      const e = front ? ct.front : ct.rear;
+      const z = ct.zs[k], front = z > 0;
+      const w = front ? fw : rw, e = front ? ct.front : ct.rear;
       const u = clamp((z - w.z) / (e.z - w.z), 0, 1);
-      const lift = ss.comp[front ? base : base + per - 1] * (1 - u);
-      const pw = body.worldPoint([side * ct.trackX, ct.ground + ct.run[k] + lift, z]);
+      const i = front ? base : base + per - 1;
+      const wheels = [i, 1 - u];
+      const pw = body.worldPoint([side * ct.trackX, ct.ground + ct.run[k] + ss.comp[i] * (1 - u), z]);
       const pen = prof.h[k] - pw[1];
-      const rate = (pen - prev[k]) / dt;
-      prev[k] = pen;
-      if (pen <= 0) continue;
-      const f = Math.min(ct.runK * pen + ct.runC * Math.max(rate, 0), ct.runK * 0.3);
-      const n = groundNormal(ct, cs, body, side, ct.zs[k]);
-      body.addForceAt(scale(n, f), pw);
-      extra.push({ p: pw, n, N: f, side, surface: surfaceOf(pw[0], pw[2]) });
+      cs.runPrev[side][k] = pen;
+      const n = groundNormal(ct, cs, body, side, z);
+      const N = normalImpulse(body, pw, n, pen * n[1], ct.runK, ct.runC, ct.runK * 0.3, dt, wheels);
+      if (N > 0) extra.push({ p: pw, n, N, side, surface: surfaceOf(pw[0], pw[2]), wheels });
     }
   }
   let belly = 0;
   ct.belly.forEach((b, i) => {
     const pw = body.worldPoint(b);
-    const h = terrain.height(pw[0], pw[2]);
-    const pen = h - pw[1];
-    const rate = (pen - cs.bellyPrev[i]) / dt;
+    const pen = terrain.height(pw[0], pw[2]) - pw[1];
     cs.bellyPrev[i] = pen;
-    if (pen <= 0) return;
-    const f = Math.min(ct.bellyK * pen + ct.bellyC * Math.max(rate, 0), ct.bellyK * 0.15);
-    body.addForceAt([0, f, 0], pw);
-    belly += f;
-    extra.push({ p: pw, n: [0, 1, 0], N: f, side: 0, surface: { traction_mu: BELLY_MU, lateral_mu: BELLY_MU } });
+    const N = normalImpulse(body, pw, [0, 1, 0], pen, ct.bellyK, ct.bellyC, ct.bellyK * 0.15, dt);
+    belly += N;
+    if (N > 0) extra.push({ p: pw, n: [0, 1, 0], N, side: 0, surface: { traction_mu: BELLY_MU, lateral_mu: BELLY_MU } });
   });
   cs.belly = belly;
   return extra;
 }
 
-/**
- * Friction contacts along each track's ground run, carrying the loads of the wheels near them.
- * wheels: the suspension (sp) and its state (ss).
- */
-export function trackContacts(ct, cs, body, sp, ss, surfaceOf) {
-  const out = [];
-  const per = sp.stations.length / 2;
+function groundHeight(prof, z) {
+  let k = 1;
+  while (k < prof.zs.length - 1 && prof.zs[k] < z) k++;
+  const u = clamp((z - prof.zs[k - 1]) / (prof.zs[k] - prof.zs[k - 1]), 0, 1);
+  return prof.h[k - 1] + u * (prof.h[k] - prof.h[k - 1]);
+}
+
+/** Only admitted ground samples receive wheel load; each wheel's weights normalize there. */
+export function trackContacts(ct, cs, body, sp, ss, surfaceOf, broken = null) {
+  const out = [], per = sp.stations.length / 2;
   for (const side of [1, -1]) {
-    const base = side > 0 ? 0 : per;
-    const st = sp.stations.slice(base, base + per);
+    const base = side > 0 ? 0 : per, st = sp.stations.slice(base, base + per);
+    if (broken?.[side]) {
+      for (let i = 0; i < per; i++) if (ss.load[base + i] > 0) {
+        const p = ss.contact[base + i];
+        out.push({ p, n: groundNormal(ct, cs, body, side, st[i].z), N: ss.load[base + i], side, surface: surfaceOf(p[0], p[2]), z: st[i].z, wheels: [base + i, 1] });
+      }
+      continue;
+    }
     const bottom = st.map((s, i) => s.y + ss.comp[base + i] - s.r - sp.thickness);
     const spacing = per > 1 ? (st[0].z - st[per - 1].z) / (per - 1) : 1;
-    // tent weights: each wheel's load goes to the samples within one wheel spacing of it
-    const w = ct.cz.map((z) => st.map((s) => Math.max(0, 1 - Math.abs(z - s.z) / spacing)));
-    const wsum = st.map((_, i) => w.reduce((a, row) => a + row[i], 0) || 1);
-    ct.cz.forEach((z, k) => {
-      let N = 0;
-      for (let i = 0; i < per; i++) N += (ss.load[base + i] * w[k][i]) / wsum[i];
-      // the track's lower run between the wheels
+    const candidates = ct.cz.map(z => {
       let j = 0;
       while (j < per - 2 && st[j + 1].z > z) j++;
-      const a = st[j];
-      const b = st[j + 1] || a;
+      const a = st[j], b = st[j + 1] || a;
       const u = a === b ? 0 : clamp((a.z - z) / (a.z - b.z), 0, 1);
       const y = bottom[j] + ((bottom[j + 1] ?? bottom[j]) - bottom[j]) * u;
       const p = body.worldPoint([side * ct.trackX, y, z]);
-      const n = groundNormal(ct, cs, body, side, z);
-      out.push({ p, n, N, side, surface: surfaceOf(p[0], p[2]), z });
+      return { p, z, eligible: p[1] <= groundHeight(cs.prof[side], z) + 0.01, wheels: a === b ? [base + j, 1] : [base + j, 1 - u, base + j + 1, u] };
     });
+    const w = candidates.map(c => st.map(s => c.eligible ? Math.max(0, 1 - Math.abs(c.z - s.z) / spacing) : 0));
+    const wsum = st.map((_, i) => w.reduce((a, row) => a + row[i], 0) || 1);
+    for (let k = 0; k < candidates.length; k++) {
+      const c = candidates[k];
+      if (!c.eligible) continue;
+      let N = 0;
+      for (let i = 0; i < per; i++) N += ss.load[base + i] * w[k][i] / wsum[i];
+      if (N > 0) out.push({ p: c.p, n: groundNormal(ct, cs, body, side, c.z), N, side, surface: surfaceOf(c.p[0], c.p[2]), z: c.z, wheels: c.wheels });
+    }
   }
   return out;
 }
@@ -218,13 +229,14 @@ export function trackContacts(ct, cs, body, sp, ss, surfaceOf) {
  * brakes: {1: N, -1: N} brake force on each track. Each contact's longitudinal friction moves
  * both the hull (+J) and its track (-J / m_belt).
  */
-export function solveFriction(contacts, body, belts, brakes, dt, iterations = 8, motor = null) {
+export function solveFriction(contacts, body, belts, brakes, dt, iterations = 8, motor = null, responsePool = null) {
   const prep = contacts.filter((c) => c.N > 0);
   // a broken track (shot off) no longer runs round its wheels: the bare road wheels roll on the
   // ground on that side, and the engine drives the other track alone
   const broken = motor && motor.broken ? motor.broken : null;
   const off = (side) => !!(broken && side && broken[side]);
-  for (const c of prep) {
+  for (let ci = 0; ci < prep.length; ci++) {
+    const c = prep[ci];
     // tangent directions in the ground plane: along the hull and across it
     let tl = sub(body.ez, scale(c.n, dot(body.ez, c.n)));
     tl = norm(tl);
@@ -232,15 +244,21 @@ export function solveFriction(contacts, body, belts, brakes, dt, iterations = 8,
     c.tt = cross(c.n, tl);
     c.bare = off(c.side);
     const belt = c.side && !c.bare ? belts[c.side] : null;
-    c.kl = 1 / (body.invMassAlong(tl, c.p) + (belt ? 1 / belt.m : 0));
-    c.kt = 1 / body.invMassAlong(c.tt, c.p);
+    c.responseL = null; c.responseT = null;
+    if (responsePool && body.runningGear) {
+      c.responseL = responsePool[ci].l; c.responseT = responsePool[ci].t;
+      body.contactResponse(tl, c.p, c.wheels, c.responseL);
+      body.contactResponse(c.tt, c.p, c.wheels, c.responseT);
+    }
+    c.kl = 1 / ((c.responseL?.invMass ?? body.invMassAlong(tl, c.p, c.wheels)) + (belt ? 1 / belt.m : 0));
+    c.kt = 1 / (c.responseT?.invMass ?? body.invMassAlong(c.tt, c.p, c.wheels));
     const s = c.surface;
-    const vp = body.pointVelocity(c.p);
-    const vl = dot(vp, tl) - (belt ? belt.v : 0);
+    const gl = body.pointVelocityAlong(c.p, tl, c.wheels);
+    const vl = gl - (belt ? belt.v : 0);
     // soil needs some slip to carry thrust (Janosi-Hanamoto); hard ground grips at once
     let mul = s.traction_mu;
     if (s.soil && belt) {
-      const i = Math.abs(vl) / Math.max(Math.abs(belt.v), Math.abs(dot(vp, tl)), 0.5);
+      const i = Math.abs(vl) / Math.max(Math.abs(belt.v), Math.abs(gl), 0.5);
       mul *= Math.max(0.15, shearRatio(i, s.soil.K, 3.6));
     }
     // bare wheels roll: only their rolling drag holds them along the hull
@@ -300,9 +318,8 @@ export function solveFriction(contacts, body, belts, brakes, dt, iterations = 8,
     }
     for (const c of prep) {
       const belt = c.side && !c.bare ? belts[c.side] : null;
-      const vp = body.pointVelocity(c.p);
-      const vl = dot(vp, c.tl) - (belt ? belt.v : 0);
-      const vt = dot(vp, c.tt);
+      const vl = body.pointVelocityAlong(c.p, c.tl, c.wheels) - (belt ? belt.v : 0);
+      const vt = body.pointVelocityAlong(c.p, c.tt, c.wheels);
       let jl = c.jl - vl * c.kl;
       let jt = c.jt - vt * c.kt;
       // inside the friction ellipse the contact sticks; outside it slides, and sliding friction
@@ -327,7 +344,9 @@ export function solveFriction(contacts, body, belts, brakes, dt, iterations = 8,
       const dtt = jt - c.jt;
       c.jl = jl;
       c.jt = jt;
-      body.applyImpulseAt(add(scale(c.tl, dl), scale(c.tt, dtt)), c.p);
+      if (c.responseL) {
+        body.applyCachedResponse(c.responseL, dl); body.applyCachedResponse(c.responseT, dtt);
+      } else body.applyImpulseAt(add(scale(c.tl, dl), scale(c.tt, dtt)), c.p, c.wheels);
       if (belt) belt.v -= dl / belt.m;
     }
   }

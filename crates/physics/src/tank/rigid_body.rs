@@ -5,6 +5,8 @@
 //! Hull frame: +X right, +Y up, +Z forward, origin on the ground under the hull at static ride.
 //! (client/web/src/sim/tank/body.js mirrors this file.)
 use super::math::*;
+use super::running_gear_dynamics::{MassResponse, RunningGearModel, RunningGearState, WheelBlend};
+use std::sync::Arc;
 
 pub const GRAVITY: f64 = 9.81;
 
@@ -36,6 +38,8 @@ pub struct VehicleRigidBody {
     pub w: V3,
     pub linear_damping: f64,
     pub angular_damping: f64,
+    /// Tracked only. q/qv live here so all hull and wheel impulses use the same operator.
+    pub running_gear: Option<RunningGearState>,
     f: V3,
     t: V3,
 }
@@ -54,6 +58,7 @@ impl VehicleRigidBody {
             w: [0.0; 3],
             linear_damping: 0.01,
             angular_damping: 0.15,
+            running_gear: None,
             f: [0.0; 3],
             t: [0.0; 3],
         }
@@ -73,6 +78,7 @@ impl VehicleRigidBody {
         self.pos = add(origin, self.world_dir(self.com));
         self.v = [0.0; 3];
         self.w = [0.0; 3];
+        if let Some(rg) = &mut self.running_gear { rg.reset(); }
     }
 
     pub fn world_dir(&self, d: V3) -> V3 {
@@ -103,7 +109,16 @@ impl VehicleRigidBody {
     }
 
     pub fn point_velocity(&self, pw: V3) -> V3 {
-        add(self.v, cross(self.w, sub(pw, self.pos)))
+        self.coupled_point_velocity(pw, WheelBlend::default())
+    }
+
+    pub fn coupled_point_velocity(&self, pw: V3, blend: WheelBlend) -> V3 {
+        let mut v = add(self.v, cross(self.w, sub(pw, self.pos)));
+        if let Some(rg) = &self.running_gear {
+            let qv = (0..2).filter(|&k| blend.w[k] != 0.0).map(|k| blend.w[k] * rg.qv[blend.i[k]]).sum::<f64>();
+            v = madd(v, self.ey, qv);
+        }
+        v
     }
 
     /// I^-1 (world) applied to a world vector.
@@ -114,6 +129,14 @@ impl VehicleRigidBody {
 
     /// Effective inverse mass of the body for a push along unit `dir` at world point `pw`.
     pub fn inv_mass_along(&self, dir: V3, pw: V3) -> f64 {
+        self.coupled_inv_mass_along(dir, pw, WheelBlend::default())
+    }
+
+    pub fn coupled_inv_mass_along(&self, dir: V3, pw: V3, blend: WheelBlend) -> f64 {
+        if let Some(rg) = &self.running_gear {
+            let d = self.local_dir(dir); let r = self.local_dir(sub(pw, self.pos)); let t = cross(r, d);
+            return rg.inverse_mass([d[0], d[1], d[2], t[0], t[1], t[2]], blend, d[1]);
+        }
         let rn = cross(sub(pw, self.pos), dir);
         1.0 / self.mass + dot(rn, self.inv_inertia(rn))
     }
@@ -128,12 +151,31 @@ impl VehicleRigidBody {
     }
 
     pub fn apply_impulse_at(&mut self, j: V3, pw: V3) {
+        self.coupled_apply_impulse_at(j, pw, WheelBlend::default());
+    }
+
+    pub fn coupled_apply_impulse_at(&mut self, j: V3, pw: V3, blend: WheelBlend) {
+        if self.running_gear.is_some() {
+            let jl = self.local_dir(j); let r = self.local_dir(sub(pw, self.pos)); let tau = cross(r, jl);
+            let (dv, dw) = self.running_gear.as_mut().unwrap().impulse([jl[0], jl[1], jl[2], tau[0], tau[1], tau[2]], blend, jl[1]);
+            self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
+            return;
+        }
         self.v = madd(self.v, j, 1.0 / self.mass);
         self.w = add(self.w, self.inv_inertia(cross(sub(pw, self.pos), j)));
     }
 
     /// Velocity step from the accumulated forces (and gravity), then clears them.
     pub fn integrate_velocity(&mut self, dt: f64) {
+        if self.running_gear.is_some() {
+            let f = self.local_dir(self.f); let t = self.local_dir(self.t); let w = self.local_dir(self.w); let g = self.local_dir([0.0, -GRAVITY, 0.0]);
+            let (dv, dw) = self.running_gear.as_mut().unwrap().integrate_velocity(f, t, w, g, dt);
+            self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
+            let v = self.local_dir(self.v); let w = self.local_dir(self.w);
+            let (dv, dw) = self.running_gear.as_mut().unwrap().damp(v, w, self.linear_damping, self.angular_damping, self.inertia, dt);
+            self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
+            self.clear_forces(); return;
+        }
         self.v = madd(self.v, self.f, dt / self.mass);
         self.v[1] -= GRAVITY * dt;
         // gyroscopic term in hull axes: I w' = t - w x (I w)
@@ -158,6 +200,38 @@ impl VehicleRigidBody {
         self.ex = ex;
         self.ey = norm(ey);
         self.ez = ez;
+        if let Some(rg) = &mut self.running_gear {
+            for i in 0..rg.q.len() { rg.q[i] += rg.qv[i] * dt; }
+            rg.refresh();
+        }
+    }
+
+    pub fn install_running_gear(&mut self, model: Arc<RunningGearModel>) { self.running_gear = Some(RunningGearState::new(model)); }
+    pub fn prepare_contact_response(&self, dir: V3, pw: V3, blend: WheelBlend, cache: &mut MassResponse) {
+        let d = self.local_dir(dir); let r = self.local_dir(sub(pw, self.pos)); let t = cross(r, d);
+        self.running_gear.as_ref().unwrap().prepare_response([d[0], d[1], d[2], t[0], t[1], t[2]], blend, d[1], cache);
+    }
+    pub fn prepare_normal_response(&mut self, index: usize, dir: V3, pw: V3, blend: WheelBlend) {
+        let d = self.local_dir(dir); let r = self.local_dir(sub(pw, self.pos)); let t = cross(r, d);
+        self.running_gear.as_mut().unwrap().prepare_normal(index, [d[0], d[1], d[2], t[0], t[1], t[2]], blend, d[1]);
+    }
+    pub fn apply_cached_response(&mut self, cache: &MassResponse, impulse: f64) {
+        let (dv, dw) = self.running_gear.as_mut().unwrap().apply_response(cache, impulse);
+        self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
+    }
+    pub fn apply_relative_cached(&mut self, index: usize, impulse: f64) {
+        let (dv, dw) = self.running_gear.as_mut().unwrap().apply_relative_cache(index, impulse);
+        self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
+    }
+    pub fn apply_normal_cached(&mut self, index: usize, impulse: f64) {
+        let (dv, dw) = self.running_gear.as_mut().unwrap().apply_normal_cache(index, impulse);
+        self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
+    }
+    pub fn refresh_running_gear(&mut self) { if let Some(rg) = &mut self.running_gear { rg.refresh(); } }
+    pub fn relative_inv_mass(&self, blend: WheelBlend) -> f64 { self.running_gear.as_ref().unwrap().inverse_mass([0.0; 6], blend, 1.0) }
+    pub fn apply_relative_impulse(&mut self, blend: WheelBlend, j: f64) {
+        let (dv, dw) = self.running_gear.as_mut().unwrap().impulse([0.0; 6], blend, j);
+        self.v = add(self.v, self.world_dir(dv)); self.w = add(self.w, self.world_dir(dw));
     }
 
     pub fn attitude(&self) -> Attitude {

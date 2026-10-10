@@ -9,8 +9,9 @@
 //! and a rebound stop below the static position.
 //! (client/web/src/sim/tank/suspension.js mirrors this file.)
 use super::math::*;
+use super::running_gear_dynamics::WheelBlend;
 use super::rigid_body::{VehicleRigidBody, GRAVITY};
-use super::road_wheel::{si, support_under, GearGeometry, GroundProfile, Station};
+use super::road_wheel::{si, support_under, support_under_mode, GearGeometry, GroundProfile, Station};
 
 pub const BOGIE_KINDS: [&str; 3] = ["volute", "hvss", "leaf_bogie"];
 const BUMP_STOP: f64 = 30.0;
@@ -45,6 +46,10 @@ pub struct Unit {
     pub p: f64,
     /// Bogie arm swing either way (0 for a single wheel).
     pub lim: f64,
+    pub heave: WheelBlend,
+    pub rock: WheelBlend,
+    pub rock_k: f64,
+    pub rock_c: f64,
 }
 
 #[derive(Clone, Debug)]
@@ -78,10 +83,10 @@ pub struct SuspensionState {
     pub contact: Vec<V3>,
     /// N carried by each wheel.
     pub load: Vec<f64>,
+    normals: Vec<V3>,
     pub unit_x: Vec<f64>,
     /// Vertical velocity of each unit against the hull (+ compressing).
     pub unit_v: Vec<f64>,
-    pub unit_prev: Vec<Option<f64>>,
     pub spring: Vec<f64>,
     pub damper: Vec<f64>,
     pub force: Vec<f64>,
@@ -146,6 +151,10 @@ impl SuspensionSystem {
                     c: c * cnt,
                     p: members.iter().map(|&j| preload[j % per]).sum(),
                     lim: if pair { (0.6 * travel).max(0.06) } else { 0.0 },
+                    heave: if pair { WheelBlend::pair(base + i, 0.5, base + i + 1, 0.5) } else { WheelBlend::single(base + i, 1.0) },
+                    rock: if pair { WheelBlend::pair(base + i, 0.5, base + i + 1, -0.5) } else { WheelBlend::default() },
+                    rock_k: if pair { 0.05 * k * cnt } else { 0.0 },
+                    rock_c: if pair { 0.05f64.sqrt() * c * cnt } else { 0.0 },
                     members,
                 });
                 i += if pair { 2 } else { 1 };
@@ -170,9 +179,9 @@ impl SuspensionSystem {
             support: vec![0.0; n],
             contact: vec![[0.0; 3]; n],
             load: vec![0.0; n],
+            normals: vec![[0.0, 1.0, 0.0]; n],
             unit_x: vec![0.0; u],
             unit_v: vec![0.0; u],
-            unit_prev: vec![None; u],
             spring: vec![0.0; u],
             damper: vec![0.0; u],
             force: vec![0.0; u],
@@ -187,83 +196,90 @@ impl SuspensionSystem {
         (sup, (sup + s.r + self.thickness - h) / up_y)
     }
 
-    /// One substep: every station finds its ground, every unit pushes the hull at its mount.
-    /// profiles: [left, right]. Returns the total vertical load per side [left, right].
-    pub fn apply(&self, st: &mut SuspensionState, body: &mut VehicleRigidBody, profiles: &[GroundProfile; 2], dt: f64) -> [f64; 2] {
-        let xc: Vec<f64> = self
-            .stations
-            .iter()
-            .enumerate()
-            .map(|(i, s)| {
-                let (sup, x) = self.wanted(&profiles[si(s.side)], body, s);
-                st.support[i] = sup;
-                x
-            })
-            .collect();
-        let mut side_load = [0.0; 2];
+    pub fn sync_pose(&self, st: &mut SuspensionState, body: &VehicleRigidBody, broken: [bool; 2]) {
+        let rg = body.running_gear.as_ref().unwrap();
+        for (i, s) in self.stations.iter().enumerate() {
+            st.comp[i] = rg.q[i];
+            let thickness = if broken[si(s.side)] { 0.0 } else { self.thickness };
+            st.contact[i] = body.world_point([s.x, s.y + rg.q[i] - s.r - thickness, s.z]);
+        }
+    }
+
+    fn spring_impulse(&self, st: &mut SuspensionState, body: &mut VehicleRigidBody, u: &Unit, ui: usize, blend: WheelBlend, rock: bool, dt: f64) {
+        let rg = body.running_gear.as_ref().unwrap();
+        let mut x = 0.0; let mut v = 0.0;
+        for k in 0..2 { if blend.w[k] != 0.0 { x += blend.w[k] * rg.q[blend.i[k]]; v += blend.w[k] * rg.qv[blend.i[k]]; } }
+        let mut k = if rock { u.rock_k } else { u.k };
+        let mut c = if rock { u.rock_c } else { u.c * if v > 0.0 { DAMP_COMPRESSION } else { DAMP_REBOUND } };
+        let mut p = if rock { 0.0 } else { u.p };
+        let limit = if rock { u.lim } else { self.travel };
+        let low = if rock { -u.lim } else { -self.rebound };
+        let predicted = x + dt * v;
+        if predicted > limit { p -= BUMP_STOP * u.k * limit; k += BUMP_STOP * u.k; c += 3.0 * u.c; }
+        if predicted < low { p -= BUMP_STOP * u.k * low; k += BUMP_STOP * u.k; c += 3.0 * u.c; }
+        let prev = if rock { rg.rock_impulse[ui] } else { rg.spring_impulse[ui] };
+        let response_index = 2 * ui + usize::from(rock);
+        let inv = rg.relative_responses[response_index].inv_mass;
+        let d = (-prev - dt * (p + k * x + (c + dt * k) * v)) / (1.0 + dt * (c + dt * k) * inv);
+        let rg = body.running_gear.as_mut().unwrap();
+        if rock { rg.rock_impulse[ui] += d; } else { rg.spring_impulse[ui] += d; }
+        body.apply_relative_cached(response_index, d);
+        if !rock {
+            st.unit_x[ui] = x; st.unit_v[ui] = v; st.spring[ui] = p + k * x;
+            st.force[ui] = -(prev + d) / dt; st.damper[ui] = st.force[ui] - st.spring[ui];
+        }
+    }
+
+    /// Relative spring energy and unilateral terrain contacts solved together with current velocity.
+    pub fn apply(&self, st: &mut SuspensionState, body: &mut VehicleRigidBody, profiles: &[GroundProfile; 2], dt: f64, broken: [bool; 2]) -> [f64; 2] {
+        let rg = body.running_gear.as_mut().unwrap();
+        rg.normal_impulse.fill(0.0); rg.spring_impulse.fill(0.0); rg.rock_impulse.fill(0.0);
+        self.sync_pose(st, body, broken);
+        for (i, s) in self.stations.iter().enumerate() {
+            st.support[i] = support_under_mode(self.window, &profiles[si(s.side)], s, broken[si(s.side)]);
+            st.normals[i] = station_normal(profiles, body, s);
+            st.load[i] = 0.0; st.grounded[i] = false;
+            body.prepare_normal_response(i, st.normals[i], st.contact[i], WheelBlend::single(i, 1.0));
+        }
         for (ui, u) in self.units.iter().enumerate() {
-            let m = &u.members;
-            let a = xc[m[0]];
-            let b = if m.len() > 1 { xc[m[1]] } else { a };
-            // a bogie arm takes the mean of its two wheels, until one of them reaches the end of its swing
-            let want = if m.len() > 1 { ((a + b) / 2.0).max(a.max(b) - u.lim) } else { a };
-            let prev = st.unit_prev[ui].unwrap_or(want);
-            st.unit_prev[ui] = Some(want);
-            let grounded = want >= -self.rebound;
-            let x = if grounded { want } else { -self.rebound };
-            let xv = if grounded { (want - prev) / dt } else { 0.0 };
-            let mut spring = 0.0;
-            let mut damper = 0.0;
-            if grounded {
-                spring = u.p + u.k * x;
-                damper = u.c * xv * if xv > 0.0 { DAMP_COMPRESSION } else { DAMP_REBOUND };
-                if x > self.travel {
-                    spring += BUMP_STOP * u.k * (x - self.travel);
-                    damper += 3.0 * u.c * xv.max(0.0);
-                }
+            let rg = body.running_gear.as_mut().unwrap();
+            rg.prepare_relative(2 * ui, u.heave);
+            if u.members.len() > 1 { rg.prepare_relative(2 * ui + 1, u.rock); }
+        }
+        for _ in 0..12 {
+            for (ui, u) in self.units.iter().enumerate() {
+                self.spring_impulse(st, body, u, ui, u.heave, false, dt);
+                if u.members.len() > 1 { self.spring_impulse(st, body, u, ui, u.rock, true, dt); }
             }
-            // a stop is stiff, not infinite: a wheel can be thrown hard, but not launch the hull
-            let f = (spring + damper).max(0.0).min(30.0 * u.p);
-            st.unit_x[ui] = x;
-            st.unit_v[ui] = xv;
-            st.spring[ui] = if grounded { spring } else { 0.0 };
-            st.damper[ui] = if f > 0.0 { f - spring } else { 0.0 };
-            st.force[ui] = f;
-            if f > 0.0 {
-                let at = body.world_point(u.mount);
-                body.add_force_at(scale(body.ey, f), at);
+            for i in 0..self.stations.len() {
+                let p = st.contact[i]; let n = st.normals[i]; let blend = WheelBlend::single(i, 1.0);
+                let pen = (st.support[i] - p[1]) * n[1];
+                let vn = dot(body.coupled_point_velocity(p, blend), n);
+                if body.running_gear.as_ref().unwrap().normal_impulse[i] == 0.0 && pen < -0.00001 && pen - vn * dt < 0.0 { body.running_gear.as_mut().unwrap().normal_impulse[i] = 0.0; continue; }
+                let target = if pen >= 0.0 { 0.25 * pen / dt } else { pen / dt };
+                let inv = body.running_gear.as_ref().unwrap().normal_responses[i].inv_mass;
+                let prev = body.running_gear.as_ref().unwrap().normal_impulse[i];
+                let want = (prev + (target - vn) / inv).max(0.0);
+                body.running_gear.as_mut().unwrap().normal_impulse[i] = want;
+                body.apply_normal_cached(i, want - prev);
             }
-            side_load[si(u.side)] += f;
-            // where each wheel sits: on its ground, or hanging from the rebound stop
-            let mut swing = 0.0;
-            if m.len() > 1 {
-                if grounded {
-                    swing = ((a - b) / 2.0).clamp(-u.lim, u.lim);
-                } else {
-                    // a hanging bogie still pivots: the higher wheel rests on its ground, the other drops
-                    let hi = a.max(b);
-                    let up = (hi - x).min(u.lim).max(0.0);
-                    swing = if a >= b { up } else { -up };
-                }
-            }
-            for (j, &i) in m.iter().enumerate() {
-                let wx = if m.len() > 1 || grounded { x + if j == 0 { swing } else { -swing } } else { -self.rebound };
-                st.comp[i] = wx;
-                st.grounded[i] = xc[i] >= wx - 0.02;
-                st.load[i] = if st.grounded[i] { f / m.len() as f64 } else { 0.0 };
-                let s = &self.stations[i];
-                st.contact[i] = body.world_point([s.x, s.y + wx - s.r - self.thickness, s.z]);
-            }
-            if m.len() > 1 {
-                // the arm shares its load by where the wheels stand
-                let (i0, i1) = (m[0], m[1]);
-                let (g0, g1) = (st.grounded[i0], st.grounded[i1]);
-                if g0 != g1 {
-                    st.load[i0] = if g0 { f } else { 0.0 };
-                    st.load[i1] = if g1 { f } else { 0.0 };
-                }
-            }
+        }
+        let mut side_load = [0.0; 2];
+        for i in 0..self.stations.len() {
+            st.load[i] = body.running_gear.as_ref().unwrap().normal_impulse[i] / dt;
+            st.grounded[i] = st.load[i] > 0.0;
+            side_load[si(self.stations[i].side)] += st.load[i];
         }
         side_load
     }
+}
+
+fn station_normal(profiles: &[GroundProfile; 2], body: &VehicleRigidBody, s: &Station) -> V3 {
+    let a = &profiles[si(s.side)]; let o = &profiles[si(-s.side)];
+    let mut k = 1;
+    while k < a.zs.len() - 2 && a.zs[k] < s.z { k += 1; }
+    let along = (a.h[k + 1] - a.h[k - 1]) / (a.zs[k + 1] - a.zs[k - 1]);
+    let across = (if s.side > 0 { a.h[k] - o.h[k] } else { o.h[k] - a.h[k] }) / (2.0 * s.x.abs());
+    let f = norm([body.ez[0], 0.0, body.ez[2]]);
+    norm([-along * f[0] - across * f[2], 1.0, -along * f[2] + across * f[0]])
 }

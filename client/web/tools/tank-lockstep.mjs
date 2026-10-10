@@ -23,7 +23,7 @@ for (const id of ['su_t34_85', 'us_m4a3_76w_hvss']) {
   for (const [secs, input] of plan) {
     run(r, g, input, secs, 1 / 120);
     const b = r.t.body;
-    snaps.push({ origin: b.origin(), ez: b.ez.slice(), ey: b.ey.slice(), comp: r.t.ss.comp.slice(), belts: [r.t.ds.belts[-1].v, r.t.ds.belts[1].v], gear: r.t.ds.gear });
+    snaps.push({ origin: b.origin(), ez: b.ez.slice(), ey: b.ey.slice(), comp: r.t.ss.comp.slice(), q: Array.from(b.runningGear.q), qv: Array.from(b.runningGear.qv), belts: [r.t.ds.belts[-1].v, r.t.ds.belts[1].v], gear: r.t.ds.gear });
   }
   cases.push({ id, plan: plan.map(([secs, i]) => ({ secs, ...i })), snaps });
 }

@@ -50,6 +50,10 @@ pub struct SuspensionDef {
     /// (volute, hvss, leaf_bogie) carry two neighbouring wheels on one pivoting arm.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
+    /// Optional unsprung wheel/arm kg per station of ONE side, front first. Otherwise 6% of
+    /// existing assembly mass is estimated by disc volume. This never adds assembly mass.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub station_mass_kg: Option<Vec<f32>>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]

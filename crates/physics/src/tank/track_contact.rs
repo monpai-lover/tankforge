@@ -8,6 +8,7 @@
 //! creeping and nothing overshoots at any stiffness.
 //! (client/web/src/sim/tank/contacts.js mirrors this file and terrain.rs.)
 use super::math::*;
+use super::running_gear_dynamics::{ResponsePair, WheelBlend};
 use super::rigid_body::VehicleRigidBody;
 use super::road_wheel::si;
 use super::suspension::{SuspensionState, SuspensionSystem};
@@ -52,6 +53,8 @@ pub struct Contact {
     pub grip: Grip,
     /// Hull-frame z of a track sample.
     pub z: Option<f64>,
+    pub wheels: WheelBlend,
+    response_index: usize,
     /// Tangents: along the hull and across it, in the ground plane.
     pub tl: V3,
     pub tt: V3,
@@ -70,7 +73,7 @@ pub struct Contact {
 
 impl Contact {
     pub fn new(p: V3, n: V3, load: f64, side: i8, grip: Grip, z: Option<f64>) -> Self {
-        Self { p, n, load, side, grip, z, tl: [0.0; 3], tt: [0.0; 3], kl: 0.0, kt: 0.0, ll: 0.0, lt: 0.0, jl: 0.0, jt: 0.0, slip: 0.0, fl: 0.0, ft: 0.0 }
+        Self { p, n, load, side, grip, z, wheels: WheelBlend::default(), response_index: 0, tl: [0.0; 3], tt: [0.0; 3], kl: 0.0, kt: 0.0, ll: 0.0, lt: 0.0, jl: 0.0, jt: 0.0, slip: 0.0, fl: 0.0, ft: 0.0 }
     }
 }
 
@@ -98,46 +101,46 @@ pub struct Motor {
 }
 
 /// Friction contacts along each track's ground run, carrying the loads of the wheels near them.
-pub fn track_contacts(ct: &ContactGeometry, cs: &ContactState, body: &VehicleRigidBody, sp: &SuspensionSystem, ss: &SuspensionState, terrain: &dyn Ground) -> Vec<Contact> {
-    let mut out = Vec::with_capacity(ct.cz.len() * 2);
-    let per = sp.per_side();
+pub fn track_contacts(ct: &ContactGeometry, cs: &ContactState, body: &VehicleRigidBody, sp: &SuspensionSystem, ss: &SuspensionState, terrain: &dyn Ground, broken: [bool; 2]) -> Vec<Contact> {
+    let mut out = Vec::with_capacity(ct.cz.len() * 2); let per = sp.per_side();
     for side in [1i8, -1] {
-        let base = if side > 0 { 0 } else { per };
-        let st = &sp.stations[base..base + per];
+        let base = if side > 0 { 0 } else { per }; let st = &sp.stations[base..base + per];
+        if broken[si(side)] {
+            for i in 0..per { if ss.load[base + i] > 0.0 {
+                let p = ss.contact[base + i]; let n = ct.ground_normal(cs, body, side, st[i].z);
+                let mut c = Contact::new(p, n, ss.load[base + i], side, Grip::of(terrain.surface(p[0], p[2])), Some(st[i].z));
+                c.wheels = WheelBlend::single(base + i, 1.0); out.push(c);
+            }}
+            continue;
+        }
         let bottom: Vec<f64> = st.iter().enumerate().map(|(i, s)| s.y + ss.comp[base + i] - s.r - sp.thickness).collect();
         let spacing = if per > 1 { (st[0].z - st[per - 1].z) / (per - 1) as f64 } else { 1.0 };
-        // tent weights: each wheel's load goes to the samples within one wheel spacing of it
-        let w: Vec<Vec<f64>> = ct.cz.iter().map(|z| st.iter().map(|s| (1.0 - (z - s.z).abs() / spacing).max(0.0)).collect()).collect();
-        let wsum: Vec<f64> = (0..per)
-            .map(|i| {
-                let t: f64 = w.iter().map(|row| row[i]).sum();
-                if t > 0.0 {
-                    t
-                } else {
-                    1.0
-                }
-            })
-            .collect();
-        for (k, &z) in ct.cz.iter().enumerate() {
-            let mut load = 0.0;
-            for i in 0..per {
-                load += ss.load[base + i] * w[k][i] / wsum[i];
-            }
-            // the track's lower run between the wheels
-            let mut j = 0;
-            while per >= 2 && j < per - 2 && st[j + 1].z > z {
-                j += 1;
-            }
-            let a = st[j];
-            let (b, bb) = if j + 1 < per { (st[j + 1], bottom[j + 1]) } else { (a, bottom[j]) };
-            let u = if j + 1 < per { ((a.z - z) / (a.z - b.z)).clamp(0.0, 1.0) } else { 0.0 };
-            let y = bottom[j] + (bb - bottom[j]) * u;
+        let candidates: Vec<(V3, WheelBlend, bool)> = ct.cz.iter().map(|&z| {
+            let mut j = 0; while j < per.saturating_sub(2) && st[j + 1].z > z { j += 1; }
+            let a = st[j]; let has_b = j + 1 < per; let b = if has_b { st[j + 1] } else { a };
+            let u = if has_b { ((a.z - z) / (a.z - b.z)).clamp(0.0, 1.0) } else { 0.0 };
+            let y = bottom[j] + (if has_b { bottom[j + 1] } else { bottom[j] } - bottom[j]) * u;
             let p = body.world_point([side as f64 * ct.track_x, y, z]);
-            let n = ct.ground_normal(cs, body, side, z);
-            out.push(Contact::new(p, n, load, side, Grip::of(terrain.surface(p[0], p[2])), Some(z)));
+            let blend = if has_b { WheelBlend::pair(base + j, 1.0 - u, base + j + 1, u) } else { WheelBlend::single(base + j, 1.0) };
+            (p, blend, p[1] <= ground_height(&cs.prof[si(side)], z) + 0.01)
+        }).collect();
+        let weights: Vec<Vec<f64>> = ct.cz.iter().enumerate().map(|(k, z)| st.iter().map(|s| if candidates[k].2 { (1.0 - (z - s.z).abs() / spacing).max(0.0) } else { 0.0 }).collect()).collect();
+        let sums: Vec<f64> = (0..per).map(|i| { let t: f64 = weights.iter().map(|row| row[i]).sum(); if t > 0.0 { t } else { 1.0 } }).collect();
+        for (k, &z) in ct.cz.iter().enumerate() {
+            let (p, blend, eligible) = candidates[k]; if !eligible { continue; }
+            let load = (0..per).map(|i| ss.load[base + i] * weights[k][i] / sums[i]).sum::<f64>();
+            if load > 0.0 {
+                let mut c = Contact::new(p, ct.ground_normal(cs, body, side, z), load, side, Grip::of(terrain.surface(p[0], p[2])), Some(z)); c.wheels = blend; out.push(c);
+            }
         }
     }
     out
+}
+
+fn ground_height(prof: &super::road_wheel::GroundProfile, z: f64) -> f64 {
+    let mut k = 1; while k < prof.zs.len() - 1 && prof.zs[k] < z { k += 1; }
+    let u = ((z - prof.zs[k - 1]) / (prof.zs[k] - prof.zs[k - 1])).clamp(0.0, 1.0);
+    prof.h[k - 1] + u * (prof.h[k] - prof.h[k - 1])
 }
 
 fn shear_ratio(slip: f64, k: f64, l: f64) -> f64 {
@@ -152,18 +155,26 @@ fn shear_ratio(slip: f64, k: f64, l: f64) -> f64 {
 /// Friction as impulses (projected Gauss-Seidel). belts [left, right]; brakes: brake force on
 /// each track, N. Each contact's longitudinal friction moves both the hull (+J) and its track
 /// (-J / m_belt). Contacts without load are dropped; the solved forces are left in each contact.
-pub fn solve_friction(contacts: &mut Vec<Contact>, body: &mut VehicleRigidBody, belts: &mut [Belt; 2], brakes: [f64; 2], dt: f64, iterations: usize, mut motor: Option<&mut Motor>) {
+pub fn solve_friction(contacts: &mut Vec<Contact>, body: &mut VehicleRigidBody, belts: &mut [Belt; 2], brakes: [f64; 2], dt: f64, iterations: usize, mut motor: Option<&mut Motor>, responses: &mut [ResponsePair]) {
     contacts.retain(|c| c.load > 0.0);
     let broken = motor.as_deref().map(|m| m.broken).unwrap_or([false; 2]);
     let bare = |side: i8| side != 0 && broken[si(side)];
-    for c in contacts.iter_mut() {
+    assert!(responses.len() >= contacts.len());
+    for (ci, c) in contacts.iter_mut().enumerate() {
         let tl = norm(sub(body.ez, scale(c.n, dot(body.ez, c.n))));
         c.tl = tl;
         c.tt = cross(c.n, tl);
         let belt = if c.side != 0 && !bare(c.side) { Some(belts[si(c.side)]) } else { None };
-        c.kl = 1.0 / (body.inv_mass_along(tl, c.p) + belt.map_or(0.0, |b| 1.0 / b.m));
-        c.kt = 1.0 / body.inv_mass_along(c.tt, c.p);
-        let vp = body.point_velocity(c.p);
+        c.response_index = ci;
+        if body.running_gear.is_some() {
+            body.prepare_contact_response(tl, c.p, c.wheels, &mut responses[ci].l);
+            body.prepare_contact_response(c.tt, c.p, c.wheels, &mut responses[ci].t);
+        }
+        let kl = if body.running_gear.is_some() { responses[ci].l.inv_mass } else { body.coupled_inv_mass_along(tl, c.p, c.wheels) };
+        let kt = if body.running_gear.is_some() { responses[ci].t.inv_mass } else { body.coupled_inv_mass_along(c.tt, c.p, c.wheels) };
+        c.kl = 1.0 / (kl + belt.map_or(0.0, |b| 1.0 / b.m));
+        c.kt = 1.0 / kt;
+        let vp = body.coupled_point_velocity(c.p, c.wheels);
         let vl = dot(vp, tl) - belt.map_or(0.0, |b| b.v);
         let mut mul = c.grip.traction_mu;
         if let (Some(k), Some(b)) = (c.grip.shear_k, belt) {
@@ -230,7 +241,7 @@ pub fn solve_friction(contacts: &mut Vec<Contact>, body: &mut VehicleRigidBody, 
         }
         for c in contacts.iter_mut() {
             let bi = if c.side != 0 && !bare(c.side) { Some(si(c.side)) } else { None };
-            let vp = body.point_velocity(c.p);
+            let vp = body.coupled_point_velocity(c.p, c.wheels);
             let vl = dot(vp, c.tl) - bi.map_or(0.0, |i| belts[i].v);
             let vt = dot(vp, c.tt);
             let mut jl = c.jl - vl * c.kl;
@@ -258,7 +269,9 @@ pub fn solve_friction(contacts: &mut Vec<Contact>, body: &mut VehicleRigidBody, 
             let (dl, dtt) = (jl - c.jl, jt - c.jt);
             c.jl = jl;
             c.jt = jt;
-            body.apply_impulse_at(add(scale(c.tl, dl), scale(c.tt, dtt)), c.p);
+            if body.running_gear.is_some() {
+                body.apply_cached_response(&responses[c.response_index].l, dl); body.apply_cached_response(&responses[c.response_index].t, dtt);
+            } else { body.coupled_apply_impulse_at(add(scale(c.tl, dl), scale(c.tt, dtt)), c.p, c.wheels); }
             if let Some(i) = bi {
                 belts[i].v -= dl / belts[i].m;
             }

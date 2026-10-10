@@ -7,10 +7,11 @@
 // wheels on one pivoting arm whose spring acts at the pivot.
 //
 // The wheels stand on the track, not on the bare ground: the track bridges a dip narrower than
-// the wheel spacing and wraps round a hump before the wheel reaches it (BRIDGE). Wheels have no
-// mass of their own, so they follow the ground at once while the hull, with all the mass, follows
-// through the springs: wheel response is faster than hull response.
+// the wheel spacing and wraps round a hump before the wheel reaches it (BRIDGE). Wheels have
+// inertial coordinates owned by body.runningGear; springs couple those coordinates to the
+// sprung remainder and unilateral terrain impulses support the complete assembly.
 import { GRAVITY } from './body.js';
+import { dot } from './math3.js';
 
 export const BOGIE_KINDS = ['volute', 'hvss', 'leaf_bogie'];
 /** How steeply the track can drop away from a high point between two wheels. */
@@ -75,6 +76,10 @@ export function makeSuspension(gear, opts) {
         c: c * members.length,
         p: members.reduce((a, j) => a + preload[j % per], 0),
         lim: pair ? Math.max(0.06, 0.6 * travel) : 0,
+        heave: pair ? [base + i, 0.5, base + i + 1, 0.5] : [base + i, 1],
+        rock: pair ? [base + i, 0.5, base + i + 1, -0.5] : null,
+        rockK: pair ? 0.05 * k * members.length : 0,
+        rockC: pair ? Math.sqrt(0.05) * c * members.length : 0,
       });
       i += members.length;
     }
@@ -101,6 +106,8 @@ export function makeSuspension(gear, opts) {
 /** Per-station / per-unit state. */
 export function newSuspensionState(sp) {
   return {
+    wheelWeights: sp.stations.map((_, i) => [i, 1]),
+    normals: sp.stations.map(() => [0, 1, 0]),
     comp: sp.stations.map(() => 0), // wheel height against the hull, from static (+ up)
     grounded: sp.stations.map(() => false),
     support: sp.stations.map(() => 0), // world height of the track under the wheel
@@ -108,7 +115,6 @@ export function newSuspensionState(sp) {
     load: sp.stations.map(() => 0), // N carried by each wheel
     unitX: sp.units.map(() => 0),
     unitV: sp.units.map(() => 0),
-    unitPrev: sp.units.map(() => null),
     spring: sp.units.map(() => 0),
     damper: sp.units.map(() => 0),
     force: sp.units.map(() => 0),
@@ -120,7 +126,7 @@ export function newSuspensionState(sp) {
  * prof: {zs (hull-frame z of each sample), h: world heights, run: track height above the ground
  * line at each sample (<0 on the ground run)}
  */
-export function supportUnder(sp, prof, s) {
+export function supportUnder(sp, prof, s, bare = false) {
   const zs = prof.zs;
   const g = prof.h;
   let j = 1;
@@ -129,10 +135,10 @@ export function supportUnder(sp, prof, s) {
   let best = g[j - 1] + (g[j] - g[j - 1]) * u;
   for (let k = 0; k < zs.length; k++) {
     const dz = Math.abs(zs[k] - s.z);
-    if (dz > sp.window || prof.run[k] >= 0) continue;
+    if (dz > sp.window || prof.run[k] >= 0 || (bare && dz >= s.r)) continue;
     // the wheel is round; past its rim the track falls away at the bridging angle
     const round = dz < s.r ? s.r - Math.sqrt(s.r * s.r - dz * dz) : Infinity;
-    const v = g[k] - Math.min(round, BRIDGE * dz);
+    const v = g[k] - (bare ? round : Math.min(round, BRIDGE * dz));
     if (v > best) best = v;
   }
   return best;
@@ -142,76 +148,99 @@ export function supportUnder(sp, prof, s) {
  * One substep: every station finds its ground, every unit pushes the hull at its mount.
  * profiles: {1: prof, -1: prof} (right, left). Returns the total vertical load per side.
  */
-export function applySuspension(sp, st, body, profiles, dt) {
-  const upY = Math.max(0.2, body.ey[1]);
-  const xc = sp.stations.map((s, i) => {
-    const prof = profiles[s.side];
-    const sup = supportUnder(sp, prof, s);
-    st.support[i] = sup;
-    // the wheel centre must stand r + track thickness above the track's ground line
-    const h = body.worldPoint([s.x, s.y, s.z])[1];
-    return (sup + s.r + sp.thickness - h) / upY;
-  });
+function stationNormal(profiles, body, station, out) {
+  const a = profiles[station.side], o = profiles[-station.side];
+  let k = 1;
+  while (k < a.zs.length - 2 && a.zs[k] < station.z) k++;
+  const along = (a.h[k + 1] - a.h[k - 1]) / (a.zs[k + 1] - a.zs[k - 1]);
+  const across = (station.side > 0 ? a.h[k] - o.h[k] : o.h[k] - a.h[k]) / (2 * Math.abs(station.x));
+  const fl = Math.hypot(body.ez[0], body.ez[2]) || 1;
+  const fx = body.ez[0] / fl, fz = body.ez[2] / fl;
+  const nx = -along * fx - across * fz, nz = -along * fz + across * fx;
+  const nl = Math.hypot(nx, 1, nz);
+  out[0] = nx / nl; out[1] = 1 / nl; out[2] = nz / nl;
+}
+
+export function syncSuspensionPose(sp, st, body, broken = null) {
+  const rg = body.runningGear;
+  for (let i = 0; i < sp.stations.length; i++) {
+    const s = sp.stations[i];
+    st.comp[i] = rg.q[i];
+    const thickness = broken?.[s.side] ? 0 : sp.thickness;
+    body.worldPointIntoXYZ(s.x, s.y + rg.q[i] - s.r - thickness, s.z, st.contact[i]);
+  }
+}
+
+function solveSpring(sp, st, body, u, ui, weights, isRock, dt) {
+  const rg = body.runningGear;
+  let x = 0, v = 0;
+  for (let k = 0; k < weights.length; k += 2) { x += weights[k + 1] * rg.q[weights[k]]; v += weights[k + 1] * rg.qv[weights[k]]; }
+  let k = isRock ? u.rockK : u.k;
+  let c = isRock ? u.rockC : u.c * (v > 0 ? DAMP_COMPRESSION : DAMP_REBOUND);
+  let p = isRock ? 0 : u.p;
+  const limit = isRock ? u.lim : sp.travel;
+  const low = isRock ? -u.lim : -sp.rebound;
+  const predicted = x + dt * v;
+  if (predicted > limit) { p -= BUMP_STOP * u.k * limit; k += BUMP_STOP * u.k; c += 3 * u.c; }
+  if (predicted < low) { p -= BUMP_STOP * u.k * low; k += BUMP_STOP * u.k; c += 3 * u.c; }
+  const impulse = isRock ? rg.rockImpulse : rg.springImpulse;
+  const cache = rg.relativeResponses[2 * ui + (isRock ? 1 : 0)];
+  const inv = cache.invMass;
+  const d = (-impulse[ui] - dt * (p + k * x + (c + dt * k) * v)) / (1 + dt * (c + dt * k) * inv);
+  impulse[ui] += d;
+  body.applyCachedResponse(cache, d);
+  if (!isRock) {
+    st.unitX[ui] = x; st.unitV[ui] = v;
+    st.spring[ui] = p + k * x; st.force[ui] = -impulse[ui] / dt;
+    st.damper[ui] = st.force[ui] - st.spring[ui];
+  }
+}
+
+/** Internal spring impulses use only relative generalized coordinates: no duplicate hull force. */
+export function applySuspension(sp, st, body, profiles, dt, broken = null) {
+  const rg = body.runningGear;
+  rg.normalImpulse.fill(0); rg.springImpulse.fill(0); rg.rockImpulse.fill(0);
+  syncSuspensionPose(sp, st, body, broken);
+  const normals = st.normals;
+  for (let i = 0; i < sp.stations.length; i++) {
+    const s = sp.stations[i];
+    st.support[i] = supportUnder(sp, profiles[s.side], s, !!broken?.[s.side]);
+    stationNormal(profiles, body, s, normals[i]);
+    st.load[i] = 0; st.grounded[i] = false;
+    body.contactResponse(normals[i], st.contact[i], st.wheelWeights[i], rg.normalResponses[i]);
+  }
+  for (let ui = 0; ui < sp.units.length; ui++) {
+    const u = sp.units[ui];
+    body.relativeResponse(u.heave, rg.relativeResponses[2 * ui]);
+    if (u.rock) body.relativeResponse(u.rock, rg.relativeResponses[2 * ui + 1]);
+  }
+
+  // The spring and normal impulses are iterated together, so grounded preload does not depend
+  // on an airborne prediction of spring velocity. Impulses are reset on every contact loss.
+  for (let iteration = 0; iteration < 12; iteration++) {
+    for (let ui = 0; ui < sp.units.length; ui++) {
+      const u = sp.units[ui];
+      solveSpring(sp, st, body, u, ui, u.heave, false, dt);
+      if (u.rock) solveSpring(sp, st, body, u, ui, u.rock, true, dt);
+    }
+    for (let i = 0; i < sp.stations.length; i++) {
+      const p = st.contact[i], n = normals[i], weights = st.wheelWeights[i];
+      const pen = (st.support[i] - p[1]) * n[1];
+      const vn = body.pointVelocityAlong(p, n, weights);
+      if (rg.normalImpulse[i] === 0 && pen < -0.00001 && pen - vn * dt < 0) { rg.normalImpulse[i] = 0; continue; }
+      const target = pen >= 0 ? 0.25 * pen / dt : pen / dt;
+      const cache = rg.normalResponses[i], inv = cache.invMass;
+      const want = Math.max(0, rg.normalImpulse[i] + (target - vn) / inv);
+      const d = want - rg.normalImpulse[i];
+      rg.normalImpulse[i] = want;
+      body.applyCachedResponse(cache, d);
+    }
+  }
   const sideLoad = { 1: 0, [-1]: 0 };
-  sp.units.forEach((u, ui) => {
-    const m = u.members;
-    const a = xc[m[0]];
-    const b = m.length > 1 ? xc[m[1]] : a;
-    // a bogie arm takes the mean of its two wheels, until one of them reaches the end of its swing
-    const want = m.length > 1 ? Math.max((a + b) / 2, Math.max(a, b) - u.lim) : a;
-    const prev = st.unitPrev[ui] ?? want;
-    st.unitPrev[ui] = want;
-    const grounded = want >= -sp.rebound;
-    const x = grounded ? want : -sp.rebound;
-    const xv = grounded ? (want - prev) / dt : 0;
-    let spring = 0;
-    let damper = 0;
-    if (grounded) {
-      spring = u.p + u.k * x;
-      damper = u.c * xv * (xv > 0 ? DAMP_COMPRESSION : DAMP_REBOUND);
-      if (x > sp.travel) {
-        spring += BUMP_STOP * u.k * (x - sp.travel);
-        damper += 3 * u.c * Math.max(xv, 0);
-      }
-    }
-    // a stop is stiff, not infinite: a wheel can be thrown hard, but not launch the hull
-    const f = Math.min(Math.max(0, spring + damper), 30 * u.p);
-    st.unitX[ui] = x;
-    st.unitV[ui] = xv;
-    st.spring[ui] = grounded ? spring : 0;
-    st.damper[ui] = f > 0 ? f - spring : 0;
-    st.force[ui] = f;
-    if (f > 0) body.addForceAt([body.ey[0] * f, body.ey[1] * f, body.ey[2] * f], body.worldPoint(u.mount));
-    sideLoad[u.side] += f;
-    // where each wheel sits: on its ground, or hanging from the rebound stop
-    let swing = 0;
-    if (m.length > 1) {
-      if (grounded) swing = Math.max(-u.lim, Math.min(u.lim, (a - b) / 2));
-      else {
-        // a hanging bogie still pivots: the higher wheel rests on its ground, the other drops
-        const hi = Math.max(a, b);
-        const up = Math.max(0, Math.min(u.lim, hi - x));
-        swing = a >= b ? up : -up;
-      }
-    }
-    m.forEach((i, j) => {
-      const wx = m.length > 1 || grounded ? x + (j === 0 ? swing : -swing) : -sp.rebound;
-      st.comp[i] = wx;
-      st.grounded[i] = xc[i] >= wx - 0.02;
-      st.load[i] = (f / m.length) * (st.grounded[i] ? 1 : 0);
-      const s = sp.stations[i];
-      st.contact[i] = body.worldPoint([s.x, s.y + wx - s.r - sp.thickness, s.z]);
-    });
-    if (m.length > 1) {
-      // the arm shares its load by where the wheels stand
-      const [i0, i1] = m;
-      const g0 = st.grounded[i0];
-      const g1 = st.grounded[i1];
-      if (g0 !== g1) {
-        st.load[i0] = g0 ? f : 0;
-        st.load[i1] = g1 ? f : 0;
-      }
-    }
-  });
+  for (let i = 0; i < sp.stations.length; i++) {
+    st.load[i] = rg.normalImpulse[i] / dt;
+    st.grounded[i] = st.load[i] > 0;
+    sideLoad[sp.stations[i].side] += st.load[i];
+  }
   return sideLoad;
 }
