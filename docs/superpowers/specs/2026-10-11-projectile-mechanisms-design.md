@@ -20,7 +20,9 @@
 
 所有項有限且非負。生成碎片不能再把同一份能量交給前進主彈；接著命中模組或乘員時，只將局部沉積能量送入傷害響應，剩餘部分繼續前進。彈體主塊＋彈體碎塊質量不超其飛行初始質量；裝甲碎片有獨立目標來源與局部質量預算。
 
-第一步沿用單層的原創兼容近似 `q=required_mm/available_pen_mm`、`W=E_in*q²`，但由共用 helper 對每層更新；stack 不再另算一份不同的總殘速。這是舊規則的一致化，非宣稱來源推導的材料法則。從 W 劃出有限的裝甲剝落／變形／沉積份額；若 profile 需要從殘能分裂主彈，主彈也扣掉該份。任何估計 share 都具名、版本化、有適用彈種且標 authored／estimated；不憑 BHN 或口徑編造動態韌性。
+第一步沿用單層的原創兼容近似 `q=required_mm/available_pen_mm`、`W=E_in*q²`，但由共用 helper 對每個声明的物理层穿越更新；stack 不再另算一份不同的總殘速。這是舊規則的一致化，非宣稱來源推導的材料法則。公式允许分离实体板与一块整板具有不同的工程结果；三角化、重叠构造primitive和弹道子步不得把同一物理层拆成新板。保留 layer／traversal ID、入层时 state 和 work cursor；部分步只消费累计work的增量，完整同板split／unsplit结果一致。真正离开再返回是新的穿越，不能与同一次穿越的共享边重复接触混淆。從 W 劃出有限的裝甲剝落／變形／沉積份額；若 profile 需要從殘能分裂主彈，主彈也扣掉該份。任何估計 share 都具名、版本化、有適用彈種且標 authored／estimated；不憑 BHN 或口徑編造動態韌性。
+
+彈體組件有有限、非重生的 core／casing／cap／liner／filler mass reservoirs，分配总和不得超过初始飞行体质量，未知划分使用有版本的工程估计。APHE碎裂后只有一个存活 charge-bearing owner 和一个 charge ID，可以继承引信；其他碎块不能复制填药或引信。若生存状态未知，选择明确标记为估计的失效／未解析 disposition 并记录，不凭破裂标签复制爆炸。延迟起爆的弹壳质量来自该时刻剩余reservoir，不取原始0.85倍整弹重重新生成。化学释放单列输入／固体加速／爆压耦合／未解析账；已有平移动能按实际幸存组件分配，不能与爆炸加速重复计算。每个charge ID只释放一次。
 
 ## 彈種的行為與小效果
 
@@ -43,7 +45,7 @@
 
 碎片種類為 `core`、`projectile_piece`、`armour_spall`、`casing_fragment`、`jet_fragment`。每個生成事件有 stable ID、parent ID、source plate／module、mass、energy、速度及開始時間。可保留舊 kind／is_penetrator 作 adapter，但不能再把所有 false 都映成 spall。
 
-初版整顆 shot 最多64條代表性物理碎片射線，合計256段，每個 continuation 最多16次碰撞；這是計算預算而非真實碎片數。增加 sample 不增加總質量／能量。超額部分進 unresolved budget／診斷，不偷給最近乘員。固定 seed 加 stable 事件序；各品質的視覺粒子使用另外的亂數。
+初版整顆 shot 最多64條代表性物理碎片射線，合計256段，每個 continuation 最多16次碰撞；這是計算預算而非真實碎片數。每条代表射线保存 individual physical fragment mass／energy／area／velocity 与独立 multiplicity／weight，不能把计算sample的总能量当成单片能量送入sqrt(E)穿深／伤害公式。碰撞／衰减按单片物理参数计算，质量／能量总账和局部沉积按weight核算；同源同轨迹的加权样本先按stable parent/crossing归并再施加健康和次生RNG事件。把一条射线复制成两条半weight时，路径、总预算、健康／殉爆RNG结果必须不变。方向重新抽样时做有界收敛检查，不声称不同方向样本完全相同。增加 sample 不增加總質量／能量，也不得自动改变单片尺度。超額部分進 unresolved budget／診斷，不偷給最近乘員。固定 seed 加 stable 事件序；各品質的視覺粒子使用另外的亂數。
 
 碎片用 swept segment 和同一 posed 幾何進行交會，可在殘能足夠時穿過後方薄層。防同板重撞需事件順序、visited crossing、最小進展距離和碰撞上限；不能靠避免穿透所有裝甲的捷徑達到穩定。
 
