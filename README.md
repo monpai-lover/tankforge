@@ -68,3 +68,4 @@ node test/online.mjs                                    # 兩個瀏覽器經 tg-
 - 原版追獵者參考修形與換頭回歸見 [修形紀錄](docs/hetzer-reference-refinement-2026-10-09.md)，定向重建用 `python tools/build_hetzer_original.py`；導彈過載與速度平方轉彎半徑見 [導彈力模型](docs/missile-flight.md)。命中回放包含彈體和漸進軌跡，瞄具依每車倍率/視場顯示不同鏡口；滑轉/下陷讀數固定顯示。
 - [2026-10-10 改裝工坊更新](docs/workshop-refresh-2026-10-10.md)：現有武器／瞄具／穩定器、實用預設、導入底盤保留、獨立模型匯出与資料包再匯入；原設計槍與換頭繼續保留。
 - [2026-10-10 全程序車隊模型檢查與修復](docs/procedural-fleet-refinement-2026-10-10.md)：27 款車逐車多視角、活動部件與歷史型別核對；排除 15 款已有整車模型的車輛。局部重建用 `python tools/rebuild_procedural_models.py --ids=<IDs>`。
+- [2026-10-10 AT-T／M-46 前鏟移除](docs/m46-front-tool-removal-2026-10-10.md)：前鏟、固定架與鏈條從可玩模型完全移除，保留原 GLB 與六組 I 鍵折板；定向重建用 `python tools/repair_folding_flaps.py --ids su_att_m46`。

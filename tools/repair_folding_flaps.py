@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Restore source-named folding panels without replacing a vehicle or its textures.
 
-Only the panel ownership changes: every packed vertex, normal, UV and triangle is
-retained. Canonical source archives are recovered from the user's local viewers,
+Panel ownership is retained on measured hinges. The M46 front shovel, keeper
+frame and chain are explicitly removed from the playable model; all other source
+geometry is retained. Canonical source archives are recovered from the user's local viewers,
 not generated replacements. Source matching happens on exact millimetre triangle
 coordinates. Run this tool after ordinary vehicle authoring, then run
 tools/folding_arc_probe.py to verify and save the measured firing-arc stages.
@@ -173,7 +174,7 @@ def split_model(old, panels):
     return pack(old, records, old['textures']), found
 
 
-def relocate_front_tool(model, j, accessor):
+def remove_front_tool(model, j, accessor):
     source = set()
     expected = 0
     for mesh, primitive, pos, n, uv, idx, names in scene_meshes(j, accessor, with_nodes=True):
@@ -188,39 +189,37 @@ def relocate_front_tool(model, j, accessor):
             if lo[2] > 3.2 and hi[2] < 3.4 and max(abs(lo[0]), abs(hi[0])) < .4 and lo[1] > 1.3:
                 source.update(tri_key(t) for t in pos[tri])
                 expected += len(tri)
-    # Original X becomes vertical, long original Y becomes longitudinal, and
-    # original front-facing Z becomes the rack's outward normal. Proper rigid
-    # rotation (determinant +1), with all keeper-frame and chain geometry retained.
-    r = np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]])
-    pivot, target = np.array([0, 2.18, 3.32]), np.array([1.72, 1.68, 2.3])
+    if expected != 2636:
+        raise SystemExit(f'front tool: expected 2636 identified source triangles, got {expected}')
     records, found = [], 0
     for meta, pos, nor, uv, idx in pieces(model):
         selected = np.array([tri_key(t) in source for t in pos[idx]]) if meta['mount'] == 'hull' and not meta.get('hinge') else np.zeros(len(idx), bool)
-        for moved in (False, True):
-            triangles = idx[selected == moved]
-            if not len(triangles):
-                continue
-            used, remap = np.unique(triangles, return_inverse=True)
-            p, n, m = pos[used], nor[used], dict(meta)
-            if moved:
-                p, n = (p - pivot) @ r.T + target, n @ r.T
-                m['source_node'] = 'front_stowed_tool'
-                found += len(triangles)
-            records.append((m, p, n, uv[used], remap.reshape(-1, 3)))
+        found += int(selected.sum())
+        triangles = idx[~selected]
+        if not len(triangles):
+            continue
+        used, remap = np.unique(triangles, return_inverse=True)
+        records.append((dict(meta), pos[used], nor[used], uv[used], remap.reshape(-1, 3)))
     if found != expected:
         raise SystemExit(f'front tool: {found}/{expected} original triangles found')
-    return pack(model, records, model['textures']), {'triangles': found, 'original_source_group': 'Exterior_Details front tool, keepers and chain',
-        'pivot_m': pivot.tolist(), 'target_m': target.tolist(), 'rotation_matrix': r.tolist(),
-        'placement': 'Low right-side rack alongside the engine cover, forward of the complete cab/bed fold sweep and outside running gear; horizontal longitudinal storage'}
+    return pack(model, records, model['textures']), {'removed_triangles': found,
+        'original_source_group': 'Exterior_Details front tool, keepers and chain',
+        'action': 'Removed entirely from the playable model, including the former side rack; original source GLB retained'}
 
 
 def dump(path, value):
     path.write_bytes((json.dumps(value, indent=1, ensure_ascii=False) + '\n').encode('utf-8'))
 
 
-def main():
+def main(ids=None):
     import tempfile
+    selected_ids = set(ids or ['su_att_m46', 'de_hetzer_mk103', 'de_hetzer_mk103_camo'])
+    if not selected_ids <= {'su_att_m46', 'de_hetzer_mk103', 'de_hetzer_mk103_camo'}:
+        raise SystemExit('Only the three source-backed folding vehicles are supported')
     for kind, ids in (('m46', ['su_att_m46']), ('mk103', ['de_hetzer_mk103', 'de_hetzer_mk103_camo'])):
+        ids = [vid for vid in ids if vid in selected_ids]
+        if not ids:
+            continue
         archive, binary = source_file(kind)
         with tempfile.TemporaryDirectory(prefix='folding-source-') as task_tmp:
             source = pathlib.Path(task_tmp) / 'source.glb'
@@ -234,8 +233,10 @@ def main():
             model, counts = split_model(old, panels)
             tool_receipt = None
             if tool_source:
-                model, tool_receipt = relocate_front_tool(model, *tool_source)
+                model, tool_receipt = remove_front_tool(model, *tool_source)
             model['source'] += '; original source panel geometry retained on measured folding hinges'
+            if tool_receipt:
+                model['source'] += '; front shovel, keeper frame and chain removed from playable geometry'
             (vdir / 'model.json').write_text(json.dumps(model, separators=(',', ':')), encoding='utf-8')
             armour = json.loads((vdir / 'armor.json').read_text())
             # Generic upper side walls would remain as invisible protection when
@@ -265,7 +266,9 @@ def main():
                        'original_triangles': sum(p['triangles'] for p in old['parts']),
                        'repaired_triangles': sum(p['triangles'] for p in model['parts']), 'armor_plates': armour})
             if tool_receipt:
-                receipt['front_tool_rigid_relocation'] = tool_receipt
+                receipt.pop('front_tool_rigid_relocation', None)
+                receipt.pop('storage_sweep_clearance', None)
+                receipt['front_tool_removal'] = tool_receipt
             dump(vdir / 'folding-source.json', receipt)
             print(vid, counts)
     # Keep metadata and the ordinary generator route consistent with the saved
@@ -276,6 +279,8 @@ def main():
     gen.dump = dump_lf
     for factory in (gen.att_m46, gen.hetzer_mk103, gen.hetzer_mk103_camo):
         spec = factory()
+        if spec['id'] not in selected_ids:
+            continue
         vdir = ROOT / 'data/vehicles' / spec['id']
         files = ['vehicle.json', 'armor.json', 'weapons.json', 'engine.json', 'crew.json', 'modules.json', 'visual.json', 'import.json']
         before = {f: (vdir / f).read_bytes() for f in files}
@@ -289,4 +294,8 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--ids', help='Comma-separated source vehicle IDs; omission rebuilds the existing three')
+    args = parser.parse_args()
+    main(args.ids.split(',') if args.ids else None)

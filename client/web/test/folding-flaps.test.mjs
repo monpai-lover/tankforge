@@ -73,13 +73,12 @@ test('fold stages describe the actual safe firing arc throughout the movement', 
   }
 });
 
-test('M46 keeps its front tool frame in a low horizontal side rack and has no broad invisible gun-shield sides', () => {
+test('M46 removes the front shovel and its keeper frame from the playable model and retains the narrow gun shield', () => {
   const b = data.vehicles.su_att_m46;
   const tool = b.imported.parts.filter(p => p.source_node === 'front_stowed_tool');
-  assert.ok(tool.length, 'the complete original tool and keeper frame are retained');
-  const cabFront = Math.max(...b.imported.parts.filter(p => p.source_node?.startsWith('cab_side_')).map(p => p.hi[2]));
-  assert.ok(tool.every(p => p.hi[1] < 2.05 && p.lo[0] > 1.63 && p.lo[2] > cabFront + .4 && p.hi[2] < 3.1),
-    'the tool sits low outside its engine cover/track and ahead of the complete cab-board sweep');
+  assert.equal(tool.length, 0, 'the shovel and frame must be absent, including the old right-front storage position');
+  assert.equal(b.imported.parts.reduce((n,p)=>n+p.triangles,0),159825,
+    'remove precisely the 2,636 original shovel/frame/chain triangles');
   for (const p of b.armor.filter(p => p.id === 'turret_side_r' || p.id === 'turret_side_l')) {
     assert.ok(p.half_u <= .2 && p.center.z >= -.4, 'the narrow gun shield does not protect the open rear bed');
     assert.equal(p.thickness_mm, 1);

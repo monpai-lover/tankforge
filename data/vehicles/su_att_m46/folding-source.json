@@ -98,7 +98,7 @@
  },
  "narrow_gun_shield": "Retained on original traversing gun; never folded",
  "original_triangles": 162461,
- "repaired_triangles": 162461,
+ "repaired_triangles": 159825,
  "clearance_m": 0.025,
  "fold_depression_stages": [
   {
@@ -844,60 +844,6 @@
    }
   }
  ],
- "front_tool_rigid_relocation": {
-  "triangles": 2636,
-  "original_source_group": "Exterior_Details front tool, keepers and chain",
-  "pivot_m": [
-   0.0,
-   2.18,
-   3.32
-  ],
-  "target_m": [
-   1.72,
-   1.68,
-   2.3
-  ],
-  "rotation_matrix": [
-   [
-    0,
-    0,
-    1
-   ],
-   [
-    1,
-    0,
-    0
-   ],
-   [
-    0,
-    1,
-    0
-   ]
-  ],
-  "placement": "Low right-side rack alongside the engine cover, forward of the complete cab/bed fold sweep and outside running gear; horizontal longitudinal storage"
- },
- "storage_sweep_clearance": {
-  "result": "PASS",
-  "clearance_m": 0.025,
-  "fold_samples": 65,
-  "panel_count": 6,
-  "tool_triangles": 2636,
-  "tool_bounds_m": [
-   [
-    1.64,
-    1.403,
-    1.538
-   ],
-   [
-    1.757,
-    1.992,
-    3.064
-   ]
-  ],
-  "method": "Every retained tool/frame/chain and source wheel/track triangle edge against six convex panel outlines; each crew collision sphere expanded by 25 mm",
-  "tool_to_running_gear_lateral_gap_m": 0.06949998378753652,
-  "hinge_source": "Cab_Cut_Down lower painted edges; Rear_Bed lower board edges, with fixed lower keepers retained"
- },
  "panel_source_nodes": {
   "cab_side_left": "Cab_Cut_Down",
   "bed_front_left": "Rear_Bed",
@@ -921,5 +867,10 @@
   "pose_samples": 1524,
   "collision_count": 0,
   "method": "Every retained traversing/elevating weapon triangle edge at each conservative legal bearing interval against source panel outlines"
+ },
+ "front_tool_removal": {
+  "removed_triangles": 2636,
+  "original_source_group": "Exterior_Details front tool, keepers and chain",
+  "action": "Removed entirely from the playable model, including the former side rack; original source GLB retained"
  }
 }

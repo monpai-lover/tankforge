@@ -93,15 +93,16 @@ def pose(segments, pivot, mount, yaw, depression):
 
 
 def verify_m46_storage(panels):
-    """The retained side rack must clear every board, the running gear and crew."""
+    """No shovel/rack remains; original running gear and crew still clear panels."""
     vdir = ROOT / 'data/vehicles/su_att_m46'
     model = json.loads((vdir / 'model.json').read_text())
-    tool = []
-    for part, pos, _, _, idx in pieces(model):
-        if part.get('source_node') == 'front_stowed_tool':
-            tri = pos[idx]
-            tool.append(np.concatenate([tri[:, [0, 1]], tri[:, [1, 2]], tri[:, [2, 0]]]))
-    tool = np.concatenate(tool)
+    records = pieces(model)
+    assert not any(p.get('source_node') == 'front_stowed_tool' for p, *_ in records), \
+        'M46 front shovel and former side rack must be removed'
+    # The unmodified source tool has no source_node tag. Check the decoded
+    # topology too, so reimporting that original front assembly cannot pass.
+    assert sum(len(idx) for _, _, _, _, idx in records) == 159825, \
+        'M46 must retain exactly 159825 triangles after removing the 2636-triangle tool group'
     _, binary = source_file('m46')
     gear = []
     with tempfile.TemporaryDirectory() as task_tmp:
@@ -117,7 +118,7 @@ def verify_m46_storage(panels):
     shapes = [panel_shape(p) for p in panels.values()]
     crew = json.loads((vdir / 'crew.json').read_text())
     for fold in np.linspace(0, 1, 65):
-        for title, edges in [('tool/frame/chain', tool), ('source tracks and wheels', gear)]:
+        for title, edges in [('source tracks and wheels', gear)]:
             if collision(edges, shapes, float(fold)):
                 raise AssertionError(f'M46 {title} touches a panel at fold {fold}')
         for person in crew:
@@ -137,15 +138,10 @@ def verify_m46_storage(panels):
                     inside &= edge[0] * (q[1] - a[1]) - edge[1] * (q[0] - a[0]) >= -radius * np.linalg.norm(edge)
                 if inside:
                     raise AssertionError(f'M46 {person["role"]} touches a panel at fold {fold}')
-    tool_lo = tool.reshape(-1, 3).min(0)
-    tool_hi = tool.reshape(-1, 3).max(0)
-    gear_hi = gear.reshape(-1, 3).max(0)
-    assert tool_lo[0] - gear_hi[0] > .025, 'right-side tool remains outside all source running gear'
     return {'result': 'PASS', 'clearance_m': .025, 'fold_samples': 65,
-            'panel_count': len(panels), 'tool_triangles': len(tool) // 3,
-            'tool_bounds_m': [tool_lo.tolist(), tool_hi.tolist()],
-            'method': 'Every retained tool/frame/chain and source wheel/track triangle edge against six convex panel outlines; each crew collision sphere expanded by 25 mm',
-            'tool_to_running_gear_lateral_gap_m': float(tool_lo[0] - gear_hi[0]),
+            'panel_count': len(panels), 'tool_triangles': 0,
+            'tool_action': 'Removed from playable geometry; no front or side-rack instance',
+            'method': 'Source wheel/track triangle edges against six convex panel outlines; each crew collision sphere expanded by 25 mm',
             'hinge_source': 'Cab_Cut_Down lower painted edges; Rear_Bed lower board edges, with fixed lower keepers retained'}
 
 

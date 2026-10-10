@@ -78,7 +78,7 @@ try {
         t.G.cam.yaw = t.G.s.heading - Math.PI * .62;
         t.advance(1 / 60);
       });
-      await page.screenshot({ path: path.join(out, `${id}-six-panels-folded-tool-side.png`) });
+      await page.screenshot({ path: path.join(out, `${id}-six-panels-folded-no-front-tool.png`) });
       await page.evaluate(() => {
         document.getElementById('garage').style.visibility = '';
         document.getElementById('toast').style.visibility = '';
@@ -112,7 +112,7 @@ try {
     });
     assert.equal(closed.cur, 0);
     if (id === 'su_att_m46') {
-      assert.ok(folded.tool.length && folded.tool.every(p => p.hi[1] < 2.05 && p.lo[0] > 1.63 && p.lo[2] > 1.5 && p.hi[2] < 3.1));
+      assert.equal(folded.tool.length, 0, 'the front shovel and former side rack are removed');
       await page.evaluate(() => {
         const t = window.__tf;
         t.G.cam.yaw = t.G.s.heading + Math.PI; t.G.cam.pitch = -.2;
@@ -126,7 +126,7 @@ try {
   assert.deepEqual(errors, []);
   fs.writeFileSync(path.join(out, 'result.json'), JSON.stringify({ reports, errors,
     renderer: 'Edge software WebGL regression; no performance claim' }, null, 2));
-  console.log('PASS: real I-key panel animation, wider folded arcs, safe closing and horizontal M46 tool storage; saved', out);
+  console.log('PASS: real I-key panel animation, wider folded arcs, safe closing and no M46 front shovel; saved', out);
 } finally {
   await browser.close();
 }
