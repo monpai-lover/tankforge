@@ -18,7 +18,7 @@ class FoldingSourceTest(unittest.TestCase):
         original = pieces(original_model('su_att_m46', BASELINE))
         self.assertFalse(any(p.get('source_node') == 'front_stowed_tool' for p, *_ in original))
         with patch('folding_arc_probe.pieces', return_value=original):
-            with self.assertRaisesRegex(AssertionError, '159825'):
+            with self.assertRaisesRegex(AssertionError, '159493'):
                 verify_m46_storage({})
 
     def test_complete_cab_side_walls_keep_the_fold_sweep_clear_with_the_tool_removed(self):

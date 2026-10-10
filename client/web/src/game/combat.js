@@ -9,15 +9,29 @@ const v3 = (p) => (Array.isArray(p) ? { x: p[0], y: p[1], z: p[2] } : p);
 export const arr3 = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
 
 export const MODULE_NAME = {
-  engine: '引擎', transmission: '傳動', fuel_tank: '油箱', ammo_rack: '彈藥架', gun_breech: '炮閂', gun_barrel: '炮管',
+  engine: '引擎', transmission: '傳動', fuel_tank: '油箱', ammo_rack: '彈藥架', gun_breech: '炮閂', gun_barrel: '炮管', launcher: '發射裝置',
   turret_drive: '炮塔驅動', horizontal_drive: '方向機', vertical_drive: '高低機', radio: '無線電', track: '履帶',
 };
 export const CREW_NAME = { commander: '車長', gunner: '炮手', loader: '裝填手', driver: '駕駛', radio_operator: '無線電手' };
 export const EVENT_NAME = {
   ammo_detonation: '彈藥殉爆', fire: '起火', destroyed: '擊毀', engine: '引擎損毀', transmission: '傳動損毀', track_left: '左履帶斷裂', track_right: '右履帶斷裂',
-  breech: '炮閂損毀', barrel: '炮管損毀', turret_drive: '炮塔驅動損毀', elevation_drive: '高低機損毀', fuel_tank: '油箱破裂', ammo_rack: '彈藥架受損',
+  breech: '炮閂損毀', barrel: '炮管損毀', launcher: '發射裝置損毀', turret_drive: '炮塔驅動損毀', elevation_drive: '高低機損毀', fuel_tank: '油箱破裂', ammo_rack: '彈藥架受損',
   repaired: '修理完成', fire_out: '火已熄滅', overpenetration: '過穿',
 };
+
+/** Only apparatus belonging to this launch mount gates its round; mixed vehicles keep cannons. */
+export function launcherCanFire(loadout, modules, state, gun) {
+  if (!state?.modules || !modules?.length) return true;
+  const launchers = loadout.turrets.flatMap(t => t.guns).filter(g => g.def.missile);
+  const distance = (m, g) => (m.center.x - g.trunnion[0]) ** 2 + (m.center.y - g.trunnion[1]) ** 2 + (m.center.z - g.trunnion[2]) ** 2;
+  for (let i = 0; i < modules.length; i++) {
+    const m = modules[i];
+    if (m.kind !== 'launcher' || !(state.modules[i] <= 0)) continue;
+    const mount = launchers.reduce((best, g) => !best || distance(m, g) < distance(m, best) ? g : best, null);
+    if (mount === gun) return false;
+  }
+  return true;
+}
 
 /**
  * Rounds every main gun's racks hold together (as tg_combat::ammo_capacity counts them:

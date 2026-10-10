@@ -61,6 +61,20 @@ test('armoured car: full throttle on a road reaches the published speed', () => 
   }
 });
 
+test('armoured car: tyre drive preserves acceleration when the simulation step is larger', () => {
+  for (const id of ['us_m8', 'de_sdkfz234_2', 'xp_bmp_k64']) {
+    const accelerate = dt => {
+      const r = car(id);
+      placeWheeled(r.tm, r.t, flat, 0, 0, 0);
+      run(r, flat, IDLE, 2, dt);
+      return run(r, flat, { throttle: 1, steer: 0, brake: 0 }, 10, dt).speedKmh;
+    };
+    const fine = accelerate(1 / 120), coarse = accelerate(1 / 30);
+    assert.ok(Math.abs(coarse / fine - 1) < 0.025,
+      `${id}: 10 s road acceleration depends on step size: ${fine.toFixed(2)} vs ${coarse.toFixed(2)} km/h`);
+  }
+});
+
 test('armoured car: full lock at a crawl turns on about its turning circle', () => {
   for (const id of ['us_m8', 'de_sdkfz234_2', 'xp_kda35']) {
     const r = car(id);

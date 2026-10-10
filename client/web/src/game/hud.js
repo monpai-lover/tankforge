@@ -20,7 +20,7 @@ const OWNER_RGB = { blue: '79, 140, 255', red: '232, 70, 58' };
 /** The status panel's window: radius as a share of the panel's width. */
 export const STATUS_WINDOW = 0.33;
 /** Where each kind of module sits round the status ring (degrees clockwise from the top). */
-const PICTO_AT = { engine: 292, transmission: 310, fuel_tank: 328, radio: 346, gun_barrel: 18, gun_breech: 36, turret_drive: 54, vertical_drive: 112, ammo_rack: 130, track_r: 150, track_l: 208, aps_gun: 72, aps_radar: 90 };
+const PICTO_AT = { engine: 292, transmission: 310, fuel_tank: 328, radio: 346, gun_barrel: 18, gun_breech: 36, launcher: 36, turret_drive: 54, vertical_drive: 112, ammo_rack: 130, track_r: 150, track_l: 208, aps_gun: 72, aps_radar: 90 };
 
 /** A small line pictogram of a module (or the crew, a round, fire) centred on x, y, size s. */
 function pictogram(g, kind, x, y, s, color) {
@@ -73,6 +73,11 @@ function pictogram(g, kind, x, y, s, color) {
     case 'gun_breech':
       L([[-0.7, -0.5], [0.7, -0.5], [0.7, 0.5], [-0.7, 0.5]], true);
       circle(0, 0, 0.25);
+      break;
+    case 'launcher':
+      L([[-.7, .65], [.65, -.7]]);
+      L([[-.4, .75], [.75, -.4]]);
+      L([[-.6, .65], [-.6, .95], [.35, .95], [.35, -.15]]);
       break;
     case 'turret_drive':
       g.beginPath();

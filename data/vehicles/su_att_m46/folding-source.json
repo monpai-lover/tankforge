@@ -98,7 +98,7 @@
  },
  "narrow_gun_shield": "Retained on original traversing gun; never folded",
  "original_triangles": 162461,
- "repaired_triangles": 159825,
+ "repaired_triangles": 159493,
  "clearance_m": 0.025,
  "fold_depression_stages": [
   {
@@ -869,8 +869,12 @@
   "method": "Every retained traversing/elevating weapon triangle edge at each conservative legal bearing interval against source panel outlines"
  },
  "front_tool_removal": {
-  "removed_triangles": 2636,
-  "original_source_group": "Exterior_Details front tool, keepers and chain",
+  "removed_triangles": 2968,
+  "groups": {
+   "front_frame_chain": 2636,
+   "hood_shovel": 332
+  },
+  "original_source_group": "Exterior_Details hood shovel/blade/two keepers, front frame and chain",
   "action": "Removed entirely from the playable model, including the former side rack; original source GLB retained"
  }
 }

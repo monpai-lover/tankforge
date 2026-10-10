@@ -991,9 +991,26 @@ impl Lobby {
                 if (if small { auto } else { big }) >= burst || p.fired.iter().any(|f| f.seq == seq) {
                     return Vec::new();
                 }
+                let aps_shell = self.mdata.aps.get(&p.vehicle).is_some_and(|spec|
+                    self.shells.get(&shell).is_some_and(|s| (s.caliber_mm - spec.def.bullet_caliber_mm).abs() < 1e-6));
+                if aps_shell {
+                    // The server owns this shared magazine. Manual fire is accepted
+                    // only after automatic interception releases the protection gun.
+                    let spec = &self.mdata.aps[&p.vehicle];
+                    if let (Some(t), Some(st)) = (self.targets.get(&p.vehicle), p.combat.as_ref()) {
+                        if t.def.modules.iter().enumerate().any(|(i, m)| Some(&m.id) == spec.gun_module.as_ref() && st.modules.get(i).copied().unwrap_or(1.0) <= 0.0) {
+                            return Vec::new();
+                        }
+                    }
+                    let Some(w) = self.rooms.get_mut(&room).filter(|r| r.playing).and_then(|r| r.world.as_mut()) else { return Vec::new() };
+                    let Some(a) = w.aps_of(id) else { return Vec::new() };
+                    if a.enabled || a.rounds == 0 { return Vec::new(); }
+                    let left = a.rounds - 1;
+                    w.set_aps_rounds(id, false, None, Some(left));
+                }
                 p.fired.push_back(Fired { seq, at: now, shell: shell.clone(), used: false, small });
                 // one round fewer in the racks
-                if let (Some(t), Some(st)) = (self.targets.get(&p.vehicle), p.combat.as_mut()) {
+                if let (false, Some(t), Some(st)) = (aps_shell, self.targets.get(&p.vehicle), p.combat.as_mut()) {
                     if t.def.ammo_capacity > 0 && (self.shells.contains_key(&shell) || self.projectiles.contains_key(&shell)) {
                         let left = p.rounds.unwrap_or(t.def.ammo_capacity).saturating_sub(1);
                         p.rounds = Some(left);
@@ -1455,6 +1472,16 @@ impl Lobby {
         }
         if !self.rooms.get(&room).is_some_and(|r| r.playing && r.world.is_some()) {
             return Self::reject_launch(id, seq, "not_in_battle", 0.0);
+        }
+        if let (Some(t), Some(st)) = (self.targets.get(&p.vehicle), p.combat.as_ref()) {
+            if !tg_combat::caps(t, st).can_fire {
+                return Self::reject_launch(id, seq, "weapon_disabled", 0.0);
+            }
+            // The wire identifies the missile, not its mounted instance. At least
+            // one complete assembly must work; independent cannons stay usable.
+            if !tg_combat::launcher_groups_operational(t, st) {
+                return Self::reject_launch(id, seq, "weapon_disabled", 0.0);
+            }
         }
         // from the vehicle, from what it carries, not faster than a launcher can
         let near = p.state.as_ref().and_then(pos_of).map(|q| ((q[0] - o[0]).powi(2) + (q[2] - o[2]).powi(2)).sqrt() < 12.0).unwrap_or(false);
@@ -2175,6 +2202,72 @@ mod tests {
     }
 
     #[test]
+    fn a_destroyed_launch_apparatus_refuses_missiles_until_repaired_without_spending_ammo() {
+        let (mut l, a, _) = missile_lobby();
+        let launcher = l.targets["us_m901_itv"].def.modules.iter().position(|m| m.kind == tg_combat::ModuleKind::Launcher).unwrap();
+        l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[launcher] = 0.0;
+        let before = l.players[&a].missiles_left.clone();
+        let rejected = l.launch(a, 70, "bgm71a_tow", [0.0, 2.3, 2.0], [0.0, 0.0, 1.0], 1.0);
+        launch_rejection(&rejected, a, 70, "weapon_disabled");
+        assert_eq!(l.players[&a].missiles_left, before);
+        assert!(l.players[&a].launch_receipts.is_empty());
+        l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[launcher] = l.targets["us_m901_itv"].def.modules[launcher].max_health;
+        let accepted = l.launch(a, 70, "bgm71a_tow", [0.0, 2.3, 2.0], [0.0, 0.0, 1.0], 1.1);
+        assert!(accepted.iter().any(|(_, m)| matches!(m, ServerMsg::Launched { seq: 70, .. })));
+        assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], before["bgm71a_tow"] - 1);
+    }
+
+    #[test]
+    fn bmpt_cannon_and_one_live_rocket_rail_do_not_bypass_two_destroyed_launchers() {
+        let (mut l, a, _) = missile_lobby();
+        l.players.get_mut(&a).unwrap().vehicle = "su_bmpt34".into();
+        l.spawn(a, 1.0);
+        let rails: Vec<usize> = l.targets["su_bmpt34"].def.modules.iter().enumerate().filter_map(|(i, m)| (m.kind == tg_combat::ModuleKind::Launcher).then_some(i)).collect();
+        assert_eq!(rails.len(), 2);
+        l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[rails[0]] = 0.0;
+        let shot = |seq| ClientMsg::Launch { seq, missile: "tt250_rocket".into(), o: [0.0, 2.3, 2.0], d: [0.0, 0.0, 1.0] };
+        l.handle(a, ClientMsg::State { s: state(0.0) }, 1.0);
+        let first = l.handle(a, shot(80), 1.1);
+        assert!(first.iter().any(|(_, m)| matches!(m, ServerMsg::Launched { seq: 80, .. })), "the other rocket rail remains usable");
+        l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[rails[1]] = 0.0;
+        assert!(tg_combat::caps(&l.targets["su_bmpt34"], l.players[&a].combat.as_ref().unwrap()).can_fire, "damaged rails leave the independent cannon usable");
+        let before = l.players[&a].missiles_left.clone();
+        let rejected = l.handle(a, shot(81), 1.5);
+        launch_rejection(&rejected, a, 81, "weapon_disabled");
+        assert_eq!(l.players[&a].missiles_left, before);
+    }
+
+    #[test]
+    fn mixed_vehicle_requires_one_complete_launcher_group_not_surviving_parts_from_broken_groups() {
+        let (mut l, a, _) = missile_lobby();
+        let mut def = l.targets["su_bmpt34"].def.clone();
+        let rails: Vec<usize> = def.modules.iter().enumerate().filter_map(|(i, m)| (m.kind == tg_combat::ModuleKind::Launcher).then_some(i)).collect();
+        for &rail in &rails {
+            let mut igniter = def.modules[rail].clone();
+            igniter.id.push_str("_igniter");
+            def.modules.push(igniter);
+        }
+        let second_igniter = def.modules.len() - 1;
+        l.targets.insert("su_bmpt34".into(), Target::new(def, &[]));
+        l.players.get_mut(&a).unwrap().vehicle = "su_bmpt34".into();
+        l.spawn(a, 1.0);
+        l.handle(a, ClientMsg::State { s: state(0.0) }, 1.0);
+        let st = l.players.get_mut(&a).unwrap().combat.as_mut().unwrap();
+        st.modules[rails[0]] = 0.0;
+        st.modules[second_igniter] = 0.0;
+        assert!(tg_combat::caps(&l.targets["su_bmpt34"], l.players[&a].combat.as_ref().unwrap()).can_fire, "independent cannon remains usable");
+        let before = l.players[&a].missiles_left.clone();
+        let rejected = l.launch(a, 85, "tt250_rocket", [0.0, 2.3, 2.0], [0.0, 0.0, 1.0], 1.1);
+        launch_rejection(&rejected, a, 85, "weapon_disabled");
+        assert_eq!(l.players[&a].missiles_left, before);
+        assert!(!l.players[&a].launch_receipts.contains_key(&85));
+        l.players.get_mut(&a).unwrap().combat.as_mut().unwrap().modules[rails[0]] = 70.0;
+        let accepted = l.launch(a, 85, "tt250_rocket", [0.0, 2.3, 2.0], [0.0, 0.0, 1.0], 1.2);
+        assert!(accepted.iter().any(|(_, m)| matches!(m, ServerMsg::Launched { seq: 85, .. })), "one restored complete group permits launching");
+        assert_eq!(l.players[&a].missiles_left["tt250_rocket"], before["tt250_rocket"] - 1);
+    }
+
+    #[test]
     fn a_lost_launch_ack_can_be_retried_with_the_same_sequence_without_launching_twice() {
         let (mut l, a, _) = missile_lobby();
         let origin = [0.0, 2.3, 2.0];
@@ -2207,6 +2300,54 @@ mod tests {
         assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 11);
         assert!(l.launch(a, 62, "bgm71a_tow", origin, dir, 0.4).iter().any(|(_, m)| matches!(m, ServerMsg::Launched { .. })));
         assert_eq!(l.players[&a].missiles_left["bgm71a_tow"], 10);
+    }
+
+    #[test]
+    fn manual_oplot_fire_spends_the_server_magazine_once_without_spending_main_gun_ammo() {
+        let (mut l, a, b) = missile_lobby();
+        l.shells.insert("api_145_b32".into(), Shell { kind: "ap".into(), filler_kg: 0.0, caliber_mm: 14.5 });
+        let room = l.players[&b].room.unwrap();
+        let shot = |seq, o| ClientMsg::Fire { seq, o, d: [0.0, 0.0, -1.0], shell: "api_145_b32".into() };
+        let rounds = |l: &Lobby| l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds;
+        // Automatic control owns the mount until the client hands it to the gunner.
+        assert!(l.handle(b, shot(100, [0.0, 3.0, 600.0]), 1.0).is_empty());
+        assert_eq!(rounds(&l), 900);
+        assert!(l.players[&b].fired.is_empty());
+        l.handle(b, ClientMsg::Aps { enabled: false, rate: None }, 1.0);
+        let main_before = l.players[&b].rounds;
+        let out = l.handle(b, shot(101, [0.0, 3.0, 600.0]), 1.1);
+        assert!(msgs_to(&out, a).iter().any(|m| matches!(m, ServerMsg::Fire { from, seq: 101, .. } if *from == b)));
+        assert_eq!(rounds(&l), 899);
+        assert_eq!(l.players[&b].rounds, main_before, "protection rounds do not empty the main gun's racks");
+        assert!(l.handle(b, shot(101, [0.0, 3.0, 600.0]), 1.2).is_empty());
+        assert_eq!(rounds(&l), 899, "retrying a sequence cannot spend a second round");
+        assert!(l.handle(b, shot(102, [f64::NAN, 3.0, 600.0]), 1.3).is_empty());
+        assert_eq!(rounds(&l), 899, "rejected fire consumes no rounds");
+        l.rooms.get_mut(&room).unwrap().world.as_mut().unwrap().set_aps_rounds(b, false, None, Some(1));
+        assert!(!l.handle(b, shot(103, [0.0, 3.0, 600.0]), 1.4).is_empty());
+        assert_eq!(rounds(&l), 0);
+        assert!(l.handle(b, shot(104, [0.0, 3.0, 600.0]), 1.5).is_empty());
+        assert!(!l.players[&b].fired.iter().any(|f| f.seq == 104));
+        l.handle(b, ClientMsg::Aps { enabled: true, rate: None }, 1.6);
+        assert_eq!(rounds(&l), 0, "returning to interception cannot refill the magazine");
+    }
+
+    #[test]
+    fn manual_oplot_fire_rejects_a_broken_protection_gun_without_spending_ammo() {
+        let (mut l, _, b) = missile_lobby();
+        l.shells.insert("api_145_b32".into(), Shell { kind: "ap".into(), filler_kg: 0.0, caliber_mm: 14.5 });
+        let room = l.players[&b].room.unwrap();
+        l.handle(b, ClientMsg::Aps { enabled: false, rate: None }, 1.0);
+        let target = &l.targets["su_t10m"];
+        let gun = target.def.modules.iter().position(|m| m.id == "oplot_gun").unwrap();
+        l.players.get_mut(&b).unwrap().combat.as_mut().unwrap().modules[gun] = 0.0;
+        let shot = |seq| ClientMsg::Fire { seq, o: [0.0, 3.0, 600.0], d: [0.0, 0.0, -1.0], shell: "api_145_b32".into() };
+        assert!(l.handle(b, shot(100), 1.1).is_empty());
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds, 900);
+        assert!(l.players[&b].fired.is_empty());
+        l.players.get_mut(&b).unwrap().combat.as_mut().unwrap().modules[gun] = 1.0;
+        assert!(!l.handle(b, shot(101), 1.2).is_empty());
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(b).unwrap().rounds, 899);
     }
 
     #[test]

@@ -384,7 +384,7 @@ fn behind(targets: &(Vec<tg_damage::Module>, Vec<tg_damage::Crew>), o: V3, d: V3
         }
     }
     for m in mods {
-        if matches!(m.kind, ModuleKind::GunBarrel | ModuleKind::Track) {
+        if matches!(m.kind, ModuleKind::GunBarrel | ModuleKind::Launcher | ModuleKind::Track) {
             continue;
         }
         let a = Aabb::from_center(V3::from_f32(m.center), V3::from_f32(m.half_extents) * 2.0);

@@ -139,6 +139,9 @@ pub struct GunDef {
     /// An automatic gun fed from a belt or magazine: fires while the trigger is held.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub autocannon: Option<AutocannonDef>,
+    /// Flight definition for a missile/rocket launcher; absent for a conventional cannon.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub missile: Option<String>,
 }
 
 /// The feed of an automatic gun: cyclic rate, rounds per belt (or magazine), time to change it,

@@ -11,11 +11,32 @@ fn plate(id: &str, zone: ArmorZone, mm: f32, c: [f32; 3], n: [f32; 3], u: [f32; 
 }
 
 fn module(id: &str, kind: ModuleKind, c: [f32; 3], h: [f32; 3], hp: f32) -> Module {
-    Module { id: id.into(), kind, center: Vec3::new(c[0], c[1], c[2]), half_extents: Vec3::new(h[0], h[1], h[2]), max_health: hp, health: hp, rounds: None }
+    Module { id: id.into(), kind, center: Vec3::new(c[0], c[1], c[2]), half_extents: Vec3::new(h[0], h[1], h[2]), max_health: hp, health: hp, rounds: None, weapon_group: None }
 }
 
 fn crew(role: CrewRole, p: [f32; 3]) -> Crew {
     Crew { role, pos: Vec3::new(p[0], p[1], p[2]), radius: 0.28, health: 100.0, also: Vec::new(), pose: None }
+}
+
+#[test]
+fn launcher_apparatus_has_its_own_damage_kind_and_disables_firing_when_destroyed() {
+    let kind: ModuleKind = serde_json::from_str("\"launcher\"").expect("launcher apparatus must deserialize independently of cannon parts");
+    assert_eq!(kind.as_str(), "launcher");
+    assert!(kind.is_external(), "launch apparatus is exposed to direct impacts");
+    let mut target = box_tank(false).def;
+    target.modules.retain(|m| !matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel));
+    target.modules.push(module("launcher", kind, [0.0, 2.5, 0.0], [0.4, 0.1, 0.5], 70.0));
+    let target = Target::new(target, &rha());
+    let mut state = target.fresh_state();
+    assert!(caps(&target, &state).can_fire);
+    let index = target.def.modules.len() - 1;
+    state.modules[index] = 0.0;
+    assert!(!caps(&target, &state).can_fire);
+    let mods = target.def.modules.iter().enumerate().map(|(i, m)| { let mut m = m.clone(); m.health = state.modules[i]; m }).collect::<Vec<_>>();
+    assert!(!tg_damage::capabilities(&mods, &target.def.crew).can_fire);
+    assert!(!caps(&target, &state).ammo_detonated, "apparatus damage does not manufacture a warhead detonation");
+    state.modules[index] = 70.0;
+    assert!(caps(&target, &state).can_fire);
 }
 
 /// A box tank: hull 3 m wide, 6 m long, 0.4..1.8 m high; turret 2 x 2.4 x 0.9 on top.

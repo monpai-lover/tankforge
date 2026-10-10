@@ -436,5 +436,39 @@
   "max_health": 60,
   "health": 60,
   "rounds": 280
+ },
+ {
+  "id": "launcher_tt250_rail_r",
+  "kind": "launcher",
+  "weapon_group": "launcher_mount_2",
+  "center": {
+   "x": 1.01,
+   "y": 2.542,
+   "z": -0.952
+  },
+  "half_extents": {
+   "x": 0.24,
+   "y": 0.24,
+   "z": 1.125
+  },
+  "max_health": 70,
+  "health": 70
+ },
+ {
+  "id": "launcher_tt250_rail_l",
+  "kind": "launcher",
+  "weapon_group": "launcher_mount_3",
+  "center": {
+   "x": -1.01,
+   "y": 2.542,
+   "z": -0.952
+  },
+  "half_extents": {
+   "x": 0.24,
+   "y": 0.24,
+   "z": 1.125
+  },
+  "max_health": 70,
+  "health": 70
  }
 ]

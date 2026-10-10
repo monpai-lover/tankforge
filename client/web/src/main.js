@@ -15,7 +15,7 @@ import { setActiveMap } from './game/relief.js';
 import { loadBattleMap, FORD_DEPTH } from './game/battlemap.js';
 import { buildMapWorld } from './game/mapworld.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
-import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks } from './game/combat.js';
+import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
 import { HitCam } from './game/hitcam.js';
 import { designReplayReport } from './game/projectileReplay.js';
 import { Missiles } from './game/missiles.js';
@@ -739,7 +739,7 @@ export function start(data, saved = {}) {
     const v = bundle.vehicle;
     const rg = bundle.visual?.running_gear;
     const t0 = G.loadout.turrets[0];
-    const skip = new Set(['track', 'gun_barrel', 'gun_breech', 'horizontal_drive', 'vertical_drive', 'turret_drive']);
+    const skip = new Set(['track', 'gun_barrel', 'gun_breech', 'launcher', 'horizontal_drive', 'vertical_drive', 'turret_drive']);
     return {
       width: v.hull.size_m[0],
       length: v.hull.size_m[2],
@@ -1095,6 +1095,7 @@ export function start(data, saved = {}) {
       n.castShadow = !G.xray;
     }
     for (const n of G.interior.nodes) n.visible = G.xray || !!n.always;
+    G.interior.updateLaunchers();
     // racks emptied by a short load or by firing are bare frames: not drawn
     if (G.mode === 'battle' && G.cstate && data.vehicles[G.id]) for (const id of emptyRacks(data.vehicles[G.id], G.cstate)) for (const n of G.interior.byModule.get(id) || []) n.visible = false;
     document.body.dataset.xray = G.xray ? '1' : '0';
@@ -1317,6 +1318,7 @@ export function start(data, saved = {}) {
     G.sightG = next.gi;
     G.sightM = next.mi;
     G.pending.length = 0;
+    syncApsControl();
     G.zoomIdx = 0;
     hud.buildAmmo(G.sightM >= 0 ? null : sightGun(), selectAmmo);
     const mg = G.MG[G.sightM];
@@ -2084,7 +2086,10 @@ export function start(data, saved = {}) {
     if (!G.missiles) return;
     G.missiles.removeAps(ME);
     G.aps = data.vehicles[G.id]?.weapons?.aps || null;
-    if (G.aps) G.missiles.addAps(ME, 0, G.aps, 3);
+    if (G.aps) {
+      G.missiles.addAps(ME, 0, G.aps, 3);
+      syncApsControl();
+    }
     hud.aps(null);
   }
 
@@ -2127,12 +2132,23 @@ export function start(data, saved = {}) {
     G.combat?.setFold(G.id, pose);
   }
 
+  /** Selecting the protection turret gives its gun to the gunner without changing the U preference. */
+  function apsAutomatic() {
+    return !!(G.aps && G.apsOn && !(G.sightM < 0 && G.sightT === (G.aps.turret ?? 1)));
+  }
+
+  function syncApsControl() {
+    if (G.mode !== 'battle' || !G.aps || !G.missiles) return;
+    const g = G.loadout.turrets[G.aps.turret ?? 1].guns[0];
+    const enabled = apsAutomatic();
+    G.missiles.setAps(ME, enabled, null, roundsLeft(g));
+    if (G.online) net.send({ t: 'aps', enabled });
+  }
+
   function toggleAps() {
     if (!G.aps || !G.missiles) return hud.toast('這輛車沒有主動防禦系統', 1.5);
     G.apsOn = !G.apsOn;
-    const g = G.loadout.turrets[G.aps.turret ?? 1].guns[0];
-    G.missiles.setAps(ME, G.apsOn, null, roundsLeft(g));
-    if (G.online) net.send({ t: 'aps', enabled: G.apsOn });
+    syncApsControl();
     sound.tone(G.apsOn ? 'on' : 'off');
     hud.toast(G.apsOn ? `${G.aps.name}：自動攔截已開啟（U 關閉，Y 換射速）` : `${G.aps.name}：已關閉，可用 N 手動射擊`, 2.5);
   }
@@ -2142,8 +2158,8 @@ export function start(data, saved = {}) {
     const [lo, hi] = G.aps.rate_range_rpm || [G.aps.rate_rpm, G.aps.rate_rpm];
     const cur = G.apsState ? G.apsState.rate_rpm : G.aps.rate_rpm;
     const next = cur >= hi - 1 ? lo : Math.min(hi, cur + 1000);
-    G.missiles.setAps(ME, G.apsOn, next);
-    if (G.online) net.send({ t: 'aps', enabled: G.apsOn, rate: next });
+    G.missiles.setAps(ME, apsAutomatic(), next);
+    if (G.online) net.send({ t: 'aps', enabled: apsAutomatic(), rate: next });
     hud.toast(`${G.aps.name} 射速 ${next} 發/分`, 1.5);
   }
 
@@ -2252,18 +2268,26 @@ export function start(data, saved = {}) {
       if (a.owner === ME && G.aps) {
         const ti = G.aps.turret ?? 1;
         const g = G.loadout.turrets[ti].guns[0];
-        if (a.enabled && a.mode !== 'dead') {
+        if (apsAutomatic() && a.enabled && a.mode !== 'dead') {
           // the system lays its own turret (its yaw is kept in the hull frame, as every turret's)
           G.T[ti].yaw = gunnery.wrapPi(a.yaw - G.s.heading);
           G.T[ti].guns[0].pitch = a.pitch;
-          // the rounds it fires come out of the gun's own belt
-          let over = roundsLeft(g) - a.rounds;
-          for (const am of g.ammo) {
-            const k = Math.min(am.count, Math.max(0, over));
-            am.count -= k;
-            over -= k;
-          }
           if (a.firing && Math.random() < 0.5) G.cam.shake = Math.min(0.5, G.cam.shake + 0.05);
+        }
+        // Automatic and manual control share the same magazine. A snapshot can
+        // consume rounds, but never restore rounds already fired by the gunner.
+        let over = roundsLeft(g) - a.rounds;
+        for (const am of g.ammo) {
+          const k = Math.min(am.count, Math.max(0, over));
+          am.count -= k;
+          over -= k;
+        }
+        g.belt = Math.min(g.belt, roundsLeft(g));
+        if (G.T[ti].loading.state[0] === 'ready' && !(g.ammo[g.loaded]?.count > 0)) {
+          g.loaded = nextAmmo(g);
+          if (g.loaded < 0) G.T[ti].loading.state[0] = 'empty';
+          else g.selected = g.loaded;
+          syncGunShell(g);
         }
         const fault = !mine.aps_gun_ok || !mine.aps_radar_ok;
         if (fault && !G.apsFault) {
@@ -2434,7 +2458,7 @@ export function start(data, saved = {}) {
         G.missiles.guide(id, owner, sight, [target[0] + w(0), target[1] + w(1) * 0.5, target[2] + w(2)]);
       }
       e.mslT = Math.max(0, (e.mslT ?? 6) - dt);
-      if (e.mslT > 1e-9 || e.mslLoading.state[0] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9) return;
+      if ((e.caps && !e.caps.can_fire) || e.mslT > 1e-9 || e.mslLoading.state[0] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || !launcherCanFire(e.loadout, e.bundle?.modules, e.cstate, g)) return;
       const d = Math.hypot(target[0] - sight[0], target[1] - sight[1], target[2] - sight[2]);
       if (d > mdef.max_range_m || d < mdef.min_range_m * 1.5 || roundsLeft(g) <= 0) {
         e.mslT = 2;
@@ -2475,7 +2499,7 @@ export function start(data, saved = {}) {
     const g = t.guns[gi];
     const rt = G.T[ti];
     const mdef = data.missiles[g.def.missile];
-    if (!G.missiles?.ready || !mdef || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
+    if ((G.caps && !G.caps.can_fire) || !G.missiles?.ready || !mdef || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0) || !launcherCanFire(G.loadout, data.vehicles[G.id]?.modules, G.cstate, g)) return false;
     if (G.online) {
       // Reserve one tube until the server confirms it; jitter must never spend a rejected round.
       if (!net.open || onlineLaunches.has(g)) return false;
@@ -2594,6 +2618,7 @@ export function start(data, saved = {}) {
         n.visible = true;
         n.highlight = [0.78, 0.82, 0.88, 0.55];
       }
+      inner.updateLaunchers();
       if (st && bundle) {
         for (const [id, nodes] of inner.byModule) {
           const i = G.modIndex.get(id);
@@ -2635,7 +2660,7 @@ export function start(data, saved = {}) {
       modules: G.statusShape.modules.map((m) => (G.modIndex.has(m.id) ? { ...m, health: ratio(G.modIndex.get(m.id)) } : m)),
       crew: G.statusShape.crew.map((c, i) => ({ ...c, health: (st.crew[i] ?? 100) / 100 })),
       trackHealth: { 1: worst((m) => m.kind === 'track' && m.center.x > 0), [-1]: worst((m) => m.kind === 'track' && m.center.x < 0) },
-      gunHealth: worst((m) => m.kind === 'gun_breech' || m.kind === 'gun_barrel'),
+      gunHealth: worst((m) => m.kind === 'gun_breech' || m.kind === 'gun_barrel' || m.kind === 'launcher'),
     };
     const c = G.caps;
     const items = [];
@@ -2647,6 +2672,7 @@ export function start(data, saved = {}) {
     if (!c.track_right) items.push({ kind: 'bad', text: '右履帶斷' });
     if (worst((m) => m.kind === 'gun_breech') <= 0) items.push({ kind: 'bad', text: '炮閂損毀' });
     if (worst((m) => m.kind === 'gun_barrel') <= 0) items.push({ kind: 'bad', text: '炮管損毀' });
+    if (worst((m) => m.kind === 'launcher') <= 0) items.push({ kind: 'bad', text: '發射裝置損毀' });
     if (c.traverse_mult < 1) items.push({ kind: 'warn', text: '炮塔改手搖' });
     if (c.elevate_mult < 1) items.push({ kind: 'warn', text: '高低機損毀' });
     for (const [role, ok] of [['driver', c.driver], ['gunner', c.gunner], ['loader', c.loader], ['commander', c.commander]]) {
@@ -2701,10 +2727,9 @@ export function start(data, saved = {}) {
 
   /** Line of sight used for ranging: the sight line in the gunner view, the camera ray otherwise. */
   function currentLos() {
-    const t = sightTurret();
-    const tr = gunnery.muzzleWorld(pose(), mountOf(t, sightGun()), { yaw: G.T[G.sightT].yaw, pitch: 0 }).trunnion;
+    const mz = sightMuzzle(hullTilt(G.ss, G.T[G.sightT].yaw));
     // both views range along the middle of the picture
-    return { origin: G.camPos, dir: G.free ? G.camFwd : dirFrom(G.cam.yaw, G.cam.pitch), from: tr };
+    return { origin: G.camPos, dir: G.free ? G.camFwd : dirFrom(G.cam.yaw, G.cam.pitch), from: mz.pos };
   }
 
   function finishRanging() {
@@ -3096,6 +3121,9 @@ export function start(data, saved = {}) {
       const rt = G.T[ti];
       t.guns.forEach((g, gi) => {
         if (rt.loading.state[gi] !== 'ready') return;
+        if (g.def.missile && !launcherCanFire(G.loadout, data.vehicles[G.id]?.modules, G.cstate, g)) return;
+        // Taking the protection gun's sight gives the primary trigger to that gun alone.
+        if (!rocket && G.aps && G.sightT === (G.aps.turret ?? 1) && (ti !== G.sightT || gi !== G.sightG)) return;
         if (rocket && rocketGone) return;
         if (G.pending.some((p) => p.ti === ti && p.gi === gi)) return;
         const own = ti === G.sightT;
@@ -3106,7 +3134,7 @@ export function start(data, saved = {}) {
         // rockets have their own key (R)
         if ((g.def.trigger === 'rocket') !== rocket) return;
         // the active protection gun lays and fires itself while it is switched on
-        if (G.aps && G.apsOn && ti === (G.aps.turret ?? 1)) return;
+        if (G.aps && ti === (G.aps.turret ?? 1) && (apsAutomatic() || !moduleOk(data.vehicles[G.id], G.cstate, G.aps.gun_module))) return;
         const secondary = !rocket && (g.def.trigger === 'secondary' || (!!g.def.autocannon && !own));
         if (secondary !== mgTrigger) return;
         G.pending.push({ ti, gi, t: g.def.autocannon ? 0 : n * 0.07 });
@@ -3120,7 +3148,8 @@ export function start(data, saved = {}) {
     const t = G.loadout.turrets[ti];
     const g = t.guns[gi];
     const rt = G.T[ti];
-    if (rt.loading.state[gi] !== 'ready') return false;
+    if (rt.loading.state[gi] !== 'ready' || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
+    if (G.aps && ti === (G.aps.turret ?? 1) && !moduleOk(data.vehicles[G.id], G.cstate, G.aps.gun_module)) return false;
     const mount = g.def.missile ? launcherMount(g, mountOf(t, g)) : mountOf(t, g);
     const mz = gunnery.muzzleWorld(pose(), mount, { yaw: rt.yaw, pitch: rt.guns[gi].pitch + hullTilt(G.ss, rt.yaw) });
     if (g.def.missile) return launchFromGun(ti, gi, mz);
@@ -3182,7 +3211,8 @@ export function start(data, saved = {}) {
   function layMg(i, dt) {
     const e = G.MG[i];
     const m = e.m;
-    const ps = pose();
+    const body = G.veh.body;
+    const worldMuzzle = (local) => ({ pos: body.worldPoint(local.pos), dir: body.worldDir(local.dir), trunnion: body.worldPoint(local.trunnion) });
     const t0 = G.loadout.turrets[0];
     const rt0 = G.T[0];
     if (m.mount === 'coax') {
@@ -3192,24 +3222,31 @@ export function start(data, saved = {}) {
         mount.trunnion = m.elevationPivot;
         mount.muzzleVector = m.pos.map((v, k) => v - m.elevationPivot[k]);
       }
-      const mz = gunnery.muzzleWorld(ps, mount, { yaw: rt0.yaw, pitch: rt0.guns[0].pitch + hullTilt(G.ss, rt0.yaw) });
+      const mz = worldMuzzle(gunnery.muzzleLocal(mount, { yaw: rt0.yaw, pitch: rt0.guns[0].pitch }));
       e.bearing = true;
       return mz;
     }
-    const lp = gunnery.toLocalPoint(ps, G.aimPoint);
     // the pivot of a roof gun rides round with the turret
     const base = m.mount === 'pintle' ? gunnery.muzzleLocal({ pivot: t0.pivot, trunnion: m.pos, muzzleOffset: 0 }, { yaw: rt0.yaw, pitch: 0 }).trunnion : m.pos;
-    const d = [lp[0] - base[0], lp[1] - base[1], lp[2] - base[2]];
+    const oldPitch = e.aim.pitch;
+    const localMuzzle = m.mount === 'pintle'
+      ? gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch: oldPitch }).pos
+      : base.map((v, k) => v + dirFrom(e.aim.yaw, oldPitch)[k] * .3);
+    const muzzle = body.worldPoint(localMuzzle);
+    const d = G.aimPoint.map((v, k) => v - muzzle[k]);
     const range = Math.hypot(d[0], d[1], d[2]);
-    const want = { yaw: Math.atan2(d[0], d[2]), pitch: Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, range) };
+    // An independently selected MG uses the same zero as its graticule. The secondary
+    // battery keeps automatic range compensation while the gunner sights a cannon.
+    const laid = body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, G.sightM === i ? G.zero : range)));
+    const want = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
     e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew, dt);
-    const pitch = e.aim.pitch + hullTilt(G.ss, e.aim.yaw);
+    const pitch = e.aim.pitch;
     if (m.mount === 'pintle') {
       const local = gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch });
-      return { pos: gunnery.toWorldPoint(ps, local.pos), dir: gunnery.toWorldDir(ps, local.dir), trunnion: gunnery.toWorldPoint(ps, base) };
+      return worldMuzzle(local);
     }
     const dl = dirFrom(e.aim.yaw, pitch);
-    return { pos: gunnery.toWorldPoint(ps, [base[0] + dl[0] * 0.3, base[1] + dl[1] * 0.3, base[2] + dl[2] * 0.3]), dir: gunnery.toWorldDir(ps, dl), trunnion: gunnery.toWorldPoint(ps, base) };
+    return worldMuzzle({ pos: base.map((v, k) => v + dl[k] * .3), dir: dl, trunnion: base });
   }
 
   function sightMuzzle(tilt = 0) {
@@ -3519,7 +3556,14 @@ export function start(data, saved = {}) {
       // the bearing is laid against the hull as the gunner last saw it pointing
       const lp = gunnery.toLocalPoint({ pos: ps.pos, heading: rt.seen.heading }, G.aimPoint);
       const pv = pivotOf(t0);
-      const targetYaw = Math.atan2(lp[0] - pv[0], lp[2] - pv[2]);
+      const coaxMuzzle = ti === 0 && G.MG[G.sightM]?.m.mount === 'coax' ? sightMuzzle() : null;
+      let coaxLay = null;
+      if (coaxMuzzle) {
+        const d = G.aimPoint.map((v, k) => v - coaxMuzzle.pos[k]);
+        const laid = G.veh.body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + zeroElev(t.guns[0])));
+        coaxLay = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
+      }
+      const targetYaw = coaxLay ? gunnery.wrapPi(coaxLay.yaw + G.s.heading - rt.seen.heading) : Math.atan2(lp[0] - pv[0], lp[2] - pv[2]);
       const stab = STABILIZER[t.stabilizer] || STABILIZER.none;
       let reach;
       if (stab.trav) {
@@ -3537,7 +3581,7 @@ export function start(data, saved = {}) {
       t.guns.forEach((g, gi) => {
         const gs = rt.guns[gi];
         const tr = gunnery.muzzleLocal(mountOf(t, g), { yaw: rt.yaw, pitch: 0 }).trunnion;
-        const los = Math.atan2(lp[1] - tr[1], Math.hypot(lp[0] - tr[0], lp[2] - tr[2]));
+        const los = gi === 0 && coaxLay ? coaxLay.pitch + hullTilt(G.ss, rt.yaw) - zeroElev(g) : Math.atan2(lp[1] - tr[1], Math.hypot(lp[0] - tr[0], lp[2] - tr[2]));
         // the elevation is laid against the hull's attitude as the gunner (or the gyro) sees it,
         // as fast as the elevating gear allows
         const want = los + zeroElev(g) - seenTilt;
@@ -3923,7 +3967,7 @@ export function start(data, saved = {}) {
       // the ring shows the sight line of the sighting gun: bore direction minus the set elevation
       const mz = sightMuzzle(tilt);
       const sl = selectedMg ? dirFrom(Math.atan2(mz.dir[0], mz.dir[2]), Math.asin(clamp(mz.dir[1], -1, 1)) - ze) : dirFrom(G.s.heading + srt.yaw, sgs.pitch + tilt - ze);
-      let reach = Math.max(G.aim.dist - sg.muzzleOffset, 5);
+      let reach = Math.max(G.aim.dist - Math.hypot(...mz.pos.map((v, k) => v - mz.trunnion[k])), 5);
       if (sl[1] < -1e-4) reach = Math.min(reach, mz.pos[1] / -sl[1]);
       const gp = [mz.pos[0] + sl[0] * reach, mz.pos[1] + sl[1] * reach, mz.pos[2] + sl[2] * reach];
       const pr = project(viewProj, gp);
@@ -3932,9 +3976,10 @@ export function start(data, saved = {}) {
     }
     if (inSight) {
       // where the gun's sight line falls in the picture
-      const mz = selectedMg ? sightMuzzle(tilt) : null;
-      const sl = mz ? dirFrom(Math.atan2(mz.dir[0], mz.dir[2]), Math.asin(clamp(mz.dir[1], -1, 1)) - ze) : dirFrom(G.s.heading + srt.yaw, sgs.pitch + tilt - ze);
-      const pr = project(viewProj, [camPos[0] + sl[0] * 2000, camPos[1] + sl[1] * 2000, camPos[2] + sl[2] * 2000]);
+      const mz = sightMuzzle(tilt);
+      const sl = dirFrom(Math.atan2(mz.dir[0], mz.dir[2]), Math.asin(clamp(mz.dir[1], -1, 1)) - ze);
+      const reach = Math.max(G.aim.dist - Math.hypot(...mz.pos.map((v, k) => v - mz.trunnion[k])), 5);
+      const pr = project(viewProj, mz.pos.map((v, k) => v + sl[k] * reach));
       G.sightOffset = pr[2] > 0 ? [pr[0] * 0.5 * cw, -pr[1] * 0.5 * ch] : [fwd[0] * sl[2] - fwd[2] * sl[0] > 0 ? -cw : cw, 0];
     }
 
@@ -3961,6 +4006,7 @@ export function start(data, saved = {}) {
     // the exhaust: thin at idle, thick under load, a dark puff as the throttle opens
     // the crew at their work: the loader's reload cycle, the gunner rocked by the shot
     if (G.interior && G.loadout && G.T && !G.thumbShot) animateCrew(G.interior, G.innerCrew || [], G.loadout, G.T, performance.now() / 1000, G.firedAt || []);
+    if (G.interior) G.interior.updateLaunchers();
     if (G.exhaust && !G.thumbShot && !(G.caps && G.caps.destroyed) && !(G.online && G.online.dead)) {
       const idleR = G.params.engine.idle_rpm;
       const r01 = clamp(((G.rpmShown || idleR) - idleR) / Math.max(1, G.params.engine.max_rpm - idleR), 0, 1);
@@ -4054,6 +4100,7 @@ export function start(data, saved = {}) {
     if (G.xray) {
       const tags = [];
       for (const l of G.interior.labels) {
+        if (l.anchor && !l.anchor.visible) continue;
         const w = l.node.world;
         const pr = project(viewProj, [w[12], w[13], w[14]]);
         if (pr[2] > 0) tags.push({ x: (pr[0] * 0.5 + 0.5) * cw, y: (1 - (pr[1] * 0.5 + 0.5)) * ch, text: l.text, crew: l.crew });

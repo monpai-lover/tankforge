@@ -77,8 +77,22 @@ test('M46 removes the front shovel and its keeper frame from the playable model 
   const b = data.vehicles.su_att_m46;
   const tool = b.imported.parts.filter(p => p.source_node === 'front_stowed_tool');
   assert.equal(tool.length, 0, 'the shovel and frame must be absent, including the old right-front storage position');
-  assert.equal(b.imported.parts.reduce((n,p)=>n+p.triangles,0),159825,
-    'remove precisely the 2,636 original shovel/frame/chain triangles');
+  assert.equal(b.imported.parts.reduce((n,p)=>n+p.triangles,0),159493,
+    'remove the 2,636 frame/chain triangles and the 332 hood-shovel triangles');
+  let hoodTool = 0;
+  for (const p of b.imported.parts) {
+    if (p.mount !== 'hull' || p.hinge) continue;
+    for (let i = 0; i < p.idx.length; i += 3) {
+      let inside = true;
+      for (let j = 0; j < 3; j++) {
+        const k = p.idx[i + j] * 3;
+        const [x, y, z] = [p.pos[k] / 1000, p.pos[k + 1] / 1000, p.pos[k + 2] / 1000];
+        inside &&= Math.abs(x) < .95 && y > 2.65 && y < 2.80 && z > .70 && z < 1.1;
+      }
+      if (inside) hoodTool++;
+    }
+  }
+  assert.equal(hoodTool, 0, 'the horizontal wooden-handle shovel and its two keepers are absent');
   for (const p of b.armor.filter(p => p.id === 'turret_side_r' || p.id === 'turret_side_l')) {
     assert.ok(p.half_u <= .2 && p.center.z >= -.4, 'the narrow gun shield does not protect the open rear bed');
     assert.equal(p.thickness_mm, 1);

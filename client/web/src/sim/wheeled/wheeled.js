@@ -25,6 +25,7 @@ const MIN_SAT_SPEED = 0.35; // m/s: below this, grip builds over a fixed slip sp
 const STEER_RATE = 0.9; // rad/s the steering wheel turns the road wheels
 const ENGINE_BRAKE = 0.18;
 const WHEEL_INERTIA = 0.6; // of m r^2 for a tyre and hub of mass m (about 1/40 of the vehicle's share)
+const CLUTCH_TAKEUP_S = 0.35; // wheels engage promptly; tracked launch keeps its slower force ramp
 
 /**
  * Wheel layout for makeWheeled from a visual.json running_gear block of kind "wheels": every axle
@@ -244,7 +245,7 @@ export function stepWheeled(tm, t, input, terrain, dt) {
     const vWant = throttle >= 0 ? throttle * p.vTop : throttle * p.maxReverseSpeed;
     const short = vWant - u;
     const pushing = Math.abs(vWant) > 0.05 && short * Math.sign(vWant) > 0;
-    const transmitted = advanceDriveForce(ds, pushing ? Math.sign(vWant) : 0, torqueAvailable / tm.tyreR, tm.mass, h) * tm.tyreR;
+    const transmitted = advanceDriveForce(ds, pushing ? Math.sign(vWant) : 0, torqueAvailable / tm.tyreR, tm.mass, h, CLUTCH_TAKEUP_S) * tm.tyreR;
     const drive = pushing ? Math.sign(vWant) * Math.min(tEngine, transmitted) * clamp(Math.abs(short) / 0.6, 0, 1) : -Math.sign(u) * ENGINE_BRAKE * tEngine * (Math.abs(throttle) < 0.05 ? 1 : 0.3);
     const perWheel = drive / Math.max(tm.driven, 1);
     // brakes: asked for, parking, or a reversal at speed
@@ -308,12 +309,20 @@ export function stepWheeled(tm, t, input, terrain, dt) {
       const roll = p.rollingResistance * (surf.rolling_mult ?? 1) * F;
       // the wheel's share of the hull it must move this step (for the grip not to overshoot)
       const mEff = tm.mass / tm.wheels.length;
-      // along the wheel: slip between the rim and the ground
-      const rim = ws.omega * w.r;
+      // Advance the motor/brake before solving the tyre reaction. Solving yesterday's slip
+      // first leaves every drive impulse in wheelspin, which can trip the engine governor
+      // before the hull reaches the corresponding road speed.
+      let omegaFree = ws.omega + ((w.driven ? perWheel : 0) / tm.wheelInertia) * h;
+      const bstep = (brakeT / tm.wheelInertia) * h;
+      omegaFree = Math.abs(omegaFree) <= bstep ? 0 : omegaFree - Math.sign(omegaFree) * bstep;
+      const rim = omegaFree * w.r;
       const slipV = rim - vx;
       const satX = Math.max(MIN_SAT_SPEED, TYRE_SAT * Math.max(Math.abs(vx), Math.abs(rim)));
-      let fx = clamp(slipV / satX, -1, 1) * mu * F;
-      fx = clamp(fx, -Math.abs(slipV) / (h * (1 / mEff + (w.r * w.r) / tm.wheelInertia)), Math.abs(slipV) / (h * (1 / mEff + (w.r * w.r) / tm.wheelInertia)));
+      const invMass = 1 / mEff + (w.r * w.r) / tm.wheelInertia;
+      const stiffness = mu * F / satX;
+      // Implicit linear slip response: the same force speeds the hull and slows the rim.
+      // It stays inside the tyre's grip and cannot overshoot through zero relative speed.
+      let fx = clamp(stiffness * slipV / (1 + stiffness * h * invMass), -mu * F, mu * F);
       // across: the slip angle, a sliding speed at a crawl
       const satY = Math.max(MIN_SAT_SPEED, Math.abs(vx) * Math.tan(SLIP_PEAK));
       let fy = -clamp(vy / satY, -1, 1) * muL * F;
@@ -327,12 +336,9 @@ export function stepWheeled(tm, t, input, terrain, dt) {
       // rolling loss against the motion
       const fr = -Math.sign(vx) * Math.min(roll, (Math.abs(vx) * mEff) / h);
       body.addForceAt(add(scale(fwd, fx + fr), scale(lat, fy)), P);
-      // the wheel: drive, brake, the tyre's reaction
-      let tq = (w.driven ? perWheel : 0) - fx * w.r;
-      ws.omega += (tq / tm.wheelInertia) * h;
-      const bstep = (brakeT / tm.wheelInertia) * h;
-      ws.omega = Math.abs(ws.omega) <= bstep ? 0 : ws.omega - Math.sign(ws.omega) * bstep;
-      ws.slip = Math.min(1, Math.abs(slipV) / Math.max(Math.abs(vx), Math.abs(rim), 1));
+      ws.omega = omegaFree - (fx * w.r / tm.wheelInertia) * h;
+      const slipAfter = slipV - fx * h * invMass;
+      ws.slip = Math.min(1, Math.abs(slipAfter) / Math.max(Math.abs(vx + fx * h / mEff), Math.abs(ws.omega * w.r), 1));
       ws.fx = fx;
       contacts.push({ p: P, n: gn, N: F, side: w.side, z: w.z, fl: fx, ft: fy, wheel: i });
     });

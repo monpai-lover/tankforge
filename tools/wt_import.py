@@ -291,6 +291,24 @@ MODULE_KIND = [
 CREW_ROLE = {"driver": "driver", "tank_gunner": "gunner", "commander": "commander", "loader": "loader", "radio_gunner": "radio_operator", "machine_gunner": "radio_operator"}
 
 
+def launcher_modules(guns):
+    """Exposed firing apparatus measured from each missile/rocket's source mount and tube."""
+    modules = []
+    for instance, mount in enumerate(guns):
+        gun = mount["gun"]
+        if not gun.get("missile"):
+            continue
+        vectors = gun.get("launcher", {}).get("muzzle_vectors_m") or [gun.get("muzzle_vector_m", [0, 0, mount["muzzle_offset_m"]])]
+        radius, length = gun["caliber_mm"] / 2000 + 0.03, gun["barrel_length_mm"] / 1000
+        lo = [min(v[k] - (length if k == 2 else radius) for v in vectors) for k in range(3)]
+        hi = [max(v[k] + (0 if k == 2 else radius) for v in vectors) for k in range(3)]
+        c = [r3(mount["mount_m"][k] + (lo[k] + hi[k]) / 2) for k in range(3)]
+        h = [r3((hi[k] - lo[k]) / 2) for k in range(3)]
+        modules.append({"id": "launcher_" + gun["id"], "kind": "launcher", "center": dict(zip(("x", "y", "z"), c)),
+                        "half_extents": dict(zip(("x", "y", "z"), h)), "max_health": 70, "health": 70, "weapon_group": "launcher_mount_" + str(instance)})
+    return modules
+
+
 def box_of(W):
     lo, hi = W.min(0), W.max(0)
     return (lo + hi) / 2, (hi - lo) / 2
@@ -616,6 +634,7 @@ def main():
         return out
 
     guns = [gun_entry(s) for s in w["guns"]]
+    modules.extend(launcher_modules(guns))
     weapons = {"main_gun": guns[0]["gun"], "mount_m": guns[0]["mount_m"], "muzzle_offset_m": guns[0]["muzzle_offset_m"], "sight": w["sight"],
                "secondary": w.get("secondary", [])}
     if w.get("stabilizer"):

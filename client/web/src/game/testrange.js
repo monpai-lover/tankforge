@@ -26,7 +26,7 @@ const OUTCOME = {
   miss: '未命中', ricochet: '跳彈', stopped: '未擊穿', shattered: '碎裂', penetrated_no_damage: '擊穿・無損傷', crew_injured: '乘員受傷', crew_killed: '乘員陣亡', module_damaged: '模組受損',
   ammo_detonation: '彈藥殉爆', fuel_fire: '油箱起火', engine_damaged: '引擎損毀', barrel_damaged: '炮管損毀', breech_damaged: '炮閂損毀', track_broken: '履帶斷裂',
 };
-const PART = { engine: '引擎', transmission: '傳動', fuel_tank: '油箱', ammo_rack: '彈藥架', radio: '無線電', turret_drive: '炮塔驅動', gun_breech: '炮閂', gun_barrel: '炮管', track: '履帶' };
+const PART = { engine: '引擎', transmission: '傳動', fuel_tank: '油箱', ammo_rack: '彈藥架', radio: '無線電', turret_drive: '炮塔驅動', gun_breech: '炮閂', gun_barrel: '炮管', launcher: '發射裝置', track: '履帶' };
 const CREW = { commander: '車長', gunner: '炮手', loader: '裝填手', driver: '駕駛', radio_operator: '無線電手' };
 const MAT = { rha: 'RHA', cha: '鑄造鋼', high_hardness_steel: '高硬度鋼', aluminium: '鋁', spaced: '間隙鋼板', composite: '複合', applied: '附加鋼板', skirt: '裙板', era: '反應裝甲' };
 

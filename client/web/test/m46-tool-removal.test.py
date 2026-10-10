@@ -13,7 +13,7 @@ import numpy as np
 
 ROOT = Path(__file__).resolve().parents[3]
 sys.path[:0] = [str(ROOT / 'tools'), str(ROOT / 'client/web/tools')]
-from repair_bmp_k64 import pieces, original_model, BASELINE
+from repair_bmp_k64 import pieces, pack, original_model, BASELINE
 from repair_folding_flaps import source_file, m46_panels, split_model, remove_front_tool
 from gltf_util import load
 
@@ -26,7 +26,21 @@ class M46ToolRemovalTest(unittest.TestCase):
         now = json.loads((ROOT / 'data/vehicles/su_att_m46/model.json').read_text())
         removed = [p for p in old['parts'] if p.get('source_node') == 'front_stowed_tool']
         self.assertEqual(sum(p['triangles'] for p in removed), 2636)
-        expected = [r for r in pieces(old) if r[0].get('source_node') != 'front_stowed_tool']
+        expected_records = []
+        hood_removed = 0
+        for meta, pos, nor, uv, idx in pieces(old):
+            if meta.get('source_node') == 'front_stowed_tool':
+                continue
+            tri = pos[idx]
+            hood = ((abs(tri[:, :, 0]) < .95) & (tri[:, :, 1] > 2.65) &
+                    (tri[:, :, 1] < 2.80) & (tri[:, :, 2] > .70) &
+                    (tri[:, :, 2] < 1.1)).all(axis=1) if meta['mount'] == 'hull' and not meta.get('hinge') else np.zeros(len(idx), bool)
+            hood_removed += int(hood.sum())
+            keep = idx[~hood]
+            used, remap = np.unique(keep, return_inverse=True)
+            expected_records.append((meta, pos[used], nor[used], uv[used], remap.reshape(-1, 3)))
+        self.assertEqual(hood_removed, 332, 'actual hood shovel, blade and both keepers')
+        expected = pieces(pack(old, expected_records, old['textures']))
         current = pieces(now)
         self.assertEqual(len(current), len(expected))
         self.assertEqual(now['textures'], old['textures'])
@@ -36,7 +50,7 @@ class M46ToolRemovalTest(unittest.TestCase):
                              {k:v for k,v in after[0].items() if k not in offsets})
             for a, b in zip(before[1:], after[1:]):
                 self.assertTrue(np.array_equal(a,b), 'positions, normals, UVs and topology must be unchanged')
-        self.assertEqual(sum(p['triangles'] for p in now['parts']), 159825)
+        self.assertEqual(sum(p['triangles'] for p in now['parts']), 159493)
 
     def test_rebuilding_from_the_original_glb_cannot_restore_the_shovel(self):
         archive, binary = source_file('m46')
@@ -54,7 +68,8 @@ class M46ToolRemovalTest(unittest.TestCase):
         self.assertEqual(zlib.decompress(base64.b64decode(rebuilt['blob'])),
                          zlib.decompress(base64.b64decode(current['blob'])))
         self.assertEqual(rebuilt['textures'],current['textures'])
-        self.assertEqual(receipt['removed_triangles'],2636)
+        self.assertEqual(receipt['removed_triangles'],2968)
+        self.assertEqual(receipt['groups']['hood_shovel'],332)
         proof=json.loads((ROOT / 'data/vehicles/su_att_m46/folding-source.json').read_text())
         self.assertEqual(proof['glb_sha256'],hashlib.sha256(binary).hexdigest())
         self.assertEqual(proof['panel_triangles'],dict(counts))

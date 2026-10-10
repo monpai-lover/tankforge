@@ -434,12 +434,27 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
         }
     }
     let has = |k: ModuleKind| v.modules.iter().any(|m| m.kind == k);
-    for (k, name) in [(ModuleKind::Engine, "engine"), (ModuleKind::GunBreech, "gun_breech")] {
+    let guns = std::iter::once(&v.weapons.main_gun)
+        .chain(v.weapons.extra_guns.iter().map(|g| &g.gun))
+        .chain(v.weapons.extra_turrets.iter().flat_map(|t| t.guns.iter().map(|g| &g.gun)))
+        .collect::<Vec<_>>();
+    let cannon = guns.iter().any(|g| g.missile.is_none());
+    let launcher = guns.iter().any(|g| g.missile.is_some());
+    for (k, name) in [(ModuleKind::Engine, "engine")] {
         if !has(k) {
             r.err("M005", "modules.json", format!("required module '{}' is missing", name));
         }
     }
-    for (k, name) in [(ModuleKind::Transmission, "transmission"), (ModuleKind::FuelTank, "fuel_tank"), (ModuleKind::AmmoRack, "ammo_rack"), (ModuleKind::GunBarrel, "gun_barrel")] {
+    if cannon && !has(ModuleKind::GunBreech) {
+        r.err("M005", "modules.json", "required cannon module 'gun_breech' is missing");
+    }
+    if launcher && !has(ModuleKind::Launcher) {
+        r.err("M005", "modules.json", "required launch apparatus module 'launcher' is missing");
+    }
+    if cannon && !has(ModuleKind::GunBarrel) {
+        r.warn("M007", "modules.json", "module 'gun_barrel' is missing; its failure modes cannot occur");
+    }
+    for (k, name) in [(ModuleKind::Transmission, "transmission"), (ModuleKind::FuelTank, "fuel_tank"), (ModuleKind::AmmoRack, "ammo_rack")] {
         if !has(k) {
             r.warn("M007", "modules.json", format!("module '{}' is missing; its failure modes cannot occur", name));
         }
@@ -836,6 +851,15 @@ mod tests {
         v.crew.retain(|c| c.role != CrewRole::Gunner);
         let r = validate_vehicle(&v, &db, &s);
         assert!(r.has("M005") && r.has("C004"));
+    }
+
+    #[test]
+    fn launcher_apparatus_cannot_replace_a_conventional_cannon_breech() {
+        let (mut v, db, s) = fixtures();
+        for m in &mut v.modules {
+            if m.kind == ModuleKind::GunBreech { m.kind = ModuleKind::Launcher; }
+        }
+        assert!(validate_vehicle(&v, &db, &s).has("M005"), "a conventional cannon still requires its own breech");
     }
 
     #[test]

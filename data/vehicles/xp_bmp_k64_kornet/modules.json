@@ -81,7 +81,8 @@
  },
  {
   "id": "breech",
-  "kind": "gun_breech",
+  "kind": "launcher",
+  "weapon_group": "main_launcher",
   "center": {
    "x": 0.0,
    "y": 2.43,
@@ -97,7 +98,8 @@
  },
  {
   "id": "gun_barrel",
-  "kind": "gun_barrel",
+  "kind": "launcher",
+  "weapon_group": "main_launcher",
   "center": {
    "x": 0.0,
    "y": 2.48,

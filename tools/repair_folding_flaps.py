@@ -176,7 +176,7 @@ def split_model(old, panels):
 
 def remove_front_tool(model, j, accessor):
     source = set()
-    expected = 0
+    groups = {'front_frame_chain': 0, 'hood_shovel': 0}
     for mesh, primitive, pos, n, uv, idx, names in scene_meshes(j, accessor, with_nodes=True):
         if 'Exterior_Details' not in names:
             continue
@@ -186,11 +186,19 @@ def remove_front_tool(model, j, accessor):
             tri = idx[labels == label]
             p = pos[np.unique(tri)]
             lo, hi = p.min(0), p.max(0)
+            group = None
             if lo[2] > 3.2 and hi[2] < 3.4 and max(abs(lo[0]), abs(hi[0])) < .4 and lo[1] > 1.3:
+                group = 'front_frame_chain'
+            # This is the actual horizontal shovel: wooden handle, steel blade
+            # and two narrow keepers on top of the hood, distinct from the rack.
+            elif lo[2] > .70 and hi[2] < 1.1 and lo[1] > 2.65 and hi[1] < 2.80 and max(abs(lo[0]), abs(hi[0])) < .95:
+                group = 'hood_shovel'
+            if group:
                 source.update(tri_key(t) for t in pos[tri])
-                expected += len(tri)
-    if expected != 2636:
-        raise SystemExit(f'front tool: expected 2636 identified source triangles, got {expected}')
+                groups[group] += len(tri)
+    if groups != {'front_frame_chain': 2636, 'hood_shovel': 332}:
+        raise SystemExit(f'front tools: unexpected identified source triangles {groups}')
+    expected = sum(groups.values())
     records, found = [], 0
     for meta, pos, nor, uv, idx in pieces(model):
         selected = np.array([tri_key(t) in source for t in pos[idx]]) if meta['mount'] == 'hull' and not meta.get('hinge') else np.zeros(len(idx), bool)
@@ -202,8 +210,8 @@ def remove_front_tool(model, j, accessor):
         records.append((dict(meta), pos[used], nor[used], uv[used], remap.reshape(-1, 3)))
     if found != expected:
         raise SystemExit(f'front tool: {found}/{expected} original triangles found')
-    return pack(model, records, model['textures']), {'removed_triangles': found,
-        'original_source_group': 'Exterior_Details front tool, keepers and chain',
+    return pack(model, records, model['textures']), {'removed_triangles': found, 'groups': groups,
+        'original_source_group': 'Exterior_Details hood shovel/blade/two keepers, front frame and chain',
         'action': 'Removed entirely from the playable model, including the former side rack; original source GLB retained'}
 
 
@@ -236,7 +244,7 @@ def main(ids=None):
                 model, tool_receipt = remove_front_tool(model, *tool_source)
             model['source'] += '; original source panel geometry retained on measured folding hinges'
             if tool_receipt:
-                model['source'] += '; front shovel, keeper frame and chain removed from playable geometry'
+                model['source'] += '; horizontal hood shovel with both keepers, front frame and chain removed from playable geometry'
             (vdir / 'model.json').write_text(json.dumps(model, separators=(',', ':')), encoding='utf-8')
             armour = json.loads((vdir / 'armor.json').read_text())
             # Generic upper side walls would remain as invisible protection when

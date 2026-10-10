@@ -205,6 +205,7 @@ export class HitCam {
           for (let i = 0; i < 4; i++) record.color[i] = COLORS.quiet[i];
           n.highlight = record.color;
         }
+        inner.updateLaunchers();
         if (reveal > 0) {
           for (const m of c.rep.modules) {
             const nodes = inner.byModule.get(m.id) || [];

@@ -44,6 +44,30 @@ test('progressive launch reduces light tank pitch while preserving real rearward
     'nose rise and rearward weight transfer must come from the unchanged suspension');
 });
 
+test('wheel clutch engagement restores prompt W launch without a first-frame jolt or excessive pitch', () => {
+  for (const [id, maxT10, maxT20] of [
+    ['us_m8', 1.2, 3.6], ['de_sdkfz234_2', 1.1, 3.4], ['xp_bmp_k64', 1.3, 3.5],
+    ['xp_w78', 1.0, 2.5], ['xp_kda35', 1.0, 2.5], ['uk_cmp_portee', 1.95, 4.8],
+  ]) {
+    const r = rig(id);
+    const rearIndex = r.tm.wheels.length / 2 - 1;
+    const frontBefore = r.t.ss.load[0], rearBefore = r.t.ss.load[rearIndex];
+    let t10 = null, t20 = null, maxPitch = 0, front = frontBefore, rear = rearBefore;
+    for (let i = 0; i < 6 / dt; i++) {
+      const info = r.step(go), time = (i + 1) * dt;
+      if (i === 0) assert.ok(Math.abs(info.ax) < 1, `${id}: abrupt first-frame acceleration ${info.ax}`);
+      if (t10 == null && info.speedKmh >= 10) t10 = time;
+      if (t20 == null && info.speedKmh >= 20) t20 = time;
+      const pitch = Math.abs(info.pitch) * 180 / Math.PI;
+      if (pitch > maxPitch) { maxPitch = pitch; front = r.t.ss.load[0]; rear = r.t.ss.load[rearIndex]; }
+    }
+    assert.ok(t10 != null && t10 < maxT10, `${id}: W launch reaches 10 km/h in ${t10}s (limit ${maxT10}s)`);
+    assert.ok(t20 != null && t20 < maxT20, `${id}: W launch reaches 20 km/h in ${t20}s (limit ${maxT20}s)`);
+    assert.ok(maxPitch > 0.1 && maxPitch < 3.5, `${id}: natural launch pitch ${maxPitch}°`);
+    assert.ok(front < frontBefore && rear > rearBefore, `${id}: launch must retain rearward weight transfer`);
+  }
+});
+
 test('engaged take-up survives gear changes so a heavy tank keeps accelerating in mud', () => {
   const r = trackedRig('de_tiger_e'), mud = ground(() => 0, 'mud');
   placeTank(r.tm, r.t, mud, 0, 0, 0);
@@ -56,9 +80,13 @@ test('stopping and reversing rebuild the driveline force instead of reusing its 
   for (const id of ['de_flakpz38t', 'us_m8']) {
     const r = rig(id);
     for (let i = 0; i < 120; i++) r.step(go);
+    const engagedForce = r.t.ds.driveForce;
     r.step({ throttle: -1, steer: 0, brake: 0 });
     assert.equal(r.t.ds.driveDirection, -1);
-    assert.ok(r.t.ds.driveForce <= r.tm.mass * 4 * dt + 1e-6, `${id}: reversing must reset the previous drive force`);
+    // The wheel clutch has a shorter engagement profile, but reversal must still discard
+    // the old force rather than delivering its engaged forward peak in the opposite direction.
+    assert.ok(r.t.ds.driveForce < engagedForce * 0.05, `${id}: reversing must reset the previous drive force`);
+    if (r.tm.kind !== 'wheeled') assert.ok(r.t.ds.driveForce <= r.tm.mass * 4 * dt + 1e-6);
     for (let i = 0; i < 180; i++) r.step({ ...idle, brake: 1 });
     assert.ok(Math.abs(r.t.info.u) < 0.1, `${id}: must be stopped before relaunch`);
     assert.equal(r.t.ds.driveForce, 0);

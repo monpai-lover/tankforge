@@ -127,6 +127,7 @@ pub fn design_gun(cal_mm: f32, len_cal: f32) -> (GunDef, ProjectileDef) {
         ammo: vec![shell.id.clone()],
         ammo_count: Vec::new(),
         autocannon: None,
+        missile: None,
     };
     (gun, shell)
 }

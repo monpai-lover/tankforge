@@ -12,6 +12,8 @@ pub enum ModuleKind {
     AmmoRack,
     GunBreech,
     GunBarrel,
+    /// Missile/rocket launch rails, tubes and firing apparatus; no cannon breech or recoil unit.
+    Launcher,
     TurretDrive,
     HorizontalDrive,
     VerticalDrive,
@@ -42,6 +44,7 @@ impl ModuleKind {
             ModuleKind::AmmoRack => "ammo_rack",
             ModuleKind::GunBreech => "gun_breech",
             ModuleKind::GunBarrel => "gun_barrel",
+            ModuleKind::Launcher => "launcher",
             ModuleKind::TurretDrive => "turret_drive",
             ModuleKind::HorizontalDrive => "horizontal_drive",
             ModuleKind::VerticalDrive => "vertical_drive",
@@ -53,7 +56,7 @@ impl ModuleKind {
     }
     /// Modules mounted outside the armoured volume (not reachable by interior spall).
     pub fn is_external(self) -> bool {
-        matches!(self, ModuleKind::GunBarrel | ModuleKind::Track | ModuleKind::ApsGun | ModuleKind::ApsRadar)
+        matches!(self, ModuleKind::GunBarrel | ModuleKind::Launcher | ModuleKind::Track | ModuleKind::ApsGun | ModuleKind::ApsRadar)
     }
 }
 
@@ -81,6 +84,10 @@ pub struct Module {
     /// the vehicle's racks by volume.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub rounds: Option<u32>,
+    /// Mounted weapon instance: every critical launcher part in the same assembly shares it.
+    /// None preserves legacy data by treating all ungrouped launcher parts as one assembly.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_group: Option<String>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -330,9 +337,22 @@ fn kind_ok(modules: &[Module], kind: ModuleKind) -> bool {
     modules.iter().filter(|m| m.kind == kind).all(|m| m.health > 0.0)
 }
 
+/// At least one complete launcher assembly works. No launcher modules imposes no restriction.
+pub fn launcher_groups_operational(modules: &[Module], mut healthy: impl FnMut(usize, &Module) -> bool) -> bool {
+    let mut found = false;
+    for m in modules.iter().filter(|m| m.kind == ModuleKind::Launcher) {
+        found = true;
+        if modules.iter().enumerate().filter(|(_, part)| part.kind == ModuleKind::Launcher && part.weapon_group == m.weapon_group).all(|(i, part)| healthy(i, part)) {
+            return true;
+        }
+    }
+    !found
+}
+
 pub fn capabilities(modules: &[Module], crew: &[Crew]) -> Capabilities {
     Capabilities {
-        can_fire: role_ok(crew, CrewRole::Gunner) && kind_ok(modules, ModuleKind::GunBreech) && kind_ok(modules, ModuleKind::GunBarrel),
+        can_fire: role_ok(crew, CrewRole::Gunner) && kind_ok(modules, ModuleKind::GunBreech) && kind_ok(modules, ModuleKind::GunBarrel)
+            && (modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(modules, |_, m| m.health > 0.0)),
         can_move: role_ok(crew, CrewRole::Driver) && kind_ok(modules, ModuleKind::Engine) && kind_ok(modules, ModuleKind::Transmission),
         reload_multiplier: if role_ok(crew, CrewRole::Loader) { 1.0 } else { 2.0 },
         spotting_multiplier: if role_ok(crew, CrewRole::Commander) { 1.0 } else { 0.5 },
@@ -350,7 +370,7 @@ mod tests {
     }
 
     fn module(kind: ModuleKind) -> Module {
-        Module { id: "m".into(), kind, center: Vec3::new(5.0, 0.0, 0.0), half_extents: Vec3::new(0.2, 0.2, 0.2), max_health: 100.0, health: 100.0, rounds: None }
+        Module { id: "m".into(), kind, center: Vec3::new(5.0, 0.0, 0.0), half_extents: Vec3::new(0.2, 0.2, 0.2), max_health: 100.0, health: 100.0, rounds: None, weapon_group: None }
     }
 
     #[test]
@@ -393,6 +413,22 @@ mod tests {
         mods[1].health = 0.0;
         let cap = capabilities(&mods, &c);
         assert!(!cap.can_fire && cap.ammo_detonated);
+    }
+
+    #[test]
+    fn independent_launcher_groups_require_every_critical_part_of_one_complete_assembly() {
+        let mut mods = (0..4).map(|i| {
+            let mut m = module(ModuleKind::Launcher);
+            m.weapon_group = Some(if i < 2 { "mount_0" } else { "mount_1" }.into());
+            m
+        }).collect::<Vec<_>>();
+        mods[0].health = 0.0;
+        mods[3].health = 0.0;
+        assert!(!launcher_groups_operational(&mods, |_, m| m.health > 0.0), "living components from two incomplete assemblies cannot be combined");
+        mods[3].health = 100.0;
+        assert!(capabilities(&mods, &[]).can_fire, "the second complete assembly works independently");
+        for m in &mut mods { m.weapon_group = None; }
+        assert!(!capabilities(&mods, &[]).can_fire, "legacy ungrouped critical parts form one conservative assembly");
     }
 
     #[test]

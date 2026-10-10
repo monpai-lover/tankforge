@@ -125,11 +125,11 @@ pub fn damage_targets(m: &Model, yaw: f64) -> (Vec<Module>, Vec<Crew>) {
             BoxKind::Module(k) => {
                 let kind = module_kind(k);
                 let h = health(kind);
-                modules.push(Module { id: b.id.clone(), kind, center: a.center().to_f32(), half_extents: (a.size() * 0.5).to_f32(), max_health: h, health: h, rounds: None });
+                modules.push(Module { id: b.id.clone(), kind, center: a.center().to_f32(), half_extents: (a.size() * 0.5).to_f32(), max_health: h, health: h, rounds: None, weapon_group: None });
             }
             BoxKind::Breech => {
                 let h = health(ModuleKind::GunBreech);
-                modules.push(Module { id: "gun_breech".into(), kind: ModuleKind::GunBreech, center: a.center().to_f32(), half_extents: (a.size() * 0.5).to_f32(), max_health: h, health: h, rounds: None });
+                modules.push(Module { id: "gun_breech".into(), kind: ModuleKind::GunBreech, center: a.center().to_f32(), half_extents: (a.size() * 0.5).to_f32(), max_health: h, health: h, rounds: None, weapon_group: None });
             }
             BoxKind::Crew(r) => {
                 // the vulnerable torso and head sit in the upper part of the crew box
@@ -145,13 +145,13 @@ pub fn damage_targets(m: &Model, yaw: f64) -> (Vec<Module>, Vec<Crew>) {
         let (s, c) = yaw.sin_cos();
         let he = v3((half * s).abs() + r as f64, r as f64, (half * c).abs() + r as f64);
         let h = health(ModuleKind::GunBarrel);
-        modules.push(Module { id: "gun_barrel".into(), kind: ModuleKind::GunBarrel, center: mid.to_f32(), half_extents: he.to_f32(), max_health: h, health: h, rounds: None });
+        modules.push(Module { id: "gun_barrel".into(), kind: ModuleKind::GunBarrel, center: mid.to_f32(), half_extents: he.to_f32(), max_health: h, health: h, rounds: None, weapon_group: None });
     }
     let env = m.gear.envelope;
     for (id, side) in [("track_r", 1.0), ("track_l", -1.0)] {
         let c = env.center();
         let h = health(ModuleKind::Track);
-        modules.push(Module { id: id.into(), kind: ModuleKind::Track, center: v3(c.x * side, c.y, c.z).to_f32(), half_extents: (env.size() * 0.5).to_f32(), max_health: h, health: h, rounds: None });
+        modules.push(Module { id: id.into(), kind: ModuleKind::Track, center: v3(c.x * side, c.y, c.z).to_f32(), half_extents: (env.size() * 0.5).to_f32(), max_health: h, health: h, rounds: None, weapon_group: None });
     }
     (modules, crew)
 }

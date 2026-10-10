@@ -101,8 +101,8 @@ def verify_m46_storage(panels):
         'M46 front shovel and former side rack must be removed'
     # The unmodified source tool has no source_node tag. Check the decoded
     # topology too, so reimporting that original front assembly cannot pass.
-    assert sum(len(idx) for _, _, _, _, idx in records) == 159825, \
-        'M46 must retain exactly 159825 triangles after removing the 2636-triangle tool group'
+    assert sum(len(idx) for _, _, _, _, idx in records) == 159493, \
+        'M46 must retain exactly 159493 triangles after removing the front frame and horizontal hood shovel'
     _, binary = source_file('m46')
     gear = []
     with tempfile.TemporaryDirectory() as task_tmp:

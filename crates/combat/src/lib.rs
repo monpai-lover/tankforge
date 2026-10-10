@@ -103,7 +103,7 @@ impl Target {
             .map(|m| {
                 def.turret.is_some()
                     && match m.kind {
-                        ModuleKind::GunBarrel | ModuleKind::GunBreech => true,
+                        ModuleKind::GunBarrel | ModuleKind::GunBreech | ModuleKind::Launcher => true,
                         ModuleKind::VerticalDrive | ModuleKind::TurretDrive | ModuleKind::HorizontalDrive | ModuleKind::AmmoRack | ModuleKind::ApsGun | ModuleKind::ApsRadar => inside_turret(m.center),
                         _ => false,
                     }
@@ -355,6 +355,11 @@ fn module_ok(t: &Target, st: &TargetState, kind: ModuleKind) -> bool {
     t.def.modules.iter().enumerate().filter(|(_, m)| m.kind == kind).all(|(i, _)| st.modules.get(i).copied().unwrap_or(1.0) > 0.0)
 }
 
+/// One whole launcher instance must work; shared by capability and server launch checks.
+pub fn launcher_groups_operational(t: &Target, st: &TargetState) -> bool {
+    tg_damage::launcher_groups_operational(&t.def.modules, |i, m| st.modules.get(i).copied().unwrap_or(m.max_health) > 0.0)
+}
+
 fn seat_filled(t: &Target, st: &TargetState, role: CrewRole) -> bool {
     if !t.def.crew.iter().any(|c| c.role == role || c.also.contains(&role)) {
         return true; // the vehicle never had that seat
@@ -383,7 +388,8 @@ pub fn caps(t: &Target, st: &TargetState) -> Caps {
         engine_power,
         track_left: side_ok(-1),
         track_right: side_ok(1),
-        can_fire: working && gunner && module_ok(t, st, ModuleKind::GunBreech) && module_ok(t, st, ModuleKind::GunBarrel),
+        can_fire: working && gunner && module_ok(t, st, ModuleKind::GunBreech) && module_ok(t, st, ModuleKind::GunBarrel)
+            && (t.def.modules.iter().any(|m| matches!(m.kind, ModuleKind::GunBreech | ModuleKind::GunBarrel)) || launcher_groups_operational(t, st)),
         traverse_mult: if module_ok(t, st, ModuleKind::TurretDrive) && module_ok(t, st, ModuleKind::HorizontalDrive) { 1.0 } else { 0.15 },
         elevate_mult: if module_ok(t, st, ModuleKind::VerticalDrive) { 1.0 } else { 0.3 },
         reload_mult: if loader { 1.0 } else { 1.6 },
@@ -672,6 +678,7 @@ fn absorb_mm(kind: ModuleKind) -> f32 {
         ModuleKind::Transmission => 25.0,
         ModuleKind::GunBreech => 45.0,
         ModuleKind::GunBarrel => 25.0,
+        ModuleKind::Launcher => 8.0,
         ModuleKind::Track => 20.0,
         ModuleKind::AmmoRack => 10.0,
         ModuleKind::FuelTank => 6.0,
@@ -1426,6 +1433,7 @@ fn finish(w: &mut Work) {
                 ModuleKind::Track => if t.track_side[i] < 0 { "track_left".into() } else { "track_right".into() },
                 ModuleKind::GunBreech => "breech".into(),
                 ModuleKind::GunBarrel => "barrel".into(),
+                ModuleKind::Launcher => "launcher".into(),
                 ModuleKind::TurretDrive | ModuleKind::HorizontalDrive => "turret_drive".into(),
                 ModuleKind::VerticalDrive => "elevation_drive".into(),
                 ModuleKind::FuelTank => "fuel_tank".into(),

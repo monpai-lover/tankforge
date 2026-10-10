@@ -36,6 +36,7 @@ export const MODULE_LABEL = {
   fuel_tank: '油箱',
   ammo_rack: '彈藥架',
   gun_breech: '炮閂',
+  launcher: '發射裝置',
   turret_drive: '炮塔迴轉機',
   vertical_drive: '高低機',
   radio: '無線電',
@@ -182,7 +183,7 @@ function crewGeometry(pose) {
   return b.build();
 }
 
-function moduleGeometry(mod, caliberMm) {
+function moduleGeometry(mod, caliberMm, missileAmmo = false) {
   const b = new GeoBuilder();
   const hx = mod.half_extents.x;
   const hy = mod.half_extents.y;
@@ -218,7 +219,7 @@ function moduleGeometry(mod, caliberMm) {
     case 'ammo_rack': {
       // rounds lying nose-forward in rows
       const cal = caliberMm / 1000;
-      const d = cal * 1.42;
+      const d = cal * (missileAmmo ? 1.02 : 1.42);
       const len = Math.min(hz * 2, cal * 10.5);
       const cols = Math.max(1, Math.floor((hx * 2) / (d * 1.12)));
       const rows = Math.max(1, Math.floor((hy * 2) / (d * 1.12)));
@@ -229,7 +230,7 @@ function moduleGeometry(mod, caliberMm) {
           for (let j = 0; j < rows; j++) {
             const x = (i - (cols - 1) / 2) * d * 1.12;
             const y = (j - (rows - 1) / 2) * d * 1.12;
-            b.cyl(translation(x, y, z0 - len * 0.2), false, 'z', d / 2, d / 2, len * 0.6, 8, MAT.brass);
+            b.cyl(translation(x, y, z0 - len * 0.2), false, 'z', d / 2, d / 2, len * 0.6, 8, missileAmmo ? MAT.shell : MAT.brass);
             b.cyl(translation(x, y, z0 + len * 0.2), false, 'z', cal / 2, cal / 2, len * 0.2, 8, MAT.shell);
             b.cyl(translation(x, y, z0 + len * 0.4), false, 'z', cal / 2, cal * 0.08, len * 0.2, 8, MAT.shellTip);
           }
@@ -269,6 +270,27 @@ function moduleGeometry(mod, caliberMm) {
       return null;
   }
   return b.build();
+}
+
+/** The support/firing apparatus and the projectile in each measured launch tube/rail. */
+function launcherGeometry(g) {
+  const apparatus = new GeoBuilder();
+  const length = g.def.barrel_length_mm / 1000;
+  const radius = g.def.caliber_mm / 2000;
+  const vectors = g.def.launcher?.muzzle_vectors_m || [g.muzzleVector || [0, 0, g.muzzleOffset]];
+  const rounds = vectors.map(v => {
+    const z = v[2] - length / 2;
+    // Open supports and firing contacts, without a cannon's recoil cylinders or breech block.
+    for (const sx of [-1, 1]) apparatus.box(translation(v[0] + sx * radius * 1.08, v[1] - radius * .65, z), false, [.025, .035, length], MAT.cradle);
+    for (const f of [-.3, .3]) apparatus.box(translation(v[0], v[1] - radius * 1.03, z + length * f), false, [radius * 2.35, .035, .045], MAT.breechSteel);
+    apparatus.box(translation(v[0], v[1] - radius * 1.18, v[2] - length + .08), false, [Math.max(.065, radius * .6), .05, .12], MAT.dark);
+    const body = new GeoBuilder();
+    body.cyl(translation(v[0], v[1], z - length * .07), false, 'z', radius * .94, radius * .94, length * .80, 12, MAT.shell);
+    body.cyl(translation(v[0], v[1], z + length * .4), false, 'z', radius * .94, radius * .08, length * .14, 12, MAT.shellTip);
+    body.cyl(translation(v[0], v[1], z - length * .475), false, 'z', radius * .55, radius * .72, length * .03, 10, MAT.dark);
+    return body.build();
+  });
+  return { fixed: apparatus.build(), rounds, centers: vectors.map(v => [v[0], v[1], v[2] - length / 2]) };
 }
 
 /**
@@ -391,12 +413,16 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
   // which nodes show which module and crew member (the hit camera lights them up)
   const byModule = new Map();
   const byCrew = [];
+  const launcherRounds = [];
   const tagModule = (id, n) => {
     if (!byModule.has(id)) byModule.set(id, []);
     byModule.get(id).push(n);
   };
   const turret0 = loadout.turrets[0];
   const caliber = turret0 ? turret0.guns[0].def.caliber_mm : 75;
+  const guns = loadout.turrets.flatMap(t => t.guns);
+  const distance = (m, g) => (m.center.x - g.trunnion[0]) ** 2 + (m.center.y - g.trunnion[1]) ** 2 + (m.center.z - g.trunnion[2]) ** 2;
+  const moduleGun = (m, candidates = guns) => candidates.reduce((best, g) => !best || distance(m, g) < distance(m, best) ? g : best, null);
   /** Parts inside a turret's box ride with that turret. */
   const turretOf = (p) => {
     let best = -1;
@@ -424,14 +450,13 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
     return n;
   };
   // every gun's breech end and cradle, on the gun itself so it elevates and recoils with it
-  const drawnBreech = new Set();
+  const drawnModules = new Set();
   loadout.turrets.forEach((t, ti) => {
     const mt = model.turrets[ti];
     if (!mt) return;
     t.guns.forEach((g, gi) => {
       const mg = mt.guns[gi];
-      if (!mg || g.def.caliber_mm < 20) return;
-      const geo = breechGeometry(g.def.caliber_mm, g.def.recoil_mm, !!t.openTop);
+      if (!mg || (!g.def.missile && g.def.caliber_mm < 20)) return;
       const add = (parent, data, label, pos = [0, 0, 0]) => {
         const mesh = renderer.mesh(data);
         meshes.push(mesh);
@@ -449,23 +474,55 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
         if (label) labels.push({ node: n, text: label, crew: false });
         return n;
       };
+      if (g.def.missile) {
+        const geo = launcherGeometry(g);
+        const apparatus = add(mg.node, geo.fixed, MODULE_LABEL.launcher);
+        // Launcher damage stays attached to its own mount in mixed cannon/rocket vehicles.
+        for (const m of modules) if (m.kind === 'launcher' && moduleGun(m, guns.filter(g => g.def.missile)) === g) {
+          tagModule(m.id, apparatus);
+          drawnModules.add(m.id);
+        }
+        geo.rounds.forEach((data, tube) => {
+          const body = add(mg.node, data, g.def.guided ? '飛彈彈體' : '火箭彈體');
+          body.always = false;
+          body.visible = false;
+          body.launcherRound = { gun: g, tube, apparatus };
+          launcherRounds.push(body);
+          const tag = body.add(new Node('interior_tag'));
+          tag.pos = geo.centers[tube];
+          tag.visible = false;
+          labels[labels.length - 1].node = tag;
+          labels[labels.length - 1].anchor = body;
+        });
+        return;
+      }
+      const geo = breechGeometry(g.def.caliber_mm, g.def.recoil_mm, !!t.openTop);
       const fixedNode = add(mg.node, geo.fixed, null);
       // the label rides on the breech ring
       const ring = add(mg.barrel, geo.moving, null);
-      for (const m of modules) if (m.kind === 'gun_breech') [fixedNode, ring].forEach((n) => tagModule(m.id, n));
+      for (const m of modules) if (m.kind === 'gun_breech' && moduleGun(m, guns.filter(g => !g.def.missile)) === g) {
+        [fixedNode, ring].forEach(n => tagModule(m.id, n));
+        drawnModules.add(m.id);
+      }
       const tag = mg.barrel.add(new Node('interior_tag'));
       tag.pos = [0, 0, geo.ringZ];
       tag.visible = false;
       labels.push({ node: tag, text: MODULE_LABEL.gun_breech, crew: false, anchor: ring });
       const tr = [g.trunnion[0] - t.pivot[0], g.trunnion[1] - t.pivot[1], g.trunnion[2] - t.pivot[2]];
       add(mt.node, geo.wheel, null, tr);
-      drawnBreech.add(ti);
     });
   });
   for (const m of modules) {
     // the breech is drawn on the gun (above); its damage box stays in modules.json
-    if (m.kind === 'gun_breech' && drawnBreech.size) continue;
-    const data = moduleGeometry(m, caliber);
+    if (drawnModules.has(m.id)) continue;
+    const exposedLauncher = m.kind === 'ammo_rack' ? moduleGun(m, guns.filter(g => g.def.missile && m.center.y >= g.trunnion[1] - .3 && distance(m, g) < 1.5 && m.half_extents.x >= g.def.caliber_mm / 2000 * .8)) : null;
+    const rackGun = exposedLauncher || (m.kind === 'ammo_rack' ? moduleGun(m) : null);
+    // A loaded rocket on an exposed rail is already drawn on its elevating mount above.
+    if (exposedLauncher) {
+      for (const n of launcherRounds) if (n.launcherRound.gun === rackGun) tagModule(m.id, n);
+      continue;
+    }
+    const data = moduleGeometry(m, rackGun?.def.caliber_mm || caliber, !!rackGun?.def.missile);
     if (!data) continue;
     const mesh = renderer.mesh(data);
     meshes.push(mesh);
@@ -501,6 +558,14 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
     labels,
     byModule,
     byCrew,
+    updateLaunchers() {
+      for (const n of launcherRounds) {
+        const { gun, tube, apparatus } = n.launcherRound;
+        const next = gun.launcher?.nextTube || 0;
+        const ready = gun.launcher?.ready || 0;
+        n.visible = !!apparatus.visible && gun.loaded >= 0 && (gun.ammo[gun.loaded]?.count || 0) > 0 && tube >= next && tube < next + ready;
+      }
+    },
     dispose() {
       for (const m of meshes) renderer.freeMesh(m);
     },

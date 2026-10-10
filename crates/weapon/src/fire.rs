@@ -67,6 +67,7 @@ mod tests {
             ammo: vec!["ap_75_generic".into()],
             ammo_count: Vec::new(),
             autocannon: None,
+            missile: None,
         }
     }
 

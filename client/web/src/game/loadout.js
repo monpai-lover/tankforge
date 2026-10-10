@@ -526,7 +526,7 @@ const crewman = (role, p) => ({ role, pos: { x: r3(p[0]), y: r3(p[1]), z: r3(p[2
 export function exportFolder(build, data, baseFiles, id, name, options = {}) {
   const { bundle, projectiles, layouts, stats } = buildToBundle(build, data, id, name);
   const retainStock = stats.stockTurrets > 0;
-  const TURRET_KINDS = ['gun_breech', 'gun_barrel', 'ammo_rack', 'turret_drive', 'horizontal_drive', 'vertical_drive'];
+  const TURRET_KINDS = ['gun_breech', 'gun_barrel', 'launcher', 'ammo_rack', 'turret_drive', 'horizontal_drive', 'vertical_drive'];
   const armor = baseFiles.armor.filter((p) => retainStock || p.zone.startsWith('hull'));
   const modules = baseFiles.modules.filter((m) => retainStock || !TURRET_KINDS.includes(m.kind));
   const crew = baseFiles.crew.filter((c) => retainStock || c.role === 'driver' || c.role === 'radio_operator');
@@ -543,8 +543,19 @@ export function exportFolder(build, data, baseFiles, id, name, options = {}) {
       const [tx, ty, tz] = g.mount_m;
       const cal = g.gun.caliber_mm;
       armor.push(plate(`gun_mantlet${s}_${j}`, 'gun_mantlet', 80, [tx, ty, pz + tl / 2 + 0.06], [0, 0, 1], [1, 0, 0], 0.15 + cal * 0.002, 0.13 + cal * 0.002));
-      modules.push(mod(`breech${s}_${j}`, 'gun_breech', [tx, ty, tz - 0.4], [0.11, 0.11, 0.24], 90));
-      modules.push(mod(`gun_barrel${s}_${j}`, 'gun_barrel', [tx, ty, tz + g.muzzle_offset_m / 2 + 0.2], [0.08, 0.08, r3(g.muzzle_offset_m / 2 - 0.2)], 110));
+      if (g.gun.missile) {
+        const tubes = g.gun.launcher?.muzzle_vectors_m || [g.gun.muzzle_vector_m || [0, 0, g.muzzle_offset_m]];
+        const lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+        const radius = cal / 2000 + 0.035, length = g.gun.barrel_length_mm / 1000;
+        for (const v of tubes) for (let k = 0; k < 3; k++) {
+          lo[k] = Math.min(lo[k], v[k] - (k === 2 ? length : radius));
+          hi[k] = Math.max(hi[k], v[k] + (k === 2 ? 0 : radius));
+        }
+        modules.push({ ...mod(`launcher${s}_${j}`, 'launcher', [tx, ty, tz].map((v, k) => v + (lo[k] + hi[k]) / 2), lo.map((v, k) => r3((hi[k] - v) / 2)), 70), weapon_group: `launcher${s}_${j}` });
+      } else {
+        modules.push(mod(`breech${s}_${j}`, 'gun_breech', [tx, ty, tz - 0.4], [0.11, 0.11, 0.24], 90));
+        modules.push(mod(`gun_barrel${s}_${j}`, 'gun_barrel', [tx, ty, tz + g.muzzle_offset_m / 2 + 0.2], [0.08, 0.08, r3(g.muzzle_offset_m / 2 - 0.2)], 110));
+      }
     });
     const rack = t.rack_m;
     modules.push(mod('ammo_rack' + s, 'ammo_rack', rack, [0.2, 0.12, 0.12], 50));
@@ -586,7 +597,7 @@ export function checkFolder(files) {
   const inside = (p, m) => boxes.some((b) => [0, 1, 2].every((i) => Math.abs(p[i] - b.c[i]) <= b.h[i] + m));
   const xyz = (o) => [o.x, o.y, o.z];
   const out = [];
-  const ext = ['gun_barrel', 'track'];
+  const ext = ['gun_barrel', 'launcher', 'track'];
   for (const p of files['armor.json']) {
     const n = xyz(p.normal);
     const u = xyz(p.axis_u);

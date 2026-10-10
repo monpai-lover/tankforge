@@ -9,7 +9,7 @@
   "year": 1960,
   "outline": "model",
   "based_on": "AT-T heavy artillery tractor with a 130 mm M-46 field gun mounted on its bed (an improvised self-propelled gun)",
-  "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), with both original high cab-side walls and four bed-side boards on measured folding hinges (I). The front shovel, keeper frame and chain are removed from the playable model; the original source GLB is retained. The narrow gun shield remains fixed to the traversing mount. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The improvised bed mount gains a source-clearance-limited traverse arc with the boards down; the crew's protection and the interior are estimates."
+  "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), with both original high cab-side walls and four bed-side boards on measured folding hinges (I). The horizontal hood shovel, its blade and both keepers, plus the front frame and chain, are removed from the playable model; the original source GLB is retained. The narrow gun shield remains fixed to the traversing mount. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The improvised bed mount gains a source-clearance-limited traverse arc with the boards down; the crew's protection and the interior are estimates."
  },
  "files": {
   "armor": "armor.json",

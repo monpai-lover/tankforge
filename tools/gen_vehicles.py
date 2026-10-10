@@ -248,8 +248,9 @@ def cupola(x, y, z, r, h, blocks=0):
     return parts
 
 
-def module(mid, kind, c, he, hp):
-    return {"id": mid, "kind": kind, "center": v3(*c), "half_extents": v3(*he), "max_health": hp, "health": hp}
+def module(mid, kind, c, he, hp, weapon_group=None):
+    return {"id": mid, "kind": kind, "center": v3(*c), "half_extents": v3(*he), "max_health": hp, "health": hp,
+            **({"weapon_group": weapon_group} if weapon_group is not None else {})}
 
 
 def crew(role, pos):
@@ -3866,8 +3867,8 @@ def m113_tow():
             module("fuel_tank", "fuel_tank", (-0.85, 0.95, -1.95), (0.25, 0.40, 0.35), 50),
             module("missile_rack_l", "ammo_rack", (-0.85, 0.90, -0.75), (0.22, 0.28, 0.65), 45),
             module("missile_rack_r", "ammo_rack", (0.85, 0.90, -0.75), (0.22, 0.28, 0.65), 45),
-            module("launcher", "gun_breech", (0, head_y, pz + 0.05), (0.18, 0.15, 0.35), 70),
-            module("tubes", "gun_barrel", (0, head_y, pz + 0.12), (0.55, 0.12, 0.45), 70),
+            module("launcher", "launcher", (0, head_y, pz + 0.05), (0.18, 0.15, 0.35), 70, weapon_group="main_launcher"),
+            module("tubes", "launcher", (0, head_y, pz + 0.12), (0.55, 0.12, 0.45), 70, weapon_group="main_launcher"),
             module("launcher_drive", "turret_drive", (0, H - 0.15, pz), (0.15, 0.10, 0.15), 50),
             module("radio", "radio", (-0.80, 1.40, 0.40), (0.18, 0.14, 0.14), 40),
         ],
@@ -4587,8 +4588,8 @@ def bmp_k64(variant):
             module("fuel_tank_l", "fuel_tank", (-0.85, 1.05, -1.70), (0.25, 0.30, 0.40), 40),
             module("fuel_tank_r", "fuel_tank", (0.85, 1.05, -1.70), (0.25, 0.30, 0.40), 40),
             module("ammo_rack", "ammo_rack", (0.0, 1.30, -0.90), (0.35, 0.20, 0.30), 50),
-            module("breech", "gun_breech", (mount[0], mount[1] - 0.05, mount[2] - 0.20), (0.08, 0.08, 0.20), 50),
-            module("gun_barrel", "gun_barrel", (mount[0], mount[1], (mount[2] + muzzle) / 2), (0.04, 0.04, (muzzle - mount[2]) / 2), 50),
+            module("breech", "gun_breech" if variant == "base" else "launcher", (mount[0], mount[1] - 0.05, mount[2] - 0.20), (0.08, 0.08, 0.20), 50, weapon_group=None if variant == "base" else "main_launcher"),
+            module("gun_barrel", "gun_barrel" if variant == "base" else "launcher", (mount[0], mount[1], (mount[2] + muzzle) / 2), (0.04, 0.04, (muzzle - mount[2]) / 2), 50, weapon_group=None if variant == "base" else "main_launcher"),
             module("radio", "radio", (-0.70, 1.40, 0.90), (0.18, 0.14, 0.14), 40),
             module("turret_drive", "turret_drive", (0.0, piv[1] - 0.10, piv[2]), (0.15, 0.08, 0.15), 50),
         ],
@@ -4631,7 +4632,7 @@ def att_m46():
     s = {
         "id": "su_att_m46", "name": "AT-T 130 mm 自走炮（M-46）", "nation": "ussr", "cls": "spg", "year": 1960, "outline": "model",
         "based_on": "AT-T heavy artillery tractor with a 130 mm M-46 field gun mounted on its bed (an improvised self-propelled gun)",
-        "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), with both original high cab-side walls and four bed-side boards on measured folding hinges (I). The front shovel, keeper frame and chain are removed from the playable model; the original source GLB is retained. The narrow gun shield remains fixed to the traversing mount. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The improvised bed mount gains a source-clearance-limited traverse arc with the boards down; the crew's protection and the interior are estimates.",
+        "notes": "Exterior: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), with both original high cab-side walls and four bed-side boards on measured folding hinges (I). The horizontal hood shovel, its blade and both keepers, plus the front frame and chain, are removed from the playable model; the original source GLB is retained. The narrow gun shield remains fixed to the traversing mount. AT-T: about 20 t, A-401 diesel of 415 hp, 35 km/h; M-46: 130 mm L/55, -2.5..+45 degrees, separate loading, up to 6 rds/min. The improvised bed mount gains a source-clearance-limited traverse arc with the boards down; the crew's protection and the interior are estimates.",
         "model": "model.json", "hull_bottom": 0.54, "own_breech": True, "open_top": True,
         "import": {"glb": UPLOADS + "4a174728-AT_T_M46_130mm_PhotoReplica.glb",
                    "source": "AT-T with the 130 mm M-46: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), used unchanged with the user's permission",
@@ -4819,7 +4820,7 @@ def check(spec, plates, modules, crew_list):
             problems.append("P004 " + p["id"])
         if not inside(spec, (c["x"], c["y"], c["z"]), 0.1):
             problems.append("P008 " + p["id"])
-    ext = ("gun_barrel", "track", "aps_gun", "aps_radar")
+    ext = ("gun_barrel", "launcher", "track", "aps_gun", "aps_radar")
     for m in modules:
         if m["kind"] in ext:
             continue
