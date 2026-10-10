@@ -211,10 +211,10 @@ export class Node {
     this.world = parent ? mul(parent, l) : l;
     for (const c of this.children) c.update(this.world);
   }
-  collect(out) {
-    if (!this.visible) return out;
+  collect(out, excludedRoot = null) {
+    if (!this.visible || this === excludedRoot) return out;
     if (this.mesh) out.push(this);
-    for (const c of this.children) c.collect(out);
+    for (const c of this.children) c.collect(out, excludedRoot);
     return out;
   }
 }

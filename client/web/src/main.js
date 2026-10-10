@@ -3804,8 +3804,6 @@ export function start(data, saved = {}) {
       const rt = G.T[ti];
       const par = G.loadout.turrets[ti].parent;
       mt.node.yaw = par != null ? gunnery.wrapPi(rt.yaw - G.T[par].yaw) : rt.yaw;
-      // through the sight you do not see your own turret, wherever the view is turned
-      mt.node.visible = !(inSight && ti === G.sightT);
       mt.guns.forEach((mg, gi) => {
         const gs = rt.guns[gi];
         // Automatic guns complete this travel within their cycle; large guns keep their slower run-out.
@@ -4056,7 +4054,9 @@ export function start(data, saved = {}) {
     hitcam.tick(dt);
     if (G.skipDraw) return;
     scene.update(null);
-    const nodes = scene.collect([]);
+    // The optical picture excludes our whole vehicle, including a fixed casemate.
+    // Other views collect normally: status and hit-camera passes retain the complete model.
+    const nodes = scene.collect([], inSight && !testing && !G.thumbShot ? M.root : null);
     // the terrain grid and the ruts follow the vehicle
     world.placeGrid(G.s.x, G.s.z);
     streamDeformation(G.s.x, G.s.z);
