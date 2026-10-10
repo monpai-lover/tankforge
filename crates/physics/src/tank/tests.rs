@@ -569,3 +569,86 @@ fn running_gear_cached_response_matches_the_mass_solve_and_expires() {
     t.body.prepare_contact_response(n, p, blend, &mut cache); t.body.install_running_gear(Arc::clone(&tm.running_gear));
     assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| t.body.apply_cached_response(&cache, 1.0))).is_err());
 }
+
+#[test]
+fn running_gear_cloned_entities_reject_each_others_cache_after_equal_refresh_counts() {
+    use super::running_gear_dynamics::{MassResponse, WheelBlend};
+    let (tm, mut a) = rig("de_tiger_e");
+    a.body.running_gear.as_mut().unwrap().qv[0] = 0.7;
+    let mut b = a.clone();
+    assert_eq!(a.body.running_gear.as_ref().unwrap().q, b.body.running_gear.as_ref().unwrap().q);
+    assert_eq!(a.body.running_gear.as_ref().unwrap().qv, b.body.running_gear.as_ref().unwrap().qv);
+    a.body.running_gear.as_mut().unwrap().q[0] = 0.15;
+    b.body.running_gear.as_mut().unwrap().q[0] = -0.15;
+    a.body.refresh_running_gear(); b.body.refresh_running_gear();
+    let n = norm([0.2, 1.0, 0.3]); let blend = WheelBlend::single(0, 1.0);
+    let point = a.body.world_point([1.5, 0.1, 1.1]);
+    let mut from_a = MassResponse::new(tm.sp.stations.len()); let mut from_b = MassResponse::new(tm.sp.stations.len());
+    a.body.prepare_contact_response(n, point, blend, &mut from_a); b.body.prepare_contact_response(n, point, blend, &mut from_b);
+    assert!(from_a.delta.iter().zip(&from_b.delta).any(|(x, y)| (x - y).abs() > 1e-9), "divergent q has different response");
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| b.body.apply_cached_response(&from_a, 1.0))).is_err(), "cloned entity must reject foreign cache");
+    a.body.apply_cached_response(&from_a, 1.0); b.body.apply_cached_response(&from_b, 1.0);
+    let mut clone = a.clone();
+    assert!(std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| clone.body.apply_cached_response(&from_a, 1.0))).is_err(), "clone invalidates prepared source cache");
+}
+
+#[test]
+fn running_gear_bad_json_hint_does_not_discard_valid_legacy_motion() {
+    use serde_json::json;
+    let road = terrain("road"); let flat = FnGround { height: |_: f64, _: f64| 0.0, surface: &road };
+    let (tm, mut source) = rig("su_t34_85");
+    source.body.place([3.0, 0.0, 4.0], 0.2); source.body.v = [1.0, -0.5, 2.0];
+    source.body.running_gear.as_mut().unwrap().q[0] = 0.15;
+    source.body.running_gear.as_mut().unwrap().qv[0] = -0.8;
+    let valid = serde_json::to_value(net_state(&source)).unwrap();
+    for malformed in [
+        json!({"version": 1, "q": [null], "qv": [0]}),
+        json!({"version": 1, "q": ["bad"], "qv": [0]}),
+        json!({"version": 1, "q": {}, "qv": []}),
+        json!({"version": 1, "q": [], "qv": "bad"}),
+        json!({"version": "bad", "q": [], "qv": []}),
+        json!({}), json!("bad"), json!([1, 2]), json!(null),
+    ] {
+        let mut packet = valid.clone(); packet["rg"] = malformed;
+        let text = serde_json::to_string(&packet).unwrap();
+        let parsed = serde_json::from_str::<NetState>(&text);
+        assert!(parsed.is_ok(), "bad optional hint preserves motion JSON: {}", parsed.unwrap_err());
+        let parsed = serde_json::from_str::<NetState>(&text).unwrap();
+        assert!(parsed.rg.is_none());
+        let mut remote = Tank::new(&tm); apply_net_state(&mut remote, &parsed);
+        assert!(len(sub(remote.body.origin(), source.body.origin())) < 1e-6);
+        assert!(len(sub(remote.body.v, source.body.v)) < 1e-6);
+        reconstruct_running_gear(&tm, &mut remote, &flat, DT);
+        let rg = remote.body.running_gear.as_ref().unwrap();
+        assert!(!rg.remote_pose && rg.qv.iter().all(|v| *v == 0.0));
+        assert!(rg.q.iter().all(|q| q.is_finite() && q.abs() < 0.3));
+    }
+    let parsed = serde_json::from_str::<NetState>(&serde_json::to_string(&valid).unwrap()).unwrap();
+    let mut remote = Tank::new(&tm); apply_net_state(&mut remote, &parsed);
+    assert_eq!(remote.body.running_gear.as_ref().unwrap().q[0], 0.15);
+    assert_eq!(remote.body.running_gear.as_ref().unwrap().qv[0], -0.8);
+    let mut invalid_motion = valid; invalid_motion["pos"] = json!("bad");
+    assert!(serde_json::from_str::<NetState>(&serde_json::to_string(&invalid_motion).unwrap()).is_err(), "outer motion remains strict");
+}
+
+#[test]
+fn running_gear_vk1602_and_uneven_discs_match_source_volume_mass_distribution() {
+    let mut v = tg_vehicle::load_vehicle(&root().join("vehicles").join("de_vk1602")).unwrap();
+    for uneven in [false, true] {
+        if uneven {
+            let wheels = v.visual.as_mut().unwrap()["running_gear"]["wheels"].as_array_mut().unwrap();
+            wheels[0]["w"] = serde_json::json!(0.09); wheels[0]["x"] = serde_json::json!(-0.13);
+            let mut extra = wheels[0].clone(); extra["r"] = serde_json::json!(extra["r"].as_f64().unwrap() * 0.8);
+            extra["w"] = serde_json::json!(0.21); extra["x"] = serde_json::json!(0.13); wheels.push(extra);
+            wheels[1]["w"] = serde_json::json!(0.27);
+        }
+        let tm = TankModel::from_vehicle(&v, TankOpts::default()).unwrap();
+        let rg = &v.visual.as_ref().unwrap()["running_gear"];
+        let wheels = rg["wheels"].as_array().unwrap();
+        let proxies: Vec<f64> = tm.gear.stations.iter().map(|s| wheels.iter().filter(|w| (w["z"].as_f64().unwrap() - s.z).abs() < 5e-4).map(|w| w["r"].as_f64().unwrap().powi(2) * w["w"].as_f64().filter(|w| *w != 0.0).unwrap_or(rg["track_width"].as_f64().unwrap())).sum()).collect();
+        let sum: f64 = proxies.iter().sum();
+        for (i, m) in tm.running_gear.wheel_mass.iter().enumerate() {
+            assert!((m - 0.06 * tm.mass * proxies[i % proxies.len()] / (2.0 * sum)).abs() < 1e-8);
+        }
+    }
+}

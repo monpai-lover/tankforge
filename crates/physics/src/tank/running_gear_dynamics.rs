@@ -152,7 +152,7 @@ impl RunningGearModel {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct RunningGearState {
     pub model: Arc<RunningGearModel>,
     /// Single authoritative relative displacement and velocity for every station.
@@ -172,6 +172,23 @@ pub struct RunningGearState {
     b: Vec<V6>,
     r: Vec<V3>,
     wheel_force: Vec<f64>,
+}
+
+impl Clone for RunningGearState {
+    fn clone(&self) -> Self {
+        let n = self.q.len();
+        // Physics is copied; prepared responses belong to the original entity and cannot be
+        // copied as valid caches, even when the clone later has the same refresh count.
+        Self {
+            model: Arc::clone(&self.model), q: self.q.clone(), qv: self.qv.clone(),
+            normal_impulse: self.normal_impulse.clone(), spring_impulse: self.spring_impulse.clone(), rock_impulse: self.rock_impulse.clone(),
+            remote_pose: self.remote_pose,
+            relative_responses: self.relative_responses.iter().map(|_| MassResponse::new(n)).collect(),
+            normal_responses: self.normal_responses.iter().map(|_| MassResponse::new(n)).collect(),
+            version: self.version, identity: Arc::new(()), a: self.a, s: self.s, l: self.l,
+            b: self.b.clone(), r: self.r.clone(), wheel_force: self.wheel_force.clone(),
+        }
+    }
 }
 
 impl RunningGearState {

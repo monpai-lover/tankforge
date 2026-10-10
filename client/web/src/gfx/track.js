@@ -12,7 +12,8 @@ export function stationsOf(rg) {
   const byZ = new Map();
   for (const w of rg.wheels) {
     const key = w.z.toFixed(3);
-    if (!byZ.has(key)) byZ.set(key, { z: w.z, y: w.y, r: w.r });
+    if (!byZ.has(key)) byZ.set(key, { z: w.z, y: w.y, r: w.r, volumeProxy: 0 });
+    byZ.get(key).volumeProxy += w.r * w.r * (w.w || rg.track_width);
   }
   return [...byZ.values()].sort((a, b) => b.z - a.z);
 }

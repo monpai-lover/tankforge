@@ -2,8 +2,11 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { rig, ground, run, placeTank } from './tankrig.mjs';
-import { stepTank, gearFromVisual, newTank, applyNetState, netState, reconstructRunningGear } from '../src/sim/tank/tank.js';
+import { stepTank, gearFromVisual, makeTank, newTank, applyNetState, netState, reconstructRunningGear } from '../src/sim/tank/tank.js';
 import { makeRunningGear, newMassResponse } from '../src/sim/tank/runningGearDynamics.js';
+import { buildTank } from '../src/gfx/tankmodel.js';
+import { VehicleSim } from '../src/game/vehicle.js';
+import { STRIDE } from '../src/gfx/geo.js';
 
 const idle = { throttle: 0, steer: 0, brake: 0 };
 const flat = ground(() => 0);
@@ -55,6 +58,40 @@ test('running gear: disc volume survives axle dedup and estimated mass shrinks f
   assert.deepEqual(explicit.wheelMass, [100, 200, 100, 200]);
   close(explicit.sprungMass, 9400);
   assert.throws(() => makeRunningGear(10000, [0, 1, 0], [100, 100, 100], stations, [], [9000, 9000]), /non-positive sprung inertia/);
+});
+
+test('running gear: production buildTank and VehicleSim preserve source disc-volume mass distribution', () => {
+  const root = new URL('../../../data/vehicles/de_vk1602/', import.meta.url);
+  const read = name => JSON.parse(fs.readFileSync(new URL(name, root)));
+  const real = { vehicle: read('vehicle.json'), visual: read('visual.json'), engine: read('engine.json'), turrets: [] };
+  const uneven = structuredClone(real);
+  const first = uneven.visual.running_gear.wheels[0];
+  first.w = 0.09; first.x = -0.13;
+  uneven.visual.running_gear.wheels.push({ ...first, r: first.r * 0.8, w: 0.21, x: 0.13 });
+  uneven.visual.running_gear.wheels[1].w = 0.27;
+  const renderer = {
+    mesh: data => ({ data, count: data.length / STRIDE }),
+    instancedMesh: data => ({ data, count: data.length / STRIDE }),
+    setInstances(mesh, matrices, count) { mesh.matrices = matrices; mesh.instances = count; },
+    freeMesh() {},
+  };
+  for (const bundle of [real, uneven]) {
+    const model = buildTank(renderer, bundle, () => []);
+    const sim = new VehicleSim(bundle, model, flat);
+    const direct = makeTank(bundle.vehicle, bundle.engine, gearFromVisual(bundle.visual.running_gear));
+    const proxies = model.stations.map(s => bundle.visual.running_gear.wheels.filter(w => w.z.toFixed(3) === s.z.toFixed(3)).reduce((sum, w) => sum + w.r * w.r * (w.w || bundle.visual.running_gear.track_width), 0));
+    const sum = proxies.reduce((a, b) => a + b, 0);
+    for (let i = 0; i < sim.tm.runningGear.wheelMass.length; i++) {
+      close(sim.tm.runningGear.wheelMass[i], direct.runningGear.wheelMass[i], 1e-8);
+      close(sim.tm.runningGear.wheelMass[i], 0.06 * sim.tm.mass * proxies[i % proxies.length] / (2 * sum), 1e-8);
+    }
+    assert.equal(sim.tm.sp.stations[0].y, model.stations[0].y);
+    model.stations[0].y += 0.03; // older model metadata still retains measured coordinates
+    delete model.stations[0].volumeProxy;
+    const measured = new VehicleSim(bundle, model, flat);
+    assert.equal(measured.tm.sp.stations[0].y, model.stations[0].y);
+    close(measured.tm.runningGear.wheelMass[0], direct.runningGear.wheelMass[0], 1e-8);
+  }
 });
 
 test('running gear: net horizontal force accelerates the original assembly mass', () => {

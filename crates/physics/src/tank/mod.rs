@@ -348,7 +348,7 @@ pub struct NetState {
     pub track: [f32; 2],
     pub rpm: f32,
     pub gear: u8,
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none", deserialize_with = "deserialize_running_gear_hint")]
     pub rg: Option<RunningGearHint>,
 }
 
@@ -357,6 +357,13 @@ pub struct RunningGearHint {
     pub version: u8,
     pub q: Vec<f64>,
     pub qv: Vec<f64>,
+}
+
+fn deserialize_running_gear_hint<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<RunningGearHint>, D::Error> {
+    // A malformed optional extension must not reject an otherwise valid legacy motion packet.
+    // Its numeric bounds/count remain model-specific and are checked by apply_net_state.
+    let value = serde_json::Value::deserialize(deserializer)?;
+    Ok(serde_json::from_value(value).ok())
 }
 
 fn f3(v: V3) -> [f32; 3] {

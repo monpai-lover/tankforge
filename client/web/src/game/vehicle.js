@@ -8,8 +8,13 @@ import { dot, cross, sub, norm } from '../sim/tank/math3.js';
 /** Running-gear geometry for the physics from the model's running gear. */
 export function gearFromModel(model) {
   const rg = model.runningGear;
+  const proxies = new Map();
+  for (const w of rg.wheels) {
+    const key = w.z.toFixed(3);
+    proxies.set(key, (proxies.get(key) || 0) + w.r * w.r * (w.w || rg.track_width));
+  }
   return {
-    stations: model.stations.map((s) => ({ z: s.z, y: s.y, r: s.r })),
+    stations: model.stations.map((s) => ({ z: s.z, y: s.y, r: s.r, volumeProxy: s.volumeProxy ?? proxies.get(s.z.toFixed(3)) })),
     trackX: rg.track_x,
     trackWidth: rg.track_width,
     thickness: rg.track_thickness,
