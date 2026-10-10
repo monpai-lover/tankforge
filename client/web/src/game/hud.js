@@ -1271,7 +1271,7 @@ export class Hud {
     const text = zero > 0 ? `表尺 ${zero} m` : '表尺 直瞄';
     const size = (sight ? 15 : 13) * s * (1 + 0.25 * k);
     // in the sight: upper right inside the scope (the weapons bar covers the bottom of it)
-    const x = sight ? w / 2 + sight.radius * 0.3 : w / 2 + 24 * s;
+    let x = sight ? w / 2 + sight.radius * 0.3 : w / 2 + 24 * s;
     const y = sight ? h / 2 - sight.radius * 0.6 : h / 2 + 34 * s;
     g.save();
     // outside the sight it fades out once the wheel stops
@@ -1280,6 +1280,7 @@ export class Hud {
     g.textAlign = 'left';
     g.textBaseline = 'middle';
     const tw = g.measureText(text).width;
+    if (sight) x = Math.max(6 * s, Math.min(x, w - tw - 6 * s));
     g.fillStyle = `rgba(0,0,0,${0.35 + 0.3 * k})`;
     g.fillRect(x - 6 * s, y - size * 0.75, tw + 12 * s, size * 1.5);
     g.fillStyle = k > 0 ? `rgba(242,${200 + 30 * (1 - k)},${120 + 100 * (1 - k)},1)` : 'rgba(236,232,214,0.85)';
@@ -1289,8 +1290,9 @@ export class Hud {
       const kz = Math.min(1, (sight.zoomFlash || 0) / 0.4);
       g.font = `600 ${15 * s * (1 + 0.25 * kz)}px "Noto Sans TC", sans-serif`;
       g.textAlign = 'right';
-      const zx = w / 2 - sight.radius * 0.3;
+      let zx = w / 2 - sight.radius * 0.3;
       const zw = g.measureText(z).width;
+      zx = Math.max(zw + 6 * s, Math.min(zx, w - 6 * s));
       g.fillStyle = `rgba(0,0,0,${0.35 + 0.3 * kz})`;
       g.fillRect(zx - zw - 6 * s, y - size * 0.75, zw + 12 * s, size * 1.5);
       g.fillStyle = kz > 0 ? 'rgba(242,215,150,1)' : 'rgba(236,232,214,0.85)';
@@ -1484,12 +1486,15 @@ export class Hud {
         g.arc(cx, cy, 9 * s, 0, Math.PI * 2);
         g.stroke();
       }
-      if (off > radius * 0.93) {
+      const ux = ox / off;
+      const uy = oy / off;
+      // Wide eyepieces can be cropped by the canvas; keep the complete arrow inside both edges.
+      const rim = Math.min(radius * 0.93, (cx - 18 * s) / Math.max(Math.abs(ux), 1e-9), (cy - 18 * s) / Math.max(Math.abs(uy), 1e-9));
+      if (off > rim) {
         // the gun is still outside the picture: an arrow on the rim shows which way it is coming from
-        const ux = ox / off;
-        const uy = oy / off;
-        const ax = cx + ux * radius * 0.9;
-        const ay = cy + uy * radius * 0.9;
+        const reach = Math.min(radius * 0.9, radius * 0.985 - 16 * s, (cx - 20 * s) / Math.max(Math.abs(ux), 1e-9), (cy - 20 * s) / Math.max(Math.abs(uy), 1e-9));
+        const ax = cx + ux * reach;
+        const ay = cy + uy * reach;
         g.fillStyle = col;
         g.beginPath();
         g.moveTo(ax + ux * 14 * s, ay + uy * 14 * s);
