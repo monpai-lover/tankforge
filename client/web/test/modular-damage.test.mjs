@@ -239,6 +239,41 @@ test('real rack synchronization initializes selected/deployed ammo, preserves la
   }
 });
 
+test('actual ammo synchronization clears empty damaged-rack penalties from ongoing reload work and HUD seconds', () => {
+  const c = combat(), b = c.prepare('racks:reload', data.vehicles.de_pz3_j);
+  const fresh = c.fresh('racks:reload', b), right = b.modules.findIndex(m => m.id === 'ammo_rack_r');
+  assert.ok(right >= 0);
+  fresh.state.modules[right] = b.modules[right].max_health * .25;
+  const damaged = c.ammo('racks:reload', fresh.state, 43);
+  assert.equal(damaged.caps.weapons['gun:0:0'].reload_mult, 1.25);
+  assert.equal(damaged.state.fire_s, 0); assert.equal(damaged.state.repair_s, 0); assert.equal(damaged.state.swaps.length, 0);
+  const lo = loadout.makeLoadout('de_pz3_j', b, data.projectiles, data.machineGuns), t = lo.turrets[0], g = t.guns[0];
+  for (const turret of lo.turrets) for (const gun of turret.guns) for (const a of gun.ammo) a.count = 0;
+  g.ammo[0].count = 43;
+  const L = loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack));
+  const G = {bundle: b, combat: c, combatKey: 'racks:reload', loadout: lo, mode: 'battle', cstate: damaged.state, caps: damaged.caps, carried: 43, T: [{loading: L}], sightG: 0};
+  loading.fired(L, 0);
+  const tickLine = source.split('\n').find(line => line.includes('const done = loading.tick(G.T[ti].loading, SIM_DT'));
+  assert.ok(tickLine, 'real main loading entry is required');
+  const tick = new Function('G', 'loading', 'reloadTime', 'weaponReloadRate', 't', 'ti', 'SIM_DT', tickLine + '\nreturn done;');
+  const before = loadout.reloadTime(t, 0, 0);
+  tick(G, loading, loadout.reloadTime, helper.weaponReloadRate, t, 0, 1);
+  assert.ok(Math.abs(loading.progress(L, 0).remaining - (before - .8)) < 1e-8, 'the occupied damaged rack slows the ongoing cycle');
+  const app = live(['carriedRounds', 'syncRacks'], {G, emptyRacks, roundsLeft: loadout.roundsLeft, applyXray() {}});
+  g.ammo[0].count = 42;
+  app.syncRacks();
+  assert.equal(G.cstate.rack_fill[right], 0);
+  assert.equal(G.caps.weapons[g.damageKey].reload_mult, 1, 'empty damaged rack must stop penalizing the stored weapon caps immediately');
+  const hudLine = source.split('\n').find(line => line.includes('hud.ammo(sg, loading.progress(srt.loading, G.sightG'));
+  assert.ok(hudLine, 'real main ammo HUD entry is required');
+  let shown;
+  new Function('G', 'loading', 'weaponReloadMult', 'hud', 'sg', 'srt', hudLine)(G, loading, helper.weaponReloadMult, {ammo: (_, p) => {shown = p;}}, g, G.T[0]);
+  assert.equal(shown.remaining, loading.progress(L, 0).remaining, 'HUD immediately reports the recovered real remaining seconds');
+  const remaining = loading.progress(L, 0).remaining;
+  tick(G, loading, loadout.reloadTime, helper.weaponReloadRate, t, 0, 1);
+  assert.ok(Math.abs(loading.progress(L, 0).remaining - (remaining - 1)) < 1e-8, 'the current reload resumes healthy work without another damage advance');
+});
+
 test('live select registers before actual stock/workshop models, interior and status, including same-id replacement', () => {
   const c = combat(), terrain = new Terrain(data.terrains, humpLift);
   const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}, freeTexture() {}};

@@ -836,7 +836,9 @@ export function start(data, saved = {}) {
     // from the server; late binding and subsequent frames only refresh its depiction.
     if (updateAmmo && n !== G.carried) {
       G.carried = n;
-      G.cstate = G.combat.ammo(G.combatKey, G.cstate, n).state;
+      const r = G.combat.ammo(G.combatKey, G.cstate, n);
+      G.cstate = r.state;
+      G.caps = r.caps;
     }
     const empty = emptyRacks(G.bundle, G.cstate);
     const key = [...empty].join();
