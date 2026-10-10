@@ -2067,6 +2067,56 @@
     -1.2
    ],
    "segs": 12
+  },
+  {
+   "name": "pak40_elevation_fork",
+   "type": "box",
+   "mount": "turret",
+   "mat": "paint_dark",
+   "mirror": true,
+   "size": [
+    0.045,
+    0.297,
+    0.12
+   ],
+   "pos": [
+    0.24,
+    1.5165,
+    -0.6
+   ]
+  },
+  {
+   "name": "pak40_elevation_pins",
+   "type": "cyl",
+   "mount": "turret",
+   "mat": "steel",
+   "axis": "x",
+   "mirror": true,
+   "r": 0.035,
+   "len": 0.2,
+   "pos": [
+    0.17,
+    1.63,
+    -0.6
+   ],
+   "segs": 16
+  },
+  {
+   "name": "pak40_shield_stays",
+   "type": "box",
+   "mount": "turret",
+   "mat": "paint_dark",
+   "mirror": true,
+   "size": [
+    0.12,
+    0.045,
+    0.615
+   ],
+   "pos": [
+    0.275,
+    1.395,
+    -0.3425
+   ]
   }
  ],
  "running_gear": {
