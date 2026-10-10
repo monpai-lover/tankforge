@@ -466,6 +466,89 @@ fn quality_weapon_bindings_drives_keep_full_instance_and_shared_turret_groups() 
     }
 }
 
+#[test]
+fn quality_weapon_bindings_explicit_critical_cannot_borrow_an_errored_cannon_owner() {
+    let mut def = weapon_target("de_gepard").def;
+    for m in &mut def.modules {
+        if ["breech_r", "gun_barrel_r"].contains(&m.id.as_str()) {
+            m.weapon_group = Some("gun:0:1".into());
+        }
+    }
+    def.weapons["damage"] = serde_json::json!({"critical":["breech_r","gun_barrel_r"]});
+    def.weapons["extra_guns"][0]["damage"] = serde_json::json!({"critical":["missing_part"]});
+    let t = Target::new(def.clone(), &rha());
+    assert!(t.binding_errors.contains_key("gun:0:1"));
+    assert!(t.binding_errors.contains_key("gun:0:0"), "foreign explicit ownership must fail even when its owner is invalid");
+    assert!(!caps(&t, &t.fresh_state()).weapons["gun:0:0"].can_fire);
+    assert_eq!(t.binding_errors, Target::new(def, &rha()).binding_errors);
+}
+
+#[test]
+fn quality_weapon_bindings_explicit_critical_respects_declared_groups_and_turret_ownership() {
+    for group in ["gun:0:0", "left_assembly"] {
+        let mut def = weapon_target("de_gepard").def;
+        for m in &mut def.modules {
+            if ["breech", "gun_barrel"].contains(&m.id.as_str()) { m.weapon_group = Some(group.into()); }
+        }
+        if group == "left_assembly" { def.weapons["weapon_group"] = serde_json::json!(group); }
+        def.weapons["damage"] = serde_json::json!({"critical":["breech","gun_barrel"]});
+        let t = Target::new(def.clone(), &rha());
+        assert!(t.binding_errors.is_empty(), "{group}: {:?}", t.binding_errors);
+        assert!(caps(&t, &t.fresh_state()).weapons["gun:0:0"].can_fire);
+        def.modules.iter_mut().find(|m| m.id == "breech").unwrap().turret_index = Some(1);
+        assert!(Target::new(def, &rha()).binding_errors.contains_key("gun:0:0"), "a matching group cannot override an explicit foreign turret");
+    }
+    let mut def = weapon_target("de_gepard").def;
+    def.modules.iter_mut().find(|m| m.id == "breech_r").unwrap().weapon_group = Some("right_assembly".into());
+    def.weapons["damage"] = serde_json::json!({"critical":["breech_r","gun_barrel_r"]});
+    def.weapons["extra_guns"][0]["damage"] = serde_json::json!({"critical":["missing_part"]});
+    assert!(Target::new(def, &rha()).binding_errors.contains_key("gun:0:0"), "undeclared foreign author group must fail closed");
+}
+
+#[test]
+fn quality_weapon_bindings_explicit_missile_critical_cannot_borrow_an_errored_owner() {
+    let mut def = weapon_target("su_bmpt34").def;
+    def.weapons["extra_guns"][1]["damage"] = serde_json::json!({"critical":["launcher_tt250_rail_r"]});
+    assert!(Target::new(def.clone(), &rha()).binding_errors.is_empty(), "own conventional launcher group remains valid");
+    def.weapons["extra_guns"][1]["damage"] = serde_json::json!({"critical":["launcher_tt250_rail_l"]});
+    def.weapons["extra_guns"][2]["damage"] = serde_json::json!({"critical":["missing_part"]});
+    let t = Target::new(def, &rha());
+    assert!(t.binding_errors.contains_key("gun:0:3"));
+    assert!(t.binding_errors.contains_key("gun:0:2"), "a foreign launcher assembly cannot be borrowed");
+    assert!(!caps(&t, &t.fresh_state()).weapons["gun:0:2"].can_fire);
+    assert!(caps(&t, &t.fresh_state()).weapons["gun:0:0"].can_fire);
+}
+
+#[test]
+fn quality_weapon_bindings_named_aps_gun_rejects_foreign_explicit_ownership() {
+    for field in ["group", "turret"] {
+        let mut def = weapon_target("su_t10m").def;
+        def.weapons["extra_turrets"][0]["guns"][0]["damage"] = serde_json::json!({"critical":["oplot_gun"]});
+        let m = def.modules.iter_mut().find(|m| m.id == "oplot_gun").unwrap();
+        if field == "group" { m.weapon_group = Some("gun:0:0".into()); } else { m.turret_index = Some(0); }
+        let t = Target::new(def, &rha());
+        assert!(t.binding_errors.contains_key("gun:1:0"), "named APS module still requires correct {field} ownership");
+        assert!(!caps(&t, &t.fresh_state()).weapons["gun:1:0"].can_fire);
+        assert!(caps(&t, &t.fresh_state()).weapons["gun:0:0"].can_fire);
+    }
+}
+
+#[test]
+fn quality_weapon_bindings_mg_cannot_borrow_a_foreign_reserved_owner_group() {
+    let mut def = weapon_target("su_t54").def;
+    let first = def.weapons["secondary"][0]["id"].as_str().unwrap().to_owned();
+    let second = def.weapons["secondary"][1]["id"].as_str().unwrap().to_owned();
+    let foreign = format!("mg:{second}");
+    def.weapons["secondary"][0]["weapon_group"] = serde_json::json!(foreign);
+    def.weapons["secondary"][1]["mount"] = serde_json::json!("invalid_mount");
+    let count = def.modules.len();
+    let t = Target::new(def, &rha());
+    assert!(t.binding_errors.contains_key(&format!("mg:{second}")));
+    assert!(t.binding_errors.contains_key(&format!("mg:{first}")), "reserved MG identity cannot be adopted as an author group");
+    assert!(!caps(&t, &t.fresh_state()).weapons[&format!("mg:{first}")].can_fire);
+    assert_eq!(t.def.modules.len(), count);
+}
+
 fn rha() -> Vec<Material> {
     vec![Material { id: "rha".into(), kind: ArmorKind::Rha, density_kg_m3: 7850.0, hardness_bhn: 300.0, kinetic_factor: 1.0, chemical_factor: 1.0 }]
 }

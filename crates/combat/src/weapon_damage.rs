@@ -208,6 +208,36 @@ fn authored_owner(def: &TargetDef, m: &Module) -> Result<Option<usize>, String> 
     }
 }
 
+/// Validate authored ownership before the shared-part pass, including invalid owners.
+/// Ungrouped legacy references remain authoritative; reserved keys cannot be aliases.
+pub(crate) fn validate_critical_ownership(
+    def: &TargetDef,
+    binding: &WeaponBinding,
+    declared_group: Option<&str>,
+) -> Result<(), String> {
+    for &i in &binding.critical {
+        let m = &def.modules[i];
+        if let Some(g) = m.weapon_group.as_deref() {
+            let reserved = g.starts_with("gun:") || g.starts_with("mg:") || g.starts_with("turret:");
+            let own_launcher = binding.kind == WeaponKind::Missile
+                && binding.turret_index.zip(binding.gun_index).is_some_and(|(ti, gi)| {
+                    let conventional = if ti == 0 && gi == 0 { "main_launcher".into() } else { format!("launcher_mount_{gi}") };
+                    g == conventional
+                        || turret_identity(def, ti).is_some_and(|id| g == format!("launcher_{id}_{gi}"))
+                });
+            if g != binding.key && (reserved || (Some(g) != declared_group && !own_launcher)) {
+                return Err(format!("critical module reference {} has foreign weapon ownership {g} for {}", m.id, binding.key));
+            }
+        }
+        if let Some(owner) = authored_owner(def, m)? {
+            if binding.turret_index != Some(owner) {
+                return Err(format!("critical module reference {} has foreign turret ownership {owner} for {}", m.id, binding.key));
+            }
+        }
+    }
+    Ok(())
+}
+
 fn part(
     def: &TargetDef,
     kind: ModuleKind,
@@ -545,6 +575,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
                 )?);
             }
             validate_critical(&def.modules, kind, &b.critical, aps_gun)?;
+            validate_critical_ownership(def, &b, group(&mount, &gun))?;
             b.dispersion_parts = if kind == WeaponKind::Missile {
                 vec![]
             } else {

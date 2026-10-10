@@ -276,6 +276,9 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
             }
         }
         for (i, m) in modules.iter().enumerate() {
+            if m.kind == ModuleKind::AmmoRack && m.rounds == Some(0) {
+                continue;
+            }
             if let Some(t) = ray_aabb(f.origin, f.dir, m.center, m.half_extents, p.frag_range_m) {
                 if best.map_or(true, |(bt, _)| t < bt) {
                     best = Some((t, TargetRef::Module(i)));
@@ -496,6 +499,48 @@ mod tests {
         assert_eq!(s.traces[1].damage, 0.0);
         assert_eq!(s.traces[1].target, Some(TargetRef::Module(0)));
         assert_eq!(crew[0].health, 100.0);
+    }
+
+    #[test]
+    fn explicitly_empty_rack_is_not_hit_and_does_not_shield_crew() {
+        for health in [100.0, 0.0] {
+            let mut rack = module(ModuleKind::AmmoRack);
+            rack.rounds = Some(0); rack.health = health;
+            let mut mods = vec![rack];
+            let mut crew = vec![crew(CrewRole::Driver, 0.0)];
+            crew[0].pos = Vec3::new(6.0, 0.0, 0.0);
+            let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: false };
+            let s = propagate(&[f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
+            assert_eq!(mods[0].health, health, "authored zero rack receives no health damage");
+            assert!(s.module_damage.is_empty()); assert!(s.newly_destroyed_modules.is_empty());
+            assert_eq!(crew[0].health, 70.0);
+            assert_eq!(s.traces[0].target, Some(TargetRef::Crew(0)));
+        }
+    }
+
+    #[test]
+    fn explicitly_empty_rack_does_not_shield_a_module_behind_it() {
+        let mut mods = vec![module(ModuleKind::AmmoRack), module(ModuleKind::Engine)];
+        mods[0].rounds = Some(0); mods[1].center.x = 6.0;
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: true };
+        let s = propagate(&[f], &mut mods, &mut [], &DamageParams { frag_range_m: 10.0, ..Default::default() });
+        assert_eq!(mods[0].health, 100.0); assert_eq!(mods[1].health, 70.0);
+        assert_eq!(s.module_damage, vec![(1, 30.0)]);
+        assert_eq!(s.traces[0].target, Some(TargetRef::Module(1)));
+    }
+
+    #[test]
+    fn legacy_and_positive_capacity_racks_remain_physical_after_destruction() {
+        for rounds in [None, Some(1)] {
+            let mut rack = module(ModuleKind::AmmoRack); rack.rounds = rounds; rack.health = 10.0;
+            let mut mods = vec![rack];
+            let mut crew = vec![crew(CrewRole::Driver, 0.0)]; crew[0].pos = Vec3::new(6.0, 0.0, 0.0);
+            let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 150.0, is_penetrator: false };
+            let s = propagate(&[f, f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
+            assert_eq!(s.module_damage, vec![(0, 10.0)]); assert_eq!(s.newly_destroyed_modules, vec![0]);
+            assert_eq!(s.traces[1].target, Some(TargetRef::Module(0))); assert_eq!(s.traces[1].damage, 0.0);
+            assert_eq!(crew[0].health, 100.0);
+        }
     }
 
     #[test]

@@ -2839,7 +2839,10 @@ export function start(data, saved = {}) {
       items.push({ kind: 'warn', text: `${CREW_NAME[role]}陣亡${sw ? `（換人 ${Math.ceil(sw.left_s)} 秒）` : ''}` });
     }
     if (c.repair_s > 0) items.push({ kind: 'info', text: `修理中 ${Math.ceil(c.repair_s)} 秒` });
-    else if (items.some((i) => i.kind === 'bad') && !c.destroyed) items.push({ kind: 'info', text: 'J 修理' });
+    else if (!c.destroyed && !st.destroyed && !G.online?.dead && !(st.repair_s > 0) && st.crew.reduce((n, h) => n + (h > 0), 0) >= 2 &&
+      bundle.modules.some((m, i) => m.kind !== 'ammo_rack' && m.max_health > 0 && st.modules[i] < m.max_health * .6)) {
+      items.push({ kind: 'info', text: '停車後按住 F 3 秒修理' });
+    }
     if (c.destroyed) items.unshift({ kind: 'bad', text: '已被擊毀' });
     return { items, shape };
   }

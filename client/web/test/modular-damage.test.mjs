@@ -37,6 +37,95 @@ const workshop = build => {
   return Object.fromEntries(['vehicle', 'weapons', 'armor', 'modules', 'crew', 'engine', 'visual'].map(k => [k, out.files[k + '.json']]));
 };
 
+function damageViewRig(key) {
+  const c = combat(), b = c.prepare(key, data.vehicles.de_pz3_j), fresh = c.fresh(key, b);
+  const G = {bundle: b, cstate: fresh.state, caps: fresh.caps, statusShape: {modules: [], crew: []}};
+  const view = live(['damageView'], {G, CREW_NAME}).damageView;
+  return {c, b, G, key, view, hint: () => view().items.find(i => i.kind === 'info' && /F.*3.*修理/.test(i.text))};
+}
+
+test('live damageView offers hold F three-second repair for every eligible module below60 including light damage', () => {
+  const r = damageViewRig('status:repairable');
+  for (const [i, m] of r.b.modules.entries()) {
+    if (m.kind === 'ammo_rack' || !(m.max_health > 0)) continue;
+    for (const health of [.55, .59, .25, .61]) {
+      const fresh = r.c.fresh(r.key, r.b);
+      fresh.state.modules[i] = m.max_health * health;
+      r.G.cstate = fresh.state; r.G.caps = r.c.advance(r.key, fresh.state, 0, 0).caps;
+      assert.equal(r.c.repair(r.key, fresh.state).ok, health < .6, `${m.id}/${health}: actual core repair eligibility`);
+      assert.equal(!!r.hint(), health < .6, `${m.id}/${health}: live status repair hint`);
+      assert.ok(!r.view().items.some(item => item.text === 'J 修理'), 'J remains abandonment');
+    }
+  }
+});
+
+test('live damageView never suggests repair for ammo racks or crew casualties alone', () => {
+  for (const cause of ['ammo', 'crew']) {
+    const r = damageViewRig('status:irreparable:' + cause);
+    if (cause === 'ammo') r.G.cstate.modules[r.b.modules.findIndex(m => m.kind === 'ammo_rack')] = 0;
+    else { const i = r.b.crew.findIndex(c => c.role === 'gunner'); r.G.cstate.crew[i] = 0; r.G.caps.gunner = false; }
+    assert.equal(r.c.repair(r.key, r.G.cstate).ok, false, `${cause}: actual core rejects repair`);
+    assert.ok(!r.hint(), cause);
+    assert.ok(!r.view().items.some(item => item.text === 'J 修理'), `${cause}: no obsolete repair prompt`);
+  }
+});
+
+test('live damageView suppresses repair prompts after death abandonment or loss of the second living crew member', () => {
+  for (const cause of ['caps_destroyed', 'state_destroyed', 'online_dead', 'crew']) {
+    const r = damageViewRig('status:unavailable:' + cause);
+    r.G.cstate.modules[r.b.modules.findIndex(m => m.kind === 'engine')] = 0;
+    r.G.caps = r.c.advance(r.key, r.G.cstate, 0, 0).caps;
+    if (cause === 'caps_destroyed') r.G.caps.destroyed = true;
+    if (cause === 'state_destroyed') r.G.cstate.destroyed = true;
+    if (cause === 'online_dead') r.G.online = {dead: true};
+    if (cause === 'crew') r.G.cstate.crew.fill(0, 1);
+    if (cause === 'state_destroyed' || cause === 'crew') assert.equal(r.c.repair(r.key, r.G.cstate).ok, false);
+    assert.ok(!r.hint(), cause);
+    assert.ok(!r.view().items.some(item => item.text === 'J 修理'), cause);
+  }
+});
+
+test('live damageView reports repair progress and removes the prompt after actual sixty-percent recovery', () => {
+  const r = damageViewRig('status:repair:progress'), i = r.b.modules.findIndex(m => m.kind === 'engine');
+  r.G.cstate.modules[i] = r.b.modules[i].max_health * .55;
+  const started = r.c.repair(r.key, r.G.cstate);
+  assert.equal(started.ok, true);
+  r.G.cstate = started.state; r.G.caps = started.caps;
+  assert.ok(r.view().items.some(item => item.kind === 'info' && item.text.startsWith('修理中 ')));
+  assert.ok(!r.hint());
+  const done = r.c.advance(r.key, started.state, started.caps.repair_s + 1, 0);
+  r.G.cstate = done.state; r.G.caps = done.caps;
+  assert.equal(done.caps.repair_s, 0); assert.ok(!r.hint());
+});
+
+test('actual WASM registration rejects foreign critical ownership when its mounted owner cannot register', () => {
+  for (const kind of ['cannon', 'missile', 'mg', 'aps']) {
+    const id = {cannon: 'de_gepard', missile: 'su_bmpt34', mg: 'su_t54', aps: 'su_t10m'}[kind];
+    const b = structuredClone(data.vehicles[id]);
+    let borrowed;
+    if (kind === 'cannon') {
+      for (const m of b.modules) if (['breech_r', 'gun_barrel_r'].includes(m.id)) m.weapon_group = 'gun:0:1';
+      b.weapons.damage = {critical: ['breech_r', 'gun_barrel_r']};
+      b.weapons.extra_guns[0].damage = {critical: ['missing_part']}; borrowed = 'gun:0:0';
+    } else if (kind === 'missile') {
+      b.weapons.extra_guns[1].damage = {critical: ['launcher_tt250_rail_l']};
+      b.weapons.extra_guns[2].damage = {critical: ['missing_part']}; borrowed = 'gun:0:2';
+    } else if (kind === 'mg') {
+      const c = combat(), normalized = c.prepare('status:foreign:mg:source', b);
+      b.modules = structuredClone(normalized.modules);
+      b.weapons.secondary[0].weapon_group = 'mg:' + b.weapons.secondary[1].id;
+      b.weapons.secondary[1].mount = 'invalid_mount'; borrowed = 'mg:' + b.weapons.secondary[0].id;
+    } else {
+      b.modules.find(m => m.id === 'oplot_gun').weapon_group = 'gun:0:0';
+      b.weapons.damage = {critical: ['missing_part']}; borrowed = 'gun:1:0';
+    }
+    const c = combat(), key = 'status:foreign:' + kind, normalized = c.prepare(key, b), fresh = c.fresh(key, normalized);
+    assert.ok(normalized.binding_errors[borrowed], `${kind}: foreign ownership rejects registration`);
+    assert.equal(fresh.caps.weapons[borrowed].can_fire, false, `${kind}: no firing with borrowed anatomy`);
+    assert.ok(fresh.caps.weapons[borrowed].reason.startsWith('binding:'), `${kind}: stable visible diagnostic`);
+  }
+});
+
 test('target descriptions retain combined crew duties and send only measured damage inputs', () => {
   const b = data.vehicles.su_t34_1940, def = targetDef('crew', b, 0, Object.values(data.machineGuns));
   assert.deepEqual(def.crew.find(c => c.role === 'commander').also, ['gunner']);

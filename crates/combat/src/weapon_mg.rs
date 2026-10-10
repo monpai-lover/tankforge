@@ -1,6 +1,6 @@
 //! Neutral-frame MG receiver/barrel boxes from the measured shared catalogue. Independent
 //! pintle/hull yaw and elevation are not represented by the current combat Shot pose API.
-use super::weapon_damage::{validate_critical, vec3, WeaponBinding, WeaponKind};
+use super::weapon_damage::{validate_critical, validate_critical_ownership, vec3, WeaponBinding, WeaponKind};
 use crate::{Module, ModuleKind, TargetDef};
 use serde_json::Value;
 use std::collections::BTreeMap;
@@ -141,6 +141,7 @@ pub(crate) fn register(def: &mut TargetDef, out: &mut BTreeMap<String, WeaponBin
             }
             Ok(())
         })();
+        let result = result.and_then(|()| validate_critical_ownership(def, &b, sec["weapon_group"].as_str()));
         if let Err(e) = result {
             b.binding_error = Some(e);
         }
