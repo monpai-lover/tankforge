@@ -41,6 +41,14 @@ def apply_flak38_mount(spec):
     # Keep side frames supported on the original turntable, outside the magazine
     # and sight sweep. Discs/shafts and the new pin share the original axis.
     assembly[1]['pos'][0] = round(x + .33, 4)
+    if spec['id'] in ('de_hetzer_flak', 'de_rso_flak'):
+        # The side-frame bottom was 25 mm above the turntable. Keep its upper
+        # envelope/hinge clearance and extend only the fixed feet into the plate.
+        frame = assembly[1]
+        upper = frame['pos'][1] + frame['size'][1] / 2
+        lower = base_y + assembly[0]['len'] / 2 - .002
+        frame['size'][1] = round(upper - lower, 4)
+        frame['pos'][1] = round((upper + lower) / 2, 4)
     assembly[2].update(size=[.66, .10, .10], pos=_position(x, base_y+.10, pz+.495))
     for p in assembly[3:5]:
         p['pos'][0] = round(x + .36, 4)
@@ -105,3 +113,29 @@ def apply_m901_mount(spec):
     for index, vector in zip((26, 25), spec['gun']['launcher']['muzzle_vectors_m']):
         parts[index]['pos'][2] = round(tz + vector[2] - parts[index]['len']/2, 4)
     return spec
+
+
+def apply_pak40_support(spec):
+    """Join the original RSO PaK pivot/cradle to its 110 mm lower pedestal gap."""
+    if spec['id'] != 'de_rso_pak40':
+        return
+    x, y, z = spec['mount']
+    parts = spec['parts']
+    pedestal = next(p for p in parts if p.get('mount') == 'turret' and p['type'] == 'box'
+                    and p['size'] == [0.5, 0.3, 0.5])
+    floor = pedestal['pos'][1] + pedestal['size'][1] / 2 - .002
+    top = y + .035
+    _named_part(parts, 'pak40_elevation_fork', {
+        'type': 'box', 'mount': 'turret', 'mat': 'paint_dark', 'mirror': True,
+        'size': [.045, round(top - floor, 4), .12], 'pos': _position(x + .24, (top + floor) / 2, z),
+    })
+    _named_part(parts, 'pak40_elevation_pins', {
+        'type': 'cyl', 'mount': 'turret', 'mat': 'steel', 'axis': 'x', 'mirror': True,
+        'r': .035, 'len': .20, 'pos': _position(x + .17, y, z), 'segs': 16,
+    })
+    # Fixed shield stays avoid using its accidental neutral-pose intersection
+    # with the elevating recuperator as its only support.
+    _named_part(parts, 'pak40_shield_stays', {
+        'type': 'box', 'mount': 'turret', 'mat': 'paint_dark', 'mirror': True,
+        'size': [.12, .045, .615], 'pos': _position(x + .275, 1.395, -.3425),
+    })

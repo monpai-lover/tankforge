@@ -1,10 +1,11 @@
 """Bounded corrections applied to source specs, never to supplied imported meshes."""
 from procedural_running_gear import apply_hvss_running_gear, apply_m113_running_gear
-from procedural_mounts import apply_flak38_mount, apply_m901_mount
+from procedural_mounts import apply_flak38_mount, apply_m901_mount, apply_pak40_support
 from procedural_pintles import apply_procedural_pintles
 from procedural_hull_details import apply_flak38t_fold_clearance, apply_is2_hull_mg, apply_rso_drive_roles, apply_rso_pak40_firing_config
 from procedural_folding_armor import apply_flak38t_folding_armor
 from procedural_crew_clearance import apply_procedural_crew_clearance
+from procedural_turret_seats import apply_turret_seat
 
 # Clearance authoring receipts: 2.5-degree yaw neighborhoods, zero/half/full recoil.
 # These are model-dependent deck/cab limits, not new historical gun specifications.
@@ -67,4 +68,6 @@ def refine_procedural_spec(spec):
     apply_rso_drive_roles(spec)
     apply_rso_pak40_firing_config(spec)
     apply_procedural_crew_clearance(spec)
+    apply_turret_seat(spec)
+    apply_pak40_support(spec)
     return spec

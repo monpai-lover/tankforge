@@ -9,6 +9,7 @@ import { rangeTable } from '../sim/ballistics.js';
 import { bulletOf } from '../sim/mg.js';
 import { fired as queueReload } from '../sim/loading.js';
 import { workshopImportedModel, exportWorkshopModel } from './workshopImported.js';
+import { workshopTurretSeat } from './turretSeat.js';
 
 export const SIGHT_RANGES = Array.from({ length: 30 }, (_, i) => (i + 1) * 100);
 export const DEFAULT_RANGEFINDER = { time_s: 2.5, error_pct: 5, max_range_m: 2500 };
@@ -484,9 +485,8 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
   weapons.extra_turrets = [...(retainStock ? base.weapons.extra_turrets || [] : []), ...extra.map(strip)];
 
   const hullParts = base.visual.parts.filter((p) => retainStock || !(p.mount === 'turret' || p.mount === 'gun'));
-  const barbettes = layouts
-    .filter((t) => t.lift > 0.02)
-    .map((t) => ({ type: 'cyl', mount: 'hull', mat: 'paint_dark', r: r3(t.ring_diameter_m * 0.5), len: r3(t.lift), axis: 'y', pos: [t.position_m[0], r3(hull.size_m[1] + t.lift / 2), t.position_m[2]], segs: 20 }));
+  const seats = layouts.map(t => workshopTurretSeat(base, t));
+  const barbettes = seats.flatMap(s => s.part ? [s.part] : []);
 
   const vehicle = {
     ...base.vehicle,
@@ -508,6 +508,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     stockTurrets,
     salvoMomentum: layouts.reduce((s, t) => s + t.guns.reduce((a, g) => a + (g.gun.missile ? 0 : g.shell.mass_kg * g.shell.muzzle_velocity_ms * 1.3), 0), 0),
     turrets: layouts,
+    seatSupport: seats.map(s => s.support),
   };
   return { bundle, projectiles, stats, layouts };
 }

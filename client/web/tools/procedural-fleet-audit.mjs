@@ -183,7 +183,7 @@ export function topologyStatistics(P) {
 export function runtimeParts(id, data) {
   const bundle = data.vehicles[id];
   if (!bundle) throw new Error(`Unknown vehicle ${id}`);
-  if (bundle.model) throw new Error(`Imported vehicle excluded from procedural audit: ${id}`);
+  if (bundle.model && !bundle.imported) throw new Error(`Imported vehicle must be decoded before runtime audit: ${id}`);
   setMgModels(JSON.parse(fs.readFileSync(path.join(HERE, '../assets/mg_models.json'), 'utf8')));
   const loadout = makeLoadout(id, bundle, data.projectiles, data.machineGuns);
   const renderer = {
@@ -213,7 +213,8 @@ export function runtimeParts(id, data) {
     buffers.get(node).push(...b.data);
   };
   bundle.visual.parts.forEach((p, i) => addRecord(p, i));
-  for (const [ti, t] of loadout.turrets.entries()) if (t.generated)
+  for (const [ti, t] of loadout.turrets.entries()) if (t.generated && !bundle.imported?.parts.some(p =>
+    ['turret', 'gun', 'barrel'].includes(p.mount) && (p.turret || 0) === ti))
     generatedTurretParts(t, ti).forEach((p, i) => addRecord(p, i, true));
   let maxRuntimeError = 0;
   for (const [node, values] of buffers) {
@@ -221,6 +222,34 @@ export function runtimeParts(id, data) {
     for (let i = 0; i < values.length; i += STRIDE) for (let k = 0; k < 3; k++)
       maxRuntimeError = Math.max(maxRuntimeError, Math.abs(values[i + k] - node.mesh.data[i + k]));
   }
+  // Keep decoded source identities on the actual imported nodes, including a
+  // borrowed chassis and a head mounted on a parent turret. Bounds alone cannot
+  // establish a physical bearing connection.
+  const importedRecords = (mount, nodes, filter = () => true) => {
+    const parts = (bundle.imported?.parts || []).map((p, i) => [p, i]).filter(([p]) => p.mount === mount && filter(p));
+    if (parts.length !== nodes.length) throw new Error(`Imported node mapping mismatch ${id}/${mount}`);
+    parts.forEach(([part, index], i) => {
+      const label = `imported#${index}`, ti = part.turret || 0, gi = part.gun || 0;
+      records.push({ part, id: label, index, node: nodes[i], local: makePiece(label, nodes[i].mesh.data), ti, gi,
+        group: ['turret', 'gun', 'barrel'].includes(mount) ? `turret${ti}` : 'hull' });
+    });
+  };
+  importedRecords('hull', model.body.children.filter(n => n.name === 'hull_model'), p => !p.hinge);
+  const allHinges = [...hinges];
+  for (const part of bundle.imported?.parts || []) if (part.mount === 'hull' && part.hinge &&
+    !allHinges.some(h => JSON.stringify(h) === JSON.stringify(part.hinge))) allHinges.push(part.hinge);
+  const allHingeNodes = model.body.children.filter(n => n.name === 'hinged_flap' || n.name === 'imported_flap');
+  allHinges.forEach((hinge, i) => importedRecords('hull', allHingeNodes[i].children.filter(n => n.name === 'flap_model'),
+    p => p.hinge && JSON.stringify(p.hinge) === JSON.stringify(hinge)));
+  loadout.turrets.forEach((t, ti) => {
+    const mt = model.turrets[ti];
+    importedRecords('turret', mt.node.children.filter(n => n.name === 'turret_model'), p => (p.turret || 0) === ti);
+    mt.guns.forEach((g, gi) => {
+      const mine = p => (p.turret || 0) === ti && (p.gun || 0) === gi;
+      importedRecords('gun', g.node.children.filter(n => n.name === 'gun_model'), mine);
+      importedRecords('barrel', g.barrel.children.filter(n => n.name === 'barrel_model'), mine);
+    });
+  });
   // Pintle post and actual gun mesh (including game-created shield) also matter.
   const machineGunPieces = model.mgs.length * 2;
   for (const mg of model.mgs) {
