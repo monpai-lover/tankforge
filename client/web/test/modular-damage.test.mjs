@@ -576,6 +576,53 @@ test('MG feed damage slows belt reload without altering cyclic rate, heat or coo
   assert.equal(mgSim.stepMg(def, damaged, true, .1, .5), mgSim.stepMg(def, healthy, true, .1, 1));
 });
 
+test('actual normalized malformed turret owners stay disabled and their interior nodes safely attach to the hull', () => {
+  const c = combat(), original = c.prepare('interior:owners:source', data.vehicles.de_pz3_j), b = structuredClone(original);
+  const receiver = b.modules.find(m => m.kind === 'machine_gun' && m.id.endsWith(':receiver'));
+  const engine = b.modules.find(m => m.kind === 'engine'), radio = b.modules.find(m => m.kind === 'radio');
+  assert.ok(receiver && engine && radio);
+  receiver.turret_index = 99; engine.turret_index = 99; radio.turret_index = 0;
+  const key = 'interior:owners:malformed', normalized = c.prepare(key, b), fresh = c.fresh(key, normalized);
+  assert.ok(normalized.binding_errors[receiver.weapon_group].includes('foreign turret ownership'));
+  assert.equal(fresh.caps.weapons[receiver.weapon_group].can_fire, false);
+  assert.equal(normalized.modules.find(m => m.id === engine.id).turret_index, 99, 'normalized noncritical owner metadata reaches presentation unchanged');
+  const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}};
+  const lo = loadout.makeLoadout('de_pz3_j', normalized, data.projectiles, data.machineGuns), model = buildTank(renderer, lo, loadout.generatedTurretParts);
+  let interior;
+  assert.doesNotThrow(() => { interior = buildInterior(renderer, model, lo, normalized.modules, normalized.crew); });
+  for (const m of [receiver, engine]) {
+    const nodes = interior.byModule.get(m.id);
+    assert.ok(nodes?.length, m.id + ' remains represented');
+    for (const n of nodes) { assert.ok(model.body.children.includes(n)); assert.deepEqual(n.pos, [m.center.x, m.center.y, m.center.z]); }
+  }
+  assert.ok(interior.byModule.get(radio.id).every(n => model.turrets[0].node.children.includes(n)), 'valid explicit owner retains its turret parent');
+  assert.equal(fresh.caps.weapons[receiver.weapon_group].can_fire, false, 'drawing never repairs an invalid binding');
+  interior.dispose(); model.dispose();
+});
+
+test('actual interior parent selection falls back consistently when model or loadout turret parents are missing', () => {
+  for (const missing of ['model_entry', 'model_node', 'loadout_entry', 'loadout_pivot']) {
+    const c = combat(), b = structuredClone(data.vehicles.de_pz3_j);
+    b.modules.find(m => m.kind === 'engine').turret_index = 0;
+    const normalized = c.prepare('interior:missing:' + missing, b);
+    assert.deepEqual(normalized.binding_errors, {});
+    const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}};
+    const lo = loadout.makeLoadout('de_pz3_j', normalized, data.projectiles, data.machineGuns), model = buildTank(renderer, lo, loadout.generatedTurretParts);
+    if (missing === 'model_entry') model.turrets = [];
+    else if (missing === 'model_node') delete model.turrets[0].node;
+    else if (missing === 'loadout_entry') lo.turrets = [];
+    else delete lo.turrets[0].pivot;
+    let interior;
+    assert.doesNotThrow(() => { interior = buildInterior(renderer, model, lo, normalized.modules, normalized.crew); }, missing);
+    for (const m of normalized.modules.filter(m => m.kind === 'engine' || m.kind === 'turret_drive' || m.kind === 'machine_gun')) {
+      const nodes = interior.byModule.get(m.id);
+      assert.ok(nodes?.length, `${missing}/${m.id}`);
+      for (const n of nodes) { assert.ok(model.body.children.includes(n), `${missing}/${m.id}: hull parent`); assert.deepEqual(n.pos, [m.center.x, m.center.y, m.center.z]); }
+    }
+    interior.dispose(); model.dispose();
+  }
+});
+
 test('normalized MG anatomy has labels, correct parent nodes, and disposable interiors preserve source meshes', async () => {
   await decodeAllImported({de_hetzer: data.vehicles.de_hetzer});
   assert.equal(typeof combat().prepare, 'function');

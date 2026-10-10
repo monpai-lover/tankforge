@@ -439,6 +439,7 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
   const turretOf = (p) => {
     let best = -1;
     loadout.turrets.forEach((t, ti) => {
+      if (!t.pivot) return;
       const dx = p[0] - t.pivot[0];
       const dz = p[2] - t.pivot[2];
       if (p[1] > t.pivot[1] - 0.12 && Math.hypot(dx, dz) < Math.max(t.size[0], t.size[2]) * 0.55) best = ti;
@@ -446,7 +447,8 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
     return best;
   };
   const place = (pos, mesh, label, rotate, crewTag, turretIndex = undefined) => {
-    const ti = turretIndex === undefined ? rotate ? turretOf(pos) : -1 : turretIndex;
+    const requested = turretIndex === undefined ? rotate ? turretOf(pos) : -1 : turretIndex;
+    const ti = Number.isInteger(requested) && requested >= 0 && model.turrets[requested]?.node && loadout.turrets[requested]?.pivot ? requested : -1;
     const parent = ti >= 0 ? model.turrets[ti].node : model.body;
     const origin = ti >= 0 ? loadout.turrets[ti].pivot : [0, 0, 0];
     const n = attach(parent, new Node('interior'));
@@ -465,7 +467,7 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
   const drawnModules = new Set();
   loadout.turrets.forEach((t, ti) => {
     const mt = model.turrets[ti];
-    if (!mt) return;
+    if (!mt?.node || !t.pivot) return;
     t.guns.forEach((g, gi) => {
       const mg = mt.guns[gi];
       if (!mg || (!g.def.missile && g.def.caliber_mm < 20)) return;
