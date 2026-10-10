@@ -22,7 +22,7 @@ import { OnlineFires } from '../src/game/onlineFire.js';
 
 const data = loadData();
 await decodeAllImported(data.vehicles);
-const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)), {materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains)});
+const core = loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm', import.meta.url)), {materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains)});
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 const helper = await import('../src/game/weaponDamage.js').catch(() => null);
 const functionSource = name => {

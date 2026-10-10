@@ -249,6 +249,8 @@ pub fn compile(m: &Model, r: &DesignReport, engine: Option<&EngineFile>) -> Opti
     let cl = &gr.clearance;
     let traverse = r.turret.as_ref().map(|t| t.traverse_deg_s).unwrap_or(10.0);
     let mut def = gun.def.clone();
+    // Ordinary-folder loaders infer legacy ammunition when counts are omitted.
+    if def.ammo_count.is_empty() { def.ammo_count = vec![0; def.ammo.len()]; }
     def.max_elevation_deg = cl.max_elevation_deg as f32;
     def.max_depression_deg = cl.frontal_depression_deg as f32;
     def.traverse_deg_s = traverse as f32;

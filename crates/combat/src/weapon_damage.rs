@@ -648,7 +648,7 @@ pub(crate) fn capabilities(
                 .ammo_racks
                 .iter()
                 .copied()
-                .filter(|&i| st.rack(i) > 0.0)
+                .filter(|&i| !super::empty_rack(t, st, i))
                 .map(|i| {
                     let m = &t.def.modules[i];
                     module_state::ammo_reload_multiplier(module_state::health_ratio(

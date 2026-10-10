@@ -1015,6 +1015,91 @@ fn ammunition_that_goes_up_destroys_the_vehicle() {
 }
 
 #[test]
+fn explicit_zero_racks_stay_empty_on_fresh_and_loaded_states() {
+    let mut def=weapon_target("de_pz3_j").def;
+    def.ammo_capacity=0;
+    for m in &mut def.modules {if m.kind==ModuleKind::AmmoRack {m.rounds=Some(0);}}
+    let t=Target::new(def,&rha());
+    let racks:Vec<usize>=t.def.modules.iter().enumerate().filter(|(_,m)|m.kind==ModuleKind::AmmoRack).map(|(i,_)|i).collect();
+    assert!(!racks.is_empty());
+    let fresh=t.fresh_state();
+    assert!(racks.iter().all(|&i|fresh.rack(i)==0.0));
+    for fill in [vec![],vec![1.0;t.def.modules.len()]] {
+        for carried in [0,10] {
+            let mut st=fresh.clone(); st.rack_fill=fill.clone(); st.modules[racks[0]]=7.0;
+            load_ammo(&t,&mut st,carried);
+            assert!(racks.iter().all(|&i|st.rack(i)==0.0));
+            assert_eq!(st.modules[racks[0]],7.0,"loading does not repair a rack");
+        }
+    }
+}
+
+#[test]
+fn explicit_zero_racks_do_not_receive_or_displace_a_short_load() {
+    let mut def=box_tank(false).def;
+    def.modules[3].rounds=Some(0); def.modules[3].center.y=0.1;
+    let mut positive=module("positive",ModuleKind::AmmoRack,[0.0,0.5,0.0],[0.5,0.5,0.5],40.0); positive.rounds=Some(20);
+    def.modules.push(positive);
+    def.modules.push(module("legacy",ModuleKind::AmmoRack,[0.0,1.5,0.0],[0.1,0.1,0.02],40.0));
+    let fill=rack_fill(&def,10,40);
+    assert_eq!(fill[3],0.0);
+    assert!((fill[9]-0.2525).abs()<1e-6,"positive rounds and legacy volume retain their old weights: {fill:?}");
+    assert_eq!(fill[10],0.0);
+    for capacity in [0,40] {
+        let fill=rack_fill(&def,40,capacity);
+        assert_eq!(fill[3],0.0); assert_eq!(fill[9],1.0); assert_eq!(fill[10],1.0);
+    }
+    let mut legacy=box_tank(false).def;
+    for rounds in [None,Some(20)] {
+        legacy.modules[3].rounds=rounds;
+        let t=Target::new(legacy.clone(),&rha()); let mut st=t.fresh_state();
+        assert_eq!(st.rack(3),1.0);
+        st.rack_fill=vec![0.5;t.def.modules.len()]; load_ammo(&t,&mut st,0);
+        assert_eq!(st.rack(3),0.5,"unknown legacy capacity remains a no-op");
+    }
+}
+
+#[test]
+fn explicit_zero_racks_never_take_shell_fragment_blast_or_fire_hits_in_stale_states() {
+    let mut def=narrow_turret_module(ModuleKind::AmmoRack).def;
+    def.turret=None; def.modules[0].rounds=Some(0);
+    let t=Target::new(def.clone(),&rha());
+    for fill in [vec![],vec![1.0]] {
+        let mut st=t.fresh_state(); st.rack_fill=fill; st.modules[0]=1.0;
+        let r=shoot(&t,&st,&Shot {origin:Vec3::new(0.0,5.0,0.0),dir:Vec3::new(0.0,-1.0,0.0),..side_shot(ap(),1)});
+        assert!(!r.hit,"there is nothing to hit in an authored empty rack");
+        assert!(r.modules.is_empty()); assert_eq!(r.state.modules[0],1.0);
+        let mut w=work(&t,&st,0.0);
+        w.fragment(Vec3::new(0.0,2.0,0.0),Vec3::new(0.0,-1.0,0.0),8000.0,"spall",4.0);
+        assert!(w.rep.fragments.last().unwrap().hit.is_none());
+        w.blast_inside(t.def.modules[0].center,1.0);
+        assert_eq!(w.st.modules[0],1.0); assert!(!w.st.ammo_detonated); assert!(w.mod_dmg.is_empty());
+        st.fire_s=50.0; st.fire_at=Some(t.def.modules[0].center);
+        let events=advance(&t,&mut st,40.0,1);
+        assert_eq!(st.modules[0],1.0); assert!(!st.ammo_detonated);
+        assert!(!events.iter().any(|e|e=="ammo_detonation"));
+    }
+    def.modules[0].external=Some(true);
+    let t=Target::new(def,&rha()); let mut st=t.fresh_state(); st.rack_fill=vec![1.0];
+    let mut w=work(&t,&st,0.0); w.blast_outside(t.def.modules[0].center,1.0);
+    assert!(w.rep.fragments.is_empty(),"empty racks do not report outside blast module hits either");
+}
+
+#[test]
+fn explicit_zero_rack_damage_never_penalizes_weapon_feed_in_stale_states() {
+    for rounds in [Some(0),Some(20),None] {
+        let mut def=weapon_target("de_pz3_j").def;
+        for m in &mut def.modules {if m.kind==ModuleKind::AmmoRack {m.rounds=rounds;}}
+        let t=Target::new(def,&rha());
+        for fill in [vec![],vec![1.0;t.def.modules.len()]] {
+            let mut st=t.fresh_state(); st.rack_fill=fill;
+            for (i,m) in t.def.modules.iter().enumerate() {if m.kind==ModuleKind::AmmoRack {st.modules[i]=m.max_health*0.25;}}
+            assert_eq!(weapon_caps_json(&t,&st)["gun:0:0"]["reload_mult"],if rounds==Some(0) {1.0} else {1.25});
+        }
+    }
+}
+
+#[test]
 fn an_empty_rack_cannot_go_up() {
     let mut t = box_tank(false);
     // a second rack low on the floor: a short load keeps its rounds there

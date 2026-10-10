@@ -50,8 +50,7 @@ export function ammoCapacity(weapons) {
 export function emptyRacks(bundle, state) {
   const out = new Set();
   const fill = state?.rack_fill;
-  if (!fill?.length) return out;
-  (bundle.modules || []).forEach((m, i) => m.kind === 'ammo_rack' && fill[i] <= 0 && out.add(m.id));
+  (bundle.modules || []).forEach((m, i) => m.kind === 'ammo_rack' && (m.rounds === 0 || fill?.[i] <= 0) && out.add(m.id));
   return out;
 }
 

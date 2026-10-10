@@ -430,8 +430,16 @@ impl Player {
         }
     }
 
+    fn rounds_left(&self, t: Option<&Target>) -> Option<u32> {
+        self.rounds.or_else(|| {
+            let t = t?;
+            // Authored zero counts are an empty magazine, not unknown legacy capacity.
+            (t.def.ammo_capacity > 0 || (t.def.weapons["main_gun"].is_object() && tg_combat::ammo_capacity(&t.def.weapons) == 0)).then_some(t.def.ammo_capacity)
+        })
+    }
+
     fn spend_round(&mut self, t: &Target) {
-        if let Some(before) = self.rounds.or_else(|| (t.def.ammo_capacity > 0).then_some(t.def.ammo_capacity)) {
+        if let Some(before) = self.rounds_left(Some(t)) {
             let left = before - 1; // zero is refused before accepting the discharge
             self.rounds = Some(left);
             if let Some(st) = self.combat.as_mut() { tg_combat::load_ammo(t, st, left); }
@@ -1253,7 +1261,7 @@ impl Lobby {
             let Some(t) = self.targets.get(&p.vehicle) else { return false };
             t.weapon_bindings[&selected].critical.iter().any(|&i| Some(&t.def.modules[i].id) == spec.gun_module.as_ref())
         });
-        if !aps_shell && p.rounds == Some(0) { return Self::reject_fire(id, seq, "no_ammo"); }
+        if !aps_shell && p.rounds_left(self.targets.get(&p.vehicle)) == Some(0) { return Self::reject_fire(id, seq, "no_ammo"); }
         let small = self.shells.get(shell).map(|s| s.caliber_mm).or_else(|| self.projectiles.get(shell).map(|s| s.caliber_mm as f64)).is_some_and(|c| c > 0.0 && c <= AUTOCANNON_MM);
         let p = self.players.get_mut(&id).unwrap();
         p.prune_fired(now);
@@ -1589,7 +1597,7 @@ impl Lobby {
         // from the vehicle, from what it carries, not faster than a launcher can
         let near = p.state.as_ref().and_then(pos_of).map(|q| ((q[0] - o[0]).powi(2) + (q[2] - o[2]).powi(2)).sqrt() < 12.0).unwrap_or(false);
         if !near { return Self::reject_launch(id, seq, "invalid_origin", 0.0); }
-        if p.rounds == Some(0) || p.missiles_left.get(missile).copied().unwrap_or(0) == 0 {
+        if p.rounds_left(self.targets.get(&p.vehicle)) == Some(0) || p.missiles_left.get(missile).copied().unwrap_or(0) == 0 {
             return Self::reject_launch(id, seq, "no_ammo", 0.0);
         }
         if now - p.last_launch < 0.25 {
@@ -2763,6 +2771,50 @@ mod tests {
         assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(),st);
         l.spawn(a,81.0);
         assert!(l.players[&a].sequences.is_empty()&&l.players[&a].fired.is_empty()&&l.players[&a].retired_seq==Some(2200));
+    }
+
+    #[test]
+    fn explicit_zero_ammo_target_refuses_cannon_discharge_without_a_saved_round_count() {
+        let (mut l,a,_,_)=combat_lobby();
+        let mut def=l.targets["de_tiger_e"].def.clone(); def.ammo_capacity=0;
+        def.weapons["main_gun"]["ammo_count"]=json!(vec![0;def.weapons["main_gun"]["ammo"].as_array().unwrap().len()]);
+        for m in &mut def.modules {if m.kind==tg_combat::ModuleKind::AmmoRack {m.rounds=Some(0);}}
+        l.targets.insert("de_tiger_e".into(),Target::new(def,&[]));
+        let fresh=l.targets["de_tiger_e"].fresh_state();
+        let p=l.players.get_mut(&a).unwrap();p.rounds=None;p.combat=Some(fresh);
+        let before=serde_json::to_value(&l.players[&a].combat).unwrap();
+        let out=l.fire(a,152,Some("gun:0:0"),[0.0,2.0,0.0],[0.0,0.0,1.0],"apcbc_88_l56",1.0);
+        assert!(matches!(&out[0].1,ServerMsg::FireRejected {reason,..} if reason=="no_ammo"));
+        let p=&l.players[&a]; assert_eq!(p.rounds,None);assert!(p.fired.is_empty()&&p.sequences.is_empty());
+        assert_eq!(serde_json::to_value(&p.combat).unwrap(),before);
+    }
+
+    #[test]
+    fn explicit_zero_ammo_target_refuses_missile_discharge_without_a_saved_round_count() {
+        let (mut l,a,_)=missile_lobby();
+        let mut def=l.targets["us_m901_itv"].def.clone(); def.ammo_capacity=0;
+        def.weapons["main_gun"]["ammo_count"]=json!([0]);
+        for m in &mut def.modules {if m.kind==tg_combat::ModuleKind::AmmoRack {m.rounds=Some(0);}}
+        l.targets.insert("us_m901_itv".into(),Target::new(def,&[]));
+        let fresh=l.targets["us_m901_itv"].fresh_state();
+        let p=l.players.get_mut(&a).unwrap();p.rounds=None;p.combat=Some(fresh);
+        let before=(l.players[&a].missiles_left.clone(),serde_json::to_value(&l.players[&a].combat).unwrap());
+        let out=l.launch(a,152,"bgm71a_tow",[0.0,2.0,0.0],[0.0,0.0,1.0],1.0);
+        launch_rejection(&out,a,152,"no_ammo");
+        let p=&l.players[&a];assert_eq!(p.rounds,None);assert!(p.launch_receipts.is_empty()&&p.sequences.is_empty());
+        assert_eq!((p.missiles_left.clone(),serde_json::to_value(&p.combat).unwrap()),before);
+    }
+
+    #[test]
+    fn unknown_legacy_capacity_and_omitted_counts_preserve_unlimited_round_inference() {
+        let (mut l,a,_,_)=combat_lobby();
+        let mut def=l.targets["de_tiger_e"].def.clone();def.ammo_capacity=0;
+        def.weapons["main_gun"].as_object_mut().unwrap().remove("ammo_count");
+        l.targets.insert("de_tiger_e".into(),Target::new(def,&[]));
+        l.players.get_mut(&a).unwrap().rounds=None;
+        let out=l.fire(a,152,Some("gun:0:0"),[0.0,2.0,0.0],[0.0,0.0,1.0],"apcbc_88_l56",1.0);
+        assert!(out.iter().any(|(_,m)|matches!(m,ServerMsg::FireAccepted {..})));
+        assert_eq!(l.players[&a].rounds,None);
     }
 
     #[test]

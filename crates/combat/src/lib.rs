@@ -62,7 +62,7 @@ pub struct TargetDef {
     pub turret: Option<TurretGeom>,
     #[serde(default)]
     pub open_top: bool,
-    /// Rounds the main guns' racks hold in all (0: unknown, every rack is always full).
+    /// Rounds the main guns' racks hold in all (0: legacy unknown; authored zero racks stay empty).
     #[serde(default)]
     pub ammo_capacity: u32,
     /// Raw authored instance layout. Missing: retain the legacy vehicle-wide capabilities.
@@ -177,13 +177,15 @@ impl Target {
     }
 
     pub fn fresh_state(&self) -> TargetState {
-        TargetState {
+        let mut st = TargetState {
             modules: self.def.modules.iter().map(|m| m.max_health).collect(),
             crew: self.def.crew.iter().map(|_| 100.0).collect(),
             roles: self.def.crew.iter().map(|c| c.role).collect(),
             extinguishers: 1,
             ..Default::default()
-        }
+        };
+        clear_empty_racks(&self.def, &mut st);
+        st
     }
 
     pub fn has_hinges(&self) -> bool {
@@ -345,7 +347,7 @@ pub struct TargetState {
     pub repair_targets: Option<Vec<usize>>,
     #[serde(default)]
     pub extinguishers: u32,
-    /// How full each ammo rack is (0..1 by module index, see `rack_fill`); empty: all full.
+    /// How full each ammo rack is (0..1 by module index); missing: full except authored zero racks.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub rack_fill: Vec<f32>,
 }
@@ -363,7 +365,17 @@ impl TargetState {
 
 /// An ammo rack with no rounds in it: an empty frame, nothing to hit and nothing to set off.
 fn empty_rack(t: &Target, st: &TargetState, i: usize) -> bool {
-    t.def.modules.get(i).is_some_and(|m| m.kind == ModuleKind::AmmoRack) && st.rack(i) <= 0.0
+    t.def.modules.get(i).is_some_and(|m| m.kind == ModuleKind::AmmoRack && (m.rounds == Some(0) || st.rack(i) <= 0.0))
+}
+
+/// Explicit zero rounds override even an old/missing or stale full-rack state.
+fn clear_empty_racks(def: &TargetDef, st: &mut TargetState) {
+    for (i, m) in def.modules.iter().enumerate() {
+        if m.kind == ModuleKind::AmmoRack && m.rounds == Some(0) {
+            if i >= st.rack_fill.len() { st.rack_fill.resize(def.modules.len(), 1.0); }
+            st.rack_fill[i] = 0.0;
+        }
+    }
 }
 
 /// How full each ammo rack is (0..1 by module index, 1 for every other module) when the vehicle
@@ -373,15 +385,19 @@ fn empty_rack(t: &Target, st: &TargetState, i: usize) -> bool {
 /// model gives it, its share of the rack volume otherwise.
 pub fn rack_fill(def: &TargetDef, carried: u32, capacity: u32) -> Vec<f32> {
     let mut fill = vec![1.0; def.modules.len()];
-    let mut racks: Vec<usize> = (0..def.modules.len()).filter(|i| def.modules[*i].kind == ModuleKind::AmmoRack).collect();
+    let mut racks: Vec<usize> = (0..def.modules.len()).filter(|&i| {
+        let m = &def.modules[i];
+        if m.kind == ModuleKind::AmmoRack && m.rounds == Some(0) { fill[i] = 0.0; }
+        m.kind == ModuleKind::AmmoRack && m.rounds != Some(0)
+    }).collect();
     if capacity == 0 || racks.is_empty() || carried >= capacity {
         return fill;
     }
     let size = |i: usize| -> f32 {
         let m = &def.modules[i];
         match m.rounds {
-            Some(r) if r > 0 => r as f32,
-            _ => (m.half_extents.x * m.half_extents.y * m.half_extents.z).max(1e-4) * 1000.0,
+            Some(r) => r as f32,
+            None => (m.half_extents.x * m.half_extents.y * m.half_extents.z).max(1e-4) * 1000.0,
         }
     };
     let total: f32 = racks.iter().map(|i| size(*i)).sum();
@@ -415,11 +431,13 @@ pub fn ammo_capacity(weapons: &serde_json::Value) -> u32 {
     n
 }
 
-/// The vehicle now carries `carried` rounds: which racks hold them (no-op without a capacity).
+/// The vehicle now carries `carried` rounds. Unknown capacity preserves legacy rack fills;
+/// authored zero racks remain empty regardless of capacity or the previous state.
 pub fn load_ammo(t: &Target, st: &mut TargetState, carried: u32) {
     if t.def.ammo_capacity > 0 {
         st.rack_fill = rack_fill(&t.def, carried, t.def.ammo_capacity);
     }
+    clear_empty_racks(&t.def, st);
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -1104,7 +1122,7 @@ impl<'a> Work<'a> {
         let power = (kg / 0.7).powf(0.35);
         for i in 0..self.p.boxes.len() {
             let m = &self.t.def.modules[i];
-            if !m.is_external() {
+            if !m.is_external() || empty_rack(self.t, &self.st, i) {
                 continue;
             }
             let c = self.p.boxes[i].center;

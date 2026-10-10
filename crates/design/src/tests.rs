@@ -398,6 +398,19 @@ fn workshop_saved_health_is_clamped_without_reviving_crew() {
 }
 
 #[test]
+fn compiled_empty_ammo_folder_declares_zero_counts_instead_of_legacy_defaults() {
+    let db=db(); let mut d=sample(); d.ammunition.clear();
+    let r=evaluate(&d,&db); let c=r.compiled.as_ref().unwrap();
+    let files=c.files();
+    let w:tg_vehicle::WeaponsFile=serde_json::from_value(files["weapons.json"].clone()).unwrap();
+    assert!(!w.main_gun.ammo.is_empty(), "an empty design still declares its compatible shell");
+    assert_eq!(w.main_gun.ammo_count,vec![0;w.main_gun.ammo.len()]);
+    assert!(c.modules.iter().filter(|m|m.kind==tg_damage::ModuleKind::AmmoRack).all(|m|m.rounds==Some(0)));
+    let loaded=evaluate(&sample(),&db).compiled.unwrap();
+    assert_eq!(loaded.weapons.main_gun.ammo_count,vec![20,10]);
+}
+
+#[test]
 fn workshop_empty_ammo_never_creates_rounds_or_cookoff_on_real_shoot() {
     let db=db(); let mut d=sample(); d.ammunition.clear();
     let m=layout::Model::new(&d,&db);
