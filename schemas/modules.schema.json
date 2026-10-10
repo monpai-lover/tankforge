@@ -4,7 +4,7 @@
   "items": {"type":"object","required":["id","kind","center","half_extents","max_health","health"],
     "properties": {
       "id": {"type":"string"},
-      "rounds": {"type":"integer","minimum":0,"description":"Ammo rack capacity; absent/zero preserves the runtime's legacy volume-based capacity fallback."},
+      "rounds": {"type":"integer","minimum":0,"description":"Ammo rack capacity; an absent value preserves legacy volume-based inference, while zero explicitly declares an empty rack."},
       "weapon_group": {"type":"string","minLength":1,"description":"Mounted weapon or shared turret dependency. Existing main_launcher/launcher_mount_N names remain valid; normalized secondary assemblies use mg:<secondaryId>."},
       "external": {"type":"boolean","description":"Overrides kind defaults; an internal coax receiver stays protected while its barrel is external."},
       "turret_index": {"type":"integer","minimum":0,"description":"Parent turret index in the neutral vehicle frame; generated hull-anchored machine guns omit it."},
