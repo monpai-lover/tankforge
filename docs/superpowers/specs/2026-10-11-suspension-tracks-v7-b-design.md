@@ -22,7 +22,7 @@
 
 导向轮保持既有默认 0.08 m 内收行程，位移和速度有界。按实际传递力符号及前／后主动轮位置派生紧边，反向和前进制动必须可反转紧边。旧渲染松弛振子退为新状态的读出，不在长度拟合后再缩放。
 
-每次返回 `feasible/pitchError/closureError/wheelClearanceError/terrainResidual/idlerAtLimit/iterationCount`。可行状态最大节距误差 ≤0.5 mm，接缝 ≤1 mm，并独立检查轮／地面净空。不可行状态明确诊断：有界修正和可行缓存，不能伸长网格、静默扩大张紧行程或假报通过。真实运动通过耦合算子的单边紧带约束限制进入不可行状态；外部强行施加的极端几何可拒绝。Prototype A 合成 +2.18 m 长度需求不得伪造通过。
+每次返回 `feasible/pitchError/closureError/wheelClearanceError/terrainResidual/idlerAtLimit/iterationCount`。可行状态最大节距误差 ≤0.5 mm，接缝 ≤1 mm，并独立检查轮／地面净空。不可行状态明确诊断：有界修正和可行缓存，不能伸长网格、静默扩大张紧行程或假报通过。真实运动通过耦合算子的单边紧带约束限制进入不可行状态；外部强行施加的极端几何可拒绝。Proto反相交替轮位的旧+2.18m是后轮误绕整圈，先以 `routeTopology` 拒绝错误路线并修正外包络，再独立证明可行性，不能按车辆ID或此组轮位硬拒绝。真正不可行测试必须依据正确最紧路线超过实际行程。
 
 ## 断带、修复与生命周期
 
