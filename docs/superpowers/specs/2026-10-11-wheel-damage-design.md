@@ -16,7 +16,7 @@ Rust／WASM／server共同注册derived逐轮模块；原轮式 `wheels_l/r` 变
 
 每轮active profile控制support／rolling radius、contact width、摩擦、滚阻和drive连接；原engine/gearbox参数保持。flat仍可由塌胎或rim承载，减小支持高度让原spring/body自然下沉和载荷重分配，不直接移动车体或复制失去轮的载荷。hub destroyed只由实际survivor接地承载／耗能拖曳，失去正常驱动牵引。原branch扭矩份额不白送其它轮，断开支路损失记为耗散；不增加未经拆账的质量或spin惯量。
 
-橡胶胎变形在spin后沿实际接地方向执行；钢轮毂保持尺寸，flat patch不随车轮旋转成椭圆跳动。渲染顶点／normal／bounds和hitmesh使用同一有限变形／variant。保留body/q/omega/spin连续，失去的能量有限耗散。改变rolling radius用travel/theta锚点增量，不用大累计travel除新r跳角。程序和imported分开认证：有限地面proxy有明确边界，shot collider始终显示网格。
+橡胶胎变形在spin后沿实际接地方向执行；钢轮毂保持尺寸，flat patch不随车轮旋转成椭圆跳动。渲染顶点／normal／bounds和hitmesh使用同一有限变形／variant。允许有界mutable vertex buffer更新时，mesh必须明确标记为mutable：R快照在接受命中时单次复制其当时vertex data和GPU资源，不能只lease live mutable mesh，否则后续塌胎会改变旧回放。immutable变体仍用R静态lease；snapshot-only副本在hide/replace/expiry精确释放。不能为冻结回放而永久缓存每帧变形网格。保留body/q/omega/spin连续，失去的能量有限耗散。改变rolling radius用travel/theta锚点增量，不用大累计travel除新r跳角。程序和imported分开认证：有限地面proxy有明确边界，shot collider始终显示网格。
 
 履带盘active survivor接入B的有限wheel parts、张紧路线、裸轮和共同法向／摩擦bundle，cache带variant revision。失去一片盘不能把共站另一片关掉，也不能让原完整盘继续提供幽灵N。N/pitch/鞋网格不改；无机械载荷鞋无牵引。极端不可行遵循B有限guard/可行缓存与车腹支撑，不伸鞋或扩大idler凑结果。
 
