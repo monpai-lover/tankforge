@@ -12,6 +12,7 @@ import { Node, translation, mul, rotX } from './math.js';
 import { stationsOf, buildLoop, fitLoop, placeLinks, sprocketPhase, linkGeometry, sprocketGeometry, wheelGeometry } from './track.js';
 import { partMesh, imageTexture } from './imported.js';
 import { pintleGun } from './mgmodel.js';
+import { buildGearSupports } from './gearSupports.js';
 
 const MATERIAL_PROPS = {
   paint: { rough: 0.62, metal: 0.22 },
@@ -299,9 +300,20 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   const idlerTeeth = rg.idler.teeth ? Math.max(8, Math.round((Math.PI * 2 * (rg.idler.r + rg.track_thickness / 2)) / pitch)) : 0;
   const wheels = [];
   const cache = new Map();
-  const shared = (key, make) => {
+  const shared = (key, make, wheelRadius = 0) => {
     if (!cache.has(key)) {
-      const m = renderer.mesh(make());
+      const geometry = make();
+      const m = renderer.mesh(geometry);
+      if (wheelRadius) {
+        let lo = Infinity, hi = -Infinity;
+        // Dished plates and bolt heads project past the tyre face. The small
+        // central hub is an intentional axle connection and is excluded here.
+        for (let i = 0; i < geometry.length; i += 13) {
+          if (Math.hypot(geometry[i + 1], geometry[i + 2]) <= wheelRadius * .30) continue;
+          lo = Math.min(lo, geometry[i]); hi = Math.max(hi, geometry[i]);
+        }
+        m.gearFace = [lo, hi];
+      }
       meshes.push(m);
       cache.set(key, m);
     }
@@ -333,7 +345,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       return w;
     };
     rg.wheels.forEach((w, k) => {
-      addWheel('road_wheel', w, shared(`w${w.r}_${w.w}`, () => wheelGeometry(w.r, w.w, rg.wheel_style, mats)), 0, k);
+      addWheel('road_wheel', w, shared(`w${w.r}_${w.w}`, () => wheelGeometry(w.r, w.w, rg.wheel_style, mats), w.r), 0, k);
     });
     const sg = () => sprocketGeometry(rg, teeth, pitch, mats, side);
     const sprocket = addWheel('sprocket', rg.sprocket, shared('sprocket_body' + side, () => sg().body));
@@ -355,6 +367,8 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   }
   const matrices = new Float32Array(linkCount * 2 * 16);
   const pins = new Float32Array((linkCount + 1) * 2);
+  const gearSupports = !imp && hullBuilder.vertexCount ? buildGearSupports(renderer, running, hullBuilder.data, wheels, rg, mats, meshes, vehicle.physics?.suspension?.kind) : null;
+  if (gearSupports) shellNodes.push(...gearSupports.nodes);
 
   /**
    * Places everything that moves under the hull.
@@ -390,6 +404,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       if (w.role === 'idler') w.node.pos[2] = rg.idler.z + (sides.find((sd) => sd.side === w.side).idlerShift || 0);
       if (w.role !== 'sprocket' && !(w.role === 'idler' && idlerTeeth && !w.node.imported)) w.node.pitch = (dyn.travel[w.side] / w.r) % (Math.PI * 2);
     }
+    if (gearSupports) gearSupports.update();
   }
   const baseSag = rg.track_sag ?? ((rg.rollers || []).length ? 0.012 : 0.03);
   const level = stations.map(() => 0);
