@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { loadData } from '../tools/load-data.mjs';
 import { loadCoreSync } from '../src/design/core.js';
-import { Combat, targetDef, EVENT_NAME, CREW_NAME } from '../src/game/combat.js';
+import { Combat, targetDef, emptyRacks, EVENT_NAME, CREW_NAME } from '../src/game/combat.js';
 import * as loadout from '../src/game/loadout.js';
 import * as loading from '../src/sim/loading.js';
 import * as mgSim from '../src/sim/mg.js';
@@ -192,23 +192,51 @@ test('live core-ready binding includes current player, AI, remote and range with
   const model = buildTank(renderer, lo, loadout.generatedTurretParts);
   const oldInterior = buildInterior(renderer, model, lo, b.modules, b.crew);
   const enemies = ['ai', 'remote', 'range'].map(kind => ({id: 'de_pz3_j', sourceBundle: b, bundle: b, loadout: loadout.makeLoadout('de_pz3_j', b, data.projectiles, data.machineGuns), model: buildTank(renderer, lo, loadout.generatedTurretParts), combatKey: kind + ':1:de_pz3_j', remote: kind === 'remote', rangeTarget: kind === 'range', fold: .3}));
-  const caps = {can_fire: false, repair_s: 3}, existing = combat().fresh('auth', b).state;
+  const authoritative = combat(), fresh = authoritative.fresh('auth', b);
+  const caps = {can_fire: false, repair_s: 3}, existing = authoritative.ammo('auth', fresh.state, 0).state;
   existing.modules[0] = 8;
-  const G = {id: 'de_pz3_j', sourceBundle: b, bundle: b, combatKey: 'player:de_pz3_j', loadout: lo, model, interior: oldInterior, enemies, combat: combat(), mode: 'battle', cstate: existing, caps, fold: {pose: .6}, T: [], MG: [], veh: {pose: 'kept'}, s: {x: 123, z: 456, heading: .4}, sightM: 1, sightT: 0, sightG: 0};
+  const G = {id: 'de_pz3_j', sourceBundle: b, bundle: b, combatKey: 'player:de_pz3_j', loadout: lo, model, interior: oldInterior, enemies, combat: combat(), mode: 'battle', online: {}, cstate: existing, caps, carried: 0, fold: {pose: .6}, T: [], MG: [], veh: {pose: 'kept'}, s: {x: 123, z: 456, heading: .4}, sightM: 1, sightT: 0, sightG: 0};
   lo.turrets[0].guns[0].ammo[0].count = 9;
-  const saved = {model: G.model, veh: G.veh, pose: G.s, ammo: lo.turrets[0].guns[0].ammo, caps: G.caps, models: enemies.map(e => e.model)};
-  const deps = {G, renderer, buildInterior, useCombat, moduleDamageLabels: helper.moduleDamageLabels, statusShape: () => ({normalized: true}), syncRacks() {}, applyXray() {}, Exhaust: class {}, exhaustOf: () => ({})};
-  const app = live(['bindCombatReady', 'rebuildInterior', 'combatInit'], deps);
+  const saved = {model: G.model, veh: G.veh, pose: G.s, ammo: lo.turrets[0].guns[0].ammo, caps: G.caps, rackFill: existing.rack_fill.slice(), models: enemies.map(e => e.model)};
+  const deps = {G, renderer, buildInterior, useCombat, emptyRacks, roundsLeft: loadout.roundsLeft, moduleDamageLabels: helper.moduleDamageLabels, statusShape: () => ({normalized: true}), applyXray() {}, Exhaust: class {}, exhaustOf: () => ({})};
+  const app = live(['bindCombatReady', 'rebuildInterior', 'combatInit', 'carriedRounds', 'syncRacks'], deps);
   app.bindCombatReady();
   assert.equal(G.model, saved.model); assert.equal(G.veh, saved.veh); assert.equal(G.s, saved.pose);
   assert.equal(G.loadout.turrets[0].guns[0].ammo, saved.ammo);
   assert.equal(G.loadout.turrets[0].guns[0].ammo[0].count, 9);
   assert.equal(G.sightM, 1); assert.equal(G.caps, saved.caps); assert.equal(G.cstate.modules[0], 8);
+  assert.deepEqual(G.cstate.rack_fill, saved.rackFill, 'late core must retain the server rack fill despite a stale client ammo mix');
+  assert.equal(G.carried, 0, 'late core must retain the authoritative round-count baseline');
   assert.equal(G.interior.byModule.size > oldInterior.byModule.size, true, 'current interior rebuilt with normalized MGs');
   assert.deepEqual(enemies.map(e => e.model), saved.models);
   assert.ok(enemies.every(e => e.combat && e.cstate && e.bundle.modules.some(m => m.kind === 'machine_gun')));
   assert.equal(G.combat.appliedFold.get(G.combatKey), .6);
   assert.ok(enemies.every(e => G.combat.appliedFold.get(e.combatKey) === .3));
+});
+
+test('real rack synchronization initializes selected/deployed ammo, preserves late state, and accepts only offline ammo changes', () => {
+  for (const online of [null, {}]) {
+    const c = combat(), b = data.vehicles.de_pz3_j;
+    const lo = loadout.makeLoadout('de_pz3_j', b, data.projectiles, data.machineGuns);
+    for (const t of lo.turrets) for (const g of t.guns) for (const a of g.ammo) a.count = 0;
+    lo.turrets[0].guns[0].ammo[0].count = 1;
+    const G = {bundle: b, combat: c, combatKey: 'racks:initial', loadout: lo, mode: 'battle', online};
+    const app = live(['combatInit', 'carriedRounds', 'syncRacks'], {G, emptyRacks, roundsLeft: loadout.roundsLeft, applyXray() {}});
+    app.combatInit();
+    const expected = c.ammo(G.combatKey, c.fresh(G.combatKey, G.bundle).state, 1).state.rack_fill;
+    assert.deepEqual(G.cstate.rack_fill, expected, 'fresh selection/deploy applies the chosen short ammo load');
+    assert.equal(G.carried, 1);
+    const retained = c.ammo(G.combatKey, G.cstate, 0).state;
+    G.cstate = retained;
+    app.combatInit(true);
+    assert.deepEqual(G.cstate.rack_fill, retained.rack_fill, 'late readiness retains existing rack state in either mode');
+    assert.equal(G.carried, 1);
+    G.cstate = c.ammo(G.combatKey, G.cstate, 1).state;
+    lo.turrets[0].guns[0].ammo[0].count = 0;
+    app.syncRacks();
+    assert.deepEqual(G.cstate.rack_fill, online ? expected : retained.rack_fill, 'online rack state remains authoritative; offline shots empty their racks');
+    assert.equal(G.carried, online ? 1 : 0);
+  }
 });
 
 test('live select registers before actual stock/workshop models, interior and status, including same-id replacement', () => {

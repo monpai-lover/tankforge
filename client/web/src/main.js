@@ -805,6 +805,7 @@ export function start(data, saved = {}) {
    * build are not modelled there yet): fresh modules and crew.
    */
   function combatInit(preserve = false) {
+    const existing = preserve && !!G.cstate;
     if (!preserve) { G.cstate = null; G.caps = null; }
     const bundle = G.bundle;
     if (!G.combat || !bundle || bundle.design || G.mode !== 'battle') return;
@@ -814,8 +815,8 @@ export function start(data, saved = {}) {
     G.caps = r.caps;
     G.bundle = r.bundle;
     G.modIndex = new Map(r.bundle.modules.map((m, i) => [m.id, i]));
-    G.carried = -1;
-    syncRacks();
+    if (!existing) G.carried = -1;
+    syncRacks(!existing);
   }
 
   /** Main-gun rounds on board now (every gun's racks together). */
@@ -828,12 +829,15 @@ export function start(data, saved = {}) {
    * fired empties more; an empty rack is not drawn in x-ray and cannot be set off (the server
    * keeps the same count online and its word overrides this).
    */
-  function syncRacks() {
+  function syncRacks(updateAmmo = !G.online) {
     if (!G.cstate || !G.combat || !G.bundle) return;
     const n = carriedRounds();
-    if (n === G.carried) return;
-    G.carried = n;
-    G.cstate = G.combat.ammo(G.combatKey, G.cstate, n).state;
+    // Fresh selection/deploy initializes its chosen load. Existing online state comes
+    // from the server; late binding and subsequent frames only refresh its depiction.
+    if (updateAmmo && n !== G.carried) {
+      G.carried = n;
+      G.cstate = G.combat.ammo(G.combatKey, G.cstate, n).state;
+    }
     const empty = emptyRacks(G.bundle, G.cstate);
     const key = [...empty].join();
     if (key !== G.emptyKey) {
