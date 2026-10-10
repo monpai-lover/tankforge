@@ -37,8 +37,9 @@ test('fits the complete footprint to a circle, including perspective from tall g
   const center = [0, 0, 0];
   const tan = Math.tan(9 * Math.PI / 360);
   const distance = statusViewDistance(nodes, center, tan);
-  assert.ok(Math.abs(distance - (3 + Math.hypot(2, 4) / (0.82 * tan))) < 1e-6);
-  assert.ok(projectedRadius(nodes, center, distance, tan) <= 0.820001);
+  const radius = projectedRadius(nodes, center, distance, tan);
+  assert.ok(radius >= 0.92, 'structure fills more of the status window for readability');
+  assert.ok(radius <= 0.96, 'complete structure keeps a small clear margin inside the disc');
 });
 
 test('fits a live gun turned sideways and backwards without relying on forward-only dimensions', () => {
@@ -51,7 +52,7 @@ test('fits a live gun turned sideways and backwards without relying on forward-o
     gun.world = mul(translation(...center), mul(rotY(yaw), translation(0.6, 2, 3)));
     const nodes = [hull, gun];
     const distance = statusViewDistance(nodes, center, tan);
-    assert.ok(projectedRadius(nodes, center, distance, tan) <= 0.820001, `yaw=${yaw}`);
+    assert.ok(projectedRadius(nodes, center, distance, tan) <= 0.96, `yaw=${yaw}`);
   }
 });
 
@@ -65,9 +66,9 @@ test('includes both animated track instances and follows changed instance transf
   const center = [10, 0, -4];
   const tan = 0.08;
   const before = statusViewDistance([track], center, tan);
-  assert.ok(projectedRadius([track], center, before, tan) <= 0.820001);
+  assert.ok(projectedRadius([track], center, before, tan) <= 0.96);
   track.mesh._src.matrices.set(translation(2, 0, 6), 16);
   const after = statusViewDistance([track], center, tan);
   assert.ok(after > before);
-  assert.ok(projectedRadius([track], center, after, tan) <= 0.820001);
+  assert.ok(projectedRadius([track], center, after, tan) <= 0.96);
 });

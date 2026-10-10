@@ -151,7 +151,7 @@ try {
   for (const r of results) {
     assert.ok(Math.abs(r.rect[2] / r.rendererScale - r.windowRadius * 2) < 0.01, 'renderer viewport follows the actual CSS window');
     assert.ok(Math.abs(r.windowRadius / r.panelWidth - 0.33) < 0.0001, 'window follows the scaled panel');
-    assert.ok(r.maxRadius <= 0.9, `${r.id} scale=${r.scale} dpr=${r.dpr}: model radius ${r.maxRadius.toFixed(3)} leaves at least 10% radial margin`);
+    assert.ok(r.maxRadius <= 0.96, `${r.id} scale=${r.scale} dpr=${r.dpr}: model radius ${r.maxRadius.toFixed(3)} keeps a clear radial margin after enlargement`);
     assert.ok(Math.abs(r.panelWidth - (r.panelSize || 260) * r.scale) < 0.01, 'the panel uses its requested size and scale');
   }
   const ordinary = results.filter(r => r.yaw == null && !r.panelSize && !r.touch);

@@ -3,7 +3,7 @@ import { STRIDE } from '../gfx/geo.js';
 // Geometry stays on the CPU for WebGL restoration. Cache its local bounds once; the node and
 // instance transforms remain live, so turret rotation, recoil, tracks and folding still fit.
 const meshBounds = new WeakMap();
-const DISC_FILL = 0.82;
+const DISC_FILL = 0.94;
 
 function boundsOf(mesh) {
   if (meshBounds.has(mesh)) return meshBounds.get(mesh);
