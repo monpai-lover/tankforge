@@ -446,12 +446,12 @@ body[data-touch="1"][data-mode="battle"] #touch { display: block; }
 #vehicle-action[data-kind="abandon"] [data-action-wrench] { display: none; }
 #toast { position: absolute; left: 50%; top: 66px; transform: translateX(-50%); max-width: min(680px, calc(100% - 2 * var(--gutter))); padding: 8px 16px; background: var(--panel); border-left: 3px solid var(--ok); font-size: 13.5px; text-align: center; opacity: 0; transition: opacity 0.25s; pointer-events: none; font-variant-numeric: tabular-nums; }
 #toast[data-show="1"] { opacity: 1; }
-#hit-marker { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: 0.12em; color: #f2f0e6; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0, 0, 0, 0.6); opacity: 0; pointer-events: none; }
-#hit-marker.show { animation: hitmark 1.6s ease-out forwards; }
+#hit-marker { position: absolute; left: 50%; top: 58%; transform: translateX(-50%); font-family: var(--display); font-size: 22px; font-weight: 700; letter-spacing: 0.12em; color: #f2f0e6; text-shadow: 0 1px 3px #000, 0 0 10px rgba(0, 0, 0, 0.6); opacity: 0; transition: opacity 0.12s ease-out; pointer-events: none; }
+#hit-marker.show { opacity: 1; animation: hitmark 0.15s ease-out; }
 #hit-marker[data-kind="pen"] { color: #ffb347; }
 #hit-marker[data-kind="kill"] { color: #ff5a3c; font-size: 26px; }
 #hit-marker[data-kind="nopen"], #hit-marker[data-kind="ricochet"] { color: #c9d3dc; }
-@keyframes hitmark { 0% { opacity: 0; transform: translate(-50%, 6px) scale(1.2); } 10% { opacity: 1; transform: translate(-50%, 0) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes hitmark { 0% { opacity: 0; transform: translate(-50%, 6px) scale(1.2); } 100% { opacity: 1; transform: translate(-50%, 0) scale(1); } }
 body[data-view="sight"] #help, body[data-view="sight"] #topbar { opacity: 0; pointer-events: none; }
 
 #fatal { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; padding: var(--gutter); background: var(--bg); }

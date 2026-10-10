@@ -1414,7 +1414,11 @@ impl Lobby {
         let before = self.players[&target].combat.clone().unwrap_or_else(|| tgt.fresh_state());
         let r = tg_combat::shoot(tgt, &before, &tg_combat::Shot { shell, origin: o, dir: d, speed_ms: speed, distance_m: dist, seed, turret_yaw: yaw });
         if mg && r.modules.is_empty() && r.crew.is_empty() && !r.caps.destroyed {
-            return Vec::new(); // a bullet that did nothing is not worth telling anyone
+            if matches!(r.outcome, tg_combat::Outcome::Miss) { return Vec::new(); }
+            // Confirm a real impact to its shooter without mutating health/state or spamming the room.
+            let result = serde_json::to_value(r.outcome).ok().and_then(|v| v.as_str().map(String::from)).unwrap_or_default();
+            return vec![(id, ServerMsg::Damage { target, from: id, result, plate: r.plate.clone(),
+                hp: self.players[&target].hp, killed: false, report: serde_json::to_value(&r).ok() })];
         }
         let killed = r.caps.destroyed && !before.destroyed;
         let hp = if r.caps.crew_total > 0 { FULL_HP * r.caps.crew_alive as f64 / r.caps.crew_total as f64 } else { FULL_HP };
@@ -2127,6 +2131,50 @@ mod tests {
             assert_eq!(plate, expected_plate, "fold = {fold}");
         }
         assert_eq!(l.targets[&vehicle].def.plates[0].center, Vec3::new(1.5, 2.2, 0.0));
+    }
+
+    #[test]
+    fn stopped_mg_hit_acknowledges_only_the_shooter_without_changing_combat_state() {
+        let (mut l, a, b, room) = combat_lobby();
+        // A solid plate with no nearby internals: an accepted MG hit that does no damage.
+        let vehicle = l.players[&b].vehicle.clone();
+        let def = serde_json::from_value(json!({
+            "id": vehicle, "modules": [], "crew": [],
+            "plates": [{ "id": "solid", "zone": "hull_upper_front", "material": "rha", "thickness_mm": 200,
+                "center": { "x": 0, "y": 2, "z": 1 }, "normal": { "x": 0, "y": 0, "z": 1 },
+                "axis_u": { "x": 1, "y": 0, "z": 0 }, "half_u": 2, "half_v": 1 }]
+        })).unwrap();
+        l.targets.insert(vehicle.clone(), Target::new(def, &[]));
+        l.players.get_mut(&b).unwrap().combat = Some(l.targets[&vehicle].fresh_state());
+        let before = serde_json::to_value(&l.players[&b].combat).unwrap();
+        let hp = l.players[&b].hp;
+        let instance = l.targets["de_tiger_e"].weapon_bindings.iter()
+            .find(|(_, binding)| binding.kind == WeaponKind::MachineGun && binding.model_id == "mg34")
+            .map(|(id, _)| id.clone()).expect("Tiger's own MG34 mount");
+        let fire = |seq, instance: String| ClientMsg::MgFire { seq, instance: Some(instance), gun: "mg34".into(), o: [0.0; 3], d: [0.0, 0.0, 1.0] };
+        let shot = WireShot { o: [0.0, 2.0, 4.0], d: [0.0, 0.0, -1.0], yaw: 0.0, speed: 750.0, dist: 100.0 };
+        let hit = |seq, target, shot| ClientMsg::MgHit { seq: Some(seq), instance: Some(instance.clone()), target, gun: "mg34".into(), shot };
+        l.handle(a, fire(701, instance.clone()), 1.0);
+        assert!(l.players[&a].fired.iter().any(|f| f.seq == 701), "authoritative fire accepted first");
+        let out = l.handle(a, hit(701, b, shot.clone()), 1.1);
+        assert_eq!(out.len(), 1, "only the shooter receives the no-damage hit acknowledgement");
+        assert!(matches!(&out[0], (to, ServerMsg::Damage { target, from, result, hp: shown_hp, killed: false, report: Some(r), .. })
+            if *to == a && *target == b && *from == a && result == "stopped" && *shown_hp == hp
+                && r["outcome"] == "stopped" && r["modules"] == json!([]) && r["crew"] == json!([])));
+        assert_eq!(serde_json::to_value(&l.players[&b].combat).unwrap(), before);
+        assert_eq!(l.players[&b].hp, hp);
+        assert!(l.players[&b].alive && l.players[&b].last_attacker.is_none());
+        assert_eq!((l.players[&a].kills, l.players[&b].deaths), (0, 0));
+        assert_eq!(l.players[&b].room, Some(room));
+        assert!(l.handle(a, hit(701, b, shot.clone()), 1.2).is_empty(), "repeated receipt cannot confirm twice");
+        assert!(l.handle(a, hit(999, b, shot.clone()), 1.3).is_empty(), "unfired/rejected shot cannot confirm");
+        l.handle(a, fire(702, instance.clone()), 1.4);
+        let miss = WireShot { o: [0.0, 8.0, 4.0], ..shot.clone() };
+        assert!(l.handle(a, hit(702, b, miss), 1.5).is_empty(), "bounding-box empty space is not a hit");
+        l.handle(a, fire(703, instance.clone()), 1.6);
+        assert!(l.handle(a, hit(703, a, shot.clone()), 1.7).is_empty(), "self hits cannot confirm");
+        l.players.get_mut(&b).unwrap().team = l.players[&a].team;
+        assert!(l.handle(a, hit(703, b, shot), 1.8).is_empty(), "friendly fire cannot confirm");
     }
 
     #[test]

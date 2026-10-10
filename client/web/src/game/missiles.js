@@ -341,7 +341,7 @@ export class Missiles {
       }
       case 'missile_ground': {
         const v = this.nodes.get(e.missile);
-        if (v && this.onGround) this.onGround(e.point, v.def);
+        if (v && this.onGround) this.onGround(e.point, v.def, v.owner);
         break;
       }
       default:

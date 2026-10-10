@@ -21,6 +21,7 @@ import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
 import { weaponDamage, weaponReloadRate, weaponReloadMult, moduleDamageLabels } from './game/weaponDamage.js';
 import { HitCam } from './game/hitcam.js';
+import { showHit } from './game/hitFeedback.js';
 import { designReplayReport } from './game/projectileReplay.js';
 import { Missiles } from './game/missiles.js';
 import { OnlineLaunches } from './game/onlineLaunch.js';
@@ -1020,7 +1021,7 @@ export function start(data, saved = {}) {
     bindCombatReady();
     // ... and flies missiles and rockets and the active protection that shoots at them (crates/missile)
     G.missiles = new Missiles({ core: c, defs: data.missiles, projectiles: data.projectiles, renderer, scene, fx, sound });
-    G.missiles.onGround = (pt, def) => missileGround(pt, def);
+    G.missiles.onGround = (pt, def, owner) => missileGround(pt, def, owner);
     if (G.mode === 'battle' && G.veh) missileBattleStart();
     refreshDesigns();
   });
@@ -1271,6 +1272,7 @@ export function start(data, saved = {}) {
   }
 
   function setMode(mode) {
+    hud.hideHitMarker();
     G.mode = mode;
     document.body.dataset.mode = mode;
     sound.engineOn = mode === 'battle';
@@ -1976,7 +1978,9 @@ export function start(data, saved = {}) {
         G.cam.shake = 1.4;
         sound.impact(3, true);
       } else hud.toast(`${playerName(m.from)} 的炮彈：${(rep && rep.title) || RESULT_LABEL[m.result] || m.result}`, 2);
-    } else if (m.from === net.id && m.killed) hud.hitMarker(RESULT_LABEL.kill, 'kill');
+    } else if (m.from === net.id && (!e || e.team !== o.team) && G.mode === 'battle' && !G.paused) {
+      showHit(hud, rep || m.result, m.killed, RESULT_LABEL[m.result]);
+    }
     if (m.killed) feed(m.result === 'scuttle' ? `${playerName(m.target)} 棄車` : `${playerName(m.from)} 擊毀了 ${playerName(m.target)}`, 'kill');
     updateNetHud(true);
   });
@@ -2123,7 +2127,7 @@ export function start(data, saved = {}) {
   }
 
   /** A shell bursting on the ground near other vehicles: their running gear and open crews. */
-  function splashNear(pt, shell) {
+  function splashNear(pt, shell, own = true) {
     const kg = shell.explosive_mass_kg || 0;
     if (kg < 0.1 || !G.combat) return;
     const r = 1.6 * Math.cbrt(kg) + 0.5 + 4;
@@ -2139,7 +2143,7 @@ export function start(data, saved = {}) {
           e.alive = false;
           e.pose();
         }
-        hud.hitMarker(rep.title, 'pen');
+        if (own) showHit(hud, rep);
         hud.toast(`${e.name}：近彈 ${rep.title}`, 3);
       }
     }
@@ -2475,7 +2479,7 @@ export function start(data, saved = {}) {
       if (best.kind === 'building') {
         fx.shellGround(best.point, MASONRY_DUST, war);
         sound.blast(war.explosive_mass_kg || 1, Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]));
-        splashNear(best.point, war);
+        splashNear(best.point, war, sg.owner === ME);
       } else if (best.kind === 'enemy') {
         const e = best.e;
         if (!e.combat || !e.alive) {
@@ -2488,7 +2492,7 @@ export function start(data, saved = {}) {
         sound.impact(Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]), true);
         if (sg.owner === ME) {
           onCombatHit(e, rep, war, dist, false, `${def.name}`);
-          hud.hitMarker(rep.title, rep.caps.destroyed ? 'kill' : rep.outcome === 'penetrated' ? 'pen' : 'nopen');
+          if (!(e.remote && G.online)) showHit(hud, rep);
         }
       } else {
         selfMissileHit(p0, dir, war, speed, def);
@@ -2497,12 +2501,12 @@ export function start(data, saved = {}) {
   }
 
   /** A missile or rocket into the ground: its warhead's burst, and the blast on what stands near. */
-  function missileGround(pt, def) {
+  function missileGround(pt, def, owner) {
     const war = def && data.projectiles[def.warhead];
     if (!war) return;
     fx.shellGround(pt, impactColor(pt), war);
     sound.blast(war.explosive_mass_kg || 1, Math.hypot(pt[0] - G.camPos[0], pt[2] - G.camPos[2]));
-    splashNear(pt, war);
+    splashNear(pt, war, owner === (G.online ? net.id : ME));
   }
 
   /** An enemy missile striking our own vehicle (offline): the same combat model, from its side. */
@@ -3494,8 +3498,8 @@ export function start(data, saved = {}) {
             if (e.remote && G.online) net.send({ t: 'mg_hit', seq: b.seq, instance: b.instance, target: e.netId, gun: b.def.id, shot: wireShot(rep.shot) });
             if (rep.modules.length || rep.crew.length || rep.caps.destroyed) {
               onCombatHit(e, rep, G.bulletShells.get(b.def.id), b.travelled, true);
-              hud.hitMarker(rep.title, rep.caps.destroyed ? 'kill' : 'pen');
             }
+            if (!(e.remote && G.online)) showHit(hud, rep);
           }
           done = true;
         } else if (hit) {
@@ -3503,6 +3507,7 @@ export function start(data, saved = {}) {
           G.mgHits++;
           G.lastMgHit = { range: hit.target.range, dx: hit.point[0] - hit.target.x, dy: hit.point[1] - hit.target.y, tof: b.age };
           fx.bulletBoard(hit.point, heavy);
+          hud.hitMarker('命中靶板', 'nopen');
           done = true;
         } else if (groundHit(p0, p1, surfaceAt)) {
           const pt = groundHit(p0, p1, surfaceAt);
@@ -3573,7 +3578,6 @@ export function start(data, saved = {}) {
             const seed = shotSeed(sh);
             const rep = combatHit(e, p0, dir, sh.shell, speed, dist, seed);
             if (e.remote && sh.seq && G.online) net.send({ t: 'hit', seq: sh.seq, target: e.netId, result: rep.outcome, plate: rep.plate ?? null, shot: wireShot(rep.shot) });
-            const through = rep.outcome === 'penetrated' || rep.outcome === 'overpressure';
             // what the eye sees depends on the round and what it did
             const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
             fx.shellArmor(eh.hit.point, dir, nrm, sh.shell, rep.outcome);
@@ -3583,7 +3587,7 @@ export function start(data, saved = {}) {
             onCombatHit(e, rep, sh.shell, dist, false, detail);
             G.lastHit = { type: 'enemy', id: e.id, result: rep.outcome, plate: rep.plate, angle: rep.angle_deg, pen: rep.pen_mm, dist, title: rep.title, destroyed: rep.caps.destroyed, player: e.remote ? e.netId : null };
             // the hit camera tells the rest
-            hud.hitMarker(rep.title, rep.caps.destroyed ? 'kill' : through ? 'pen' : rep.outcome === 'ricochet' ? 'ricochet' : 'nopen');
+            if (!(e.remote && G.online)) showHit(hud, rep);
             hud.hideToast();
           } else {
             const r = e.resolve(eh.hit, dir, sh.shell, dist);
@@ -3592,7 +3596,7 @@ export function start(data, saved = {}) {
             fx.armorImpact(eh.hit.point, through);
             G.lastHit = { type: 'enemy', id: e.id, result: r.result, plate: r.plate, angle: r.angle, effective: r.effective, pen: r.pen, dist, player: e.remote ? e.netId : null };
             const detail = r.plate ? `　${r.plate} ${r.thickness} mm，入射 ${r.angle.toFixed(0)}°，等效 ${Number.isFinite(r.effective) ? r.effective.toFixed(0) : '—'} mm，穿深 ${r.pen.toFixed(0)} mm` : '';
-            hud.hitMarker(RESULT_LABEL[r.result], r.result);
+            if (wasAlive && !(e.remote && G.online)) showHit(hud, r, false, RESULT_LABEL[r.result]);
             hud.toast(`${who}：${RESULT_LABEL[r.result]}${wasAlive ? '' : '（已擊毀）'}　${dist.toFixed(0)} m${detail}`, 5);
           }
           done = true;
@@ -3603,6 +3607,7 @@ export function start(data, saved = {}) {
           const dx = hit.point[0] - tg.x;
           const dy = hit.point[1] - tg.y;
           fx.boardImpact(hit.point);
+          hud.hitMarker('命中靶板', 'nopen');
           sound.impact(Math.hypot(hit.point[0] - G.s.x, hit.point[2] - G.s.z), true);
           const dist = Math.hypot(hit.point[0] - sh.origin[0], hit.point[2] - sh.origin[2]);
           G.lastHit = { type: 'target', range: tg.range, dx, dy, tof: sh.age, speed, dist, pen: penAt(sh.shell, dist), caliber: sh.shell.caliber_mm };
@@ -4407,6 +4412,7 @@ export function start(data, saved = {}) {
   const renderScale = new RenderScale();
   let last = performance.now();
   function frame(now) {
+    if (G.paused) hud.hideHitMarker();
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;
     updateVehicleActions(now / 1000);
@@ -4516,6 +4522,7 @@ export function start(data, saved = {}) {
     checkFolder,
     pause(p = true) {
       G.paused = p;
+      if (p) hud.hideHitMarker();
     },
     /** Advances the game in fixed 1/60 s frames with the given held keys, then leaves it paused. */
     advance(seconds, keys = [], draw = true) {

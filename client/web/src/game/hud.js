@@ -171,6 +171,7 @@ export class Hud {
     this.onSelect = onSelect;
     this.toastTimer = 0;
     this.hintTimer = 0;
+    this.hitTimer = 0;
     this.gunRows = [];
     this.mgRows = [];
     this.cards = new Map();
@@ -721,16 +722,22 @@ export class Hud {
 
   hitMarker(text, kind) {
     let e = this.el.hitMarker;
+    if (this.hitTimer > 0 && e?.dataset.kind === 'kill' && kind !== 'kill') return;
     if (!e) {
       e = this.el.hitMarker = document.createElement('div');
       e.id = 'hit-marker';
       document.getElementById('hud').append(e);
     }
-    e.textContent = text;
+    const label = `Hit · ${text}`;
+    if (e.textContent !== label) e.textContent = label;
     e.dataset.kind = kind;
-    e.classList.remove('show');
-    void e.offsetWidth;
+    this.hitTimer = kind === 'kill' ? 1.6 : 0.8;
     e.classList.add('show');
+  }
+
+  hideHitMarker() {
+    this.hitTimer = 0;
+    this.el.hitMarker?.classList.remove('show');
   }
 
   /** The view in use: shown for a moment when it changes, not all the time. */
@@ -773,6 +780,10 @@ export class Hud {
   }
 
   tick(dt) {
+    if (this.hitTimer > 0) {
+      this.hitTimer -= dt;
+      if (this.hitTimer <= 0) this.hideHitMarker();
+    }
     if (this.hintTimer > 0) {
       this.hintTimer -= dt;
       if (this.hintTimer <= 0 && this.el.hint) this.el.hint.dataset.show = '0';
