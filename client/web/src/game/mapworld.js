@@ -6,6 +6,7 @@
 // and sight lines meet.
 import { GeoBuilder, hexToLinear, IDENTITY } from '../gfx/geo.js';
 import { Node, translation, mul, rotY, rotX, rotZ, scaling } from '../gfx/math.js';
+import { TREE_ROOT_OFFSET, TREE_FALL_SECONDS, treeFallAngle, FIR_TRUNK, FIR_TIERS, FIR_TIP_RADIUS, BROADLEAF_TRUNK, BROADLEAF_CROWNS } from './treeShapes.js';
 
 const TREE_RANGE = 450; // m from the camera within which trees are drawn
 const MAX_TREES = 5000;
@@ -25,17 +26,11 @@ function blob(b, c, r, mat, squash = 0.85) {
 function firGeometry() {
   const b = new GeoBuilder();
   const bark = { color: hexToLinear('#4a3a2a'), rough: 0.95, metal: 0 };
-  b.cylY(translation(0, 1.6, 0), false, 0.26, 0.16, 3.2, 5, bark);
+  b.cylY(translation(0, FIR_TRUNK[2] / 2, 0), false, ...FIR_TRUNK, 5, bark);
   const greens = ['#24391c', '#2a4220', '#2f4a24', '#35512a'];
-  const tiers = [
-    [2.6, 2.8, 5.6],
-    [5.6, 2.1, 4.8],
-    [8.4, 1.4, 4.0],
-    [10.8, 0.75, 3.2],
-  ];
-  tiers.forEach(([y, r, h], i) => {
+  FIR_TIERS.forEach(([y, r, h], i) => {
     const mat = { color: hexToLinear(greens[i % greens.length]), rough: 0.9, metal: 0 };
-    b.cylY(translation(0, y + h / 2, 0), false, r, 0.04, h, 8, mat);
+    b.cylY(translation(0, y + h / 2, 0), false, r, FIR_TIP_RADIUS, h, 8, mat);
   });
   return b.build();
 }
@@ -44,12 +39,9 @@ function firGeometry() {
 function broadleafGeometry() {
   const b = new GeoBuilder();
   const bark = { color: hexToLinear('#53412d'), rough: 0.95, metal: 0 };
-  b.cylY(translation(0, 2.4, 0), false, 0.34, 0.22, 4.8, 5, bark);
+  b.cylY(translation(0, BROADLEAF_TRUNK[2] / 2, 0), false, ...BROADLEAF_TRUNK, 5, bark);
   const leaf = (h) => ({ color: hexToLinear(h), rough: 0.88, metal: 0 });
-  blob(b, [0, 7.0, 0], 3.4, leaf('#3a5223'));
-  blob(b, [1.8, 7.9, 0.9], 2.5, leaf('#435d28'));
-  blob(b, [-1.6, 8.3, -1.1], 2.4, leaf('#334a1f'));
-  blob(b, [0.3, 9.5, -0.2], 2.0, leaf('#4a6630'), 0.8);
+  for (const crown of BROADLEAF_CROWNS) blob(b, crown.center, crown.radius, leaf(crown.color), crown.squash);
   return b.build();
 }
 
@@ -249,11 +241,11 @@ export function buildMapWorld(renderer, map) {
   const state = { cx: Infinity, cz: Infinity, dirty: true, falling: new Set() };
 
   const treeMatrix = (t) => {
-    let m = mul(translation(t.x, t.y - 0.1, t.z), rotY(t.rot));
+    let m = mul(translation(t.x, t.y + TREE_ROOT_OFFSET, t.z), rotY(t.rot));
     if (t.fall > 0) {
       // a fallen tree pivots about its foot, away from what pushed it
-      const a = Math.min(1, t.fall) ** 2 * (Math.PI / 2 - 0.08);
-      m = mul(translation(t.x, t.y - 0.1, t.z), mul(rotY(t.fallDir), mul(rotX(a), rotY(t.rot - t.fallDir))));
+      const a = treeFallAngle(t.fall);
+      m = mul(translation(t.x, t.y + TREE_ROOT_OFFSET, t.z), mul(rotY(t.fallDir), mul(rotX(a), rotY(t.rot - t.fallDir))));
     }
     return mul(m, scaling(t.s, t.s, t.s));
   };
@@ -262,7 +254,7 @@ export function buildMapWorld(renderer, map) {
   const update = (cx, cz, dt) => {
     for (const i of state.falling) {
       const t = map.trees[i];
-      t.fall = Math.min(1, t.fall + dt / 1.1);
+      t.fall = Math.min(1, t.fall + dt / TREE_FALL_SECONDS);
       if (t.fall >= 1) state.falling.delete(i);
       state.dirty = true;
     }

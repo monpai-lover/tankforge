@@ -174,8 +174,8 @@ export class BattleMap {
   }
 
   /** Indices of the trees within `r` m of (x, z). */
-  treesNear(x, z, r) {
-    const out = [];
+  treesNear(x, z, r, out = []) {
+    out.length = 0;
     const b = this.bucket;
     for (let gx = Math.floor((x - r - this.x0) / b); gx <= Math.floor((x + r - this.x0) / b); gx++) {
       for (let gz = Math.floor((z - r - this.z0) / b); gz <= Math.floor((z + r - this.z0) / b); gz++) {
@@ -259,8 +259,8 @@ export class BattleMap {
   }
 
   /** Indices of the boxes whose middle is within `r` m (plus their own size) of (x, z). */
-  boxesNear(x, z, r) {
-    const out = [];
+  boxesNear(x, z, r, out = []) {
+    out.length = 0;
     if (!this.boxes.length) return out;
     const b = this.bucket;
     const R = r + this.maxBoxR;

@@ -14,6 +14,7 @@ import { buildWorld, terrainAt, humpLift, groundHit, groundRay, hitTargets, DUST
 import { setActiveMap } from './game/relief.js';
 import { loadBattleMap, FORD_DEPTH } from './game/battlemap.js';
 import { buildMapWorld } from './game/mapworld.js';
+import { CameraObstruction } from './game/cameraObstruction.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
@@ -183,6 +184,7 @@ export function start(data, saved = {}) {
   const impactColor = (pt) => (G.map && G.map.waterDepth(pt[0], pt[2]) > 0.05 ? [0.8, 0.86, 0.9] : DUST_COLOR[terrainAt(pt[0], pt[2])]);
   /** What a ray or a shell meets: the ground, or the water over it on a battle map. */
   const surfaceAt = (x, z) => (G.map ? Math.max(terrain.height(x, z), G.map.waterLevel) : terrain.height(x, z));
+  const cameraObstruction = new CameraObstruction(surfaceAt);
   // the deformation window around the player: 8 x 8 chunks in a texture that wraps round
   const DEFORM_SLOTS = 8;
   const deformSlots = new Map(); // slot index -> chunk key shown there
@@ -817,6 +819,7 @@ export function start(data, saved = {}) {
     G.bullets.length = 0;
     G.pending.length = 0;
     G.cam.pivot = null;
+    cameraObstruction.reset();
     if (G.mode === 'garage') {
       G.s.x = GARAGE.x;
       G.s.z = GARAGE.z;
@@ -3880,6 +3883,8 @@ export function start(data, saved = {}) {
     let fwd;
     let fovY;
     let scope = null;
+    G.cam.hideBody = false;
+    if (testing || G.thumbShot || inSight || garage || !G.map) cameraObstruction.reset();
     const jitter = () => (Math.random() - 0.5) * Math.min(1, G.cam.shake);
     if (testing && !G.thumbShot) {
       const c = testRange.camera(dt, G);
@@ -3947,16 +3952,12 @@ export function start(data, saved = {}) {
         const sy = 0.13 * Math.tan(fovY / 2) * G.cam.dist;
         for (let i = 0; i < 3; i++) camPos[i] -= b.up[i] * sy;
       }
-      if (G.map && !garage) {
-        // the camera stays out of the buildings: pulled in to the first wall behind the vehicle
-        const wall = G.map.segmentHit(G.cam.pivot, camPos);
-        if (wall) {
-          const d = Math.hypot(camPos[0] - G.cam.pivot[0], camPos[1] - G.cam.pivot[1], camPos[2] - G.cam.pivot[2]);
-          const k = Math.max(0.05, wall.t - 0.5 / Math.max(d, 1));
-          for (let i = 0; i < 3; i++) camPos[i] = G.cam.pivot[i] + (camPos[i] - G.cam.pivot[i]) * k;
-        }
-      }
       camPos[1] = Math.max(camPos[1], groundAt(camPos[0], camPos[2]) + 0.45);
+      if (G.map && !garage) {
+        const radius = Math.max(0.45, 0.3 * Math.sqrt(1 + Math.tan(fovY / 2) ** 2 * (1 + aspect ** 2)));
+        cameraObstruction.update(G.map, G.veh.body, G.loadout.vehicle, M.height, camPos, dt, radius);
+        G.cam.hideBody = cameraObstruction.hideBody;
+      }
     }
     G.camPos = camPos;
     G.camFwd = fwd;
@@ -4054,9 +4055,9 @@ export function start(data, saved = {}) {
     hitcam.tick(dt);
     if (G.skipDraw) return;
     scene.update(null);
-    // The optical picture excludes our whole vehicle, including a fixed casemate.
+    // Optical and forced close camera pictures exclude our own vehicle subtree.
     // Other views collect normally: status and hit-camera passes retain the complete model.
-    const nodes = scene.collect([], inSight && !testing && !G.thumbShot ? M.root : null);
+    const nodes = scene.collect([], (inSight || G.cam?.hideBody) && !testing && !G.thumbShot ? M.root : null);
     // the terrain grid and the ruts follow the vehicle
     world.placeGrid(G.s.x, G.s.z);
     streamDeformation(G.s.x, G.s.z);
