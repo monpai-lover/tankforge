@@ -15,6 +15,9 @@ import { VehicleSim } from '../src/game/vehicle.js';
 import { Terrain } from '../src/game/terrain.js';
 import { humpLift } from '../src/game/world.js';
 import * as phys from '../src/sim/physics.js';
+import * as gunnery from '../src/sim/gunnery.js';
+import * as folding from '../src/game/folding.js';
+import { Protection } from '../src/game/protection.js';
 
 const data = loadData();
 await decodeAllImported(data.vehicles);
@@ -310,6 +313,55 @@ test('live select registers before actual stock/workshop models, interior and st
   assert.equal(G.cstate.modules.length, G.bundle.modules.length);
   assert.equal((G.loadout.imported?.parts || G.loadout.visual.parts).some(p => p.mount === 'gun'), false, 'replacement head preserves the stock hull without the removed old gun');
   assert.ok(G.statusShape.modules.every(m => G.modIndex.has(m.id)));
+});
+
+test('actual garage protection shots use the current actor fold and restore raised armor after reselection without mutating damage or source', () => {
+  const id = 'de_hetzer_mk103', original = data.vehicles[id], sourceBefore = JSON.stringify(original), registrations = [];
+  const c = new Combat({
+    combatTarget(def) {registrations.push(def); return core.combatTarget(def);},
+    combatNew: id => core.combatNew(id), combatShoot: (id, state, shot) => core.combatShoot(id, state, shot),
+  }, data.machineGuns);
+  const terrain = new Terrain(data.terrains, humpLift);
+  const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}, freeTexture() {}};
+  const G = {mode: 'garage', combat: c, model: null, s: phys.newState(), veh: {}, cam: {yaw: 0}, pending: [], designs: new Map(), protect: true};
+  const protection = new Protection({renderer, materials: Object.fromEntries(data.materials.map(m => [m.id, m])), combat: () => c});
+  protection.shell = data.projectiles[original.weapons.main_gun.ammo[0]];
+  protection.dist = 100;
+  const plate = original.armor.find(p => p.hinge), n = Object.values(plate.normal), p = Object.values(plate.center);
+  const ray = {o: p.map((v, i) => v + n[i] * 3), d: n.map(v => -v / Math.hypot(...n))};
+  const replays = [], deps = {G, data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...loadout, ...helper, ...folding,
+    buildTank, buildInterior, isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
+    clamp: (v, a, b) => Math.max(a, Math.min(b, v)), DEG: Math.PI / 180,
+    mods: {choose() {}, cardOf: id => id, slots: () => []}, hud: new Proxy({}, {get: () => () => {}}),
+    reloadShown() {}, sightGun: () => G.loadout.turrets[0].guns[0], selectAmmo() {}, missileVehicle() {},
+    document: {getElementById: () => ({})}, measureInsets() {}, net: {}, lobby: {render() {}},
+    v3x: v => Array.isArray(v) ? v[0] : v.x, v3z: v => Array.isArray(v) ? v[2] : v.z,
+    protBundle: () => G.bundle, protRay: () => ray, protInfo: {}, hitcam: {show(...args) {replays.push(args);}}};
+  const app = live(['bundleFor', 'select', 'rebuildInterior', 'statusShape', 'combatInit', 'advanceFold', 'protFire'], deps);
+  app.select(id, true);
+  const own = c.fresh(G.combatKey, G.bundle);
+  own.state.modules[0] = 7;
+  G.cstate = own.state; G.caps = own.caps;
+  const savedState = G.cstate, savedCaps = G.caps, damageBefore = JSON.stringify(savedState);
+  G.fold.target = 1;
+  app.advanceFold(1.5);
+  assert.equal(G.fold.pose, 1, 'real garage fold transition reaches the lowered visual pose');
+  app.protFire([0, 0]);
+  assert.equal(replays.length, 1, 'actual Protection.pick/shoot and WASM produce the replay');
+  assert.equal(registrations.at(-1).id, G.combatKey, 'protection analysis must use the folded actor registration');
+  assert.deepEqual(registrations.at(-1).plates.find(p => p.id === plate.id).normal, folding.foldedPlate(plate, 1).normal);
+  assert.equal(G.cstate, savedState); assert.equal(G.caps, savedCaps); assert.equal(JSON.stringify(G.cstate), damageBefore);
+  app.select(id, true);
+  assert.equal(G.fold.pose, 0, 'actual garage reselection raises its visible panels');
+  assert.equal(c.appliedFold.get(G.combatKey), 1, 'cached actor definition still has the preceding pose before the analysis shot');
+  app.protFire([0, 0]);
+  assert.equal(replays.length, 2);
+  assert.equal(registrations.at(-1).id, G.combatKey);
+  assert.deepEqual(registrations.at(-1).plates.find(p => p.id === plate.id).normal, plate.normal, 'analysis synchronizes the new raised pose even though garage combatInit exits');
+  assert.equal(c.appliedFold.get(G.combatKey), 0);
+  assert.equal(JSON.stringify(original), sourceBefore, 'analysis and folding retain the original source bundle');
+  assert.ok(!c.bundles.has(id), 'analysis must not create a stray spec-ID target');
+  G.interior.dispose(); G.model.dispose();
 });
 
 test('live driver input passes actual engine/transmission output without lowering throttle intent or permitting dead pivot', () => {

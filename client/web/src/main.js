@@ -474,7 +474,8 @@ export function start(data, saved = {}) {
       protInfo.textContent = '沒有打中裝甲';
       return;
     }
-    const rep = protection.shoot(G.id, r.o, r.d, yaw);
+    G.combat?.setFold(G.combatKey, G.fold?.pose || 0);
+    const rep = protection.shoot(G.combatKey, r.o, r.d, yaw);
     if (!rep) {
       protInfo.textContent = '傷害模型尚未就緒';
       return;
