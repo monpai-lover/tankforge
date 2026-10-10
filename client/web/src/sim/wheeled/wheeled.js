@@ -190,6 +190,7 @@ function wheelSteer(tm, w, delta) {
  * One step. input {throttle, steer, brake}; terrain {height(x, z), surface(x, z) -> terrain def}.
  */
 export function stepWheeled(tm, t, input, terrain, dt) {
+  const drivePower = clamp(input.drive_power ?? 1, 0, 1);
   const n = tm.substeps;
   const h = dt / n;
   const p = tm.p;
@@ -239,7 +240,7 @@ export function stepWheeled(tm, t, input, terrain, dt) {
     const rpm = clamp((wheelW * ratio(p, ds.gear) * 60) / (2 * Math.PI), p.launchRpm, p.engine.max_rpm);
     ds.rpm = clamp((wheelW * ratio(p, ds.gear) * 60) / (2 * Math.PI), p.engine.idle_rpm, p.engine.max_rpm);
     const governor = rpm <= 0.95 * p.engine.max_rpm ? 1 : clamp((p.engine.max_rpm - rpm) / (0.05 * p.engine.max_rpm), 0, 1);
-    const torqueAvailable = torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, ds.gear) * p.efficiency;
+    const torqueAvailable = torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, ds.gear) * p.efficiency * drivePower;
     const tEngine = ds.shiftTimer > 0 ? 0 : torqueAvailable;
     // throttle up to the speed asked for; past it the engine holds back
     const vWant = throttle >= 0 ? throttle * p.vTop : throttle * p.maxReverseSpeed;

@@ -50,6 +50,7 @@ const ratio = (p, g) => p.trans.gear_ratios[g] * p.trans.final_drive_ratio;
  */
 export function driveStep(dr, ds, input, env, dt) {
   const p = dr.p;
+  const drivePower = clamp(input.drive_power ?? 1, 0, 1);
   const throttle = clamp(input.throttle, -1, 1);
   const steer = clamp(input.steer, -1, 1);
   const u = env.u;
@@ -83,7 +84,7 @@ export function driveStep(dr, ds, input, env, dt) {
   const forceAt = (gear) => {
     const rpm = clamp(wheelRpm * ratio(p, gear), launch, maxRpm);
     const governor = rpm <= 0.95 * maxRpm ? 1 : clamp((maxRpm - rpm) / (0.05 * maxRpm), 0, 1);
-    return (torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, gear) * p.efficiency) / p.sprocketR;
+    return (torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, gear) * p.efficiency * drivePower) / p.sprocketR;
   };
   const demand = env.resist + Math.max(env.grade * dir, 0);
   ds.shiftTimer = Math.max(ds.shiftTimer - dt, 0);
@@ -133,7 +134,7 @@ export function driveStep(dr, ds, input, env, dt) {
   const pushing = Math.abs(meanTarget) > 0.05 ? (meanTarget - mean) * Math.sign(meanTarget) > 0 : false;
   const transmitted = advanceDriveForce(ds, pushing ? Math.sign(meanTarget) : 0, forceAt(ds.gear), dr.mass, dt);
   // the steering gear can push the tracks apart as hard as they can grip, within the engine power
-  const steerCap = Math.min(0.45 * dr.mass * GRAVITY, p.power / (2 * Math.max(Math.abs(diff) / 2, 0.5)));
+  const steerCap = drivePower * Math.min(0.45 * dr.mass * GRAVITY, p.power / (2 * Math.max(Math.abs(diff) / 2, 0.5)));
   ds.motor = { mean: meanTarget, meanCap: pushing ? Math.min(fEng, transmitted) : ENGINE_BRAKE * fEng, diff: diffTarget, diffCap: steerCap, pushing };
   ds.fEng = fEng;
 

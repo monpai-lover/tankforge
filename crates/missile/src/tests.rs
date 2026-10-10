@@ -16,11 +16,67 @@ fn tank(id: u32, team: u8, gun_ok: bool, radar_ok: bool) -> Actor {
         aps_base_yaw: 0.0,
         aps_gun_ok: gun_ok,
         aps_radar_ok: radar_ok,
+        aps_traverse_mult: 1.0,
+        aps_elevate_mult: 1.0,
+        aps_dispersion_mult: 1.0,
     }
 }
 
 fn shooter(id: u32) -> Actor {
-    Actor { id, team: 1, alive: true, center: [0.0, 1.2, 0.0], vel: [0.0; 3], obb: None, aps_pivot: None, aps_base_yaw: 0.0, aps_gun_ok: true, aps_radar_ok: true }
+    Actor { id, team: 1, alive: true, center: [0.0, 1.2, 0.0], vel: [0.0; 3], obb: None, aps_pivot: None, aps_base_yaw: 0.0, aps_gun_ok: true, aps_radar_ok: true, aps_traverse_mult: 1.0, aps_elevate_mult: 1.0, aps_dispersion_mult: 1.0 }
+}
+
+fn damage_actor(traverse: f64, elevate: f64, dispersion: f64) -> Actor {
+    let mut actor = serde_json::to_value(tank(1, 0, true, true)).unwrap();
+    actor["aps_traverse_mult"] = traverse.into();
+    actor["aps_elevate_mult"] = elevate.into();
+    actor["aps_dispersion_mult"] = dispersion.into();
+    serde_json::from_value(actor).unwrap()
+}
+
+#[test]
+fn actor_damage_multipliers_apply_to_independent_aps_servos_without_changing_definition() {
+    let step = |actor: Actor| {
+        let mut w = world(vec![]);
+        w.add_aps(1, 0, ApsDef::oplot_mo(), 4);
+        w.aps[0].yaw = -1.0;
+        w.aps[0].pitch = 0.5;
+        w.step(MAX_STEP, &[actor]);
+        w.aps.remove(0)
+    };
+    let legacy = step(tank(1, 0, true, true));
+    let healthy = step(damage_actor(1.0, 1.0, 1.0));
+    assert_eq!(serde_json::to_value(&healthy).unwrap(), serde_json::to_value(&legacy).unwrap());
+    let horizontal = step(damage_actor(0.25, 1.0, 1.0));
+    let vertical = step(damage_actor(1.0, 0.3, 1.0));
+    assert!(((horizontal.yaw + 1.0) / (healthy.yaw + 1.0) - 0.25).abs() < 1e-9);
+    assert_eq!(horizontal.pitch, healthy.pitch);
+    assert!(((0.5 - vertical.pitch) / (0.5 - healthy.pitch) - 0.3).abs() < 1e-9);
+    assert_eq!(vertical.yaw, healthy.yaw);
+    assert_eq!(horizontal.def.traverse_deg_s, healthy.def.traverse_deg_s);
+    assert_eq!(vertical.def.elevate_deg_s, healthy.def.elevate_deg_s);
+}
+
+#[test]
+fn aps_damage_changes_actual_bullet_scatter_with_same_seed_and_cyclic_rate() {
+    let first = |dispersion: f64| {
+        let mut w = world(vec![]);
+        w.add_aps(1, 0, ApsDef::oplot_mo(), 21);
+        let actors = [damage_actor(1.0, 1.0, dispersion), shooter(99)];
+        tow_at(&mut w, [0.0, 2.0, 1000.0], 3);
+        for _ in 0..1200 {
+            let out = w.step(MAX_STEP, &actors);
+            if !out.fired.is_empty() { return (out.fired, w.aps.remove(0)); }
+        }
+        panic!("actual APS must emit a bullet");
+    };
+    let (healthy, h) = first(1.0);
+    let (damaged, d) = first(3.0);
+    assert_eq!(healthy.len(), damaged.len());
+    assert_eq!(h.yaw, d.yaw); assert_eq!(h.pitch, d.pitch);
+    assert_ne!(healthy[0].vel, damaged[0].vel, "damaged barrel must scatter the actual world bullet");
+    assert_eq!(h.rate_rpm, d.rate_rpm); assert_eq!(h.rounds, d.rounds); assert_eq!(h.heat, d.heat);
+    assert_eq!(h.def.dispersion_mrad, d.def.dispersion_mrad);
 }
 
 fn rocket(speed: f64) -> MissileDef {

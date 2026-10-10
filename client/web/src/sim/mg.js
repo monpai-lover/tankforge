@@ -16,12 +16,12 @@ export function newMg(def) {
  * Advances one gun by dt seconds. `trigger` = the gunner is holding the trigger.
  * Returns how many rounds left the barrel during this step.
  */
-export function stepMg(def, st, trigger, dt) {
+export function stepMg(def, st, trigger, dt, reloadRate = 1) {
   const interval = 60 / def.rate_rpm;
   st.heat = Math.max(0, st.heat - dt / def.cool_s);
   if (st.hot && st.heat < RESUME_HEAT) st.hot = false;
   if (st.reload > 0) {
-    st.reload -= dt;
+    st.reload -= dt * reloadRate;
     if (st.reload <= 0) {
       st.reload = 0;
       st.belt = def.belt_rounds;
@@ -70,7 +70,7 @@ export function bulletOf(def) {
  * arc = [yaw half-angle, depression, elevation] in radians (null = free traverse).
  * Slews `aim` towards it at `rate` rad/s and returns true when the gun is on the target.
  */
-export function slewMount(aim, want, arc, rate, dt) {
+export function slewMount(aim, want, arc, rate, dt, elevateRate = rate) {
   const wrap = (a) => {
     a = (a + Math.PI) % (2 * Math.PI);
     if (a < 0) a += 2 * Math.PI;
@@ -81,6 +81,7 @@ export function slewMount(aim, want, arc, rate, dt) {
   const tp = arc ? clamp(want.pitch, -arc[1], arc[2]) : want.pitch;
   const step = rate * dt;
   aim.yaw = wrap(aim.yaw + clamp(wrap(ty - aim.yaw), -step, step));
-  aim.pitch += clamp(tp - aim.pitch, -step, step);
+  const pitchStep = elevateRate * dt;
+  aim.pitch += clamp(tp - aim.pitch, -pitchStep, pitchStep);
   return Math.abs(wrap(want.yaw - aim.yaw)) < 0.03 && Math.abs(want.pitch - aim.pitch) < 0.03;
 }

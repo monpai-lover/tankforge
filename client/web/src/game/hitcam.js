@@ -12,6 +12,7 @@ import { MODULE_NAME, CREW_NAME, arr3 } from './combat.js';
 import { replayTrack, replayState, sampleReplay, ReplayProjectile } from './projectileReplay.js';
 
 const DEG = Math.PI / 180;
+const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'}[c]));
 const add = (a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]];
 const sub = (a, b) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 const scale = (a, k) => [a[0] * k, a[1] * k, a[2] * k];
@@ -79,8 +80,11 @@ export class HitCam {
     };
     if (!this.projectile) this.projectile = new ReplayProjectile(this.env.renderer);
     // the panel under the picture: what was lost
-    const mods = rep.modules.filter((m) => m.destroyed || m.health < m.max_health * 0.5 || (!Number.isFinite(m.max_health) && m.damage > 0));
-    this.el.mods.innerHTML = mods.map((m) => `<i data-dead="${m.destroyed ? 1 : 0}">${MODULE_NAME[m.kind] || m.kind}</i>`).join('');
+    const mods = rep.modules.filter((m) => m.damage > 0 || m.destroyed || m.health <= m.max_health * 0.5);
+    this.el.mods.innerHTML = mods.map((m) => {
+      const name = target.moduleLabels?.get(m.id) || MODULE_NAME[m.kind] || m.kind;
+      return `<i data-dead="${m.destroyed ? 1 : 0}">${escapeHtml(name)} ${m.destroyed ? '損毀' : '受損'}</i>`;
+    }).join('');
     const roles = target.crewRoles || [];
     this.el.crew.innerHTML = rep.crew.map((c) => `<i data-dead="${c.killed ? 1 : 0}">${CREW_NAME[c.role] || c.role}${c.killed ? '' : ' 受傷'}</i>`).join('') + (roles.length ? `<em>${rep.caps.crew_alive}/${rep.caps.crew_total}</em>` : '');
     this.el.title.textContent = rep.title;

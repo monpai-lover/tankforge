@@ -115,11 +115,20 @@ pub struct Actor {
     pub aps_gun_ok: bool,
     #[serde(default = "yes")]
     pub aps_radar_ok: bool,
+    /// Damage capability of this mounted gun, supplied by the combat authority.
+    #[serde(default = "one")]
+    pub aps_traverse_mult: f64,
+    #[serde(default = "one")]
+    pub aps_elevate_mult: f64,
+    #[serde(default = "one")]
+    pub aps_dispersion_mult: f64,
 }
 
 fn yes() -> bool {
     true
 }
+
+fn one() -> f64 { 1.0 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -979,8 +988,8 @@ fn step_aps(a: &mut Aps, actor: Option<&Actor>, missiles: &[Missile], terrain: &
     let lag = a.def.servo_lag_s.max(h);
     let dy = wrap(a.yaw_cmd - a.yaw) * (h / lag).min(1.0);
     let dp = (a.pitch_cmd - a.pitch) * (h / lag).min(1.0);
-    let ry = a.def.traverse_deg_s.to_radians() * h;
-    let rp = a.def.elevate_deg_s.to_radians() * h;
+    let ry = a.def.traverse_deg_s.to_radians() * actor.aps_traverse_mult.clamp(0.0, 1.0) * h;
+    let rp = a.def.elevate_deg_s.to_radians() * actor.aps_elevate_mult.clamp(0.0, 1.0) * h;
     a.yaw = wrap(a.yaw + dy.clamp(-ry, ry));
     a.pitch = (a.pitch + dp.clamp(-rp, rp)).clamp(lo, hi);
     let aim_dir = dir_of(a.yaw, a.pitch);
@@ -1011,7 +1020,7 @@ fn step_aps(a: &mut Aps, actor: Option<&Actor>, missiles: &[Missile], terrain: &
             a.rounds -= 1;
             a.fired += 1;
             // scatter round the laid line
-            let sd = a.def.dispersion_mrad / 1000.0;
+            let sd = a.def.dispersion_mrad * actor.aps_dispersion_mult.max(1.0) / 1000.0;
             let (y0, p0) = (a.yaw, a.pitch);
             let d = dir_of(y0 + a.rng.gauss() * sd / p0.cos().max(0.2), p0 + a.rng.gauss() * sd);
             let vel = add(mul(d, a.def.bullet_speed_ms), cv);

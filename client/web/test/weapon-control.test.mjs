@@ -19,7 +19,11 @@ import { Hud } from '../src/game/hud.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { decodeImported } from '../src/gfx/imported.js';
 import { STRIDE } from '../src/gfx/geo.js';
-import { launcherCanFire } from '../src/game/combat.js';
+import { Combat, launcherCanFire, bulletShell } from '../src/game/combat.js';
+import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
+import { Terrain } from '../src/game/terrain.js';
+import { humpLift, hitTargets, groundHit } from '../src/game/world.js';
+const damageApi = await import('../src/game/weaponDamage.js').catch(() => ({}));
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 const data = loadData(), DEG = Math.PI / 180, ME = 1;
@@ -43,22 +47,26 @@ function controls(id, mesh = false) {
       guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })),
       loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })),
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], online: null,
-    veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]) },
+    veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
   const sent = [], apsCalls = [];
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
+  const combat = new Combat(core, data.machineGuns), fresh = combat.fresh('control:' + id, data.vehicles[id]);
+  G.combat = combat; G.combatKey = 'control:' + id; G.cstate = fresh.state; G.caps = fresh.caps;
+  G.bundle = combat.prepare?.(G.combatKey, data.vehicles[id]) || data.vehicles[id];
   core.call({ op: 'mw_reset', defs: Object.values(data.missiles) });
   if (G.aps) core.call({ op: 'mw_aps', owner: ME, team: 0, def: G.aps, seed: 10 });
   G.missiles = { setAps(owner, enabled, rate_rpm = null, rounds = null) {
     apsCalls.push({ owner, enabled, rounds });
     core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
   } };
-  const deps = { G, ME, data, DEG, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
-    foldDepression, foldYawLimit, launcherCanFire,
+  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
+    foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     net: { send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
-    sound: { tone() {}, apsGun() {}, mg() {} }, fx: { mgFlash() {} },
+    sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
+    hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
     launcherMount: loadout.launcherMount, reloadTime: loadout.reloadTime,
   };
@@ -66,10 +74,13 @@ function controls(id, mesh = false) {
   const preamble = source.slice(source.indexOf('  const pose = '), source.indexOf('  // ----------------------------------------------------------------- workshop'));
   const moduleCheck = source.slice(source.indexOf('  const moduleOk ='), source.indexOf('  /** Where the protection gun'));
   const stabilizers = source.slice(source.indexOf('  const GUNNER ='), source.indexOf('  /**\n   * The hull\'s attitude'));
-  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'syncApsControl', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
-  const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, currentLos, applyAps, toggleAps, aimTurrets};`)(...Object.values(deps));
+  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
+  const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, syncApsControl, apsOf, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
-  return { G, live, rt, sent, apsCalls, snapshot };
+  return { G, live, rt, sent, apsCalls, snapshot, core, combat, damage: (id, health = 0) => {
+    G.cstate.modules[G.bundle.modules.findIndex(m => m.id === id)] = health;
+    G.caps = combat.advance(G.combatKey, G.cstate, 0, 1).caps;
+  } };
 }
 const close = (actual, expected, message, epsilon = 1e-7) => assert.ok(Math.abs(actual - expected) < epsilon, `${message}: ${actual} != ${expected}`);
 function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
@@ -80,6 +91,134 @@ function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
   r.G.ss = body.attitude();
   if (r.rt) r.rt.model.body.local = matrix;
 }
+
+test('queued then hit main gun cannot fire or consume ammo while the healthy selected MG still fires', () => {
+  const r = controls('de_pz3_j'), g = r.G.loadout.turrets[0].guns[0];
+  r.live.trigger();
+  assert.equal(r.G.pending.length, 1);
+  const before = loadout.roundsLeft(g);
+  r.damage(data.vehicles.de_pz3_j.modules.find(m => m.kind === 'gun_breech').id);
+  assert.equal(r.live.fireGun(0, 0), false);
+  assert.equal(loadout.roundsLeft(g), before);
+  assert.equal(r.G.shots.length, 0);
+  r.G.sightM = 0; r.G.fireHeld = true;
+  r.live.stepMachineGuns(.01);
+  assert.ok(r.G.bullets.length > 0, 'healthy MG remains independent of the broken main gun');
+});
+
+test('new-core unknown own gun key cannot queue even when other weapons keep can_fire true', () => {
+  const r = controls('de_pz3_j');
+  r.G.caps = {can_fire: true, weapons: {}};
+  r.live.trigger();
+  assert.equal(r.G.pending.length, 0);
+  assert.equal(r.live.fireGun(0, 0), false);
+});
+
+test('MG own barrel damage stops bullets without consuming a belt and healthy gun remains ready', () => {
+  const r = controls('de_pz3_j');
+  r.G.sightM = 0; r.G.fireHeld = true;
+  const before = r.G.MG[0].st.belt;
+  r.damage('mg:' + r.G.MG[0].m.id + ':barrel');
+  r.live.stepMachineGuns(.01);
+  assert.equal(r.G.bullets.length, 0);
+  assert.equal(r.G.MG[0].st.belt, before);
+  r.live.trigger();
+  assert.equal(r.G.caps.can_fire, true, 'healthy main gun remains operational');
+});
+
+test('MG firing packets carry original secondary instance and a shared firing sequence', () => {
+  const r = controls('de_pz3_j');
+  r.G.online = {seq: 20}; r.G.sightM = 0; r.G.fireHeld = true;
+  r.live.stepMachineGuns(.01);
+  assert.equal(r.sent[0]?.t, 'mg_fire');
+  assert.equal(r.sent[0].seq, 21);
+  assert.equal(r.sent[0].instance, 'mg:' + r.G.MG[0].m.id);
+  assert.equal(r.sent[0].gun, r.G.MG[0].m.def.id);
+  assert.equal(r.G.bullets[0].seq, 21);
+  assert.equal(r.G.bullets[0].instance, r.sent[0].instance);
+});
+
+test('MG projectile retains its firing-time sequence and instance when its own barrel is damaged in flight', () => {
+  const r = controls('de_pz3_j'), bundle = r.combat.prepare('remote:88', data.vehicles.de_pz3_j);
+  const lo = loadout.makeLoadout('de_pz3_j', bundle, data.projectiles, data.machineGuns);
+  const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}};
+  const model = buildTank(renderer, lo, loadout.generatedTurretParts);
+  const e = new Enemy('de_pz3_j', bundle, model, new Terrain(data.terrains, humpLift), {x: 0, z: 8, heading: 0}, null);
+  e.loadout = lo; e.remote = true; e.netId = 88; e.team = 1;
+  useCombat(e, r.combat, 'remote:88');
+  r.G.enemies = [e]; r.G.bulletShells = new Map();
+  r.G.online = {seq: 20, team: 0}; r.G.sightM = 0; r.G.fireHeld = true;
+  r.live.stepMachineGuns(.01);
+  const fired = r.sent.find(m => m.t === 'mg_fire');
+  assert.ok(fired);
+  r.damage('mg:' + r.G.MG[0].m.id + ':barrel');
+  for (let i = 0; i < 10 && r.G.bullets.length; i++) r.live.updateBullets(1 / 120);
+  const hit = r.sent.find(m => m.t === 'mg_hit');
+  assert.ok(hit, 'actual projectile strikes real remote armour');
+  assert.equal(hit.seq, fired.seq); assert.equal(hit.instance, fired.instance);
+  assert.equal(hit.target, e.netId);
+  assert.equal(r.G.caps.weapons[fired.instance].can_fire, false, 'current mount damage cannot revoke a bullet already fired');
+});
+
+test('Oplot manual and automatic gun remain usable with a broken main cannon but obey common crew/repair gates', () => {
+  const r = controls('su_t10m'), g = r.G.loadout.turrets[1].guns[0];
+  r.damage(data.vehicles.su_t10m.modules.find(m => m.kind === 'gun_breech').id);
+  r.G.sightT = 1;
+  assert.equal(r.live.fireGun(1, 0), true, 'own APS gun survives main cannon damage');
+  r.G.T[1].loading.state[0] = 'ready'; g.loaded = 0;
+  r.G.cstate.repair_s = 10;
+  r.G.caps = r.combat.advance(r.G.combatKey, r.G.cstate, 0, 1).caps;
+  assert.equal(r.live.fireGun(1, 0), false, 'repair pauses manual APS fire');
+  r.G.sightT = 0;
+  r.live.syncApsControl();
+  const actor = {};
+  r.live.apsOf(actor, r.G.aps, r.G.loadout, r.G.T.map(t => t.yaw), {pos: [0, 0, 0], heading: 0}, r.G.bundle, r.G.cstate, r.G.caps);
+  assert.equal(actor.aps_gun_ok, false, 'repair pauses actual automatic APS firing');
+  assert.equal(r.apsCalls.at(-1).enabled, true, 'automatic preference persists so recovery resumes automatically');
+});
+
+test('main turret drive damage affects its laying rate while Oplot keeps its own traverse and elevation', () => {
+  const a = controls('su_t10m'), b = controls('su_t10m');
+  a.G.aimPoint = b.G.aimPoint = [400, 50, 400];
+  const drive = data.vehicles.su_t10m.modules.find(m => m.kind === 'turret_drive');
+  b.damage(drive.id);
+  a.live.aimTurrets(.1); b.live.aimTurrets(.1);
+  assert.ok(Math.abs(b.G.T[0].yaw) < Math.abs(a.G.T[0].yaw) * .5, 'damaged main drive slows main traverse');
+  close(b.G.T[1].yaw, a.G.T[1].yaw, 'independent APS traverse remains original');
+  close(b.G.T[1].guns[0].pitch, a.G.T[1].guns[0].pitch, 'APS elevation remains original');
+});
+
+test('live cannon and MG projectiles consume their own partial dispersion without changing cyclic rate', () => {
+  const a = controls('de_pz3_j'), b = controls('de_pz3_j');
+  const barrel = data.vehicles.de_pz3_j.modules.find(m => m.kind === 'gun_barrel');
+  b.damage(barrel.id, barrel.max_health * .25);
+  assert.equal(a.live.fireGun(0, 0), true); assert.equal(b.live.fireGun(0, 0), true);
+  const angle = shot => Math.acos(shot.s.vel[2] / Math.hypot(...shot.s.vel));
+  close(angle(b.G.shots[0]) / angle(a.G.shots[0]), b.G.caps.weapons['gun:0:0'].dispersion_mult, 'actual cannon scatter', 1e-5);
+  b.damage('mg:' + b.G.MG[0].m.id + ':barrel', 10);
+  for (const r of [a, b]) {r.G.sightM = 0; r.G.fireHeld = true; r.live.stepMachineGuns(.01);}
+  assert.equal(a.G.MG[0].st.fired, b.G.MG[0].st.fired, 'feed damage does not change RPM');
+  close(angle(b.G.bullets[0]) / angle(a.G.bullets[0]), b.G.caps.weapons[b.G.MG[0].m.damageKey].dispersion_mult, 'actual MG scatter', 1e-5);
+  assert.equal(a.G.MG[0].st.heat, b.G.MG[0].st.heat);
+});
+
+test('live APS actor passes the same per-instance performance and common gate to actual WASM', () => {
+  const r = controls('su_t10m');
+  const module = r.G.bundle.modules.find(m => m.id === r.G.aps.gun_module);
+  r.damage(module.id, module.max_health * .25);
+  const actor = {id: ME, team: 0, alive: true, center: [0, 1.3, 0], vel: [0, 0, 0]};
+  r.live.apsOf(actor, r.G.aps, r.G.loadout, r.G.T.map(t => t.yaw), {pos: [0, 0, 0], heading: 0}, r.G.bundle, r.G.cstate, r.G.caps);
+  const caps = r.G.caps.weapons[r.G.loadout.turrets[1].guns[0].damageKey];
+  assert.equal(actor.aps_dispersion_mult, caps.dispersion_mult);
+  assert.equal(actor.aps_traverse_mult, caps.traverse_mult);
+  assert.equal(actor.aps_elevate_mult, caps.elevate_mult);
+  assert.ok(r.core.call({op: 'mw_step', dt: 1 / 60, actors: [actor]}).aps.length === 1);
+  r.G.cstate.repair_s = 2;
+  r.G.caps = r.combat.advance(r.G.combatKey, r.G.cstate, 0, 1).caps;
+  r.live.apsOf(actor, r.G.aps, r.G.loadout, r.G.T.map(t => t.yaw), {pos: [0, 0, 0], heading: 0}, r.G.bundle, r.G.cstate, r.G.caps);
+  const result = r.core.call({op: 'mw_step', dt: 1 / 60, actors: [actor]});
+  assert.equal(result.aps[0].mode, 'fault'); assert.deepEqual(result.fired, []);
+});
 
 test('selected roof MG obeys the chosen zero instead of silently ranging the target', () => {
   const r = controls('su_is2', true), i = r.G.MG.findIndex(e => e.m.mount === 'pintle');

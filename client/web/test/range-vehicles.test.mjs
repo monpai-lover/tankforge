@@ -68,14 +68,14 @@ test('actual range models settle, have clear firing lanes and independent combat
   const scene={children:[],add(root){this.children.push(root);}};
   const G={map:null,id:'xp_bmp_k64',enemies:[],combat:null};
   const deps={G,data,renderer,scene,terrain,makeLoadout,buildTank,generatedTurretParts,Enemy,useCombat,rangeVehicleTargets:()=>rows,ENEMY_POOL:['su_t54'],hitcam:{hide(){}}};
-  const app=live(['clearEnemies','spawnEnemies','hitEnemy'],deps);
+  const app=live(['clearEnemies','spawnEnemies','hitEnemy','bindCombatReady'],deps);
   app.spawnEnemies();
   assert.equal(G.enemies.length,8);
   assert.equal(scene.children.length,8);
   const originalModels=G.enemies.map(e=>e.model);
   const readyStart=source.indexOf('  coreP.then((c) => {');
   const readySource=source.slice(readyStart,source.indexOf('\n  });',readyStart)+6);
-  const readyDeps={G,Combat,useCombat,coreP:{then(callback){callback(core);}},Missiles:class {constructor(){}},data,renderer,scene,fx:{},sound:{},missileGround(){},refreshDesigns(){}};
+  const readyDeps={G,Combat,useCombat,bindCombatReady:app.bindCombatReady,coreP:{then(callback){callback(core);}},Missiles:class {constructor(){}},data,renderer,scene,fx:{},sound:{},missileGround(){},refreshDesigns(){}};
   new Function(...Object.keys(readyDeps),readySource)(...Object.values(readyDeps));
   assert.ok(G.enemies.every(e=>e.combat&&e.cstate&&e.caps),'a late core binds all existing targets to real armour, modules and crew');
   assert.deepEqual(G.enemies.map(e=>e.model),originalModels,'core readiness never recreates the visible models');

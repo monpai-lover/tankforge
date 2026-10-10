@@ -212,6 +212,8 @@ pub struct Input {
     pub steer: f32,
     /// 0..1
     pub brake: f32,
+    /// Available engine/transmission output; absent preserves the healthy drivetrain.
+    pub drive_power: Option<f32>,
 }
 
 #[derive(Clone, Copy, Debug)]
@@ -290,6 +292,7 @@ fn shrink(v: f32, d: f32) -> f32 {
 
 pub fn step(p: &VehicleParams, s: &mut State, inp: Input, env: &Env, dt: f32) -> StepInfo {
     let t = env.terrain;
+    let drive_power = inp.drive_power.unwrap_or(1.0).clamp(0.0, 1.0);
     let throttle = inp.throttle.clamp(-1.0, 1.0);
     let steer = inp.steer.clamp(-1.0, 1.0);
     let brake_in = inp.brake.clamp(0.0, 1.0);
@@ -322,7 +325,7 @@ pub fn step(p: &VehicleParams, s: &mut State, inp: Input, env: &Env, dt: f32) ->
     let force_at = |gear: usize| -> f32 {
         let rpm = (wheel_rpm * p.ratio(gear)).clamp(launch, max_rpm);
         let governor = if rpm <= 0.95 * max_rpm { 1.0 } else { ((max_rpm - rpm) / (0.05 * max_rpm)).clamp(0.0, 1.0) };
-        torque_at(&p.engine.torque_curve, rpm) * governor * p.ratio(gear) * p.efficiency / p.sprocket_r
+        torque_at(&p.engine.torque_curve, rpm) * governor * p.ratio(gear) * p.efficiency * drive_power / p.sprocket_r
     };
 
     // ---- gearbox (automatic, force-aware so it does not hunt on slopes / in mud)
@@ -365,7 +368,7 @@ pub fn step(p: &VehicleParams, s: &mut State, inp: Input, env: &Env, dt: f32) ->
     }
     let delta_target = steer * rate_cap * half;
     let c_diff = ((delta_target - s.r * half) / STEER_ERR_SAT).clamp(-1.0, 1.0);
-    let steer_cap = (p.mass_kg * p.brake_decel * 0.5).min(p.power_w / (2.0 * (s.r * half).abs().max(1.0)));
+    let steer_cap = drive_power * (p.mass_kg * p.brake_decel * 0.5).min(p.power_w / (2.0 * (s.r * half).abs().max(1.0)));
     let turn_moment = TURN_RESISTANCE_FACTOR * t.lateral_mu * normal * p.track_length_m / 4.0;
     // feed-forward cancels the skid resistance so the commanded yaw rate is actually reached
     let feed_forward = if delta_target.abs() > 1e-3 { delta_target.signum() * turn_moment / (2.0 * half) } else { 0.0 };
@@ -445,8 +448,8 @@ mod tests {
     use std::path::PathBuf;
 
     const DT: f32 = 1.0 / 60.0;
-    const FULL: Input = Input { throttle: 1.0, steer: 0.0, brake: 0.0 };
-    const PIVOT: Input = Input { throttle: 0.0, steer: 1.0, brake: 0.0 };
+    const FULL: Input = Input { throttle: 1.0, steer: 0.0, brake: 0.0, drive_power: None };
+    const PIVOT: Input = Input { throttle: 0.0, steer: 1.0, brake: 0.0, drive_power: None };
 
     fn root() -> PathBuf {
         Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
@@ -525,7 +528,7 @@ mod tests {
     fn tracks_slip_to_make_thrust() {
         let (p, road, mud) = (params(), terrain("road"), terrain("mud"));
         let mut s = State::default();
-        let cruise = run(&p, &mut s, Input { throttle: 0.5, steer: 0.0, brake: 0.0 }, &road, 0.0, 12.0);
+        let cruise = run(&p, &mut s, Input { throttle: 0.5, steer: 0.0, brake: 0.0, drive_power: None }, &road, 0.0, 12.0);
         assert!(cruise.slip_left < 0.05 && cruise.track_speed_left >= s.u - 1e-4, "cruise slip {}", cruise.slip_left);
         assert_eq!(cruise.sinkage_m, 0.0);
         let mut s2 = State::default();
@@ -578,7 +581,7 @@ mod tests {
     fn brakes_to_a_full_stop_and_stays_parked_on_a_slope() {
         let (p, road) = (params(), terrain("road"));
         let mut s = State { u: 10.0, gear: 3, ..Default::default() };
-        run(&p, &mut s, Input { throttle: 0.0, steer: 0.0, brake: 1.0 }, &road, 0.0, 3.0);
+        run(&p, &mut s, Input { throttle: 0.0, steer: 0.0, brake: 1.0, drive_power: None }, &road, 0.0, 3.0);
         assert!(s.u.abs() < 1e-3, "u={}", s.u);
         let mut q = State::default();
         run(&p, &mut q, Input::default(), &road, 10f32.to_radians(), 5.0);
@@ -589,7 +592,7 @@ mod tests {
     fn reverse_speed_is_limited_and_rollback_recovers() {
         let (p, road) = (params(), terrain("road"));
         let mut s = State::default();
-        run(&p, &mut s, Input { throttle: -1.0, steer: 0.0, brake: 0.0 }, &road, 0.0, 20.0);
+        run(&p, &mut s, Input { throttle: -1.0, steer: 0.0, brake: 0.0, drive_power: None }, &road, 0.0, 20.0);
         assert!(s.u < -3.5 && s.u > -4.5, "u={}", s.u);
         let mut q = State { u: -3.0, ..Default::default() };
         run(&p, &mut q, FULL, &road, 20f32.to_radians(), 15.0);
@@ -599,7 +602,7 @@ mod tests {
     #[test]
     fn hard_turn_at_speed_drifts_on_mud_but_grips_on_road() {
         let p = params();
-        let input = Input { throttle: 1.0, steer: 1.0, brake: 0.0 };
+        let input = Input { throttle: 1.0, steer: 1.0, brake: 0.0, drive_power: None };
         let mut road_s = State { u: 10.0, gear: 3, ..Default::default() };
         run(&p, &mut road_s, input, &terrain("road"), 0.0, 3.0);
         let mud = terrain("mud");
@@ -617,7 +620,7 @@ mod tests {
     #[test]
     fn simulation_is_deterministic_and_stable_at_30hz() {
         let (p, dirt, road) = (params(), terrain("dirt"), terrain("road"));
-        let i = Input { throttle: 0.8, steer: 0.3, brake: 0.0 };
+        let i = Input { throttle: 0.8, steer: 0.3, brake: 0.0, drive_power: None };
         let (mut a, mut b) = (State::default(), State::default());
         run(&p, &mut a, i, &dirt, 0.05, 10.0);
         run(&p, &mut b, i, &dirt, 0.05, 10.0);
@@ -646,7 +649,7 @@ mod tests {
             }
 
             let mut rev = State::default();
-            run(&p, &mut rev, Input { throttle: -1.0, steer: 0.0, brake: 0.0 }, &road, 0.0, 20.0);
+            run(&p, &mut rev, Input { throttle: -1.0, steer: 0.0, brake: 0.0, drive_power: None }, &road, 0.0, 20.0);
             assert!(rev.u < -0.8 * p.max_reverse_speed && rev.u > -1.1 * p.max_reverse_speed, "{id} reverse {}", rev.u);
         }
     }

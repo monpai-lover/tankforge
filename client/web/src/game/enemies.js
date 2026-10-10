@@ -8,6 +8,7 @@ import { onPlate } from './plates.js';
 import { VehicleSim } from './vehicle.js';
 import { penAt } from './hud.js';
 import { foldedPlate } from './folding.js';
+import { moduleDamageLabels } from './weaponDamage.js';
 
 const DEG = Math.PI / 180;
 const v3 = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
@@ -262,10 +263,13 @@ export class Enemy {
  * modules and crew by crates/combat, and it is out when that model says so.
  */
 export function useCombat(e, combat, key) {
-  const r = combat.fresh(key, e.bundle);
+  combat.setFold(key, e.fold || 0);
+  const r = combat.bind(key, e.sourceBundle || e.bundle, e.cstate, e.caps);
   if (!r) return;
   e.combat = combat;
   e.combatKey = key;
+  e.bundle = r.bundle;
+  e.damageLabels = e.loadout && moduleDamageLabels(e.loadout, e.bundle.modules);
   e.cstate = r.state;
   e.caps = r.caps;
 }

@@ -19,6 +19,7 @@ import { VehicleActions, VehicleActionIndicator } from './game/vehicleActions.js
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
+import { weaponDamage, weaponReloadRate, weaponReloadMult, moduleDamageLabels } from './game/weaponDamage.js';
 import { HitCam } from './game/hitcam.js';
 import { designReplayReport } from './game/projectileReplay.js';
 import { Missiles } from './game/missiles.js';
@@ -424,7 +425,7 @@ export function start(data, saved = {}) {
   };
   /** The bundle the analysis uses: the vehicle's armour, modules and crew. */
   const protBundle = () => {
-    const b = data.vehicles[G.id];
+    const b = G.bundle || data.vehicles[G.id];
     if (b) return b;
     if (G.id === 'custom') {
       const base = data.vehicles[G.build.base];
@@ -492,6 +493,7 @@ export function start(data, saved = {}) {
     pivot: e.turret && e.turret.position_m,
     name: e.remote ? `${e.player}（${e.name}）` : e.name,
     crewRoles: (e.bundle.crew || []).map((c) => c.role),
+    moduleLabels: e.damageLabels,
     length: e.bundle.vehicle.hull.size_m[2],
     interior: () => {
       if (!e.interior && e.loadout) e.interior = buildInterior(renderer, e.model, e.loadout, e.bundle.modules || [], e.bundle.crew || []);
@@ -631,6 +633,9 @@ export function start(data, saved = {}) {
     if (id === 'custom') {
       const r = buildToBundle(G.build, data);
       G.customStats = r.stats;
+      const base = data.vehicles[G.build.base];
+      const { files } = exportFolder(G.build, data, base, 'custom', r.bundle.vehicle.name, { includeModel: false });
+      Object.assign(r.bundle, { armor: files['armor.json'], modules: files['modules.json'], crew: files['crew.json'], weapons: files['weapons.json'] });
       return { bundle: r.bundle, projectiles: { ...data.projectiles, ...r.projectiles } };
     }
     return { bundle: data.vehicles[id], projectiles: data.projectiles };
@@ -645,11 +650,14 @@ export function start(data, saved = {}) {
   function select(id, keepPose = false) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
     const keptPose = keepPose && G.veh ? { x: G.s.x, z: G.s.z, heading: G.s.heading } : null;
-    const { bundle, projectiles } = bundleFor(id);
+    const { bundle: sourceBundle, projectiles } = bundleFor(id);
+    G.sourceBundle = sourceBundle;
+    G.combatKey = `player:${id}`;
+    const bundle = G.bundle = G.combat ? G.combat.prepare(G.combatKey, sourceBundle) : sourceBundle;
     if (G.model) {
       scene.children = scene.children.filter((c) => c !== G.model.root);
       G.model.dispose();
-      if (G.interior) G.interior.dispose();
+      if (G.interior) { G.interior.dispose(); G.interior = null; }
     }
     G.id = id;
     store.set(STORE_VEHICLE, id);
@@ -673,6 +681,8 @@ export function start(data, saved = {}) {
     G.sightG = 0;
     G.sightM = -1;
     G.pending.length = 0;
+    G.repairedModules = null;
+    G.repairedUntil = 0;
     // overall length with the gun forward, for framing the garage pictures
     const hullL = bundle.vehicle.hull.size_m[2];
     let front = hullL / 2;
@@ -683,17 +693,9 @@ export function start(data, saved = {}) {
     // hinged armour flaps start raised
     G.fold = { cur: 0, target: 0, pose: 0 };
     // what is inside: the same modules and crew the damage model uses
-    let inner = bundle;
-    if (id === 'custom') {
-      const base = data.vehicles[G.build.base];
-      const f = exportFolder(G.build, data, { armor: base.armor, modules: base.modules, crew: base.crew }, 'custom', 'custom', { includeModel: false }).files;
-      inner = { modules: f['modules.json'], crew: f['crew.json'] };
-    }
-    const mounts = bundle.design ? { modules: bundle.design.turret_modules || [], crew: bundle.design.turret_crew || [] } : null;
-    G.interior = buildInterior(renderer, G.model, G.loadout, inner.modules || [], inner.crew || [], mounts);
-    G.innerCrew = inner.crew || [];
+    rebuildInterior();
     // the engine's exhaust outlets and its smoke
-    G.exhaust = new Exhaust(fx, exhaustOf({ ...bundle, modules: inner.modules || bundle.modules || [] }));
+    G.exhaust = new Exhaust(fx, exhaustOf(bundle));
     applyXray();
     if (G.protect) protection.attach(G.model, G.loadout, protBundle());
     // the vehicle's physics: hull rigid body on its road-wheel stations and tracks (sim/tank)
@@ -704,6 +706,7 @@ export function start(data, saved = {}) {
       G.veh.place(keptPose.x, keptPose.z, keptPose.heading);
       G.veh.compat(G.s);
       G.ss = G.veh.attitude();
+      combatInit();
     } else {
       const yaw = G.cam.yaw;
       resetPose();
@@ -722,7 +725,7 @@ export function start(data, saved = {}) {
     });
     hud.buildGunList(G.loadout);
     hud.buildAmmo(sightGun(), selectAmmo);
-    G.statusShape = statusShape(bundle, inner);
+    G.statusShape = statusShape(bundle, bundle);
     G.cruise = null;
     // the rockets on the rails are the rounds loaded
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.def.missile && G.model.payload(ti, gi, roundsLeft(g))));
@@ -737,6 +740,37 @@ export function start(data, saved = {}) {
     measureInsets();
     if (net.inRoom && !G.online) lobby.sendVehicle();
     lobby.render();
+  }
+
+  /** Refresh normalized damage nodes while retaining the vehicle model and its live mounts. */
+  function rebuildInterior() {
+    const bundle = G.bundle;
+    if (!bundle || !G.model || !G.loadout) return;
+    G.interior?.dispose();
+    const mounts = bundle.design ? { modules: bundle.design.turret_modules || [], crew: bundle.design.turret_crew || [] } : null;
+    G.interior = buildInterior(renderer, G.model, G.loadout, bundle.modules || [], bundle.crew || [], mounts);
+    G.innerCrew = bundle.crew || [];
+    G.modIndex = new Map((bundle.modules || []).map((m, i) => [m.id, i]));
+    G.damageLabels = moduleDamageLabels(G.loadout, bundle.modules || []);
+    G.statusShape = statusShape(bundle, bundle);
+  }
+
+  /** WASM may arrive during a sortie: bind all existing actors without selecting/resetting them. */
+  function bindCombatReady() {
+    if (G.sourceBundle && G.loadout) {
+      G.combat.setFold(G.combatKey, G.fold?.pose || 0);
+      G.bundle = G.combat.prepare(G.combatKey, G.sourceBundle);
+      rebuildInterior();
+      combatInit(true);
+      applyXray();
+    }
+    for (const e of G.enemies || []) {
+      useCombat(e, G.combat, e.combatKey);
+      if (e.interior) {
+        e.interior.dispose();
+        e.interior = buildInterior(renderer, e.model, e.loadout, e.bundle.modules || [], e.bundle.crew || []);
+      }
+    }
   }
 
   // vectors in the data files are {x, y, z}; some generated ones are [x, y, z]
@@ -770,16 +804,16 @@ export function start(data, saved = {}) {
    * The player's own vehicle in the combat model (data vehicles only; designs and the workshop
    * build are not modelled there yet): fresh modules and crew.
    */
-  function combatInit() {
-    G.cstate = null;
-    G.caps = null;
-    const bundle = data.vehicles[G.id];
-    if (!G.combat || !bundle || G.mode !== 'battle') return;
-    G.combat.setFold(G.id, G.fold?.pose || 0);
-    const r = G.combat.fresh(G.id, bundle);
+  function combatInit(preserve = false) {
+    if (!preserve) { G.cstate = null; G.caps = null; }
+    const bundle = G.bundle;
+    if (!G.combat || !bundle || bundle.design || G.mode !== 'battle') return;
+    G.combat.setFold(G.combatKey, G.fold?.pose || 0);
+    const r = G.combat.bind(G.combatKey, bundle, G.cstate, G.caps);
     G.cstate = r.state;
     G.caps = r.caps;
-    G.modIndex = new Map(bundle.modules.map((m, i) => [m.id, i]));
+    G.bundle = r.bundle;
+    G.modIndex = new Map(r.bundle.modules.map((m, i) => [m.id, i]));
     G.carried = -1;
     syncRacks();
   }
@@ -795,12 +829,12 @@ export function start(data, saved = {}) {
    * keeps the same count online and its word overrides this).
    */
   function syncRacks() {
-    if (!G.cstate || !G.combat || !data.vehicles[G.id]) return;
+    if (!G.cstate || !G.combat || !G.bundle) return;
     const n = carriedRounds();
     if (n === G.carried) return;
     G.carried = n;
-    G.cstate = G.combat.ammo(G.id, G.cstate, n).state;
-    const empty = emptyRacks(data.vehicles[G.id], G.cstate);
+    G.cstate = G.combat.ammo(G.combatKey, G.cstate, n).state;
+    const empty = emptyRacks(G.bundle, G.cstate);
     const key = [...empty].join();
     if (key !== G.emptyKey) {
       G.emptyKey = key;
@@ -972,12 +1006,13 @@ export function start(data, saved = {}) {
   coreP.then((c) => {
     G.core = c;
     // the same core runs the combat model of data vehicles (crates/combat)
-    G.combat = new Combat(c);
+    G.combat = new Combat(c, data.machineGuns);
     // A first sortie can precede WASM readiness; bind targets without rebuilding their models.
-    for (const e of G.enemies || []) if (e.rangeTarget && !e.combat) useCombat(e, G.combat, e.combatKey);
+    bindCombatReady();
     // ... and flies missiles and rockets and the active protection that shoots at them (crates/missile)
     G.missiles = new Missiles({ core: c, defs: data.missiles, projectiles: data.projectiles, renderer, scene, fx, sound });
     G.missiles.onGround = (pt, def) => missileGround(pt, def);
+    if (G.mode === 'battle' && G.veh) missileBattleStart();
     refreshDesigns();
   });
 
@@ -1110,7 +1145,7 @@ export function start(data, saved = {}) {
     for (const n of G.interior.nodes) n.visible = G.xray || !!n.always;
     G.interior.updateLaunchers();
     // racks emptied by a short load or by firing are bare frames: not drawn
-    if (G.mode === 'battle' && G.cstate && data.vehicles[G.id]) for (const id of emptyRacks(data.vehicles[G.id], G.cstate)) for (const n of G.interior.byModule.get(id) || []) n.visible = false;
+    if (G.mode === 'battle' && G.cstate && G.bundle) for (const id of emptyRacks(G.bundle, G.cstate)) for (const n of G.interior.byModule.get(id) || []) n.visible = false;
     document.body.dataset.xray = G.xray ? '1' : '0';
     document.getElementById('xray-btn').textContent = `內構透視：${G.xray ? '開' : '關'}`;
   }
@@ -1443,15 +1478,18 @@ export function start(data, saved = {}) {
     const targets = G.map ? G.map.spawns.red.map((sp, i) => ({...sp, id: pool[i % pool.length]})) : rangeVehicleTargets();
     targets.forEach((sp, i) => {
       const id = sp.id;
-      const bundle = data.vehicles[id];
+      const sourceBundle = data.vehicles[id];
+      const key = `${G.map ? 'ai' : 'range'}:${i}:${id}`;
+      const bundle = G.combat ? G.combat.prepare(key, sourceBundle) : sourceBundle;
       const lo = makeLoadout(id, bundle, data.projectiles, data.machineGuns);
       const model = buildTank(renderer, lo, generatedTurretParts);
       scene.add(model.root);
       const e = new Enemy(id, bundle, model, terrain, sp, aim);
+      e.sourceBundle = sourceBundle;
       e.loadout = lo;
       e.rangeTarget = !G.map;
       if (e.rangeTarget) e.rangeM = sp.rangeM;
-      e.combatKey = e.rangeTarget ? `range:${i}:${id}` : id;
+      e.combatKey = key;
       if (G.combat) useCombat(e, G.combat, e.combatKey);
       G.enemies.push(e);
     });
@@ -1547,12 +1585,16 @@ export function start(data, saved = {}) {
   const remoteOf = (id) => (G.enemies || []).find((e) => e.remote && e.netId === id);
 
   function addRemote(m) {
-    const bundle = data.vehicles[m.vehicle];
-    if (!bundle) return null;
+    const sourceBundle = data.vehicles[m.vehicle];
+    if (!sourceBundle) return null;
+    const key = `remote:${m.id}:${m.vehicle}`;
+    const bundle = G.combat ? G.combat.prepare(key, sourceBundle) : sourceBundle;
     const lo = makeLoadout(m.vehicle, bundle, data.projectiles, data.machineGuns);
     const model = buildTank(renderer, lo, generatedTurretParts);
     scene.add(model.root);
     const e = new Enemy(m.vehicle, bundle, model, terrain, onlineSpawn(m.team, m.slot), null);
+    e.sourceBundle = sourceBundle;
+    e.combatKey = key;
     e.loadout = lo;
     e.remote = true;
     e.netId = m.id;
@@ -1560,7 +1602,7 @@ export function start(data, saved = {}) {
     e.player = m.name;
     e.alive = m.alive !== false;
     e.hp = m.hp ?? 100;
-    if (G.combat) useCombat(e, G.combat, m.vehicle);
+    if (G.combat) useCombat(e, G.combat, key);
     e.pose();
     G.enemies.push(e);
     return e;
@@ -2120,7 +2162,7 @@ export function start(data, saved = {}) {
   function missileVehicle() {
     if (!G.missiles) return;
     G.missiles.removeAps(ME);
-    G.aps = data.vehicles[G.id]?.weapons?.aps || null;
+    G.aps = G.loadout?.weapons?.aps || null;
     if (G.aps) {
       G.missiles.addAps(ME, 0, G.aps, 3);
       syncApsControl();
@@ -2164,7 +2206,7 @@ export function start(data, saved = {}) {
     G.fold.cur = next;
     G.fold.pose = pose;
     G.model.setFold(pose);
-    G.combat?.setFold(G.id, pose);
+    G.combat?.setFold(G.combatKey, pose);
   }
 
   /** Selecting the protection turret gives its gun to the gunner without changing the U preference. */
@@ -2217,12 +2259,16 @@ export function start(data, saved = {}) {
   };
 
   /** Where the protection gun of a vehicle stands, and the bearing of the turret it rides on. */
-  function apsOf(actor, aps, lo, yaws, ps, bundle, cstate) {
+  function apsOf(actor, aps, lo, yaws, ps, bundle, cstate, caps) {
     if (!aps) return;
     const ti = aps.turret ?? 1;
     actor.aps_pivot = gunnery.muzzleWorld(ps, mountFor(lo, yaws, ti), { yaw: yaws[ti] || 0, pitch: 0 }).trunnion;
     actor.aps_base_yaw = ps.heading + (yaws[lo.turrets[ti].parent ?? 0] || 0);
-    actor.aps_gun_ok = moduleOk(bundle, cstate, aps.gun_module);
+    const damage = weaponDamage(caps, lo.turrets[ti].guns[0].damageKey);
+    actor.aps_gun_ok = damage.can_fire && moduleOk(bundle, cstate, aps.gun_module);
+    actor.aps_traverse_mult = damage.traverse_mult;
+    actor.aps_elevate_mult = damage.elevate_mult;
+    actor.aps_dispersion_mult = damage.dispersion_mult;
     actor.aps_radar_ok = moduleOk(bundle, cstate, aps.radar_module);
   }
 
@@ -2235,12 +2281,12 @@ export function start(data, saved = {}) {
     if (G.online) return onlineMissiles(dt);
     const actors = [];
     const mine = { id: ME, team: 0, alive: !(G.caps && G.caps.destroyed), center: playerMiddle(), vel: G.veh.body.v.slice() };
-    apsOf(mine, G.aps, G.loadout, G.T.map((t) => t.yaw), pose(), data.vehicles[G.id], G.cstate);
+    apsOf(mine, G.aps, G.loadout, G.T.map((t) => t.yaw), pose(), G.bundle, G.cstate, G.caps);
     actors.push(mine);
     (G.enemies || []).forEach((e, i) => {
       const o = e.veh.body.origin();
       const a = { id: enemyOwner(i), team: 1, alive: e.alive, center: [o[0], o[1] + e.box.top * 0.5, o[2]], vel: [0, 0, 0] };
-      apsOf(a, e.bundle.weapons?.aps, e.loadout, enemyYaws(e), enemyPose(e), e.bundle, e.cstate);
+      apsOf(a, e.bundle.weapons?.aps, e.loadout, enemyYaws(e), enemyPose(e), e.bundle, e.cstate, e.caps);
       actors.push(a);
     });
     // the gunner holds the sight on the target: each of our wire-guided missiles follows the line
@@ -2289,8 +2335,8 @@ export function start(data, saved = {}) {
     const res = { missiles: m.ms || [], aps: m.aps || [], events: m.ev || [], fired: m.fired || [] };
     G.missiles.present(res, 1 / 20);
     if (!G.aps) return;
-    const b = data.vehicles[G.id];
-    const mine = { aps_gun_ok: moduleOk(b, G.cstate, G.aps.gun_module), aps_radar_ok: moduleOk(b, G.cstate, G.aps.radar_module) };
+    const b = G.bundle || data.vehicles[G.id];
+    const mine = { aps_gun_ok: weaponDamage(G.caps, G.loadout.turrets[G.aps.turret ?? 1].guns[0].damageKey).can_fire && moduleOk(b, G.cstate, G.aps.gun_module), aps_radar_ok: moduleOk(b, G.cstate, G.aps.radar_module) };
     // our own system, as the server runs it
     const own = res.aps.filter((a) => a.owner === net.id).map((a) => ({ ...a, owner: ME }));
     const evs = res.events.filter((e) => e.aps === net.id).map((e) => ({ ...e, aps: ME }));
@@ -2444,7 +2490,7 @@ export function start(data, saved = {}) {
     if (!G.combat || !G.cstate) return;
     const b = G.veh.body;
     const shot = { shell: war, origin: b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]), dir: b.localDir(dir), speed_ms: speed, distance_m: 500, seed: (rng.nextF32() * 4294967295) >>> 0, turret_yaw: G.T[0].yaw };
-    const rep = G.combat.shoot(G.id, G.cstate, shot);
+    const rep = G.combat.shoot(G.combatKey, G.cstate, shot);
     G.cstate = rep.state;
     G.caps = rep.caps;
     hud.toast(`被${def.name}擊中：${rep.title}`, 3.5);
@@ -2469,7 +2515,8 @@ export function start(data, saved = {}) {
       if (!mdef) return;
       if (!e.mslLoading) e.mslLoading = loading.newLoading(1, 1);
       tickLauncher(g, dt);
-      const done = loading.tick(e.mslLoading, dt, () => g.def.reload_s);
+      const damage = weaponDamage(e.caps, g.damageKey);
+      const done = loading.tick(e.mslLoading, dt, () => g.def.reload_s, () => weaponReloadRate(e.caps, g.damageKey));
       if (done.length) {
         g.loaded = nextAmmo(g);
         syncGunShell(g);
@@ -2478,14 +2525,24 @@ export function start(data, saved = {}) {
       }
       // the launcher turns onto the player
       const yaw = gunnery.wrapPi(Math.atan2(target[0] - e.x, target[2] - e.z) - e.heading);
-      if (ti === 0) e.turretYaw = yaw;
+      const yaws = enemyYaws(e);
+      const laid = { yaw: yaws[ti] || 0 };
+      if (damage.traverse_mult < 1) gunnery.traverseLimited(laid, yaw, t.facing, t.limit, t.traverse * damage.traverse_mult * DEG, dt);
+      else laid.yaw = yaw;
+      if (ti === 0) e.turretYaw = laid.yaw;
       if (!e.turretYaws && ti > 0) e.turretYaws = enemyYaws(e);
-      if (e.turretYaws) e.turretYaws[ti] = yaw;
+      if (e.turretYaws) e.turretYaws[ti] = laid.yaw;
       e.pose();
       const ps = enemyPose(e);
       const firstMount = mountFor(e.loadout, enemyYaws(e), ti);
       const mount = { ...firstMount, trunnion: firstMount.trunnion.map((v, k) => v + g.trunnion[k] - t.guns[0].trunnion[k]), muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector };
       const sight = gunnery.muzzleWorld(ps, mount, { yaw: enemyYaws(e)[ti] || 0, pitch: 0 }).trunnion;
+      let pitch = Math.atan2(target[1] - sight[1], Math.hypot(target[0] - sight[0], target[2] - sight[2])) + 0.02;
+      if (damage.elevate_mult < 1) {
+        const elevation = { pitch: e.gunPitch[ti] || 0 };
+        gunnery.elevate({ ...g.def, elevate_deg_s: g.def.elevate_deg_s * damage.elevate_mult }, elevation, pitch, 1, dt);
+        e.gunPitch[ti] = pitch = elevation.pitch;
+      }
       // Every live missile keeps guidance while another loaded tube is prepared.
       e.mslIds = (e.mslIds || []).filter((id) => G.missiles.nodes.has(id));
       for (const id of e.mslIds) {
@@ -2493,7 +2550,7 @@ export function start(data, saved = {}) {
         G.missiles.guide(id, owner, sight, [target[0] + w(0), target[1] + w(1) * 0.5, target[2] + w(2)]);
       }
       e.mslT = Math.max(0, (e.mslT ?? 6) - dt);
-      if ((e.caps && !e.caps.can_fire) || e.mslT > 1e-9 || e.mslLoading.state[0] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || !launcherCanFire(e.loadout, e.bundle?.modules, e.cstate, g)) return;
+      if (!damage.can_fire || e.mslT > 1e-9 || e.mslLoading.state[0] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || (e.caps?.weapons === undefined && !launcherCanFire(e.loadout, e.bundle?.modules, e.cstate, g))) return;
       const d = Math.hypot(target[0] - sight[0], target[1] - sight[1], target[2] - sight[2]);
       if (d > mdef.max_range_m || d < mdef.min_range_m * 1.5 || roundsLeft(g) <= 0) {
         e.mslT = 2;
@@ -2508,7 +2565,6 @@ export function start(data, saved = {}) {
         e.mslT = 2;
         return;
       }
-      const pitch = Math.atan2(target[1] - sight[1], Math.hypot(target[0] - sight[0], target[2] - sight[2])) + 0.02;
       const mz = gunnery.muzzleWorld(ps, launcherMount(g, mount), { yaw: enemyYaws(e)[ti] || 0, pitch });
       const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0);
       if (id == null) return;
@@ -2534,12 +2590,12 @@ export function start(data, saved = {}) {
     const g = t.guns[gi];
     const rt = G.T[ti];
     const mdef = data.missiles[g.def.missile];
-    if ((G.caps && !G.caps.can_fire) || !G.missiles?.ready || !mdef || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0) || !launcherCanFire(G.loadout, data.vehicles[G.id]?.modules, G.cstate, g)) return false;
+    if (!weaponDamage(G.caps, g.damageKey).can_fire || !G.missiles?.ready || !mdef || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0) || (G.caps?.weapons === undefined && !launcherCanFire(G.loadout, (G.bundle || data.vehicles[G.id])?.modules, G.cstate, g))) return false;
     if (G.online) {
       // Reserve one tube until the server confirms it; jitter must never spend a rejected round.
       if (!net.open || onlineLaunches.has(g)) return false;
       const seq = ++G.online.seq;
-      const msg = { t: 'launch', seq, missile: mdef.id, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: mz.dir.map((v) => Math.round(v * 1e5) / 1e5) };
+      const msg = { t: 'launch', seq, instance: g.damageKey, missile: mdef.id, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: mz.dir.map((v) => Math.round(v * 1e5) / 1e5) };
       if (!onlineLaunches.begin({ gun: g, loading: rt.loading, ti, gi, msg, session: G.online }, performance.now() / 1000)) return false;
       net.send(msg);
       return true;
@@ -2564,11 +2620,18 @@ export function start(data, saved = {}) {
     const busy = (st) => st && (st.fire_s > 0 || st.repair_s > 0 || (st.swaps && st.swaps.length));
     syncRacks();
     if (!G.online && busy(G.cstate)) {
-      const r = G.combat.advance(G.id, G.cstate, step, (rng.nextF32() * 4294967295) >>> 0);
+      const repairTargets = G.cstate.repair_targets || [];
+      const r = G.combat.advance(G.combatKey, G.cstate, step, (rng.nextF32() * 4294967295) >>> 0);
       G.cstate = r.state;
       G.caps = r.caps;
       for (const ev of r.events) {
         if (ev.startsWith('seat:')) hud.toast(`${CREW_NAME[ev.slice(5)] || ev.slice(5)}的位置已有人接替`, 2.5);
+        else if (ev === 'repaired') {
+          G.repairedModules = new Set(repairTargets.map(i => G.bundle.modules[i].id));
+          G.repairedUntil = G.time + 3;
+          const names = [...G.repairedModules].map(id => G.damageLabels?.get(id) || id).join('、');
+          hud.toast(`${EVENT_NAME.repaired}${names ? '：' + names : ''}`, 3);
+        }
         else if (EVENT_NAME[ev]) hud.toast(EVENT_NAME[ev], 2.5);
       }
     }
@@ -2590,7 +2653,7 @@ export function start(data, saved = {}) {
     if (G.caps.repair_s > 0) return hud.toast(`修理中，還要 ${Math.ceil(G.caps.repair_s)} 秒`, 2);
     if (Math.abs(G.s.u) > 1) return hud.toast('要停車才能修理', 2);
     if (G.online) return net.send({ t: 'repair' });
-    const r = G.combat.repair(G.id, G.cstate);
+    const r = G.combat.repair(G.combatKey, G.cstate);
     if (!r.ok) return hud.toast(r.caps.destroyed ? '車已被擊毀' : '沒有需要修理的模組', 2);
     G.cstate = r.state;
     G.caps = r.caps;
@@ -2599,7 +2662,7 @@ export function start(data, saved = {}) {
   function extinguishFire() {
     if (!G.cstate || G.mode !== 'battle') return;
     if (G.online) return net.send({ t: 'extinguish' });
-    const r = G.combat.extinguish(G.id, G.cstate);
+    const r = G.combat.extinguish(G.combatKey, G.cstate);
     if (!r.ok) return hud.toast(G.caps.on_fire ? '滅火器已用完' : '沒有起火', 2);
     G.cstate = r.state;
     G.caps = r.caps;
@@ -2611,7 +2674,7 @@ export function start(data, saved = {}) {
     vehicleActions.cancel();
     if (G.online) return net.send({ t: 'respawn' });
     const state = { ...G.cstate, destroyed: true, repair_s: 0 };
-    const result = G.combat.advance(G.id, state, 0, 0);
+    const result = G.combat.advance(G.combatKey, state, 0, 0);
     G.cstate = result.state;
     G.caps = result.caps;
     G.fireHeld = G.mgHeld = false;
@@ -2681,7 +2744,7 @@ export function start(data, saved = {}) {
     // the parts inside: their state as in the hit camera
     if (inner) {
       const st = G.cstate;
-      const bundle = data.vehicles[G.id];
+      const bundle = G.bundle || data.vehicles[G.id];
       for (const n of inner.nodes) saved.push([n, n.kind, n.highlight, n.visible]);
       for (const n of inner.nodes) {
         n.visible = true;
@@ -2693,7 +2756,7 @@ export function start(data, saved = {}) {
           const i = G.modIndex.get(id);
           if (i == null) continue;
           const h = bundle.modules[i].max_health > 0 ? st.modules[i] / bundle.modules[i].max_health : 1;
-          const col = h <= 0 ? [0.95, 0.2, 0.12, 0.9] : h < 0.5 ? [0.95, 0.62, 0.15, 0.85] : null;
+          const col = h <= 0 ? [0.95, 0.2, 0.12, 0.9] : h <= 0.5 ? [0.95, 0.62, 0.15, 0.85] : G.time < G.repairedUntil && G.repairedModules?.has(id) ? [0.2, 0.85, 0.45, 0.85] : null;
           if (col) for (const n of nodes) n.highlight = col;
         }
         inner.byCrew.forEach((n, i) => {
@@ -2714,7 +2777,7 @@ export function start(data, saved = {}) {
   /** The player's damage, for the status picture and the line under the drive readouts. */
   function damageView() {
     const st = G.cstate;
-    const bundle = data.vehicles[G.id];
+    const bundle = G.bundle || data.vehicles[G.id];
     if (!st || !bundle) return { items: [], shape: G.statusShape };
     const ratio = (i) => (bundle.modules[i].max_health > 0 ? st.modules[i] / bundle.modules[i].max_health : 1);
     const worst = (pred) => {
@@ -2739,11 +2802,12 @@ export function start(data, saved = {}) {
     if (worst((m) => m.kind === 'transmission') <= 0) items.push({ kind: 'bad', text: '傳動損毀' });
     if (!c.track_left) items.push({ kind: 'bad', text: '左履帶斷' });
     if (!c.track_right) items.push({ kind: 'bad', text: '右履帶斷' });
-    if (worst((m) => m.kind === 'gun_breech') <= 0) items.push({ kind: 'bad', text: '炮閂損毀' });
-    if (worst((m) => m.kind === 'gun_barrel') <= 0) items.push({ kind: 'bad', text: '炮管損毀' });
-    if (worst((m) => m.kind === 'launcher') <= 0) items.push({ kind: 'bad', text: '發射裝置損毀' });
-    if (c.traverse_mult < 1) items.push({ kind: 'warn', text: '炮塔改手搖' });
-    if (c.elevate_mult < 1) items.push({ kind: 'warn', text: '高低機損毀' });
+    bundle.modules.forEach((m, i) => {
+      if (!['gun_breech', 'gun_barrel', 'launcher', 'machine_gun', 'aps_gun', 'aps_radar', 'horizontal_drive', 'vertical_drive', 'turret_drive', 'ammo_rack'].includes(m.kind)) return;
+      const h = ratio(i);
+      if (h > .5) return;
+      items.push({ kind: h <= 0 ? 'bad' : 'warn', text: `${G.damageLabels?.get(m.id) || m.kind}${h <= 0 ? '損毀' : '受損'}` });
+    });
     for (const [role, ok] of [['driver', c.driver], ['gunner', c.gunner], ['loader', c.loader], ['commander', c.commander]]) {
       if (ok) continue;
       const sw = (st.swaps || []).find((x) => x.role === role);
@@ -3199,15 +3263,15 @@ export function start(data, saved = {}) {
   function trigger(mgTrigger = false, rocket = false) {
     if (G.sightM >= 0 && !rocket) return;
     if (G.online && G.online.dead) return;
-    if (G.caps && !G.caps.can_fire) return;
     let n = G.pending.length;
     // rockets go one to a press (the next one still on its rail)
     let rocketGone = rocket && G.pending.some((p) => G.loadout.turrets[p.ti].guns[p.gi].def.trigger === 'rocket');
     G.loadout.turrets.forEach((t, ti) => {
       const rt = G.T[ti];
       t.guns.forEach((g, gi) => {
+        if (!weaponDamage(G.caps, g.damageKey).can_fire) return;
         if (rt.loading.state[gi] !== 'ready') return;
-        if (g.def.missile && !launcherCanFire(G.loadout, data.vehicles[G.id]?.modules, G.cstate, g)) return;
+        if (g.def.missile && G.caps?.weapons === undefined && !launcherCanFire(G.loadout, (G.bundle || data.vehicles[G.id])?.modules, G.cstate, g)) return;
         // Taking the protection gun's sight gives the primary trigger to that gun alone.
         if (!rocket && G.aps && G.sightT === (G.aps.turret ?? 1) && (ti !== G.sightT || gi !== G.sightG)) return;
         if (rocket && rocketGone) return;
@@ -3220,7 +3284,7 @@ export function start(data, saved = {}) {
         // rockets have their own key (R)
         if ((g.def.trigger === 'rocket') !== rocket) return;
         // the active protection gun lays and fires itself while it is switched on
-        if (G.aps && ti === (G.aps.turret ?? 1) && (apsAutomatic() || !moduleOk(data.vehicles[G.id], G.cstate, G.aps.gun_module))) return;
+        if (G.aps && ti === (G.aps.turret ?? 1) && (apsAutomatic() || !moduleOk(G.bundle || data.vehicles[G.id], G.cstate, G.aps.gun_module))) return;
         const secondary = !rocket && (g.def.trigger === 'secondary' || (!!g.def.autocannon && !own));
         if (secondary !== mgTrigger) return;
         G.pending.push({ ti, gi, t: g.def.autocannon ? 0 : n * 0.07 });
@@ -3234,19 +3298,21 @@ export function start(data, saved = {}) {
     const t = G.loadout.turrets[ti];
     const g = t.guns[gi];
     const rt = G.T[ti];
+    const damage = weaponDamage(G.caps, g.damageKey);
+    if (!damage.can_fire || G.online?.dead) return false;
     if (rt.loading.state[gi] !== 'ready' || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
-    if (G.aps && ti === (G.aps.turret ?? 1) && !moduleOk(data.vehicles[G.id], G.cstate, G.aps.gun_module)) return false;
+    if (G.aps && ti === (G.aps.turret ?? 1) && !moduleOk(G.bundle || data.vehicles[G.id], G.cstate, G.aps.gun_module)) return false;
     const mount = g.def.missile ? launcherMount(g, mountOf(t, g)) : mountOf(t, g);
     const mz = gunnery.muzzleWorld(pose(), mount, { yaw: rt.yaw, pitch: rt.guns[gi].pitch + hullTilt(G.ss, rt.yaw) });
     if (g.def.missile) return launchFromGun(ti, gi, mz);
     loading.fired(rt.loading, gi);
-    const dir = gunnery.disperse(mz.dir, g.def.dispersion_mrad, rng);
+    const dir = gunnery.disperse(mz.dir, g.def.dispersion_mrad * damage.dispersion_mult, rng);
     const shot = { s: ballistics.newShot(mz.pos, dir, g.shell), shell: g.shell, age: 0, origin: mz.pos.slice(), travelled: 0 };
     G.shots.push(shot);
     if (G.online) {
       // the others see the shot; a hit only counts on the server if it names this one
       shot.seq = ++G.online.seq;
-      net.send({ t: 'fire', seq: shot.seq, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: g.shell.id });
+      net.send({ t: 'fire', seq: shot.seq, instance: g.damageKey, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: g.shell.id });
     }
     const gy = surfaceAt(mz.pos[0], mz.pos[2]);
     const auto = g.def.autocannon;
@@ -3325,7 +3391,8 @@ export function start(data, saved = {}) {
     // battery keeps automatic range compensation while the gunner sights a cannon.
     const laid = body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, G.sightM === i ? G.zero : range)));
     const want = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
-    e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew, dt);
+    const damage = weaponDamage(G.caps, m.damageKey);
+    e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew * damage.traverse_mult, dt, m.slew * damage.elevate_mult);
     const pitch = e.aim.pitch;
     if (m.mount === 'pintle') {
       const local = gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch });
@@ -3345,12 +3412,18 @@ export function start(data, saved = {}) {
     const enabled = G.mode === 'battle' && !G.workshop && !(G.online && G.online.dead) && !G.caps?.destroyed;
     for (let i = 0; i < G.MG.length; i++) {
       const e = G.MG[i];
+      const damage = weaponDamage(G.caps, e.m.damageKey);
       const mz = layMg(i, dt);
-      const firing = enabled && machineGunTrigger(G.sightM, i, G.fireHeld, G.mgHeld);
-      const n = mgSim.stepMg(e.m.def, e.st, firing && e.bearing, dt);
+      const firing = enabled && damage.can_fire && machineGunTrigger(G.sightM, i, G.fireHeld, G.mgHeld);
+      const n = mgSim.stepMg(e.m.def, e.st, firing && e.bearing, dt, weaponReloadRate(G.caps, e.m.damageKey));
       for (let k = 0; k < n; k++) {
-        const dir = gunnery.disperse(mz.dir, e.m.def.dispersion_mrad, rng);
-        G.bullets.push({ s: ballistics.newShot(mz.pos, dir, e.m.bullet), def: e.m.def, age: 0, travelled: 0, tracer: mgSim.isTracer(e.m.def, e.st) });
+        const dir = gunnery.disperse(mz.dir, e.m.def.dispersion_mrad * damage.dispersion_mult, rng);
+        const bullet = { s: ballistics.newShot(mz.pos, dir, e.m.bullet), def: e.m.def, instance: e.m.damageKey, age: 0, travelled: 0, tracer: mgSim.isTracer(e.m.def, e.st) };
+        if (G.online) {
+          bullet.seq = ++G.online.seq;
+          net.send({ t: 'mg_fire', seq: bullet.seq, instance: bullet.instance, gun: e.m.def.id, o: mz.pos.map(v => Math.round(v * 1000) / 1000), d: dir.map(v => Math.round(v * 1e5) / 1e5) });
+        }
+        G.bullets.push(bullet);
         fx.mgFlash(mz.pos, mz.dir, e.m.def.caliber_mm);
         sound.mg(e.m.def.caliber_mm);
         G.cam.shake = Math.min(0.35, G.cam.shake + (e.m.def.caliber_mm > 10 ? 0.06 : 0.025));
@@ -3389,7 +3462,7 @@ export function start(data, saved = {}) {
             const dir = [b.s.vel[0] / sp, b.s.vel[1] / sp, b.s.vel[2] / sp];
             if (!G.bulletShells.has(b.def.id)) G.bulletShells.set(b.def.id, bulletShell(b.def));
             const rep = combatHit(e, p0, dir, G.bulletShells.get(b.def.id), sp, b.travelled, (rng.nextF32() * 4294967295) >>> 0);
-            if (e.remote && G.online) net.send({ t: 'mg_hit', target: e.netId, gun: b.def.id, shot: wireShot(rep.shot) });
+            if (e.remote && G.online) net.send({ t: 'mg_hit', seq: b.seq, instance: b.instance, target: e.netId, gun: b.def.id, shot: wireShot(rep.shot) });
             if (rep.modules.length || rep.crew.length || rep.caps.destroyed) {
               onCombatHit(e, rep, G.bulletShells.get(b.def.id), b.travelled, true);
               hud.hitMarker(rep.title, rep.caps.destroyed ? 'kill' : 'pen');
@@ -3568,8 +3641,9 @@ export function start(data, saved = {}) {
    * The hull's attitude as the laying has caught up with it: the gunner's hands see it as it was
    * a reaction time ago; a stabilizer's gyros see its rate now and drive the gun against it.
    */
-  function trackHull(rt, stab, dt) {
-    const st = STABILIZER[stab] || STABILIZER.none;
+  function trackHull(rt, stab, dt, traverse = 1, elevate = 1) {
+    const source = STABILIZER[stab] || STABILIZER.none;
+    const st = traverse === 1 && elevate === 1 ? source : { ...source, elev: source.elev * elevate, trav: source.trav * traverse };
     const att = { pitch: G.ss.pitch, roll: G.ss.roll, heading: G.s.heading };
     if (!rt.seen) {
       rt.seen = { ...att };
@@ -3624,9 +3698,10 @@ export function start(data, saved = {}) {
   function aimTurrets(dt) {
     const ps = pose();
     // a wrecked turret drive leaves the hand traverse; a wrecked elevating gear, the slow handwheel
-    const travMult = G.caps ? G.caps.traverse_mult : 1;
-    const elevMult = G.caps ? G.caps.elevate_mult : 1;
     G.loadout.turrets.forEach((t0, ti) => {
+      const selected = t0.guns[ti === G.sightT ? G.sightG : 0];
+      const damage = weaponDamage(G.caps, selected.damageKey);
+      const travMult = damage.traverse_mult;
       let t = travMult < 1 ? { ...t0, traverse: t0.traverse * travMult } : t0;
       if (ti === 0 && G.model?.hasFlaps) t = { ...t, limit: foldYawLimit(t0, G.fold.pose) };
       const rt = G.T[ti];
@@ -3638,7 +3713,7 @@ export function start(data, saved = {}) {
         rt.carried = base;
         t = { ...t, facing: t.facing + base };
       }
-      trackHull(rt, t.stabilizer, dt);
+      trackHull(rt, t.stabilizer, dt, travMult, damage.elevate_mult);
       // the bearing is laid against the hull as the gunner last saw it pointing
       const lp = gunnery.toLocalPoint({ pos: ps.pos, heading: rt.seen.heading }, G.aimPoint);
       const pv = pivotOf(t0);
@@ -3658,13 +3733,14 @@ export function start(data, saved = {}) {
         if (rt.lay == null) rt.lay = rt.yaw + rt.seen.heading;
         const step = t.traverse * DEG * dt;
         rt.lay = gunnery.wrapPi(rt.lay + clamp(gunnery.wrapPi(targetYaw + rt.seen.heading - rt.lay), -step, step));
-        gunnery.traverseLimited(rt, gunnery.wrapPi(rt.lay - rt.seen.heading), t.facing, t.limit, Math.max(t.traverse * DEG, stab.trav), dt);
+        gunnery.traverseLimited(rt, gunnery.wrapPi(rt.lay - rt.seen.heading), t.facing, t.limit, Math.max(t.traverse * DEG, stab.trav * travMult), dt);
         reach = gunnery.traverseLimited({ yaw: rt.yaw }, targetYaw, t.facing, t.limit, 0, dt);
       } else reach = gunnery.traverseLimited(rt, targetYaw, t.facing, t.limit, t.traverse * DEG, dt);
       rt.bearing = Math.abs(gunnery.wrapPi(reach - targetYaw)) < 0.01;
       rt.yawErr = gunnery.wrapPi(targetYaw - rt.yaw);
       const seenTilt = rt.seen.pitch * Math.cos(rt.yaw) + rt.seen.roll * Math.sin(rt.yaw);
       t.guns.forEach((g, gi) => {
+        const elevMult = weaponDamage(G.caps, g.damageKey).elevate_mult;
         const gs = rt.guns[gi];
         const tr = gunnery.muzzleLocal(mountOf(t, g), { yaw: rt.yaw, pitch: 0 }).trunnion;
         const los = gi === 0 && coaxLay ? coaxLay.pitch + hullTilt(G.ss, rt.yaw) - zeroElev(g) : Math.atan2(lp[1] - tr[1], Math.hypot(lp[0] - tr[0], lp[2] - tr[2]));
@@ -3681,9 +3757,9 @@ export function start(data, saved = {}) {
           // the gunner lays the line of sight at the elevating rate; the gyro holds it against
           // the hull's pitch with its own, faster drive
           if (gs.lay == null) gs.lay = gs.pitch + seenTilt;
-          const step = g.def.elevate_deg_s * DEG * dt;
+          const step = def.elevate_deg_s * DEG * dt;
           gs.lay += clamp(los + zeroElev(g) - gs.lay, -step, step);
-          gunnery.elevate({ ...def, elevate_deg_s: Math.max(def.elevate_deg_s, stab.elev / DEG) }, gs, gs.lay - seenTilt, 1, dt);
+          gunnery.elevate({ ...def, elevate_deg_s: Math.max(def.elevate_deg_s, stab.elev / DEG * elevMult) }, gs, gs.lay - seenTilt, 1, dt);
         } else gunnery.elevate(def, gs, want, 1, dt);
         gs.pitchErr = clamp(want, -def.max_depression_deg * DEG, def.max_elevation_deg * DEG) - gs.pitch;
         gs.limited = want < -def.max_depression_deg * DEG - 0.003 || want > def.max_elevation_deg * DEG + 0.003;
@@ -3720,8 +3796,8 @@ export function start(data, saved = {}) {
     const caps = G.mode === 'battle' ? G.caps : null;
     if (caps) {
       if (!caps.driver) input.steer = 0;
-      if (!caps.can_move) input.throttle = 0;
-      else if (caps.engine_power < 1) input.throttle *= caps.engine_power;
+      input.drive_power = caps.can_move ? caps.drive_power ?? caps.engine_power ?? 1 : 0;
+      if (!caps.can_move) input.throttle = input.steer = 0;
       if (caps.repair_s > 0) {
         input.throttle = input.steer = 0;
         input.brake = 1;
@@ -3811,7 +3887,7 @@ export function start(data, saved = {}) {
       stepMachineGuns(SIM_DT);
       G.loadout.turrets.forEach((t, ti) => {
         t.guns.forEach((g) => tickLauncher(g, SIM_DT));
-        const done = loading.tick(G.T[ti].loading, SIM_DT / (G.caps ? G.caps.reload_mult : 1), (gi, li) => reloadTime(t, gi, li));
+        const done = loading.tick(G.T[ti].loading, SIM_DT, (gi, li) => reloadTime(t, gi, li), gi => weaponReloadRate(G.caps, t.guns[gi].damageKey, t.guns[gi].noDedicatedLoader));
         for (const gi of done) {
           const g = t.guns[gi];
           refillBelt(g);
@@ -4160,13 +4236,13 @@ export function start(data, saved = {}) {
     const states = [];
     G.loadout.turrets.forEach((t, ti) => {
       t.guns.forEach((g, gi) => {
-        const pr = loading.progress(G.T[ti].loading, gi);
+        const pr = loading.progress(G.T[ti].loading, gi, weaponReloadMult(G.caps, g.damageKey, g.noDedicatedLoader));
         states.push({ ...pr, bearing: G.T[ti].bearing, sighting: G.sightM < 0 && ti === G.sightT && gi === G.sightG });
       });
     });
     if (G.thumbShot) return;
     hud.guns(states);
-    hud.ammo(sg, loading.progress(srt.loading, G.sightG));
+    hud.ammo(sg, loading.progress(srt.loading, G.sightG, weaponReloadMult(G.caps, sg.damageKey, sg.noDedicatedLoader)));
     const dv = G.mode === 'battle' && G.cstate ? damageView() : { items: [], shape: G.statusShape };
     hud.damageLine(dv.items);
     if (dv.shape) {
@@ -4178,7 +4254,7 @@ export function start(data, saved = {}) {
         fire: !!(G.caps && G.caps.on_fire),
       });
     }
-    hud.mgs(G.MG.map((e, i) => ({ belt: e.st.belt, heat: e.st.heat, hot: e.st.hot, reload: e.st.reload, bearing: e.bearing, sighting: i === G.sightM })));
+    hud.mgs(G.MG.map((e, i) => ({ belt: e.st.belt, heat: e.st.heat, hot: e.st.hot, reload: e.st.reload * weaponDamage(G.caps, e.m.damageKey).reload_mult, bearing: e.bearing, sighting: i === G.sightM })));
     hud.viewLabel(G.xray ? '內構透視' : G.free ? '自由視角' : inSight ? `炮手瞄準鏡 ${level.magnification}×` : '第三人稱');
     hud.zero(`${G.zero > 0 ? `表尺 ${G.zero} m` : '表尺 直瞄'}　自動裝表 ${G.autoZero ? '開' : '關'}`);
     hud.tick(dt);
@@ -4236,7 +4312,7 @@ export function start(data, saved = {}) {
         return { ok: pr[2] > 0, x: (pr[0] * 0.5 + 0.5) * cw, y: (1 - (pr[1] * 0.5 + 0.5)) * ch };
       }, G.veh, ch / 900);
     }
-    const sp = selectedMg ? { remaining: selectedMg.st.reload, waiting: false, empty: false } : loading.progress(srt.loading, G.sightG);
+    const sp = selectedMg ? { remaining: selectedMg.st.reload * weaponDamage(G.caps, selectedMg.m.damageKey).reload_mult, waiting: false, empty: false } : loading.progress(srt.loading, G.sightG, weaponReloadMult(G.caps, sg.damageKey, sg.noDedicatedLoader));
     if (scope) {
       hud.drawSight(scope.radius, scope.pxPerRad, {
         name: selectedMg ? selectedMg.m.def.name || selectedMg.m.weapon : st.sight.name,
@@ -4258,8 +4334,8 @@ export function start(data, saved = {}) {
     if (hitcam.active && (G.mode === 'battle' || G.mode === 'test' || G.protect)) hitcam.draw2d(hud.ctx, insetFrame);
     // the main gun's reload: a ring round the aim mark (round the middle of the sight)
     if (G.mode === 'battle' && !orbit && !testing && !G.thumbShot && G.sightM < 0) {
-      const pr = loading.progress(G.T[0].loading, 0);
       const g0 = G.loadout.turrets[0].guns[0];
+      const pr = loading.progress(G.T[0].loading, 0, weaponReloadMult(G.caps, g0.damageKey, g0.noDedicatedLoader));
       if (!g0.def.autocannon && !g0.def.missile) {
         if (inSight) hud.drawReloadRing(cw / 2, ch / 2, { ...pr, empty: pr.empty }, 34);
         else hud.drawReloadRing(gunPx ? gunPx[0] : cw / 2, gunPx ? gunPx[1] : ch / 2, pr, 24);
@@ -4337,7 +4413,7 @@ export function start(data, saved = {}) {
       G.fold.cur = G.fold.target = t;
       G.fold.pose = t;
       if (G.model && G.model.setFold) G.model.setFold(t);
-      if (G.combat) G.combat.setFold(G.id, t);
+      if (G.combat) G.combat.setFold(G.combatKey, t);
     },
     /** Puts the vehicle standing still at (x, z) facing `heading`. */
     place(x, z, heading = 0) {

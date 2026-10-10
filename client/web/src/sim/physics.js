@@ -98,6 +98,7 @@ export function newState() {
  * Returns per-step info used by HUD / audio / effects.
  */
 export function step(p, s, input, env, dt) {
+  const drivePower = clamp(input.drive_power ?? 1, 0, 1);
   const t = env.terrain;
   const steer = clamp(input.steer, -1, 1);
   const brakeIn = clamp(input.brake, 0, 1);
@@ -132,7 +133,7 @@ export function step(p, s, input, env, dt) {
   const forceAt = (gear) => {
     const rpm = clamp(wheelRpm * ratio(p, gear), launch, maxRpm);
     const governor = rpm <= 0.95 * maxRpm ? 1 : clamp((maxRpm - rpm) / (0.05 * maxRpm), 0, 1);
-    return (torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, gear) * p.efficiency) / p.sprocketR;
+    return (torqueAt(p.engine.torque_curve, rpm) * governor * ratio(p, gear) * p.efficiency * drivePower) / p.sprocketR;
   };
 
   // ---- gearbox (automatic, with force-aware shifting so it does not hunt on slopes / mud)
@@ -173,7 +174,7 @@ export function step(p, s, input, env, dt) {
   if (p.minTurnRadius > 0) rateCap = Math.min(rateCap, Math.abs(s.u) / p.minTurnRadius);
   const deltaTarget = steer * rateCap * half;
   const cDiff = clamp((deltaTarget - s.r * half) / STEER_ERR_SAT, -1, 1);
-  const steerCap = Math.min(p.mass * p.brakeDecel * 0.5, p.power / (2 * Math.max(Math.abs(s.r * half), 1)));
+  const steerCap = drivePower * Math.min(p.mass * p.brakeDecel * 0.5, p.power / (2 * Math.max(Math.abs(s.r * half), 1)));
   const turnMoment = (TURN_RESISTANCE_FACTOR * t.lateral_mu * normal * p.trackLength) / 4;
   // feed-forward cancels the skid resistance so the commanded yaw rate is actually reached
   const feedForward = Math.abs(deltaTarget) > 1e-3 ? (Math.sign(deltaTarget) * turnMoment) / (2 * half) : 0;

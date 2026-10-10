@@ -92,7 +92,7 @@ test('online abandonment submits the existing server request without declaring a
 test('offline abandonment uses the real combat core and stops movement and firing',()=>{
  const data=loadData(),core=loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm',import.meta.url)),{materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)}),combat=new Combat(core);
  const fresh=combat.fresh('de_hetzer',data.vehicles.de_hetzer);
- const G={mode:'battle',id:'de_hetzer',combat,cstate:fresh.state,caps:fresh.caps,online:null,s:{u:0},fireHeld:true,mgHeld:true,keys:new Set(['fwd']),pending:[],cruise:2,view:'third'};
+ const G={mode:'battle',id:'de_hetzer',combatKey:'de_hetzer',combat,cstate:fresh.state,caps:fresh.caps,online:null,s:{u:0},fireHeld:true,mgHeld:true,keys:new Set(['fwd']),pending:[],cruise:2,view:'third'};
  const abandon=new Function('G','net','vehicleActions','hud','toggleSight',`${fn('abandonVehicle')}\nreturn abandonVehicle;`)(G,{send(){throw Error('offline cannot send');}},controller(),{toast(){}},()=>{});
  abandon();assert.equal(G.caps.destroyed,true);assert.equal(G.caps.can_move,false);assert.equal(G.caps.can_fire,false);assert.equal(G.fireHeld,false);assert.equal(G.mgHeld,false);assert.equal(G.keys.size,0);assert.equal(G.cruise,null);
 });
@@ -101,7 +101,7 @@ test('a completed F hold starts the real timed repair and the ring follows actua
  const id='su_t34_85',bundle=data.vehicles[id],fresh=combat.fresh(id,bundle);
  fresh.state.modules[bundle.modules.findIndex(m=>m.kind==='engine')]=0;
  const damaged=combat.advance(id,fresh.state,0,0);
- const G={id,mode:'battle',combat,cstate:damaged.state,caps:damaged.caps,online:null,s:{u:0}},v=controller();
+ const G={id,combatKey:id,mode:'battle',combat,cstate:damaged.state,caps:damaged.caps,online:null,s:{u:0}},v=controller();
  const repair=new Function('G','net','hud',`${fn('repairVehicle')}\nreturn repairVehicle;`)(G,{send(){throw Error('offline repair');}},{toast(){}});
  v.press('KeyF',0);assert.equal(v.tick(2.99,true,true),null);assert.equal(G.caps.repair_s,0);
  assert.equal(v.tick(3,true,true),'repair');repair();const total=G.caps.repair_s;assert.ok(total>3);assert.equal(G.caps.can_move,false);

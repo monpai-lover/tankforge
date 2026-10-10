@@ -81,7 +81,7 @@ fn drive(p: &VehicleParams, terrain: &TerrainDef, slope_deg: f64, seconds: f64) 
     let mut top = 0.0f64;
     let n = (seconds / dt) as usize;
     for i in 0..n {
-        let info = step(p, &mut s, Input { throttle: 1.0, steer: 0.0, brake: 0.0 }, &env, dt as f32);
+        let info = step(p, &mut s, Input { throttle: 1.0, steer: 0.0, brake: 0.0, drive_power: None }, &env, dt as f32);
         let kmh = info.speed_kmh as f64;
         if t32.is_none() && kmh >= 32.0 {
             t32 = Some((i + 1) as f64 * dt);

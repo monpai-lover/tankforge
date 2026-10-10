@@ -10,7 +10,7 @@ export const arr3 = (p) => (Array.isArray(p) ? p : [p.x, p.y, p.z]);
 
 export const MODULE_NAME = {
   engine: '引擎', transmission: '傳動', fuel_tank: '油箱', ammo_rack: '彈藥架', gun_breech: '炮閂', gun_barrel: '炮管', launcher: '發射裝置',
-  turret_drive: '炮塔驅動', horizontal_drive: '方向機', vertical_drive: '高低機', radio: '無線電', track: '履帶',
+  turret_drive: '炮塔驅動', horizontal_drive: '方向機', vertical_drive: '高低機', radio: '無線電', track: '履帶', machine_gun: '機槍', aps_gun: '主動防護機槍', aps_radar: '雷達',
 };
 export const CREW_NAME = { commander: '車長', gunner: '炮手', loader: '裝填手', driver: '駕駛', radio_operator: '無線電手' };
 export const EVENT_NAME = {
@@ -56,7 +56,7 @@ export function emptyRacks(bundle, state) {
 }
 
 /** The target description the Rust model wants, from a vehicle's data files. */
-export function targetDef(id, bundle, fold = 0) {
+export function targetDef(id, bundle, fold = 0, machineGuns = undefined) {
   const v = bundle.vehicle;
   const t = v.turret || {};
   const turret = t.ring_diameter_m > 0 && t.position_m ? { pivot: v3(t.position_m), size: v3(t.size_m || [1.5, 0.8, 1.8]) } : null;
@@ -67,7 +67,10 @@ export function targetDef(id, bundle, fold = 0) {
       return { ...posed, center: v3(posed.center), normal: v3(posed.normal), axis_u: v3(posed.axis_u) };
     }),
     modules: (bundle.modules || []).map((m) => ({ ...m, center: v3(m.center), half_extents: v3(m.half_extents), health: m.max_health })),
-    crew: (bundle.crew || []).map((c) => ({ role: c.role, pos: v3(c.pos), radius: c.radius ?? 0.25, health: 100 })),
+    crew: (bundle.crew || []).map((c) => ({ role: c.role, also: c.also || [], pos: v3(c.pos), radius: c.radius ?? 0.25, health: 100 })),
+    weapons: bundle.weapons,
+    machine_guns: machineGuns,
+    visual: { mg_anchors: bundle.visual?.mg_anchors || {}, mg_variants: bundle.visual?.mg_variants || {} },
     turret,
     open_top: !!t.open_top,
     ammo_capacity: ammoCapacity(bundle.weapons),
@@ -119,10 +122,13 @@ export function shellDef(s) {
 }
 
 export class Combat {
-  constructor(core) {
+  constructor(core, machineGuns = undefined) {
     this.core = core;
-    this.known = new Set();
+    this.machineGuns = machineGuns;
     this.bundles = new Map();
+    this.descriptions = new Map();
+    this.sources = new WeakMap();
+    this.catalogStamps = new Map();
     this.foldPose = new Map();
     this.appliedFold = new Map();
   }
@@ -131,16 +137,49 @@ export class Combat {
     return !!this.core;
   }
 
-  /** Registers a vehicle (once) and returns a fresh state with its capabilities. */
+  /** Registers source changes once, before model/interior creation. Never changes source data. */
+  prepare(id, bundle) {
+    if (!this.core) return bundle;
+    bundle = this.sources.get(bundle) || bundle;
+    const catalog = this._catalog();
+    // Only registration/selection computes this stamp. Shots and frames use the cached
+    // definition; imported catalog rows can be inserted, replaced or edited in place.
+    const stamp = JSON.stringify((bundle.weapons?.secondary || []).map(s => catalog?.filter(d => d.id === s.weapon)));
+    const known = this.descriptions.get(id);
+    if (known && bundle === this.bundles.get(id) && stamp === this.catalogStamps.get(id)) return known;
+    this.bundles.set(id, bundle);
+    if (!this.foldPose.has(id)) this.foldPose.set(id, 0);
+    const fold = this.foldPose.get(id);
+    const description = this.core.combatTarget(targetDef(id, bundle, fold, catalog));
+    const normalized = { ...bundle, modules: description.modules_def || bundle.modules || [], binding_errors: description.binding_errors || [] };
+    this.descriptions.set(id, normalized);
+    this.sources.set(normalized, bundle);
+    this.catalogStamps.set(id, stamp);
+    this.appliedFold.set(id, fold);
+    return normalized;
+  }
+
+  describe(id) {
+    return this.descriptions.get(id) || null;
+  }
+
+  _catalog() {
+    return this.machineGuns && (Array.isArray(this.machineGuns) ? this.machineGuns : Object.values(this.machineGuns));
+  }
+
+  /** Late readiness keeps authoritative state; only new appended anatomy receives defaults. */
+  bind(id, bundle, state = null, caps = null) {
+    if (!this.core) return null;
+    const normalized = this.prepare(id, bundle);
+    if (!state) return { ...this.fresh(id, normalized), bundle: normalized };
+    if (state.modules.length < normalized.modules.length) state = { ...state, modules: normalized.modules.map((m, i) => state.modules[i] ?? m.max_health) };
+    return { state, caps: caps || this.advance(id, state, 0, 0).caps, bundle: normalized };
+  }
+
+  /** Returns a separate fresh state for this actor; its definition is cached by source identity. */
   fresh(id, bundle) {
     if (!this.core) return null;
-    if (!this.known.has(id)) {
-      this.core.combatTarget(targetDef(id, bundle));
-      this.known.add(id);
-      this.bundles.set(id, bundle);
-      if (!this.foldPose.has(id)) this.foldPose.set(id, 0);
-      this.appliedFold.set(id, 0);
-    }
+    this.prepare(id, bundle);
     this._applyFold(id);
     return this.core.combatNew(id);
   }
@@ -155,7 +194,7 @@ export class Combat {
     if (this.appliedFold.get(id) === fold) return;
     const bundle = this.bundles.get(id);
     if (!bundle) return;
-    this.core.combatTarget(targetDef(id, bundle, fold));
+    this.core.combatTarget(targetDef(id, bundle, fold, this._catalog()));
     this.appliedFold.set(id, fold);
   }
 

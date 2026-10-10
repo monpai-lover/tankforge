@@ -8,7 +8,7 @@ use crate::{load_terrains, TerrainDb, TerrainDef};
 use std::path::{Path, PathBuf};
 
 const DT: f64 = 1.0 / 120.0;
-const IDLE: Input = Input { throttle: 0.0, steer: 0.0, brake: 0.0 };
+const IDLE: Input = Input { throttle: 0.0, steer: 0.0, brake: 0.0, drive_power: None };
 
 fn root() -> PathBuf {
     Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")
@@ -38,7 +38,32 @@ fn hold(tm: &TankModel, t: &mut Tank, g: &dyn Ground, input: Input, secs: f64) -
     run(tm, t, g, |_| input, secs, |_, _| {})
 }
 fn input(throttle: f64, steer: f64, brake: f64) -> Input {
-    Input { throttle: throttle as f32, steer: steer as f32, brake: brake as f32 }
+    Input { throttle: throttle as f32, steer: steer as f32, brake: brake as f32, drive_power: None }
+}
+
+#[test]
+fn damage_power_reduces_real_launch_and_disables_pivot_without_changing_healthy_drive() {
+    let road = terrain("road");
+    let flat = FnGround { height: |_x: f64, _z: f64| 0.0, surface: &road };
+    for id in ["de_hetzer", "us_m4a3_75w"] {
+        let accelerate = |power: Option<f32>, steer: f64| {
+            let (tm, mut t) = rig(id);
+            place(&tm, &mut t, &flat, 0.0, 0.0, 0.0);
+            hold(&tm, &mut t, &flat, IDLE, 2.0);
+            let mut i = input(if steer == 0.0 { 1.0 } else { 0.0 }, steer, 0.0);
+            i.drive_power = power;
+            let info = hold(&tm, &mut t, &flat, i, 1.0);
+            (info, t.ds)
+        };
+        let (healthy, _) = accelerate(None, 0.0);
+        let (explicit, _) = accelerate(Some(1.0), 0.0);
+        assert_eq!(healthy.u, explicit.u);
+        let (damaged, _) = accelerate(Some(0.1), 0.0);
+        assert!(damaged.u < healthy.u * 0.6, "{id}: low power must reduce first-gear thrust");
+        let (stopped, ds) = accelerate(Some(0.0), 1.0);
+        assert!(stopped.r.abs() < 0.01 && stopped.u.abs() < 0.05, "{id}: no powered pivot or creep");
+        assert_eq!(ds.motor.mean_cap, 0.0); assert_eq!(ds.motor.diff_cap, 0.0);
+    }
 }
 /// A simple driver holding `kmh` (99 = flat out).
 fn cruise(tm: &TankModel, kmh: f64) -> impl Fn(&Tank) -> Input + '_ {

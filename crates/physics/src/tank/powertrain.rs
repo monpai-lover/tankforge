@@ -99,6 +99,7 @@ pub struct Gearbox {
 /// What the gearbox decides from.
 #[derive(Clone, Copy, Debug)]
 pub struct ShiftInput {
+    pub drive_power: f64,
     /// Hull speed along its axis, m/s.
     pub u: f64,
     /// Mean |track speed|, m/s.
@@ -136,11 +137,11 @@ impl Gearbox {
             // margin, and the shift must not cost most of the speed (in deep mud or on a steep
             // climb the driver stays in the low gear)
             let lost_in_shift = (s.demand + s.climb) / s.mass * pt.shift_time;
-            if self.gear < last && rpm_now > 0.85 * max_rpm && pt.force_at(wheel_rpm, self.gear + 1) > (s.demand + s.climb) * 1.2 && lost_in_shift < 0.75 * s.u.abs() {
+            if self.gear < last && rpm_now > 0.85 * max_rpm && pt.force_at(wheel_rpm, self.gear + 1) * s.drive_power > (s.demand + s.climb) * 1.2 && lost_in_shift < 0.75 * s.u.abs() {
                 self.gear += 1;
                 self.shift_timer = pt.shift_time;
             } else if self.gear > 0 && road_rpm * pt.ratio(self.gear - 1) < 0.8 * max_rpm {
-                let cannot_hold = s.driving && pt.force_at(wheel_rpm, self.gear) < s.demand * 1.05;
+                let cannot_hold = s.driving && pt.force_at(wheel_rpm, self.gear) * s.drive_power < s.demand * 1.05;
                 let coasting_down = !s.driving && rpm_now < pt.idle_rpm;
                 if cannot_hold || coasting_down {
                     self.gear -= 1;
@@ -152,7 +153,7 @@ impl Gearbox {
         if self.shift_timer > 0.0 {
             0.0
         } else {
-            pt.force_at(wheel_rpm, self.gear)
+            pt.force_at(wheel_rpm, self.gear) * s.drive_power
         }
     }
 }

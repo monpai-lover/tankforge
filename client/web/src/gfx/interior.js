@@ -31,6 +31,9 @@ const MAT = {
 };
 
 export const MODULE_LABEL = {
+  machine_gun: '機槍',
+  aps_gun: '主動防護機槍',
+  aps_radar: '雷達',
   engine: '引擎',
   transmission: '變速箱',
   fuel_tank: '油箱',
@@ -240,6 +243,12 @@ function moduleGeometry(mod, caliberMm, missileAmmo = false) {
       for (const sy of [-1, 1]) b.box(translation(0, sy * hy, 0), false, [hx * 2, 0.012, hz * 2], MAT.dark);
       break;
     }
+    case 'aps_gun':
+    case 'machine_gun': {
+      if (mod.id.endsWith(':barrel')) b.cyl(IDENTITY, false, 'z', Math.min(hx, hy), Math.min(hx, hy), hz * 2, 10, MAT.breechSteel);
+      else b.box(IDENTITY, false, [hx * 2, hy * 2, hz * 2], MAT.breech);
+      break;
+    }
     case 'gun_breech': {
       b.box(translation(0, 0, -hz * 0.35), false, [hx * 1.7, hy * 1.7, hz * 0.9], MAT.breech);
       b.box(translation(hx * 0.2, 0, -hz * 0.35), false, [hx * 1.0, hy * 0.8, hz * 0.5], MAT.dark);
@@ -260,6 +269,7 @@ function moduleGeometry(mod, caliberMm, missileAmmo = false) {
       b.cyl(translation(-hx * 1.2, 0, -hz * 0.6), false, 'x', hy * 1.1, hy * 1.1, 0.02, 14, MAT.shaft);
       break;
     }
+    case 'aps_radar':
     case 'radio': {
       b.box(IDENTITY, false, [hx * 1.9, hy * 1.9, hz * 1.9], MAT.radio);
       for (let i = 0; i < 3; i++) b.cyl(translation((i - 1) * hx * 0.55, hy * 0.2, -hz * 0.98), false, 'z', hy * 0.22, hy * 0.22, 0.03, 8, MAT.knob);
@@ -410,6 +420,8 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
   const meshes = [];
   const nodes = [];
   const labels = [];
+  const attached = [];
+  const attach = (parent, node) => { attached.push([parent, node]); return parent.add(node); };
   // which nodes show which module and crew member (the hit camera lights them up)
   const byModule = new Map();
   const byCrew = [];
@@ -433,11 +445,11 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
     });
     return best;
   };
-  const place = (pos, mesh, label, rotate, crewTag) => {
-    const ti = rotate ? turretOf(pos) : -1;
+  const place = (pos, mesh, label, rotate, crewTag, turretIndex = undefined) => {
+    const ti = turretIndex === undefined ? rotate ? turretOf(pos) : -1 : turretIndex;
     const parent = ti >= 0 ? model.turrets[ti].node : model.body;
     const origin = ti >= 0 ? loadout.turrets[ti].pivot : [0, 0, 0];
-    const n = parent.add(new Node('interior'));
+    const n = attach(parent, new Node('interior'));
     n.pos = [pos[0] - origin[0], pos[1] - origin[1], pos[2] - origin[2]];
     n.mesh = mesh;
     n.kind = 3;
@@ -460,7 +472,7 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
       const add = (parent, data, label, pos = [0, 0, 0]) => {
         const mesh = renderer.mesh(data);
         meshes.push(mesh);
-        const n = parent.add(new Node('interior'));
+        const n = attach(parent, new Node('interior'));
         n.pos = pos;
         n.mesh = mesh;
         n.kind = 3;
@@ -488,7 +500,7 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
           body.visible = false;
           body.launcherRound = { gun: g, tube, apparatus };
           launcherRounds.push(body);
-          const tag = body.add(new Node('interior_tag'));
+          const tag = attach(body, new Node('interior_tag'));
           tag.pos = geo.centers[tube];
           tag.visible = false;
           labels[labels.length - 1].node = tag;
@@ -504,7 +516,7 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
         [fixedNode, ring].forEach(n => tagModule(m.id, n));
         drawnModules.add(m.id);
       }
-      const tag = mg.barrel.add(new Node('interior_tag'));
+      const tag = attach(mg.barrel, new Node('interior_tag'));
       tag.pos = [0, 0, geo.ringZ];
       tag.visible = false;
       labels.push({ node: tag, text: MODULE_LABEL.gun_breech, crew: false, anchor: ring });
@@ -528,7 +540,11 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
     meshes.push(mesh);
     // designer vehicles say which parts ride with the turret; for the others it is guessed
     const inTurret = mounts ? mounts.modules.includes(m.id) : m.kind === 'gun_breech' || m.kind === 'vertical_drive' || m.kind === 'turret_drive' || m.kind === 'ammo_rack';
-    tagModule(m.id, place([m.center.x, m.center.y, m.center.z], mesh, MODULE_LABEL[m.kind] || m.kind, inTurret));
+    const apsPart = m.id === loadout.weapons.aps?.gun_module || m.id === loadout.weapons.aps?.radar_module;
+    const ti = apsPart ? loadout.weapons.aps.turret ?? 1 : m.kind === 'machine_gun' ? m.turret_index ?? -1 : m.turret_index;
+    const weapon = apsPart ? loadout.weapons.aps.name : m.kind === 'machine_gun' ? loadout.machineGuns.find(g => g.damageKey === m.weapon_group)?.def.name : null;
+    const label = (weapon ? weapon + ' ' : '') + (MODULE_LABEL[m.kind] || m.kind) + (m.kind === 'machine_gun' ? m.id.endsWith(':barrel') ? '槍管' : '機匣' : '');
+    tagModule(m.id, place([m.center.x, m.center.y, m.center.z], mesh, label, inTurret, false, ti));
   }
   // one mesh per pose and figure (or role), made on first use
   const figures = new Map();
@@ -567,6 +583,7 @@ export function buildInterior(renderer, model, loadout, modules, crew, mounts = 
       }
     },
     dispose() {
+      for (const [parent, node] of attached) parent.children = parent.children.filter(n => n !== node);
       for (const m of meshes) renderer.freeMesh(m);
     },
   };

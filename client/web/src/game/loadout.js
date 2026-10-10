@@ -218,13 +218,14 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
     const guns = t.guns.map((g) => gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m));
     turrets.push(turretEntry(t.id, t.position_m, t.ring_diameter_m, t.size_m, t.traverse_deg_s, t.facing_deg, t.yaw_limit_deg, t.sight, t.loaders_m, guns, !partsFor(i + 1), t.open_top, t.stabilizer, t.parent, t.depression_by_bearing_deg));
   });
+  turrets.forEach((t, ti) => t.guns.forEach((g, gi) => { g.damageKey = `gun:${ti}:${gi}`; g.noDedicatedLoader = !!g.rack && t.loaders.length === 0; }));
   // machine guns: coaxial ones follow the main gun, hull and roof mounts are aimed by hand
   const mgs = [];
   for (const sec of w.secondary || []) {
     const def = machineGuns[sec.weapon];
     if (!def || !sec.mount) continue;
     const arc = (sec.arc_deg || MG_ARC[sec.mount] || [0, 0, 0]).map((d) => d * DEG);
-    mgs.push({ id: sec.id, weapon: sec.weapon, mount: sec.mount, anchor: bundle.visual?.mg_anchors?.[sec.id] || 'turret', def, bullet: bulletOf(def), table: mgTable(def), pos: sec.position_m, elevationPivot: sec.elevation_pivot_m, post: sec.post_m ?? 0.34, shield: sec.shield_m || null, arc, slew: (MG_SLEW[sec.mount] || 0) * DEG });
+    mgs.push({ id: sec.id, damageKey: 'mg:' + sec.id, weapon: sec.weapon, mount: sec.mount, anchor: bundle.visual?.mg_anchors?.[sec.id] || 'turret', def, bullet: bulletOf(def), table: mgTable(def), pos: sec.position_m, elevationPivot: sec.elevation_pivot_m, post: sec.post_m ?? 0.34, shield: sec.shield_m || null, arc, slew: (MG_SLEW[sec.mount] || 0) * DEG });
   }
   return { id, name: v.name, vehicle: v, engine: bundle.engine, visual: bundle.visual, imported: bundle.imported || null, weapons: w, turrets, machineGuns: mgs, gunCount: turrets.reduce((s, t) => s + t.guns.length, 0) };
 }

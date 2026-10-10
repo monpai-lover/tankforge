@@ -31,20 +31,21 @@ export function fired(L, gun) {
 }
 
 /** Remaining and total time for the gun's current reload, for the HUD. */
-export function progress(L, gun) {
+export function progress(L, gun, reloadMult = 1) {
   if (L.state[gun] === 'ready') return { remaining: 0, total: 1, waiting: false };
   // out of ammunition: nothing left to load (set by the game, never picked by a loader)
   if (L.state[gun] === 'empty') return { remaining: Infinity, total: 1, waiting: false, empty: true };
   const l = L.loaders.find((x) => x.gun === gun);
-  if (l) return { remaining: l.remaining, total: l.total, waiting: false };
+  if (l) return { remaining: l.remaining * reloadMult, total: l.total * reloadMult, waiting: false };
   return { remaining: Infinity, total: 1, waiting: true };
 }
 
 /**
  * Advances all loaders. reloadTime(gun, loaderIdx) gives the seconds one round takes.
+ * rate(gun, loaderIdx) optionally scales reload work, including current and shared cycles.
  * Returns the list of guns that became ready during this step.
  */
-export function tick(L, dt, reloadTime) {
+export function tick(L, dt, reloadTime, rate = () => 1) {
   L.clock += dt;
   const done = [];
   for (let i = 0; i < L.loaders.length; i++) {
@@ -64,9 +65,11 @@ export function tick(L, dt, reloadTime) {
         l.remaining = l.total;
         L.state[pick] = 'loading';
       }
-      const used = Math.min(budget, l.remaining);
+      const speed = rate(l.gun, i);
+      if (!(speed > 0)) break;
+      const used = Math.min(budget * speed, l.remaining);
       l.remaining -= used;
-      budget -= used;
+      budget -= used / speed;
       if (l.remaining <= 1e-9) {
         L.state[l.gun] = 'ready';
         done.push(l.gun);

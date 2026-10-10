@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import * as damageApi from '../src/game/weaponDamage.js';
 import { loadData } from '../tools/load-data.mjs';
 import { runtimeParts } from '../tools/procedural-fleet-audit.mjs';
 import { transformPoint, transformDir, mul, translation, rotX, rotY, rotZ } from '../src/gfx/math.js';
@@ -18,7 +19,7 @@ function rig(id,bundles=data) {
   const rt=runtimeParts(id,bundles),M=rt.model;
   const G={model:M,loadout:rt.loadout,veh:{body:new RigidBody(1000,[1000,1000,1000],[0,0,0])},T:[{yaw:0}],sightM:0,zero:0,aimPoint:[0,3,500],MG:rt.loadout.machineGuns.map(m=>({m,aim:{yaw:0,pitch:0},bearing:true}))};
   G.sightM=M.mgs[0].index;
-  const deps={G,gunnery,ballistics,mgSim,dirFrom};
+  const deps={...damageApi,G,gunnery,ballistics,mgSim,dirFrom};
   const muzzle=new Function(...Object.keys(deps),`${functionSource('layMg')}\n${functionSource('sightMuzzle')}\nreturn sightMuzzle;`)(...Object.values(deps));
   const yawStatement=source.match(/^      pm\.node\.yaw = [^\n]+;/m)[0];
   const pitchStatement=source.match(/^      pm\.node\.pitch = [^\n]+;/m)[0];

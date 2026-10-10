@@ -31,6 +31,32 @@ test('W launch builds track and wheel thrust instead of applying peak torque in 
   }
 });
 
+test('actual tracked and wheeled W launch consumes drive power as thrust, preserving healthy default and clutch', () => {
+  for (const id of ['de_hetzer', 'us_m8']) {
+    const healthy = rig(id), explicit = rig(id), damaged = rig(id), stopped = rig(id);
+    for (let i = 0; i < 60; i++) {
+      healthy.step(go); explicit.step({...go, drive_power: 1});
+      damaged.step({...go, drive_power: .1}); stopped.step({...go, drive_power: 0});
+    }
+    assert.deepEqual(explicit.t.body.v, healthy.t.body.v, `${id} default1 is exactly healthy`);
+    assert.ok(damaged.t.info.u < healthy.t.info.u * .6, `${id} low power must reduce first-gear acceleration, not merely its target speed`);
+    assert.ok(Math.abs(stopped.t.info.u) < .05, `${id} zero power cannot launch`);
+    assert.ok(healthy.t.ds.driveForce > 0, 'existing smooth clutch remains engaged');
+  }
+});
+
+test('actual tracked pivot and historical creep cannot produce thrust with zero drive power', () => {
+  for (const id of ['de_hetzer', 'us_m4a3_75w']) {
+    const healthy = rig(id), stopped = rig(id), turn = {throttle: 0, steer: 1, brake: 0};
+    for (let i = 0; i < 60; i++) {healthy.step(turn); stopped.step({...turn, drive_power: 0});}
+    assert.ok(Math.abs(healthy.t.info.r) > .01, id + ' healthy steering remains available');
+    assert.ok(Math.abs(stopped.t.info.r) < .01, id + ' zero power cannot pivot');
+    assert.ok(Math.abs(stopped.t.info.u) < .05, id + ' zero power cannot creep');
+    assert.equal(stopped.t.ds.motor.meanCap, 0);
+    assert.equal(stopped.t.ds.motor.diffCap, 0);
+  }
+});
+
 test('progressive launch reduces light tank pitch while preserving real rearward load transfer', () => {
   const r = rig('de_flakpz38t'), n = r.tm.sp.stations.length / 2;
   const frontBefore = r.t.ss.load[0], rearBefore = r.t.ss.load[n - 1];

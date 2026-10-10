@@ -23,6 +23,19 @@ function fixture(outcome = 'penetrated', extra = {}, shell = { kind: 'ap', calib
 function tip(node) { assert.ok(node, 'a visible projectile mesh must accompany the trace'); return Array.from(node.world.slice(12, 15)); }
 function close(a, b) { a.forEach((x, i) => assert.ok(Math.abs(x - b[i]) < 1e-5, `${a} != ${b}`)); }
 
+test('hit feedback names damaged and destroyed own weapons while retaining the actual projectile replay', () => {
+  const f = fixture();
+  f.target.moduleLabels = new Map([['mg:roof:barrel', 'Roof & <MG> 槍管']]);
+  f.rep.modules = [{id: 'mg:roof:barrel', kind: 'machine_gun', health: 20, max_health: 40, damage: 20, destroyed: false}];
+  f.hc.hide();
+  f.hc.show(f.target, f.rep, {kind: 'ap', caliber_mm: 12.7}, 100, true);
+  assert.match(f.hc.el.mods.innerHTML, /Roof &amp; &lt;MG&gt; 槍管 受損/);
+  f.rep.modules[0].destroyed = true;
+  f.hc.show(f.target, f.rep, {kind: 'ap', caliber_mm: 12.7}, 100, true);
+  assert.match(f.hc.el.mods.innerHTML, /data-dead="1".*損毀/);
+  assert.ok(f.at(.15), 'machine gun projectile and trajectory replay remain active');
+});
+
 test('replay shows an oriented, readable projectile during incoming flight', () => {
   const f = fixture();
   const n = f.at(0.45);

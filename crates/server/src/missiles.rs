@@ -195,7 +195,7 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
         }
         None => (p.point([0.0, 1.2, 0.0]), None),
     };
-    let mut a = Actor { id, team, alive, center, vel: v, obb, aps_pivot: None, aps_base_yaw: 0.0, aps_gun_ok: true, aps_radar_ok: true };
+    let mut a = Actor { id, team, alive, center, vel: v, obb, aps_pivot: None, aps_base_yaw: 0.0, aps_gun_ok: true, aps_radar_ok: true, aps_traverse_mult: 1.0, aps_elevate_mult: 1.0, aps_dispersion_mult: 1.0 };
     if let (Some(spec), Some(t)) = (aps, t) {
         let yaws = yaws_of(s);
         let py = yaws.get(spec.parent).copied().unwrap_or(0.0);
