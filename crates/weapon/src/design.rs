@@ -128,6 +128,8 @@ pub fn design_gun(cal_mm: f32, len_cal: f32) -> (GunDef, ProjectileDef) {
         ammo_count: Vec::new(),
         autocannon: None,
         missile: None,
+        weapon_group: None,
+        damage: None,
     };
     (gun, shell)
 }

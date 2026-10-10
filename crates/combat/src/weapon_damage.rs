@@ -94,6 +94,59 @@ fn group<'a>(mount: &'a Value, gun: &'a Value) -> Option<&'a str> {
         .or_else(|| gun["weapon_group"].as_str())
 }
 
+fn damage<'a>(mount: &'a Value, gun: &'a Value, field: &str) -> &'a Value {
+    mount["damage"].get(field).unwrap_or(&gun["damage"][field])
+}
+
+/// Extra turret IDs are authored identities, not ordinal labels. A legacy workshop
+/// primary is t1 only when that identity is not already carried by an extra turret.
+fn turret_identity(def: &TargetDef, ti: usize) -> Option<&str> {
+    if ti > 0 {
+        return def.weapons["extra_turrets"][ti - 1]["id"].as_str();
+    }
+    let t1_is_extra = def.weapons["extra_turrets"]
+        .as_array()
+        .into_iter()
+        .flatten()
+        .any(|t| t["id"] == "t1");
+    (!t1_is_extra
+        && def.modules.iter().any(|m| {
+            ["breech_t1_", "gun_barrel_t1_", "launcher_t1_"]
+                .iter()
+                .any(|prefix| m.id.starts_with(prefix))
+        }))
+    .then_some("t1")
+}
+
+fn authored_owner(def: &TargetDef, m: &Module) -> Result<Option<usize>, String> {
+    if let Some(ti) = m.turret_index {
+        return Ok(Some(ti));
+    }
+    let count = 1 + def.weapons["extra_turrets"].as_array().map_or(0, Vec::len);
+    let owners: Vec<_> = (0..count)
+        .filter(|&ti| {
+            turret_identity(def, ti).is_some_and(|id| {
+                ["breech", "gun_barrel", "launcher"]
+                    .iter()
+                    .any(|prefix| m.id.starts_with(&format!("{prefix}_{id}_")))
+                    || [
+                        "turret_drive",
+                        "horizontal_drive",
+                        "vertical_drive",
+                        "ammo_rack",
+                    ]
+                    .iter()
+                    .any(|prefix| m.id == format!("{prefix}_{id}"))
+            })
+        })
+        .collect();
+    match owners.as_slice() {
+        [] => Ok(None),
+        [ti] => Ok(Some(*ti)),
+        _ => Err(format!("ambiguous authored turret for {}", m.id)),
+    }
+}
+
 fn part(
     def: &TargetDef,
     kind: ModuleKind,
@@ -103,7 +156,7 @@ fn part(
     ti: usize,
     gi: usize,
 ) -> Result<Vec<usize>, String> {
-    let candidates: Vec<usize> = def
+    let mut candidates: Vec<usize> = def
         .modules
         .iter()
         .enumerate()
@@ -120,14 +173,25 @@ fn part(
             Ok(candidates)
         };
     }
+    let mut owned = Vec::new();
+    for i in candidates {
+        if authored_owner(def, &def.modules[i])?.is_none_or(|owner| owner == ti) {
+            owned.push(i);
+        }
+    }
+    candidates = owned;
     if single && !candidates.is_empty() {
         return Ok(candidates);
     }
-    let suffix = format!("_t{}_{gi}", ti + 1);
+    let suffix = turret_identity(def, ti).map(|id| format!("_{id}_{gi}"));
     let semantic: Vec<usize> = candidates
         .iter()
         .copied()
-        .filter(|&i| def.modules[i].id.ends_with(&suffix))
+        .filter(|&i| {
+            suffix
+                .as_ref()
+                .is_some_and(|s| def.modules[i].id.ends_with(s))
+        })
         .collect();
     if !semantic.is_empty() {
         return if semantic.len() == 1 {
@@ -177,11 +241,11 @@ fn turret_owner(def: &TargetDef, m: &Module, turret_count: usize) -> Result<Opti
             return Ok(Some(index));
         }
     }
-    // Workshop modules use authored turret identities; these are semantic references.
-    for ti in 0..turret_count {
-        if m.id.ends_with(&format!("_t{}", ti + 1)) || m.id.contains(&format!("_t{}_", ti + 1)) {
-            return Ok(Some(ti));
-        }
+    if let Some(owner) = authored_owner(def, m)? {
+        return Ok(Some(owner));
+    }
+    if ["turret_drive", "horizontal_drive", "vertical_drive"].contains(&m.id.as_str()) {
+        return Ok(Some(0));
     }
     if turret_count == 1 {
         return Ok(Some(0));
@@ -214,13 +278,14 @@ fn turret_owner(def: &TargetDef, m: &Module, turret_count: usize) -> Result<Opti
 fn dependencies(
     def: &TargetDef,
     mount: &Value,
+    gun: &Value,
     ti: usize,
     gi: usize,
     kind: WeaponKind,
     turret_count: usize,
 ) -> Result<(Vec<usize>, Vec<usize>, Vec<usize>), String> {
     let drives = |field: &str, kinds: &[ModuleKind]| -> Result<Vec<usize>, String> {
-        if let Some(indices) = refs(def, &mount["damage"][field], None)? {
+        if let Some(indices) = refs(def, damage(mount, gun, field), None)? {
             if indices
                 .iter()
                 .any(|&i| !kinds.contains(&def.modules[i].kind))
@@ -249,7 +314,7 @@ fn dependencies(
     let elevation = drives("elevation", &[ModuleKind::VerticalDrive])?;
     let racks = if let Some(indices) = refs(
         def,
-        &mount["damage"]["ammo_racks"],
+        damage(mount, gun, "ammo_racks"),
         Some(ModuleKind::AmmoRack),
     )? {
         indices
@@ -262,12 +327,7 @@ fn dependencies(
                 if let Some(g) = m.weapon_group.as_deref() {
                     return g == format!("turret:{ti}") || g == format!("gun:{ti}:{gi}");
                 }
-                let other_turret = (0..turret_count).any(|other| {
-                    other != ti
-                        && (m.id.ends_with(&format!("_t{}", other + 1))
-                            || m.id.contains(&format!("_t{}_", other + 1)))
-                });
-                !other_turret
+                authored_owner(def, m).is_ok_and(|owner| owner.is_none_or(|owner| owner == ti))
             })
             .map(|(i, _)| i)
             .collect()
@@ -346,7 +406,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
             } else {
                 None
             });
-            if let Some(explicit) = refs(def, &mount["damage"]["critical"], None)? {
+            if let Some(explicit) = refs(def, damage(&mount, &gun, "critical"), None)? {
                 if explicit.is_empty() {
                     return Err("empty critical module references".into());
                 }
@@ -375,7 +435,17 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
                 } else {
                     format!("launcher_mount_{gi}")
                 };
-                let explicit = explicit_group;
+                let authored = turret_identity(def, ti).map(|id| format!("launcher_{id}_{gi}"));
+                let authored_exists = authored.as_ref().is_some_and(|group| {
+                    def.modules.iter().any(|m| {
+                        m.kind == ModuleKind::Launcher && m.weapon_group.as_deref() == Some(group)
+                    })
+                });
+                let explicit = explicit_group.or(if authored_exists {
+                    authored.as_deref()
+                } else {
+                    None
+                });
                 let conventional_exists = def.modules.iter().any(|m| {
                     m.kind == ModuleKind::Launcher
                         && m.weapon_group.as_deref() == Some(&conventional)
@@ -434,7 +504,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
                     .collect()
             };
             let (traverse, elevation, racks) =
-                dependencies(def, &mount, ti, gi, kind, turret_count)?;
+                dependencies(def, &mount, &gun, ti, gi, kind, turret_count)?;
             b.traverse = traverse;
             b.elevation = elevation;
             b.ammo_racks = racks;

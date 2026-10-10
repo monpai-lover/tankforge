@@ -142,6 +142,8 @@ pub struct VehicleDef {
 #[serde(deny_unknown_fields)]
 pub struct SecondaryDef {
     pub id: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_group: Option<String>,
     /// Muzzle of a coaxial or hull gun, pivot of a roof gun; vehicle space, turret yaw 0.
     pub position_m: [f32; 3],
     /// Optional shared elevation hinge for an off-axis coax muzzle, in vehicle space.
@@ -209,6 +211,10 @@ pub struct SightDef {
 #[serde(deny_unknown_fields)]
 pub struct GunMount {
     pub gun: GunDef,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_group: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage: Option<tg_weapon::WeaponDamageRefs>,
     /// Trunnion (elevation pivot).
     pub mount_m: [f32; 3],
     #[serde(default)]
@@ -283,6 +289,10 @@ pub struct FoldYawLimitStage {
 #[serde(deny_unknown_fields)]
 pub struct WeaponsFile {
     pub main_gun: GunDef,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_group: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage: Option<tg_weapon::WeaponDamageRefs>,
     /// Gun trunnion (elevation pivot) at turret yaw 0, vehicle space.
     pub mount_m: [f32; 3],
     /// Distance from the trunnion to the muzzle. Defaults to the full barrel length.
@@ -368,6 +378,25 @@ pub struct EngineFile {
 #[cfg(test)]
 mod tests {
     use super::{SecondaryDef, WeaponsFile};
+
+    #[test]
+    fn authored_weapon_damage_metadata_loads_from_an_actual_vehicle_folder() {
+        let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/vehicles/de_hetzer");
+        let dir=std::env::temp_dir().join(format!("tankforge-authored-weapon-loader-{}",std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        for file in ["vehicle.json","armor.json","crew.json","modules.json","engine.json","visual.json"] { std::fs::copy(root.join(file),dir.join(file)).unwrap(); }
+        let mut w:serde_json::Value=serde_json::from_str(&std::fs::read_to_string(root.join("weapons.json")).unwrap()).unwrap();
+        let damage=serde_json::json!({"critical":["breech","gun_barrel"],"traverse":[],"elevation":[],"ammo_racks":["ammo_l"]});
+        w["damage"]=damage.clone();w["weapon_group"]=serde_json::json!("authored_main");
+        w["main_gun"]["damage"]=damage.clone();w["main_gun"]["weapon_group"]=serde_json::json!("authored_gun");
+        w["extra_guns"]=serde_json::json!([{"gun":w["main_gun"],"mount_m":w["mount_m"],"damage":damage,"weapon_group":"authored_extra"}]);
+        w["secondary"][0]["weapon_group"]=serde_json::json!("authored_roof_assembly");
+        std::fs::write(dir.join("weapons.json"),serde_json::to_string(&w).unwrap()).unwrap();
+        let loaded=crate::load::load_vehicle(&dir).expect("typed file loading must preserve optional associations");
+        let roundtrip=serde_json::to_value(loaded.weapons).unwrap();
+        for path in ["damage","weapon_group"] { assert_eq!(roundtrip[path],w[path]); assert_eq!(roundtrip["main_gun"][path],w["main_gun"][path]); assert_eq!(roundtrip["extra_guns"][0][path],w["extra_guns"][0][path]); }
+        assert_eq!(roundtrip["secondary"][0]["weapon_group"],"authored_roof_assembly");
+    }
 
     #[test]
     fn fold_safe_weapon_stages_roundtrip_negative_depression_and_default_for_legacy_data() {

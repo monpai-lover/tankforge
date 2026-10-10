@@ -53,11 +53,20 @@ pub(crate) fn register(def: &mut TargetDef, out: &mut BTreeMap<String, WeaponBin
                 return Err("unknown MG mount".into());
             }
             let pos = vec3(&sec["position_m"]).ok_or("missing/invalid MG position_m")?;
+            let explicit_group = sec
+                .get("weapon_group")
+                .map(|v| {
+                    v.as_str()
+                        .filter(|s| !s.is_empty())
+                        .ok_or("invalid explicit MG group")
+                })
+                .transpose()?;
+            let group = explicit_group.unwrap_or(&key);
             let existing: Vec<_> = def
                 .modules
                 .iter()
                 .enumerate()
-                .filter(|(_, m)| m.weapon_group.as_deref() == Some(&key))
+                .filter(|(_, m)| m.weapon_group.as_deref() == Some(group))
                 .map(|(i, _)| i)
                 .collect();
             if !existing.is_empty() {
@@ -69,6 +78,9 @@ pub(crate) fn register(def: &mut TargetDef, out: &mut BTreeMap<String, WeaponBin
                 }
                 b.critical = existing;
             } else {
+                if explicit_group.is_some() {
+                    return Err("missing explicit MG group parts".into());
+                }
                 let entries: Vec<_> = catalog
                     .as_array()
                     .into_iter()

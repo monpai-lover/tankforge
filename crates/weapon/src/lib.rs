@@ -142,6 +142,25 @@ pub struct GunDef {
     /// Flight definition for a missile/rocket launcher; absent for a conventional cannon.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub missile: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub weapon_group: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub damage: Option<WeaponDamageRefs>,
+}
+
+/// Explicit authored damage dependencies. Empty laying/feed lists clear those dependencies;
+/// an explicit critical list must identify at least one physical firing part.
+#[derive(Clone, Debug, Default, Serialize, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub struct WeaponDamageRefs {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub critical: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub traverse: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub elevation: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ammo_racks: Option<Vec<String>>,
 }
 
 /// The feed of an automatic gun: cyclic rate, rounds per belt (or magazine), time to change it,

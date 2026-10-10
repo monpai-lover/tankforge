@@ -321,6 +321,86 @@ fn weapon_bindings_module_schema_accepts_runtime_rounds_and_frame_metadata() {
     value["rounds"]=serde_json::json!(0.5); assert!(serde_json::from_value::<Module>(value).is_err());
 }
 
+fn workshop_binding_cases() -> serde_json::Value {
+    let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let code=r#"import {loadData} from './client/web/tools/load-data.mjs';
+import {exportFolder,newTurretSpec,PRESETS} from './client/web/src/game/loadout.js';
+import {decodeAllImported} from './client/web/src/gfx/imported.js';
+const data=loadData(); await decodeAllImported(data.vehicles);
+const builds={two_launchers:{base:'de_hetzer',keepStock:false,turrets:[{...newTurretSpec(),guns:[{weapon:'us_m901_itv'},{weapon:'us_m901_itv'}]}]},porcupine:PRESETS.porcupine.build,stock_aps:{base:'su_t10m',keepStock:true,turrets:[{...newTurretSpec(),guns:[{weapon:'us_m901_itv'}]}]}};
+console.log(JSON.stringify(Object.fromEntries(Object.entries(builds).map(([key,build])=>[key,exportFolder(build,data,data.vehicles[build.base],key,key).files]))));"#;
+    let output=std::process::Command::new("node").args(["--input-type=module","-e",code]).current_dir(root).output().unwrap();
+    assert!(output.status.success(),"{}",String::from_utf8_lossy(&output.stderr));
+    serde_json::from_slice(&output.stdout).unwrap()
+}
+
+#[test]
+fn weapon_bindings_real_workshop_exports_and_legacy_imports_preserve_instances() {
+    let cases=workshop_binding_cases();
+    for legacy in [false,true] { for (key,source) in cases.as_object().unwrap() {
+        let mut files=source.clone();
+        if legacy {
+            let strip=|m:&mut serde_json::Value| { m.as_object_mut().unwrap().remove("damage"); m.as_object_mut().unwrap().remove("weapon_group"); };
+            strip(&mut files["weapons.json"]);
+            for m in files["weapons.json"]["extra_guns"].as_array_mut().into_iter().flatten() { strip(m); }
+            for t in files["weapons.json"]["extra_turrets"].as_array_mut().into_iter().flatten() { for m in t["guns"].as_array_mut().unwrap() { strip(m); } }
+            for m in files["modules.json"].as_array_mut().unwrap() { m.as_object_mut().unwrap().remove("turret_index"); if m["kind"]!="launcher" { m.as_object_mut().unwrap().remove("weapon_group"); } }
+        }
+        let mut def=target_from_files(key,&files["vehicle.json"],serde_json::from_value(files["armor.json"].clone()).unwrap(),serde_json::from_value(files["modules.json"].clone()).unwrap(),serde_json::from_value(files["crew.json"].clone()).unwrap());
+        def.weapons=files["weapons.json"].clone(); def.visual=files["visual.json"].clone();
+        let t=Target::new(def,&rha());
+        assert!(t.binding_errors.is_empty(),"{key}/legacy={legacy}: {:?}",t.binding_errors);
+        let mut st=t.fresh_state();
+        assert!(caps(&t,&st).weapons.values().all(|c| c.can_fire));
+        if key=="two_launchers" { break_part(&t,&mut st,"launcher_t1_0"); assert!(!caps(&t,&st).weapons["gun:0:0"].can_fire); assert!(caps(&t,&st).weapons["gun:0:1"].can_fire); }
+        if key=="porcupine" {
+            break_part(&t,&mut st,"breech_t1_0"); assert!(caps(&t,&st).weapons["gun:0:0"].can_fire); assert!(!caps(&t,&st).weapons["gun:1:0"].can_fire); assert!(caps(&t,&st).weapons["gun:2:0"].can_fire);
+            break_part(&t,&mut st,"turret_drive_t1"); let c=caps(&t,&st);
+            assert_eq!(c.weapons["gun:0:0"].traverse_mult,1.0);assert_eq!(c.weapons["gun:1:0"].traverse_mult,0.15);assert_eq!(c.weapons["gun:2:0"].traverse_mult,1.0);
+        }
+        if key=="stock_aps" { break_part(&t,&mut st,"launcher_t1_0"); assert!(caps(&t,&st).weapons["gun:0:0"].can_fire); assert!(caps(&t,&st).weapons["gun:1:0"].can_fire); assert!(!caps(&t,&st).weapons["gun:2:0"].can_fire); }
+    } }
+}
+
+#[test]
+fn weapon_bindings_authored_secondary_groups_reuse_only_their_real_modules() {
+    let mut def=weapon_target("de_hetzer").def;
+    def.weapons["secondary"][0]["weapon_group"]=serde_json::json!("authored_roof_assembly");
+    for m in &mut def.modules { if m.weapon_group.as_deref()==Some("mg:roof_mg34") {m.weapon_group=Some("authored_roof_assembly".into());m.id=format!("authored_{}",m.id);} }
+    let count=def.modules.len();
+    let t=Target::new(def.clone(),&rha());
+    assert_eq!(t.def.modules.len(),count,"explicit groups must not duplicate measured MG modules");
+    let mut st=t.fresh_state(); break_part(&t,&mut st,"authored_mg:roof_mg34:receiver");
+    assert!(!caps(&t,&st).weapons["mg:roof_mg34"].can_fire);
+    assert!(caps(&t,&st).weapons["gun:0:0"].can_fire);
+    def.modules.iter_mut().find(|m| m.id=="authored_mg:roof_mg34:receiver").unwrap().kind=ModuleKind::GunBreech;
+    assert!(Target::new(def,&rha()).binding_errors["mg:roof_mg34"].contains("wrong module kind"));
+}
+
+#[test]
+fn weapon_bindings_explicit_missing_mg_group_fails_without_appending_parts() {
+    let mut def=weapon_target("de_hetzer").def;
+    def.weapons["secondary"][0]["weapon_group"]=serde_json::json!("missing_authored_assembly");
+    let count=def.modules.len(); let t=Target::new(def,&rha());
+    assert_eq!(t.def.modules.len(),count);
+    assert!(t.binding_errors["mg:roof_mg34"].contains("missing explicit MG group"));
+}
+
+#[test]
+fn weapon_bindings_main_gun_damage_refs_are_used_and_mount_refs_take_priority() {
+    let mut def=weapon_target("de_gepard").def;
+    def.weapons["main_gun"]["damage"]=serde_json::json!({"critical":["breech_r","gun_barrel_r"]});
+    def.weapons["extra_guns"][0]["damage"]=serde_json::json!({"critical":["breech","gun_barrel"]});
+    let t=Target::new(def.clone(),&rha());
+    assert!(t.binding_errors.is_empty());
+    let mut st=t.fresh_state();break_part(&t,&mut st,"breech_r");
+    assert!(!caps(&t,&st).weapons["gun:0:0"].can_fire);assert!(caps(&t,&st).weapons["gun:0:1"].can_fire);
+    def.weapons["damage"]=serde_json::json!({"critical":["breech","gun_barrel"]});
+    def.weapons["extra_guns"][0]["damage"]=serde_json::json!({"critical":["breech_r","gun_barrel_r"]});
+    let t=Target::new(def,&rha());let mut st=t.fresh_state();break_part(&t,&mut st,"breech_r");
+    assert!(caps(&t,&st).weapons["gun:0:0"].can_fire);assert!(!caps(&t,&st).weapons["gun:0:1"].can_fire);
+}
+
 fn rha() -> Vec<Material> {
     vec![Material { id: "rha".into(), kind: ArmorKind::Rha, density_kg_m3: 7850.0, hardness_bhn: 300.0, kinetic_factor: 1.0, chemical_factor: 1.0 }]
 }

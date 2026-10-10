@@ -531,6 +531,7 @@ export function exportFolder(build, data, baseFiles, id, name, options = {}) {
   const modules = baseFiles.modules.filter((m) => retainStock || !TURRET_KINDS.includes(m.kind));
   const crew = baseFiles.crew.filter((c) => retainStock || c.role === 'driver' || c.role === 'radio_operator');
   layouts.forEach((t, i) => {
+    const ti = stats.stockTurrets + i;
     const [px, py, pz] = t.position_m;
     const [tw, th, tl] = t.size_m;
     const s = `_${t.id}`;
@@ -540,6 +541,11 @@ export function exportFolder(build, data, baseFiles, id, name, options = {}) {
     armor.push(plate('turret_rear' + s, 'turret_rear', 50, [px, py + th / 2, pz - tl / 2 + 0.03], [0, 0, -1], [1, 0, 0], tw / 2, th / 2));
     if (!t.open_top) armor.push(plate('turret_roof' + s, 'turret_roof', 20, [px, py + th, pz], [0, 1, 0], [1, 0, 0], tw / 2 - 0.1, tl / 2 - 0.1));
     t.guns.forEach((g, j) => {
+      const weapon = ti === 0 ? j === 0 ? bundle.weapons : bundle.weapons.extra_guns[j - 1] : bundle.weapons.extra_turrets[ti - 1].guns[j];
+      const critical = g.gun.missile ? [`launcher${s}_${j}`] : [`breech${s}_${j}`, `gun_barrel${s}_${j}`];
+      const weaponGroup = g.gun.missile ? critical[0] : `gun:${ti}:${j}`;
+      weapon.weapon_group = weaponGroup;
+      weapon.damage = { critical, traverse: ['turret_drive' + s], elevation: [], ammo_racks: ['ammo_rack' + s] };
       const [tx, ty, tz] = g.mount_m;
       const cal = g.gun.caliber_mm;
       armor.push(plate(`gun_mantlet${s}_${j}`, 'gun_mantlet', 80, [tx, ty, pz + tl / 2 + 0.06], [0, 0, 1], [1, 0, 0], 0.15 + cal * 0.002, 0.13 + cal * 0.002));
@@ -551,15 +557,15 @@ export function exportFolder(build, data, baseFiles, id, name, options = {}) {
           lo[k] = Math.min(lo[k], v[k] - (k === 2 ? length : radius));
           hi[k] = Math.max(hi[k], v[k] + (k === 2 ? 0 : radius));
         }
-        modules.push({ ...mod(`launcher${s}_${j}`, 'launcher', [tx, ty, tz].map((v, k) => v + (lo[k] + hi[k]) / 2), lo.map((v, k) => r3((hi[k] - v) / 2)), 70), weapon_group: `launcher${s}_${j}` });
+        modules.push({ ...mod(`launcher${s}_${j}`, 'launcher', [tx, ty, tz].map((v, k) => v + (lo[k] + hi[k]) / 2), lo.map((v, k) => r3((hi[k] - v) / 2)), 70), weapon_group: weaponGroup, turret_index: ti });
       } else {
-        modules.push(mod(`breech${s}_${j}`, 'gun_breech', [tx, ty, tz - 0.4], [0.11, 0.11, 0.24], 90));
-        modules.push(mod(`gun_barrel${s}_${j}`, 'gun_barrel', [tx, ty, tz + g.muzzle_offset_m / 2 + 0.2], [0.08, 0.08, r3(g.muzzle_offset_m / 2 - 0.2)], 110));
+        modules.push({ ...mod(`breech${s}_${j}`, 'gun_breech', [tx, ty, tz - 0.4], [0.11, 0.11, 0.24], 90), weapon_group: weaponGroup, turret_index: ti });
+        modules.push({ ...mod(`gun_barrel${s}_${j}`, 'gun_barrel', [tx, ty, tz + g.muzzle_offset_m / 2 + 0.2], [0.08, 0.08, r3(g.muzzle_offset_m / 2 - 0.2)], 110), weapon_group: weaponGroup, turret_index: ti });
       }
     });
     const rack = t.rack_m;
-    modules.push(mod('ammo_rack' + s, 'ammo_rack', rack, [0.2, 0.12, 0.12], 50));
-    modules.push(mod('turret_drive' + s, 'turret_drive', [px - tw * 0.3, py + 0.1, pz - tl * 0.05], [0.1, 0.08, 0.12], 70));
+    modules.push({ ...mod('ammo_rack' + s, 'ammo_rack', rack, [0.2, 0.12, 0.12], 50), turret_index: ti });
+    modules.push({ ...mod('turret_drive' + s, 'turret_drive', [px - tw * 0.3, py + 0.1, pz - tl * 0.05], [0.1, 0.08, 0.12], 70), turret_index: ti });
     crew.push(crewman('gunner', [px - t.ring_diameter_m * 0.27, py + 0.3, pz + 0.12]));
     t.loaders_m.forEach((l) => crew.push(crewman('loader', l)));
     if (i === 0 && !retainStock) crew.push(crewman('commander', [px + t.ring_diameter_m * 0.05, py + 0.38, pz - t.ring_diameter_m * 0.36]));

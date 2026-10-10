@@ -248,6 +248,8 @@ pub fn compile(m: &Model, r: &DesignReport, engine: Option<&EngineFile>) -> Opti
     let loaders: Vec<[f32; 3]> = d.crew_positions.iter().filter(|c| c.role == CrewRoleDef::Loader).map(|c| f3(m.to_hull(c.mount, c.position_m, 0.0))).collect();
     let weapons = WeaponsFile {
         main_gun: def,
+        weapon_group: None,
+        damage: None,
         mount_m: f3(trunnion),
         muzzle_offset_m: Some(gun.muzzle as f32),
         sight: Some(SightDef {

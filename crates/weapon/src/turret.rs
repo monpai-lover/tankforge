@@ -134,6 +134,8 @@ mod tests {
             ammo_count: Vec::new(),
             autocannon: None,
             missile: None,
+            weapon_group: None,
+            damage: None,
         }
     }
 
