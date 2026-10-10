@@ -15,6 +15,7 @@ import { setActiveMap } from './game/relief.js';
 import { loadBattleMap, FORD_DEPTH } from './game/battlemap.js';
 import { buildMapWorld } from './game/mapworld.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
+import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
 import { HitCam } from './game/hitcam.js';
 import { designReplayReport } from './game/projectileReplay.js';
@@ -964,6 +965,8 @@ export function start(data, saved = {}) {
     G.core = c;
     // the same core runs the combat model of data vehicles (crates/combat)
     G.combat = new Combat(c);
+    // A first sortie can precede WASM readiness; bind targets without rebuilding their models.
+    for (const e of G.enemies || []) if (e.rangeTarget && !e.combat) useCombat(e, G.combat, e.combatKey);
     // ... and flies missiles and rockets and the active protection that shoots at them (crates/missile)
     G.missiles = new Missiles({ core: c, defs: data.missiles, projectiles: data.projectiles, renderer, scene, fx, sound });
     G.missiles.onGround = (pt, def) => missileGround(pt, def);
@@ -1242,7 +1245,7 @@ export function start(data, saved = {}) {
     G.cqDead = false;
     if (!G.online) G.conquest = G.map && G.map.points?.length ? Object.assign(new Conquest(G.map.points), { local: true }) : null;
     if (G.online) spawnRemotes();
-    else if (G.map) spawnEnemies();
+    else spawnEnemies();
     G.view = 'third';
     G.free = false;
     G.mgHeld = G.fireHeld = false;
@@ -1251,7 +1254,7 @@ export function start(data, saved = {}) {
     missileBattleStart();
     if (G.online) hud.toast(`聯機戰鬥：${mapName(G.mapId)}　你在${G.online.team === 'blue' ? '藍方' : '紅方'}　Enter 聊天，R 重生／棄車，Tab 離開房間`, 6);
     else if (G.conquest) hud.toast(`${G.loadout.name} 出擊：${G.map.name}・佔領模式　佔領 ${G.conquest.points.map((p) => p.id).join('／')} 點讓敵方兵力歸零，Tab 回車庫`, 6);
-    else hud.toast(G.map ? `${G.loadout.name} 出擊：${G.map.name}　藍方出發點 ${spawnLabel()}，Tab 回車庫` : `${G.loadout.name} 出擊　靶在道路前方，Tab 回車庫`, 5);
+    else hud.toast(G.map ? `${G.loadout.name} 出擊：${G.map.name}　藍方出發點 ${spawnLabel()}，Tab 回車庫` : `${G.loadout.name} 出擊　100–2000 m 靶車：近處薄裝甲，遠處先進裝甲，Tab 回車庫`, 5);
     updateNetHud(true);
   }
 
@@ -1413,7 +1416,7 @@ export function start(data, saved = {}) {
     }
   }
 
-  // ---- enemy vehicles at the red start points (targets with real armour)
+  // ---- stock range targets and enemy vehicles at a map's red start points
   const ENEMY_POOL = ['su_t34_85', 'us_m901_itv', 'de_pz4_h', 'su_t10m', 'us_m4a3_75w', 'de_panther_g', 'su_is2', 'uk_cromwell_iv'];
   function clearEnemies() {
     hitcam.hide();
@@ -1426,20 +1429,47 @@ export function start(data, saved = {}) {
   }
   function spawnEnemies() {
     clearEnemies();
-    const blue = G.map.spawns.blue;
+    const blue = G.map ? G.map.spawns.blue : [{x: 0, z: 0}];
     const aim = [blue.reduce((a, s) => a + s.x, 0) / blue.length, blue.reduce((a, s) => a + s.z, 0) / blue.length];
     const pool = ENEMY_POOL.filter((id) => id !== G.id && data.vehicles[id]);
-    G.map.spawns.red.forEach((sp, i) => {
-      const id = pool[i % pool.length];
+    const targets = G.map ? G.map.spawns.red.map((sp, i) => ({...sp, id: pool[i % pool.length]})) : rangeVehicleTargets();
+    targets.forEach((sp, i) => {
+      const id = sp.id;
       const bundle = data.vehicles[id];
       const lo = makeLoadout(id, bundle, data.projectiles, data.machineGuns);
       const model = buildTank(renderer, lo, generatedTurretParts);
       scene.add(model.root);
       const e = new Enemy(id, bundle, model, terrain, sp, aim);
       e.loadout = lo;
-      if (G.combat) useCombat(e, G.combat, id);
+      e.rangeTarget = !G.map;
+      if (e.rangeTarget) e.rangeM = sp.rangeM;
+      e.combatKey = e.rangeTarget ? `range:${i}:${id}` : id;
+      if (G.combat) useCombat(e, G.combat, e.combatKey);
       G.enemies.push(e);
     });
+  }
+
+  /** Stock training targets show their range; online players retain their visibility rules. */
+  function drawVehicleTags(camPos, viewProj, cw, ch) {
+    if (G.mode !== 'battle' || (!G.online && G.map)) return;
+    const tags = [];
+    const check = G.mapTick % 6 === 0;
+    for (const e of G.enemies) {
+      if (!e.remote && !e.rangeTarget) continue;
+      const p = [e.x, e.veh.body.origin()[1] + e.box.top + 1.0, e.z];
+      const dist = Math.hypot(e.x - G.s.x, e.z - G.s.z);
+      const friend = !!(G.online && e.team === G.online.team);
+      if (check || e.seen == null) {
+        const d = [p[0] - camPos[0], p[1] - camPos[1], p[2] - camPos[2]];
+        const l = Math.hypot(d[0], d[1], d[2]) || 1;
+        e.seen = friend || (groundRay(camPos, [d[0] / l, d[1] / l, d[2] / l], l, surfaceAt) >= l - 2 && !buildingHit(camPos, p));
+      }
+      if (!e.seen || (!friend && !e.rangeTarget && dist > 1500)) continue;
+      const pr = project(viewProj, p);
+      if (!(pr[2] > 0) || Math.abs(pr[0]) > 1.05 || Math.abs(pr[1]) > 1.05) continue;
+      tags.push({x: (pr[0] * 0.5 + 0.5) * cw, y: (1 - (pr[1] * 0.5 + 0.5)) * ch, name: e.rangeTarget ? `${e.rangeM} m` : e.player, vehicle: e.name, friend, alive: e.alive, dist});
+    }
+    hud.drawNameTags(tags);
   }
   /** The enemy a shell segment strikes first, with where. */
   function hitEnemy(p0, p1, skip = null) {
@@ -2076,7 +2106,7 @@ export function start(data, saved = {}) {
     missileVehicle();
     (G.enemies || []).forEach((e, i) => {
       const aps = e.bundle.weapons?.aps;
-      if (aps && !e.remote) G.missiles.addAps(enemyOwner(i), 1, aps, 11 + i);
+      if (aps && !e.remote && !e.rangeTarget) G.missiles.addAps(enemyOwner(i), 1, aps, 11 + i);
       e.mslT = 6 + i * 4;
       e.mslIds = [];
       e.mslLoading = null;
@@ -2422,7 +2452,7 @@ export function start(data, saved = {}) {
     if (!G.missiles?.ready || G.online || G.mode !== 'battle' || (G.caps && G.caps.destroyed)) return;
     const target = playerMiddle();
     (G.enemies || []).forEach((e, i) => {
-      if (!e.alive || e.remote || !e.loadout) return;
+      if (!e.alive || e.remote || e.rangeTarget || !e.loadout) return;
       let ti = -1;
       let gi = -1;
       e.loadout.turrets.forEach((t, a) => t.guns.forEach((g, b) => {
@@ -4146,28 +4176,8 @@ export function start(data, saved = {}) {
       });
       hud.drawPoints(pts);
     }
-    if (G.online && G.mode === 'battle') {
-      // the other players' names over their vehicles; enemies only while in sight
-      const tags = [];
-      const check = G.mapTick % 6 === 0;
-      for (const e of G.enemies) {
-        if (!e.remote) continue;
-        const p = [e.x, e.veh.body.origin()[1] + e.box.top + 1.0, e.z];
-        const dist = Math.hypot(e.x - G.s.x, e.z - G.s.z);
-        const friend = e.team === G.online.team;
-        if (check || e.seen == null) {
-          const d = [p[0] - camPos[0], p[1] - camPos[1], p[2] - camPos[2]];
-          const l = Math.hypot(d[0], d[1], d[2]) || 1;
-          e.seen = friend || (groundRay(camPos, [d[0] / l, d[1] / l, d[2] / l], l, surfaceAt) >= l - 2 && !buildingHit(camPos, p));
-        }
-        if (!e.seen || (!friend && dist > 1500)) continue;
-        const pr = project(viewProj, p);
-        if (!(pr[2] > 0) || Math.abs(pr[0]) > 1.05 || Math.abs(pr[1]) > 1.05) continue;
-        tags.push({ x: (pr[0] * 0.5 + 0.5) * cw, y: (1 - (pr[1] * 0.5 + 0.5)) * ch, name: e.player, vehicle: e.name, friend, alive: e.alive, dist });
-      }
-      hud.drawNameTags(tags);
-      updateNetHud();
-    }
+    drawVehicleTags(camPos, viewProj, cw, ch);
+    if (G.online && G.mode === 'battle') updateNetHud();
     if (physDebug.on && G.mode === 'battle') {
       physDebug.draw(hud.ctx, (p) => {
         const pr = project(viewProj, p);
