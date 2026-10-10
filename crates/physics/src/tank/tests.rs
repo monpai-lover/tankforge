@@ -652,3 +652,38 @@ fn running_gear_vk1602_and_uneven_discs_match_source_volume_mass_distribution() 
         }
     }
 }
+
+#[test]
+fn running_gear_overflowing_json_hint_preserves_legacy_motion_and_strict_outer_fields() {
+    let road = terrain("road"); let flat = FnGround { height: |_: f64, _: f64| 0.0, surface: &road };
+    let (tm, mut source) = rig("su_t34_85"); source.body.place([3.0, 0.0, 4.0], 0.0); source.body.v = [1.0, -0.5, 2.0];
+    source.body.running_gear.as_mut().unwrap().q[0] = 0.15; source.body.running_gear.as_mut().unwrap().qv[0] = -0.8;
+    let sent = net_state(&source); let valid = serde_json::to_string(&sent).unwrap();
+    let mut legacy = serde_json::to_value(&sent).unwrap(); legacy.as_object_mut().unwrap().remove("rg");
+    let text = serde_json::to_string(&legacy).unwrap(); let prefix = text.strip_suffix('}').unwrap();
+    let zeroes = vec!["0"; tm.sp.stations.len()].join(",");
+    let tail = vec!["0"; tm.sp.stations.len() - 1].join(",");
+    for hint in [
+        format!(r#"{{"version":1,"q":[1e309,{tail}],"qv":[{zeroes}]}}"#),
+        format!(r#"{{"version":1,"q":[-1e309,{tail}],"qv":[{zeroes}]}}"#),
+        format!(r#"{{"version":1,"q":[{zeroes}],"qv":[1e309,{tail}]}}"#),
+        format!(r#"{{"version":1,"q":[1e309,{tail}],"qv":[{zeroes}],"future":{{"nested":[1e309]}}}}"#),
+        r#"{"version":1e309,"q":[0],"qv":[0]}"#.to_owned(),
+        "1e309".to_owned(),
+    ] {
+        let packet = format!("{prefix},\"rg\":{hint}}}");
+        let parsed = serde_json::from_str::<NetState>(&packet);
+        assert!(parsed.is_ok(), "overflow in optional rg must preserve motion: {}", parsed.unwrap_err());
+        let parsed = serde_json::from_str::<NetState>(&packet).unwrap(); assert!(parsed.rg.is_none());
+        let mut remote = Tank::new(&tm); apply_net_state(&mut remote, &parsed); reconstruct_running_gear(&tm, &mut remote, &flat, DT);
+        assert!(len(sub(remote.body.origin(), source.body.origin())) < 1e-8 && len(sub(remote.body.v, source.body.v)) < 1e-8);
+        let rg = remote.body.running_gear.as_ref().unwrap(); assert!(!rg.remote_pose && rg.qv.iter().all(|v| *v == 0.0));
+    }
+    for parsed in [serde_json::from_str::<NetState>(&valid).unwrap(), serde_json::from_value::<NetState>(serde_json::to_value(&sent).unwrap()).unwrap()] {
+        let hint = parsed.rg.unwrap(); assert_eq!(hint.q[0], 0.15); assert_eq!(hint.qv[0], -0.8);
+    }
+    legacy["pos"] = serde_json::json!(["OUTER_OVERFLOW", 0, 0]);
+    let invalid_outer = serde_json::to_string(&legacy).unwrap().replace("\"OUTER_OVERFLOW\"", "1e309");
+    assert!(serde_json::from_str::<NetState>(&invalid_outer).is_err(), "required outer pose overflow remains an error");
+    assert!(serde_json::from_str::<NetState>(&format!(r#"{prefix},"rg":{{"q":[1e309,]}}}}"#)).is_err(), "syntax-invalid optional JSON remains an error");
+}

@@ -362,8 +362,9 @@ pub struct RunningGearHint {
 fn deserialize_running_gear_hint<'de, D: serde::Deserializer<'de>>(deserializer: D) -> Result<Option<RunningGearHint>, D::Error> {
     // A malformed optional extension must not reject an otherwise valid legacy motion packet.
     // Its numeric bounds/count remain model-specific and are checked by apply_net_state.
-    let value = serde_json::Value::deserialize(deserializer)?;
-    Ok(serde_json::from_value(value).ok())
+    // Capture raw JSON first so an overflowing number fails inside this field's typed parse.
+    let raw = Box::<serde_json::value::RawValue>::deserialize(deserializer)?;
+    Ok(serde_json::from_str(raw.get()).ok())
 }
 
 fn f3(v: V3) -> [f32; 3] {
