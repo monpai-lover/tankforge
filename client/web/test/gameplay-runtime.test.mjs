@@ -100,7 +100,7 @@ function selectionRuntime(id, mode, build = loadout.PRESETS.hexa.build) {
   const hud = new Proxy({}, { get: () => () => {} });
   const scene = { children: [], add(root) { this.children.push(root); } };
   const deps = { G, data, LANG_INDEX: 0, isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }),
-    onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), scene, store: { set() {} }, STORE_VEHICLE: 'unused', ...loadout, ...performanceApi, ...inventory, ...resupply, phys, applyAmmo, AMMO_CFG: {}, loading, mgSim,
+    onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), scene, store: { set() {} }, STORE_VEHICLE: 'unused', ...loadout, ...performanceApi, ...inventory, ...resupply, phys, applyAmmo, AMMO_CFG: {}, loading, mgSim, gunnery,
     renderer, buildTank, VehicleSim, terrain, Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {},
     resetPose() { G.veh.place(0, 0, 0); G.veh.compat(G.s); },
     mods: { choose() {}, cardOf: id => id, slots: () => [] }, hud, reloadShown() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0], statusShape() {},

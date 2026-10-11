@@ -50,12 +50,14 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
     sightT: 0, sightG: 0, sightM: -1, pending: [], zoomIdx: 0,
     cam: { yaw: 0, pitch: 0, shake: 0 }, camPos: [0, 3, 0], aimPoint: [0, 3, 800], aim: { dist: 800 },
     MG: lo.machineGuns.map(m => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true })),
-    T: lo.turrets.map(t => ({ yaw: t.facing, bearing: true, yawErr: 0,
-      guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })),
-      loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })),
+    T: [],
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], guided: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
+  const creationStart = source.indexOf('    G.T = G.loadout.turrets.map(');
+  const creationEnd = source.indexOf('    G.loadout.turrets.forEach((t, ti) => t.guns.forEach', creationStart);
+  assert.ok(creationStart >= 0 && creationEnd > creationStart, 'actual select turret construction and attachment seed');
+  new Function('G', 'loading', 'gunnery', source.slice(creationStart, creationEnd))(G, loading, gunnery);
   const sent = [], apsCalls = [], launches = [], payloads = [];
   if (!mesh) G.model.payload = (...args) => payloads.push(args);
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
@@ -118,6 +120,105 @@ function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
   r.G.ss = body.attitude();
   if (r.rt) r.rt.model.body.local = matrix;
 }
+
+test('gun solo holds another turret drive and elevation while the selected child moves', () => {
+  const r = controls('su_t10m'); chooseControl(r, 'gun:1:0');
+  r.G.T[0].yaw = .7; r.G.T[0].guns[0].pitch = .13;
+  const held = angles(r)[0], selected = angles(r)[1]; r.G.aimPoint = [500, 100, 300];
+  for (let i = 0; i < 240; i++) r.live.aimTurrets(1 / 60);
+  assert.deepEqual(angles(r)[0], held, 'inactive main motor angles');
+  assert.notEqual(r.G.T[1].yaw, selected.yaw, 'selected child traverses');
+  assert.notEqual(r.G.T[1].guns[0].pitch, selected.pitches[0], 'selected child elevates');
+});
+
+test('gun solo holds the sibling elevation while their shared ring traverses', () => {
+  const r = controls('su_bmpt34'); chooseControl(r, 'gun:0:1');
+  r.G.T[0].guns[0].pitch = .17; r.G.T[0].guns[0].lay = .8; r.G.aimPoint = [300, 80, 400];
+  for (let i = 0; i < 240; i++) r.live.aimTurrets(1 / 60);
+  close(r.G.T[0].guns[0].pitch, .17, 'unselected same-ring elevation');
+  assert.equal(r.G.T[0].guns[0].lay, null, 'held elevation discards old stabilized target');
+  assert.notEqual(r.G.T[0].yaw, 0, 'shared physical ring traverses');
+  assert.notEqual(r.G.T[0].guns[1].pitch, 0, 'selected elevation advances');
+});
+
+test('inactive child holds local yaw while the selected parent physically carries it', () => {
+  const r = controls('su_t10m'); chooseControl(r, 'gun:0:0');
+  r.G.T[0].yaw = .2; r.G.T[1].yaw = .65; r.G.T[1].carried = .2;
+  r.G.T[1].guns[0].pitch = .23; r.G.aimPoint = [500, 20, 100];
+  for (let i = 0; i < 240; i++) {
+    r.live.aimTurrets(1 / 60);
+    close(gunnery.wrapPi(r.G.T[1].yaw - r.G.T[0].yaw), .45, 'held child relative motor yaw');
+    close(r.G.T[1].guns[0].pitch, .23, 'held child elevation');
+  }
+  assert.notEqual(r.G.T[0].yaw, .2, 'selected parent advances');
+  assert.notEqual(r.G.T[1].yaw, .65, 'physical parent carries child hull-frame yaw');
+});
+
+for (const variant of ['authored', 'two_plane']) {
+  test(`MG solo freezes cannon motors through real hull motion and direct tracking (${variant})`, () => {
+    const r = controls('su_is2', true); chooseControl(r, 'mg:0');
+    if (variant === 'two_plane') r.G.loadout.turrets[0].stabilizer = 'two_plane';
+    r.G.T[0].yaw = .42; r.G.T[0].guns[0].pitch = .12;
+    r.live.trackHull(r.G.T[0], 'two_plane', 1 / 60);
+    r.G.T[0].lay = 2; r.G.T[0].guns[0].lay = .9;
+    const before = angles(r); r.G.aimPoint = [500, 200, -100];
+    for (let i = 0; i < 120; i++) {
+      tiltBody(r, .1 * Math.sin(i / 8), .08 * Math.cos(i / 7), i * .005);
+      r.live.aimTurrets(1 / 60);
+      assert.deepEqual(angles(r), before, 'actual laying keeps local cannon motors fixed');
+      r.live.trackHull(r.G.T[0], 'two_plane', 1 / 60, 1, 1, false);
+      assert.deepEqual(angles(r), before, 'direct held tracking keeps local cannon motors fixed');
+      for (const key of ['seen', 'hand', 'prev']) {
+        close(r.G.T[0][key].heading, r.G.s.heading, `${key} heading rebased`);
+        close(r.G.T[0][key].pitch, r.G.ss.pitch, `${key} pitch rebased`);
+        close(r.G.T[0][key].roll, r.G.ss.roll, `${key} roll rebased`);
+      }
+      assert.deepEqual(r.G.T[0].drive, { pitch: 0, roll: 0, heading: 0 });
+      assert.equal(r.G.T[0].hist.length, 0); assert.equal(r.G.T[0].clock, 0);
+      assert.equal(r.G.T[0].lay, null); assert.equal(r.G.T[0].guns[0].lay, null);
+    }
+    chooseControl(r, 'gun:0:0'); const yaw = r.G.T[0].yaw, pitch = r.G.T[0].guns[0].pitch;
+    r.live.aimTurrets(1 / 60);
+    const t = r.G.loadout.turrets[0], g = t.guns[0];
+    const stabilized = variant === 'two_plane';
+    assert.ok(Math.abs(gunnery.wrapPi(r.G.T[0].yaw - yaw)) <= (stabilized ? Math.max(t.traverse, 50) : t.traverse) * DEG / 60 + 1e-9, 'reselection obeys true traverse rate');
+    assert.ok(Math.abs(r.G.T[0].guns[0].pitch - pitch) <= (stabilized ? Math.max(g.def.elevate_deg_s, 50) : g.def.elevate_deg_s) * DEG / 60 + 1e-9, 'reselection obeys true elevation rate');
+  });
+}
+
+test('first SOLO frame carries an inactive child from its authored parent base', () => {
+  const bundle = structuredClone(data.vehicles.su_t10m); bundle.weapons.facing_deg = 20;
+  const r = controls('su_t10m', false, bundle); chooseControl(r, 'gun:0:0');
+  const relative = gunnery.wrapPi(r.G.T[1].yaw - r.G.T[0].yaw), pitch = r.G.T[1].guns[0].pitch;
+  close(r.G.T[0].yaw, 20 * DEG, 'authored nonzero parent facing');
+  close(relative, r.G.loadout.turrets[1].facing, 'authored child rest yaw is parent-relative');
+  r.G.aimPoint = [500, 20, 100]; r.live.aimTurrets(1 / 60);
+  close(gunnery.wrapPi(r.G.T[1].yaw - r.G.T[0].yaw), relative, 'first carried local yaw');
+  close(r.G.T[1].guns[0].pitch, pitch, 'first held child pitch');
+  assert.notEqual(r.G.T[0].yaw, 20 * DEG, 'parent starts moving on first SOLO frame');
+});
+
+test('actual resetPose attachment bookkeeping seeds reset and preserved parent poses without moving life joints', () => {
+  const bundle = structuredClone(data.vehicles.su_t10m); bundle.weapons.facing_deg = 20;
+  const r = controls('su_t10m', false, bundle), reset = functionSource('resetPose');
+  const start = reset.indexOf('    for (const t of G.T) {');
+  assert.ok(start >= 0, 'actual resetPose turret and MG attachment bookkeeping');
+  const resetMounts = new Function('G', 'gunnery', 'preserveLife', reset.slice(start, -4));
+  r.G.T[0].yaw = .8; r.G.T[1].yaw = 1.25; r.G.T[1].guns[0].pitch = .23;
+  r.G.T[1].carried = -.5;
+  const preserved = angles(r), stock = r.G.loadout.turrets.map(t => t.guns.map(loadout.roundsLeft));
+  resetMounts(r.G, gunnery, true);
+  assert.deepEqual(angles(r), preserved, 'same-life reset preserves actual motor poses');
+  close(r.G.T[1].carried, .8, 'same-life child carry starts at current parent yaw');
+  assert.equal(r.G.T[0].carried, null, 'unparented turret has no parent carry');
+  for (const e of r.G.MG) close(e.carried, e.m.mount === 'pintle' && e.m.anchor !== 'hull' ? .8 : 0, 'MG attachment base uses current parent or hull');
+  resetMounts(r.G, gunnery, false);
+  close(r.G.T[0].yaw, 20 * DEG, 'fresh reset applies authored parent yaw once');
+  close(r.G.T[1].yaw, r.G.loadout.turrets[1].facing + 20 * DEG, 'fresh reset applies authored child yaw once');
+  close(r.G.T[1].carried, r.G.T[0].yaw, 'fresh carry starts at already reset parent yaw');
+  close(r.G.T[1].guns[0].pitch, .23, 'attachment bookkeeping does not reset gun elevation');
+  assert.deepEqual(r.G.loadout.turrets.map(t => t.guns.map(loadout.roundsLeft)), stock, 'attachment bookkeeping leaves finite stock intact');
+});
 
 test('first G selects gun zero, cancels the ALL ripple and routes held fire only to that cannon', () => {
   const r = controls('su_bmpt34'), guns = r.G.loadout.turrets[0].guns;
@@ -274,8 +375,18 @@ test('main turret drive damage affects its laying rate while Oplot keeps its own
   b.damage(drive.id);
   a.live.aimTurrets(.1); b.live.aimTurrets(.1);
   assert.ok(Math.abs(b.G.T[0].yaw) < Math.abs(a.G.T[0].yaw) * .5, 'damaged main drive slows main traverse');
-  close(b.G.T[1].yaw, a.G.T[1].yaw, 'independent APS traverse remains original');
-  close(b.G.T[1].guns[0].pitch, a.G.T[1].guns[0].pitch, 'APS elevation remains original');
+  for (const r of [a, b]) {
+    close(gunnery.wrapPi(r.G.T[1].yaw - r.G.T[0].yaw), 0, 'automatic-owned child retains its relative yaw during parent carry');
+    close(r.G.T[1].guns[0].pitch, 0, 'camera laying does not elevate the automatic-owned gun');
+    chooseControl(r, 'gun:1:0');
+  }
+  const before = [angles(a)[1], angles(b)[1]];
+  a.live.aimTurrets(.01); b.live.aimTurrets(.01);
+  const traverse = a.G.loadout.turrets[1].traverse * DEG * .01;
+  close(gunnery.wrapPi(a.G.T[1].yaw - before[0].yaw), traverse, 'healthy independent APS traverse rate');
+  close(gunnery.wrapPi(b.G.T[1].yaw - before[1].yaw), traverse, 'main drive damage leaves independent APS traverse rate intact');
+  close(b.G.T[1].guns[0].pitch, a.G.T[1].guns[0].pitch, 'main drive damage leaves APS elevation intact');
+  assert.ok(a.G.T[1].guns[0].pitch > 0, 'manually selected APS elevation actually moves');
 });
 
 test('live cannon and MG projectiles consume their own partial dispersion without changing cyclic rate', () => {
@@ -448,25 +559,55 @@ test('online manual Oplot fire uses the independently traversed rendered mount a
   assert.equal(r.sent.at(-1).t, 'aps'); assert.equal(r.sent.at(-1).enabled, true);
 });
 
-test('selected coax converges from its actual muzzle while retaining its shared gun elevation', () => {
+test('selected fixed coax holds cannon motors and fires from the actual rendered bore', () => {
   const r = controls('su_is2', true), i = r.G.MG.findIndex(e => e.m.mount === 'coax');
-  r.G.sightM = i; r.G.aimPoint = [0, 2.02, 25];
-  for (let k = 0; k < 240; k++) r.live.aimTurrets(1 / 60);
-  const mz = r.live.sightMuzzle(), d = r.G.aimPoint.map((v, k) => v - mz.pos[k]);
-  close(Math.atan2(mz.dir[0], mz.dir[2]), Math.atan2(d[0], d[2]), 'coax parallax at 25m', 2e-6);
-  close(Math.asin(mz.dir[1]), Math.atan2(d[1], Math.hypot(d[0], d[2])), 'coax vertical convergence', 2e-6);
+  chooseControl(r, `mg:${i}`); r.G.T[0].yaw = .7; r.G.T[0].guns[0].pitch = .2;
+  r.rt.at({ yaw: .7, pitch: .2 });
+  const before = r.live.sightMuzzle(), held = angles(r), node = r.rt.model.turrets[0].guns[0].node;
+  transformDir(node.world, [0, 0, 1]).forEach((v, k) => close(before.dir[k], v, 'real rigid rendered bore', 1e-6));
+  r.G.zero = 800; r.G.aimPoint = [-400, 90, 200]; r.G.cam.yaw = -.3; r.G.cam.pitch = .4;
+  for (let k = 0; k < 240; k++) { r.live.aimTurrets(1 / 60); r.live.layMg(i, 1 / 60); }
+  assert.deepEqual(angles(r), held, 'coax SOLO holds its cannon yaw and elevation');
+  assert.deepEqual(r.live.sightMuzzle(), before, 'zero and view changes cannot swivel the fixed coax');
+  r.G.fireHeld = true; r.live.stepMachineGuns(.01);
+  assert.ok(r.G.bullets.length > 0, 'the fixed coax remains manually fireable away from camera aim');
+  assert.equal(r.G.bullets[0].instance, r.G.MG[i].m.damageKey);
+  before.pos.forEach((v, k) => close(r.G.bullets[0].s.pos[k], v, 'round leaves actual fixed coax muzzle'));
+  const nominal = r.G.bullets[0].s.vel.map(v => v / Math.hypot(...r.G.bullets[0].s.vel));
+  assert.ok(nominal.reduce((sum, v, k) => sum + v * before.dir[k], 0) > .999, 'real projectile follows the frozen bore with normal dispersion');
 });
 
-test('selected coax keeps its zero and parallax alignment on a pitched and rolled hull', () => {
+test('coax actual reticle follows frozen bore with real zero and parallax on a pitched and rolled hull', () => {
   const r = controls('su_is2', true), i = r.G.MG.findIndex(e => e.m.mount === 'coax');
-  r.G.sightM = i; tiltBody(r, .1, .15); r.G.aimPoint = [0, 6, 35];
+  chooseControl(r, `mg:${i}`); r.G.T[0].yaw = .7; r.G.T[0].guns[0].pitch = .2;
+  tiltBody(r, .1, .15, .6, [5, .4, -7]); r.rt.at({ yaw: .7, pitch: .2 });
+  const held = angles(r), before = r.live.sightMuzzle(), node = r.rt.model.turrets[0].guns[0].node;
+  transformDir(node.world, [0, 0, 1]).forEach((v, k) => close(before.dir[k], v, 'tilted real rigid rendered bore', 1e-6));
+  const start = source.indexOf('    if (inSight) {\n      // where the gun');
+  const end = source.indexOf('\n\n    // ---- projectiles', start); assert.ok(start >= 0 && end > start);
+  const offsets = [];
   for (const zero of [0, 800]) {
-    r.G.zero = zero;
+    r.G.zero = zero; r.G.aimPoint = [-400, 90, 200];
     for (let k = 0; k < 240; k++) r.live.aimTurrets(1 / 60);
-    const mz = r.live.sightMuzzle(), d = r.G.aimPoint.map((v, k) => v - mz.pos[k]);
-    close(Math.atan2(mz.dir[0], mz.dir[2]), Math.atan2(d[0], d[2]), 'sloped coax horizontal convergence', 2e-6);
-    close(Math.asin(mz.dir[1]) - Math.atan2(d[1], Math.hypot(d[0], d[2])), ballistics.elevationAt(r.G.MG[i].m.table, zero), `sloped coax zero ${zero}`, 2e-6);
+    assert.deepEqual(angles(r), held, 'zero and view changes hold cannon motors on a tilted hull');
+    const mz = r.live.sightMuzzle(); assert.deepEqual(mz, before, 'actual rigid coax muzzle stays unchanged');
+    assert.deepEqual(r.live.currentLos().from, mz.pos, 'rangefinder starts at selected actual coax muzzle');
+    const selectedMg = r.G.MG[i], ze = ballistics.elevationAt(selectedMg.m.table, zero);
+    const yaw = Math.atan2(mz.dir[0], mz.dir[2]), pitch = Math.asin(clamp(mz.dir[1], -1, 1));
+    const cw = 1280, ch = 800, fwd = dirFrom(yaw + .2, pitch), tilt = 0;
+    const camPos = mz.trunnion.map((v, k) => v + mz.dir[k] * .6);
+    const viewProj = mul(perspective(.3, cw / ch, .3, 9000), lookAtLH(camPos, fwd).view);
+    r.G.aim.dist = 100;
+    new Function('G', 'selectedMg', 'sightMuzzle', 'tilt', 'ze', 'dirFrom', 'clamp', 'project', 'viewProj', 'camPos', 'fwd', 'cw', 'ch', 'inSight', 'srt', 'sgs', source.slice(start, end))(
+      r.G, selectedMg, r.live.sightMuzzle, tilt, ze, dirFrom, clamp, project, viewProj, camPos, fwd, cw, ch, true, r.G.T[0], r.G.T[0].guns[0]);
+    const sl = dirFrom(yaw, pitch - ze), reach = 100 - Math.hypot(...mz.pos.map((v, k) => v - mz.trunnion[k]));
+    const pr = project(viewProj, mz.pos.map((v, k) => v + sl[k] * reach));
+    close(r.G.sightOffset[0], pr[0] * .5 * cw, `actual bore horizontal parallax at zero ${zero}`, 1e-5);
+    close(r.G.sightOffset[1], -pr[1] * .5 * ch, `actual bore vertical parallax at zero ${zero}`, 1e-5);
+    assert.ok(Math.abs(r.G.sightOffset[0]) > 20, 'view movement retains the off-center fixed bore reticle');
+    offsets.push(r.G.sightOffset.slice());
   }
+  assert.ok(Math.abs(offsets[1][1] - offsets[0][1]) > 1, 'the chosen MG ballistic zero changes the graticule independently of the fixed bore');
 });
 
 test('automatic Oplot ammunition depletion selects a valid manual round and never fires an empty magazine', () => {

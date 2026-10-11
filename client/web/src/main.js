@@ -699,6 +699,12 @@ export function start(data, saved = {}) {
         loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)),
       };
     });
+    G.loadout.turrets.forEach((t, ti) => {
+      if (t.parent != null) {
+        G.T[ti].yaw = gunnery.wrapPi(G.T[ti].yaw + G.T[t.parent].yaw);
+        G.T[ti].carried = G.T[t.parent].yaw;
+      }
+    });
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.loaded < 0 && (G.T[ti].loading.state[gi] = 'empty')));
     if (initialAmmo) onlineAmmo.bindLoadings(G.T.map(t=>t.loading));
     G.MG = G.loadout.machineGuns.map((m) => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true }));
@@ -936,6 +942,10 @@ export function start(data, saved = {}) {
       t.lay = null;
       for (const g of t.guns) g.lay = null;
     }
+    G.loadout.turrets.forEach((t, ti) => {
+      G.T[ti].carried = t.parent != null ? G.T[t.parent].yaw : null;
+    });
+    for (const e of G.MG) e.carried = e.m.mount === 'pintle' && e.m.anchor !== 'hull' ? G.T[0].yaw : 0;
   }
 
   // the hull's heave on its springs (and the ground it stands on) lifts everything mounted on it
@@ -958,11 +968,7 @@ export function start(data, saved = {}) {
     const pv = pivotOf(t);
     return { pivot: pv, trunnion: [g.trunnion[0] + pv[0] - t.pivot[0], g.trunnion[1] + pv[1] - t.pivot[1], g.trunnion[2] + pv[2] - t.pivot[2]], muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector };
   };
-  const zeroElev = (g) => {
-    const selected = G.MG[G.sightM];
-    const table = selected?.m.mount === 'coax' && g === G.loadout.turrets[0].guns[0] ? selected.m.table : g.table;
-    return ballistics.elevationAt(table, G.zero);
-  };
+  const zeroElev = (g) => ballistics.elevationAt(g.table, G.zero);
 
   // ----------------------------------------------------------------- workshop
 
@@ -3981,10 +3987,23 @@ export function start(data, saved = {}) {
    * The hull's attitude as the laying has caught up with it: the gunner's hands see it as it was
    * a reaction time ago; a stabilizer's gyros see its rate now and drive the gun against it.
    */
-  function trackHull(rt, stab, dt, traverse = 1, elevate = 1) {
+  function trackHull(rt, stab, dt, traverse = 1, elevate = 1, active = true) {
+    const att = { pitch: G.ss.pitch, roll: G.ss.roll, heading: G.s.heading };
+    if (!active) {
+      Object.assign(rt.seen || (rt.seen = {}), att);
+      Object.assign(rt.hand || (rt.hand = {}), att);
+      Object.assign(rt.prev || (rt.prev = {}), att);
+      if (rt.drive) rt.drive.pitch = rt.drive.roll = rt.drive.heading = 0;
+      else rt.drive = { pitch: 0, roll: 0, heading: 0 };
+      if (rt.hist) rt.hist.length = 0;
+      else rt.hist = [];
+      rt.clock = 0;
+      rt.lay = null;
+      for (const gs of rt.guns) gs.lay = null;
+      return;
+    }
     const source = STABILIZER[stab] || STABILIZER.none;
     const st = traverse === 1 && elevate === 1 ? source : { ...source, elev: source.elev * elevate, trav: source.trav * traverse };
-    const att = { pitch: G.ss.pitch, roll: G.ss.roll, heading: G.s.heading };
     if (!rt.seen) {
       rt.seen = { ...att };
       rt.hand = { ...att };
@@ -4037,9 +4056,10 @@ export function start(data, saved = {}) {
 
   function aimTurrets(dt) {
     const ps = pose();
+    const control = G.weaponControl;
     // a wrecked turret drive leaves the hand traverse; a wrecked elevating gear, the slow handwheel
     G.loadout.turrets.forEach((t0, ti) => {
-      const selected = t0.guns[ti === G.sightT ? G.sightG : 0];
+      const selected = t0.guns[control.kind === 'gun' && control.ti === ti ? control.gi : ti === G.sightT ? G.sightG : 0];
       const damage = weaponDamage(G.caps, selected.damageKey);
       const travMult = damage.traverse_mult;
       let t = travMult < 1 ? { ...t0, traverse: t0.traverse * travMult } : t0;
@@ -4053,18 +4073,14 @@ export function start(data, saved = {}) {
         rt.carried = base;
         t = { ...t, facing: t.facing + base };
       }
-      trackHull(rt, t.stabilizer, dt, travMult, damage.elevate_mult);
+      const apsOwned = G.aps && ti === (G.aps.turret ?? 1) && apsAutomatic();
+      const active = !apsOwned && (control.kind === 'all' || (control.kind === 'gun' && control.ti === ti));
+      trackHull(rt, t.stabilizer, dt, travMult, damage.elevate_mult, active);
+      if (!active) return;
       // the bearing is laid against the hull as the gunner last saw it pointing
       const lp = gunnery.toLocalPoint({ pos: ps.pos, heading: rt.seen.heading }, G.aimPoint);
       const pv = pivotOf(t0);
-      const coaxMuzzle = ti === 0 && G.MG[G.sightM]?.m.mount === 'coax' ? sightMuzzle() : null;
-      let coaxLay = null;
-      if (coaxMuzzle) {
-        const d = G.aimPoint.map((v, k) => v - coaxMuzzle.pos[k]);
-        const laid = G.veh.body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + zeroElev(t.guns[0])));
-        coaxLay = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
-      }
-      const targetYaw = coaxLay ? gunnery.wrapPi(coaxLay.yaw + G.s.heading - rt.seen.heading) : Math.atan2(lp[0] - pv[0], lp[2] - pv[2]);
+      const targetYaw = Math.atan2(lp[0] - pv[0], lp[2] - pv[2]);
       const stab = STABILIZER[t.stabilizer] || STABILIZER.none;
       let reach;
       if (stab.trav) {
@@ -4080,10 +4096,11 @@ export function start(data, saved = {}) {
       rt.yawErr = gunnery.wrapPi(targetYaw - rt.yaw);
       const seenTilt = rt.seen.pitch * Math.cos(rt.yaw) + rt.seen.roll * Math.sin(rt.yaw);
       t.guns.forEach((g, gi) => {
+        if (!gunControlActive(control, ti, gi)) { rt.guns[gi].lay = null; return; }
         const elevMult = weaponDamage(G.caps, g.damageKey).elevate_mult;
         const gs = rt.guns[gi];
         const tr = gunnery.muzzleLocal(mountOf(t, g), { yaw: rt.yaw, pitch: 0 }).trunnion;
-        const los = gi === 0 && coaxLay ? coaxLay.pitch + hullTilt(G.ss, rt.yaw) - zeroElev(g) : Math.atan2(lp[1] - tr[1], Math.hypot(lp[0] - tr[0], lp[2] - tr[2]));
+        const los = Math.atan2(lp[1] - tr[1], Math.hypot(lp[0] - tr[0], lp[2] - tr[2]));
         // the elevation is laid against the hull's attitude as the gunner (or the gyro) sees it,
         // as fast as the elevating gear allows
         const want = los + zeroElev(g) - seenTilt;

@@ -7,6 +7,7 @@ import * as loadout from '../src/game/loadout.js';
 import * as performanceApi from '../src/game/gameplayPerformance.js';
 import * as phys from '../src/sim/physics.js';
 import * as loading from '../src/sim/loading.js';
+import * as gunnery from '../src/sim/gunnery.js';
 import * as mgSim from '../src/sim/mg.js';
 import { applyAmmo } from '../src/game/deploy.js';
 import { VehicleSim } from '../src/game/vehicle.js';
@@ -42,7 +43,7 @@ function runtime(id = 'su_bmpt34', cfg = {}) {
   const gameplay = new GameplaySession({ get: () => JSON.stringify({ mode: 'historical', version: 1 }), set() {} });
   gameplay.beginBattle();
   let respawns = 0;
-  const deps = { G, data, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, loading, mgSim, applyAmmo, AMMO_CFG: cfg,
+  const deps = { G, data, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, loading, gunnery, mgSim, applyAmmo, AMMO_CFG: cfg,
     onlineFires, onlineLaunches, onlineAmmo:new OnlineAmmo(), renderer, scene, buildTank, VehicleSim, terrain: ground(() => 0), ME: 1,
     isDesign: () => false, store: { set() {} }, STORE_VEHICLE: 'unused', LANG_INDEX: 0,
     Exhaust: class {}, fx: {}, exhaustOf() {}, rebuildInterior() {}, applyXray() {}, combatInit() {},
