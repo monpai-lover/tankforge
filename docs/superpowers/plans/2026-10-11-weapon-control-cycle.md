@@ -4,7 +4,7 @@
 
 **Goal:** Make G cycle ALL FIRE, each mounted gun solo, then each MG solo, with exclusive firing and motor ownership and accurate actual-bore aiming.
 
-**Architecture:** Add explicit control state and pure selection/trigger policy to the existing small `weaponselection.js` module. Derive sight references from it, then apply that policy at the existing live trigger, gun, MG, turret, stabilization and APS boundaries. Preserve the current loadout, simulation, ammo/resupply and wire authority; do not rewrite `main.js` or add seats.
+**Architecture:** Add explicit control state and pure selection/trigger policy to the existing small `weaponselection.js` module. Derive sight references from it, then apply that policy at the existing live trigger, gun, MG, turret, stabilization and APS boundaries. Add a narrow trusted held-pose handoff to the existing native APS owner so ALL resumes from the real motor pose; preserve ammunition/life authority, and do not rewrite `main.js` or add seats.
 
 **Tech Stack:** Dependency-free browser JavaScript/WebGL2, Node's test runner, existing extracted-live-handler fixtures, current Rust/WASM combat and missile dependencies supplied by the root-owned build lane.
 
@@ -14,21 +14,28 @@
 
 Read `docs/superpowers/specs/2026-10-11-weapon-control-cycle-design.md` first. Investigation baseline is `633d668acda2c109ddb416d76c5af71ff30c6bfd`; root reconciles its sole runtime writer's later C1 fixes before execution. All source ranges below identify named owners at that baseline rather than authorizing unrelated edits. Preserve C1 actor stock targets, normal reloads, finite APS stock and actual ready-payload depiction. Future C2 scope/ledger changes remain owned by that task.
 
+The APS-resume follow-up examined current source with HEAD `9101104b98eba8e2b74964ea4324cafcd4cc0348`, including C2's evolving worktree. `World::set_aps_rounds` never adopts pose; disabled `step_aps` returns before changing yaw/pitch; server `actor_of` supplies only parent base/pivot; client `applyAps` directly adopts the stale native pose when ALL returns. Task 5A is required by that concrete source trace. It executes after C2 is reviewed in the same sole native lane, not concurrently with C2 and not by this document writer.
+
 | Path | Responsibility and permitted implementation change |
 | --- | --- |
 | `client/web/src/game/weaponselection.js` | Explicit mode cycle, sight derivation, labels, motor eligibility and trigger routing; retain `ammoKeyIndex`. |
 | `client/web/src/main.js` | Initial/select state, reset-time attachment bookkeeping, `cycleSightGun`, `trigger`, `fireGun`, `trackHull`, `aimTurrets`, `layMg`, `stepMachineGuns`, rotary spin, APS control and HUD adapters only. |
 | `client/web/src/game/hud.js` | Persistent mode label and complete gun row highlighting, including first gun. |
+| `client/web/src/game/missiles.js` | Offline pose adoption bridge before existing APS enable, without recreation or stock grant. |
 | `client/web/template.html` | Add visible mode label and correct G help copy using existing HUD style. |
+| `crates/missile/src/world.rs`, `crates/design-wasm/src/lib.rs` | In-place trusted APS pose adoption and WASM call, preserving all non-pose state. |
+| `crates/server/src/missiles.rs`, `crates/server/src/lobby.rs` | Normalize/limit the bound held joint pose from accepted State; adopt it in the existing APS ownership transition and expose a snapshot barrier. |
+| `crates/missile/src/tests.rs`, `crates/server/src/gameplay_tests.rs`, `crates/server/src/ammo_tests.rs` | Actual disabled/resumed world and server handler tests, and regenerated source-tagged receipt phases. |
 | `client/web/test/weapon-selection.test.mjs` | Pure cycle/routing/mode identity REDs. |
 | `client/web/test/weapon-control.test.mjs` | Existing `controls` fixture plus actual live cycle/fire/aim/MG/APS/reticle tests; no replacement simulation. |
 | `client/web/test/gameplay-runtime.test.mjs`, `client/web/test/oplot23-variant.test.mjs`, `client/web/test/third-person-aa.test.mjs` | Initialize the explicit state and migrate exact expected selections; preserve physical, damage, performance and ammo assertions. |
 | `client/web/test/ammo-resupply-aps.test.mjs`, `client/web/test/ammo-resupply-runtime.test.mjs`, `client/web/test/gameplay-network.test.mjs` | Inject newly imported helpers into extracted live handlers and preserve real C1/net lifecycle assertions. |
+| `client/web/test/live-network-rig.mjs`, `client/web/test/ammo-resupply-network.test.mjs` | Reuse C2's completed real live handler rig for accepted pose/barrier replay and unchanged stock/life assertions. |
 | `client/web/test/launcher-damage-control.test.mjs`, `client/web/test/gameplay-performance.test.mjs` | Inject control helpers/state into extracted `trigger`/`fireGun` dependencies, preserving their existing damage/cost tests. |
 | `client/web/test/hetzer-mg-anchor.test.mjs` | Explicit MG solo fixture and parent-carry initialization for actual anchored muzzle comparisons. |
 | `client/web/test/weapon-selection.browser.mjs` | Migrate stale cycle/coax expectations if maintained; this plan does not authorize execution of browser tooling. |
 
-Do not change `data/`, models, schemas, `crates/`, ammunition authority, `game/optics.js`, `sim/mg.js`, or generated pages during runtime implementation. The root owns final source/build artifacts. Do not modify a whole fixture to suppress failures; add its explicit `weaponControl` state and the actual imported helper dependencies.
+Do not change `data/`, models, external asset schemas, ammunition/life authority, `game/optics.js`, `sim/mg.js`, or generated pages during runtime implementation. Native changes are limited to the APS pose handoff paths/tests named above; do not touch C2's ledger/projection/readiness ownership to achieve it. The root owns final source/build artifacts. Do not modify a whole fixture to suppress failures; add its explicit `weaponControl` state and the actual imported helper dependencies.
 
 ## Task 1: Pure control state, cycle and routing
 
@@ -568,7 +575,7 @@ function apsAutomatic() {
 }
 ```
 
-`syncApsControl` retains `desired=apsAutomatic()`, `enabled=desired&&loading.state[0]==='ready'`, `setAps(...roundsLeft(g))` offline, and online `{t:'aps',enabled:desired}` with no client rounds. `applyAps` retains its existing `if(apsAutomatic()&&a.enabled&&a.mode!=='dead')` pose branch; this now protects every solo. It still reconciles finite ammunition and receives actual thermal/rate state. Do not reject a genuine stock-debit snapshot just because pose control is held.
+`syncApsControl` retains `desired=apsAutomatic()`, `enabled=desired&&loading.state[0]==='ready'`, finite offline stock and no online client rounds. Task 5A adds current-pose adoption before the real enable transition, and an online acceptance barrier before pose writes resume. The existing `apsAutomatic()&&a.enabled&&a.mode!=='dead'` condition protects SOLO but is insufficient by itself during the return-to-ALL gap; combine it with the acknowledged current-life handoff barrier. Continue reconciling finite ammunition and actual thermal/rate state independently of pose-write eligibility. Do not reject a genuine stock-debit snapshot just because pose control is held.
 
 Change only the U toast text to expose retained preference when a solo holds it:
 
@@ -579,9 +586,130 @@ hud.toast(!requested?`${G.aps.name}：自動攔截已關閉`:
   `${G.aps.name}：自動攔截偏好已開啟；單獨控制暫停，回到全炮開火恢復`,2.5);
 ```
 
-An online manual APS shot must be preceded by `{t:'aps',enabled:false}` and use the actual APS `gun:ti:gi` instance/shell. Returning to ALL sends `enabled:true` only with U preference on; native readiness retains C2's trusted gate when available. Do not promise a whole authoritative reload engine as part of this client change.
+An online manual APS shot must be preceded by the existing APS disable control and use the actual APS `gun:ti:gi` instance/shell. Returning to ALL requests enable only with U preference on, after publishing the held State pose and requesting the Task 5A adoption/barrier; native readiness retains C2's trusted gate. Do not promise a whole authoritative reload engine as part of this feature.
 
 - [ ] **4. Run GREEN.** `node --test client/web/test/weapon-control.test.mjs client/web/test/oplot23-variant.test.mjs client/web/test/ammo-resupply-aps.test.mjs client/web/test/ammo-resupply-runtime.test.mjs client/web/test/ammo-inventory.test.mjs client/web/test/range-ammo-reset.test.mjs`. Verify repaired weapons recover through the normal combat/loader handlers and selected empty weapons remain selectable but cannot fire. Root reviews this checkpoint against the newest C1 source before integrating.
+
+## Task 5A: Trusted APS held-pose adoption before automatic resume
+
+**Files:** `client/web/src/main.js:syncApsControl,onlineSky,applyAps,netStep`; `client/web/src/game/missiles.js`; `crates/missile/src/world.rs`; `crates/design-wasm/src/lib.rs`; `crates/server/src/missiles.rs`; `crates/server/src/lobby.rs`; tests/receipts in `crates/missile/src/tests.rs`, `crates/server/src/gameplay_tests.rs`, `crates/server/src/ammo_tests.rs`, `client/web/test/weapon-control.test.mjs`, `client/web/test/live-network-rig.mjs`, `client/web/test/ammo-resupply-network.test.mjs`.
+
+**Source evidence:** At the inspected current source, the native setter is `world.rs:378–387`; disabled early return is `762–789`; re-enabled servo starts from the old world angles at `978–994`; server actor base-only derivation is `missiles.rs:207–219`; the client's direct pose assignments are `main.js:2595–2598`. Current State acceptance validates position but does not mechanically validate `tur` (`lobby.rs:1193–1214`). Treating that raw packet's child yaw as a trusted pose would introduce a different defect.
+
+- [ ] **1. Add a behavioral offline RED to the real current-WASM live fixture.** It must fail on the first resumed actual pose jump, independently of any missing new API. Forward any new actual pose bridge call through the fixture's real core rather than replacing the handoff with a mock. `tiltBody` establishes the real body heading, and the actual `apsOf`/`mw_step`/`applyAps` chain remains the subject:
+
+```js
+test('APS pose handoff resumes from manual or carried SOLO pose without a stale-world snap',()=>{
+  for(const id of ['su_t10m','su_t10m_oplot23'])for(const mode of ['historical','casual']) {
+    const r=controls(id,false,data.vehicles[id],mode),ti=r.G.aps.turret??1;
+    r.live.syncApsControl();chooseControl(r,`gun:${ti}:0`);
+    tiltBody(r,0,0,.4);r.G.T[0].yaw=.5;r.G.T[ti].yaw=.9;
+    r.G.T[ti].carried=.5;r.G.T[ti].guns[0].pitch=.2;
+    const g=r.G.loadout.turrets[ti].guns[0],stock=loadout.roundsLeft(g);
+    const loadingBefore=structuredClone(r.G.T[ti].loading),off=r.snapshot();
+    const held={yaw:r.G.T[ti].yaw,pitch:r.G.T[ti].guns[0].pitch};
+    chooseControl(r,'all');
+    const adopted=r.snapshot();
+    close(gunnery.wrapPi(adopted.yaw-(r.G.s.heading+held.yaw)),0,'adopted current world bearing',1e-6);
+    close(adopted.pitch,held.pitch,'adopted elevation on flat hull',1e-6);
+    for(const k of ['heat','spin','rate_rpm','rounds'])assert.equal(adopted[k],off[k],`adoption preserves ${k}`);
+    const actor={id:ME,team:0,alive:true,center:[0,1.3,0],vel:[0,0,0]};
+    r.live.apsOf(actor,r.G.aps,r.G.loadout,r.G.T.map(t=>t.yaw),
+      {pos:[0,0,0],heading:r.G.s.heading},r.G.bundle,r.G.cstate,r.G.caps);
+    const res=r.core.call({op:'mw_step',dt:1/120,actors:[actor]});
+    r.live.applyAps(res,actor);
+    const maxYaw=r.G.aps.traverse_deg_s*DEG/120;
+    const maxPitch=r.G.aps.elevate_deg_s*DEG/120;
+    assert.ok(Math.abs(gunnery.wrapPi(r.G.T[ti].yaw-held.yaw))<=maxYaw+1e-6);
+    assert.ok(Math.abs(r.G.T[ti].guns[0].pitch-held.pitch)<=maxPitch+1e-6);
+    assert.equal(loadout.roundsLeft(g),stock);assert.deepEqual(r.G.T[ti].loading,loadingBefore);
+    assert.equal(r.G.apsOn,true);
+  }
+});
+```
+
+Add the carried-only variant: select `gun:0:0`, keep the child motor offset constant while actual `aimTurrets` moves the parent and the hull changes heading, then return ALL and run the same real handoff/servo assertions. Add flat and pitched/rolled hull round-trip variants using the real rendered bore, not a world-pitch-equals-local-pitch assumption.
+
+- [ ] **2. In the sole native lane after C2, add a small in-place world adoption primitive and its RED/GREEN native test.** The concrete primitive's contract is `World::adopt_aps_pose(owner:u32,world_yaw:f64,world_pitch:f64)->bool`; callers must first produce a valid bound joint pose as described in step 3. This complete mutation shows the intended scope; do not replace `add_aps`, rewrite the servo or set other fields:
+
+```rust
+pub fn adopt_aps_pose(&mut self, owner: u32, world_yaw: f64, world_pitch: f64) -> bool {
+    if !world_yaw.is_finite() || !world_pitch.is_finite() { return false; }
+    let Some(a) = self.aps.iter_mut().find(|a| a.owner == owner) else { return false; };
+    if a.enabled { return false; }
+    a.yaw = wrap(world_yaw);
+    a.pitch = world_pitch;
+    a.yaw_cmd = a.yaw;
+    a.pitch_cmd = a.pitch;
+    true
+}
+```
+
+In `crates/missile/src/tests.rs`, use its actual `world`, `tank`, `World::step` and `ApsDef::oplot_mo` helpers. Disable a warm gun, step it so natural cooling/spin-down really occurs, clone its serialized state, adopt yaw 1.3/pitch .2, and assert **all** serialized fields except the four named pose/command values remain byte-equivalent. Re-enable with parent base .9, step `MAX_STEP`, and assert yaw/pitch deltas are bounded from 1.3/.2 rather than the old automatic pose. Include NaN/infinity/unknown owner rejection with unchanged world state. The first API test fails before the primitive exists; the step-1 live behavioral RED proves why adoption is necessary.
+
+- [ ] **3. Produce a trusted bound motor pose in the existing APS server/client owners.** Add a focused `accepted_aps_pose` helper in `crates/server/src/missiles.rs`, reusing `ApsSpec`, `Target` weapon binding, `TargetState` caps, `pose_of`, `yaws_of` and room performance. Its accepted record contains local motor yaw/elevation, parent/hull frame, converted world yaw/pitch, and trusted acceptance time. The record is geometry validation metadata for the existing Player/APS owner, not a new life scope, mode controller or ammo ledger.
+
+The mandatory validator algorithm is concrete:
+
+```text
+resolve the owner's current APS Cannon binding, exact turret/gun and parent
+read finite numeric tur[apsTurret][yaw,pitch] plus the finite current parent/hull frame
+normalize motorYaw = wrap(hullFrameTurretYaw - parentHullYaw)
+reject outside authored yaw arc/facing, bearing-dependent depression, or elevation ceiling
+with a previous accepted pose, reject motor deltas exceeding authored manual rate
+    * room performance * current bound weapon damage multiplier * trusted elapsed time
+validate required parent joint inputs from their bound source; physical carry is not child traverse
+convert the accepted mount through the actual current hull/parent basis to world bore yaw/pitch
+store only the normalized accepted pose for the current existing C2 battle/life
+```
+
+Current State's position acceptance alone is insufficient. Do not adopt pose from a malformed/wrong turret record, a pose in an old life, an away/dead/benched owner, rejected/stale State, out-of-arc data, or an impossible manual motor jump. Rejecting a handoff leaves automatic activation inhibited until a valid current pose exists; it does not mutate U intent, rate, stock or loading. The authored parent chain and damage-adjusted rate checks must use trusted server elapsed time, not a client `dt`.
+
+In the offline path, validate/derive the same bound local motor pose from actual `G.T` and the existing mount/rigid-body transform before forwarding it through the actual `Missiles` class to the WASM adoption call. Extend the existing `mw_aps` bridge or a narrowly named `mw_aps_pose` operation to invoke only the in-place primitive; no `addAps`, `reset`, `removeAps`, client stock grant, or reinitialization. At execution, choose the spelling that fits the completed C2 bridge; the validator/adoption contract above is fixed.
+
+Retain one coordinate conversion contract: returned native world yaw/pitch maps through the inverse current mount basis to local motor yaw/elevation. Test pose→world bore→motor round trips on a parented turret with nonzero hull heading/pitch/roll and parent yaw. Do not apply raw world pitch as local elevation or raw world yaw as a child-local angle.
+
+At a mechanical stop on a tilted hull, a valid accepted local elevation can differ from the old world's world-pitch limit convention. Use the same bound joint frame for handoff validation and the resumed servo's mechanical limit; a post-step clamp in the wrong frame must not produce an instant jump beyond the true motor rate. Keep that adjustment within the APS pose/limit boundary and verify it with a tilted-at-stop vector; do not broaden it into a general aiming rewrite.
+
+- [ ] **4. Wire the adoption to actual ownership transitions and the existing trusted reload gate.** In offline `syncApsControl`, adopt the current held pose before a false-to-true automatic enable, including U-on and completion of normal loading. Synchronize the held pose while disabled as needed for parent/hull carry. Never reseed an already enabled automatic servo from camera intent or a delayed state each frame.
+
+In the existing server APS handler, use the current normalized accepted State pose before enabling the world. In the existing C2 readiness owner, perform the same adoption when its trusted reload gate permits the world to change from disabled to enabled; do not reset or bypass that gate. When disabled, update the world from validated accepted held-pose observations so the last handoff pose remains current. World adoption itself preserves `heat`, `spin`, `rate_rpm`, `rounds`, `overheated`, loaders and C2 projections.
+
+- [ ] **5. Fence stale online automatic snapshots using the current authority's acknowledgement.** Force-publish the existing current State encoding with the final held joint pose before the APS enable request over the ordered current transport. Add a narrow accepted-pose acknowledgement/barrier to the existing APS control path. It carries the existing C2 battle/life identity, exact bound instance, accepted normalized pose, and current server Snap `tick`; request correlation reuses existing transport metadata rather than inventing a second lifecycle or stock epoch. The client holds pose writes while this handoff is pending, accepts only the matching current transition acknowledgement, then permits automatic snapshots with `tick` strictly after that accepted barrier. Stock/thermal/status reconciliation stays independent of this pose filter.
+
+The exact serialization names are reconciled with C2's completed protocol during implementation; do not preemptively change its fields now. The required ordering and outcomes are unambiguous: old enabled snapshot before acknowledgement → no pose write; wrong-life/wrong-instance/obsolete transition acknowledgement → no pose write; accepted current pose → seed/round-trip equal held motor pose; subsequent native snapshot → bounded motion from it. Rapid SOLO→ALL→SOLO transitions and reconnect must never let an old acknowledgement claim current automatic ownership.
+
+- [ ] **6. Add actual server-handler REDs and fresh source-tagged receipt phases.** Extend `crates/server/src/gameplay_tests.rs` or `ammo_tests.rs` using their existing `real_lobby`, `send`, `sortie` and trusted `tick_at` helpers. For each APS variant and both modes, execute actual Hello/Create/Start/Deploy/State/APS-disable/manual-Fire/State/APS-enable/tick handlers. Record actual accepted-pose acknowledgement and Snap output, not hand-authored expected messages. Include these phases:
+
+```text
+warm actual automatic interception and capture real heat/spin/rate/stock
+disable; accept current legal held pose after parent/hull carry
+manual APS fire from a legal moved joint; finish its existing normal source loading cycle
+publish final held State; request ALL enable; record acknowledgement before next Snap
+first automatic step moves at most its real rate from accepted held pose
+U off survives SOLO/ALL; Y preserves chosen rate without canceling normal loading
+empty/refilled belt remains inhibited until C2's exact trusted reload gate ends
+invalid/nonfinite/out-of-arc/too-fast/wrong-life/stale/away pose cannot enable or grant anything
+old enabled Snap before barrier and rapid obsolete acknowledgements cannot overwrite held pose
+```
+
+Replay those genuine outputs through C2's completed `live-network-rig.mjs`, `NetClient`, actual `onlineSky/applyAps`, loader and `OnlineAmmo` handlers in `ammo-resupply-network.test.mjs`. Verify real held pose, first post-barrier pose, actual scoped gun/launch receipts, counts/targets/revisions, source reload work, heat/spin/rate, U intent and repair gates. Reuse the existing battle/life metadata; the pose handshake cannot grant ammunition or retire a discharge prediction.
+
+Regenerate the existing actual handler producers to **new** weapon-control receipt paths, retaining old outputs as historical evidence. Preserve their complete mandatory tag set and add the changed WASM bridge source (`crates/design-wasm/src/lib.rs`) to both producer and consumer tags. `world.rs`, `missiles.rs`, `lobby.rs`, and the modified native handler test sources must remain mandatory. Missing/stale source bytes fail before replay.
+
+- [ ] **7. Sole-native-lane GREEN after C2, followed by root acceptance.** These are execution commands for that lane, not commands run by this document author:
+
+```powershell
+cargo test -p tg-missile aps_pose
+cargo test -p tg-server aps_pose --lib
+$env:TG_GAMEPLAY_NETWORK_RECEIPT='C:/Users/24908/.codex/scratch/tankforge-gameplay-modes/target/weapon-control-gameplay-network.json'
+cargo test -p tg-server browser_protocol_receipt_from_actual_handlers --lib
+$env:TG_AMMO_RESUPPLY_RECEIPT='C:/Users/24908/.codex/scratch/tankforge-gameplay-modes/target/weapon-control-ammo-network.json'
+cargo test -p tg-server browser_ammo_resupply_receipt_from_actual_handlers --lib
+cargo build -p tg-design-wasm --release --target wasm32-unknown-unknown
+```
+
+Root/lane owner then points `TG_TEST_WASM` at the actual new release core and runs the Node focused/full suites plus genuine current receipt replay. Record fresh native test names/counts, receipt source identities and current-WASM hashes. Build the current web source with that core and verify source/core/page equality; do not reuse the older committed WASM for handoff acceptance. Browser/HTTP/CDP/Playwright stay NOT RUN under the existing restriction.
 
 ## Task 6: Persistent UI, lifecycle/swap compatibility and final evidence
 
@@ -727,7 +855,7 @@ node --test client/web/test/*.test.mjs
 
 Expected: all current tests pass with zero new failures or skipped cases. Record actual test counts and separate focused/full results. If the native receipt source tags changed through C2, root must obtain the genuine regenerated receipt from the sole native owner before replay; a stale receipt is not a selection regression and must not be worked around.
 
-- [ ] **6. Root-only final acceptance.** Request fresh SPEC review against the design and fresh QUALITY review of runtime/tests. Integrate only exact reviewed source/test/document paths. Root builds the current web source with its configured esbuild binary, proves bundled code equals current source, and preserves all older named page/original-asset/B2 hashes using a new acceptance receipt. This feature alone changes no Rust or WASM, so do not trigger a native rebuild solely for G controls. If C2 native changes are integrated, its owner produces current WASM and handler receipts under that task's single native lane. Browser, HTTP, CDP and Playwright remain NOT RUN unless the root obtains applicable new authorization; do not claim rendered validation from numeric tests. No writer stages, commits, publishes or deploys independently under this plan.
+- [ ] **6. Root-only final acceptance.** Request fresh SPEC review against the design and fresh QUALITY review of runtime/tests. Integrate only exact reviewed source/test/document paths. The Task 5A native pose handoff requires fresh current-source WASM and regenerated actual-handler receipts after C2 in the sole native lane. Root builds the current web source with its configured esbuild binary, proves bundled source/core equality, and preserves all older named page/original-asset/B2 hashes using a new acceptance receipt. Browser, HTTP, CDP and Playwright remain NOT RUN unless the root obtains applicable new authorization; do not claim rendered validation from numeric tests. No runtime writer stages, commits, publishes or deploys independently under this plan.
 
 ## Self-review and acceptance map
 
@@ -742,6 +870,7 @@ Expected: all current tests pass with zero new failures or skipped cases. Record
 | Roof/hull/coax MG hardware and held joints | 4 real slew/bore tests, no coax convergence demand or invented joint. |
 | Actual reticle, muzzle, optics, zero, parallax and ranging origin | 4 existing live projection plus genuine `Hud.drawSight`/ballistic/model assertions. |
 | Both APS variants, every solo held, old pose snapshot, U/Y intent, manual fire | 5 real WASM/control snapshots and precise manual APS packet. |
+| ALL/U-on/loader-ready resumes from accepted held pose, with bounded trusted joints and no stale snapshot snap | 5A world/WASM adoption, actual native/server handlers, coordinate round trips and current-life Snap barrier replay. |
 | C1 selected stocks, resupply/reload/ready payload, heat/repair conserved | 5 unchanged exhaustion/grant/loader assertions; 6 lifecycle/swap regressions. |
 | Source vehicles and Hetzer turret swapping, real online handlers/C2 scope | 6 actual selection/build/receipt replay, no fabricated authority. |
 | Bounded changes, current source/build evidence, honest visual limit | File map, surgical owner edits and root-only final acceptance. |
