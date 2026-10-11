@@ -49,7 +49,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
     s: { x: 0, y: 0, z: 0, heading: 0 }, ss: { pitch: 0, roll: 0 },
     sightT: 0, sightG: 0, sightM: -1, pending: [], zoomIdx: 0,
     cam: { yaw: 0, pitch: 0, shake: 0 }, camPos: [0, 3, 0], aimPoint: [0, 3, 800], aim: { dist: 800 },
-    MG: lo.machineGuns.map(m => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true })),
+    MG: [],
     T: [],
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], guided: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
@@ -58,6 +58,8 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   const creationEnd = source.indexOf('    G.loadout.turrets.forEach((t, ti) => t.guns.forEach', creationStart);
   assert.ok(creationStart >= 0 && creationEnd > creationStart, 'actual select turret construction and attachment seed');
   new Function('G', 'loading', 'gunnery', source.slice(creationStart, creationEnd))(G, loading, gunnery);
+  G.MG = lo.machineGuns.map(m => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true,
+    carried: m.mount === 'pintle' && m.anchor !== 'hull' ? G.T[0].yaw : 0 }));
   const sent = [], apsCalls = [], launches = [], payloads = [];
   if (!mesh) G.model.payload = (...args) => payloads.push(args);
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
@@ -120,6 +122,73 @@ function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
   r.G.ss = body.attitude();
   if (r.rt) r.rt.model.body.local = matrix;
 }
+
+for (const id of ['su_is2', 'de_pz3_j', 'de_hetzer']) {
+  test(`flexible MG solo leaves every other joint and cannon motor held (${id})`, () => {
+    const r = controls(id, true), i = r.G.MG.findIndex(e => e.m.mount !== 'coax');
+    assert.ok(i >= 0, 'real flexible mount exists'); chooseControl(r, `mg:${i}`);
+    r.G.aimPoint = [400, 100, 200];
+    const held = angles(r), joints = r.G.MG.map(e => ({ ...e.aim })), e = r.G.MG[i], dt = 1 / 60;
+    const damage = damageApi.weaponDamage(r.G.caps, e.m.damageKey);
+    for (let k = 0; k < 240; k++) {
+      const before = { ...e.aim }; r.live.aimTurrets(dt); r.live.stepMachineGuns(dt);
+      assert.deepEqual(angles(r), held, 'MG SOLO holds every cannon motor');
+      r.G.MG.forEach((other, j) => { if (j !== i) assert.deepEqual(other.aim, joints[j], `unselected MG ${j} holds its joint`); });
+      assert.ok(Math.abs(gunnery.wrapPi(e.aim.yaw - before.yaw)) <= e.m.slew * damage.traverse_mult * dt + 1e-9, 'selected MG obeys damage-adjusted traverse rate');
+      assert.ok(Math.abs(e.aim.pitch - before.pitch) <= (e.m.elevateSlew ?? e.m.slew) * damage.elevate_mult * dt + 1e-9, 'selected MG obeys damage-adjusted elevation rate');
+      assert.ok(Math.abs(e.aim.yaw) <= e.m.arc[0] + 1e-9, 'selected MG stays inside authored traverse arc');
+      assert.ok(e.aim.pitch >= -e.m.arc[1] - 1e-9 && e.aim.pitch <= e.m.arc[2] + 1e-9, 'selected MG stays inside authored elevation arc');
+    }
+    assert.notDeepEqual(e.aim, joints[i], 'selected flexible joint actually slews');
+  });
+}
+
+test('inactive turret pintle receives physical attachment carry while holding its own joints', () => {
+  const r = controls('su_is2', true), i = r.G.MG.findIndex(e => e.m.mount === 'pintle' && e.m.anchor !== 'hull');
+  assert.ok(i >= 0); chooseControl(r, 'gun:0:0'); r.G.T[0].yaw = .2;
+  const e = r.G.MG[i]; e.aim = { yaw: .6, pitch: .2 }; e.carried = .2;
+  tiltBody(r, .12, .1, .6, [5, .4, -7]); r.G.aimPoint = [400, 30, 100];
+  for (let k = 0; k < 120; k++) {
+    r.live.aimTurrets(1 / 60); const mz = r.live.layMg(i, 1 / 60);
+    close(gunnery.wrapPi(e.aim.yaw - r.G.T[0].yaw), .4, 'inactive pintle parent-relative yaw');
+    close(e.aim.pitch, .2, 'inactive pintle held elevation');
+    r.rt.at({ yaw: r.G.T[0].yaw, pitch: r.G.T[0].guns[0].pitch, mgYaw: .4, mgPitch: .2 });
+    const pm = r.rt.model.mgs.find(m => m.index === i);
+    transformPoint(pm.node.world, pm.muzzleVector).forEach((v, j) => close(mz.pos[j], v, 'carried actual rendered muzzle', 1e-6));
+    transformDir(pm.node.world, [0, 0, 1]).forEach((v, j) => close(mz.dir[j], v, 'carried actual rendered bore', 1e-6));
+  }
+  assert.notEqual(r.G.T[0].yaw, .2, 'selected parent traverses');
+  assert.notEqual(e.aim.yaw, .6, 'parent carry changes hull-frame yaw');
+});
+
+test('inactive turret pintle carries on the first frame from actual select initialization', () => {
+  const bundle = structuredClone(data.vehicles.su_is2); bundle.weapons.facing_deg = 20;
+  const r = controls('su_is2', true, bundle);
+  const start = source.indexOf('    G.MG = G.loadout.machineGuns.map('), end = source.indexOf('\n    G.weaponControl', start);
+  assert.ok(start >= 0 && end > start, 'actual select MG construction');
+  new Function('G', 'mgSim', source.slice(start, end))(r.G, mgSim);
+  const i = r.G.MG.findIndex(e => e.m.mount === 'pintle' && e.m.anchor !== 'hull'), e = r.G.MG[i];
+  chooseControl(r, 'gun:0:0'); const relative = gunnery.wrapPi(e.aim.yaw - r.G.T[0].yaw), pitch = e.aim.pitch;
+  r.G.aimPoint = [400, 30, 100]; r.live.aimTurrets(1 / 60); r.live.layMg(i, 1 / 60);
+  close(gunnery.wrapPi(e.aim.yaw - r.G.T[0].yaw), relative, 'first-frame pintle relative yaw');
+  close(e.aim.pitch, pitch, 'first-frame pintle held pitch');
+  assert.notEqual(r.G.T[0].yaw, 20 * DEG, 'selected authored parent actually traverses');
+});
+
+test('sight read preserves flexible joints and carry bookkeeping through view and zero changes', () => {
+  for (const id of ['su_is2', 'de_pz3_j', 'de_hetzer']) {
+    const r = controls(id, true), i = r.G.MG.findIndex(e => e.m.mount !== 'coax'); chooseControl(r, `mg:${i}`);
+    const e = r.G.MG[i]; e.aim = { yaw: .41, pitch: .2 };
+    tiltBody(r, .1, .15, .6, [5, .4, -7]);
+    const held = { aim: { ...e.aim }, carried: e.carried }, muzzle = r.live.layMg(i, 0);
+    assert.deepEqual({ aim: e.aim, carried: e.carried }, held, `${id} direct zero-time muzzle query holds joint`);
+    for (const zero of [0, 200, 800]) {
+      r.G.zero = zero; r.G.aimPoint = [-400, 90, 200]; r.G.cam.yaw += .2; r.G.cam.pitch += .1;
+      assert.deepEqual(r.live.sightMuzzle(), muzzle, `${id} sight uses the actual unchanged muzzle`);
+      assert.deepEqual({ aim: e.aim, carried: e.carried }, held, `${id} view/zero query holds joint`);
+    }
+  }
+});
 
 test('gun solo holds another turret drive and elevation while the selected child moves', () => {
   const r = controls('su_t10m'); chooseControl(r, 'gun:1:0');

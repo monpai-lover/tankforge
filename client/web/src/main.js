@@ -51,7 +51,7 @@ import { Effects, advanceGunRecoil } from './game/fx.js';
 import { Sound } from './game/audio.js';
 import { Hud, penAt } from './game/hud.js';
 import { statusViewDistance } from './game/statusview.js';
-import { nextWeaponControl, weaponControlSight, weaponControlLabel, gunControlActive, gunTrigger, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
+import { nextWeaponControl, weaponControlSight, weaponControlLabel, gunControlActive, mgControlActive, gunTrigger, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
 import { smoothFold, foldDepression, foldYawLimit, foldedPlate } from './game/folding.js';
 import { sightProjection } from './game/optics.js';
 import { Workshop } from './game/workshop.js';
@@ -707,7 +707,8 @@ export function start(data, saved = {}) {
     });
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.loaded < 0 && (G.T[ti].loading.state[gi] = 'empty')));
     if (initialAmmo) onlineAmmo.bindLoadings(G.T.map(t=>t.loading));
-    G.MG = G.loadout.machineGuns.map((m) => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true }));
+    G.MG = G.loadout.machineGuns.map((m) => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true,
+      carried: m.mount === 'pintle' && m.anchor !== 'hull' ? G.T[0].yaw : 0 }));
     G.weaponControl = { kind: 'all' };
     G.sightT = 0;
     G.sightG = 0;
@@ -3722,21 +3723,28 @@ export function start(data, saved = {}) {
       e.bearing = true;
       return mz;
     }
+    const parentYaw = m.mount === 'pintle' && m.anchor !== 'hull' ? rt0.yaw : 0;
+    if (dt > 0) {
+      if (e.carried != null) e.aim.yaw = gunnery.wrapPi(e.aim.yaw + gunnery.wrapPi(parentYaw - e.carried));
+      e.carried = parentYaw;
+    }
     // Fixed casemate pintles stay on the hull; other roof pivots ride with the turret.
     const base = m.mount === 'pintle' && m.anchor !== 'hull' ? gunnery.muzzleLocal({ pivot: t0.pivot, trunnion: m.pos, muzzleOffset: 0 }, { yaw: rt0.yaw, pitch: 0 }).trunnion : m.pos;
-    const oldPitch = e.aim.pitch;
-    const localMuzzle = m.mount === 'pintle'
-      ? gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch: oldPitch }).pos
-      : base.map((v, k) => v + dirFrom(e.aim.yaw, oldPitch)[k] * .3);
-    const muzzle = body.worldPoint(localMuzzle);
-    const d = G.aimPoint.map((v, k) => v - muzzle[k]);
-    const range = Math.hypot(d[0], d[1], d[2]);
-    // An independently selected MG uses the same zero as its graticule. The secondary
-    // battery keeps automatic range compensation while the gunner sights a cannon.
-    const laid = body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, G.sightM === i ? G.zero : range)));
-    const want = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
-    const damage = weaponDamage(G.caps, m.damageKey);
-    e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew * damage.traverse_mult, dt, (m.elevateSlew ?? m.slew) * damage.elevate_mult);
+    if (dt > 0 && mgControlActive(G.weaponControl, i)) {
+      const oldPitch = e.aim.pitch;
+      const localMuzzle = m.mount === 'pintle'
+        ? gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch: oldPitch }).pos
+        : base.map((v, k) => v + dirFrom(e.aim.yaw, oldPitch)[k] * .3);
+      const muzzle = body.worldPoint(localMuzzle);
+      const d = G.aimPoint.map((v, k) => v - muzzle[k]);
+      const range = Math.hypot(d[0], d[1], d[2]);
+      // An independently selected MG uses the same zero as its graticule. The secondary
+      // battery keeps automatic range compensation while the gunner sights a cannon.
+      const laid = body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, G.sightM === i ? G.zero : range)));
+      const want = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
+      const damage = weaponDamage(G.caps, m.damageKey);
+      e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew * damage.traverse_mult, dt, (m.elevateSlew ?? m.slew) * damage.elevate_mult);
+    }
     const pitch = e.aim.pitch;
     if (m.mount === 'pintle') {
       const local = gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch });

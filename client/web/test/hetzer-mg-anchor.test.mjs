@@ -10,6 +10,7 @@ import * as gunnery from '../src/sim/gunnery.js';
 import * as ballistics from '../src/sim/ballistics.js';
 import * as mgSim from '../src/sim/mg.js';
 import { exportFolder, newTurretSpec } from '../src/game/loadout.js';
+import { mgControlActive } from '../src/game/weaponselection.js';
 
 const data=loadData(),source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replaceAll('\r\n','\n');
 const functionSource=name=>{const start=source.indexOf(`  function ${name}(`);assert.ok(start>=0,name);return source.slice(start,source.indexOf('\n  }',start)+4);};
@@ -19,7 +20,9 @@ function rig(id,bundles=data) {
   const rt=runtimeParts(id,bundles),M=rt.model;
   const G={weaponControl:{kind:'all'},model:M,loadout:rt.loadout,veh:{body:new RigidBody(1000,[1000,1000,1000],[0,0,0])},T:[{yaw:0}],sightM:0,zero:0,aimPoint:[0,3,500],MG:rt.loadout.machineGuns.map(m=>({m,aim:{yaw:0,pitch:0},bearing:true}))};
   G.sightM=M.mgs[0].index;
-  const deps={...damageApi,G,gunnery,ballistics,mgSim,dirFrom};
+  G.weaponControl={kind:'mg',mi:G.sightM};
+  for(const e of G.MG)e.carried=e.m.mount==='pintle'&&e.m.anchor!=='hull'?G.T[0].yaw:0;
+  const deps={...damageApi,G,gunnery,ballistics,mgSim,dirFrom,mgControlActive};
   const muzzle=new Function(...Object.keys(deps),`${functionSource('layMg')}\n${functionSource('sightMuzzle')}\nreturn sightMuzzle;`)(...Object.values(deps));
   const yawStatement=source.match(/^      pm\.node\.yaw = [^\n]+;/m)[0];
   const pitchStatement=source.match(/^      pm\.node\.pitch = [^\n]+;/m)[0];
