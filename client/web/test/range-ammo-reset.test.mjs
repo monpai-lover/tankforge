@@ -12,6 +12,7 @@ import { VehicleSim } from '../src/game/vehicle.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { OnlineFires } from '../src/game/onlineFire.js';
 import { GameplaySession } from '../src/game/gameplaySession.js';
+import { ammoKeyIndex } from '../src/game/weaponselection.js';
 import { ground } from './tankrig.mjs';
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -55,10 +56,21 @@ function runtime(id = 'su_bmpt34', cfg = {}) {
     spawnRemotes() {}, updateNetHud() {}, deploy: { close() {} }, cqBar: {}, cqMsg: {}, hitcam: { hide() {} },
     testRange: { exit() {} }, GAMEPLAY_UPDATE_NEEDED: 'update needed',
   };
-  const names = ['bundleFor', 'select', 'resetPose', 'resetVehicle', 'missileVehicle', 'missileBattleStart', 'startBattle', 'toGarage'];
+  const names = ['bundleFor', 'select', 'resetPose', 'resetVehicle', 'missileVehicle', 'missileBattleStart', 'startBattle', 'toGarage', 'goBattle'];
   const live = new Function(...Object.keys(deps), `${names.map(functionSource).join('\n')}\nreturn {${names.join(',')}};`)(...Object.values(deps));
   live.select(id);
-  return { G, live, missileResets, apsAdds, onlineFires, onlineLaunches, respawns: () => respawns };
+  const keyStart = source.indexOf("  window.addEventListener('keydown', (e) => {");
+  const keyEnd = source.indexOf('\n  });', keyStart);
+  assert.ok(keyStart >= 0 && keyEnd > keyStart, 'actual keydown dispatcher');
+  const triggers = [];
+  const keyMapSource = source.match(/  const KEYMAP = .*;/)?.[0];
+  assert.ok(keyMapSource, 'actual movement key map');
+  const KEYMAP = new Function(`${keyMapSource}\nreturn KEYMAP;`)();
+  const keyDeps = { ...deps, ...live, HTMLButtonElement: class {}, KEYMAP, ammoKeyIndex,
+    sound: { start() {} }, lockSoon() {}, trigger: (...args) => triggers.push(args) };
+  const keydown = new Function(...Object.keys(keyDeps), `let handler; const window = {addEventListener(type, fn) {handler = fn;}};\n${source.slice(keyStart, keyEnd + 6)}\nreturn handler;`)(...Object.values(keyDeps));
+  const key = code => keydown({code, target: {tagName:'CANVAS'}, repeat:false, preventDefault() {}});
+  return { G, live, key, triggers, missileResets, apsAdds, onlineFires, onlineLaunches, respawns: () => respawns };
 }
 
 function drainRockets(r) {
@@ -73,13 +85,13 @@ function drainRockets(r) {
   return rails;
 }
 
-test('live offline range R restores both depleted BMPT34 rails and their fresh loading/model state', () => {
+test('actual Backspace range restart restores both depleted BMPT34 rails and their fresh loading/model state', () => {
   const r = runtime(), oldModel = r.G.model, oldLoadout = r.G.loadout;
   drainRockets(r);
   r.G.guided.push(123); r.onlineLaunches.set(123, {});
   r.G.view = 'sight'; r.G.sightT = 0; r.G.sightG = 3;
   r.G.s.x = 300;
-  r.live.resetVehicle();
+  r.key('Backspace');
   const rails = r.G.loadout.turrets[0].guns.filter(g => g.def.missile);
   assert.deepEqual(rails.map(loadout.roundsLeft), [1, 1]);
   assert.notEqual(r.G.loadout, oldLoadout);
@@ -93,7 +105,7 @@ test('live offline range R restores both depleted BMPT34 rails and their fresh l
   assert.deepEqual(r.G.model.root, runtime().G.model.root);
 });
 
-test('range R retains saved short/zero ammunition choices and restores finite autocannon rounds', () => {
+test('range restart retains saved short/zero ammunition choices and restores finite autocannon rounds', () => {
   const cfg = { su_bmpt34: { '0.0': [7, 0], '0.1': [0, 5], '0.2': [0], '0.3': [1] } };
   const r = runtime('su_bmpt34', cfg);
   for (const g of r.G.loadout.turrets[0].guns) { for (const a of g.ammo) a.count = 0; g.loaded = -1; g.belt = 0; }
@@ -132,13 +144,26 @@ test('range reset restores real secondary MG belts and retains the active casual
   assert.ok(r.G.params.power > historical.power);
 });
 
-test('live Tab garage and new sortie restore both BMPT34 rockets using the existing lifecycle', () => {
+test('actual Tab and Enter new sortie restore both BMPT34 rockets using the existing lifecycle', () => {
   const r = runtime(); drainRockets(r);
-  r.live.toGarage();
+  r.key('Tab');
   assert.equal(r.G.mode, 'garage');
-  r.live.startBattle();
+  r.key('Enter');
   assert.equal(r.G.mode, 'battle');
   assert.deepEqual(r.G.loadout.turrets[0].guns.filter(g => g.def.missile).map(loadout.roundsLeft), [1, 1]);
+});
+
+test('R remains the rocket trigger on a live BMPT34 and resets a vehicle without rockets', () => {
+  const rocket = runtime(); drainRockets(rocket);
+  rocket.key('KeyR');
+  assert.deepEqual(rocket.triggers, [[false, true]], 'existing rocket action, even when empty');
+  assert.equal(rocket.missileResets.length, 0);
+  assert.deepEqual(rocket.G.loadout.turrets[0].guns.filter(g => g.def.missile).map(loadout.roundsLeft), [0, 0]);
+  const tank = runtime('su_t34_85');
+  const g = tank.G.loadout.turrets[0].guns[0], expected = g.ammo.map(a => a.count);
+  for (const a of g.ammo) a.count = 0;
+  tank.key('KeyR');
+  assert.deepEqual(tank.G.loadout.turrets[0].guns[0].ammo.map(a => a.count), expected);
 });
 
 test('offline battlefield reset cannot refill rockets and garage reset stays inert', () => {

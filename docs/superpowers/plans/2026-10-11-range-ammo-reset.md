@@ -3,7 +3,7 @@
 > **For agentic workers:** Execute the existing root writer's focused bug repair inline;
 > use superpowers:requesting-code-review for fresh SPEC then QUALITY review before integration.
 
-**Goal:** Offline range R starts a fresh selected vehicle with its chosen ammunition.
+**Goal:** Offline range vehicle reset starts a fresh selected vehicle with its chosen ammunition.
 
 **Architecture:** Reuse actual select and missileBattleStart initialization instead of adding
 a second refill owner. Retain other maps' resetPose and online authoritative respawn.
@@ -16,7 +16,7 @@ Files: client/web/src/main.js; client/web/test/range-ammo-reset.test.mjs.
 
 - [x] Execute the live lifecycle reproduction, using the test file added
   with this plan: `node --test test/range-ammo-reset.test.mjs` in client/web.
-  Confirm depleted rockets remain [0,0] on R, while actual Tab/new-sortie already passes.
+  Confirm depleted rockets remain [0,0] on resetVehicle, while actual Tab/new-sortie already passes.
   Correct harness boundary errors before touching production code.
 - [x] Add exactly this branch after toggleSight in resetVehicle:
 
@@ -28,10 +28,12 @@ Files: client/web/src/main.js; client/web/test/range-ammo-reset.test.mjs.
     }
 ```
 
-- [x] Run the seven tests again, then `node --test test/gameplay-runtime.test.mjs
+- [x] Run the eight tests again, then `node --test test/gameplay-runtime.test.mjs
   test/range-vehicles.test.mjs test/missile-launcher.test.mjs`. Verify original saved 0 mix,
   model, launcher state and map/network
   guards; inspect the final diff and `git diff --check`.
+  Actual keyboard coverage: live BMPT34 R remains the rocket action; Backspace resets and
+  refills; nonrocket vehicle R resets; actual Tab/Enter takes the garage/sortie path.
 - [ ] Commit only the three named plan/test/runtime paths. Fresh read-only SPEC review checks
   all design requirements; fresh QUALITY follows. Repair findings as root writer and re-review.
 
