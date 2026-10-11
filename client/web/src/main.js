@@ -1227,6 +1227,12 @@ export function start(data, saved = {}) {
     if (G.mode !== 'battle') return;
     if (G.online) return onlineRespawn();
     if (G.view === 'sight') toggleSight();
+    // A range restart is a new vehicle with its chosen load, including empty rocket rails.
+    if (G.mapId === 'range') {
+      select(G.id);
+      missileBattleStart();
+      return;
+    }
     resetPose();
   }
 
