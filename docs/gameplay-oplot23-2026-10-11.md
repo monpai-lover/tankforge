@@ -3,8 +3,9 @@
 這是本輪最新的合併結果：休閒／歷史玩法加上獨立的 `su_t10m_oplot23` 假想改裝。
 玩法交付 `6853c5c`、Oplot Task1（含兩項 QUALITY 修復）`c361d0c` 均已通過各自的
 SPEC → QUALITY；本頁與文件已按接受源碼 `c361d0c320081f815f99f9bdea6ca21c84848695`
-完成匹配建置及離線驗證。聯合交付的最後一輪獨立 SPEC → QUALITY、精準整合與公開
-push 尚待 Root 完成；沒有宣稱瀏覽器實景驗收通過，也沒有發佈生產服務。
+完成匹配建置及離線驗證。聯合交付與協定文案修訂 `ff96373` 已通過最後一輪獨立
+SPEC → QUALITY；Root 已精準整合至 main 並推送[公開倉庫](https://github.com/monpai-lover/tankforge)。
+預設遊戲頁也已同步，整合後 33 項交付測試通過。瀏覽器實景驗收仍未完成，沒有發佈生產服務。
 
 本輪獨立頁面為 [tankforge-modes-oplot23-20261011.html](../client/web/dist/tankforge-modes-oplot23-20261011.html)。
 兩份交付檔完全相同：
@@ -130,11 +131,11 @@ Create 模式缺漏／未知時，伺服器提示「未知或缺少玩法規則�
 不能恢復舊戰鬥。房間本地偏好不可改規則；既有粗粒度吞吐／跳躍檢查随合法倍率
 調整，本輪沒有完成全車運動或逐武器裝填的完整伺服器反作弊權威。
 
-`tg-server` 預設服務共享工作區的 `client/web/dist/tankforge-range.html`。該舊頁
-沒有新 Hello 版本，不能搭配新版伺服器宣稱相容。現已精確備份為
-`tankforge-range-pre-modes-20261011.html`。此交付階段尚未覆寫預設頁；Root 在最後
-兩審通過並精準整合 main 後，會把已驗收合併頁的相同 bytes 同步到預設 range。
-舊 range 備份、纯玩法頁與 sight-dot 頁保留。要先指定本輪頁面時，可使用既有
+`tg-server` 預設服務共享工作區的 `client/web/dist/tankforge-range.html`。Root 在最後
+兩審通過並精準整合 main 後，已把驗收合併頁的相同 bytes 同步到預設 range，並以
+`--expect-new-default` 檢查通過。先前沒有新 Hello 版本的舊頁精確保存在
+`tankforge-range-pre-modes-20261011.html`；純玩法頁與 sight-dot 頁也保留原始 bytes。
+需要明確指定本輪頁面時，可使用既有
 `--page client/web/dist/tankforge-modes-oplot23-20261011.html`；新 ID 同時需要當前 server data。
 
 ## 驗證、重建及來源保護
@@ -160,9 +161,9 @@ mandatory bridge **14**、實際 WASM kinetic **10**，共 **33 PASS／0 FAIL／
 
 | 檔案／保護範圍 | bytes／數量 | SHA-256 |
 |---|---:|---|
-| 合併頁兩份／scratch range | 35,055,861 | `365b79764d17821a8f99ee297af9905204414299c3132ad1104936ff4474e3ad` |
+| 合併頁兩份／scratch 與主工作區預設 range | 35,055,861 | `365b79764d17821a8f99ee297af9905204414299c3132ad1104936ff4474e3ad` |
 | release target／asset／每頁 designCore | 1,643,249 | `173c6c970f1d51ddcd86e819a1b4bc80b31af4f277a41466045cd7e68de08fd7` |
-| 舊 range／新增舊頁備份 | 34,840,387 | `95130c2a34dbb8bb8bfcf1c01662f2769f951b517e592ef8db312ab6bedc8ea1` |
+| 舊 range 快照／保留舊頁備份 | 34,840,387 | `95130c2a34dbb8bb8bfcf1c01662f2769f951b517e592ef8db312ab6bedc8ea1` |
 | 舊玩法獨立頁 | 35,021,548 | `2bc7cc6cca74655ee12e8f34d103a94a4123cc5b2f16f7094c09f6d2f9f23c80` |
 | 舊 sight-dot 頁 | 35,004,089 | `db2520bb1d249e7b2c79daca3f8fdbac362be6f069a1548b5162152b49eaa950` |
 | 原始 tracked data／assets 清單聚合 | 448 檔 | `e117187c12d8dd16de6ed89d38590ee4d2b415c8b0667a94929d8635da9d8f4c` |
@@ -193,7 +194,8 @@ Windows 使用 `RUSTUP_HOME=C:/Users/24908/.codex/scratch/tankforge-rust/rustup`
 `C:/Users/24908/Documents/ChatGPT/tankforge/client/web/node_modules/@esbuild/win32-x64/esbuild.exe`。
 完整原始檔／來源／build／logs hash、驗證步驟及邊界見
 [Task1 接受紀錄](superpowers/notes/2026-10-11-oplot23-task1-receipt.md)和
-[Task2 交付紀錄](superpowers/notes/2026-10-11-oplot23-task2-receipt.md)。
+[Task2 交付紀錄](superpowers/notes/2026-10-11-oplot23-task2-receipt.md)及
+[Root 最終接受與整合紀錄](superpowers/notes/2026-10-11-oplot23-final-acceptance.md)。
 
 ## 仍未完成
 

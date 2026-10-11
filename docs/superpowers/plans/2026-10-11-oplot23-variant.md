@@ -59,7 +59,7 @@ Use the existing caliber-derived bore in `addPart`; verify no front disk closes 
 
 - [x] Full Node and native verification after new data addition; first regenerate the mandatory source-tagged Rust-to-Node room receipt. Missing/stale bridge data must fail. No old B2 tests/code or threshold changes. Build source-matching release WASM/web page, verify target/asset/single HTML designCore bytes and source guards. If Rust unchanged, verify the newly built exact source artifact rather than claiming an unrelated cached binary.
 - [x] Deliver a distinct named combined modes+Oplot23 page and result MD. Preserve prior pages. Clearly document source/estimated ammo and installation parameters, mode ratios and enemy-marker scope, networking compatibility, tests, and unfinished B2/X/P/replay boundary.
-- [ ] Final fresh SPEC then QUALITY, precise integration/push under existing authorization, preserving dirty B2 and original source assets.
+- [x] Final fresh SPEC then QUALITY, precise integration/push under existing authorization, preserving dirty B2 and original source assets. Accepted at ff96373; main integration and source push verified, with 33 post-integration checks and accepted default-page identity.
 
 Native lane is exclusive. No browser opening/HTTP/CDP/Playwright bypass; visual acceptance remains restricted independently from CPU geometry and build verification.
 
@@ -67,7 +67,7 @@ Native lane is exclusive. No browser opening/HTTP/CDP/Playwright bypass; visual 
 
 - [x] Task1 accepted at c361d0c after original implementation 3d73ac3 and both QUALITY fixes: isolated output-root checks and nominal tilted-world recoil axis. Fresh SPEC PASS then QUALITY APPROVE.
 - [x] Task2 handler receipt 1, real release WASM and web build exit 0/no fallback, post-build variant 9 + bridge 14 + WASM kinetic 10 = 33 PASS. Retained Root full groups 558 Node and 366 native + 4 old ignored verified against unchanged inputs.
-- [x] Named combined artifact and single result MD ready. Shared default range remains old; exact pre-modes backup saved. Checker supports --expect-new-default for Root's later accepted synchronization.
-- [ ] Fresh final combined SPEC then QUALITY; precise integration/default-page synchronization and public push by Root under existing authorization.
+- [x] Named combined artifact and single result MD ready. Root synchronized accepted combined bytes to shared default range after final review and main integration; exact pre-modes backup preserved. Checker --expect-new-default passes.
+- [x] Fresh final combined SPEC then QUALITY; precise integration/default-page synchronization and public source push by Root under existing authorization. Final receipt: docs/superpowers/notes/2026-10-11-oplot23-final-acceptance.md.
 
 Latest result: [combined result](../../gameplay-oplot23-2026-10-11.md). Receipts: [accepted Task1](../notes/2026-10-11-oplot23-task1-receipt.md) and [Task2 delivery](../notes/2026-10-11-oplot23-task2-receipt.md). Native lane released; no browser visual acceptance or unfinished B2/P/V3 claim.

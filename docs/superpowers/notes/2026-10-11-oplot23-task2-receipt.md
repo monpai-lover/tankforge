@@ -1,5 +1,9 @@
 # Oplot23 Task2 combined delivery freeze
 
+This is the original delivery-freeze receipt. Final independent acceptance,
+main integration, default-page synchronization and source publication subsequently
+completed at `ff96373`; see [Root final receipt](2026-10-11-oplot23-final-acceptance.md).
+
 2026-10-11, isolated worktree `C:/Users/24908/.codex/scratch/tankforge-gameplay-modes`,
 branch `codex/casual-historical-modes`. Accepted runtime/data/tool source is
 `c361d0c320081f815f99f9bdea6ca21c84848695`. Task1 fresh SPEC→QUALITY accepted
