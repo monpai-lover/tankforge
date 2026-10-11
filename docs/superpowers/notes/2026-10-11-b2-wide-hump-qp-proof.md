@@ -53,3 +53,23 @@ quantized acceptance,mechanical corner validity,normal/friction equilibrium or
 loaded fleet performance. Every accepted nonlinear trial still needs actual
 source rediscovery and all existing geometry/closure gates. Implementer received
 the external probes;only the runtime owner may make the fix and add regressions.
+
+## External nonlinear hypothesis follow-up
+
+`tankforge-root-wide-hump-nonlinear-probe.mjs` copied the current geometry
+helper to an external module and rewrote its imports to the unchanged runtime
+sources. It injected only a positive-support equality polish after160 sweeps,
+rejecting singular or over-rank supports and negative duals,then checking all
+original inequalities. The original repository helper was not modified.
+
+With that diagnostic copy,the real source M56 fixture at sigma.1,.2,.3m each
+completed geometry preparation in3 nonlinear iterations/2 line evaluations.
+Actual rediscovered minimum gaps were1.853149,1.853184,1.857577µm,respectively;
+sigma.2 final quadratic residual8.28398e−19m. Accepted owner pins remained
+identical,and candidate legacy feasible/mechanicalValid remained false.
+
+This extends the witness to those three nonlinear **preparation** cases under
+the original root/line/source limits. The copy is a hypothesis probe,not a
+production algorithm or reviewed fix;it has no general dependent-active-basis
+handling. It still does not freeze/accept a quantized owner,prove loaded
+correspondence,or authorize a mechanical normal/friction solver.
