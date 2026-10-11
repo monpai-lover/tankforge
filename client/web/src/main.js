@@ -2490,9 +2490,9 @@ export function start(data, saved = {}) {
     G.combat?.setFold(G.combatKey, pose);
   }
 
-  /** Selecting the protection turret gives its gun to the gunner without changing the U preference. */
+  /** Every solo control holds automatic protection without changing the saved U preference. */
   function apsAutomatic() {
-    return !!(G.aps && G.apsOn && !(G.sightM < 0 && G.sightT === (G.aps.turret ?? 1)));
+    return !!(G.aps && G.apsOn && G.weaponControl.kind === 'all');
   }
 
   function syncApsControl() {
@@ -2511,7 +2511,10 @@ export function start(data, saved = {}) {
     G.apsOn = !G.apsOn;
     syncApsControl();
     sound.tone(G.apsOn ? 'on' : 'off');
-    hud.toast(G.apsOn ? `${G.aps.name}：自動攔截已開啟（U 關閉，Y 換射速）` : `${G.aps.name}：已關閉，可用 N 手動射擊`, 2.5);
+    const message = !G.apsOn ? `${G.aps.name}：自動攔截已關閉`
+      : G.weaponControl.kind === 'all' ? `${G.aps.name}：自動攔截已開啟（U 關閉，Y 換射速）`
+      : `${G.aps.name}：自動攔截偏好已開啟；單獨控制暫停，回到全炮開火恢復`;
+    hud.toast(message, 2.5);
   }
 
   function cycleApsRate() {

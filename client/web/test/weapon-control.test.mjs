@@ -60,7 +60,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   new Function('G', 'loading', 'gunnery', source.slice(creationStart, creationEnd))(G, loading, gunnery);
   G.MG = lo.machineGuns.map(m => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true,
     carried: m.mount === 'pintle' && m.anchor !== 'hull' ? G.T[0].yaw : 0 }));
-  const sent = [], apsCalls = [], launches = [], payloads = [];
+  const sent = [], apsCalls = [], launches = [], payloads = [], apsHud = [], toasts = [], tones = [], apsSounds = [];
   if (!mesh) G.model.payload = (...args) => payloads.push(args);
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
@@ -73,7 +73,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   G.missiles._launchLook = (...args) => launches.push(args);
   const setAps = G.missiles.setAps.bind(G.missiles);
   G.missiles.setAps = (owner, enabled, rate_rpm = null, rounds = null) => {
-    apsCalls.push({ owner, enabled, rounds });
+    apsCalls.push({ owner, enabled, rate_rpm, rounds });
     setAps(owner, enabled, rate_rpm, rounds);
   };
   const onlineAmmo=new OnlineAmmo(), selected=ammoMix(lo);
@@ -81,8 +81,8 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   const deps = { G, ME, data: fixtureData, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
-    onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {}, weaponControl() {} },
-    sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
+    onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast: text => toasts.push(text), aps: state => apsHud.push(state), weaponControl() {} },
+    sound: { tone: name => tones.push(name), apsGun: (...args) => apsSounds.push(args), mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
     launcherMount: loadout.launcherMount, reloadTime: loadout.reloadTime,
@@ -94,7 +94,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   const functions = ['cycleSightGun', 'trigger', 'fireGun', 'launchFromGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'cycleApsRate', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
   const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, cycleApsRate, syncApsControl, apsOf, trackHull, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
-  return { G, live, rt, sent, apsCalls, launches, payloads, snapshot, core, combat, damage: (id, health = 0) => {
+  return { G, live, rt, sent, apsCalls, launches, payloads, apsHud, toasts, tones, apsSounds, snapshot, core, combat, damage: (id, health = 0) => {
     G.cstate.modules[G.bundle.modules.findIndex(m => m.id === id)] = health;
     G.caps = combat.advance(G.combatKey, G.cstate, 0, 1).caps;
   } };
@@ -105,6 +105,13 @@ function chooseControl(r, key) {
     r.live.cycleSightGun();
   }
   assert.equal(selection.weaponControlKey(r.G.weaponControl), key, 'actual G reaches requested control');
+}
+async function apsControls(id, mode, bundle = data.vehicles[id]) {
+  const r = controls(id, false, bundle, mode);
+  r.G.loadout.imported = await decodeImported(bundle.model);
+  const renderer = { mesh: data => ({ data, count: data.length / STRIDE }), instancedMesh: (data, capacity) => ({ data, count: data.length / STRIDE, capacity }), setInstances() {}, freeMesh() {} };
+  r.G.model = buildTank(renderer, r.G.loadout, loadout.generatedTurretParts);
+  return r;
 }
 function triggerFrame(r, dt = 1 / 60) {
   const start = source.indexOf("    if (G.fireHeld && G.mode === 'battle') trigger();");
@@ -561,6 +568,156 @@ test('selected roof MG camera and firing muzzle match the rendered bore on a pit
   mz.dir.forEach((v, k) => close(v, direction[k], 'sloped roof bore', 1e-6));
 });
 
+for (const id of ['su_t10m', 'su_t10m_oplot23']) for (const mode of ['historical', 'casual']) {
+  test(`${id} ${mode} every SOLO inhibits the native automatic APS without changing saved U`, async () => {
+    const r = await apsControls(id, mode), owner = r.G.missiles;
+    const slots = selection.weaponControlSlots(r.G.loadout).filter(c => c.kind !== 'all');
+    assert.equal(selection.weaponControlKey(slots[0]), 'gun:0:0', 'the first cannon is a real solo slot');
+    const before = r.G.loadout.turrets.map(t => t.guns.map(g => ({ ammo: g.ammo.map(a => a.count), loaded: g.loaded, belt: g.belt })));
+    for (const c of slots) {
+      const key = selection.weaponControlKey(c); chooseControl(r, key);
+      assert.equal(r.snapshot().enabled, false, `${key} disables the actual native APS owner`);
+      assert.equal(r.G.apsOn, true, `${key} retains the requested U preference`);
+      assert.equal(r.G.missiles, owner, `${key} retains the existing protection object`);
+    }
+    assert.deepEqual(r.G.loadout.turrets.map(t => t.guns.map(g => ({ ammo: g.ammo.map(a => a.count), loaded: g.loaded, belt: g.belt }))), before);
+    chooseControl(r, 'all');
+    assert.equal(r.snapshot().enabled, true, 'ALL restores the saved on intent when the normal loader is ready');
+  });
+
+  test(`${id} ${mode} every SOLO inhibits old automatic snapshot poses while reconciling actual stock and HUD`, async () => {
+    const r = await apsControls(id, mode), ti = r.G.aps.turret ?? 1;
+    const g = r.G.loadout.turrets[ti].guns[0], before = loadout.roundsLeft(g);
+    const actor = { id: ME, team: 0, alive: true, center: [0, 1.3, 0], aps_pivot: [.502, 2.715, .557], aps_base_yaw: 0, aps_gun_ok: true, aps_radar_ok: true };
+    r.core.call({ op: 'mw_launch', def: 'bgm71a_tow', owner: 99, team: 1, pos: [0, 2, 600], dir: [0, 0, -1], seed: 3 });
+    let warm;
+    for (let i = 0; i < 1200; i++) {
+      warm = r.core.call({ op: 'mw_step', dt: 1 / 120, actors: [actor] });
+      if (warm.fired.length) break;
+    }
+    assert.ok(warm.fired.length && warm.aps[0].heat > 0 && warm.aps[0].spin > 0, 'the delayed enabled snapshot comes from a real warm interception');
+    const old = { ...warm.aps[0], yaw: 1.2, pitch: .4 };
+    assert.ok(old.rounds < before, 'the genuine native snapshot consumed shared finite rounds');
+    for (const c of selection.weaponControlSlots(r.G.loadout).filter(c => c.kind !== 'all')) {
+      const key = selection.weaponControlKey(c); chooseControl(r, key);
+      r.G.T[ti].yaw = .7; r.G.T[ti].guns[0].pitch = .2;
+      r.live.applyAps({ aps: [old], events: warm.events }, actor);
+      assert.equal(r.G.T[ti].yaw, .7, `${key} rejects the old automatic traverse writer`);
+      assert.equal(r.G.T[ti].guns[0].pitch, .2, `${key} rejects the old automatic elevation writer`);
+      assert.equal(loadout.roundsLeft(g), old.rounds, `${key} still reconciles genuine native expenditure`);
+      assert.equal(g.belt, Math.min(g.def.autocannon.belt_rounds, old.rounds));
+      assert.equal(r.G.apsState, old, `${key} keeps the heat/spin/rate/status snapshot`);
+      const hud = r.apsHud.at(-1);
+      for (const field of ['heat', 'spin', 'rate_rpm', 'rounds', 'mode']) assert.equal(hud[field], old[field], `${key} HUD ${field}`);
+      assert.equal(hud.gunOk, true); assert.equal(hud.radarOk, true);
+      assert.deepEqual(r.apsSounds.at(-1).slice(0, 3), [old.spin, old.firing, old.rate_rpm]);
+      assert.equal(r.G.apsOn, true);
+    }
+  });
+
+  test(`${id} ${mode} every SOLO inhibits APS temporarily while actual manual loading and U/Y intent survive ALL`, async () => {
+    const r = await apsControls(id, mode), ti = r.G.aps.turret ?? 1;
+    chooseControl(r, 'gun:1:0');
+    const t = r.G.loadout.turrets[ti], g = t.guns[0], L = r.G.T[ti].loading;
+    const before = loadout.roundsLeft(g), ammo = g.ammo.map(a => a.count), loaded = g.loaded, shell = g.shell;
+    r.live.trigger();
+    assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[1, 0]], 'the real primary trigger queues only the bound APS gun');
+    assert.equal(r.live.fireGun(ti, 0), true);
+    assert.equal(r.G.shots.at(-1).shell, shell);
+    assert.deepEqual(g.ammo.map(a => a.count), ammo.map((n, i) => n - (i === loaded ? 1 : 0)));
+    assert.equal(loadout.roundsLeft(g), before - 1);
+    assert.equal(r.live.fireGun(ti, 0), false, 'the original source cycle is unready after discharge');
+    const interval = loadout.reloadTime(t, 0, 0, mode);
+    assert.deepEqual(loading.tick(L, interval / 2, (gi, li) => loadout.reloadTime(t, gi, li, mode)), []);
+    const ongoing = structuredClone(L);
+    r.live.cycleApsRate();
+    const chosenRate = r.snapshot().rate_rpm;
+    const expectedRate = id === 'su_t10m' ? (mode === 'casual' ? 13000 : 11000) : (mode === 'casual' ? 7200 : 6000);
+    assert.equal(chosenRate, expectedRate, 'Y advances the original variant rate or wraps the 23 mm maximum to its source minimum');
+    assert.deepEqual(L, ongoing, 'Y preserves the active source loading work');
+    assert.equal(r.snapshot().enabled, false); assert.equal(r.G.apsOn, true);
+    chooseControl(r, 'all');
+    assert.deepEqual(L, ongoing, 'G preserves the same loader job and deadline');
+    assert.equal(r.snapshot().enabled, false, 'ALL on intent waits for actual normal loader completion');
+    assert.equal(r.snapshot().rate_rpm, chosenRate);
+    assert.deepEqual(loading.tick(L, interval, (gi, li) => loadout.reloadTime(t, gi, li, mode)), [0]);
+    loadout.refillBelt(g); g.loaded = loadout.nextAmmo(g); loadout.syncGunShell(g); r.live.syncApsControl();
+    const resumed = r.snapshot();
+    assert.equal(resumed.enabled, true); assert.equal(resumed.rounds, before - 1);
+    assert.equal(resumed.rate_rpm, chosenRate); assert.equal(r.G.apsOn, true);
+    chooseControl(r, 'gun:0:0'); r.live.toggleAps();
+    assert.equal(r.G.apsOn, false); assert.equal(r.toasts.at(-1), `${r.G.aps.name}：自動攔截已關閉`);
+    assert.equal(r.tones.at(-1), 'off'); chooseControl(r, 'all');
+    assert.equal(r.snapshot().enabled, false, 'U off while held remains off in ALL');
+    chooseControl(r, 'gun:0:0'); r.live.toggleAps();
+    assert.equal(r.G.apsOn, true); assert.equal(r.snapshot().enabled, false);
+    assert.equal(r.toasts.at(-1), `${r.G.aps.name}：自動攔截偏好已開啟；單獨控制暫停，回到全炮開火恢復`);
+    assert.equal(r.tones.at(-1), 'on'); chooseControl(r, 'all');
+    assert.equal(r.snapshot().enabled, true); assert.equal(r.snapshot().rate_rpm, chosenRate);
+    r.live.toggleAps(); r.live.toggleAps();
+    assert.equal(r.toasts.at(-1), `${r.G.aps.name}：自動攔截已開啟（U 關閉，Y 換射速）`);
+    assert.equal(loadout.roundsLeft(g), before - 1, 'preference and rate changes create no ammunition');
+  });
+}
+
+for (const id of ['su_t10m', 'su_t10m_oplot23']) for (const mode of ['historical', 'casual']) for (const mount of ['coax', 'hull', 'pintle']) {
+  test(`${id} ${mode} source ${mount} MG SOLO inhibits native APS and stale pose writes while preserving U/Y and finite stock`, async () => {
+    const bundle = structuredClone(data.vehicles[id]);
+    bundle.weapons.secondary = structuredClone(data.vehicles.su_is2.weapons.secondary);
+    const r = await apsControls(id, mode, bundle), { G } = r, ti = G.aps.turret ?? 1;
+    const g = G.loadout.turrets[ti].guns[0], owner = G.missiles, before = loadout.roundsLeft(g);
+    assert.deepEqual(G.MG.map(e => e.m.mount), ['coax', 'hull', 'pintle'], 'authentic source MG mounts are present in the real loadout');
+    assert.deepEqual(selection.weaponControlSlots(G.loadout).filter(c => c.kind === 'mg').map(selection.weaponControlKey), ['mg:0', 'mg:1', 'mg:2']);
+    assert.deepEqual(G.model.mgs.map(m => m.index), [2], 'the actual source builder renders the copied pintle at its real MG slot');
+    const mi = G.MG.findIndex(e => e.m.mount === mount), key = `mg:${mi}`;
+    assert.ok(mi >= 0, 'the requested source MG slot exists');
+    const actor = { id: ME, team: 0, alive: true, center: [0, 1.3, 0], aps_pivot: [.502, 2.715, .557], aps_base_yaw: 0, aps_gun_ok: true, aps_radar_ok: true };
+    r.core.call({ op: 'mw_launch', def: 'bgm71a_tow', owner: 99, team: 1, pos: [0, 2, 600], dir: [0, 0, -1], seed: 3 });
+    let warm;
+    for (let i = 0; i < 1200; i++) {
+      warm = r.core.call({ op: 'mw_step', dt: 1 / 120, actors: [actor] });
+      if (warm.fired.length) break;
+    }
+    assert.ok(warm.fired.length && warm.aps[0].enabled && warm.aps[0].heat > 0 && warm.aps[0].spin > 0);
+    const old = { ...warm.aps[0], yaw: 1.2, pitch: .4 };
+    assert.ok(old.rounds < before, 'a genuine warm native interception spent finite rounds');
+    chooseControl(r, key);
+    assert.equal(r.snapshot().enabled, false, `${key} disables the native automatic owner`);
+    assert.equal(G.apsOn, true); assert.equal(G.missiles, owner);
+    G.T[ti].yaw = .7; G.T[ti].guns[0].pitch = .2;
+    r.live.applyAps({ aps: [old], events: warm.events }, actor);
+    assert.equal(G.T[ti].yaw, .7, 'MG SOLO rejects old automatic traverse');
+    assert.equal(G.T[ti].guns[0].pitch, .2, 'MG SOLO rejects old automatic elevation');
+    assert.equal(loadout.roundsLeft(g), old.rounds, 'holding pose still reconciles actual native expenditure');
+    assert.equal(g.belt, Math.min(g.def.autocannon.belt_rounds, old.rounds));
+    assert.equal(G.apsState, old);
+    for (const field of ['heat', 'spin', 'rate_rpm', 'rounds', 'mode']) assert.equal(r.apsHud.at(-1)[field], old[field], `held MG HUD ${field}`);
+    assert.equal(r.apsHud.at(-1).gunOk, true); assert.equal(r.apsHud.at(-1).radarOk, true);
+    assert.deepEqual(r.apsSounds.at(-1).slice(0, 3), [old.spin, old.firing, old.rate_rpm]);
+    const preserved = () => ({ guns: G.loadout.turrets.map(t => t.guns.map(g => ({ ammo: g.ammo.map(a => a.count), loaded: g.loaded, belt: g.belt }))), mgs: G.MG.map(e => structuredClone(e.st)), loading: G.T.map(t => structuredClone(t.loading)) });
+    const held = preserved(); G.online = { seq: 9, dead: false };
+    r.live.cycleApsRate(); const chosenRate = r.snapshot().rate_rpm;
+    const expectedRate = id === 'su_t10m' ? (mode === 'casual' ? 13000 : 11000) : (mode === 'casual' ? 7200 : 6000);
+    assert.equal(chosenRate, expectedRate); assert.equal(r.snapshot().enabled, false);
+    r.live.toggleAps(); assert.equal(G.apsOn, false); assert.equal(r.snapshot().enabled, false);
+    r.live.toggleAps(); assert.equal(G.apsOn, true); assert.equal(r.snapshot().enabled, false);
+    assert.equal(r.toasts.at(-1), `${G.aps.name}：自動攔截偏好已開啟；單獨控制暫停，回到全炮開火恢復`);
+    assert.equal(r.sent.length, 3);
+    assert.ok(r.sent.every(m => m.t === 'aps' && m.enabled === false && !('rounds' in m)), 'online MG U/Y sends inhibited intent without ammunition grants');
+    assert.deepEqual(preserved(), held); assert.equal(G.online.seq, 9);
+    chooseControl(r, 'all');
+    assert.equal(r.snapshot().enabled, true, 'ALL restores on intent with the actual ready normal loader');
+    assert.equal(r.snapshot().rounds, old.rounds); assert.equal(r.snapshot().rate_rpm, chosenRate);
+    chooseControl(r, key); r.live.toggleAps(); chooseControl(r, 'all');
+    assert.equal(G.apsOn, false); assert.equal(r.snapshot().enabled, false, 'U off in MG SOLO survives ALL');
+    assert.deepEqual(preserved(), held); assert.equal(G.online.seq, 9);
+    assert.ok(r.sent.every(m => m.t === 'aps' && !('rounds' in m)));
+    assert.equal(G.missiles, owner);
+    assert.deepEqual(bundle.weapons.secondary, data.vehicles.su_is2.weapons.secondary, 'the fixture retains authentic MG authoring');
+    assert.equal(data.vehicles[id].weapons.secondary.length, 0, 'the shared authored Oplot bundle is unchanged');
+  });
+}
+
 test('G takes manual Oplot ownership, fires its actual gun and restores automatic preference with remaining rounds', () => {
   const r = controls('su_t10m');
   chooseControl(r, 'gun:1:0');
@@ -603,29 +760,40 @@ test('garage weapon selection after leaving a protection vehicle ignores its old
 });
 
 test('online manual Oplot fire uses the independently traversed rendered mount and existing server fire path', async () => {
-  const r = controls('su_t10m');
-  r.G.loadout.imported = await decodeImported(data.vehicles.su_t10m.model);
-  const renderer = { mesh: data => ({ data, count: data.length / STRIDE }), instancedMesh: (data, capacity) => ({ data, count: data.length / STRIDE, capacity }), setInstances() {}, freeMesh() {} };
-  r.G.model = buildTank(renderer, r.G.loadout, loadout.generatedTurretParts);
-  r.G.online = { seq: 0, dead: false };
-  chooseControl(r, 'gun:1:0');
-  r.G.T[0].yaw = .7; r.G.T[1].yaw = 1.1; r.G.T[1].guns[0].pitch = .25;
-  const modelGun = r.G.model.turrets[1].guns[0];
-  r.G.model.turrets[0].node.yaw = .7;
-  r.G.model.turrets[1].node.yaw = 1.1 - .7; modelGun.node.pitch = -.25; r.G.model.root.update();
-  const gun = r.G.loadout.turrets[1].guns[0], mouth = transformPoint(modelGun.node.world, [0, 0, gun.muzzleOffset]);
-  const sight = r.live.sightMuzzle();
-  sight.pos.forEach((v, k) => close(v, mouth[k], 'independent Oplot muzzle', 1e-6));
-  assert.equal(r.live.fireGun(1, 0), true);
-  r.G.shots[0].origin.forEach((v, k) => close(v, mouth[k], 'Oplot round leaves rendered muzzle', 1e-6));
-  const packets = r.sent.map(m => m.t);
-  assert.deepEqual(packets, ['aps', 'aps', 'fire']);
-  assert.equal(r.sent[1].enabled, false, 'pause reaches the server before manual fire');
-  assert.equal(r.sent[2].shell, gun.ammo[0].shell.id);
-  assert.equal(r.sent[2].seq, 1);
-  assert.ok(r.sent.filter(m => m.t === 'aps').every(m => !('rounds' in m)), 'online control never asks the server to trust a client ammunition count');
-  chooseControl(r, 'all');
-  assert.equal(r.sent.at(-1).t, 'aps'); assert.equal(r.sent.at(-1).enabled, true);
+  for (const id of ['su_t10m', 'su_t10m_oplot23']) for (const mode of ['historical', 'casual']) {
+    const r = await apsControls(id, mode);
+    r.G.online = { seq: 0, dead: false };
+    chooseControl(r, 'gun:1:0');
+    r.G.T[0].yaw = .7; r.G.T[1].yaw = 1.1; r.G.T[1].guns[0].pitch = .25;
+    const modelGun = r.G.model.turrets[1].guns[0];
+    r.G.model.turrets[0].node.yaw = .7;
+    r.G.model.turrets[1].node.yaw = 1.1 - .7; modelGun.node.pitch = -.25; r.G.model.root.update();
+    const gun = r.G.loadout.turrets[1].guns[0], mouth = transformPoint(modelGun.node.world, [0, 0, gun.muzzleOffset]);
+    const sight = r.live.sightMuzzle();
+    sight.pos.forEach((v, k) => close(v, mouth[k], 'independent Oplot muzzle', 1e-6));
+    r.live.trigger();
+    assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[1, 0]]);
+    const before = loadout.roundsLeft(gun);
+    assert.equal(r.live.fireGun(1, 0), true);
+    assert.equal(loadout.roundsLeft(gun), before - 1, 'the original online prediction consumes exactly one shared round');
+    r.G.shots[0].origin.forEach((v, k) => close(v, mouth[k], 'Oplot round leaves rendered muzzle', 1e-6));
+    const packets = r.sent.map(m => m.t);
+    assert.deepEqual(packets, ['aps', 'aps', 'fire']);
+    assert.ok(r.sent.slice(0, 2).every(m => m.enabled === false), 'every solo sends actual APS disable before the exact gun packet');
+    assert.equal(r.sent[1].enabled, false, 'pause reaches the server before manual fire');
+    assert.equal(r.sent[2].instance, 'gun:1:0');
+    assert.deepEqual(r.sent[2].ammo_scope, { battle: 7, life: 2 });
+    assert.equal(r.sent[2].shell, gun.ammo[0].shell.id);
+    assert.equal(r.sent[2].seq, 1);
+    assert.equal(r.G.shots[0].seq, r.sent[2].seq);
+    const packet = structuredClone(r.sent[2]);
+    assert.ok(r.sent.filter(m => m.t === 'aps').every(m => !('rounds' in m)), 'online control never asks the server to trust a client ammunition count');
+    chooseControl(r, 'all');
+    assert.equal(r.sent.at(-1).t, 'aps'); assert.equal(r.sent.at(-1).enabled, true);
+    assert.deepEqual(r.sent[2], packet, 'G cannot rebind a discharge already sent in its original life');
+    assert.equal(loadout.roundsLeft(gun), before - 1);
+    assert.equal(r.snapshot().enabled, false, 'the online desired intent does not finish the local source loader');
+  }
 });
 
 test('selected fixed coax holds cannon motors and fires from the actual rendered bore', () => {
