@@ -62,8 +62,11 @@ The committed foundation is not a completed ammunition/fuse/FX implementation.
    User also requested a reference camera and player's lethal incoming-shot
    replay. `../specs/2026-10-11-victim-replay-design.md` records its P4/P5/R
    integration and `2026-10-11-victim-replay-preparation.md` records source
-   gaps. Reference link reaches login and the attachment has been requested;
-   camera styling cannot be claimed implemented from an unseen reference.
+   gaps. Original reference URL reaches login; the user subsequently supplied
+   hit-replay V3 source with screenshots. Root actually viewed flight/APHE/hit
+   frames, so presentation reference input is available. Read its intake note;
+   adapt presentation to real events/models, not its illustrative C damage model.
+   The camera/victim runtime integration remains pending P4/P5.
 6. Full regression, original-source hashes, performance, actual release WASM
    and HTML/catalog identity; final review, remote overlap check and precisely
    scoped integration/push. Preserve previous pages and unrelated local files.
