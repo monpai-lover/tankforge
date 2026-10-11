@@ -194,3 +194,23 @@ test('actual WASM plate output, exit path and generating-layer carrier share tra
     }
   }
 });
+
+test('actual WASM combat rechecks straddling and passed module/crew volumes from its cursor', () => {
+  for (const [center, half, contacted] of [[.05, .03, true], [.02, .01, false]]) {
+    const id = `p1:cursor:${center}`;
+    const modules = [{ id: 'radio', kind: 'radio', center: [0,1,center], half_extents: [.1,.1,half], health: 100, max_health: 100 },
+      { id: 'later', kind: 'radio', center: [0,1,.3], half_extents: [.1,.1,.02], health: 100, max_health: 100 }];
+    const crew = [{ role: 'driver', pos: [0,1,center], radius: half, health: 100 }, { role: 'gunner', pos: [0,1,.7], radius: .02, health: 100 }];
+    const state = target(id, [plate('front',0)], modules, crew), r = fire(id,state);
+    const impact = r.impact_events[0], deposits = r.impact_events.filter(e => e.verdict === 'deposited');
+    assert.equal(deposits.length, contacted ? 4 : 2);
+    if (contacted) {
+      assert.ok(r.state.modules[0] < 100 && r.state.crew[0] < 100);
+      deposits.slice(0,2).forEach(e => { assert.ok(Math.abs(e.entry_position.z-impact.exit_position.z)<1e-6); assert.equal(e.time_s,impact.output.elapsed_s); });
+    } else { assert.equal(r.state.modules[0],100); assert.equal(r.state.crew[0],100); }
+    assert.ok(r.state.modules[1] < 100 && r.state.crew[1] < 100);
+    r.fragments.filter(f => f.source === 'core').forEach(f => assert.ok(f.to.z >= f.from.z - 1e-7));
+    assert.ok(r.impact_events.every((e,i,a) => !i || e.time_s >= a[i-1].time_s));
+    r.impact_events.forEach(e => ledger(e.budget));
+  }
+});

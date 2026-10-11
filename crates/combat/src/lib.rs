@@ -1012,6 +1012,63 @@ impl<'a> Work<'a> {
         ev
     }
 
+    /// Primary plate transit can pass a target's precomputed entrance. Recheck
+    /// pending posed volumes at the current cursor and select the next contact.
+    /// Removing its one candidate retains one primary traversal per target.
+    fn next_kinetic_event(
+        &self,
+        pending: &mut Vec<Ev>,
+        start: Vec3,
+        dir: Vec3,
+        cursor: f32,
+        max_t: f32,
+    ) -> Option<Ev> {
+        let origin = start + dir * cursor;
+        let mut next: Option<(usize, Ev)> = None;
+        for (index, candidate) in pending.iter().enumerate() {
+            let distance = match candidate.kind {
+                // Preserve declared plate work/order at a monotonic cursor;
+                // this does not replace declared solids with a geometry union.
+                EvKind::Plate(_) => Some(candidate.t.max(cursor)),
+                EvKind::Module(i) => {
+                    if empty_rack(self.t, &self.st, i) {
+                        None
+                    } else {
+                        self.p.boxes[i]
+                            .intersect(origin, dir)
+                            .map(|(enter, _)| cursor + enter)
+                    }
+                }
+                EvKind::Crew(i) => {
+                    let center = self.p.crew[i];
+                    let radius = self.t.def.crew[i].radius;
+                    if self.st.crew[i] <= 0.0 {
+                        None
+                    } else if (origin - center).length() <= radius {
+                        Some(cursor)
+                    } else {
+                        ray_sphere(origin, dir, center, radius).map(|enter| cursor + enter)
+                    }
+                }
+            };
+            let Some(t) = distance.filter(|t| *t <= max_t) else {
+                continue;
+            };
+            if next.as_ref().map_or(true, |(_, event)| t < event.t) {
+                next = Some((
+                    index,
+                    Ev {
+                        t,
+                        kind: candidate.kind,
+                    },
+                ));
+            }
+        }
+        let (index, event) = next?;
+        pending.remove(index);
+        Some(event)
+    }
+
     /// Distance from `o` along `d` to the nearest plate (a fragment inside stops at the armour).
     fn to_armour(&self, o: Vec3, d: Vec3, max_t: f32) -> f32 {
         let mut best = max_t;
@@ -1307,7 +1364,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
     };
     let start = shot.origin + d * (t_in - 0.05).max(0.0);
     let span = t_out - t_in + 0.1;
-    let events = w.events(start, d, span, true);
+    let mut events = w.events(start, d, span, true);
     let roll = 1.0 + 0.05 * gauss(&mut w.rng).clamp(-2.5, 2.5);
     let mut pen = shell.pen_at(shot.distance_m) * roll;
     w.rep.pen_mm = pen;
@@ -1362,10 +1419,21 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 w.rep.path.push(p);
             }
         };
-    for ev in events {
+    let mut legacy_event = 0;
+    while legacy_event < events.len() {
         if !alive {
             break;
         }
+        let ev = if kinetic {
+            let Some(event) = w.next_kinetic_event(&mut events, start, d, last_t, span) else {
+                break;
+            };
+            event
+        } else {
+            let event = events[legacy_event];
+            legacy_event += 1;
+            event
+        };
         // the fuse runs out before this
         if let Some(f) = fuse_at {
             if ev.t >= f {

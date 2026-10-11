@@ -87,6 +87,137 @@ fn invalid_kinetic_material_contact_preserves_targets_and_carrier() {
     }}
 }
 
+fn cursor_volume_shot(center_z: f32, half_z: f32) -> Report {
+    let mut def = box_tank(false).def;
+    def.turret = None;
+    def.plates = vec![plate(
+        "front",
+        ArmorZone::HullSide,
+        50.0,
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0],
+        [1.0, 0.0, 0.0],
+        1.0,
+        1.0,
+    )];
+    def.modules = vec![
+        module(
+            "radio",
+            ModuleKind::Radio,
+            [0.0, 1.0, center_z],
+            [0.1, 0.1, half_z],
+            100.0,
+        ),
+        module(
+            "later",
+            ModuleKind::Radio,
+            [0.0, 1.0, 0.3],
+            [0.1, 0.1, 0.02],
+            100.0,
+        ),
+    ];
+    let mut first = crew(CrewRole::Driver, [0.0, 1.0, center_z]);
+    first.radius = half_z;
+    let mut later = crew(CrewRole::Gunner, [0.0, 1.0, 0.7]);
+    later.radius = 0.02;
+    def.crew = vec![first, later];
+    let target = Target::new(def, &rha());
+    let mut shell = ProjectileDef::generic_ap(10.0, 150.0);
+    shell.mass_kg = 0.1;
+    shell.normalization_deg = 0.0;
+    shoot(
+        &target,
+        &target.fresh_state(),
+        &Shot {
+            shell,
+            origin: Vec3::new(0.0, 1.0, -2.0),
+            dir: Vec3::new(0.0, 0.0, 1.0),
+            speed_ms: 100.0,
+            distance_m: 0.0,
+            seed: 1,
+            turret_yaw: 0.0,
+        },
+    )
+}
+
+#[test]
+fn primary_cursor_contacts_straddling_module_and_crew_once_at_exit() {
+    let r = cursor_volume_shot(0.05, 0.03);
+    let plate = &r.impact_events[0];
+    let deposits: Vec<_> = r
+        .impact_events
+        .iter()
+        .filter(|e| e.transition.verdict == impact::ImpactVerdict::Deposited)
+        .collect();
+    assert_eq!(deposits.len(), 4);
+    for contact in &deposits[..2] {
+        assert!(
+            (contact.entry_position - plate.exit_position).length() < 1e-6,
+            "straddling volume must be contacted at the actual cursor, {:?}",
+            contact.entry_position
+        );
+        assert_eq!(contact.time_s, plate.transition.output.elapsed_s);
+    }
+    assert!(r
+        .state
+        .modules
+        .iter()
+        .chain(&r.state.crew)
+        .all(|hp| *hp < 100.0));
+    for f in r
+        .fragments
+        .iter()
+        .filter(|f| f.provenance.source == impact::FragmentSource::Core)
+    {
+        assert!(
+            (f.to - f.from).z >= -1e-7,
+            "primary segment cannot reverse: {:?}->{:?}",
+            f.from,
+            f.to
+        );
+    }
+    assert!(r
+        .impact_events
+        .windows(2)
+        .all(|pair| pair[1].time_s >= pair[0].time_s));
+    let last = deposits.last().unwrap();
+    let tail = r
+        .fragments
+        .iter()
+        .find(|f| f.hit.is_none() && f.provenance.parent_event_id == last.transition.event_id)
+        .unwrap();
+    let elapsed = last.transition.output.elapsed_s
+        + (tail.to - tail.from).length() as f64
+            / last.transition.output.velocity_m_s.length() as f64;
+    assert!((r.impact_state.as_ref().unwrap().elapsed_s - elapsed).abs() < 1e-8);
+}
+
+#[test]
+fn primary_cursor_ignores_module_and_crew_volumes_entirely_before_exit() {
+    let r = cursor_volume_shot(0.02, 0.01);
+    assert_eq!(
+        r.state.modules[0], 100.0,
+        "a wholly passed box is not a current contact"
+    );
+    assert_eq!(
+        r.state.crew[0], 100.0,
+        "a wholly passed sphere is not a current contact"
+    );
+    assert!(r.state.modules[1] < 100.0 && r.state.crew[1] < 100.0);
+    assert_eq!(
+        r.impact_events
+            .iter()
+            .filter(|e| e.transition.verdict == impact::ImpactVerdict::Deposited)
+            .count(),
+        2
+    );
+    assert!(
+        (r.impact_state.as_ref().unwrap().remaining_pen_mm - (r.pen_mm as f64 - 50.0 - 3.0 - 5.0))
+            .abs()
+            < 1e-3
+    );
+}
+
 #[test]
 fn combat_report_old_json_defaults_and_new_mechanisms_roundtrip() {
     let t=box_tank(false);let r=shoot(&t,&t.fresh_state(),&side_shot(shell(ProjectileKind::Ap,75.0,6.8,200.0,0.0),1));
