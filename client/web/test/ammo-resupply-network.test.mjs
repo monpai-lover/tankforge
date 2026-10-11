@@ -14,6 +14,7 @@ import { Combat } from '../src/game/combat.js';
 import { loadCoreSync } from '../src/design/core.js';
 import { loadData } from '../tools/load-data.mjs';
 import { Missiles } from '../src/game/missiles.js';
+import * as selection from '../src/game/weaponselection.js';
 
 const root=new URL('../../../',import.meta.url);
 const sourceNames=['Cargo.toml','config/gameplay-modes.json','crates/gameplay/Cargo.toml','crates/gameplay/src/lib.rs','crates/server/Cargo.toml','crates/server/src/gameplay.rs','crates/server/src/gameplay_tests.rs','crates/server/src/lobby.rs','crates/server/src/missiles.rs','crates/server/src/server.rs','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs','crates/design-wasm/src/lib.rs','crates/missile/src/tests.rs','config/stabilizer-drives.json'];
@@ -186,6 +187,134 @@ function initialized(s) {
   assert.equal(r.G.mode,'battle');assert.deepEqual(r.onlineAmmo.counts(),s.selected);
   return r;
 }
+function chooseControl(r, key) {
+  for (let i = 0; i < selection.weaponControlSlots(r.G.loadout).length; i++) {
+    if (selection.weaponControlKey(r.G.weaponControl) === key) return;
+    r.live.cycleSightGun();
+  }
+  assert.equal(selection.weaponControlKey(r.G.weaponControl), key, 'actual G reaches the requested control');
+}
+
+test('solo network instances retain exact cannon shell and sequence after actual G switches', () => {
+  for (const s of Object.values(receipt.scenarios).filter(s => s.vehicle === 'su_bmpt34')) {
+    const r = initialized(s), sent = [];
+    r.net.status = 'open'; r.net.ws = { readyState: 1, send: text => sent.push(JSON.parse(text)) };
+    for (const [gi, phase] of [[0, 'cannon'], [1, 'secondary_cannon']]) {
+      const ack = packet(s, phase, 'fire_accepted');
+      chooseControl(r, `gun:0:${gi}`);
+      const gun = r.G.loadout.turrets[0].guns[gi], shell = gun.ammo[gun.loaded].shell.id;
+      r.G.online.seq = ack.seq - 1;
+      r.live.trigger();
+      assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[0, gi]]);
+      r.G.pending.length = 0;
+      assert.equal(r.live.fireGun(0, gi), true);
+      const msg = sent.at(-1), pending = r.onlineFires.pending.at(-1);
+      assert.deepEqual({ t: msg.t, instance: msg.instance, shell: msg.shell, seq: msg.seq, scope: msg.ammo_scope },
+        { t: 'fire', instance: `gun:0:${gi}`, shell, seq: ack.seq, scope: r.onlineAmmo.scope() });
+      assert.equal(pending.gun, gun);
+      r.live.cycleSightGun();
+      assert.equal(r.onlineFires.pending.at(-1), pending, 'G clears intent while retaining the sent request');
+      r.net._receive({ ...ack, ammo_scope: { ...ack.ammo_scope, life: ack.ammo_scope.life + 1 } });
+      assert.ok(r.onlineFires.pending.includes(pending), 'wrong life cannot acknowledge a sent request');
+      replay(r, s, phase, 'fire_accepted');
+      assert.ok(!r.onlineFires.pending.includes(pending), 'genuine scoped ACK resolves its original cannon');
+      const before = r.onlineAmmo.counts();
+      replay(r, s, phase, 'fire_accepted');
+      assert.deepEqual(r.onlineAmmo.counts(), before, 'duplicate ACK grants no ammunition');
+    }
+  }
+});
+
+test('solo network MG packets and in-flight bullets retain the real fitted secondary ID after G', () => {
+    const r = runtime('casual'), sent = [];
+    for (const phase of ['welcome_a', 'room', 'start', 'deploy_a'])
+      for (const [to, m] of gameplayReceipt.phases[phase]) if (to === gameplayReceipt.a) r.net._receive(m);
+    r.net.status = 'open'; r.net.ws = { readyState: 1, send: text => sent.push(JSON.parse(text)) };
+    const index = r.G.MG.findIndex(e => e.m.mount === 'coax');
+    assert.ok(index >= 0);
+    chooseControl(r, `mg:${index}`);
+    const stock = r.onlineAmmo.counts(), before = r.G.MG.map(e => e.st.fired), seq = r.G.online.seq;
+    r.G.fireHeld = true; r.live.stepMachineGuns(.2); r.G.fireHeld = false;
+    const packets = sent.filter(m => m.t === 'mg_fire');
+    assert.ok(packets.length > 0);
+    const mg = r.G.MG[index];
+    packets.forEach((m, i) => {
+      assert.equal(m.instance, `mg:${mg.m.id}`);
+      assert.equal(m.gun, mg.m.def.id);
+      assert.equal(m.seq, seq + i + 1);
+      assert.deepEqual(m.ammo_scope, r.onlineAmmo.scope());
+      assert.equal(r.G.bullets[i].instance, m.instance);
+    });
+    r.G.MG.forEach((e, i) => i === index ? assert.ok(e.st.fired > before[i]) : assert.equal(e.st.fired, before[i]));
+    r.live.cycleSightGun();
+    assert.ok(r.G.bullets.every(b => b.instance === mg.m.damageKey), 'in-flight MG identity remains bound after G');
+    assert.deepEqual(r.onlineAmmo.counts(), stock, 'MG mode preserves cannon pools');
+});
+
+test('solo network launch retries ACK and same-life resume retain their firing-time mount after G', () => {
+  for (const s of Object.values(receipt.scenarios).filter(s => s.vehicle === 'su_bmpt34')) {
+    const r = initialized(s), sent = [];
+    r.net.status = 'open'; r.net.ws = { readyState: 1, send: text => sent.push(JSON.parse(text)) };
+    replay(r, s, 'cannon');
+    const ack = packet(s, 'rail', 'launched');
+    chooseControl(r, 'gun:0:2'); r.G.online.seq = ack.seq - 1;
+    const gun = r.G.loadout.turrets[0].guns[2], L = r.G.T[0].loading, ammo = gun.ammo[gun.loaded].shell.id;
+    assert.equal(r.live.fireGun(0, 2), true);
+    const launch = r.onlineLaunches.pending[0], msg = structuredClone(sent.at(-1));
+    assert.equal(msg.instance, 'gun:0:2'); assert.equal(msg.seq, ack.seq); assert.equal(msg.ammo, ammo);
+    assert.deepEqual(msg.ammo_scope, ack.ammo_scope);
+    replay(r, s, 'rail', 'ammo');
+    replay(r, s, 'at_5');
+    chooseControl(r, 'gun:0:1'); r.G.online.seq = 44;
+    assert.equal(r.live.fireGun(0, 1), true);
+    const pendingFire = r.onlineFires.pending[0];
+    chooseControl(r, 'gun:0:0');
+    const control = r.G.weaponControl, stock = r.onlineAmmo.counts(), readiness = structuredClone(L);
+    replay(r, s, 'resume');
+    assert.equal(r.G.weaponControl, control); assert.equal(r.G.loadout.turrets[0].guns[2], gun);
+    assert.equal(r.G.T[0].loading, L); assert.deepEqual(L, readiness);
+    assert.deepEqual(r.onlineAmmo.counts(), stock);
+    assert.equal(r.onlineLaunches.pending[0], launch); assert.equal(r.onlineFires.pending[0], pendingFire);
+    r.live.retryPendingLaunches(true);
+    assert.deepEqual(sent.at(-1), msg, 'timeout/reconnect retries exact firing-time instance, ammo, scope and sequence');
+    r.net._receive({ ...ack, ammo_scope: { ...ack.ammo_scope, life: ack.ammo_scope.life + 1 } });
+    assert.equal(r.onlineLaunches.pending[0], launch, 'wrong life cannot release the original tube');
+    const other = r.G.loadout.turrets[0].guns[3], otherState = structuredClone(other.launcher);
+    replay(r, s, 'rail', 'launched');
+    assert.equal(r.onlineLaunches.pending.length, 0);
+    assert.equal(gun.launcher.nextTube, 1); assert.equal(gun.launcher.ready, 0);
+    assert.deepEqual(other.launcher, otherState, 'ACK never rebinds to a later selected weapon');
+    const effects = r.G.launchEffects, committed = structuredClone(gun.launcher);
+    replay(r, s, 'rail_retry');
+    assert.deepEqual(gun.launcher, committed); assert.equal(r.G.launchEffects, effects);
+  }
+});
+
+test('actual G traverses ALL gun zero and Oplot before genuine APS manual and adoption receipts', () => {
+  for (const s of Object.values(receipt.aps_handoffs)) {
+    let clock = .01;
+    const sent = [], r = runtime(s.mode, { combat: new Combat(core, data.machineGuns), clock: { now: () => clock * 1000 } });
+    r.net.status = 'open'; r.net.ws = { readyState: 1, send: text => sent.push(JSON.parse(text)) };
+    for (const phase of ['welcome', 'create', 'start', 'deploy', 'initial_state', 'warm']) replay(r, s, phase);
+    assert.equal(selection.weaponControlKey(r.G.weaponControl), 'all');
+    r.live.cycleSightGun(); assert.equal(selection.weaponControlKey(r.G.weaponControl), 'gun:0:0');
+    r.live.cycleSightGun(); assert.equal(selection.weaponControlKey(r.G.weaponControl), 'gun:1:0');
+    replay(r, s, 'disable');
+    r.G.online.seq = 76;
+    assert.equal(r.live.fireGun(1, 0), true);
+    const msg = sent.at(-1);
+    assert.equal(msg.instance, 'gun:1:0'); assert.equal(msg.seq, 77);
+    assert.equal(msg.shell, r.onlineFires.pending[0].ammo.shell.id);
+    replay(r, s, 'manual'); assert.equal(r.onlineFires.pending.length, 0);
+    chooseControl(r, 'gun:0:0');
+    s.carried.tur.forEach((joint, i) => { r.G.T[i].yaw = joint[0]; r.G.T[i].guns[0].pitch = joint[1]; });
+    r.G.T[1].carried = s.carried.tur[0][0];
+    clock = s.carried.t;
+    chooseControl(r, 'all');
+    replay(r, s, 'carry_enable');
+    assert.ok(Number.isSafeInteger(r.G.online.apsPose.barrier), 'real current scoped APS acknowledgement binds the ALL transition');
+  }
+});
 function deferredRuntime(local,combat=new Combat(core,data.machineGuns)) {
   let resolve;const loaded=new Promise(r=>{resolve=r;});
   const r=runtime(local,{combat,loadMap:()=>loaded});

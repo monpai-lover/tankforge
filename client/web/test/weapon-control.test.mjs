@@ -29,7 +29,8 @@ import { Combat, launcherCanFire, bulletShell } from '../src/game/combat.js';
 import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
 import { Terrain } from '../src/game/terrain.js';
 import { humpLift, hitTargets, groundHit } from '../src/game/world.js';
-import { ammoMix, consumeApsRounds } from '../src/game/ammoInventory.js';
+import { ammoMix, captureAmmoPlan, consumeApsRounds } from '../src/game/ammoInventory.js';
+import { presentationDocument, weaponHud, regularWeaponHud } from './weapon-control-hud-rig.mjs';
 const damageApi = await import('../src/game/weaponDamage.js').catch(() => ({}));
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -63,6 +64,9 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   G.MG = lo.machineGuns.map(m => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true,
     carried: m.mount === 'pintle' && m.anchor !== 'hull' ? G.T[0].yaw : 0 }));
   const sent = [], apsCalls = [], launches = [], payloads = [], apsHud = [], toasts = [], tones = [], apsSounds = [];
+  const hud = weaponHud(presentationDocument(), text => toasts.push(text));
+  hud.aps = state => apsHud.push(state);
+  hud.buildGunList(lo);
   if (!mesh) G.model.payload = (...args) => payloads.push(args);
   const core = loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
@@ -83,7 +87,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   const deps = { G, stabilizerDrives, performance:clock, ME, data: fixtureData, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
-    onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast: text => toasts.push(text), aps: state => apsHud.push(state), weaponControl() {} },
+    onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud,
     sound: { tone: name => tones.push(name), apsGun: (...args) => apsSounds.push(args), mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
@@ -96,7 +100,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   const functions = ['cycleSightGun', 'trigger', 'fireGun', 'launchFromGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'cycleApsRate', 'apsAutomatic', 'apsHullPose','apsFrame','heldApsPose','sendOnlineState','acceptApsPose','suspendApsPose','syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
   const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, cycleApsRate, syncApsControl, sendOnlineState, apsOf, trackHull, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
-  return { G, live, rt, sent, apsCalls, launches, payloads, apsHud, toasts, tones, apsSounds, snapshot, core, combat, damage: (id, health = 0) => {
+  return { G, live, rt, hud, sent, apsCalls, launches, payloads, apsHud, toasts, tones, apsSounds, snapshot, core, combat, damage: (id, health = 0) => {
     G.cstate.modules[G.bundle.modules.findIndex(m => m.id === id)] = health;
     G.caps = combat.advance(G.combatKey, G.cstate, 0, 1).caps;
   } };
@@ -108,6 +112,90 @@ function chooseControl(r, key) {
   }
   assert.equal(selection.weaponControlKey(r.G.weaponControl), key, 'actual G reaches requested control');
 }
+test('real HUD creates indexed gun zero and the regular adapter highlights exactly the actual SOLO control', () => {
+  const r = controls('su_bmpt34');
+  assert.deepEqual(r.hud.gunRows.map(row => [row.ti, row.gi, row.k]), [[0, 0, 0], [0, 1, 1], [0, 2, 2], [0, 3, 3]]);
+  for (const fixture of [r, controls('de_pz3_j')]) {
+    const keys = selection.weaponControlSlots(fixture.G.loadout).map(selection.weaponControlKey);
+    const plan = captureAmmoPlan(fixture.G.loadout);
+    for (let round = 0; round < 3; round++) for (const key of keys) {
+      assert.equal(selection.weaponControlKey(fixture.G.weaponControl), key);
+      regularWeaponHud(source, fixture.G, fixture.hud, loading, damageApi, selection);
+      const highlighted = [
+        ...fixture.hud.gunRows.filter(row => row.row.dataset.sighting === '1').map(row => `gun:${row.ti}:${row.gi}`),
+        ...fixture.hud.mgRows.flatMap((row, mi) => row.row.dataset.sighting === '1' ? [`mg:${mi}`] : []),
+      ];
+      assert.deepEqual(highlighted, key === 'all' ? [] : [key], 'actual control owns exactly its live DOM row');
+      assert.deepEqual(captureAmmoPlan(fixture.G.loadout), plan);
+      fixture.live.cycleSightGun();
+    }
+  }
+});
+
+test('persistent real HUD distinguishes ALL from gun zero even though their optical indices match', () => {
+  const r = controls('su_bmpt34');
+  assert.equal(typeof Hud.prototype.weaponControl, 'function', 'persistent control label has a real HUD adapter');
+  regularWeaponHud(source, r.G, r.hud, loading, damageApi, selection);
+  assert.equal(r.hud.el.control.textContent, '全炮開火');
+  assert.equal(r.hud.el.control.dataset.control, 'all');
+  assert.deepEqual([r.G.sightT, r.G.sightG, r.G.sightM], [0, 0, -1]);
+  r.live.cycleSightGun();
+  regularWeaponHud(source, r.G, r.hud, loading, damageApi, selection);
+  assert.equal(r.hud.el.control.textContent, '炮塔 1 · 火炮 1 單獨開火');
+  assert.equal(r.hud.el.control.dataset.control, 'gun:0:0');
+  assert.deepEqual([r.G.sightT, r.G.sightG, r.G.sightM], [0, 0, -1]);
+  r.live.cycleSightGun();
+  regularWeaponHud(source, r.G, r.hud, loading, damageApi, selection);
+  assert.equal(r.hud.el.control.textContent, '炮塔 1 · 火炮 2 單獨開火');
+  assert.equal(r.hud.el.control.dataset.control, 'gun:0:1');
+  let textWrites = 0, keyWrites = 0;
+  const element = { get textContent() { return '炮塔 1 · 火炮 2 單獨開火'; }, set textContent(_) { textWrites++; },
+    dataset: { get control() { return 'gun:0:1'; }, set control(_) { keyWrites++; } } };
+  Hud.prototype.weaponControl.call({ el: { control: element } }, '炮塔 1 · 火炮 2 單獨開火', 'gun:0:1');
+  assert.deepEqual([textWrites, keyWrites], [0, 0], 'unchanged per-frame presentation does not rewrite DOM');
+});
+
+test('source vehicles and actual Hetzer head swaps cycle without changing finite life stock or fitted bindings', () => {
+  const cases = ['de_hetzer', 'de_hetzer_sdkfz1401', 'de_hetzer_flak', 'de_hetzer_mk103', 'de_hetzer_mk103_camo']
+    .map(id => ({ id, bundle: data.vehicles[id] }));
+  for (const keepStock of [false, true]) {
+    const compiled = loadout.buildToBundle({ base: 'de_hetzer', keepStock,
+      turrets: [{ ...loadout.newTurretSpec(), guns: [{ weapon: 'xp_kda35' }] }] }, data);
+    cases.push({ id: `hetzer_control_${keepStock}`, bundle: compiled.bundle });
+  }
+  const records = G => ({
+    turrets: G.loadout.turrets.map(t => ({ sourceVehicle: t.sourceVehicle, pivot: t.pivot,
+      facing: t.facing, parent: t.parent, sight: t.sight })),
+    guns: G.loadout.turrets.map(t => t.guns.map(g => ({ ammo: g.ammo.map(a => a.count), loaded: g.loaded,
+      selected: g.selected, belt: g.belt, launcher: structuredClone(g.launcher), def: g.def,
+      sourceVehicle: g.sourceVehicle, damageKey: g.damageKey, trunnion: g.trunnion, muzzleVector: g.muzzleVector }))),
+    mgs: G.MG.map(e => ({ definition: e.m, state: structuredClone(e.st) })),
+    loading: G.T.map(t => structuredClone(t.loading)),
+    bundle: structuredClone(G.bundle), caps: structuredClone(G.caps), state: structuredClone(G.cstate),
+  });
+  for (const { id, bundle } of cases) {
+    const r = controls(id, false, bundle), plan = captureAmmoPlan(r.G.loadout), before = records(r.G);
+    const expected = selection.weaponControlSlots(r.G.loadout).map(selection.weaponControlKey), seen = [];
+    for (let i = 0; i < expected.length; i++) {
+      seen.push(selection.weaponControlKey(r.G.weaponControl));
+      r.live.cycleSightGun();
+    }
+    assert.deepEqual(seen, expected, id);
+    assert.equal(selection.weaponControlKey(r.G.weaponControl), 'all');
+    assert.deepEqual(captureAmmoPlan(r.G.loadout), plan, `${id} finite new-life stock plan`);
+    assert.deepEqual(records(r.G), before, `${id} source, fitted weapons, anchors, readiness and repair gates`);
+    assert.deepEqual(r.G.pending, []);
+    assert.deepEqual(r.payloads, [], 'cycling never changes the displayed launcher payload');
+  }
+});
+
+test('control template keeps the existing hidden optical header and exact G cycle help', () => {
+  const html = fs.readFileSync(new URL('../template.html', import.meta.url), 'utf8');
+  assert.match(html, /<div id="weapon-control" data-control="all">全炮開火<\/div>\s*<div id="gun-head" hidden>/);
+  assert.match(html, /#gunbox #weapon-control, #gunbox #gun-head, #gunbox #gun-list, #gunbox #mg-list/);
+  assert.match(html, /<dt><kbd>G<\/kbd><\/dt><dd>全炮開火 → 各火炮單獨 → 各機槍單獨；單獨模式只射擊所選武器<\/dd>/);
+  assert.match(html, /<dt><kbd>1<\/kbd>–<kbd>9<\/kbd><\/dt><dd>選彈種（下一發）；連按兩下立即退彈換裝<\/dd>/);
+});
 async function apsControls(id, mode, bundle = data.vehicles[id]) {
   const r = controls(id, false, bundle, mode);
   r.G.loadout.imported = await decodeImported(bundle.model);

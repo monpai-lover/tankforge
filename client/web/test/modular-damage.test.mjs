@@ -7,6 +7,7 @@ import { loadData } from '../tools/load-data.mjs';
 import { loadCoreSync } from '../src/design/core.js';
 import { Combat, targetDef, emptyRacks, EVENT_NAME, CREW_NAME } from '../src/game/combat.js';
 import * as loadout from '../src/game/loadout.js';
+import * as selection from '../src/game/weaponselection.js';
 import * as loading from '../src/sim/loading.js';
 import * as mgSim from '../src/sim/mg.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
@@ -382,7 +383,7 @@ test('live select registers before actual stock/workshop models, interior and st
   const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}, freeTexture() {}};
   const G = {mode: 'battle', gameplayMode: 'historical', combat: c, model: null, s: phys.newState(), veh: {}, cam: {yaw: 0}, pending: [], designs: new Map()};
   const scene = {children: [], add(n) {this.children.push(n);}}, order = [];
-  const deps = {G, onlineFires, onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, scene, VehicleSim, phys, loading, mgSim, ...loadout, ...helper, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
+  const deps = {G, onlineFires, onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, scene, VehicleSim, phys, loading, mgSim, gunnery, ...selection, ...loadout, ...helper, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
     buildTank(r, lo, parts) { assert.ok(c.describe(G.combatKey), 'registration exists before real model construction'); order.push('model'); return buildTank(r, lo, parts); },
     buildInterior(...args) {order.push('interior'); return buildInterior(...args);},
     isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
@@ -441,7 +442,7 @@ test('actual garage protection shots use the current actor fold and restore rais
   protection.dist = 100;
   const plate = original.armor.find(p => p.hinge), n = Object.values(plate.normal), p = Object.values(plate.center);
   const ray = {o: p.map((v, i) => v + n[i] * 3), d: n.map(v => -v / Math.hypot(...n))};
-  const replays = [], deps = {G, onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...loadout, ...helper, ...folding, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
+  const replays = [], deps = {G, onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...selection, ...loadout, ...helper, ...folding, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
     buildTank, buildInterior, isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
     clamp: (v, a, b) => Math.max(a, Math.min(b, v)), DEG: Math.PI / 180,
     mods: {choose() {}, cardOf: id => id, slots: () => []}, hud: new Proxy({}, {get: () => () => {}}),

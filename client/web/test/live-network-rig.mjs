@@ -24,8 +24,8 @@ import * as resupply from '../src/game/ammoResupply.js';
 import { OnlineAmmo } from "../src/game/onlineAmmo.js";
 import { OnlineLaunches } from "../src/game/onlineLaunch.js";
 import * as gunnery from "../src/sim/gunnery.js";
-import { weaponDamage } from "../src/game/weaponDamage.js";
-import { emptyRacks, CREW_NAME, EVENT_NAME } from "../src/game/combat.js";
+import * as damage from "../src/game/weaponDamage.js";
+import { emptyRacks, launcherCanFire, CREW_NAME, EVENT_NAME } from "../src/game/combat.js";
 import * as ballistics from '../src/sim/ballistics.js';
 import { hullTilt } from '../src/sim/tank/tank.js';
 import { GARAGE } from '../src/game/world.js';
@@ -34,28 +34,33 @@ import { useCombat } from '../src/game/enemies.js';
 import { buildInterior } from '../src/gfx/interior.js';
 import { Missiles } from '../src/game/missiles.js';
 import { loadCoreSync } from '../src/design/core.js';
+import { presentationNode, presentationDocument, weaponHud } from './weapon-control-hud-rig.mjs';
 const data=loadData();
 const source=fs.readFileSync(new URL("../src/main.js",import.meta.url),"utf8").replaceAll("\r\n","\n");
 const fn = name => { const a = source.indexOf(`  function ${name}(`); return a < 0 ? '' : source.slice(a, source.indexOf('\n  }', a) + 4); };
 const storage = () => { const values = new Map(); return { values, get: k => values.get(k), set: (k, v) => values.set(k, v) }; };
-function node() { return { children: [], dataset: {}, style: {}, textContent: '', append(...c) { this.children.push(...c); } }; }
+const node = presentationNode;
 export function runtime(local, options = {}) {
   const store = storage(), gameplay = new GameplaySession(store);
   gameplay.chooseLocal(local);
   const G = { weaponControl: { kind: 'all' }, id: 'su_t34_85', mode: 'garage', gameplayMode: gameplay.activeMode(), s: phys.newState(), pending: [], shots:[], bullets:[], guided:[],aim:{}, cam: {shake:0}, thumbs: [], mapId: 'range', maps: new Map(options.loadMap?[]:Object.entries(data.maps)), enemies: [], keys: new Set(),camPos:[0,0,0] };
   const notices=[],cqBar=node(),cqMsg=node();G.combat=options.combat||null;G.cstate=null;G.caps=null;G.carried=-1;
-  const elements = new Map();
-  globalThis.document = { body: { dataset: {} }, getElementById(id) { if(id==='cq-msg')return cqMsg;if(id==='cq-bar')return cqBar;if (!elements.has(id)) elements.set(id,node()); return elements.get(id); }, createElement: node, createTextNode: text => ({ textContent: text }) };
+  const document = presentationDocument(), getElementById = document.getElementById;
+  document.getElementById = id => id === 'cq-msg' ? cqMsg : id === 'cq-bar' ? cqBar : getElementById(id);
+  const weaponDisplay = weaponHud(document, (text, seconds) => notices.push({ text, seconds }));
   const hudState = { el: Object.fromEntries(['kind','name','vehName','based','outline','spec'].map(k => [k,node()])) };
-  const hud = new Proxy({toast(text,seconds){notices.push({text,seconds});}, showSpec(...args) { hudState.el.spec.children=[]; Hud.prototype.showSpec.call(hudState,...args); } }, { get(o,k) { return o[k] || (() => {}); } });
+  const hud = new Proxy({ el: weaponDisplay.el,
+    buildGunList: weaponDisplay.buildGunList.bind(weaponDisplay), buildAmmo: weaponDisplay.buildAmmo.bind(weaponDisplay),
+    weaponControl: weaponDisplay.weaponControl.bind(weaponDisplay),
+    toast(text,seconds){notices.push({text,seconds});}, showSpec(...args) { hudState.el.spec.children=[]; Hud.prototype.showSpec.call(hudState,...args); } }, { get(o,k) { return o[k] || (() => {}); } });
   const net = new NetClient();
   const receive=net._receive.bind(net);net._receive=m=>receive(structuredClone(m));
   const scene = { children: [], add(n) { this.children.push(n); } };
   const renderer = { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} };
-  const deps = { G, performance:options.clock||performance, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...selection, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, gunnery, ballistics, weaponDamage, hullTilt, captureMessage, CREW_NAME, EVENT_NAME, DEG:Math.PI/180, RECOIL_ROCK:1,GARAGE,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),cameraObstruction:{reset(){}},vehicleActionIndicator:{update(){}},rng:{nextF32:()=>.5}, pose:()=>({pos:[G.s.x,G.s.y||0,G.s.z],heading:G.s.heading}), surfaceAt:()=>0,impactColor:()=>[0,0,0], ME:1, dirFrom:(y,p)=>[Math.sin(y)*Math.cos(p),Math.sin(p),Math.cos(y)*Math.cos(p)], data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
-    isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }), AMMO_CFG: {}, applyAmmo,
+  const deps = { G, performance:options.clock||performance, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...selection, ...loadout, ...performanceApi, ...inventory, ...resupply, ...damage, launcherCanFire, phys, gunnery, ballistics, hullTilt, captureMessage, CREW_NAME, EVENT_NAME, DEG:Math.PI/180, RECOIL_ROCK:1,GARAGE,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),cameraObstruction:{reset(){}},vehicleActionIndicator:{update(){}},rng:{nextF32:()=>.5}, surfaceAt:()=>0,impactColor:()=>[0,0,0], ME:1, dirFrom:(y,p)=>[Math.sin(y)*Math.cos(p),Math.sin(p),Math.cos(y)*Math.cos(p)], data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
+    isDesign: () => false, bundleFor: options.bundleFor || (id => ({ bundle: data.vehicles[id], projectiles: data.projectiles })), AMMO_CFG: {}, applyAmmo,
     onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), OnlineAmmo, emptyRacks, loading, mgSim, renderer, buildTank, VehicleSim, terrain: ground(() => 0), scene, hud,
-    syncRacks(){}, Exhaust: class {}, fx: new Proxy({}, {get:()=>()=>{}}), exhaustOf() {}, applyXray() {}, rebuildInterior() {}, useCombat, buildInterior, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],
+    syncRacks(){}, Exhaust: class {}, fx: new Proxy({}, {get:()=>()=>{}}), exhaustOf() {}, applyXray() {}, rebuildInterior() {}, useCombat, buildInterior, statusShape() {}, selectAmmo() {},
     mods: { choose() {}, cardOf: id => id, slots: () => [] }, measureInsets() {}, missileVehicle() {G.aps=data.vehicles[G.id].weapons.aps||null;}, missileBattleStart() {G.aps=data.vehicles[G.id].weapons.aps||null;},
     net, lobby: { render() {}, sendVehicle() {}, show() {} }, MAP_IDS: ['range','coast'], RESPAWN_DELAY: 5, missileTerrain:()=>null,enemyOwner:i=>100+i,
     useWorld(id){G.map=data.maps[id]||null;}, spawnEnemies() {}, spawnRemotes() {}, resetPose(){G.veh.place(0,0,0);G.veh.compat(G.s);deps.combatInit();}, updateNetHud() {}, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {}, setMapChoice(id) { G.mapId=id; }, loadMap: options.loadMap, mapName: () => 'range', feed() {},
@@ -75,7 +80,8 @@ export function runtime(local, options = {}) {
   G.missiles._launchLook=()=>{G.launchEffects=(G.launchEffects||0)+1;};
   G.missiles.present=res=>{for(const a of res.aps||[])G.missiles.aps.set(a.owner,a);};
   const spawns=source.slice(source.indexOf('  const RANGE_SPAWNS ='),source.indexOf('  /** Where a team')) ;
-  const mounts=source.slice(source.indexOf('  const mountOf ='),source.indexOf('  const zeroElev ='));
-  const live = new Function(...Object.keys(deps), `${mounts}\n${spawns}\n${['resetPose','combatInit','bindCombatReady','missileVehicle','missileBattleStart','apsHullPose','apsFrame','heldApsPose','sendOnlineState','acceptApsPose','suspendApsPose','syncApsControl','toggleAps','spawnPoint','onlineSpawn','pivotOf','conquestStep','resupplyStep','announcePoint','markDead','fireGun','launchFromGun','retryPendingLaunches','select','onlineSky','applyAps','apsAutomatic','validateOnlineLife','carriedRounds','syncRacks','reloadShown','setMode','gameplayLabel','updateGameplayDisplay','chooseGameplayMode','applyRoomGameplay','startBattle','toGarage'].map(fn).join('\n')}\n${source.slice(a,b)}\n${source.slice(ra,rb)}\n${source.slice(la,lb)}\n${source.slice(ma,mb)}\n${source.slice(sa,sb)}\n${source.slice(fa,fb)}\n${source.slice(ha,hb)}\n${source.slice(ta,tb)}\n${source.slice(qa,qb)}\nselect(G.id); return {select,chooseGameplayMode,toGarage,startBattle,conquestStep,fireGun,markDead,bindCombatReady,toggleAps,syncApsControl,sendOnlineState,onlineSky};`)(...Object.values(deps));
-  return { G, net, gameplay, store, live, scene,onlineAmmo:deps.onlineAmmo, onlineFires:deps.onlineFires, onlineLaunches:deps.onlineLaunches, notices,ui:{cqBar,cqMsg},spec: () => hudState.el.spec.children.map(n => n.textContent).join(' ') };
+  const mounts=source.slice(source.indexOf('  const pose ='),source.indexOf('  // ----------------------------------------------------------------- workshop'));
+  delete deps.sightLevels;
+  const live = new Function(...Object.keys(deps), `${mounts}\n${spawns}\n${['resetPose','combatInit','bindCombatReady','missileVehicle','missileBattleStart','apsHullPose','apsFrame','heldApsPose','sendOnlineState','acceptApsPose','suspendApsPose','syncApsControl','toggleAps','spawnPoint','onlineSpawn','conquestStep','resupplyStep','announcePoint','markDead','cycleSightGun','trigger','fireGun','layMg','stepMachineGuns','launchFromGun','retryPendingLaunches','select','onlineSky','applyAps','apsAutomatic','validateOnlineLife','carriedRounds','syncRacks','reloadShown','setMode','gameplayLabel','updateGameplayDisplay','chooseGameplayMode','applyRoomGameplay','startBattle','toGarage'].map(fn).join('\n')}\n${source.slice(a,b)}\n${source.slice(ra,rb)}\n${source.slice(la,lb)}\n${source.slice(ma,mb)}\n${source.slice(sa,sb)}\n${source.slice(fa,fb)}\n${source.slice(ha,hb)}\n${source.slice(ta,tb)}\n${source.slice(qa,qb)}\nselect(G.id); return {select,chooseGameplayMode,toGarage,startBattle,conquestStep,cycleSightGun,trigger,fireGun,stepMachineGuns,retryPendingLaunches,markDead,bindCombatReady,toggleAps,syncApsControl,sendOnlineState,onlineSky};`)(...Object.values(deps));
+  return { G, net, gameplay, store, live, hud, scene,onlineAmmo:deps.onlineAmmo, onlineFires:deps.onlineFires, onlineLaunches:deps.onlineLaunches, notices,ui:{cqBar,cqMsg},spec: () => hudState.el.spec.children.map(n => n.textContent).join(' ') };
 }

@@ -51,7 +51,7 @@ import { Effects, advanceGunRecoil } from './game/fx.js';
 import { Sound } from './game/audio.js';
 import { Hud, penAt } from './game/hud.js';
 import { statusViewDistance } from './game/statusview.js';
-import { nextWeaponControl, weaponControlSight, weaponControlLabel, gunControlActive, mgControlActive, gunTrigger, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
+import { nextWeaponControl, weaponControlSight, weaponControlLabel, weaponControlKey, gunControlActive, mgControlActive, gunTrigger, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
 import { smoothFold, foldDepression, foldYawLimit, foldedPlate } from './game/folding.js';
 import { sightProjection } from './game/optics.js';
 import { Workshop } from './game/workshop.js';
@@ -759,6 +759,7 @@ export function start(data, saved = {}) {
     });
     hud.buildGunList(G.loadout);
     hud.buildAmmo(sightGun(), selectAmmo);
+    hud.weaponControl(weaponControlLabel(G.loadout, G.weaponControl), weaponControlKey(G.weaponControl));
     G.statusShape = statusShape(bundle, bundle);
     G.cruise = null;
     // the rockets on the rails are the rounds loaded
@@ -4719,10 +4720,11 @@ export function start(data, saved = {}) {
     G.loadout.turrets.forEach((t, ti) => {
       t.guns.forEach((g, gi) => {
         const pr = loading.progress(G.T[ti].loading, gi, weaponReloadMult(G.caps, g.damageKey, g.noDedicatedLoader));
-        states.push({ ...pr, bearing: G.T[ti].bearing, sighting: G.sightM < 0 && ti === G.sightT && gi === G.sightG });
+        states.push({ ...pr, bearing: G.T[ti].bearing, sighting: G.weaponControl.kind === 'gun' && ti === G.weaponControl.ti && gi === G.weaponControl.gi });
       });
     });
     if (G.thumbShot) return;
+    hud.weaponControl(weaponControlLabel(G.loadout, G.weaponControl), weaponControlKey(G.weaponControl));
     hud.guns(states);
     hud.ammo(sg, loading.progress(srt.loading, G.sightG, weaponReloadMult(G.caps, sg.damageKey, sg.noDedicatedLoader)));
     const dv = G.mode === 'battle' && G.cstate ? damageView() : { items: [], shape: G.statusShape };
@@ -4736,7 +4738,7 @@ export function start(data, saved = {}) {
         fire: !!(G.caps && G.caps.on_fire),
       });
     }
-    hud.mgs(G.MG.map((e, i) => ({ belt: e.st.belt, heat: e.st.heat, hot: e.st.hot, reload: e.st.reload * weaponDamage(G.caps, e.m.damageKey).reload_mult, bearing: e.bearing, sighting: i === G.sightM })));
+    hud.mgs(G.MG.map((e, i) => ({ belt: e.st.belt, heat: e.st.heat, hot: e.st.hot, reload: e.st.reload * weaponDamage(G.caps, e.m.damageKey).reload_mult, bearing: e.bearing, sighting: G.weaponControl.kind === 'mg' && i === G.weaponControl.mi })));
     hud.viewLabel(G.xray ? '內構透視' : G.free ? '自由視角' : inSight ? `炮手瞄準鏡 ${level.magnification}×` : '第三人稱');
     hud.zero(`${G.zero > 0 ? `表尺 ${G.zero} m` : '表尺 直瞄'}　自動裝表 ${G.autoZero ? '開' : '關'}`);
     hud.tick(dt);

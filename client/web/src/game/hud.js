@@ -163,6 +163,7 @@ export class Hud {
       ammo: $('ammo-bar'),
       guns: $('gun-list'),
       mgs: $('mg-list'),
+      control: $('weapon-control'),
       view: $('view-mode'),
       zero: $('zero'),
       toast: $('toast'),
@@ -412,8 +413,6 @@ export class Hud {
     loadout.turrets.forEach((t, ti) => {
       t.guns.forEach((g, gi) => {
         k++;
-        // the main gun's reload is the ring round the aim mark
-        if (ti === 0 && gi === 0) return;
         const row = document.createElement('div');
         row.className = 'gun-row';
         const label = document.createElement('span');
@@ -451,6 +450,11 @@ export class Hud {
       this.el.mgs.append(row);
       this.mgRows.push({ row, fill, st });
     }
+  }
+
+  weaponControl(text, key) {
+    if (this.el.control.textContent !== text) this.el.control.textContent = text;
+    if (this.el.control.dataset.control !== key) this.el.control.dataset.control = key;
   }
 
   /** states: [{belt, heat, hot, reload, bearing}] in loadout.machineGuns order. The bar is barrel heat. */

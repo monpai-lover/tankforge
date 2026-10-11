@@ -329,7 +329,7 @@ body:not([data-mode="battle"]) #hud { display: none; }
 #dmg-list span[data-kind="info"] { background: rgba(30, 60, 90, 0.6); color: #dbe9ff; }
 
 #gunbox { position: absolute; left: 50%; bottom: var(--gutter); transform: translateX(-50%); width: min(380px, calc(100% - 2 * var(--gutter) - 2 * 232px)); min-width: 250px; padding: 0; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9); }
-#gunbox #gun-head, #gunbox #gun-list, #gunbox #mg-list { background: rgba(16, 18, 13, 0.5); padding: 4px 10px; border-radius: 3px; }
+#gunbox #weapon-control, #gunbox #gun-head, #gunbox #gun-list, #gunbox #mg-list { background: rgba(16, 18, 13, 0.5); padding: 4px 10px; border-radius: 3px; }
 #gunbox #gun-list, #gunbox #mg-list { margin-top: 3px; }
 #gunbox #mg-list { padding: 2px 8px; font-size: 12px; gap: 1px; }
 #gunbox #mg-list .bar { height: 3px; }
@@ -828,8 +828,8 @@ body[data-touch="1"] .tr-fire { display: block; }
         <dt><kbd>F</kbd></dt><dd>短按測距（自動裝表）；停車後按住 3 秒開始修復</dd>
         <dt><kbd>E</kbd> <kbd>Q</kbd> <kbd>X</kbd></dt><dd>表尺 ＋50／−50／歸零</dd>
         <dt><kbd>B</kbd></dt><dd>自動裝表 開／關</dd>
-        <dt><kbd>G</kbd></dt><dd>切換火炮／機槍，左鍵單獨射擊所選機槍</dd>
-        <dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>選彈種（下一發）；連按兩下立即退彈換裝</dd>
+        <dt><kbd>G</kbd></dt><dd>全炮開火 → 各火炮單獨 → 各機槍單獨；單獨模式只射擊所選武器</dd>
+        <dt><kbd>1</kbd>–<kbd>9</kbd></dt><dd>選彈種（下一發）；連按兩下立即退彈換裝</dd>
         <dt><kbd>=</kbd> <kbd>−</kbd></dt><dd>巡航定速 加／減一段（按 W／S 改回手動）</dd>
         <dt>滾輪</dt><dd>表尺（射距）＋／−50 m，數值顯示在準星旁</dd>
         <dt><kbd>Z</kbd></dt><dd>放大倍率；再按一次縮回</dd>
@@ -888,6 +888,7 @@ body[data-touch="1"] .tr-fire { display: block; }
     <div id="hint" role="status"></div>
 
     <section id="gunbox" aria-label="武器">
+      <div id="weapon-control" data-control="all">全炮開火</div>
       <div id="gun-head" hidden><span id="view-mode">第三人稱</span><span id="zero">表尺 直瞄</span></div>
       <div id="gun-list"></div>
       <div id="mg-list"></div>

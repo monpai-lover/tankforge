@@ -38,6 +38,11 @@ try {
   });
   const count = await page.evaluate(() => window.__tf.G.MG.length);
   assert.ok(count >= 2, 'exercise multiple MG mounts');
+  const gunCount = await page.evaluate(() => window.__tf.G.loadout.turrets.reduce((n, t) => n + t.guns.length, 0));
+  for (let i = 0; i < gunCount; i++) {
+    await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyG' })));
+    assert.equal(await page.evaluate(() => window.__tf.G.weaponControl.kind), 'gun', 'all real gun slots precede the MG slots');
+  }
   for (let mi = 0; mi < count; mi++) {
     await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyG' })));
     const selection = await page.evaluate(() => window.__tf.G.sightM);
@@ -60,14 +65,25 @@ try {
   await page.screenshot({ path: path.join(out, 'mg-sight.png') });
   await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyG' })));
   assert.equal(await page.evaluate(() => window.__tf.G.sightM), -1, 'full cycle restores cannon');
-  await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyG' })));
+  assert.equal(await page.evaluate(() => window.__tf.G.weaponControl.kind), 'all');
+  for (let i = 0; i <= gunCount; i++) await page.evaluate(() => window.dispatchEvent(new KeyboardEvent('keydown', { code: 'KeyG' })));
   const zeroing = await page.evaluate(() => {
     const t = window.__tf;
-    t.G.autoZero = false; t.G.zero = 1000; t.G.cam.yaw = t.G.s.heading; t.G.cam.pitch = 0;
+    const pose = () => ({ yaw: t.G.T[0].yaw, pitch: t.G.T[0].guns[0].pitch });
+    const bore = () => Array.from(t.G.model.turrets[0].guns[0].node.world).slice(8, 11);
+    t.G.autoZero = false; t.G.zero = 0; t.G.cam.yaw = t.G.s.heading; t.G.cam.pitch = 0;
+    t.advance(.1);
+    const held = pose(), straight = t.G.sightOffset.slice();
+    t.G.zero = 1000;
     t.advance(4);
-    return { offset: t.G.sightOffset, pitch: t.G.T[0].guns[0].pitch };
+    const { yaw, pitch } = pose();
+    const expectedBore = t.G.veh.body.worldDir([Math.sin(yaw) * Math.cos(pitch), Math.sin(pitch), Math.cos(yaw) * Math.cos(pitch)]);
+    return { held, after: pose(), expectedBore, bore: bore(), straight, offset: t.G.sightOffset.slice() };
   });
-  assert.ok(Math.hypot(...zeroing.offset) < 2, `selected coax MG must use its own 1000m zero, offset=${zeroing.offset}`);
+  assert.deepEqual(zeroing.after, zeroing.held, 'selected fixed coax holds both cannon motors');
+  assert.ok(zeroing.bore.every(Number.isFinite) && zeroing.offset.every(Number.isFinite));
+  zeroing.bore.forEach((v, i) => assert.ok(Math.abs(v - zeroing.expectedBore[i]) < 1e-6, 'actual rendered coax/cannon bore follows the held joint and current hull'));
+  assert.ok(Math.abs(zeroing.offset[1] - zeroing.straight[1]) > 1, 'actual reticle uses the selected MG ballistic zero independently of the held bore');
   const damagedCannon = await page.evaluate(() => {
     const t = window.__tf;
     const before = t.G.MG[0].st.fired;

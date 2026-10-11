@@ -24,18 +24,28 @@ import { Combat, emptyRacks } from '../src/game/combat.js';
 import { Conquest, captureMessage } from '../src/game/conquest.js';
 import * as selection from '../src/game/weaponselection.js';
 import { ground } from './tankrig.mjs';
+import { Missiles } from '../src/game/missiles.js';
+import { RigidBody } from '../src/sim/tank/body.js';
 const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replaceAll('\r\n','\n'),data=loadData();
 function body(name){const start=source.indexOf(`  function ${name}(`);assert.ok(start>=0);return source.slice(start,source.indexOf('\n  }',start)+4);}
 function runtime(id,mode){
   const lo=deriveLoadoutPerformance(loadout.makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns),mode);applyAmmo(lo,{});
   const ti=lo.weapons.aps.turret??1,G={weaponControl:{kind:'all'},loadout:lo,mode:'battle',online:null,aps:lo.weapons.aps,apsOn:true,sightM:-1,sightT:0,
-    T:lo.turrets.map(t=>({loading:loading.newLoading(t.guns.length,t.loaders.length,t.guns.map(g=>!g.rack))}))};
-  const core=loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm',import.meta.url)),{materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)});
+    s: phys.newState(), cam: { shake: 0 }, camPos: [0, 3, 0],
+    veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]) },
+    T:lo.turrets.map(t=>({yaw:t.facing,guns:t.guns.map(()=>({pitch:0})),loading:loading.newLoading(t.guns.length,t.loaders.length,t.guns.map(g=>!g.rack))}))};
+  lo.turrets.forEach((t, i) => { if (t.parent != null) G.T[i].yaw = gunnery.wrapPi(G.T[i].yaw + G.T[t.parent].yaw); });
+  const core=loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm',import.meta.url)),{materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)});
   core.call({op:'mw_reset',defs:Object.values(data.missiles)});core.call({op:'mw_aps',owner:1,team:0,def:G.aps,seed:10});
-  G.missiles={setAps(owner,enabled,rate_rpm=null,rounds=null){core.call({op:'mw_aps',owner,enabled,rate_rpm,rounds});}};
-  const live=new Function('G','ME','roundsLeft','net','hud',`${body('apsAutomatic')}\n${body('syncApsControl')}\n${body('cycleApsRate')}\nreturn {syncApsControl,cycleApsRate};`)(G,1,loadout.roundsLeft,{send(){}},{toast(){}});
+  G.missiles = new Missiles({ core, defs: data.missiles, projectiles: data.projectiles });
+  const deps = { G, ME: 1, DEG: Math.PI / 180, ...loadout, ...inventory, gunnery,
+    dirFrom: (y, p) => [Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p)],
+    net: { send() {} }, hud: { toast() {}, aps() {} }, sound: new Proxy({}, { get: () => () => {} }) };
+  const live=new Function(...Object.keys(deps),
+    ['apsAutomatic','apsHullPose','apsFrame','heldApsPose','syncApsControl','cycleApsRate','applyAps'].map(body).join('\n')+
+    '\nreturn {syncApsControl,cycleApsRate,applyAps};')(...Object.values(deps));
   const actor={id:1,team:0,alive:true,center:[0,1.3,0],aps_pivot:[.502,2.715,.557],aps_base_yaw:0,aps_gun_ok:true,aps_radar_ok:true};
-  const step=dt=>core.call({op:'mw_step',dt,actors:[actor]});
+  const step=dt=>{ const result=core.call({op:'mw_step',dt,actors:[actor]});live.applyAps(result,actor);return result; };
   const threat=seed=>core.call({op:'mw_launch',def:'bgm71a_tow',owner:99,team:1,pos:[0,2,600],dir:[0,0,-1],seed});
   return {G,core,live,step,threat,ti,g:lo.turrets[ti].guns[0],L:G.T[ti].loading};
 }
@@ -50,13 +60,14 @@ function manualRuntime(id, mode) {
     combat: new Combat(r.core, data.machineGuns), guided: [],
   });
   const lifecycle = { adds: 0, removes: 0 };
+  const addAps = G.missiles.addAps.bind(G.missiles), removeAps = G.missiles.removeAps.bind(G.missiles);
   G.missiles.addAps = (owner, team, def, seed) => {
     lifecycle.adds++;
-    r.core.call({ op: 'mw_aps', owner, team, def, seed });
+    addAps(owner, team, def, seed);
   };
   G.missiles.removeAps = owner => {
     lifecycle.removes++;
-    r.core.call({ op: 'mw_aps', owner, remove: true });
+    removeAps(owner);
   };
   const sourceGun = data.vehicles[id].weapons.extra_turrets[0].guns[0].gun;
   const chosen = sourceGun.ammo.map((_, i) => i === 0 ? 7 : 0);
@@ -79,6 +90,7 @@ function manualRuntime(id, mode) {
     document: { getElementById: () => ({}) },
     sound: new Proxy({}, { get: () => () => {} }), fx: new Proxy({}, { get: () => () => {} }),
     moduleOk: () => true, rng: { nextF32: () => .5 }, surfaceAt: () => 0, impactColor: () => [0, 0, 0],
+    dirFrom: (y, p) => [Math.sin(y) * Math.cos(p), Math.sin(p), Math.cos(y) * Math.cos(p)],
     cqBar, cqMsg, announcePoint() {}, toGarage() {}, enemyOwner: i => 100 + i,
     clamp: (n, a, b) => Math.max(a, Math.min(b, n)),
   };
@@ -86,7 +98,7 @@ function manualRuntime(id, mode) {
   delete deps.sightLevels;
   const preamble = source.slice(source.indexOf('  const pose = '), source.indexOf('  // ----------------------------------------------------------------- workshop'));
   const names = ['select', 'selectAmmo', 'cycleSightGun', 'fireGun', 'conquestStep', 'resupplyStep',
-    'apsAutomatic', 'syncApsControl', 'cycleApsRate', 'missileVehicle', 'combatInit', 'carriedRounds', 'syncRacks', 'applyAps'];
+    'apsAutomatic', 'apsHullPose', 'apsFrame', 'heldApsPose', 'syncApsControl', 'cycleApsRate', 'missileVehicle', 'combatInit', 'carriedRounds', 'syncRacks', 'applyAps'];
   const live = new Function(...Object.keys(deps), `${preamble}\n${names.map(body).join('\n')}\nreturn {${names.join(',')}};`)(...Object.values(deps));
   live.select(id);
   live.combatInit();

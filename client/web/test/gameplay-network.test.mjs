@@ -23,6 +23,7 @@ import { buildTank } from '../src/gfx/tankmodel.js';
 import { ground } from './tankrig.mjs';
 import * as inventory from '../src/game/ammoInventory.js';
 import * as resupply from '../src/game/ammoResupply.js';
+import * as selection from '../src/game/weaponselection.js';
 import { runtime } from './live-network-rig.mjs';
 
 const root = new URL('../../../', import.meta.url);
@@ -120,6 +121,69 @@ test('actual native room→NetClient→main selection/session→HUD fixes two lo
     assert.equal(r.G.gameplayMode,local);
     assert.equal(r.G.params.vTop,r.G.stockParams.vTop*(local==='casual'?1.15:1));
   }
+});
+test('fresh selection resets SOLO control and its persistent label for all real Hetzer source and workshop heads', () => {
+  const cases = ['de_hetzer', 'de_hetzer_sdkfz1401', 'de_hetzer_flak', 'de_hetzer_mk103', 'de_hetzer_mk103_camo']
+    .map(id => ({ id, bundle: data.vehicles[id], projectiles: data.projectiles }));
+  for (const keepStock of [false, true]) {
+    const compiled = loadout.buildToBundle({ base: 'de_hetzer', keepStock,
+      turrets: [{ ...loadout.newTurretSpec(), guns: [{ weapon: 'xp_kda35' }] }] }, data);
+    cases.push({ id: 'custom', bundle: compiled.bundle, projectiles: { ...data.projectiles, ...compiled.projectiles } });
+  }
+  for (const entry of cases) {
+    const r = runtime('historical', { bundleFor: id => id === entry.id ? entry : { bundle: data.vehicles[id], projectiles: data.projectiles } });
+    r.live.select(entry.id);
+    const plan = structuredClone(r.G.ammoPlan), source = structuredClone(r.G.sourceBundle);
+    const fitted = G => ({
+      turrets: G.loadout.turrets.map(t => ({ sourceVehicle: t.sourceVehicle, pivot: t.pivot, parent: t.parent,
+        guns: t.guns.map(g => ({ def: g.def, trunnion: g.trunnion, damageKey: g.damageKey })) })),
+      mgs: G.loadout.machineGuns.map(m => ({ id: m.id, def: m.def, anchor: m.anchor, pos: m.pos, damageKey: m.damageKey })),
+    });
+    const bindings = fitted(r.G);
+    r.live.cycleSightGun();
+    assert.equal(selection.weaponControlKey(r.G.weaponControl), 'gun:0:0');
+    r.live.trigger();
+    assert.ok(r.G.pending.length > 0, 'real trigger leaves a queued intent to be cleared by a fresh selection');
+    r.live.select(entry.id, true);
+    assert.deepEqual(r.G.weaponControl, { kind: 'all' });
+    assert.deepEqual([r.G.sightT, r.G.sightG, r.G.sightM], [0, 0, -1]);
+    assert.deepEqual(r.G.pending, []);
+    assert.deepEqual(r.G.ammoPlan, plan);
+    assert.deepEqual(r.G.ammoPlan, inventory.captureAmmoPlan(r.G.loadout));
+    assert.deepEqual(r.G.sourceBundle, source);
+    assert.deepEqual(fitted(r.G), bindings);
+    assert.equal(r.hud.el.control.textContent, '全炮開火');
+    assert.equal(r.hud.el.control.dataset.control, 'all');
+    assert.ok(r.scene.children.includes(r.G.model.root));
+  }
+});
+
+test('actual native Start and Respawned reset SOLO while a same-life resume retains actual control, stock and readiness', () => {
+  const r = runtime('casual');
+  for (const phase of ['welcome_a', 'room']) for (const [to, m] of receipt.phases[phase]) if (to === receipt.a) r.net._receive(m);
+  r.live.cycleSightGun();
+  r.net._receive(packet('start', receipt.a, 'start'));
+  assert.deepEqual(r.G.weaponControl, { kind: 'all' });
+  r.live.cycleSightGun();
+  r.net._receive(packet('deploy_a', receipt.a, 'respawned'));
+  assert.deepEqual(r.G.weaponControl, { kind: 'all' });
+  assert.deepEqual(r.G.pending, []);
+  assert.deepEqual(r.G.ammoPlan, inventory.captureAmmoPlan(r.G.loadout));
+  // The original receipt's retained life is its actual respawn incarnation.
+  for (const [to, m] of receipt.phases.respawn) if (to === receipt.a) r.net._receive(m);
+  r.live.cycleSightGun();
+  r.net.status = 'open'; r.net.ws = { readyState: 1, send() {} };
+  assert.equal(r.live.fireGun(0, 0), true);
+  const control = r.G.weaponControl, gun = r.G.loadout.turrets[0].guns[0], L = r.G.T[0].loading;
+  const stock = gun.ammo.map(a => a.count), readiness = structuredClone(L), pendingFire = r.onlineFires.pending[0];
+  assert.ok(pendingFire);
+  for (const [to, m] of receipt.phases.resume) if (to === receipt.a) r.net._receive(m);
+  assert.equal(r.G.weaponControl, control);
+  assert.equal(r.G.loadout.turrets[0].guns[0], gun);
+  assert.equal(r.G.T[0].loading, L);
+  assert.deepEqual(L, readiness, 'same life never grants readiness');
+  assert.deepEqual(gun.ammo.map(a => a.count), stock, 'same life never grants stock');
+  assert.equal(r.onlineFires.pending[0], pendingFire, 'same life retains the already sent firing request');
 });
 test('lobby selector creates strict rule fields and badges match supported rooms while unsupported server disables controls', () => {
   const net=new NetClient(); net._receive(packet('welcome_a',receipt.a,'welcome')); net.status='open';
