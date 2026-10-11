@@ -1380,6 +1380,9 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 first_point(&mut w, point, Some(h.facing_normal), Some(pl.id.clone()), h.incidence_deg);
                 let mat = t.material(&pl.material);
                 let inc = h.incidence_deg;
+                if kinetic && tg_penetration::validate_kinetic_contact(shell,pl.thickness_mm,&mat,tg_penetration::ImpactContext{incidence_deg:inc,distance_m:shot.distance_m}).is_err(){
+                    w.rep.events.push("rejected_impact_contact".into());if !through_armour{w.rep.outcome=Outcome::Stopped;}alive=false;break;
+                }
                 if he || hesh {
                     // contact fuse: it bursts on the plate
                     w.rep.path.push(point);

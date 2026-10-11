@@ -6,6 +6,38 @@ use crate::trace::{protection_map, shoot, ProtectRequest, ShotRequest, TargetSta
 use crate::v3::{v3, V3};
 use crate::*;
 
+#[test]
+fn kinetic_core_interleaves_crew_and_reverse_exit_stack() {
+    use tg_weapon::ProjectileDef;
+    for far in [50.0,200.0] {
+        let mut design=sample();design.hull_geometry=boxm(v3(-1.0,0.0,-1.0),v3(1.0,2.0,2.0),["front","rear","r","l","roof","floor"]);
+        design.turret_geometry=None;design.turret_ring=None;design.gun_mount=None;design.weapons=None;design.internal_modules.clear();design.addons.clear();design.ammunition.clear();design.armor_layers.clear();
+        design.armor_faces=vec![plate(Body::Hull,1,50.0),plate(Body::Hull,0,far)];design.crew_positions=vec![CrewDef{role:CrewRoleDef::Driver,mount:Body::Hull,position_m:v3(0.0,1.0,0.0)}];
+        let mut db=Db::embedded();db.catalog.penetration.sigma_fraction=0.0;let model=crate::layout::Model::new(&design,&db);
+        let mut shell=ProjectileDef::generic_ap(10.0,150.0);shell.mass_kg=0.1;shell.normalization_deg=0.0;
+        let req:ShotRequest=serde_json::from_value(serde_json::json!({"shell":shell,"origin":[0,1,-2],"dir":[0,0,1],"speed_ms":100,"distance_m":0,"seed":1})).unwrap();
+        let r=shoot(&model,&TargetState::default(),&req);assert_eq!(r.event.penetration_result,tg_replay::PenetrationOutcome::Penetrated);
+        let contact=r.event.impact_events.iter().find(|e|e.transition.layer_id=="hull:face:0/layer:0").unwrap();
+        assert!((contact.transition.budget.input_j-500.0*8.0/9.0*0.95).abs()<1e-3);
+        assert_eq!(contact.transition.verdict,if far==200.0{tg_penetration::impact::ImpactVerdict::Stopped}else{tg_penetration::impact::ImpactVerdict::Passed});
+        assert_eq!(contact.entry_position.z,2.0-far as f32*0.001);
+        if far==200.0{assert_eq!(r.event.impact_state.unwrap().energy_j(),0.0);}
+        for e in r.event.impact_events{e.transition.budget.validate().unwrap();}
+        if far==50.0 {
+            drop(model);design.armor_faces[1].thickness_mm=30.0;
+            design.armor_layers=vec![ArmorStackDef{body:Body::Hull,face:0,layers:vec![ArmorLayerDef{material:"rha".into(),thickness_mm:20.0,spacing_mm:10.0,angle_deg:0.0}]}];
+            design.addons=vec![AddonDef{id:"after_exit".into(),kind:AddonKind::Plate,body:Body::Hull,face:None,anchor_m:v3(0.0,1.0,2.5),normal:V3::Z,u_axis:V3::X,size_m:[1.0,1.0],material:"rha".into(),thickness_mm:10.0,standoff_mm:0.0}];
+            let model=crate::layout::Model::new(&design,&db);let r=shoot(&model,&TargetState::default(),&req);
+            let far:Vec<_>=r.event.impact_events.iter().filter(|e|e.transition.layer_id.starts_with("hull:face:0/")).collect();
+            assert_eq!(far.iter().map(|e|e.transition.layer_id.as_str()).collect::<Vec<_>>(),vec!["hull:face:0/layer:1","hull:face:0/layer:0"]);
+            assert!(far[0].entry_position.z<far[1].entry_position.z);
+            let last=r.event.impact_events.last().unwrap();assert_eq!(last.transition.layer_id,"addon:after_exit/layer:0");assert_eq!(last.transition.verdict,tg_penetration::impact::ImpactVerdict::Passed);
+            assert!((r.event.impact_state.unwrap().remaining_pen_mm-35.0).abs()<1e-4);
+            assert_eq!(r.event.impact_events.iter().filter(|e|e.transition.verdict==tg_penetration::impact::ImpactVerdict::Deposited).count(),1);
+        }
+    }
+}
+
 fn boxm(min: V3, max: V3, tags: [&str; 6]) -> MeshDef {
     let c = |i: usize| v3(if i & 1 == 1 { max.x } else { min.x }, if i & 2 == 2 { max.y } else { min.y }, if i & 4 == 4 { max.z } else { min.z });
     let f = |id: u32, v: [u32; 4], tag: &str| FaceDef { id, v: v.to_vec(), tag: tag.into() };

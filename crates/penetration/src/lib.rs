@@ -67,10 +67,13 @@ pub fn resolve_with_state(p: &ProjectileDef, plate: &ArmorPlate, mat: &Material,
 /// Geometry subdivision must advance this resistance cursor, never resize the
 /// plate or assign a fresh identity for a triangle/primitive/substep.
 pub struct LayerProgress<'a> {pub layer_id:&'a str,pub traversal_id:u32,pub cumulative_required_mm:f64}
+pub fn validate_kinetic_contact(p:&ProjectileDef,thickness_mm:f32,mat:&Material,ctx:ImpactContext)->Result<(),impact::ImpactError>{
+    if !p.kind.is_kinetic() || [ctx.incidence_deg,ctx.distance_m,p.normalization_deg,p.ricochet_angle_deg,p.shatter_angle_deg].iter().any(|v|!v.is_finite()) || ctx.incidence_deg<0.0 || ctx.distance_m<0.0
+        || [thickness_mm,mat.kinetic_factor,mat.density_kg_m3,mat.hardness_bhn].iter().any(|v|!v.is_finite() || *v<0.0){return Err(impact::ImpactError::InvalidInput);}
+    Ok(())
+}
 pub fn resolve_with_state_progress(p:&ProjectileDef,plate:&ArmorPlate,mat:&Material,ctx:ImpactContext,state:&mut impact::ImpactState,progress:&LayerProgress<'_>)->Result<(PenetrationReport,impact::ImpactTransition),impact::ImpactError>{
-    if !p.kind.is_kinetic(){return Err(impact::ImpactError::InvalidInput);}
-    if [ctx.incidence_deg,ctx.distance_m,p.normalization_deg,p.ricochet_angle_deg,p.shatter_angle_deg].iter().any(|v|!v.is_finite()) || ctx.incidence_deg<0.0 || ctx.distance_m<0.0 {return Err(impact::ImpactError::InvalidInput);}
-    if [plate.thickness_mm,mat.kinetic_factor,mat.density_kg_m3,mat.hardness_bhn].iter().any(|v|!v.is_finite() || *v<0.0){return Err(impact::ImpactError::InvalidInput);}
+    validate_kinetic_contact(p,plate.thickness_mm,mat,ctx)?;
     let LayerProgress{layer_id,traversal_id,cumulative_required_mm}=*progress;
     let available=state.traversal.as_ref().filter(|c|c.layer_id==layer_id && c.traversal_id==traversal_id).map(|c|c.entry.remaining_pen_mm).unwrap_or(state.remaining_pen_mm);
     let entry_energy=state.traversal.as_ref().filter(|c|c.layer_id==layer_id && c.traversal_id==traversal_id).map(|c|c.entry.energy_j()).unwrap_or(state.energy_j());

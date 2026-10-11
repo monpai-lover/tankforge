@@ -140,6 +140,9 @@ impl<'m, 'a> Scene<'m, 'a> {
 
     /// Everything the line o + d t passes through, nearest first.
     pub fn trace(&self, o: V3, d: V3) -> Trace {
+        self.trace_entry(o,d,true)
+    }
+    fn trace_entry(&self,o:V3,d:V3,entry_only:bool)->Trace{
         let d = d.norm();
         let mut plates: Vec<Crossing> = vec![];
         let mut interiors: Vec<(f64, f64, Body)> = vec![];
@@ -236,7 +239,7 @@ impl<'m, 'a> Scene<'m, 'a> {
         interiors.sort_by(|a, b| a.0.total_cmp(&b.0));
         let hit_anything = !plates.is_empty() || !interiors.is_empty();
         let first_interior = interiors.first().copied();
-        if let Some((t_in, _, _)) = first_interior {
+        if let Some((t_in, _, _)) = first_interior.filter(|_|entry_only) {
             plates.retain(|p| p.t0 < t_in - 1e-6);
         }
         let mut prev: Option<f64> = None;
@@ -245,6 +248,33 @@ impl<'m, 'a> Scene<'m, 'a> {
             prev = Some(p.t1.max(prev.unwrap_or(f64::NEG_INFINITY)));
         }
         Trace { plates, interior_t: first_interior.map(|x| x.0), interior_body: first_interior.map(|x| x.2), interior_exit_t: first_interior.map(|x| x.1), hit_anything }
+    }
+
+    /// Full kinetic line. Exit-face stacks occupy the inward side of the mesh
+    /// surface, so their main/outer layers are encountered in reverse order.
+    fn kinetic_crossings(&self,o:V3,d:V3)->Vec<Crossing>{
+        let d=d.norm();let mut plates=self.trace_entry(o,d,false).plates;
+        for body in [Body::Hull,Body::Turret] {
+            let Some(g)=self.body_geo(body) else{continue};
+            for hit in g.ray_hits(o,d).into_iter().filter(|h|!h.front) {
+                let f=&g.faces[hit.face];let Some(fa)=self.m.face_armor(body,f.id) else{continue};
+                let layers=match (body,&self.m.turret_local,&self.m.ring) {
+                    (Body::Turret,Some(local),Some(ring))=>{let fl=&local.faces[hit.face];let p=(hit.point-ring.pos).rot_y(-self.yaw);let mut layers=stack_at(local,fl,fa,p);for layer in &mut layers{layer.normal=layer.normal.rot_y(self.yaw);}layers},
+                    _=>stack_at(g,f,fa,hit.point),
+                };
+                let cos=d.dot(f.normal).abs().max(0.02);
+                for layer in layers {
+                    let t1=hit.t-layer.depth_mm*0.001/cos;let t0=(hit.t-(layer.depth_mm+layer.span_mm)*0.001/cos).max(0.0);
+                    if t1<=t0{continue;}
+                    plates.push(Crossing{kind:"wall",source:format!("{}:face:{}",body.as_str(),f.id),body:Some(body),face:Some(f.id),layer:layer.index,main:layer.main,
+                        material:layer.material,thickness_mm:layer.thickness_mm,path_mm:(t1-t0)*1000.0,incidence_deg:incidence(d,layer.normal),gap_before_mm:0.0,
+                        entry:o+d*t0,exit:o+d*t1,normal:layer.normal,t0,t1,era:false});
+                }
+            }
+        }
+        plates.sort_by(|a,b|a.t0.total_cmp(&b.t0));let mut previous=0.0f64;
+        for plate in &mut plates{plate.gap_before_mm=((plate.t0-previous)*1000.0).max(0.0);previous=previous.max(plate.t1);}
+        plates
     }
 
     /// How far a fragment starting inside the vehicle can fly before it meets the armour.
@@ -279,11 +309,13 @@ impl<'m, 'a> Scene<'m, 'a> {
     }
 
     fn kinetic_range(&self,o:V3,d:V3,max:f64)->f64 {
-        let mut best=self.inside_range(o,d,max);
         let bounds=self.bounds();
+        // A design report is scene-local: an outward carrier/debris ray ends
+        // after its final declared solid instead of inventing an exterior tail.
+        let envelope=bounds.ray(o,d).map(|(_,exit)|exit).unwrap_or(0.0);
+        let mut best=self.inside_range(o,d,max).min(envelope);
         let back=(bounds.max-bounds.min).len()+(o-(bounds.min+bounds.max)*0.5).len()+1.0;
-        let trace=self.trace(o-d*back,d);
-        for p in trace.plates {let distance=p.t0-back;if distance>1e-5 {best=best.min(distance);}}
+        for p in self.kinetic_crossings(o-d*back,d) {let distance=p.t0-back;if distance>1e-5 {best=best.min(distance);}}
         best.max(0.0)
     }
 }
@@ -807,22 +839,19 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
                 fragments.extend(tg_damage::generate_allocated_fragments(origin.to_f32(),d.to_f32(),None,transition,&params,&mut rng));
             }
         }
-        if matches!(report.result,PenetrationResult::Penetrated{..}) {
-            if let Some(t_in)=tr.interior_t {
-                let origin=req.origin+d*t_in;
-                let fallback=ImpactTransition {event_id:"unarmoured:core".into(),layer_id:"unarmoured".into(),traversal_id:0,entry:s.current.clone(),output:s.current.clone(),verdict:ImpactVerdict::Passed,
-                    budget:impact::EnergyBudget{input_j:s.energy_j(),core_out_j:s.energy_j(),..Default::default()},allocations:vec![]};
-                let parent=report.impacts.last().unwrap_or(&fallback);
-                let mut carrier_parent=parent.clone();carrier_parent.allocations.clear();
-                fragments.extend(tg_damage::generate_allocated_fragments(origin.to_f32(),d.to_f32(),Some(&s.current),&carrier_parent,&params,&mut rng));
-            }
-        }
         let ranges:Vec<_>=fragments.iter().map(|f|scene.kinetic_range(V3::from_f32(f.origin),V3::from_f32(f.dir),params.frag_range_m as f64)).collect();
         let summary=tg_damage::propagate_allocated(&fragments,&ranges,&mut modules,&mut crew,false);
         ev.impact_events.extend(summary.impact_events.iter().cloned());
         ev.impact_state=Some(s.clone());
         for (i,state) in &summary.fragment_states {if fragments[*i].is_penetrator{ev.impact_state=Some(state.clone());}}
         append_kinetic_summary(&mut ev,&fragments,&summary,&modules,&crew);
+        if matches!(report.result,PenetrationResult::Penetrated{..}) {
+            if let Some(t_in)=tr.interior_t {
+                let mut carrier=s.clone();
+                continue_kinetic_core(&scene,req,t_in,&mut carrier,report.impacts.last(),&mut ev,&mut resp.layers,&mut modules,&mut crew,&mut rng,&mut path);
+                ev.impact_state=Some(carrier);
+            }
+        }
         // Explicit old APHE distance/clamped burst adapter, pending P3. It has
         // unknown physical provenance and no new chemical conservation claim.
         if req.shell.explosive_mass_kg>0.0 && s.energy_j()>0.0 && matches!(report.result,PenetrationResult::Penetrated{..}) {
@@ -855,6 +884,48 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
     resp.timeline = build_timeline(&ev, &TimelineOptions::default());
     resp.event = ev;
     resp
+}
+
+/// Primary body continuation is P1: interleave existing interior targets and all
+/// later declared solids. Fragment penetration/redirects remain the P2 owner.
+fn continue_kinetic_core(scene:&Scene,req:&ShotRequest,start_t:f64,state:&mut impact::ImpactState,parent:Option<&ImpactTransition>,event:&mut ShotEvent,layers:&mut Vec<LayerDetail>,modules:&mut [Module],crew:&mut [Crew],rng:&mut Rng,path:&mut Vec<PathPoint>){
+    let direction=req.dir.norm();let crossings=scene.kinetic_crossings(req.origin,direction);
+    let mut ids=HashMap::<String,u32>::new();let mut contacts=Vec::new();
+    for crossing in crossings {
+        let id=format!("{}/layer:{}",crossing.source,crossing.layer);let count=ids.entry(id.clone()).or_default();
+        let identity=LayerIdentity{layer_id:id,traversal_id:*count};*count+=1;
+        if crossing.t0>=start_t-1e-6 {contacts.push((crossing,identity));}
+    }
+    let params=DamageParams{frag_energy_fraction:0.0,..Default::default()};let mut visited=HashSet::new();let mut cursor=start_t;
+    let mut parent=parent.cloned().unwrap_or(ImpactTransition{event_id:"unarmoured:core".into(),layer_id:"unarmoured".into(),traversal_id:0,entry:state.current.clone(),output:state.current.clone(),verdict:ImpactVerdict::Passed,
+        budget:impact::EnergyBudget{input_j:state.energy_j(),core_out_j:state.energy_j(),..Default::default()},allocations:vec![]});
+    for index in 0..=contacts.len() {
+        if state.energy_j()<=0.0{break;}
+        let origin=req.origin+direction*cursor;
+        let next=contacts.get(index).map(|(c,_)|c.t0).unwrap_or(cursor+scene.kinetic_range(origin,direction,params.frag_range_m as f64));
+        let mut carrier_parent=parent.clone();carrier_parent.allocations.clear();
+        let fragments=tg_damage::generate_allocated_fragments(origin.to_f32(),direction.to_f32(),Some(&state.current),&carrier_parent,&params,rng);
+        let summary=tg_damage::propagate_allocated_excluding(&fragments,&[(next-cursor).max(0.0)],modules,crew,false,&visited);
+        for trace in &summary.traces {if let Some(target)=trace.target{visited.insert(target);}}
+        if let Some((_,remaining))=summary.fragment_states.first(){*state=remaining.clone();}
+        event.impact_events.extend(summary.impact_events.iter().cloned());append_kinetic_summary(event,&fragments,&summary,modules,crew);
+        if state.energy_j()<=0.0{break;}
+        let Some((crossing,identity))=contacts.get(index) else{break};
+        let Some(material)=scene.m.db.materials.get(&crossing.material) else{break};
+        let plate=PlateCrossing{material,thickness_mm:crossing.thickness_mm as f32,path_mm:crossing.path_mm as f32,incidence_deg:crossing.incidence_deg as f32,gap_before_mm:crossing.gap_before_mm as f32};
+        let report=tg_penetration::stack::resolve_continuation_contact(&req.shell,&plate,&stack_params(scene.m),state,identity,crossing.gap_before_mm>5.0);
+        let Some(mut transition)=report.impacts.into_iter().next() else{break};
+        let passed=transition.verdict==ImpactVerdict::Passed;
+        if passed{state.advance_time((crossing.t1-crossing.t0).max(0.0));transition.output=state.current.clone();}
+        layers.push(LayerDetail{crossing:crossing.clone(),outcome:report.layers[0].outcome,los_mm:report.layers[0].los_mm as f64,required_mm:report.layers[0].required_mm as f64,pen_before_mm:report.layers[0].pen_before_mm as f64,pen_after_mm:report.layers[0].pen_after_mm as f64});
+        event.impact_events.push(impact::ImpactEvent{mechanism_revision:impact::MECHANISM_REVISION.into(),time_s:transition.entry.elapsed_s,entry_position:crossing.entry.to_f32(),exit_position:if passed{crossing.exit.to_f32()}else{crossing.entry.to_f32()},normal:crossing.normal.to_f32(),transition:transition.clone()});
+        path.push(PathPoint{t:state.elapsed_s as f32,pos:if passed{crossing.exit.to_f32()}else{crossing.entry.to_f32()}});
+        if !passed{break;}
+        let spall=tg_damage::generate_allocated_fragments((crossing.exit+direction*1e-4).to_f32(),direction.to_f32(),None,&transition,&params,rng);
+        let ranges:Vec<_>=spall.iter().map(|f|scene.kinetic_range(V3::from_f32(f.origin),V3::from_f32(f.dir),params.frag_range_m as f64)).collect();
+        let summary=tg_damage::propagate_allocated(&spall,&ranges,modules,crew,false);event.impact_events.extend(summary.impact_events.iter().cloned());append_kinetic_summary(event,&spall,&summary,modules,crew);
+        cursor=crossing.t1;parent=transition;
+    }
 }
 
 fn append_kinetic_summary(event:&mut ShotEvent,fragments:&[Fragment],summary:&DamageSummary,modules:&[Module],crew:&[Crew]) {

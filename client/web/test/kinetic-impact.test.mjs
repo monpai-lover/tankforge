@@ -110,3 +110,58 @@ test('actual WASM an unpenetrated main plate less than two centimetres behind an
   assert.equal(r.state.crew[0], 100);
   assert.ok(r.fragments.filter(f => f.source === 'armour_spall').every(f => f.to.z <= .030001));
 });
+
+test('actual WASM design carries the core through crew into thin and thick far walls', () => {
+  for (const thickness of [50, 200]) {
+    const d = designBox(); d.armor_layers = [];
+    d.armor_faces.push({ body: 'hull', face: 0, material: 'rha', thickness_mm: thickness });
+    d.crew_positions = [{ role: 'driver', mount: 'hull', position_m: [0, 1, 0] }];
+    core.setDesign(d);
+    const r = core.shoot({ shell, origin: [0, 1, -2], dir: [0, 0, 1], speed_ms: 100, distance_m: 0, seed: 1, path: [] });
+    assert.equal(r.event.penetration_result, 'penetrated');
+    const far = r.event.impact_events.find(e => e.layer_id.startsWith('hull:face:0/'));
+    assert.ok(far, 'far armor is a real shared collision after interior damage');
+    assert.ok(Math.abs(far.budget.input_j - (500 * 8 / 9) * .95) < .001);
+    assert.ok(Math.abs(far.entry_position.z - (2 - thickness / 1000)) < 1e-6);
+    assert.equal(far.verdict, thickness === 200 ? 'stopped' : 'passed');
+    assert.ok(far.time_s > r.event.impact_events.find(e => e.verdict === 'deposited').time_s);
+    if (thickness === 200) assert.equal(far.budget.core_out_j, 0);
+    else assert.ok(Math.abs(far.budget.core_out_j - far.budget.input_j * (1 - (50 / 95) ** 2)) < .001);
+    r.event.impact_events.forEach(e => ledger(e.budget));
+  }
+});
+
+test('actual WASM design reverses the far stack before a declared exterior addon', () => {
+  const d = designBox();
+  d.armor_faces.push({ body: 'hull', face: 0, material: 'rha', thickness_mm: 30 });
+  d.armor_layers = [{ body: 'hull', face: 0, layers: [{ material: 'rha', thickness_mm: 20, spacing_mm: 10, angle_deg: 0 }] }];
+  d.crew_positions = [{ role: 'driver', mount: 'hull', position_m: [0, 1, 0] }];
+  d.addons = [{ id: 'after_exit', kind: 'plate', body: 'hull', face: null, anchor_m: [0, 1, 2.5], normal: [0, 0, 1], u_axis: [1, 0, 0], size_m: [1, 1], material: 'rha', thickness_mm: 10, standoff_mm: 0 }];
+  core.setDesign(d);
+  const r = core.shoot({ shell, origin: [0, 1, -2], dir: [0, 0, 1], speed_ms: 100, distance_m: 0, seed: 1, path: [] });
+  const contacts = r.event.impact_events.filter(e => e.verdict !== 'deposited');
+  assert.deepEqual(contacts.map(e => e.layer_id), ['hull:face:1/layer:0', 'hull:face:0/layer:1', 'hull:face:0/layer:0', 'addon:after_exit/layer:0']);
+  assert.ok(contacts[1].entry_position.z < contacts[2].entry_position.z);
+  assert.equal(r.event.impact_state.remaining_pen_mm, 35);
+  assert.equal(r.event.impact_events.filter(e => e.verdict === 'deposited').length, 1);
+  assert.ok(r.event.fragments.filter(f => f.is_penetrator).every(f => f.end.z <= 2.510001));
+  r.event.impact_events.forEach(e => ledger(e.budget));
+});
+
+test('actual WASM combat rejects illegal kinetic material contacts without damage', () => {
+  for (const field of ['hardness_bhn', 'kinetic_factor', 'density_kg_m3', 'thickness_mm']) {
+    const materials = structuredClone(data.materials), front = plate('front', 0);
+    if (field === 'thickness_mm') front.thickness_mm = -1;
+    else materials.find(m => m.id === 'rha')[field] = -1;
+    const bad = loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm', import.meta.url)), { materials, catalog, terrains: Object.values(data.terrains) });
+    bad.combatTarget({ id: 'bad:rha', plates: [front], modules: [], crew: [{ role: 'driver', pos: [0, 1, .4], radius: .1, health: 100 }], turret: null });
+    const state = bad.combatNew('bad:rha').state;
+    const r = bad.combatShoot('bad:rha', state, { shell, origin: [0, 1, -2], dir: [0, 0, 1], speed_ms: 100, distance_m: 0, seed: 1 });
+    assert.ok(r.events.includes('rejected_impact_contact'), field);
+    assert.equal(r.state.crew[0], 100);
+    assert.equal(r.fragments.length, 0);
+    assert.equal(r.impact_events.length, 0);
+    const s = r.impact_state, v = s.velocity_m_s;
+    assert.ok(Math.abs(s.mass_kg * (v.x ** 2 + v.y ** 2 + v.z ** 2) / 2 - 500) < .001);
+  }
+});

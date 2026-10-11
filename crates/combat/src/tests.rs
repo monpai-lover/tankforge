@@ -16,6 +16,19 @@ fn zero_kinetic_energy_does_not_damage_crew() {
 }
 
 #[test]
+fn invalid_kinetic_material_contact_preserves_targets_and_carrier() {
+    for value in [f32::NAN,-1.0] {for field in 0..4 {
+        let mut mat=rha();let mut def=box_tank(false).def;
+        def.plates=vec![plate("front",ArmorZone::HullSide,50.0,[0.0,1.0,0.0],[0.0,0.0,-1.0],[1.0,0.0,0.0],1.0,1.0)];def.modules.clear();def.crew=vec![crew(CrewRole::Driver,[0.0,1.0,0.4])];
+        match field {0=>mat[0].hardness_bhn=value,1=>mat[0].kinetic_factor=value,2=>mat[0].density_kg_m3=value,_=>def.plates[0].thickness_mm=value};
+        let target=Target::new(def,&mat);let state=target.fresh_state();let mut p=ProjectileDef::generic_ap(10.0,150.0);p.mass_kg=0.1;
+        let r=shoot(&target,&state,&Shot{shell:p,origin:Vec3::new(0.0,1.0,-2.0),dir:Vec3::new(0.0,0.0,1.0),speed_ms:100.0,distance_m:0.0,seed:1,turret_yaw:0.0});
+        assert_eq!(r.state.crew,state.crew);assert!(r.fragments.is_empty());assert!(r.impact_events.is_empty());assert!(r.events.iter().any(|e|e=="rejected_impact_contact"));
+        assert!((r.impact_state.unwrap().energy_j()-500.0).abs()<1e-3);
+    }}
+}
+
+#[test]
 fn combat_report_old_json_defaults_and_new_mechanisms_roundtrip() {
     let t=box_tank(false);let r=shoot(&t,&t.fresh_state(),&side_shot(shell(ProjectileKind::Ap,75.0,6.8,200.0,0.0),1));
     let value=serde_json::to_value(&r).unwrap();

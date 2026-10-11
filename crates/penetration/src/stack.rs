@@ -86,11 +86,14 @@ pub struct StackReport {
 pub fn resolve_stack(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, sp: &StackParams) -> StackReport {
     let mut state = impact::initialize_impact(p, Vec3::new(0.0, 0.0, p.muzzle_velocity_ms), pen_mm as f64, "core").ok();
     let ids: Vec<_> = plates.iter().enumerate().map(|(i, _)| LayerIdentity { layer_id: format!("plate:{i}"), traversal_id: 0 }).collect();
-    resolve_stack_inner(p, plates, pen_mm, sp, state.as_mut(), &ids,None)
+    resolve_stack_inner(p, plates, pen_mm, sp, state.as_mut(), &ids,None,true)
 }
 
 pub fn resolve_stack_with_state(p: &ProjectileDef, plates: &[PlateCrossing], sp: &StackParams, state: &mut ImpactState, identities: &[LayerIdentity]) -> StackReport {
-    resolve_stack_inner(p, plates, state.remaining_pen_mm as f32, sp, Some(state), identities,None)
+    resolve_stack_inner(p, plates, state.remaining_pen_mm as f32, sp, Some(state), identities,None,true)
+}
+pub fn resolve_continuation_contact(p:&ProjectileDef,plate:&PlateCrossing,sp:&StackParams,state:&mut ImpactState,identity:&LayerIdentity,fresh:bool)->StackReport{
+    resolve_stack_inner(p,std::slice::from_ref(plate),state.remaining_pen_mm as f32,sp,Some(state),std::slice::from_ref(identity),None,fresh)
 }
 
 /// Subdivision adapter: every crossing retains the complete layer's thickness,
@@ -101,11 +104,11 @@ pub fn resolve_stack_with_progress(p:&ProjectileDef,plates:&[PlateCrossing],sp:&
     if progress.len()!=plates.len() || progress.iter().any(|p|!p.cumulative_required_mm.is_finite() || p.cumulative_required_mm<0.0){return Err(impact::ImpactError::InvalidTraversal);}
     let identities:Vec<_>=progress.iter().map(|p|p.identity.clone()).collect();
     let checkpoint=state.clone();
-    let report=resolve_stack_inner(p,plates,state.remaining_pen_mm as f32,sp,Some(state),&identities,Some(progress));
+    let report=resolve_stack_inner(p,plates,state.remaining_pen_mm as f32,sp,Some(state),&identities,Some(progress),true);
     if report.rejected_contact {*state=checkpoint;Err(impact::ImpactError::InvalidTraversal)}else{Ok(report)}
 }
 
-fn resolve_stack_inner(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, sp: &StackParams, mut state: Option<&mut ImpactState>, identities: &[LayerIdentity],progress:Option<&[StackTraversalProgress]>) -> StackReport {
+fn resolve_stack_inner(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, sp: &StackParams, mut state: Option<&mut ImpactState>, identities: &[LayerIdentity],progress:Option<&[StackTraversalProgress]>,fresh_first:bool) -> StackReport {
     if p.kind.is_kinetic() && state.is_none(){return StackReport{penetration_mm:0.0,total_required_mm:0.0,layers:vec![],result:PenetrationResult::Stopped,stopped_at:None,impacts:vec![],impact_state:None,rejected_contact:true};}
     let chemical = p.kind.is_chemical();
     let initial_energy = state.as_ref().map(|s| s.energy_j()).unwrap_or(0.0);
@@ -116,13 +119,14 @@ fn resolve_stack_inner(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32,
     let mut total = 0.0;
     let mut stopped_at = None;
     let mut result = None;
-    let mut first = true;
+    let mut first = fresh_first;
     for (i, pl) in plates.iter().enumerate() {
         if result.is_some() {
             layers.push(LayerResult { index: i, incidence_deg: pl.incidence_deg, effective_angle_deg: 0.0, los_mm: 0.0, required_mm: 0.0, pen_before_mm: 0.0, pen_after_mm: 0.0, overmatch: false, outcome: LayerOutcome::NotReached });
             continue;
         }
-        if [pl.thickness_mm,pl.path_mm,pl.incidence_deg,pl.gap_before_mm,pl.material.kinetic_factor,pl.material.density_kg_m3,pl.material.hardness_bhn].iter().any(|v|!v.is_finite() || *v<0.0)
+        if (p.kind.is_kinetic() && crate::validate_kinetic_contact(p,pl.thickness_mm,pl.material,crate::ImpactContext{incidence_deg:pl.incidence_deg,distance_m:0.0}).is_err())
+            || [pl.thickness_mm,pl.path_mm,pl.incidence_deg,pl.gap_before_mm,pl.material.kinetic_factor,pl.material.density_kg_m3,pl.material.hardness_bhn].iter().any(|v|!v.is_finite() || *v<0.0)
             || [p.normalization_deg,p.ricochet_angle_deg,p.shatter_angle_deg].iter().any(|v|!v.is_finite()) {
             rejected_contact=true;stopped_at=Some(i);result=Some(PenetrationResult::Stopped);
             layers.push(LayerResult{index:i,incidence_deg:0.0,effective_angle_deg:0.0,los_mm:0.0,required_mm:0.0,pen_before_mm:pen,pen_after_mm:pen,overmatch:false,outcome:LayerOutcome::Stopped});

@@ -242,7 +242,7 @@ pub fn generate_allocated_fragments(exit: Vec3, dir: Vec3, core: Option<&ImpactS
     out
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum TargetRef {
     Module(usize),
     Crew(usize),
@@ -395,6 +395,9 @@ pub fn deposited_module_damage(energy_j: f64) -> f32 { (7.0*(energy_j.max(0.0)/1
 /// Serial active P1 propagation. Geometry supplies ranges bounded by armour;
 /// richer redirected fragment/armour continuation remains P2/X.
 pub fn propagate_allocated(frags: &[Fragment], ranges: &[f64], modules: &mut [Module], crew: &mut [Crew], include_external: bool) -> DamageSummary {
+    propagate_allocated_excluding(frags,ranges,modules,crew,include_external,&std::collections::HashSet::new())
+}
+pub fn propagate_allocated_excluding(frags:&[Fragment],ranges:&[f64],modules:&mut [Module],crew:&mut [Crew],include_external:bool,excluded:&std::collections::HashSet<TargetRef>)->DamageSummary{
     let mut summary = DamageSummary::default();
     for (fi, (f, range)) in frags.iter().zip(ranges).enumerate() {
         let (Some(physical), Some(profile)) = (&f.provenance.physical, &f.provenance.profile) else { continue };
@@ -406,9 +409,11 @@ pub fn propagate_allocated(frags: &[Fragment], ranges: &[f64], modules: &mut [Mo
         let mut last_point=f.origin;
         let mut contacts = Vec::new();
         for (i, c) in crew.iter().enumerate() {
+            if excluded.contains(&TargetRef::Crew(i)){continue;}
             if c.health > 0.0 { if let Some(t) = ray_sphere(f.origin,f.dir,c.pos,c.radius) { if t as f64 <= *range { contacts.push((t,TargetRef::Crew(i))); } } }
         }
         for (i,m) in modules.iter().enumerate() {
+            if excluded.contains(&TargetRef::Module(i)){continue;}
             if (!include_external && m.is_external()) || (m.kind == ModuleKind::AmmoRack && m.rounds == Some(0)) { continue; }
             if let Some(t) = ray_aabb(f.origin,f.dir,m.center,m.half_extents,*range as f32) { contacts.push((t,TargetRef::Module(i))); }
         }
