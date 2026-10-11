@@ -406,7 +406,7 @@ fn weapon_bindings_every_fleet_and_workshop_mount_is_usable() {
             counts.2 += map.keys().filter(|k| k.starts_with("mg:")).count();
         } else { assert_eq!(map.keys().filter(|k| k.starts_with("gun:")).count(), 6); }
     }
-    assert_eq!(counts, (42, 47, 45));
+    assert_eq!(counts, (43, 49, 45));
 }
 
 #[test]

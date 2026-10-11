@@ -35,6 +35,90 @@ fn sortie(l: &mut Lobby, mode: &str, vehicle: &str) -> (u32,u32) {
     (id,room)
 }
 #[test]
+fn oplot23_registration_manual_shared_ammo_and_damage_ownership() {
+    let mut l=real_lobby();
+    l.shells=crate::server::load_catalog(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")).0;
+    let vehicle="su_t10m_oplot23";
+    assert!(l.targets.contains_key(vehicle),"independent variant must register from its new directory");
+    assert!(l.targets.contains_key("su_t10m"));
+    assert_eq!(l.shells["api_23_bza"].caliber_mm,23.0);
+    assert_eq!(l.shells["hei_23_ofz"].filler_kg,0.0178);
+    for shell in ["api_23_bza","hei_23_ofz"] {
+        assert_eq!(l.projectiles[shell].mass_kg,0.174);
+        assert_eq!(l.projectiles[shell].caliber_mm,23.0);
+        assert_eq!(l.projectiles[shell].muzzle_velocity_ms,715.0);
+    }
+    assert_eq!(l.projectiles["hei_23_ofz"].explosive_mass_kg,0.0178);
+    for mode in ["historical","casual"] {
+        let (id,room)=sortie(&mut l,mode,vehicle);
+        let def=&l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().def;
+        assert_eq!(def.bullet_caliber_mm,23.0); assert_eq!(def.bullet_mass_kg,0.174); assert_eq!(def.bullet_speed_ms,715.0);
+        assert_eq!(def.rate_rpm,8000.0*if mode=="casual" {1.2} else {1.0});
+        let fire=|seq,shell|json!({"t":"fire","seq":seq,"instance":"gun:1:0","shell":shell,"o":[0,3,0],"d":[0,0,1]});
+        assert_eq!(message(&send(&mut l,id,fire(1,"api_23_bza"),1.0),id,"fire_rejected")["reason"],"automatic_protection");
+        send(&mut l,id,json!({"t":"aps","enabled":false}),1.1);
+        let main_before=l.players[&id].rounds;
+        for (seq,shell) in [(2,"api_23_bza"),(3,"hei_23_ofz")] {
+            assert!(!message(&send(&mut l,id,fire(seq,shell),1.2+seq as f64*0.1),id,"fire_accepted").is_null());
+        }
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().rounds,498);
+        assert_eq!(l.players[&id].rounds,main_before);
+        send(&mut l,id,json!({"t":"aps","enabled":true}),2.0);
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().rounds,498);
+        let gun=l.targets[vehicle].def.modules.iter().position(|m|m.id=="oplot_gun").unwrap();
+        l.players.get_mut(&id).unwrap().combat.as_mut().unwrap().modules[gun]=0.0;
+        send(&mut l,id,json!({"t":"aps","enabled":false}),2.1);
+        assert!(!message(&send(&mut l,id,fire(4,"api_23_bza"),2.2),id,"fire_rejected").is_null());
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().rounds,498);
+        l.players.get_mut(&id).unwrap().combat.as_mut().unwrap().modules[gun]=1.0;
+        assert!(!message(&send(&mut l,id,fire(5,"api_23_bza"),2.3),id,"fire_accepted").is_null());
+        assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().rounds,497);
+    }
+}
+#[test]
+fn oplot23_native_automatic_bullets_use_new_ballistics_and_real_damage_gates() {
+    let l=real_lobby();
+    let target=&l.targets["su_t10m_oplot23"];
+    let pose=json!({"pos":[0,0,0],"tur":[[0,0],[0,0]]});
+    for mode in ["historical","casual"] {
+        let gameplay=crate::gameplay::RoomGameplay::parse(json!(mode),json!(1)).unwrap();
+        let spec=l.mdata.room_aps("su_t10m_oplot23",gameplay).unwrap();
+        for fault in ["healthy","main","oplot","radar","crew","repair"] {
+            let mut state=target.fresh_state();
+            if let Some(id)=match fault {"main"=>Some("breech"),"oplot"=>Some("oplot_gun"),"radar"=>Some("oplot_radar"),_=>None} {
+                let index=target.def.modules.iter().position(|m|m.id==id).unwrap();state.modules[index]=0.0;
+            }
+            if fault=="crew" {for(i,c)in target.def.crew.iter().enumerate(){if c.role==tg_combat::CrewRole::Gunner {state.crew[i]=0.0;}}}
+            if fault=="repair" {state.repair_s=3.0;}
+            let actor=crate::missiles::actor_of(1,0,true,&pose,Some(target),Some(&spec),Some(&state)).unwrap();
+            let can_fire=matches!(fault,"healthy"|"main"|"radar");
+            assert_eq!(actor.aps_gun_ok,can_fire,"{mode}/{fault}");
+            let mut world=tg_missile::World::new(l.mdata.defs.clone());
+            world.add_aps(1,0,spec.def.clone(),21);
+            let id=world.launch("bgm71a_tow",99,1,[0.0,2.0,1000.0],[0.0,-0.0006,-0.99999982],3).unwrap();
+            world.guide(id,99,[0.0,2.3,1000.0],[0.0,1.4,0.0]);
+            let mut emitted=0;
+            for _ in 0..1200 {
+                let out=world.step(1.0/120.0,std::slice::from_ref(&actor));
+                emitted+=out.fired.len();
+                if let Some(f)=out.fired.first() {
+                    let speed=f.vel.iter().map(|v|v*v).sum::<f64>().sqrt();assert!((speed-715.0).abs()<1e-6);
+                    assert_eq!(world.aps[0].rounds,500-emitted as u32);
+                    let b=world.bullets.first().unwrap().clone();
+                    world.set_aps(1,false,None);
+                    world.step(1.0/120.0,std::slice::from_ref(&actor));
+                    let next=&world.bullets[0];
+                    let speed=b.vel.iter().map(|v|v*v).sum::<f64>().sqrt();
+                    let drag=0.5*1.225*0.30*std::f64::consts::PI*(0.023_f64/2.0).powi(2)/0.174;
+                    assert!((next.vel[2]-b.vel[2]*(1.0-drag*speed/120.0)).abs()<1e-8,"actual native flight uses23mm/.174kg drag");
+                    break;
+                }
+            }
+            assert_eq!(emitted>0,can_fire&&fault!="radar","{mode}/{fault} actual automatic ownership");
+        }
+    }
+}
+#[test]
 fn two_room_protection_profiles_are_fresh_source_derived_and_independent() {
     let mut l = real_lobby();
     let source = serde_json::to_value(&l.mdata.aps["su_t10m"].def).unwrap();

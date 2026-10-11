@@ -152,10 +152,10 @@ test('actual T34 1940 loses its combined commander/gunner until a real seat swap
   assert.ok(recovered.state.roles.includes('gunner'));
 });
 
-test('all42 live bundles prepare normalized MG anatomy once and preserve original module indices', () => {
+test('all43 live bundles prepare normalized MG anatomy once and preserve original module indices', () => {
   const c = combat();
   assert.equal(typeof c.prepare, 'function');
-  assert.equal(Object.keys(data.vehicles).length, 42);
+  assert.equal(Object.keys(data.vehicles).length, 43);
   for (const [id, b] of Object.entries(data.vehicles)) {
     const before = JSON.stringify(b), n = c.prepare(id, b), r = c.fresh(id, n);
     assert.equal(n.modules.length, r.state.modules.length, id);

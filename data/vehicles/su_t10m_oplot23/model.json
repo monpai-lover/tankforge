@@ -1,0 +1,27 @@
+{
+ "version": 1,
+ "blob_size": 0,
+ "source": "Oplot-MO module: the user's own model (Oplot_MO_Vehicle_Module.glb), used unchanged with the user's permission",
+ "bounds": [
+  [
+   0.169,
+   2.311,
+   -0.228
+  ],
+  [
+   0.949,
+   3.218,
+   1.693
+  ]
+ ],
+ "blob": "eJwDAAAAAAE=",
+ "parts": [],
+ "textures": [],
+ "shared": {
+  "from": "su_t10m",
+  "mounts": [
+   "turret",
+   "gun"
+  ]
+ }
+}

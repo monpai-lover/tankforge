@@ -1,0 +1,50 @@
+{
+ "id": "hei_23_ofz",
+ "name": "23×115 mm OFZ (HEI)",
+ "kind": "he",
+ "caliber_mm": 23,
+ "mass_kg": 0.174,
+ "muzzle_velocity_ms": 715,
+ "explosive_mass_kg": 0.0178,
+ "explosive_type": "a_ix_2",
+ "penetrator_material": "steel",
+ "length_mm": 102.5,
+ "drag_coefficient": 0.42,
+ "ricochet_angle_deg": 79,
+ "normalization_deg": 0,
+ "fuse_delay_s": 0,
+ "fuse_sensitivity_mm": 0.1,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 1.9
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 1.9
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 1.9
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 1.9
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 1.9
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 1.9
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 1.9
+  }
+ ],
+ "meta": {
+  "notes": "Ordinary Arsenal HEI index/public copy: 174 g complete projectile assumption, 715 m/s, 17.8 g A-IX-2. Not ROMARM 174 g without-fuze, API-TM190 g/690 m/s or HEI-M186 g/700 m/s. 102.5 mm dimension is a reference estimate; drag, impact fuze and existing14*sqrt(filler_kg) HE curve are project estimates. Factory PDF not inspected; P3 full energy/fuze calibration is outside this variant."
+ }
+}

@@ -9,6 +9,7 @@ import { loadCoreSync } from '../src/design/core.js';
 import * as combatApi from '../src/game/combat.js';
 import * as damageApi from '../src/game/weaponDamage.js';
 import * as ballistics from '../src/sim/ballistics.js';
+import { RigidBody } from '../src/sim/tank/body.js';
 
 const data = loadData();
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -79,7 +80,8 @@ test('actual BMPT damaged rocket rail preserves both cannons and the opposite ro
   const caps = combat.advance('su_bmpt34', state, 0, 1).caps;
   assert.equal(caps.can_fire, true, 'a failed rocket apparatus must not disable the intact 25 mm cannons');
   const G = { id: 'su_bmpt34', loadout: lo, caps, cstate: state, T: lo.turrets.map(t => ({ yaw: 0, bearing: true, yawErr: 0, guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })), loading: loading.newLoading(t.guns.length, 1, t.guns.map(() => true)) })), pending: [], sightM: -1, sightT: 0, ss: {}, shots: [], missiles: { ready: true, launch: () => 1 }, guided: [], cam: { shake: 0 }, model: {} };
-  const deps = { G, data, ME: 1, ...loadout, ...combatApi, ...damageApi, loading, gunnery, ballistics, mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector }), pose: () => ({ pos: [0, 0, 0], heading: 0 }), hullTilt: () => 0, rng: { nextF32: () => .5 }, surfaceAt: () => 0, impactColor: () => [1, 1, 1], fx: { autocannonBlast() {} }, sound: { mg() {} } };
+  G.veh = { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse(j, p) { this.body.applyImpulseAt(j, p); }, worldPoint(p) { return this.body.worldPoint(p); } };
+  const deps = { G, data, ME: 1, RECOIL_ROCK: 1, ...loadout, ...combatApi, ...damageApi, loading, gunnery, ballistics, mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector }), pose: () => ({ pos: [0, 0, 0], heading: 0 }), hullTilt: () => 0, rng: { nextF32: () => .5 }, surfaceAt: () => 0, impactColor: () => [1, 1, 1], fx: { autocannonBlast() {} }, sound: { mg() {} } };
   const live = new Function(...Object.keys(deps), `${functionSource('trigger')}\n${functionSource('launchFromGun')}\n${functionSource('fireGun')}\nreturn {trigger, fireGun};`)(...Object.values(deps));
   live.trigger(false, false);
   assert.deepEqual(G.pending.map(p => p.gi), [0, 1], 'both conventional cannons remain queued');

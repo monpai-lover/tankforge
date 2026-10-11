@@ -8,6 +8,13 @@
  */
 export const FAMILIES = [
   {
+    key: 'su_t10m',
+    variants: [
+      { id: 'su_t10m', weapon: ['14.5 mm 六管 Oplot-MO', '14.5 mm six-barrel Oplot-MO'], paint: ['標準', 'Standard'] },
+      { id: 'su_t10m_oplot23', weapon: ['23 mm 六管 Oplot23（假想改裝）', '23 mm six-barrel Oplot23 (custom)'], paint: ['標準', 'Standard'] },
+    ],
+  },
+  {
     key: 'de_hetzer',
     variants: [
       { id: 'de_hetzer', weapon: ['7.5 cm PaK 39 L/48', '7.5 cm PaK 39 L/48'], paint: ['標準', 'Standard'] },

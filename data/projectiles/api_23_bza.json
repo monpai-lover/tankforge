@@ -1,0 +1,52 @@
+{
+ "id": "api_23_bza",
+ "name": "23×115 mm BZA (API · estimated curve)",
+ "kind": "ap",
+ "caliber_mm": 23,
+ "mass_kg": 0.174,
+ "muzzle_velocity_ms": 715,
+ "explosive_mass_kg": 0,
+ "explosive_type": "none",
+ "penetrator_material": "steel",
+ "length_mm": 98.5,
+ "drag_coefficient": 0.3,
+ "ricochet_angle_deg": 70,
+ "normalization_deg": 4,
+ "fuse_delay_s": 0,
+ "fuse_sensitivity_mm": 0,
+ "penetration_curve": [
+  {
+   "distance_m": 0,
+   "pen_mm": 24.7
+  },
+  {
+   "distance_m": 100,
+   "pen_mm": 23.2
+  },
+  {
+   "distance_m": 500,
+   "pen_mm": 18.1
+  },
+  {
+   "distance_m": 1000,
+   "pen_mm": 13.2
+  },
+  {
+   "distance_m": 1500,
+   "pen_mm": 9.6
+  },
+  {
+   "distance_m": 2000,
+   "pen_mm": 7.0
+  },
+  {
+   "distance_m": 2500,
+   "pen_mm": 5.2
+  }
+ ],
+ "meta": {
+  "demarre_steel_k": 2390.3362653406266,
+  "coefficient_source": "api_145_b32 authored 0 m penetration",
+  "notes": "Ordinary Arsenal API index/copy: 174 g, 715 m/s. 98.5 mm length is a reference estimate. Project drag and complete normal penetration curve recomputed with B-32-derived steel De Marre k; the source 200 m/10 mm/relative-ray60-degree condition is not a complete normal curve. Factory PDF not inspected."
+ }
+}

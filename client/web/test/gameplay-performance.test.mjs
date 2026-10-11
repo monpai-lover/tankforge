@@ -12,6 +12,7 @@ import { makeLoadout, reloadTime, fireLauncherRound, tickLauncher, refillLaunche
 import * as loading from '../src/sim/loading.js';
 import { newTurret, aimStep } from '../src/sim/gunnery.js';
 import { newMg, stepMg, slewMount, bulletOf } from '../src/sim/mg.js';
+import { RigidBody } from '../src/sim/tank/body.js';
 
 const api = await import('../src/game/gameplayPerformance.js').catch(e => {
   if (e.code !== 'ERR_MODULE_NOT_FOUND') throw e;
@@ -39,7 +40,8 @@ function automaticControls(lo, ti) {
   const G = { loadout: lo, shots: [], aps: null, caps: null, online: null, cam: { shake: 0 }, ss: {},
     sightM: -1, sightT: ti, fireHeld: true, mgHeld: false,
     T: lo.turrets.map(t => ({ yaw: 0, guns: t.guns.map(() => ({ pitch: 0, smoke: 0 })), loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })) };
-  const deps = { G, weaponDamage, gunnery, ballistics, loading, syncGunShell, nextAmmo,
+  G.veh = { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse(j, p) { this.body.applyImpulseAt(j, p); }, worldPoint(p) { return this.body.worldPoint(p); } };
+  const deps = { G, RECOIL_ROCK: 1, weaponDamage, gunnery, ballistics, loading, syncGunShell, nextAmmo,
     pose: () => ({ pos: [0, 0, 0], heading: 0 }),
     mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset }), hullTilt: () => 0,
     rng: { nextF32: () => .5 }, surfaceAt: () => 0, fx: { mgFlash() {}, autocannonBlast() {} }, sound: { mg() {} } };
