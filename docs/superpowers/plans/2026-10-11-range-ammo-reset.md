@@ -46,6 +46,6 @@ Files: client/web/src/main.js; client/web/test/range-ammo-reset.test.mjs.
   No native logic changes: unchanged native receipts may be retained after input verification.
 - [x] Record source/page/core hashes, fresh checks, old page preservation and review outcomes.
   New capture-point gameplay and historical steering remain awaiting their existing approvals.
-- [ ] Integrate accepted commits to the clean shared main, copy the verified page to named
+- [x] Integrate accepted commits to the clean shared main, copy the verified page to named
   and default paths, rerun lifecycle checks against main, push without force, verify remote HEAD.
   Do not call browser/CDP/HTTP verification after the earlier approval rejection.
