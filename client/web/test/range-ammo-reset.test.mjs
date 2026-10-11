@@ -13,6 +13,8 @@ import { buildTank } from '../src/gfx/tankmodel.js';
 import { OnlineFires } from '../src/game/onlineFire.js';
 import { GameplaySession } from '../src/game/gameplaySession.js';
 import { ammoKeyIndex } from '../src/game/weaponselection.js';
+import * as inventory from '../src/game/ammoInventory.js';
+import * as resupply from '../src/game/ammoResupply.js';
 import { ground } from './tankrig.mjs';
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -39,7 +41,7 @@ function runtime(id = 'su_bmpt34', cfg = {}) {
   const gameplay = new GameplaySession({ get: () => JSON.stringify({ mode: 'historical', version: 1 }), set() {} });
   gameplay.beginBattle();
   let respawns = 0;
-  const deps = { G, data, ...loadout, ...performanceApi, phys, loading, mgSim, applyAmmo, AMMO_CFG: cfg,
+  const deps = { G, data, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, loading, mgSim, applyAmmo, AMMO_CFG: cfg,
     onlineFires, onlineLaunches, renderer, scene, buildTank, VehicleSim, terrain: ground(() => 0), ME: 1,
     isDesign: () => false, store: { set() {} }, STORE_VEHICLE: 'unused', LANG_INDEX: 0,
     Exhaust: class {}, fx: {}, exhaustOf() {}, rebuildInterior() {}, applyXray() {}, combatInit() {},

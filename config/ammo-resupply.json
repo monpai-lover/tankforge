@@ -1,0 +1,5 @@
+{
+  "ammo_protocol_version": 1,
+  "resupply_seconds": 5,
+  "pose_max_age_seconds": 1
+}

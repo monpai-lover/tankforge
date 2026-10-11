@@ -35,6 +35,8 @@ import { NetClient, SEND_HZ } from './game/net.js';
 import { LobbyUi } from './game/lobbyui.js';
 import { DeployScreen, applyAmmo, loadAmmoConfig } from './game/deploy.js';
 import { Conquest, captureMessage } from './game/conquest.js';
+import { captureAmmoPlan, needsAmmo, refillAmmo, consumeApsRounds } from './game/ammoInventory.js';
+import { newResupplyState, eligiblePoint, stepResupply } from './game/ammoResupply.js';
 import { Terrain, CHUNK, N as DEFORM_N } from './game/terrain.js';
 import { VehicleSim } from './game/vehicle.js';
 import { GameplaySession } from './game/gameplaySession.js';
@@ -675,6 +677,8 @@ export function start(data, saved = {}) {
     G.loadout = deriveLoadoutPerformance(makeLoadout(id, bundle, projectiles, data.machineGuns), G.gameplayMode);
     // the rounds chosen on the deploy screen (the racks' default mix until one is chosen)
     if (data.vehicles[id]) applyAmmo(G.loadout, AMMO_CFG);
+    G.ammoPlan = captureAmmoPlan(G.loadout);
+    G.resupply = newResupplyState();
     G.stockParams = phys.makeParams(bundle.vehicle, bundle.engine);
     G.params = deriveVehicleParams(G.stockParams, G.gameplayMode);
     G.firedAt = [];
@@ -740,7 +744,7 @@ export function start(data, saved = {}) {
     G.statusShape = statusShape(bundle, bundle);
     G.cruise = null;
     // the rockets on the rails are the rounds loaded
-    G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.def.missile && G.model.payload(ti, gi, roundsLeft(g))));
+    G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.def.missile && G.model.payload(ti, gi, g.launcher.ready)));
     // a new vehicle in battle (deploy screen, respawn): its own protection system, if any
     if (G.mode === 'battle') {
       G.apsOn = true;
@@ -1390,6 +1394,8 @@ export function start(data, saved = {}) {
   }
 
   function toGarage() {
+    if (G.resupply) G.resupply.elapsed = 0;
+    for (const e of G.enemies || []) if (e.resupply) e.resupply.elapsed = 0;
     if (G.mode === 'test') testRange.exit();
     if (isDesign(G.id) && G.id.startsWith('design:__')) select(data.order[0]);
     if (G.xray) setXray(false);
@@ -1475,8 +1481,7 @@ export function start(data, saved = {}) {
     G.ammoKey = { i, t: now };
     g.selected = i;
     if (again && g.loaded >= 0 && g.loaded !== i && rt.loading.state[G.sightG] === 'ready') {
-      // the round in the breech goes back into the rack and the loader starts on the new one
-      g.ammo[g.loaded].count++;
+      // Total aboard already includes the breech round; only its location changes.
       g.loaded = -1;
       loading.fired(rt.loading, G.sightG);
       hud.toast(`退彈，改裝 ${a.shell.name}`, 1.5);
@@ -1748,6 +1753,7 @@ export function start(data, saved = {}) {
   function conquestStep(dt) {
     const c = G.conquest;
     if (!c) {
+      resupplyStep(dt);
       if (!cqBar.hidden) cqBar.hidden = true;
       if (cqMsg.textContent) cqMsg.textContent = '';
       return;
@@ -1774,6 +1780,7 @@ export function start(data, saved = {}) {
       toGarage();
       return;
     }
+    const resupply = resupplyStep(dt);
     cqBar.hidden = false;
     const tk = c.tickets;
     const bar = (team, n) => `<div class="cq-tk" data-team="${team}"><i style="width:${Math.max(0, Math.min(100, (n / 1000) * 100)).toFixed(1)}%"></i><span>${Math.ceil(n)}</span></div>`;
@@ -1790,8 +1797,50 @@ export function start(data, saved = {}) {
     const html = bar('blue', tk[0]) + pts + bar('red', tk[1]);
     if (cqBar.innerHTML !== html) cqBar.innerHTML = html;
     const dead = G.online ? G.online.dead : !!(G.caps && G.caps.destroyed);
-    const msg = dead ? '' : captureMessage(c.points, mine, G.s.x, G.s.z);
+    const capture = dead ? '' : captureMessage(c.points, mine, G.s.x, G.s.z);
+    const msg = capture + (resupply > 0 ? `　彈藥補給 ${Math.round(resupply * 100)}%` : '');
     if (cqMsg.textContent !== msg) cqMsg.textContent = msg;
+  }
+
+  /** One actor-owned dwell, evaluated after capture/winner updates. Grants never reload guns. */
+  function resupplyStep(dt) {
+    const c = G.conquest;
+    const active = !!(c?.local && !G.online && !c.winner && G.mode === 'battle');
+    const actor = { team: 'blue', x: G.s.x, z: G.s.z, alive: !G.caps?.destroyed,
+      deployed: G.mode === 'battle', connected: !G.online, active };
+    const point = eligiblePoint(c?.points, actor);
+    const missing = !!G.ammoPlan && needsAmmo(G.loadout, G.ammoPlan);
+    const result = stepResupply(G.resupply, dt, point !== null, missing);
+    if (result.complete) {
+      for (const key of refillAmmo(G.loadout, G.ammoPlan, G.T.map(t => t.loading))) {
+        const [, ti, gi] = key.split(':').map(Number), g = G.loadout.turrets[ti].guns[gi];
+        if (g.def.missile) G.model.payload(ti, gi, g.launcher.ready);
+      }
+      syncRacks();
+      syncApsControl();
+      hud.toast('彈藥已補滿', 2);
+    }
+    for (const [i, e] of (G.enemies || []).entries()) {
+      if (!e.resupply) continue;
+      const eligible = eligiblePoint(c?.points, { team: 'red', x: e.x, z: e.z, alive: e.alive === true,
+        deployed: !e.rangeTarget, connected: !e.remote, active });
+      const status = stepResupply(e.resupply, dt, eligible !== null, !!e.ammoPlan && needsAmmo(e.loadout, e.ammoPlan));
+      if (!status.complete) continue;
+      for (const key of refillAmmo(e.loadout, e.ammoPlan, e.ammoLoading)) {
+        const [, ti, gi] = key.split(':').map(Number), g = e.loadout.turrets[ti].guns[gi];
+        if (g.def.missile) e.model.payload(ti, gi, g.launcher.ready);
+      }
+      if (e.combat && e.cstate) {
+        const r = e.combat.ammo(e.combatKey, e.cstate, carriedRounds(e.loadout));
+        e.cstate = r.state; e.caps = r.caps;
+      }
+      const aps = e.loadout.weapons?.aps;
+      if (aps) {
+        const ti = aps.turret ?? 1;
+        G.missiles.setAps(enemyOwner(i), !!(e.apsDesired && e.ammoLoading[ti].state[0] === 'ready'), null, roundsLeft(e.loadout.turrets[ti].guns[0]));
+      }
+    }
+    return result.complete ? 0 : result.progress;
   }
   net.on('capture', (m) => {
     if (!G.online) return;
@@ -2005,7 +2054,7 @@ export function start(data, saved = {}) {
       if (def && def.guidance !== 'none') G.guided.push({ id: m.id, ti: p.ti, gi: p.gi, fresh: true });
       G.missiles._launchLook(m.missile, m.o || p.msg.o, m.d || p.msg.d);
       G.cam.shake = Math.min(1.2, G.cam.shake + (def?.guidance === 'none' ? 0.9 : 0.35));
-      if (G.model.payload) G.model.payload(p.ti, p.gi, roundsLeft(p.gun));
+      if (G.model.payload) G.model.payload(p.ti, p.gi, p.gun.launcher.ready);
     } else G.missiles._launchLook(m.missile, m.o, m.d);
   });
   net.on('launch_rejected', (m) => {
@@ -2266,11 +2315,20 @@ export function start(data, saved = {}) {
     G.apsFault = false;
     missileVehicle();
     (G.enemies || []).forEach((e, i) => {
+      if (e.remote || e.rangeTarget) return;
+      e.ammoPlan = captureAmmoPlan(e.loadout);
+      e.resupply = newResupplyState();
+      e.ammoLoading = e.loadout.turrets.map(t => loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)));
+      e.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => { if (nextAmmo(g) < 0) e.ammoLoading[ti].state[gi] = 'empty'; }));
       const aps = e.loadout.weapons?.aps;
-      if (aps && !e.remote && !e.rangeTarget) G.missiles.addAps(enemyOwner(i), 1, aps, 11 + i);
+      e.apsDesired = true;
+      if (aps) {
+        G.missiles.addAps(enemyOwner(i), 1, aps, 11 + i);
+        const ti = aps.turret ?? 1;
+        G.missiles.setAps(enemyOwner(i), e.ammoLoading[ti].state[0] === 'ready', null, roundsLeft(e.loadout.turrets[ti].guns[0]));
+      }
       e.mslT = 6 + i * 4;
       e.mslIds = [];
-      e.mslLoading = null;
     });
   }
 
@@ -2332,10 +2390,13 @@ export function start(data, saved = {}) {
 
   function syncApsControl() {
     if (G.mode !== 'battle' || !G.aps || !G.missiles) return;
-    const g = G.loadout.turrets[G.aps.turret ?? 1].guns[0];
-    const enabled = apsAutomatic();
+    const ti = G.aps.turret ?? 1;
+    const g = G.loadout.turrets[ti].guns[0];
+    const desired = apsAutomatic();
+    // The normal disabled path cools/spins down and clears tracks for later reacquisition.
+    const enabled = desired && G.T[ti].loading.state[0] === 'ready';
     G.missiles.setAps(ME, enabled, null, roundsLeft(g));
-    if (G.online) net.send({ t: 'aps', enabled });
+    if (G.online) net.send({ t: 'aps', enabled: desired });
   }
 
   function toggleAps() {
@@ -2351,7 +2412,8 @@ export function start(data, saved = {}) {
     const [lo, hi] = G.aps.rate_range_rpm || [G.aps.rate_rpm, G.aps.rate_rpm];
     const cur = G.apsState ? G.apsState.rate_rpm : G.aps.rate_rpm;
     const next = cur >= hi - 1 ? lo : Math.min(hi, cur + 1000);
-    G.missiles.setAps(ME, apsAutomatic(), next);
+    const ti = G.aps.turret ?? 1;
+    G.missiles.setAps(ME, apsAutomatic() && G.T[ti].loading.state[0] === 'ready', next);
     if (G.online) net.send({ t: 'aps', enabled: apsAutomatic(), rate: next });
     hud.toast(`${G.aps.name} 射速 ${next} 發/分`, 1.5);
   }
@@ -2395,6 +2457,17 @@ export function start(data, saved = {}) {
   function missileStep(dt) {
     if (!G.missiles) return;
     if (G.online) return onlineMissiles(dt);
+    syncApsControl();
+    (G.enemies || []).forEach((e, i) => {
+      const aps = e.loadout.weapons?.aps;
+      if (!aps || e.remote || e.rangeTarget || !e.ammoLoading) return;
+      const ti = aps.turret ?? 1, t = e.loadout.turrets[ti], g = t.guns[0], L = e.ammoLoading[ti];
+      if (e.alive) for (const gi of loading.tick(L, dt, (gi, li) => reloadTime(t, gi, li, G.gameplayMode), gi => weaponReloadRate(e.caps, t.guns[gi].damageKey))) {
+        const gun = t.guns[gi]; refillBelt(gun); gun.loaded = nextAmmo(gun); syncGunShell(gun);
+        if (gun.loaded < 0) L.state[gi] = 'empty';
+      }
+      G.missiles.setAps(enemyOwner(i), !!(e.alive && e.apsDesired && L.state[0] === 'ready'), null, roundsLeft(g));
+    });
     const actors = [];
     const mine = { id: ME, team: 0, alive: !(G.caps && G.caps.destroyed), center: playerMiddle(), vel: G.veh.body.v.slice() };
     apsOf(mine, G.aps, G.loadout, G.T.map((t) => t.yaw), pose(), G.bundle, G.cstate, G.caps);
@@ -2473,12 +2546,7 @@ export function start(data, saved = {}) {
         }
         // Automatic and manual control share the same magazine. A snapshot can
         // consume rounds, but never restore rounds already fired by the gunner.
-        let over = roundsLeft(g) - a.rounds;
-        for (const am of g.ammo) {
-          const k = Math.min(am.count, Math.max(0, over));
-          am.count -= k;
-          over -= k;
-        }
+        consumeApsRounds(G.loadout, g.damageKey, Math.max(0, roundsLeft(g) - a.rounds));
         g.belt = Math.min(g.belt, roundsLeft(g));
         if (G.T[ti].loading.state[0] === 'ready' && !(g.ammo[g.loaded]?.count > 0)) {
           g.loaded = nextAmmo(g);
@@ -2500,6 +2568,17 @@ export function start(data, saved = {}) {
         const aps = e?.loadout.weapons?.aps;
         if (!e || !aps || !e.alive) continue;
         const ti = aps.turret ?? 1;
+        if (!e.remote && !e.rangeTarget) {
+          const g = e.loadout.turrets[ti].guns[0];
+          consumeApsRounds(e.loadout, g.damageKey, Math.max(0, roundsLeft(g) - a.rounds));
+          g.belt = Math.min(g.belt, roundsLeft(g));
+          if (e.ammoLoading?.[ti].state[0] === 'ready' && !(g.ammo[g.loaded]?.count > 0)) {
+            g.loaded = nextAmmo(g);
+            if (g.loaded < 0) e.ammoLoading[ti].state[0] = 'empty';
+            else g.selected = g.loaded;
+            syncGunShell(g);
+          }
+        }
         if (!e.turretYaws) e.turretYaws = enemyYaws(e).slice();
         e.turretYaws[0] = e.turretYaw || 0;
         e.turretYaws[ti] = gunnery.wrapPi(a.yaw - e.heading);
@@ -2629,15 +2708,14 @@ export function start(data, saved = {}) {
       const g = t.guns[gi];
       const mdef = data.missiles[g.def.missile];
       if (!mdef) return;
-      if (!e.mslLoading) e.mslLoading = loading.newLoading(1, 1);
+      const L = e.ammoLoading[ti];
       tickLauncher(g, dt);
       const damage = weaponDamage(e.caps, g.damageKey);
-      const done = loading.tick(e.mslLoading, dt, () => g.def.reload_s, () => weaponReloadRate(e.caps, g.damageKey));
-      if (done.length) {
-        g.loaded = nextAmmo(g);
-        syncGunShell(g);
-        refillLauncher(g);
-        if (g.loaded < 0) e.mslLoading.state[0] = 'empty';
+      const done = loading.tick(L, dt, (gun, li) => reloadTime(t, gun, li, G.gameplayMode), gun => gun === gi ? weaponReloadRate(e.caps, g.damageKey) : 0);
+      if (done.includes(gi)) {
+        g.loaded = nextAmmo(g); syncGunShell(g); refillLauncher(g);
+        if (g.loaded < 0) L.state[gi] = 'empty';
+        e.model.payload(ti, gi, g.launcher.ready);
       }
       // the launcher turns onto the player
       const yaw = gunnery.wrapPi(Math.atan2(target[0] - e.x, target[2] - e.z) - e.heading);
@@ -2666,7 +2744,7 @@ export function start(data, saved = {}) {
         G.missiles.guide(id, owner, sight, [target[0] + w(0), target[1] + w(1) * 0.5, target[2] + w(2)]);
       }
       e.mslT = Math.max(0, (e.mslT ?? 6) - dt);
-      if (!damage.can_fire || e.mslT > 1e-9 || e.mslLoading.state[0] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || (e.caps?.weapons === undefined && !launcherCanFire(e.loadout, e.bundle?.modules, e.cstate, g))) return;
+      if (!damage.can_fire || e.mslT > 1e-9 || L.state[gi] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || (e.caps?.weapons === undefined && !launcherCanFire(e.loadout, e.bundle?.modules, e.cstate, g))) return;
       const d = Math.hypot(target[0] - sight[0], target[1] - sight[1], target[2] - sight[2]);
       if (d > mdef.max_range_m || d < mdef.min_range_m * 1.5 || roundsLeft(g) <= 0) {
         e.mslT = 2;
@@ -2685,7 +2763,8 @@ export function start(data, saved = {}) {
       const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0);
       if (id == null) return;
       e.mslIds.push(id);
-      fireLauncherRound(g, e.mslLoading, 0);
+      fireLauncherRound(g, L, gi);
+      e.model.payload(ti, gi, g.launcher.ready);
       e.gunPitch[ti] = pitch;
       e.pose();
       e.mslT = g.launcher.ready > 0 ? g.launchIntervalSeconds ?? 0.25 : g.def.reload_s;
@@ -2724,7 +2803,7 @@ export function start(data, saved = {}) {
     G.cam.shake = Math.min(1.2, G.cam.shake + (mdef.guidance === 'none' ? 0.9 : 0.35));
     fireLauncherRound(g, rt.loading, gi);
     // the round is gone from its rail
-    if (G.model.payload) G.model.payload(ti, gi, roundsLeft(g));
+    if (G.model.payload) G.model.payload(ti, gi, g.launcher.ready);
     return true;
   }
 
@@ -4061,6 +4140,7 @@ export function start(data, saved = {}) {
           else g.selected = g.ammo[g.selected].count > 0 ? g.selected : g.loaded;
           syncGunShell(g);
           refillLauncher(g);
+          if (g.def.missile) G.model.payload(ti, gi, g.launcher.ready);
         }
         if (done.length && !t.guns[done[0]].def.autocannon) sound.click();
         // a rotary gun's barrels spin up while its trigger is held and run down after

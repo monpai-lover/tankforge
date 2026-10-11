@@ -41,7 +41,7 @@ test('live player launch rejects disabled apparatus without spending a tube or t
 
 test('live bot launch obeys combat capability and resumes after apparatus repair', () => {
   const lo = make(), g = lo.turrets[0].guns[0], requests = [];
-  const e = { loadout: lo, alive: true, caps: { can_fire: false }, x: 0, z: 0, heading: 0, name: 'M901', mslT: 0, mslLoading: loading.newLoading(1, 1), gunPitch: [0], pose() {} };
+  const e = { loadout: lo, alive: true, caps: { can_fire: false }, x: 0, z: 0, heading: 0, name: 'M901', mslT: 0, ammoLoading: [loading.newLoading(1, 1)], gunPitch: [0], pose() {}, model: { payload() {} } };
   const G = { mode: 'battle', caps: { destroyed: false }, time: 10, enemies: [e], missiles: { ready: true, nodes: new Map(), launch: () => { requests.push('launch'); return 1; } } };
   const fire = live('aiMissiles', { G, data, DEG: Math.PI / 180, playerMiddle: () => [0, 2.7, 500], enemyOwner: () => 2, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({ pos: [0, 0, 0], heading: 0 }), mountFor: () => ({ pivot: lo.turrets[0].pivot, trunnion: g.trunnion }), losHit: () => null, hud: { toast() {} }, loading, gunnery, ...loadout, ...combatApi, ...damageApi });
   const before = loadout.roundsLeft(g);
@@ -62,7 +62,7 @@ test('live bot launcher elevation consumes its actual damaged own drive without 
   assert.ok(index >= 0); r.state.modules[index] = 0;
   const caps = combat.advance('ai:elevation', r.state, 0, 1).caps;
   assert.equal(caps.weapons[g.damageKey].can_fire, true);
-  const e = {loadout: lo, alive: true, caps, x: 0, z: 0, heading: 0, name: 'M901', mslT: 0, mslLoading: loading.newLoading(1, 1), gunPitch: [0], pose() {}};
+  const e = {loadout: lo, alive: true, caps, x: 0, z: 0, heading: 0, name: 'M901', mslT: 0, ammoLoading: lo.turrets.map(t => loading.newLoading(t.guns.length,t.loaders.length,t.guns.map(g=>!g.rack))), gunPitch: [0], pose() {}, model: { payload() {} }};
   const G = {mode: 'battle', time: 10, enemies: [e], missiles: {ready: true, nodes: new Map(), launch: (...args) => {requests.push(args); return 1;}}};
   const fire = live('aiMissiles', {G, data, DEG: Math.PI / 180, playerMiddle: () => [0, 100, 500], enemyOwner: () => 2, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({pos: [0, 0, 0], heading: 0}), mountFor: () => ({pivot: lo.turrets[0].pivot, trunnion: lo.turrets[0].guns[0].trunnion}), losHit: () => null, hud: {toast() {}}, loading, gunnery, ...loadout, ...combatApi, ...damageApi});
   const dt = 1 / 120; fire(dt);

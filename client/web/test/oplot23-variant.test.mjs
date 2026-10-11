@@ -29,6 +29,7 @@ import { GAMEPLAY_RULES_VERSION } from '../src/game/gameplayRules.js';
 import { GAMEPLAY_UPDATE_NEEDED } from '../src/game/net.js';
 import { normalizeWorkshopBuild } from '../src/game/workshopBuild.js';
 import * as damageApi from '../src/game/weaponDamage.js';
+import { consumeApsRounds } from '../src/game/ammoInventory.js';
 import { Mods, familyOf } from '../src/game/mods.js';
 import { decodeAllImported, decodeImported } from '../src/gfx/imported.js';
 import { exportWorkshopModel } from '../src/game/workshopImported.js';
@@ -77,7 +78,7 @@ function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
     apsCalls.push({ owner, enabled, rounds });
     core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
   } };
-  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
+  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng,
     onlineFires: new OnlineFires(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },

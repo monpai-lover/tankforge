@@ -7,7 +7,7 @@
 // carries offline too: see applyAmmo().
 import { shellIcon, shellKind, shellTypeLabel } from './shellicons.js';
 import { penAt } from './hud.js';
-import { syncGunShell, refillLauncher } from './loadout.js';
+import { syncGunShell, refillLauncher, roundsLeft } from './loadout.js';
 
 const STORE = 'tankforge.ammo.v1';
 const CLASS_NAME = { light: '輕型坦克', medium: '中型坦克', heavy: '重型坦克', tank_destroyer: '坦克殲擊車', td: '坦克殲擊車', prototype: '原型車', armoured_car: '裝甲車', armored_car: '裝甲車', spaa: '防空車', custom: '自訂' };
@@ -73,6 +73,7 @@ export function applyAmmo(loadout, cfg) {
     g.selected = Math.max(0, first);
     syncGunShell(g);
     refillLauncher(g);
+    if (g.def.autocannon) g.belt = Math.min(g.def.autocannon.belt_rounds, roundsLeft(g));
   }
 }
 

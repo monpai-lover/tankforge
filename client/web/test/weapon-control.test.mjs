@@ -24,6 +24,7 @@ import { Combat, launcherCanFire, bulletShell } from '../src/game/combat.js';
 import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
 import { Terrain } from '../src/game/terrain.js';
 import { humpLift, hitTargets, groundHit } from '../src/game/world.js';
+import { consumeApsRounds } from '../src/game/ammoInventory.js';
 const damageApi = await import('../src/game/weaponDamage.js').catch(() => ({}));
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -62,7 +63,7 @@ function controls(id, mesh = false) {
     apsCalls.push({ owner, enabled, rounds });
     core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
   } };
-  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
+  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     onlineFires: new OnlineFires(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
@@ -306,6 +307,10 @@ test('G takes manual Oplot ownership, fires its actual gun and restores automati
   assert.equal(loadout.roundsLeft(gun), before - 1);
   r.live.cycleSightGun();
   assert.equal(r.G.sightT, 0);
+  assert.equal(r.snapshot().enabled, false, 'the original firing cycle finishes before automatic control resumes');
+  const t = r.G.loadout.turrets[1];
+  assert.deepEqual(loading.tick(r.G.T[1].loading, 1, (gi, li) => loadout.reloadTime(t, gi, li)), [0]);
+  gun.loaded = loadout.nextAmmo(gun); loadout.syncGunShell(gun); r.live.syncApsControl();
   assert.equal(r.snapshot().enabled, true);
   assert.equal(r.snapshot().rounds, before - 1, 'interception uses the remaining shared magazine');
   r.G.apsOn = false;

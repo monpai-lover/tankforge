@@ -21,6 +21,8 @@ import { applyAmmo } from '../src/game/deploy.js';
 import { VehicleSim } from '../src/game/vehicle.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { ground } from './tankrig.mjs';
+import * as inventory from '../src/game/ammoInventory.js';
+import * as resupply from '../src/game/ammoResupply.js';
 
 const root = new URL('../../../', import.meta.url);
 const receiptPath = process.env.TG_GAMEPLAY_NETWORK_RECEIPT || new URL('target/gameplay-network.json', root);
@@ -101,7 +103,7 @@ function runtime(local, options = {}) {
   const hud = new Proxy({ showSpec(...args) { hudState.el.spec.children=[]; Hud.prototype.showSpec.call(hudState,...args); } }, { get(o,k) { return o[k] || (() => {}); } });
   const net = new NetClient(), scene = { children: [], add(n) { this.children.push(n); } };
   const renderer = { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} };
-  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...loadout, ...performanceApi, phys, data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
+  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
     isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }), AMMO_CFG: {}, applyAmmo,
     onlineFires: new OnlineFires(), loading, mgSim, renderer, buildTank, VehicleSim, terrain: ground(() => 0), scene, hud,
     Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {}, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],

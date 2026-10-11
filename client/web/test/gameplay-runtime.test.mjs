@@ -28,6 +28,8 @@ import { GameplaySession } from '../src/game/gameplaySession.js';
 import { GAMEPLAY_RULES_VERSION } from '../src/game/gameplayRules.js';
 import { GAMEPLAY_UPDATE_NEEDED } from '../src/game/net.js';
 import { normalizeWorkshopBuild } from '../src/game/workshopBuild.js';
+import * as inventory from '../src/game/ammoInventory.js';
+import * as resupply from '../src/game/ammoResupply.js';
 const damageApi = await import('../src/game/weaponDamage.js').catch(() => ({}));
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -65,7 +67,7 @@ function controls(id, mode = 'historical') {
     apsCalls.push({ owner, enabled, rounds });
     core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
   } };
-  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
+  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, ...inventory,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     onlineFires: new OnlineFires(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
@@ -94,7 +96,7 @@ function selectionRuntime(id, mode, build = loadout.PRESETS.hexa.build) {
   const hud = new Proxy({}, { get: () => () => {} });
   const scene = { children: [], add(root) { this.children.push(root); } };
   const deps = { G, data, LANG_INDEX: 0, isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }),
-    onlineFires: new OnlineFires(), scene, store: { set() {} }, STORE_VEHICLE: 'unused', ...loadout, ...performanceApi, phys, applyAmmo, AMMO_CFG: {}, loading, mgSim,
+    onlineFires: new OnlineFires(), scene, store: { set() {} }, STORE_VEHICLE: 'unused', ...loadout, ...performanceApi, ...inventory, ...resupply, phys, applyAmmo, AMMO_CFG: {}, loading, mgSim,
     renderer, buildTank, VehicleSim, terrain, Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {},
     resetPose() { G.veh.place(0, 0, 0); G.veh.compat(G.s); },
     mods: { choose() {}, cardOf: id => id, slots: () => [] }, hud, reloadShown() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0], statusShape() {},
@@ -200,8 +202,8 @@ test('actual enemy/remote selection and APS registration use locked mode descrip
     close(G.enemies[0].loadout.weapons.aps.rate_rpm / data.vehicles.su_t10m.weapons.aps.rate_rpm, 1.2, `${name} APS`);
     close(G.enemies[0].veh.tm.p.power / phys.makeParams(data.vehicles.su_t10m.vehicle, data.vehicles.su_t10m.engine).power, 1.25 * 1.15, `${name} VehicleSim`);
     const registrations = [];
-    G.missiles = { reset() {}, addAps: (...args) => registrations.push(args) };
-    const init = { G, onlineLaunches: { clear() {} }, missileTerrain: () => null, missileVehicle() {}, enemyOwner: () => 100 };
+    G.missiles = { reset() {}, setAps() {}, addAps: (...args) => registrations.push(args) };
+    const init = { G, onlineLaunches: { clear() {} }, missileTerrain: () => null, missileVehicle() {}, enemyOwner: () => 100, ...inventory, ...resupply, ...loadout, loading };
     G.enemies[0].rangeTarget = false; G.enemies[0].remote = false;
     new Function(...Object.keys(init), `${functionSource('missileBattleStart')}\nmissileBattleStart();`)(...Object.values(init));
     assert.equal(registrations[0][2], G.enemies[0].loadout.weapons.aps, 'registered APS uses runtime descriptor');
@@ -271,7 +273,7 @@ test('actual player and bot missile launch paths emit scaled tube intervals and 
       playerMiddle: () => [0, 2.7, 500], enemyOwner: () => 100, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({ pos: [0, 0, 0], heading: 0 }),
       mountFor: (lo, yaws, ti) => ({ pivot: lo.turrets[ti].pivot, trunnion: lo.turrets[ti].guns[0].trunnion }),
       losHit: () => null, loading, gunnery, hud: { toast() {} } };
-    const e = { loadout: G.loadout, alive: true, x: 0, z: 0, heading: 0, mslT: 0, mslLoading: loading.newLoading(1, 1), gunPitch: [0], pose() {} };
+    const e = { loadout: G.loadout, alive: true, x: 0, z: 0, heading: 0, mslT: 0, ammoLoading: [loading.newLoading(1, 1)], gunPitch: [0], pose() {}, model: { payload() {} } };
     G.enemies = [e];
     const live = new Function(...Object.keys(deps), `${functionSource('launchFromGun')}\n${functionSource('aiMissiles')}\nreturn {launchFromGun, aiMissiles};`)(...Object.values(deps));
     const before = loadout.roundsLeft(g);

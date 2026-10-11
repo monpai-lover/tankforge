@@ -5,7 +5,10 @@ import { loadData } from '../tools/load-data.mjs';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { STRIDE } from '../src/gfx/geo.js';
 import { decodeImported } from '../src/gfx/imported.js';
-import { makeLoadout, generatedTurretParts } from '../src/game/loadout.js';
+import * as inventory from '../src/game/ammoInventory.js';
+import * as resupply from '../src/game/ammoResupply.js';
+import * as loading from '../src/sim/loading.js';
+import { makeLoadout, generatedTurretParts, nextAmmo, roundsLeft } from '../src/game/loadout.js';
 import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
 import { Terrain } from '../src/game/terrain.js';
 import { groundRay, hitTargets, humpLift, COURSE, FIELD } from '../src/game/world.js';
@@ -138,8 +141,8 @@ test('range targets do not activate defensive guns, while map enemies retain act
     bundle.weapons.aps.name = name;
     return {bundle,loadout:deriveLoadoutPerformance(makeLoadout('su_t10m',bundle,data.projectiles,data.machineGuns),'historical')};
   };
-  const G={missiles:{reset(){},addAps(...args){registered.push(args);}},enemies:[{...apsTarget('training APS'),rangeTarget:true},apsTarget('map APS')]};
-  live(['missileBattleStart'],{G,missileTerrain:()=>null,onlineLaunches:{clear(){}},missileVehicle(){},enemyOwner:i=>100+i}).missileBattleStart();
+  const G={missiles:{reset(){},setAps(){},addAps(...args){registered.push(args);}},enemies:[{...apsTarget('training APS'),rangeTarget:true},apsTarget('map APS')]};
+  live(['missileBattleStart'],{G,missileTerrain:()=>null,onlineLaunches:{clear(){}},missileVehicle(){},enemyOwner:i=>100+i,...inventory,...resupply,loading,nextAmmo,roundsLeft}).missileBattleStart();
   assert.deepEqual(registered.map(a=>a[0]),[101]);
 });
 
