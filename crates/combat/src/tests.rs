@@ -2,6 +2,66 @@ use super::*;
 use tg_armor::ArmorKind;
 use tg_weapon::CurvePoint;
 
+#[test]
+fn zero_kinetic_energy_does_not_damage_crew() {
+    let mut t = box_tank(false);
+    t.def.plates.clear();
+    t.def.modules.clear();
+    t.def.crew = vec![crew(CrewRole::Driver, [0.0, 1.0, 0.0])];
+    let t = Target::new(t.def, &rha());
+    let mut shell = ProjectileDef::generic_ap(10.0, 150.0);
+    shell.mass_kg = 0.1;
+    let r = shoot(&t, &t.fresh_state(), &Shot { shell, origin: Vec3::new(0.0, 1.0, -2.0), dir: Vec3::new(0.0, 0.0, 1.0), speed_ms: 0.0, distance_m: 0.0, seed: 1, turret_yaw: 0.0 });
+    assert_eq!(r.state.crew[0], 100.0, "zero energy caused {:?}", r.crew);
+}
+
+#[test]
+fn combat_report_old_json_defaults_and_new_mechanisms_roundtrip() {
+    let t=box_tank(false);let r=shoot(&t,&t.fresh_state(),&side_shot(shell(ProjectileKind::Ap,75.0,6.8,200.0,0.0),1));
+    let value=serde_json::to_value(&r).unwrap();
+    let decoded:Report=serde_json::from_value(value.clone()).unwrap();
+    assert_eq!(serde_json::to_value(decoded).unwrap(),value);
+    let mut legacy=value;
+    for key in ["mechanism_revision","impact_events","impact_state"]{legacy.as_object_mut().unwrap().remove(key);}
+    for fragment in legacy["fragments"].as_array_mut().unwrap(){for key in ["fragment_id","parent_event_id","source","source_layer_or_module","physical","weight","start_s","profile","budget"]{fragment.as_object_mut().unwrap().remove(key);}}
+    let legacy:Report=serde_json::from_value(legacy).unwrap();
+    assert!(legacy.mechanism_revision.is_none());assert!(legacy.impact_events.is_empty());
+    assert!(legacy.fragments.iter().all(|f|f.provenance.source==impact::FragmentSource::UnknownLegacy && f.provenance.physical.is_none()));
+}
+
+fn kinetic_test_fragment()->tg_damage::Fragment {
+    let energy=20000.0;let mass=0.005;let velocity=Vec3::new(0.0,0.0,(2.0f64*energy/mass).sqrt() as f32);
+    tg_damage::Fragment{origin:Vec3::new(0.0,1.0,0.0),dir:Vec3::new(0.0,0.0,1.0),energy_j:energy as f32,damage:0.0,is_penetrator:false,remaining_pen_mm:None,impact_state:None,
+        provenance:FragmentProvenance{fragment_id:"spall:0".into(),parent_event_id:"plate:outer/traversal:0".into(),source:impact::FragmentSource::ArmourSpall,source_layer_or_module:Some("plate:outer".into()),physical:Some(impact::PhysicalFragment{mass_kg:mass,energy_j:energy,area_m2:None,velocity_m_s:velocity}),weight:1.0,start_s:Some(0.02),profile:Some(impact::ProfileReference{id:"test_allocation".into(),revision:impact::MECHANISM_REVISION.into(),source:impact::ProfileSource::Estimated})}}
+}
+
+#[test]
+fn kinetic_fragment_serial_reports_match_segment_entry_and_collision_point() {
+    let mut def=box_tank(false).def;def.plates.clear();def.modules=vec![module("radio",ModuleKind::Radio,[0.0,1.0,0.3],[0.05,0.05,0.05],1000.0)];def.crew=vec![crew(CrewRole::Driver,[0.0,1.0,1.0])];
+    let t=Target::new(def,&rha());let mut w=work(&t,&t.fresh_state(),0.0);let f=kinetic_test_fragment();
+    w.rep.fragments.clear();w.rep.impact_events.clear();w.kinetic_fragment(&f,2.0);
+    let contacts:Vec<_>=w.rep.fragments.iter().filter(|f|f.budget.is_some()).collect();assert_eq!(contacts.len(),2);
+    let first=contacts[0];let second=contacts[1];
+    assert!((second.provenance.physical.as_ref().unwrap().energy_j-first.budget.unwrap().core_out_j).abs()<1e-3);
+    assert_eq!(second.from,first.to);
+    assert!(second.provenance.start_s.unwrap()>first.provenance.start_s.unwrap());
+    for (segment,event) in contacts.iter().zip(&w.rep.impact_events) {
+        assert_eq!(event.entry_position,segment.to);assert_eq!(event.exit_position,segment.to);
+        let physical=segment.provenance.physical.as_ref().unwrap();physical.validate().unwrap();
+        assert!((physical.energy_j-segment.budget.unwrap().input_j).abs()<1e-3);
+    }
+}
+
+#[test]
+fn distinct_nearby_main_plate_blocks_allocated_auxiliary_spall() {
+    let mut def=box_tank(false).def;
+    def.plates=vec![plate("main",ArmorZone::HullSide,200.0,[0.0,1.0,0.005],[0.0,0.0,-1.0],[1.0,0.0,0.0],1.0,1.0)];def.modules.clear();def.crew=vec![crew(CrewRole::Driver,[0.0,1.0,0.5])];
+    let t=Target::new(def,&rha());let mut w=work(&t,&t.fresh_state(),0.0);
+    w.kinetic_fragment(&kinetic_test_fragment(),2.0);
+    assert_eq!(w.st.crew[0],100.0);
+    assert!(w.rep.fragments.last().unwrap().to.z<=0.005001);
+}
+
 fn weapon_target(id: &str) -> Target {
     let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
     let read = |f: &str| serde_json::from_str::<serde_json::Value>(&std::fs::read_to_string(root.join(f)).unwrap()).unwrap();
@@ -1244,7 +1304,15 @@ fn machine_gun_bullets_bounce_off_armour_but_hit_an_open_crew() {
     assert_eq!(r.outcome, Outcome::Stopped, "{:?} {:?}", r.plate, r.layers);
     let r = shoot(&open, &open.fresh_state(), &into_turret(1));
     assert_eq!(r.outcome, Outcome::Unarmoured, "{:?} {:?} {:?} {:?}", r.hit, r.crew, r.fragments, (open.lo, open.hi));
-    assert!(r.crew.iter().any(|c| c.role == CrewRole::Commander && c.damage > 50.0), "{:?}", r.crew);
+    let contact=r.impact_events.iter().find(|e|e.transition.layer_id=="core/crew:3").unwrap();
+    let input=0.5*0.046f32 as f64*820.0f64.powi(2);
+    let expected_deposition=input*(5.0/r.pen_mm as f64).min(1.0);
+    assert!((contact.transition.budget.target_deposition_j-expected_deposition).abs()<1e-2);
+    let expected_damage=25.0*(expected_deposition/1000.0).sqrt();
+    let commander=r.crew.iter().find(|c|c.role==CrewRole::Commander).unwrap();
+    assert!((commander.damage as f64-expected_damage).abs()<1e-3);
+    assert!((commander.health+commander.damage-100.0).abs()<1e-5);
+    assert!(r.impact_state.as_ref().unwrap().energy_j().is_finite());
     assert!(r.fragments.iter().all(|f| f.kind != "spall"));
 }
 

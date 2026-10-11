@@ -3,6 +3,7 @@
 //! penetration. Also builds the slow-motion playback timeline.
 use serde::{Deserialize, Serialize};
 use tg_shared::{EntityId, Vec3};
+use tg_penetration::impact::{FragmentProvenance, ImpactEvent, ImpactState, EnergyBudget};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -48,6 +49,10 @@ pub struct FragmentRecord {
     pub is_penetrator: bool,
     /// Module id or "crew:<role>" if something was hit.
     pub hit: Option<String>,
+    #[serde(default, flatten)]
+    pub provenance: FragmentProvenance,
+    #[serde(default)]
+    pub budget: Option<EnergyBudget>,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -88,6 +93,12 @@ pub struct ShotEvent {
     pub damaged_modules: Vec<DamagedModule>,
     pub damaged_crew: Vec<DamagedCrew>,
     pub outcomes: Vec<ShotOutcome>,
+    #[serde(default)]
+    pub mechanism_revision: Option<String>,
+    #[serde(default)]
+    pub impact_events: Vec<ImpactEvent>,
+    #[serde(default)]
+    pub impact_state: Option<ImpactState>,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -174,6 +185,7 @@ mod tests {
             damaged_modules: vec![],
             damaged_crew: vec![],
             outcomes: vec![],
+            mechanism_revision: None, impact_events: vec![], impact_state: None,
         }
     }
 
@@ -196,6 +208,19 @@ mod tests {
     #[test]
     fn event_roundtrips_through_json_shape() {
         let e = ev(PenetrationOutcome::Ricochet);
-        assert_eq!(e.penetration_result, PenetrationOutcome::Ricochet);
+        let old = serde_json::to_value(&e).unwrap();
+        let mut old = old.as_object().unwrap().clone();
+        for key in ["mechanism_revision", "impact_events", "impact_state"] { old.remove(key); }
+        old.insert("fragments".into(), serde_json::json!([{"origin":{"x":0,"y":0,"z":0},"end":{"x":0,"y":0,"z":1},"energy_j":10,"damage":0,"is_penetrator":false,"hit":null}]));
+        let restored: ShotEvent = serde_json::from_value(serde_json::Value::Object(old)).unwrap();
+        assert_eq!(restored.fragments[0].provenance.source, tg_penetration::impact::FragmentSource::UnknownLegacy);
+        assert!(restored.fragments[0].provenance.physical.is_none());
+        let mut new = restored;
+        new.mechanism_revision = Some(tg_penetration::impact::MECHANISM_REVISION.into());
+        new.fragments[0].provenance.source = tg_penetration::impact::FragmentSource::CasingFragment;
+        let json = serde_json::to_string(&new).unwrap();
+        let decoded: ShotEvent = serde_json::from_str(&json).unwrap();
+        assert_eq!(decoded.fragments[0].provenance.source, tg_penetration::impact::FragmentSource::CasingFragment);
+        assert_eq!(serde_json::to_value(decoded).unwrap(), serde_json::to_value(new).unwrap());
     }
 }

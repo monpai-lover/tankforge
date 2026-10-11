@@ -13,3 +13,7 @@ tg-ballistics.workspace = true
 tg-penetration.workspace = true
 tg-damage.workspace = true
 tg-replay.workspace = true
+
+[dev-dependencies]
+tg-combat.workspace = true
+tg-design.workspace = true

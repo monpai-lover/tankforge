@@ -29,6 +29,8 @@ use tg_damage::module_state::{self, apply_health_damage, health_ratio};
 pub use tg_damage::{Crew, CrewRole, Module, ModuleKind};
 use tg_shared::{rotate_yaw, Rng, Vec3};
 use tg_weapon::{ProjectileDef, ProjectileKind};
+use tg_penetration::impact::{self, ImpactState, FragmentProvenance, ImpactEvent, EnergyBudget};
+mod impact_report;
 pub mod weapon_damage;
 mod weapon_mg;
 
@@ -712,7 +714,7 @@ pub enum Outcome {
     Unarmoured,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Layer {
     pub plate: String,
     pub zone: ArmorZone,
@@ -728,7 +730,7 @@ pub struct Layer {
     pub entering: bool,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Burst {
     pub pos: Vec3,
     pub radius: f32,
@@ -736,17 +738,19 @@ pub struct Burst {
     pub explosive_kg: f32,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Frag {
     pub from: Vec3,
     pub to: Vec3,
     pub hit: Option<String>,
     pub damage: f32,
     /// "spall" | "burst" | "jet" | "shell" | "blast"
-    pub kind: &'static str,
+    pub kind: String,
+    #[serde(default,flatten)] pub provenance: FragmentProvenance,
+    #[serde(default)] pub budget: Option<EnergyBudget>,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ModuleHit {
     pub index: usize,
     pub id: String,
@@ -757,7 +761,7 @@ pub struct ModuleHit {
     pub destroyed: bool,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct CrewHit {
     pub index: usize,
     pub role: CrewRole,
@@ -766,7 +770,7 @@ pub struct CrewHit {
     pub killed: bool,
 }
 
-#[derive(Clone, Debug, Serialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Report {
     pub hit: bool,
     pub outcome: Outcome,
@@ -790,6 +794,9 @@ pub struct Report {
     pub state: TargetState,
     pub title: String,
     pub turret_yaw: f32,
+    #[serde(default)] pub mechanism_revision: Option<String>,
+    #[serde(default)] pub impact_events: Vec<ImpactEvent>,
+    #[serde(default)] pub impact_state: Option<ImpactState>,
 }
 
 // damage of something moving with `energy_j` to a person and to a machine
@@ -929,6 +936,50 @@ struct Work<'a> {
 }
 
 impl<'a> Work<'a> {
+    fn kinetic_fragment(&mut self, f: &tg_damage::Fragment, max_range: f32) {
+        let (Some(physical), Some(profile)) = (&f.provenance.physical, &f.provenance.profile) else { return };
+        let Ok(mut state) = impact::fragment_state(physical, frag_pen(f.energy_j) as f64, &f.provenance.fragment_id, profile) else { return };
+        if let Some(t) = f.provenance.start_s { state.elapsed_s = t; }
+        let reach = self.to_kinetic_armour(f,max_range);
+        let events = self.events(f.origin,f.dir,reach,false);
+        let mut last_t = 0.0;
+        let mut last_end = f.origin;
+        for ev in events {
+            if state.energy_j() <= 0.0 { break; }
+            let (absorb,id) = match ev.kind {
+                EvKind::Module(i) => {
+                    if self.p.boxes[i].contains(f.origin) { continue; }
+                    (absorb_mm(self.t.def.modules[i].kind) as f64 * if self.st.modules[i]>0.0 {1.0} else {0.5},self.t.def.modules[i].id.clone())
+                }
+                EvKind::Crew(i) => {
+                    if self.st.crew[i]<=0.0 || (f.origin-self.p.crew[i]).length()<=self.t.def.crew[i].radius {continue;}
+                    (CREW_ABSORB_MM as f64,format!("crew:{i}"))
+                }
+                EvKind::Plate(_) => continue,
+            };
+            let segment_entry=state.current.clone();
+            state.advance_time((ev.t-last_t).max(0.0) as f64); last_t=ev.t;
+            let contact_id = format!("{}/target:{id}",f.provenance.fragment_id);
+            let Ok(tr) = impact::deposit_fragment_contact_energy(&mut state,absorb,&contact_id) else { break };
+            let damage = match ev.kind { EvKind::Crew(i) => self.hurt_crew(i,crew_damage(tr.budget.target_deposition_j as f32)), EvKind::Module(i) => self.hurt_module(i,module_damage(tr.budget.target_deposition_j as f32),0.5), _ => 0.0 };
+            let end = f.origin+f.dir*ev.t;
+            self.rep.fragments.push(Frag { from:last_end,to:end,hit:Some(id),damage,kind:"spall".into(),provenance:impact_report::segment_provenance(&f.provenance,&segment_entry),budget:Some(tr.budget) });
+            self.rep.impact_events.push(impact_report::event(tr,end,end,Vec3::ZERO)); last_end=end;
+        }
+        if state.energy_j()>0.0 || last_end==f.origin {
+            self.rep.fragments.push(Frag { from:last_end,to:f.origin+f.dir*reach,hit:None,damage:0.0,kind:"spall".into(),provenance:impact_report::segment_provenance(&f.provenance,&state.current),budget:None });
+        }
+    }
+
+    fn to_kinetic_armour(&self,fragment:&tg_damage::Fragment,max:f32)->f32 {
+        let mut best=max;
+        for plate in &self.p.plates {
+            if fragment.provenance.source_layer_or_module.as_deref()==Some(format!("plate:{}",plate.id).as_str()){continue;}
+            if let Some(hit)=plate.intersect(fragment.origin,fragment.dir){if hit.distance>1e-5 {best=best.min(hit.distance);}}
+        }
+        best
+    }
+
     fn events(&self, o: Vec3, d: Vec3, max_t: f32, plates: bool) -> Vec<Ev> {
         let mut ev = Vec::new();
         if plates {
@@ -1087,7 +1138,7 @@ impl<'a> Work<'a> {
         if e > 50.0 {
             end = o + d * reach;
         }
-        self.rep.fragments.push(Frag { from: o, to: end, hit, damage: dealt, kind });
+        self.rep.fragments.push(Frag { from: o, to: end, hit, damage: dealt, kind:kind.into(), provenance: Default::default(), budget: None });
     }
 
     /// The blast of a filler inside a compartment: whoever and whatever is close.
@@ -1132,7 +1183,7 @@ impl<'a> Work<'a> {
                 let dmg = 140.0 * k * power;
                 let id = m.id.clone();
                 let damage = self.hurt_module(i, dmg, 0.0);
-                self.rep.fragments.push(Frag { from: at, to: c, hit: Some(id), damage, kind: "blast" });
+                self.rep.fragments.push(Frag { from: at, to: c, hit: Some(id), damage, kind: "blast".into(), provenance: Default::default(), budget: None });
             }
         }
         if self.t.def.open_top {
@@ -1145,7 +1196,7 @@ impl<'a> Work<'a> {
                     let k = 1.0 - (dist / (r * 1.4)).powi(2);
                     let dmg = 120.0 * k * power;
                     let damage = self.hurt_crew(i, dmg);
-                    self.rep.fragments.push(Frag { from: at, to: c, hit: Some(format!("crew:{}", i)), damage, kind: "blast" });
+                    self.rep.fragments.push(Frag { from: at, to: c, hit: Some(format!("crew:{}", i)), damage, kind: "blast".into(), provenance: Default::default(), budget: None });
                 }
             }
         }
@@ -1239,6 +1290,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
             state: st.clone(),
             title: String::new(),
             turret_yaw: shot.turret_yaw,
+            mechanism_revision: None, impact_events: vec![], impact_state: None,
         },
         mod_dmg: HashMap::new(),
         crew_dmg: HashMap::new(),
@@ -1256,7 +1308,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
     let roll = 1.0 + 0.05 * gauss(&mut w.rng).clamp(-2.5, 2.5);
     let mut pen = shell.pen_at(shot.distance_m) * roll;
     w.rep.pen_mm = pen;
-    let mut speed = shot.speed_ms.max(1.0);
+    let mut speed = shot.speed_ms;
     let core = match shell.kind {
         ProjectileKind::Apcr => 0.35,
         ProjectileKind::Apds => 0.6,
@@ -1264,6 +1316,13 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
     };
     let chemical = shell.kind.is_chemical();
     let kinetic = shell.kind.is_kinetic();
+    let mut impact_state = if kinetic {
+        match impact::initialize_impact(shell,d*shot.speed_ms,pen as f64,"core") {
+            Ok(s) if shot.speed_ms.is_finite() && shot.speed_ms>=0.0 => Some(s),
+            _ => { w.rep.events.push("rejected_impact_input".into()); return w.rep; }
+        }
+    } else { None };
+    if kinetic { w.rep.mechanism_revision=Some(impact::MECHANISM_REVISION.into()); }
     // APHE and every capped round with a filler (APCBC-HE such as the PzGr 39): a delayed burst
     let aphe = kinetic && shell.explosive_mass_kg > 0.0 && !matches!(shell.kind, ProjectileKind::Apcr | ProjectileKind::Apds | ProjectileKind::Apfsds);
     let he = shell.kind == ProjectileKind::He;
@@ -1307,6 +1366,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 break;
             }
         }
+        if let Some(state) = impact_state.as_mut() { state.advance_time((ev.t-last_t).max(0.0) as f64); }
         last_t = ev.t;
         let point = start + d * ev.t;
         match ev.kind {
@@ -1357,6 +1417,46 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 let factor = if chemical { mat.chemical_factor } else { mat.kinetic_factor };
                 let req = los * factor;
                 let overmatch = kinetic && shell.caliber_mm >= 3.0 * pl.thickness_mm;
+                if let Some(state) = impact_state.as_mut() {
+                    let layer_id=format!("plate:{}",pl.id);
+                    let available = state.traversal.as_ref().filter(|c|c.layer_id==layer_id && c.traversal_id==0).map(|c|c.entry.remaining_pen_mm).unwrap_or(state.remaining_pen_mm);
+                    let verdict=if state.energy_j()==0.0 && req>0.0 {impact::ImpactVerdict::Stopped}
+                        else if first && !overmatch && inc>=shell.ricochet_angle_deg { impact::ImpactVerdict::Ricochet }
+                        else if inc>=shell.shatter_angle_deg && mat.hardness_bhn>=350.0 { impact::ImpactVerdict::Shattered }
+                        else if available<req as f64 { impact::ImpactVerdict::Stopped } else { impact::ImpactVerdict::Passed };
+                    let before=state.remaining_pen_mm as f32;
+                    let Ok(tr)=impact::advance_kinetic_layer(state,&impact::DeclaredLayerContact { layer_id,traversal_id:0,cumulative_required_mm:req as f64,
+                        thickness_mm:pl.thickness_mm as f64,density_kg_m3:mat.density_kg_m3 as f64,verdict,emit_spall:entering && shell.caliber_mm>=20.0 }) else {
+                        w.rep.events.push("rejected_impact_contact".into()); alive=false; break;
+                    };
+                    pen=state.remaining_pen_mm as f32; speed=state.velocity_m_s.length();
+                    let passed=verdict==impact::ImpactVerdict::Passed;
+                    let inner=point+d*(los*0.001+0.0001);
+                    w.note_layer(i,inc,los,req,before,pen,passed,point,entering);
+                    w.rep.impact_events.push(impact_report::event(tr.clone(),point,if passed {inner}else{point},h.facing_normal));
+                    if !passed {
+                        w.rep.path.push(point);
+                        if !through_armour {w.rep.outcome=match verdict {impact::ImpactVerdict::Ricochet=>{w.rep.ricochet_dir=Some((d-h.facing_normal*(2.0*d.dot(h.facing_normal))).normalized());Outcome::Ricochet},impact::ImpactVerdict::Shattered=>Outcome::Shattered,_=>Outcome::Stopped};}
+                        if aphe && verdict==impact::ImpactVerdict::Stopped && pl.thickness_mm>=shell.fuse_sensitivity_mm {w.blast_outside(point-d*0.05,shell.explosive_mass_kg*0.5);}
+                        alive=false; break;
+                    }
+                    if entering {
+                        let params=match shell.kind {
+                            ProjectileKind::Apcr | ProjectileKind::Apds=>tg_damage::DamageParams {base_frag_count:2,frags_per_residual_mm:0.05,max_frags:10,cone_half_angle_deg:11.0,..Default::default()},
+                            ProjectileKind::Apfsds=>tg_damage::DamageParams {base_frag_count:3,frags_per_residual_mm:0.05,max_frags:12,cone_half_angle_deg:10.0,..Default::default()},
+                            _=>tg_damage::DamageParams {base_frag_count:(4.0+shell.caliber_mm*0.04) as u32,frags_per_residual_mm:0.12,max_frags:36,cone_half_angle_deg:22.0,..Default::default()},
+                        };
+                        let fragments=tg_damage::generate_allocated_fragments(inner,d,None,&tr,&params,&mut w.rng);
+                        for fragment in &fragments {w.kinetic_fragment(fragment,4.0);}
+                    }
+                    if pl.zone==ArmorZone::Skirt {continue;}
+                    through_armour=true; w.rep.outcome=Outcome::Penetrated;
+                    if entering {
+                        inside=true; w.rep.path.push(inner);
+                        if aphe && fuse_at.is_none() && pl.thickness_mm>=shell.fuse_sensitivity_mm {fuse_at=Some(ev.t+(speed*shell.fuse_delay_s).max(0.15));}
+                    }
+                    continue;
+                }
                 if first && kinetic && !overmatch && inc >= shell.ricochet_angle_deg {
                     w.note_layer(i, inc, los, req, pen, pen, false, point, entering);
                     let r = d - h.facing_normal * (2.0 * d.dot(h.facing_normal));
@@ -1435,10 +1535,21 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                     alive = false;
                     break;
                 }
+                if let Some(state)=impact_state.as_mut() {
+                    let absorption=absorb_mm(m.kind) as f64 * if w.st.modules[i]>0.0 {1.0}else{0.5};
+                    let Ok(tr)=impact::deposit_contact_energy(state,absorption,&format!("core/module:{}",m.id)) else {alive=false;break;};
+                    let damage=w.hurt_module(i,module_damage(tr.budget.target_deposition_j as f32),0.8);
+                    w.rep.fragments.push(Frag {from:point,to:point,hit:Some(m.id.clone()),damage,kind:"shell".into(),provenance:impact_report::core_provenance(&tr),budget:Some(tr.budget)});
+                    w.rep.impact_events.push(impact_report::event(tr,point,point,Vec3::ZERO));
+                    pen=state.remaining_pen_mm as f32;speed=state.velocity_m_s.length();
+                    if !through_armour && w.rep.outcome==Outcome::Miss {w.rep.outcome=if m.is_external(){Outcome::External}else{Outcome::Unarmoured};}
+                    if pen<=0.0 {w.rep.path.push(point);alive=false;break;}
+                    continue;
+                }
                 let e = energy(speed);
                 let dmg = if chemical { if jet_end.is_some() { 150.0 } else { 60.0 } } else { module_damage(e) };
                 let damage = w.hurt_module(i, dmg, 0.8);
-                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(m.id.clone()), damage, kind: if chemical { "jet" } else { "shell" } });
+                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(m.id.clone()), damage, kind: if chemical { "jet".into() } else { "shell".into() }, provenance: Default::default(), budget: None });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
                     w.rep.outcome = if m.is_external() { Outcome::External } else { Outcome::Unarmoured };
                 }
@@ -1467,10 +1578,20 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                     alive = false;
                     break;
                 }
+                if let Some(state)=impact_state.as_mut() {
+                    let Ok(tr)=impact::deposit_contact_energy(state,CREW_ABSORB_MM as f64,&format!("core/crew:{i}")) else {alive=false;break;};
+                    let damage=w.hurt_crew(i,crew_damage(tr.budget.target_deposition_j as f32));
+                    w.rep.fragments.push(Frag {from:point,to:point,hit:Some(format!("crew:{i}")),damage,kind:"shell".into(),provenance:impact_report::core_provenance(&tr),budget:Some(tr.budget)});
+                    w.rep.impact_events.push(impact_report::event(tr,point,point,Vec3::ZERO));
+                    pen=state.remaining_pen_mm as f32;speed=state.velocity_m_s.length();
+                    if !through_armour && w.rep.outcome==Outcome::Miss {w.rep.outcome=Outcome::Unarmoured;}
+                    if pen<=0.0 {w.rep.path.push(point);alive=false;break;}
+                    continue;
+                }
                 let e = energy(speed);
-                let dmg = if chemical { 160.0 } else { crew_damage(e).max(60.0) };
+                let dmg = if chemical { 160.0 } else { crew_damage(e) };
                 let damage = w.hurt_crew(i, dmg);
-                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(format!("crew:{}", i)), damage, kind: if chemical { "jet" } else { "shell" } });
+                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(format!("crew:{}", i)), damage, kind: if chemical { "jet".into() } else { "shell".into() }, provenance: Default::default(), budget: None });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
                     w.rep.outcome = Outcome::Unarmoured;
                 }
@@ -1502,6 +1623,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
         }
     }
     let _ = inside;
+    w.rep.impact_state=impact_state;
     w.rep.hit = hit_something;
     finish(&mut w);
     w.rep
@@ -1536,6 +1658,7 @@ pub fn splash(t: &Target, st: &TargetState, at: Vec3, explosive_kg: f32, turret_
             state: st.clone(),
             title: String::new(),
             turret_yaw,
+            mechanism_revision: None, impact_events: vec![], impact_state: None,
         },
         mod_dmg: HashMap::new(),
         crew_dmg: HashMap::new(),

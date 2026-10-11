@@ -13,7 +13,8 @@ use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use tg_ballistics::{elevation_for_range, Atmosphere, BallisticState};
 use tg_damage::{capabilities, generate_fragments, Capabilities, Crew, DamageParams, DamageSummary, Fragment, FragmentTrace, Module, ModuleKind, TargetRef};
-use tg_penetration::stack::{min_pen_to_defeat, normal_cdf, resolve_stack, LayerOutcome, PlateCrossing, StackParams, StackReport};
+use tg_penetration::stack::{min_pen_to_defeat, normal_cdf, resolve_stack, resolve_stack_with_state, LayerIdentity, LayerOutcome, PlateCrossing, StackParams, StackReport};
+use tg_penetration::impact::{self, ImpactTransition, ImpactVerdict};
 use tg_penetration::PenetrationResult;
 use tg_replay::*;
 use tg_shared::{Rng, Vec3};
@@ -271,6 +272,19 @@ impl<'m, 'a> Scene<'m, 'a> {
                 Some(PlateCrossing { material: mat, thickness_mm: p.thickness_mm as f32, path_mm: p.path_mm as f32, incidence_deg: p.incidence_deg as f32, gap_before_mm: p.gap_before_mm as f32 })
             })
             .collect()
+    }
+
+    pub fn crossing_identities(&self,plates:&[Crossing])->Vec<LayerIdentity> {
+        plates.iter().map(|p|LayerIdentity {layer_id:format!("{}/layer:{}",p.source,p.layer),traversal_id:0}).collect()
+    }
+
+    fn kinetic_range(&self,o:V3,d:V3,max:f64)->f64 {
+        let mut best=self.inside_range(o,d,max);
+        let bounds=self.bounds();
+        let back=(bounds.max-bounds.min).len()+(o-(bounds.min+bounds.max)*0.5).len()+1.0;
+        let trace=self.trace(o-d*back,d);
+        for p in trace.plates {let distance=p.t0-back;if distance>1e-5 {best=best.min(distance);}}
+        best.max(0.0)
     }
 }
 
@@ -613,6 +627,7 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
         damaged_modules: vec![],
         damaged_crew: vec![],
         outcomes: vec![ShotOutcome::Miss],
+        mechanism_revision: None, impact_events: vec![], impact_state: None,
     };
     let mut resp = ShotResponse { event: ev.clone(), layers: vec![], timeline: vec![], capabilities: capabilities(&modules, &crew), pen_nominal_mm: pen_nominal, pen_rolled_mm: pen, hit: false, interior_point: None, stopped_point: None, ricochet_dir: None, state: state.clone(), note: String::new() };
     // Normalize saved state even when the incoming shot misses.
@@ -633,7 +648,19 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
     ev.outcomes.clear();
     let crossings = scene.crossings(&plates).unwrap_or_default();
     let sp = stack_params(m);
-    let report = resolve_stack(&req.shell, &crossings, pen as f32, &sp);
+    let mut impact_state=if req.shell.kind.is_kinetic() {impact::initialize_impact(&req.shell,d.to_f32()*req.speed_ms as f32,pen,"core").ok()}else{None};
+    if req.shell.kind.is_kinetic() && (impact_state.is_none() || !req.speed_ms.is_finite() || req.speed_ms<0.0) {
+        ev.penetration_result=PenetrationOutcome::Stopped;ev.outcomes=vec![ShotOutcome::Stopped];ev.projectile_path=path;
+        resp.note="rejected_impact_input".into();resp.timeline=build_timeline(&ev,&TimelineOptions::default());resp.event=ev;return resp;
+    }
+    if let Some(s)=impact_state.as_mut(){s.elapsed_s=t_impact as f64;}
+    let report=if let Some(s)=impact_state.as_mut(){resolve_stack_with_state(&req.shell,&crossings,&sp,s,&scene.crossing_identities(&plates))}
+        else{resolve_stack(&req.shell,&crossings,pen as f32,&sp)};
+    if req.shell.kind.is_kinetic(){ev.mechanism_revision=Some(impact::MECHANISM_REVISION.into());}
+    for (transition,crossing) in report.impacts.iter().zip(&plates) {
+        ev.impact_events.push(impact::ImpactEvent {mechanism_revision:impact::MECHANISM_REVISION.into(),time_s:transition.entry.elapsed_s,
+            entry_position:crossing.entry.to_f32(),exit_position:if transition.verdict==ImpactVerdict::Passed{crossing.exit.to_f32()}else{crossing.entry.to_f32()},normal:crossing.normal.to_f32(),transition:transition.clone()});
+    }
     if let Some(f) = plates.first() {
         ev.impact_normal = f.normal.to_f32();
         ev.armor_plate = f.source.clone();
@@ -688,6 +715,7 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
                     let entry = req.origin + d * t_in;
                     resp.interior_point = Some(entry);
                     path.push(PathPoint { t: t_impact + 0.0005, pos: entry.to_f32() });
+                    if !req.shell.kind.is_kinetic() {
                     let v = req.speed_ms * speed_fraction as f64;
                     let energy = 0.5 * req.shell.mass_kg as f64 * v * v;
                     let mut params = DamageParams::default();
@@ -717,6 +745,7 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
                             energy_j: f.energy_j,
                             damage: t.damage,
                             is_penetrator: t.is_penetrator,
+                            provenance: f.provenance.clone(), budget: t.budget,
                             hit: t.target.map(|x| match x {
                                 TargetRef::Module(i) => modules[i].id.clone(),
                                 TargetRef::Crew(i) => format!("crew:{}", crew[i].role.as_str()),
@@ -758,6 +787,7 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
                         ev.outcomes.push(ShotOutcome::PenetratedNoDamage);
                     }
                     resp.note = format!("擊穿 {} 層，剩餘穿深 {:.0} mm", plates.len(), residual_mm);
+                    }else{resp.note=format!("擊穿 {} 層，剩餘穿深 {:.0} mm",plates.len(),residual_mm);}
                 }
                 None => {
                     // went through external plates only (skirt, mantlet edge, add-on) and out
@@ -765,6 +795,47 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
                     ev.outcomes.push(ShotOutcome::PenetratedNoDamage);
                     resp.note = "穿過外部裝甲，沒有進入車內".into();
                 }
+            }
+        }
+    }
+    if let Some(s)=impact_state.as_ref() {
+        let params=DamageParams {frag_energy_fraction:0.0,..Default::default()};
+        let mut fragments=Vec::new();
+        for (transition,crossing) in report.impacts.iter().zip(&plates) {
+            if transition.verdict==ImpactVerdict::Passed {
+                let origin=crossing.exit+d*1e-4;
+                fragments.extend(tg_damage::generate_allocated_fragments(origin.to_f32(),d.to_f32(),None,transition,&params,&mut rng));
+            }
+        }
+        if matches!(report.result,PenetrationResult::Penetrated{..}) {
+            if let Some(t_in)=tr.interior_t {
+                let origin=req.origin+d*t_in;
+                let fallback=ImpactTransition {event_id:"unarmoured:core".into(),layer_id:"unarmoured".into(),traversal_id:0,entry:s.current.clone(),output:s.current.clone(),verdict:ImpactVerdict::Passed,
+                    budget:impact::EnergyBudget{input_j:s.energy_j(),core_out_j:s.energy_j(),..Default::default()},allocations:vec![]};
+                let parent=report.impacts.last().unwrap_or(&fallback);
+                let mut carrier_parent=parent.clone();carrier_parent.allocations.clear();
+                fragments.extend(tg_damage::generate_allocated_fragments(origin.to_f32(),d.to_f32(),Some(&s.current),&carrier_parent,&params,&mut rng));
+            }
+        }
+        let ranges:Vec<_>=fragments.iter().map(|f|scene.kinetic_range(V3::from_f32(f.origin),V3::from_f32(f.dir),params.frag_range_m as f64)).collect();
+        let summary=tg_damage::propagate_allocated(&fragments,&ranges,&mut modules,&mut crew,false);
+        ev.impact_events.extend(summary.impact_events.iter().cloned());
+        ev.impact_state=Some(s.clone());
+        for (i,state) in &summary.fragment_states {if fragments[*i].is_penetrator{ev.impact_state=Some(state.clone());}}
+        append_kinetic_summary(&mut ev,&fragments,&summary,&modules,&crew);
+        // Explicit old APHE distance/clamped burst adapter, pending P3. It has
+        // unknown physical provenance and no new chemical conservation claim.
+        if req.shell.explosive_mass_kg>0.0 && s.energy_j()>0.0 && matches!(report.result,PenetrationResult::Penetrated{..}) {
+            if let Some(t_in)=tr.interior_t {
+                let entry=req.origin+d*t_in;let v=s.velocity_m_s.length() as f64;
+                let span=tr.interior_exit_t.map(|e|(e-t_in)*0.8).unwrap_or(1.0);
+                let travel=(v*req.shell.fuse_delay_s as f64).max(0.3).min(span).min(2.0);
+                let burst=entry+d*travel;let energy=req.shell.explosive_mass_kg*4.2e6*0.3;
+                let parameters=DamageParams{base_frag_count:24,frags_per_residual_mm:0.0,max_frags:60,frag_energy_fraction:1.0,cone_half_angle_deg:180.0,..Default::default()};
+                let legacy:Vec<_>=generate_fragments(burst.to_f32(),d.to_f32(),energy,0.0,&parameters,&mut rng).into_iter().skip(1).collect();
+                let ranges:Vec<_>=legacy.iter().map(|f|scene.inside_range(V3::from_f32(f.origin),V3::from_f32(f.dir),parameters.frag_range_m as f64)).collect();
+                let summary=propagate_inside(&legacy,&ranges,&mut modules,&mut crew);
+                append_kinetic_summary(&mut ev,&legacy,&summary,&modules,&crew);
             }
         }
     }
@@ -784,6 +855,28 @@ pub fn shoot(m: &Model, state: &TargetState, req: &ShotRequest) -> ShotResponse 
     resp.timeline = build_timeline(&ev, &TimelineOptions::default());
     resp.event = ev;
     resp
+}
+
+fn append_kinetic_summary(event:&mut ShotEvent,fragments:&[Fragment],summary:&DamageSummary,modules:&[Module],crew:&[Crew]) {
+    for trace in &summary.traces {
+        let fragment=&fragments[trace.fragment_index];
+        event.fragments.push(FragmentRecord {origin:trace.origin,end:trace.end,energy_j:trace.entry_state.as_ref().map(|s|s.energy_j() as f32).unwrap_or(fragment.energy_j),
+            damage:trace.damage,is_penetrator:trace.is_penetrator,provenance:tg_damage::trace_provenance(fragment,trace),budget:trace.budget,
+            hit:trace.target.map(|target|match target {TargetRef::Module(i)=>modules[i].id.clone(),TargetRef::Crew(i)=>format!("crew:{}",crew[i].role.as_str())})});
+    }
+    let mut module_damage=BTreeMap::new();
+    for (i,damage) in &summary.module_damage {*module_damage.entry(*i).or_insert(0.0)+=*damage;}
+    for (i,damage) in module_damage {
+        let m=&modules[i];let destroyed=summary.newly_destroyed_modules.contains(&i);
+        event.damaged_modules.push(DamagedModule {id:m.id.clone(),kind:m.kind.as_str().into(),damage,destroyed});
+        event.outcomes.push(if destroyed {match m.kind {ModuleKind::AmmoRack=>ShotOutcome::AmmoDetonation,ModuleKind::FuelTank=>ShotOutcome::FuelFire,ModuleKind::Engine=>ShotOutcome::EngineDamaged,
+            ModuleKind::GunBarrel=>ShotOutcome::BarrelDamaged,ModuleKind::GunBreech=>ShotOutcome::BreechDamaged,ModuleKind::Track=>ShotOutcome::TrackBroken,_=>ShotOutcome::ModuleDamaged}}else{ShotOutcome::ModuleDamaged});
+    }
+    let mut crew_damage=BTreeMap::new();
+    for (i,damage) in &summary.crew_damage {*crew_damage.entry(*i).or_insert(0.0)+=*damage;}
+    for (i,damage) in crew_damage {let killed=summary.newly_killed_crew.contains(&i);event.damaged_crew.push(DamagedCrew {role:crew[i].role.as_str().into(),damage,killed});event.outcomes.push(if killed{ShotOutcome::CrewKilled}else{ShotOutcome::CrewInjured});}
+    if !summary.crew_damage.is_empty() || !summary.module_damage.is_empty(){event.outcomes.retain(|o|*o!=ShotOutcome::PenetratedNoDamage);}
+    if event.outcomes.is_empty(){event.outcomes.push(ShotOutcome::PenetratedNoDamage);}
 }
 
 fn ray_sphere(o: V3, d: V3, c: V3, r: f64) -> Option<f64> {
@@ -806,7 +899,7 @@ fn ray_sphere(o: V3, d: V3, c: V3, r: f64) -> Option<f64> {
 /// without the external modules (barrel, tracks), which interior spall cannot reach.
 pub fn propagate_inside(frags: &[Fragment], ranges: &[f64], modules: &mut [Module], crew: &mut [Crew]) -> DamageSummary {
     let mut s = DamageSummary::default();
-    for (f, &range) in frags.iter().zip(ranges.iter()) {
+    for (fragment_index,(f, &range)) in frags.iter().zip(ranges.iter()).enumerate() {
         let (o, d) = (V3::from_f32(f.origin), V3::from_f32(f.dir).norm());
         let mut best: Option<(f64, TargetRef)> = None;
         for (i, c) in crew.iter().enumerate() {
@@ -853,9 +946,9 @@ pub fn propagate_inside(frags: &[Fragment], ranges: &[f64], modules: &mut [Modul
                         damage
                     }
                 };
-                s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * t).to_f32(), target: Some(target), damage, is_penetrator: f.is_penetrator });
+                s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * t).to_f32(), target: Some(target), damage, is_penetrator: f.is_penetrator, fragment_index, budget: None, entry_state: None });
             }
-            None => s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * range).to_f32(), target: None, damage: 0.0, is_penetrator: f.is_penetrator }),
+            None => s.traces.push(FragmentTrace { origin: f.origin, end: (o + d * range).to_f32(), target: None, damage: 0.0, is_penetrator: f.is_penetrator, fragment_index, budget: None, entry_state: None }),
         }
     }
     s

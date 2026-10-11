@@ -201,7 +201,12 @@ export function designReplayReport(last, roles = [], turretYaw = 0) {
     shot: { dir }, flight_path: flight, path,
     ricochet_dir: resp.ricochet_dir ? point(resp.ricochet_dir) : null,
     bursts: [],
-    fragments: ev.fragments.map(f => ({ from: point(f.origin), to: point(f.end), hit: f.hit, damage: f.damage, kind: f.is_penetrator ? heat ? 'jet' : 'shell' : 'spall' })),
+    mechanism_revision: ev.mechanism_revision ?? null,
+    impact_events: structuredClone(ev.impact_events || []),
+    impact_state: structuredClone(ev.impact_state ?? null),
+    fragments: ev.fragments.map(f => ({ ...structuredClone(f), from: point(f.origin), to: point(f.end), source: f.source || 'unknown_legacy',
+      kind: ({ core: 'shell', projectile_piece: 'projectile_piece', armour_spall: 'spall', casing_fragment: 'burst', jet_fragment: 'jet' })[f.source]
+        || (f.is_penetrator ? heat ? 'jet' : 'shell' : 'unknown_legacy') })),
     modules: ev.damaged_modules.map(m => ({ ...m, health: resp.state?.module_health?.[m.id] })), crew,
     caps: { destroyed, crew_alive: crewAlive, crew_total: roles.length },
     title: resp.capabilities.ammo_detonated ? '彈藥殉爆　擊毀' : destroyed ? '乘員失去戰鬥力　擊毀' : { penetrated: '擊穿', stopped: '未擊穿', ricochet: '跳彈', shattered: '彈體碎裂', miss: '未命中' }[outcome] || outcome,

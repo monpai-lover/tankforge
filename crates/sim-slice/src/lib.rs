@@ -5,7 +5,8 @@ use std::collections::BTreeMap;
 use tg_armor::{first_hit, ArmorPlate, Material, MaterialDb};
 use tg_ballistics::{Atmosphere, BallisticState};
 use tg_damage::{capabilities, generate_fragments, propagate, Capabilities, Crew, DamageParams, Module, ModuleKind, TargetRef};
-use tg_penetration::{resolve, ImpactContext, PenetrationResult};
+use tg_penetration::{resolve, resolve_with_state, ImpactContext, PenetrationResult};
+use tg_penetration::impact::{self, ImpactVerdict};
 use tg_replay::*;
 use tg_shared::{Rng, Vec3};
 use tg_weapon::ProjectileDef;
@@ -99,6 +100,7 @@ pub fn run_shot(sc: &Scenario, data: &mut Data) -> ShotResult {
         damaged_modules: vec![],
         damaged_crew: vec![],
         outcomes: vec![ShotOutcome::Miss],
+        mechanism_revision: None, impact_events: vec![], impact_state: None,
     };
 
     if let Some((idx, h)) = hit {
@@ -114,6 +116,11 @@ pub fn run_shot(sc: &Scenario, data: &mut Data) -> ShotResult {
         ev.penetration_value_mm = rep.penetration_mm;
         ev.projectile_path.push(PathPoint { t, pos: h.point });
         ev.outcomes.clear();
+
+        if data.projectile.kind.is_kinetic() {
+            run_kinetic_contacts(data,&mut ev,&st,idx,h.point,t,sc.seed);
+            return ShotResult {event:ev,capabilities:capabilities(&data.modules,&data.crew)};
+        }
 
         match rep.result {
             PenetrationResult::Ricochet => {
@@ -146,6 +153,7 @@ pub fn run_shot(sc: &Scenario, data: &mut Data) -> ShotResult {
                         energy_j: f.energy_j,
                         damage: tr.damage,
                         is_penetrator: tr.is_penetrator,
+                        provenance: f.provenance.clone(), budget: tr.budget,
                         hit: tr.target.map(|t| match t {
                             TargetRef::Module(i) => data.modules[i].id.clone(),
                             TargetRef::Crew(i) => crew_name(&data.crew[i]),
@@ -193,6 +201,66 @@ pub fn run_shot(sc: &Scenario, data: &mut Data) -> ShotResult {
     ShotResult { event: ev, capabilities: cap }
 }
 
+/// The slice uses its integrated velocity and the actual subsequent declared
+/// plates, retaining the state across gaps and interior contacts.
+fn run_kinetic_contacts(data:&mut Data,event:&mut ShotEvent,ballistic:&BallisticState,first:usize,point:Vec3,time:f32,seed:u64) {
+    let shell=data.projectile.clone();
+    let direction=ballistic.vel.normalized();
+    let pen=shell.pen_at((point-event.muzzle_position).length()) as f64;
+    let Ok(mut state)=impact::initialize_impact(&shell,ballistic.vel,pen,"core") else {event.penetration_result=PenetrationOutcome::Stopped;return;};
+    state.elapsed_s=time as f64;
+    event.mechanism_revision=Some(impact::MECHANISM_REVISION.into());
+    let mut contacts=Vec::new();
+    let start=point-direction*0.001;
+    for (i,plate) in data.plates.iter().enumerate() {
+        if let Some(hit)=plate.intersect(start,direction) {if hit.distance>=0.0009 || i==first {contacts.push((i,hit));}}
+    }
+    contacts.sort_by(|a,b|a.1.distance.total_cmp(&b.1.distance));
+    let mut rng=Rng::new(seed);let params=DamageParams{frag_energy_fraction:0.0,..Default::default()};
+    let mut previous=0.001f32;
+    event.penetration_result=PenetrationOutcome::Penetrated;
+    for (ordinal,(index,hit)) in contacts.iter().enumerate() {
+        state.advance_time((hit.distance-previous).max(0.0) as f64);
+        let plate=data.plates[*index].clone();
+        let mat=data.materials.get(&plate.material).expect("material");
+        let Ok((report,transition))=resolve_with_state(&shell,&plate,mat,ImpactContext{incidence_deg:hit.incidence_deg,distance_m:(hit.point-event.muzzle_position).length()},&mut state,&format!("plate:{}",plate.id),0) else {event.penetration_result=PenetrationOutcome::Stopped;break;};
+        let passed=transition.verdict==ImpactVerdict::Passed;
+        let exit=if passed {hit.point+direction*(report.los_mm*0.001+1e-4)}else{hit.point};
+        event.impact_events.push(impact::ImpactEvent{mechanism_revision:impact::MECHANISM_REVISION.into(),time_s:transition.entry.elapsed_s,entry_position:hit.point,exit_position:exit,normal:hit.facing_normal,transition:transition.clone()});
+        event.projectile_path.push(PathPoint{t:state.elapsed_s as f32,pos:exit});
+        if !passed {
+            if ordinal==0 {event.penetration_result=match transition.verdict{ImpactVerdict::Ricochet=>PenetrationOutcome::Ricochet,ImpactVerdict::Shattered=>PenetrationOutcome::Shattered,_=>PenetrationOutcome::Stopped};}
+            break;
+        }
+        state.advance_time(report.los_mm as f64*0.001);
+        let spall=tg_damage::generate_allocated_fragments(exit,direction,None,&transition,&params,&mut rng);
+        let ranges:Vec<_>=spall.iter().map(|f|data.plates.iter().filter_map(|p|p.intersect(f.origin,f.dir)).filter(|h|h.distance>1e-5).map(|h|h.distance as f64).fold(params.frag_range_m as f64,f64::min)).collect();
+        let summary=tg_damage::propagate_allocated(&spall,&ranges,&mut data.modules,&mut data.crew,true);
+        append_kinetic_summary(data,event,&spall,&summary);
+        let next=contacts.get(ordinal+1).map(|(_,h)|h.distance).unwrap_or(hit.distance+params.frag_range_m);
+        let exit_distance=hit.distance+report.los_mm*0.001+1e-4;
+        let range=(next-exit_distance).max(0.0) as f64;
+        let mut parent=transition.clone();parent.allocations.clear();
+        let carrier=tg_damage::generate_allocated_fragments(exit,direction,Some(&state.current),&parent,&params,&mut rng);
+        let summary=tg_damage::propagate_allocated(&carrier,&[range],&mut data.modules,&mut data.crew,true);
+        if let Some((_,remaining))=summary.fragment_states.first(){state=remaining.clone();}
+        append_kinetic_summary(data,event,&carrier,&summary);
+        previous=next;
+        if state.energy_j()<=0.0{break;}
+    }
+    event.impact_state=Some(state);
+    if event.outcomes.is_empty(){event.outcomes.push(match event.penetration_result{PenetrationOutcome::Ricochet=>ShotOutcome::Ricochet,PenetrationOutcome::Shattered=>ShotOutcome::Shattered,PenetrationOutcome::Stopped=>ShotOutcome::Stopped,_=>ShotOutcome::PenetratedNoDamage});}
+}
+
+fn append_kinetic_summary(data:&Data,event:&mut ShotEvent,fragments:&[tg_damage::Fragment],summary:&tg_damage::DamageSummary) {
+    event.impact_events.extend(summary.impact_events.iter().cloned());
+    for trace in &summary.traces {let f=&fragments[trace.fragment_index];event.fragments.push(FragmentRecord{origin:trace.origin,end:trace.end,
+        energy_j:trace.entry_state.as_ref().map(|s|s.energy_j() as f32).unwrap_or(f.energy_j),damage:trace.damage,is_penetrator:trace.is_penetrator,
+        provenance:tg_damage::trace_provenance(f,trace),budget:trace.budget,hit:trace.target.map(|target|match target{TargetRef::Module(i)=>data.modules[i].id.clone(),TargetRef::Crew(i)=>crew_name(&data.crew[i])})});}
+    for (i,damage) in &summary.module_damage {let m=&data.modules[*i];event.damaged_modules.push(DamagedModule{id:m.id.clone(),kind:m.kind.as_str().into(),damage:*damage,destroyed:summary.newly_destroyed_modules.contains(i)});event.outcomes.push(ShotOutcome::ModuleDamaged);}
+    for (i,damage) in &summary.crew_damage {let c=&data.crew[*i];let killed=summary.newly_killed_crew.contains(i);event.damaged_crew.push(DamagedCrew{role:c.role.as_str().into(),damage:*damage,killed});event.outcomes.push(if killed{ShotOutcome::CrewKilled}else{ShotOutcome::CrewInjured});}
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -206,6 +274,9 @@ mod tests {
         let mut d = Data::embedded();
         let r = run_shot(&side_shot(1234), &mut d);
         assert_eq!(r.event.penetration_result, PenetrationOutcome::Penetrated);
+        assert_eq!(r.event.impact_events.first().unwrap().transition.verdict,ImpactVerdict::Passed);
+        assert_eq!(r.event.impact_events.last().unwrap().transition.verdict,ImpactVerdict::Stopped);
+        assert_eq!(r.event.impact_state.as_ref().unwrap().energy_j(),0.0);
         assert_eq!(r.event.armor_plate, "turret_side_r");
         assert!(r.event.fragments.len() > 5);
         assert!(r.event.projectile_path.len() > 2);
@@ -236,3 +307,6 @@ mod tests {
         assert_eq!(r.event.penetration_result, PenetrationOutcome::Miss);
     }
 }
+
+#[cfg(test)]
+mod impact_tests;

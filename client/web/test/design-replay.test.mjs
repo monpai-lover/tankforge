@@ -10,6 +10,31 @@ function shot(extra = {}) {
       fragments: [{ origin: [0, 1, .1], end: [0, 1, 3], is_penetrator: true }], damaged_modules: [], damaged_crew: [], ...extra } } };
 }
 
+test('design replay preserves source IDs physical properties timing events and budgets', () => {
+  const sources = ['casing_fragment', 'projectile_piece', 'jet_fragment', 'core', 'armour_spall'];
+  const last = shot({ mechanism_revision: 'kinetic_work_v1', impact_events: [{ event_id: 'layer:a/traversal:0', time_s: .02, budget: { input_j: 20, core_out_j: 12 } }], impact_state: { mass_kg: .1 },
+    fragments: sources.map((source, i) => ({ origin: [0, 1, 0], end: [0, 1, 1], is_penetrator: false, source, fragment_id: `fragment:${i}`, parent_event_id: 'layer:a/traversal:0', source_layer_or_module: 'a', start_s: .02,
+      energy_j: 2, weight: 1, physical: { mass_kg: .001, energy_j: 2, velocity_m_s: [0, 0, 20], area_m2: null }, budget: { input_j: 2, core_out_j: 1, target_deposition_j: 1 } })) });
+  const before = JSON.stringify(last);
+  const rep = designReplayReport(last);
+  assert.deepEqual(rep.fragments.map(f => f.source), sources);
+  assert.deepEqual(rep.fragments.map(f => f.kind), ['burst', 'projectile_piece', 'jet', 'shell', 'spall']);
+  assert.deepEqual(rep.impact_events, last.resp.event.impact_events);
+  assert.deepEqual(rep.impact_state, last.resp.event.impact_state);
+  assert.equal(rep.mechanism_revision, 'kinetic_work_v1');
+  assert.equal(rep.fragments[0].fragment_id, 'fragment:0');
+  assert.deepEqual(rep.fragments[0].physical, last.resp.event.fragments[0].physical);
+  assert.deepEqual(rep.fragments[0].budget, last.resp.event.fragments[0].budget);
+  assert.equal(JSON.stringify(last), before);
+  rep.fragments[0].physical.energy_j = 1;
+  assert.equal(last.resp.event.fragments[0].physical.energy_j, 2);
+});
+
+test('missing old fragment provenance is unknown rather than fabricated armour spall', () => {
+  const last = shot({ fragments: [{ origin: [0, 1, 0], end: [0, 1, 1], is_penetrator: false }] });
+  assert.equal(designReplayReport(last).fragments[0].source, 'unknown_legacy');
+});
+
 test('design replay retains the actual penetrator endpoint and never manufactures an explosive burst', () => {
   const last = shot();
   const before = JSON.stringify(last.resp);

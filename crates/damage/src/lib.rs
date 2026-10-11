@@ -2,6 +2,7 @@
 //! per-module / per-crew damage, and derived vehicle capabilities.
 use serde::{Deserialize, Serialize};
 use tg_shared::{Rng, Vec3};
+use tg_penetration::impact::{self, FragmentProvenance, FragmentSource, PhysicalFragment, ImpactSnapshot, ImpactTransition};
 pub mod module_state;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
@@ -150,13 +151,18 @@ impl Default for DamageParams {
     }
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Fragment {
     pub origin: Vec3,
     pub dir: Vec3,
     pub energy_j: f32,
     pub damage: f32,
     pub is_penetrator: bool,
+    #[serde(default, flatten)]
+    pub provenance: FragmentProvenance,
+    #[serde(default)]
+    pub remaining_pen_mm: Option<f64>,
+    #[serde(default)] pub impact_state: Option<impact::ImpactState>,
 }
 
 /// Penetrator core (index 0) + spall cone. `exit_point` is just inside the plate.
@@ -168,6 +174,11 @@ pub fn generate_fragments(
     p: &DamageParams,
     rng: &mut Rng,
 ) -> Vec<Fragment> {
+    generate_fragments_legacy(exit_point, dir, residual_energy_j, residual_mm, p, rng)
+}
+
+/// Explicit legacy/nonkinetic adapter; its heuristic split has no P1 kinetic ledger.
+pub fn generate_fragments_legacy(exit_point: Vec3, dir: Vec3, residual_energy_j: f32, residual_mm: f32, p: &DamageParams, rng: &mut Rng) -> Vec<Fragment> {
     let dir = dir.normalized();
     let n = ((p.base_frag_count as f32 + residual_mm * p.frags_per_residual_mm) as u32).min(p.max_frags).max(1);
     let spall_energy = residual_energy_j * p.frag_energy_fraction;
@@ -184,6 +195,7 @@ pub fn generate_fragments(
         damage: ((residual_energy_j - spall_energy) * p.energy_to_damage)
             .min(p.max_frag_damage * p.penetrator_damage_multiplier),
         is_penetrator: true,
+        provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None,
     });
     for _ in 0..n {
         let a = rng.next_f32().sqrt() * cone; // sqrt: uniform over the cone's solid angle
@@ -195,7 +207,37 @@ pub fn generate_fragments(
             energy_j: per,
             damage: (per * p.energy_to_damage).min(p.max_frag_damage),
             is_penetrator: false,
+            provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None,
         });
+    }
+    out
+}
+
+/// Consume only already-debited source allocations. Sample properties belong to
+/// individual fragments; P1 samples have weight=1, with unknown area explicit.
+pub fn generate_allocated_fragments(exit: Vec3, dir: Vec3, core: Option<&ImpactSnapshot>, transition: &ImpactTransition, p: &DamageParams, rng: &mut Rng) -> Vec<Fragment> {
+    let dir = dir.normalized();
+    let mut out = Vec::new();
+    if let Some(s) = core {
+        out.push(Fragment { origin: exit, dir, energy_j: s.energy_j() as f32, damage: 0.0, is_penetrator: true,
+            remaining_pen_mm: Some(s.remaining_pen_mm), impact_state: Some(impact::ImpactState {current:s.clone(),traversal:None}), provenance: FragmentProvenance { fragment_id: s.body_id.clone(), parent_event_id: transition.event_id.clone(), source: FragmentSource::Core,
+                source_layer_or_module: Some(transition.layer_id.clone()), physical: Some(PhysicalFragment { mass_kg: s.mass_kg, energy_j: s.energy_j(), area_m2:s.effective_diameter_m.map(|d|std::f64::consts::PI*(d*0.5).powi(2)), velocity_m_s: s.velocity_m_s }),
+                weight: 1.0, start_s: Some(s.elapsed_s), profile: Some(s.profile.clone()) } });
+    }
+    for a in &transition.allocations {
+        if a.energy_j <= 0.0 || a.mass_kg <= 0.0 { continue; }
+        let n = ((p.base_frag_count as f32 + transition.output.remaining_pen_mm as f32 * p.frags_per_residual_mm) as u32).clamp(1, p.max_frags.max(1));
+        let energy = a.energy_j/n as f64; let mass = a.mass_kg/n as f64;
+        let u = dir.any_perpendicular(); let v = dir.cross(u);
+        for i in 0..n {
+            let angle = rng.next_f32().sqrt() * p.cone_half_angle_deg.to_radians();
+            let az = rng.next_f32() * std::f32::consts::TAU;
+            let d = (dir*angle.cos() + (u*az.cos()+v*az.sin())*angle.sin()).normalized();
+            let velocity = d * (2.0*energy/mass).sqrt() as f32;
+            out.push(Fragment { origin: exit, dir: d, energy_j: energy as f32, damage: 0.0, is_penetrator: false, remaining_pen_mm: None, impact_state: None,
+                provenance: FragmentProvenance { fragment_id: format!("{}/{}:{i}", transition.event_id, out.len()), parent_event_id: transition.event_id.clone(), source: a.source,
+                    source_layer_or_module: Some(transition.layer_id.clone()), physical: Some(PhysicalFragment { mass_kg: mass, energy_j: energy, area_m2: None, velocity_m_s: velocity }), weight: 1.0, start_s: Some(transition.output.elapsed_s), profile: Some(a.profile.clone()) } });
+        }
     }
     out
 }
@@ -206,17 +248,22 @@ pub enum TargetRef {
     Crew(usize),
 }
 
-#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct FragmentTrace {
     pub origin: Vec3,
     pub end: Vec3,
     pub target: Option<TargetRef>,
     pub damage: f32,
     pub is_penetrator: bool,
+    #[serde(default)] pub fragment_index: usize,
+    #[serde(default)] pub budget: Option<impact::EnergyBudget>,
+    #[serde(default)] pub entry_state: Option<ImpactSnapshot>,
 }
 
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct DamageSummary {
+    #[serde(default)] pub fragment_states: Vec<(usize, impact::ImpactState)>,
+    #[serde(default)] pub impact_events: Vec<impact::ImpactEvent>,
     pub traces: Vec<FragmentTrace>,
     pub module_damage: Vec<(usize, f32)>,
     pub crew_damage: Vec<(usize, f32)>,
@@ -263,7 +310,7 @@ fn ray_aabb(o: Vec3, d: Vec3, c: Vec3, h: Vec3, max_t: f32) -> Option<f32> {
 /// Each fragment stops at the first living crew member / physical module on its ray.
 pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], p: &DamageParams) -> DamageSummary {
     let mut s = DamageSummary::default();
-    for f in frags {
+    for (fragment_index,f) in frags.iter().enumerate() {
         let mut best: Option<(f32, TargetRef)> = None;
         for (i, c) in crew.iter().enumerate() {
             if c.health <= 0.0 {
@@ -309,6 +356,7 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
                     }
                 };
                 s.traces.push(FragmentTrace {
+                    fragment_index, budget: None, entry_state: None,
                     origin: f.origin,
                     end: f.origin + f.dir * t,
                     target: Some(target),
@@ -317,6 +365,7 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
                 });
             }
             None => s.traces.push(FragmentTrace {
+                fragment_index, budget: None, entry_state: None,
                 origin: f.origin,
                 end: f.origin + f.dir * p.frag_range_m,
                 target: None,
@@ -326,6 +375,96 @@ pub fn propagate(frags: &[Fragment], modules: &mut [Module], crew: &mut [Crew], 
         }
     }
     s
+}
+
+/// Existing named gameplay absorption proxies. No material-strength or human
+/// lethality claim is inferred from these millimetre equivalents.
+pub fn compatibility_absorb_mm(kind: ModuleKind) -> f64 {
+    match kind {
+        ModuleKind::Engine => 30.0, ModuleKind::Transmission => 25.0, ModuleKind::GunBreech => 45.0,
+        ModuleKind::GunBarrel => 25.0, ModuleKind::Launcher | ModuleKind::MachineGun => 8.0,
+        ModuleKind::Track => 20.0, ModuleKind::AmmoRack => 10.0, ModuleKind::FuelTank => 6.0,
+        ModuleKind::TurretDrive | ModuleKind::HorizontalDrive | ModuleKind::VerticalDrive => 8.0,
+        ModuleKind::Radio => 3.0, ModuleKind::ApsGun => 15.0, ModuleKind::ApsRadar => 4.0,
+    }
+}
+pub const COMPATIBILITY_CREW_ABSORB_MM: f64 = 5.0;
+pub fn deposited_crew_damage(energy_j: f64) -> f32 { (25.0*(energy_j.max(0.0)/1000.0).sqrt()).min(300.0) as f32 }
+pub fn deposited_module_damage(energy_j: f64) -> f32 { (7.0*(energy_j.max(0.0)/1000.0).powf(0.6)).min(400.0) as f32 }
+
+/// Serial active P1 propagation. Geometry supplies ranges bounded by armour;
+/// richer redirected fragment/armour continuation remains P2/X.
+pub fn propagate_allocated(frags: &[Fragment], ranges: &[f64], modules: &mut [Module], crew: &mut [Crew], include_external: bool) -> DamageSummary {
+    let mut summary = DamageSummary::default();
+    for (fi, (f, range)) in frags.iter().zip(ranges).enumerate() {
+        let (Some(physical), Some(profile)) = (&f.provenance.physical, &f.provenance.profile) else { continue };
+        let pen = f.remaining_pen_mm.unwrap_or(3.5*(physical.energy_j/1000.0).sqrt());
+        let state_result = f.impact_state.clone().map(Ok).unwrap_or_else(||impact::fragment_state(physical, pen, &f.provenance.fragment_id, profile));
+        let Ok(mut state) = state_result else { continue };
+        if let Some(t)=f.provenance.start_s {state.elapsed_s=t;}
+        let mut last_distance=0.0;
+        let mut last_point=f.origin;
+        let mut contacts = Vec::new();
+        for (i, c) in crew.iter().enumerate() {
+            if c.health > 0.0 { if let Some(t) = ray_sphere(f.origin,f.dir,c.pos,c.radius) { if t as f64 <= *range { contacts.push((t,TargetRef::Crew(i))); } } }
+        }
+        for (i,m) in modules.iter().enumerate() {
+            if (!include_external && m.is_external()) || (m.kind == ModuleKind::AmmoRack && m.rounds == Some(0)) { continue; }
+            if let Some(t) = ray_aabb(f.origin,f.dir,m.center,m.half_extents,*range as f32) { contacts.push((t,TargetRef::Module(i))); }
+        }
+        contacts.sort_by(|a,b| a.0.total_cmp(&b.0));
+        let mut recorded = false;
+        for (t,target) in contacts {
+            if state.energy_j() <= 0.0 { break; }
+            let (absorb,id) = match target {
+                TargetRef::Module(i) => (compatibility_absorb_mm(modules[i].kind) * if modules[i].health > 0.0 {1.0} else {0.5}, modules[i].id.clone()),
+                TargetRef::Crew(i) => { if crew[i].health <= 0.0 { continue; } (COMPATIBILITY_CREW_ABSORB_MM, format!("crew:{i}")) },
+            };
+            let contact_id = format!("{}/target:{id}",f.provenance.fragment_id);
+            let segment_entry=state.current.clone();
+            state.advance_time((t-last_distance).max(0.0) as f64);last_distance=t;
+            let result = if f.is_penetrator { impact::deposit_contact_energy(&mut state,absorb,&contact_id) } else { impact::deposit_fragment_contact_energy(&mut state,absorb,&contact_id) };
+            let Ok(tr) = result else { break };
+            let damage = match target {
+                TargetRef::Crew(i) => {
+                    let was = crew[i].health > 0.0;
+                    let damage = module_state::apply_health_damage(&mut crew[i].health,100.0,deposited_crew_damage(tr.budget.target_deposition_j));
+                    if damage > 0.0 { summary.crew_damage.push((i,damage)); }
+                    if was && crew[i].health <= 0.0 { summary.newly_killed_crew.push(i); }
+                    damage
+                }
+                TargetRef::Module(i) => {
+                    let was = modules[i].health > 0.0; let max = modules[i].max_health;
+                    let damage = module_state::apply_health_damage(&mut modules[i].health,max,deposited_module_damage(tr.budget.target_deposition_j));
+                    if damage > 0.0 { summary.module_damage.push((i,damage)); }
+                    if was && modules[i].health <= 0.0 { summary.newly_destroyed_modules.push(i); }
+                    damage
+                }
+            };
+            summary.traces.push(FragmentTrace { origin:last_point, end: f.origin+f.dir*t, target: Some(target), damage,
+                is_penetrator: f.is_penetrator, fragment_index: fi, budget: Some(tr.budget),entry_state:Some(segment_entry) });
+            last_point=f.origin+f.dir*t;
+            summary.impact_events.push(impact::ImpactEvent {mechanism_revision:impact::MECHANISM_REVISION.into(),time_s:tr.entry.elapsed_s,
+                entry_position:f.origin+f.dir*t,exit_position:f.origin+f.dir*t,normal:Vec3::ZERO,transition:tr});
+            recorded = true;
+        }
+        if !recorded || state.energy_j() > 0.0 {
+            summary.traces.push(FragmentTrace { origin:last_point,end:f.origin+f.dir*(*range as f32),target:None,damage:0.0,
+                is_penetrator:f.is_penetrator,fragment_index:fi,budget:None,entry_state:Some(state.current.clone()) });
+        }
+        state.advance_time((*range-last_distance as f64).max(0.0));
+        summary.fragment_states.push((fi,state));
+    }
+    summary
+}
+
+pub fn trace_provenance(fragment: &Fragment, trace: &FragmentTrace) -> FragmentProvenance {
+    let mut p=fragment.provenance.clone();
+    if let (Some(state),Some(physical))=(&trace.entry_state,p.physical.as_mut()) {
+        physical.mass_kg=state.mass_kg;physical.energy_j=state.energy_j();physical.velocity_m_s=state.velocity_m_s;
+        p.start_s=Some(state.elapsed_s);
+    }
+    p
 }
 
 fn healthy_multiplier() -> f32 { 1.0 }
@@ -409,6 +548,37 @@ pub fn capabilities(modules: &[Module], crew: &[Crew]) -> Capabilities {
 mod tests {
     use super::*;
 
+    fn kinetic_core(energy:f64)->Fragment {
+        let physical=PhysicalFragment{mass_kg:0.1,energy_j:energy,area_m2:None,velocity_m_s:Vec3::new(0.0,0.0,(2.0*energy/0.1).sqrt() as f32)};
+        let profile=impact::ProfileReference{id:"synthetic_core".into(),revision:impact::MECHANISM_REVISION.into(),source:impact::ProfileSource::Estimated};
+        Fragment{origin:Vec3::ZERO,dir:Vec3::new(0.0,0.0,1.0),energy_j:energy as f32,damage:0.0,is_penetrator:true,remaining_pen_mm:Some(150.0),impact_state:None,
+            provenance:FragmentProvenance{fragment_id:"core".into(),parent_event_id:"plate:first".into(),source:FragmentSource::Core,source_layer_or_module:None,physical:Some(physical),weight:1.0,start_s:Some(0.02),profile:Some(profile)}}
+    }
+
+    #[test]
+    fn allocated_serial_contacts_debit_local_energy_and_freeze_pre_hit_absorption() {
+        let mut m=module(ModuleKind::Radio);m.center=Vec3::new(0.0,0.0,0.3);m.half_extents=Vec3::new(0.05,0.05,0.05);m.health=0.1;m.max_health=0.1;
+        let mut modules=vec![m];let mut crew=vec![crew(CrewRole::Driver,1.0),crew(CrewRole::Gunner,2.0)];
+        let f=kinetic_core(500.0);let s=propagate_allocated(&[f.clone()],&[3.0],&mut modules,&mut crew,true);
+        let hits:Vec<_>=s.traces.iter().filter(|t|t.budget.is_some()).collect();assert_eq!(hits.len(),3);
+        let expected=[10.0,500.0/30.0,500.0/30.0];
+        for (trace,deposition) in hits.iter().zip(expected){trace.budget.unwrap().validate().unwrap();assert!((trace.budget.unwrap().target_deposition_j-deposition).abs()<1e-3);}
+        assert_eq!(modules[0].health,0.0);
+        for c in &crew {assert!((c.health-(100.0-deposited_crew_damage(500.0/30.0))).abs()<1e-3);}
+        let first=trace_provenance(&f,hits[0]);let second=trace_provenance(&f,hits[1]);
+        assert!(second.start_s.unwrap()>first.start_s.unwrap());
+        assert!((second.physical.unwrap().energy_j-hits[0].budget.unwrap().core_out_j).abs()<1e-3);
+        let remaining=s.fragment_states[0].1.energy_j();let deposited:f64=hits.iter().map(|t|t.budget.unwrap().target_deposition_j).sum();
+        assert!((remaining+deposited-500.0).abs()<1e-3);
+    }
+
+    #[test]
+    fn zero_energy_allocated_core_does_not_create_solid_damage() {
+        let mut crew=vec![crew(CrewRole::Driver,1.0)];let mut modules=vec![];
+        let summary=propagate_allocated(&[kinetic_core(0.0)],&[3.0],&mut modules,&mut crew,true);
+        assert_eq!(crew[0].health,100.0);assert!(summary.crew_damage.is_empty());assert!(summary.impact_events.is_empty());
+    }
+
     fn crew(role: CrewRole, z: f32) -> Crew {
         Crew { role, pos: Vec3::new(0.0, 0.0, z), radius: 0.3, health: 100.0, also: Vec::new(), pose: None }
     }
@@ -432,7 +602,7 @@ mod tests {
     fn fragment_kills_crew_in_its_path_and_stops_there() {
         let mut crew = vec![crew(CrewRole::Gunner, -1.0), crew(CrewRole::Loader, -2.0)];
         let mut mods: Vec<Module> = vec![];
-        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(0.0, 0.0, -1.0), energy_j: 1.0, damage: 150.0, is_penetrator: true };
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(0.0, 0.0, -1.0), energy_j: 1.0, damage: 150.0, is_penetrator: true, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
         let s = propagate(&[f], &mut mods, &mut crew, &DamageParams::default());
         assert_eq!(s.newly_killed_crew, vec![0]);
         assert_eq!(crew[1].health, 100.0); // shielded by the gunner
@@ -478,7 +648,7 @@ mod tests {
     #[test]
     fn aabb_module_is_hit() {
         let mut mods = vec![module(ModuleKind::Engine)];
-        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: false };
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: false, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
         let s = propagate(&[f], &mut mods, &mut [], &DamageParams { frag_range_m: 10.0, ..Default::default() });
         assert_eq!(s.module_damage.len(), 1);
         assert_eq!(mods[0].health, 70.0);
@@ -490,8 +660,8 @@ mod tests {
         mods[0].health = 10.0;
         let mut crew = vec![crew(CrewRole::Driver, 0.0)];
         crew[0].pos = Vec3::new(6.0, 0.0, 0.0);
-        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 150.0, is_penetrator: false };
-        let s = propagate(&[f, f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 150.0, is_penetrator: false, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
+        let s = propagate(&[f.clone(), f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
         assert_eq!(mods[0].health, 0.0);
         assert_eq!(s.module_damage, vec![(0, 10.0)]);
         assert_eq!(s.newly_destroyed_modules, vec![0]);
@@ -509,7 +679,7 @@ mod tests {
             let mut mods = vec![rack];
             let mut crew = vec![crew(CrewRole::Driver, 0.0)];
             crew[0].pos = Vec3::new(6.0, 0.0, 0.0);
-            let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: false };
+            let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: false, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
             let s = propagate(&[f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
             assert_eq!(mods[0].health, health, "authored zero rack receives no health damage");
             assert!(s.module_damage.is_empty()); assert!(s.newly_destroyed_modules.is_empty());
@@ -522,7 +692,7 @@ mod tests {
     fn explicitly_empty_rack_does_not_shield_a_module_behind_it() {
         let mut mods = vec![module(ModuleKind::AmmoRack), module(ModuleKind::Engine)];
         mods[0].rounds = Some(0); mods[1].center.x = 6.0;
-        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: true };
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 30.0, is_penetrator: true, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
         let s = propagate(&[f], &mut mods, &mut [], &DamageParams { frag_range_m: 10.0, ..Default::default() });
         assert_eq!(mods[0].health, 100.0); assert_eq!(mods[1].health, 70.0);
         assert_eq!(s.module_damage, vec![(1, 30.0)]);
@@ -535,8 +705,8 @@ mod tests {
             let mut rack = module(ModuleKind::AmmoRack); rack.rounds = rounds; rack.health = 10.0;
             let mut mods = vec![rack];
             let mut crew = vec![crew(CrewRole::Driver, 0.0)]; crew[0].pos = Vec3::new(6.0, 0.0, 0.0);
-            let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 150.0, is_penetrator: false };
-            let s = propagate(&[f, f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
+            let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(1.0, 0.0, 0.0), energy_j: 1.0, damage: 150.0, is_penetrator: false, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
+            let s = propagate(&[f.clone(), f], &mut mods, &mut crew, &DamageParams { frag_range_m: 10.0, ..Default::default() });
             assert_eq!(s.module_damage, vec![(0, 10.0)]); assert_eq!(s.newly_destroyed_modules, vec![0]);
             assert_eq!(s.traces[1].target, Some(TargetRef::Module(0))); assert_eq!(s.traces[1].damage, 0.0);
             assert_eq!(crew[0].health, 100.0);
@@ -547,8 +717,8 @@ mod tests {
     fn excessive_crew_damage_is_clamped_and_records_actual_loss() {
         let mut crew = vec![crew(CrewRole::Driver, -1.0)];
         crew[0].health = 10.0;
-        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(0.0, 0.0, -1.0), energy_j: 1.0, damage: 150.0, is_penetrator: false };
-        let s = propagate(&[f, f], &mut [], &mut crew, &DamageParams::default());
+        let f = Fragment { origin: Vec3::ZERO, dir: Vec3::new(0.0, 0.0, -1.0), energy_j: 1.0, damage: 150.0, is_penetrator: false, provenance: FragmentProvenance::default(), remaining_pen_mm: None, impact_state: None };
+        let s = propagate(&[f.clone(), f], &mut [], &mut crew, &DamageParams::default());
         assert_eq!(crew[0].health, 0.0);
         assert_eq!(s.crew_damage, vec![(0, 10.0)]);
         assert_eq!(s.newly_killed_crew, vec![0]);

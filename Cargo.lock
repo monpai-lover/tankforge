@@ -110,6 +110,7 @@ dependencies = [
  "serde_json",
  "tg-armor",
  "tg-damage",
+ "tg-penetration",
  "tg-shared",
  "tg-weapon",
 ]
@@ -119,6 +120,7 @@ name = "tg-damage"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "tg-penetration",
  "tg-shared",
 ]
 
@@ -184,6 +186,8 @@ name = "tg-replay"
 version = "0.1.0"
 dependencies = [
  "serde",
+ "serde_json",
+ "tg-penetration",
  "tg-shared",
 ]
 
@@ -215,7 +219,9 @@ dependencies = [
  "serde_json",
  "tg-armor",
  "tg-ballistics",
+ "tg-combat",
  "tg-damage",
+ "tg-design",
  "tg-penetration",
  "tg-replay",
  "tg-shared",

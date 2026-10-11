@@ -374,8 +374,8 @@ fn workshop_fragments_clamp_loss_and_broken_module_keeps_blocking() {
     use tg_shared::Vec3;
     let mut modules = vec![Module { id:"engine".into(), kind:ModuleKind::Engine, center:Vec3::new(1.0,0.0,0.0), half_extents:Vec3::new(0.2,0.2,0.2),max_health:100.0,health:10.0, rounds:None,weapon_group:None,external:None,turret_index:None }];
     let mut crew = vec![Crew {role:CrewRole::Driver,pos:Vec3::new(2.0,0.0,0.0),radius:0.2,health:100.0,also:vec![],pose:None}];
-    let f=Fragment {origin:Vec3::ZERO,dir:Vec3::new(1.0,0.0,0.0),energy_j:1.0,damage:400.0,is_penetrator:true};
-    let s=crate::trace::propagate_inside(&[f,f], &[4.0,4.0], &mut modules,&mut crew);
+    let f=Fragment {origin:Vec3::ZERO,dir:Vec3::new(1.0,0.0,0.0),energy_j:1.0,damage:400.0,is_penetrator:true,provenance:Default::default(),remaining_pen_mm:None,impact_state:None};
+    let s=crate::trace::propagate_inside(&[f.clone(),f], &[4.0,4.0], &mut modules,&mut crew);
     assert_eq!(modules[0].health,0.0);
     assert_eq!(s.module_damage,vec![(0,10.0)]);
     assert_eq!(s.newly_destroyed_modules,vec![0]);

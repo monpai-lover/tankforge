@@ -6,6 +6,13 @@ use crate::PenetrationResult;
 use serde::{Deserialize, Serialize};
 use tg_armor::Material;
 use tg_weapon::ProjectileDef;
+use crate::impact::{self, ImpactState, ImpactTransition, ImpactVerdict, DeclaredLayerContact};
+use tg_shared::Vec3;
+
+#[derive(Clone, Debug)]
+pub struct LayerIdentity { pub layer_id: String, pub traversal_id: u32 }
+#[derive(Clone,Debug)]
+pub struct StackTraversalProgress {pub identity:LayerIdentity,pub cumulative_required_mm:f64}
 
 /// One plate on the shot line, in the order the round meets it.
 #[derive(Clone, Debug)]
@@ -68,11 +75,42 @@ pub struct StackReport {
     pub result: PenetrationResult,
     /// Index of the plate where the round stopped / bounced, if it did.
     pub stopped_at: Option<usize>,
+    #[serde(default)]
+    pub impacts: Vec<ImpactTransition>,
+    #[serde(default)]
+    pub impact_state: Option<ImpactState>,
+    #[serde(default)] pub rejected_contact: bool,
 }
 
 /// Walks the plates with `pen_mm` of penetration (nominal, or a server-side roll).
 pub fn resolve_stack(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, sp: &StackParams) -> StackReport {
+    let mut state = impact::initialize_impact(p, Vec3::new(0.0, 0.0, p.muzzle_velocity_ms), pen_mm as f64, "core").ok();
+    let ids: Vec<_> = plates.iter().enumerate().map(|(i, _)| LayerIdentity { layer_id: format!("plate:{i}"), traversal_id: 0 }).collect();
+    resolve_stack_inner(p, plates, pen_mm, sp, state.as_mut(), &ids,None)
+}
+
+pub fn resolve_stack_with_state(p: &ProjectileDef, plates: &[PlateCrossing], sp: &StackParams, state: &mut ImpactState, identities: &[LayerIdentity]) -> StackReport {
+    resolve_stack_inner(p, plates, state.remaining_pen_mm as f32, sp, Some(state), identities,None)
+}
+
+/// Subdivision adapter: every crossing retains the complete layer's thickness,
+/// path and material; progress carries the separate cumulative resistance.
+pub fn resolve_stack_with_progress(p:&ProjectileDef,plates:&[PlateCrossing],sp:&StackParams,state:&mut ImpactState,progress:&[StackTraversalProgress])->Result<StackReport,impact::ImpactError>{
+    if !p.kind.is_kinetic(){return Err(impact::ImpactError::InvalidInput);}
+    state.validate()?;
+    if progress.len()!=plates.len() || progress.iter().any(|p|!p.cumulative_required_mm.is_finite() || p.cumulative_required_mm<0.0){return Err(impact::ImpactError::InvalidTraversal);}
+    let identities:Vec<_>=progress.iter().map(|p|p.identity.clone()).collect();
+    let checkpoint=state.clone();
+    let report=resolve_stack_inner(p,plates,state.remaining_pen_mm as f32,sp,Some(state),&identities,Some(progress));
+    if report.rejected_contact {*state=checkpoint;Err(impact::ImpactError::InvalidTraversal)}else{Ok(report)}
+}
+
+fn resolve_stack_inner(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, sp: &StackParams, mut state: Option<&mut ImpactState>, identities: &[LayerIdentity],progress:Option<&[StackTraversalProgress]>) -> StackReport {
+    if p.kind.is_kinetic() && state.is_none(){return StackReport{penetration_mm:0.0,total_required_mm:0.0,layers:vec![],result:PenetrationResult::Stopped,stopped_at:None,impacts:vec![],impact_state:None,rejected_contact:true};}
     let chemical = p.kind.is_chemical();
+    let initial_energy = state.as_ref().map(|s| s.energy_j()).unwrap_or(0.0);
+    let mut impacts = Vec::new();
+    let mut rejected_contact=false;
     let mut pen = pen_mm.max(0.0);
     let mut layers = Vec::with_capacity(plates.len());
     let mut total = 0.0;
@@ -82,6 +120,12 @@ pub fn resolve_stack(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, s
     for (i, pl) in plates.iter().enumerate() {
         if result.is_some() {
             layers.push(LayerResult { index: i, incidence_deg: pl.incidence_deg, effective_angle_deg: 0.0, los_mm: 0.0, required_mm: 0.0, pen_before_mm: 0.0, pen_after_mm: 0.0, overmatch: false, outcome: LayerOutcome::NotReached });
+            continue;
+        }
+        if [pl.thickness_mm,pl.path_mm,pl.incidence_deg,pl.gap_before_mm,pl.material.kinetic_factor,pl.material.density_kg_m3,pl.material.hardness_bhn].iter().any(|v|!v.is_finite() || *v<0.0)
+            || [p.normalization_deg,p.ricochet_angle_deg,p.shatter_angle_deg].iter().any(|v|!v.is_finite()) {
+            rejected_contact=true;stopped_at=Some(i);result=Some(PenetrationResult::Stopped);
+            layers.push(LayerResult{index:i,incidence_deg:0.0,effective_angle_deg:0.0,los_mm:0.0,required_mm:0.0,pen_before_mm:pen,pen_after_mm:pen,overmatch:false,outcome:LayerOutcome::Stopped});
             continue;
         }
         // a shaped-charge jet spreads out over every gap after it formed on the first plate
@@ -96,17 +140,26 @@ pub fn resolve_stack(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, s
         let nominal_los = pl.thickness_mm / eff.to_radians().cos().max(0.05);
         let los = nominal_los.min(pl.path_mm.max(0.0)).max(0.0);
         let factor = if chemical { pl.material.chemical_factor } else { pl.material.kinetic_factor };
-        let required = los * factor;
-        total += required;
+        let full_required = los * factor;
+        let required=progress.map(|values|values[i].cumulative_required_mm as f32).unwrap_or(full_required);
+        let identity=identities.get(i).cloned().unwrap_or(LayerIdentity{layer_id:format!("plate:{i}"),traversal_id:0});
+        let cursor=state.as_ref().and_then(|s|s.traversal.as_ref()).filter(|c|c.layer_id==identity.layer_id && c.traversal_id==identity.traversal_id);
+        let available=cursor.map(|c|c.entry.remaining_pen_mm as f32).unwrap_or(pen);
+        let entry_energy=cursor.map(|c|c.entry.energy_j()).unwrap_or_else(||state.as_ref().map(|s|s.energy_j()).unwrap_or(0.0));
+        total += required-cursor.map(|c|c.cumulative_required_mm as f32).unwrap_or(0.0);
         let before = pen;
         let mut lr = LayerResult { index: i, incidence_deg: pl.incidence_deg, effective_angle_deg: eff, los_mm: los, required_mm: required, pen_before_mm: before, pen_after_mm: before, overmatch, outcome: LayerOutcome::Passed };
-        if fresh && !overmatch && pl.incidence_deg >= p.ricochet_angle_deg {
+        if [pl.thickness_mm,pl.path_mm,pl.incidence_deg,pl.gap_before_mm,p.normalization_deg,p.ricochet_angle_deg,p.shatter_angle_deg].iter().any(|v|!v.is_finite()) || pl.path_mm<0.0 || !required.is_finite() || required<0.0 || required>full_required+1e-5 {
+            rejected_contact=true;lr.outcome=LayerOutcome::Stopped;result=Some(PenetrationResult::Stopped);
+        }else if fresh && !overmatch && pl.incidence_deg >= p.ricochet_angle_deg {
             lr.outcome = LayerOutcome::Ricochet;
             result = Some(PenetrationResult::Ricochet);
         } else if fresh && !chemical && pl.incidence_deg >= p.shatter_angle_deg && pl.material.hardness_bhn >= 350.0 {
             lr.outcome = LayerOutcome::Shattered;
             result = Some(PenetrationResult::Shattered);
-        } else if pen >= required {
+        } else if p.kind.is_kinetic() && entry_energy==0.0 && required>0.0 {
+            lr.outcome=LayerOutcome::Stopped;lr.pen_after_mm=0.0;result=Some(PenetrationResult::Stopped);
+        } else if available >= required {
             pen -= required;
             lr.pen_after_mm = pen;
         } else {
@@ -117,14 +170,33 @@ pub fn resolve_stack(p: &ProjectileDef, plates: &[PlateCrossing], pen_mm: f32, s
         if result.is_some() {
             stopped_at = Some(i);
         }
+        if p.kind.is_kinetic() {
+            if let Some(s) = state.as_mut() {
+                if i>0 {s.advance_time(pl.gap_before_mm.max(0.0) as f64*0.001);}
+                if rejected_contact {layers.push(lr);stopped_at=Some(i);break;}
+                let id = identity;
+                let verdict = match lr.outcome { LayerOutcome::Passed => ImpactVerdict::Passed, LayerOutcome::Ricochet => ImpactVerdict::Ricochet, LayerOutcome::Shattered => ImpactVerdict::Shattered, _ => ImpactVerdict::Stopped };
+                match impact::advance_kinetic_layer(s, &DeclaredLayerContact { layer_id: id.layer_id, traversal_id: id.traversal_id,
+                    cumulative_required_mm: required as f64, thickness_mm: pl.thickness_mm as f64, density_kg_m3: pl.material.density_kg_m3 as f64, verdict, emit_spall: p.caliber_mm >= 20.0 }) {
+                    Ok(tr) => { pen = s.remaining_pen_mm as f32; lr.pen_after_mm = pen; impacts.push(tr); }
+                    Err(_) => { rejected_contact=true;lr.outcome = LayerOutcome::Stopped; lr.pen_after_mm = 0.0; pen = 0.0; result = Some(PenetrationResult::Stopped); stopped_at = Some(i); }
+                }
+            }
+        }
         layers.push(lr);
     }
     let result = result.unwrap_or_else(|| {
-        let used = (pen_mm - pen).max(0.0);
-        let ratio = if pen_mm > 0.0 { used / pen_mm } else { 1.0 };
-        PenetrationResult::Penetrated { residual_mm: pen, speed_fraction: (1.0 - ratio * ratio).max(0.0).sqrt() }
+        let speed_fraction = if p.kind.is_kinetic() {
+            if initial_energy > 0.0 { state.as_ref().map(|s| (s.energy_j()/initial_energy).sqrt() as f32).unwrap_or(0.0) } else { 0.0 }
+        } else {
+            // Explicitly legacy chemical adapter until P3 owns jet energy.
+            let ratio = if pen_mm > 0.0 { (pen_mm-pen).max(0.0)/pen_mm } else { 1.0 };
+            (1.0-ratio*ratio).max(0.0).sqrt()
+        };
+        PenetrationResult::Penetrated { residual_mm: pen, speed_fraction }
     });
-    StackReport { penetration_mm: pen_mm, total_required_mm: total, layers, result, stopped_at }
+    StackReport { penetration_mm: pen_mm, total_required_mm: total, layers, result, stopped_at, impacts,
+        impact_state: if p.kind.is_kinetic() { state.map(|s| s.clone()) } else { None },rejected_contact }
 }
 
 /// Smallest penetration that defeats the whole stack, or None when the round bounces or
@@ -187,6 +259,18 @@ mod tests {
 
     fn plate(m: &Material, t: f32, inc: f32, gap: f32) -> PlateCrossing<'_> {
         PlateCrossing { material: m, thickness_mm: t, path_mm: t / inc.to_radians().cos(), incidence_deg: inc, gap_before_mm: gap }
+    }
+
+    #[test]
+    fn two_physical_plates_use_the_same_energy_law_as_two_single_contacts() {
+        let rha = mat("rha", 1.0, 1.0);
+        let mut shell = ProjectileDef::generic_ap(10.0, 150.0);
+        shell.normalization_deg = 0.0;
+        let r = resolve_stack(&shell, &[plate(&rha, 50.0, 0.0, 0.0), plate(&rha, 50.0, 0.0, 100.0)], 150.0, &StackParams::default());
+        let fraction = match r.result { PenetrationResult::Penetrated { speed_fraction, .. } => speed_fraction, _ => panic!("passed") };
+        // Existing combat multiplies the two single-contact speed fractions:
+        // E1/E0=8/9; E2/E1=3/4. The old stack recomputed from total penetration used.
+        assert!((fraction * fraction - 2.0 / 3.0).abs() < 1e-6, "two-layer KE/E0={}", fraction * fraction);
     }
 
     #[test]

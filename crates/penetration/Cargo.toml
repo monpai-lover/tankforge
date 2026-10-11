@@ -7,6 +7,4 @@ version.workspace = true
 serde.workspace = true
 tg-armor.workspace = true
 tg-weapon.workspace = true
-
-[dev-dependencies]
 tg-shared.workspace = true

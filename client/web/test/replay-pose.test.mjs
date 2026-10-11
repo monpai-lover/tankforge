@@ -64,7 +64,8 @@ test('actual T-54 ammo detonation replays the articulation before Enemy.pose app
   const localOrigin = [40, rack.center.y, rack.center.z], localDir = [-1, 0, 0];
   const dir = f.e.veh.body.worldDir(localDir), o = f.e.veh.body.worldPoint(localOrigin);
   const p0 = o.map((v, i) => v + dir[i] * 2);
-  const rep = combatHit(f.e, p0, dir, shell, shell.muzzle_velocity_ms * .85, 100, 1);
+  // P1 work-allocated spall changes secondary RNG order; seed 2 retains real cookoff.
+  const rep = combatHit(f.e, p0, dir, shell, shell.muzzle_velocity_ms * .85, 100, 2);
   assert.ok(rep.events.includes('ammo_detonation') && rep.events.includes('fire') && rep.caps.destroyed, JSON.stringify(rep.events));
   assert.equal(f.model.turrets[0].node.yaw, .95, 'live death animation still applies');
   assert.equal(f.model.turrets[0].guns[0].node.pitch, .08);
