@@ -110,13 +110,16 @@ export function launcherMount(g, mount) {
   return vector ? { ...mount, muzzleVector: vector } : mount;
 }
 
-/** Consume one successful missile launch; the remaining loaded tube stays ready. */
-export function fireLauncherRound(g, L, gi) {
+/** Consume one successful missile launch; the remaining loaded tube stays ready.
+ * The mode-owned interval is source-derived; stock callers retain 0.25 seconds.
+ */
+export function fireLauncherRound(g, L, gi, intervalSeconds = g.launchIntervalSeconds ?? 0.25) {
+  if (typeof intervalSeconds !== 'number' || !Number.isFinite(intervalSeconds) || intervalSeconds <= 0) throw new Error('Invalid launch interval');
   if (L.state[gi] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
   g.ammo[g.loaded].count--;
   g.launcher.ready = Math.min(g.launcher.ready - 1, roundsLeft(g));
   g.launcher.nextTube++;
-  g.launcher.cooldown = 0.25;
+  g.launcher.cooldown = intervalSeconds;
   const next = nextAmmo(g);
   g.loaded = g.launcher.ready > 0 ? next : -1;
   if (next < 0) L.state[gi] = 'empty';

@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "modes": {
+    "casual": {
+      "speed": 1.15,
+      "drive": 1.25,
+      "steer": 1.25,
+      "traverse": 1.30,
+      "elevate": 1.20,
+      "fire": 1.20,
+      "show_enemy_markers": true
+    },
+    "historical": {
+      "speed": 1,
+      "drive": 1,
+      "steer": 1,
+      "traverse": 1,
+      "elevate": 1,
+      "fire": 1,
+      "show_enemy_markers": false
+    }
+  }
+}

@@ -3,7 +3,7 @@ resolver = "2"
 members = [
   "crates/shared", "crates/armor", "crates/weapon", "crates/ballistics",
   "crates/penetration", "crates/damage", "crates/replay", "crates/vehicle", "crates/physics", "crates/sim-slice", "crates/tools",
-  "crates/design", "crates/design-wasm", "crates/server", "crates/combat", "crates/missile",
+  "crates/design", "crates/design-wasm", "crates/server", "crates/combat", "crates/missile", "crates/gameplay",
 ]
 
 [workspace.package]
@@ -25,6 +25,7 @@ tg-physics = { path = "crates/physics" }
 tg-design = { path = "crates/design" }
 tg-combat = { path = "crates/combat" }
 tg-missile = { path = "crates/missile" }
+tg-gameplay = { path = "crates/gameplay" }
 
 # The browser loads tg-design as WebAssembly; protection maps cast thousands of rays.
 [profile.release]

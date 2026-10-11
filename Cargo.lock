@@ -155,6 +155,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "tg-gameplay"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "tg-missile"
 version = "0.1.0"
 dependencies = [
@@ -178,6 +186,7 @@ version = "0.1.0"
 dependencies = [
  "serde",
  "serde_json",
+ "tg-gameplay",
  "tg-vehicle",
 ]
 

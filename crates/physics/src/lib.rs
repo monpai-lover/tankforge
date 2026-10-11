@@ -36,6 +36,7 @@ use tg_vehicle::{read_json, EngineDef, LoadError, LoadedVehicle, Report, Transmi
 
 pub mod tank;
 pub mod terra;
+pub mod gameplay;
 
 const G: f32 = 9.81;
 const AIR_RHO: f32 = 1.225;
