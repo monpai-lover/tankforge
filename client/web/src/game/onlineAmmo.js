@@ -1,5 +1,6 @@
 import policy from '../../../../config/ammo-resupply.json' with { type: 'json' };
 import { applyAmmoCounts } from './ammoInventory.js';
+import { applyAmmo } from './deploy.js';
 
 export const AMMO_PROTOCOL_VERSION = policy.ammo_protocol_version;
 if (AMMO_PROTOCOL_VERSION !== 1) throw new Error('Unsupported ammunition protocol');
@@ -17,6 +18,7 @@ export class OnlineAmmo {
   scope() { return this._scope ? {...this._scope} : null; }
   counts() { return this._projected ? clone(this._projected) : null; }
   get processedThrough() { return this._through; }
+  bindLoadings(loadings) { this._loadings=loadings; }
 
   _validate(frame, mounts, immutable=null, loadout=null) {
     if (!frame || frame.t !== 'ammo' || frame.ammo_protocol_version !== AMMO_PROTOCOL_VERSION || !counter(frame.battle) || !counter(frame.life)
@@ -44,8 +46,10 @@ export class OnlineAmmo {
     if(mounts.some(m=>!safe(m.capacity))) throw new Error('Invalid trusted ammunition capacity');
     this._validate(frame,mounts,null,loadout);
     // Apply only after every mount and wire field validates.
-    applyAmmoCounts(loadout,frame.counts,loadings);
+    const fitted=Object.fromEntries(mounts.map(({key,ti,gi})=>[`${ti}.${gi}`,frame.counts[key]]));
+    applyAmmo(loadout,{[loadout.id]:fitted});
     for (const {key,g} of mounts) g.ammo.forEach((a,i)=>{a.max=frame.targets[key][i];});
+    for (const {g,ti,gi} of mounts) if(loadings?.[ti]) loadings[ti].state[gi]=g.loaded<0?'empty':'ready';
     this.clear();this._scope={battle:frame.battle,life:frame.life};this._mounts=mounts;this._targets=clone(frame.targets);this._base=clone(frame.counts);this._projected=clone(frame.counts);
     this._revision=frame.revision;this._through=frame.processed_through;this._lastSeq=this._through;this._lo=loadout;this._loadings=loadings;
     return true;

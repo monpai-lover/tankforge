@@ -661,11 +661,13 @@ export function start(data, saved = {}) {
     return reloadTime(t, gi, 0, G.gameplayMode) * (t.guns[gi].rack && t.loaders.length === 0 ? 1.6 : 1);
   }
 
-  function select(id, keepPose = false) {
+  function select(id, keepPose = false, initialAmmo = null) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
     onlineFires.clear();
     onlineLaunches.clear();
     onlineAmmo.clear();
+    G.resupplyProgress=0;
+    const supplyMessage=document.getElementById('cq-msg');if(supplyMessage)supplyMessage.textContent='';
     const keptPose = keepPose && G.veh ? { x: G.s.x, z: G.s.z, heading: G.s.heading } : null;
     const { bundle: sourceBundle, projectiles } = bundleFor(id);
     G.sourceBundle = sourceBundle;
@@ -681,6 +683,7 @@ export function start(data, saved = {}) {
     G.loadout = deriveLoadoutPerformance(makeLoadout(id, bundle, projectiles, data.machineGuns), G.gameplayMode);
     // the rounds chosen on the deploy screen (the racks' default mix until one is chosen)
     if (data.vehicles[id]) applyAmmo(G.loadout, AMMO_CFG);
+    if (initialAmmo) {onlineAmmo.begin({t:'ammo',...initialAmmo},G.loadout);G.resupplyProgress=initialAmmo.resupply_progress;}
     G.ammoPlan = captureAmmoPlan(G.loadout);
     G.resupply = newResupplyState();
     G.stockParams = phys.makeParams(bundle.vehicle, bundle.engine);
@@ -696,6 +699,7 @@ export function start(data, saved = {}) {
       };
     });
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.loaded < 0 && (G.T[ti].loading.state[gi] = 'empty')));
+    if (initialAmmo) onlineAmmo.bindLoadings(G.T.map(t=>t.loading));
     G.MG = G.loadout.machineGuns.map((m) => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true }));
     G.sightT = 0;
     G.sightG = 0;
@@ -852,9 +856,9 @@ export function start(data, saved = {}) {
   function syncRacks(updateAmmo = !G.online) {
     if (!G.cstate || !G.combat || !G.bundle) return;
     const n = carriedRounds();
-    // Fresh selection/deploy initializes its chosen load. Existing online state comes
-    // from the server; late binding and subsequent frames only refresh its depiction.
-    if (updateAmmo && n !== G.carried) {
+    // Offline selection/deploy initializes its chosen load. Online state comes
+    // from the server; binding and subsequent frames only refresh its depiction.
+    if (updateAmmo && !G.online && n !== G.carried) {
       G.carried = n;
       const r = G.combat.ammo(G.combatKey, G.cstate, n);
       G.cstate = r.state;
@@ -1364,12 +1368,11 @@ export function start(data, saved = {}) {
     }
     gameplay.beginBattle(roomRules);
     G.gameplayMode = gameplay.activeMode();
-    select(G.id);
+    select(G.id,false,G.online?.initialAmmo||null);
     if (G.online?.initialAmmo) {
-      onlineAmmo.begin({t:'ammo',...G.online.initialAmmo},G.loadout,G.T.map(t=>t.loading));
       G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
       G.online.initialAmmo=null;
-      syncRacks(true);
+      syncRacks();
     }
     updateGameplayDisplay();
     useWorld(G.mapId);
@@ -1761,9 +1764,10 @@ export function start(data, saved = {}) {
     else if (ev.lost) feed(ev.lost === mine ? `我方失去了 ${ev.id} 點` : `${ev.id} 點已中和`, ev.lost === mine ? 'kill' : 'info');
   }
   function conquestStep(dt) {
+    if (G.online&&G.resupply) G.resupply.elapsed=0;
     const c = G.conquest;
     if (!c) {
-      resupplyStep(dt);
+      if (!G.online) resupplyStep(dt);
       if (!cqBar.hidden) cqBar.hidden = true;
       if (cqMsg.textContent) cqMsg.textContent = '';
       return;
@@ -1790,7 +1794,7 @@ export function start(data, saved = {}) {
       toGarage();
       return;
     }
-    const resupply = resupplyStep(dt);
+    const resupply = G.online ? (!G.online.dead&&!G.online.benched ? G.resupplyProgress||0 : 0) : resupplyStep(dt);
     cqBar.hidden = false;
     const tk = c.tickets;
     const bar = (team, n) => `<div class="cq-tk" data-team="${team}"><i style="width:${Math.max(0, Math.min(100, (n / 1000) * 100)).toFixed(1)}%"></i><span>${Math.ceil(n)}</span></div>`;
@@ -1865,10 +1869,11 @@ export function start(data, saved = {}) {
     G.conquest = { points: m.points, tickets: m.tickets, local: false };
   });
 
-  function markDead(m) {
+  function markDead(m, force = false) {
     const o = G.online;
-    if (!o || o.dead) return;
+    if (!o || (o.dead&&!force)) return;
     o.dead = true;
+    G.resupplyProgress=0;cqMsg.textContent='';
     vehicleActions.cancel();
     o.diedAt = performance.now();
     G.fireHeld = false;
@@ -1960,8 +1965,9 @@ export function start(data, saved = {}) {
     return [p0[0] + (p1[0] - p0[0]) * t0, p0[1] + (p1[1] - p0[1]) * t0, p0[2] + (p1[2] - p0[2]) * t0];
   }
 
-  function validateOnlineLife(frame, id) {
+  function validateOnlineLife(frame, id, spawn = null, requiresSpawn = false) {
     if (!frame || !data.vehicles[id]) throw new Error('缺少出擊彈藥庫存，請更新伺服器');
+    if(requiresSpawn&&(!Number.isInteger(spawn)||spawn<0||spawn>15))throw new Error('無效的出擊位置');
     const fresh=makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns);
     applyAmmo(fresh,AMMO_CFG);
     new OnlineAmmo().begin({t:'ammo',...frame},fresh);
@@ -1973,14 +1979,29 @@ export function start(data, saved = {}) {
     if (!me) return;
     if (G.online && m.battle<G.online.battle) return;
     if (G.online && G.mode === 'battle' && G.online.battle === m.battle) {
-      if (m.ammo && onlineAmmo.receive({t:'ammo',...m.ammo})) G.resupplyProgress=m.ammo.resupply_progress;
+      const current=onlineAmmo.scope();
+      if(m.ammo&&current&&m.ammo.life<current.life)return;
+      // A duplicated initial bench Start predates every admitted incarnation.
+      if(current&&!m.ammo&&me.alive===false)return;
+      if(!m.ammo&&me.alive!==false)throw new Error('缺少出擊彈藥庫存，請更新伺服器');
+      const newLife=!!m.ammo&&(!current||m.ammo.life>current.life);
+      if(newLife) {
+        validateOnlineLife(m.ammo,me.vehicle,m.spawn,!!net.room?.deploy);
+        if(m.ammo.battle!==m.battle)throw new Error('無效的戰鬥彈藥範圍');
+        G.online.team=me.team;G.online.slot=me.slot;G.online.spawn=m.spawn??null;
+        G.online.members=new Map(m.members.map(x=>[x.id,x]));
+        select(me.vehicle,false,m.ammo);
+        G.online.dead=me.alive===false;G.online.benched=!!net.room?.deploy&&G.online.dead;G.online.hp=me.hp??100;
+        if(!G.online.dead)deploy.close();G.view='third';
+      } else if (m.ammo && onlineAmmo.receive({t:'ammo',...m.ammo})) G.resupplyProgress=m.ammo.resupply_progress;
+      if(me.alive===false) {markDead(null,newLife);G.online.benched=!!net.room?.deploy;G.resupplyProgress=0;cqMsg.textContent='';}
       G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
-      syncRacks(true);
+      syncRacks();
       return;
     }
     const benched = !!net.room?.deploy && me.alive === false;
     if (!Number.isSafeInteger(m.battle) || m.battle<=0) throw new Error('無效的戰鬥彈藥範圍');
-    if (!benched) {validateOnlineLife(m.ammo,me.vehicle);if(m.ammo.battle!==m.battle)throw new Error('無效的戰鬥彈藥範圍');}
+    if (!benched||m.ammo) {validateOnlineLife(m.ammo,me.vehicle,m.spawn,!!net.room?.deploy);if(m.ammo.battle!==m.battle)throw new Error('無效的戰鬥彈藥範圍');}
     if (G.mode === 'battle') toGarage();
     if (G.mode === 'test') {
       testRange.exit();
@@ -1988,9 +2009,9 @@ export function start(data, saved = {}) {
     }
     while (G.thumbs.length) thumbStep();
     // a deploy room: into the battle with nothing on the field, choosing on the deploy screen
-    G.online = { battle:m.battle, initialAmmo:m.ammo||null, roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: benched ? 0 : null, hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
+    G.online = { battle:m.battle, initialAmmo:m.ammo||null, roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: m.spawn??(benched?0:null), hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
     G.conquest = null;
-    if (!benched && me.vehicle && me.vehicle !== G.id && data.vehicles[me.vehicle]) select(me.vehicle);
+    if ((!benched||m.ammo) && me.vehicle && me.vehicle !== G.id && data.vehicles[me.vehicle]) select(me.vehicle);
     if (benched && !data.vehicles[G.id]) select(data.order[0]);
     if (!MAP_IDS.includes(m.map)) hud.toast(`這個版本沒有地圖「${m.map}」，改在靶場`, 4);
     setMapChoice(m.map);
@@ -2062,7 +2083,9 @@ export function start(data, saved = {}) {
     if (!G.online || !onlineAmmo.receive(m)) return;
     G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
     G.resupplyProgress=m.resupply_progress;
-    syncRacks(true);
+    if(G.online.dead||G.online.benched)G.resupplyProgress=0;
+    if(m.refilled&&!G.online.dead&&!G.online.benched)hud.toast('彈藥已補滿',2);
+    syncRacks();
     for(const [ti,t] of G.loadout.turrets.entries()) for(const [gi,g] of t.guns.entries()) if(g.launcher) {
       if(!onlineLaunches.has(g)&&roundsLeft(g)===0){G.T[ti].loading.state[gi]='empty';g.loaded=-1;syncGunShell(g);}
       if(G.model.payload)G.model.payload(ti,gi,g.launcher.ready);
@@ -2158,8 +2181,18 @@ export function start(data, saved = {}) {
   net.on('status', (m) => {
     if (!G.online) return;
     if (m.id === net.id) {
+      if(m.ammo_scope!==undefined||m.ammo_revision!==undefined) {
+        const scope=onlineAmmo.scope(),last=G.online.ammoRackStatus;
+        if(!scope||scope.battle!==m.ammo_scope?.battle||scope.life!==m.ammo_scope?.life)return;
+        if(m.ammo_revision!==undefined) {
+          if(!Number.isSafeInteger(m.ammo_revision)||m.ammo_revision<=0)return;
+          if(last&&last.battle===scope.battle&&last.life===scope.life&&m.ammo_revision<=last.revision)return;
+          G.online.ammoRackStatus={...scope,revision:m.ammo_revision};
+        }
+      }
       G.cstate = m.state;
       G.caps = m.caps;
+      syncRacks();
       for (const ev of m.events) {
         if (ev.startsWith('seat:')) hud.toast(`${CREW_NAME[ev.slice(5)] || ev.slice(5)}的位置已有人接替`, 2.5);
         else if (ev === 'repair_started') hud.toast(`開始修理：約 ${Math.ceil(m.caps.repair_s)} 秒，修理時不能開動`, 3);
@@ -2184,9 +2217,9 @@ export function start(data, saved = {}) {
       if(current && m.life<current.life) return;
       if(current && m.life===current.life) {
         if(!m.ammo)throw new Error('缺少出擊彈藥庫存，請更新伺服器');
-        if(onlineAmmo.receive({t:'ammo',...m.ammo}))G.resupplyProgress=m.ammo.resupply_progress;o.seq=Math.max(o.seq,onlineAmmo.processedThrough);syncRacks(true);return;
+        if(onlineAmmo.receive({t:'ammo',...m.ammo}))G.resupplyProgress=m.ammo.resupply_progress;o.seq=Math.max(o.seq,onlineAmmo.processedThrough);syncRacks();return;
       }
-      validateOnlineLife(m.ammo,m.vehicle);
+      validateOnlineLife(m.ammo,m.vehicle,m.spawn,!!net.room?.deploy);
       if(m.ammo.battle!==m.battle||m.ammo.life!==m.life)throw new Error('無效的出擊彈藥範圍');
       const first = o.benched;
       o.dead = false;
@@ -2196,11 +2229,9 @@ export function start(data, saved = {}) {
       deploy.close();
       // a fresh vehicle (the one chosen, with the rounds chosen) at the chosen start
       const id = m.vehicle && data.vehicles[m.vehicle] ? m.vehicle : G.id;
-      select(id);
-      if (!m.ammo) throw new Error('缺少出擊彈藥庫存，請更新伺服器');
-      onlineAmmo.begin({t:'ammo',...m.ammo},G.loadout,G.T.map(t=>t.loading));
+      select(id,false,m.ammo);
       o.seq=Math.max(o.seq,onlineAmmo.processedThrough);
-      syncRacks(true);
+      syncRacks();
       if (G.view === 'sight') toggleSight();
       G.view = 'third';
       hud.toast(first ? `${G.loadout.name} 出擊！` : `重新出擊：${G.loadout.name}`, 2.5);
@@ -2243,6 +2274,7 @@ export function start(data, saved = {}) {
   });
   // the connection dropped in a battle: the game goes on while the client takes the seat back
   net.on('reconnecting', () => {
+    G.resupplyProgress=0;cqMsg.textContent='';
     if (G.online) hud.toast('與伺服器的連線中斷，重新連線中…', 18);
   });
   net.on('resumed', () => {

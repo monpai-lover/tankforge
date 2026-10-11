@@ -312,7 +312,7 @@ test('live core-ready binding includes current player, AI, remote and range with
   assert.ok(enemies.every(e => G.combat.appliedFold.get(e.combatKey) === .3));
 });
 
-test('real rack synchronization initializes selected/deployed ammo, preserves late state, and accepts only offline ammo changes', () => {
+test('real rack synchronization initializes offline ammo and preserves server racks without online projections', () => {
   for (const online of [null, {}]) {
     const c = combat(), b = data.vehicles.de_pz3_j;
     const lo = loadout.makeLoadout('de_pz3_j', b, data.projectiles, data.machineGuns);
@@ -320,20 +320,24 @@ test('real rack synchronization initializes selected/deployed ammo, preserves la
     lo.turrets[0].guns[0].ammo[0].count = 1;
     const G = {bundle: b, combat: c, combatKey: 'racks:initial', loadout: lo, mode: 'battle', online};
     const app = live(['combatInit', 'carriedRounds', 'syncRacks'], {G, emptyRacks, roundsLeft: loadout.roundsLeft, applyXray() {}});
+    const initial=c.fresh(G.combatKey,b),authoritative=c.ammo(G.combatKey,initial.state,1),empty=c.ammo(G.combatKey,authoritative.state,0);
+    const expected=authoritative.state.rack_fill;
+    let projections=0;const project=c.ammo.bind(c);c.ammo=(...args)=>{projections++;return project(...args);};
     app.combatInit();
-    const expected = c.ammo(G.combatKey, c.fresh(G.combatKey, G.bundle).state, 1).state.rack_fill;
-    assert.deepEqual(G.cstate.rack_fill, expected, 'fresh selection/deploy applies the chosen short ammo load');
-    assert.equal(G.carried, 1);
-    const retained = c.ammo(G.combatKey, G.cstate, 0).state;
+    assert.deepEqual(G.cstate.rack_fill,online?initial.state.rack_fill:expected,'online initialization waits for server racks; offline initialization applies its selected load');
+    assert.equal(G.carried,online?-1:1);assert.equal(projections,online?0:1);
+    const retained=empty.state;
     G.cstate = retained;
+    G.caps=empty.caps;G.carried=1;
     app.combatInit(true);
     assert.deepEqual(G.cstate.rack_fill, retained.rack_fill, 'late readiness retains existing rack state in either mode');
     assert.equal(G.carried, 1);
-    G.cstate = c.ammo(G.combatKey, G.cstate, 1).state;
+    G.cstate=authoritative.state;G.caps=authoritative.caps;
     lo.turrets[0].guns[0].ammo[0].count = 0;
     app.syncRacks();
     assert.deepEqual(G.cstate.rack_fill, online ? expected : retained.rack_fill, 'online rack state remains authoritative; offline shots empty their racks');
     assert.equal(G.carried, online ? 1 : 0);
+    assert.equal(projections,online?0:2,'online initialization binding and updates never project local counts');
   }
 });
 

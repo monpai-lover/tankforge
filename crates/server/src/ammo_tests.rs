@@ -243,6 +243,12 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
             0.0,
         ),
     );
+    let token = l.players[&id].token.clone();
+    l.drop_link(id, 0.0);
+    let replacement = connected(&mut l);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),0.0);
+    assert_eq!(seat, id);
+    record(&mut phases, "deploy_resume", out);
     record(
         &mut phases,
         "state",
@@ -563,7 +569,7 @@ fn ammo_resupply_oplot_manual_auto_share_one_pool_and_preserve_heat() {
 
 fn actual_bmpt(mode: &str) -> Value {
     let mut l = real_lobby().with_points(HashMap::from([(
-        "range".into(),
+        "coast".into(),
         vec![CapPoint {
             id: "A".into(),
             x: 0.0,
@@ -590,7 +596,7 @@ fn actual_bmpt(mode: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"create","name":"bmpt","map":"range","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+            json!({"t":"create","name":"bmpt","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
             0.0,
         ),
     );
@@ -623,10 +629,16 @@ fn actual_bmpt(mode: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"deploy","vehicle":"su_bmpt34","ammo_mix":selected}),
+            json!({"t":"deploy","vehicle":"su_bmpt34","spawn":1,"ammo_mix":selected}),
             0.0,
         ),
     );
+    let token = l.players[&id].token.clone();
+    l.drop_link(id, 0.0);
+    let replacement = connected(&mut l);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),0.0);
+    assert_eq!(seat, id);
+    record(&mut phases, "deploy_resume", out);
     record(
         &mut phases,
         "state",
@@ -713,22 +725,45 @@ fn actual_bmpt(mode: &str) -> Value {
     let (seat, out) = l.dispatch_socket(replacement, msg, 5.3);
     assert_eq!(seat, id);
     record(&mut phases, "resume", out);
+    pose(&mut l, id, 5.35, 0.0, 0.0);
+    record(
+        &mut phases,
+        "secondary_cannon",
+        fire(&mut l, id, 46, "gun:0:1", "hefi_25_ozr132", 5.35),
+    );
+    assert_eq!(
+        l.players[&id].ammo.as_ref().unwrap().counts["gun:0:1"],
+        [0, 4]
+    );
     let old = l.ammo_scope(id);
     record(
         &mut phases,
         "scuttle",
         send(&mut l, id, json!({"t":"respawn"}), 5.4),
     );
+    let token = l.players[&id].token.clone();
+    l.drop_link(id, 5.4);
+    let replacement = connected(&mut l);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),5.4);
+    assert_eq!(seat, id);
+    record(&mut phases, "dead_resume", out);
     record(
         &mut phases,
         "new_life",
         send(
             &mut l,
             id,
-            json!({"t":"deploy","vehicle":"su_bmpt34","ammo_mix":selected}),
+            json!({"t":"deploy","vehicle":"su_bmpt34","spawn":2,"ammo_mix":selected}),
             10.4,
         ),
     );
+    pose(&mut l, id, 10.4, 0.0, 0.0);
+    let token = l.players[&id].token.clone();
+    l.drop_link(id, 10.4);
+    let replacement = connected(&mut l);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),10.4);
+    assert_eq!(seat, id);
+    record(&mut phases, "new_life_resume", out);
     pose(&mut l, id, 10.4, 0.0, 0.0);
     record(
         &mut phases,
@@ -759,6 +794,156 @@ fn actual_bmpt(mode: &str) -> Value {
         broadcast_out(supply_tick(&mut l, id, 10.75)),
     );
     assert_eq!(l.players[&id].supply_progress, 0.0);
+    // These are the actual accepted-State seams that can interrupt dwell between ticks.
+    // Keep the same battle/life as the preceding scenario so browser replay can adopt them.
+    pose(&mut l, enemy, 13.0, 45.1, 0.0);
+    pose(&mut l, id, 13.0, 44.9, 0.0);
+    l.tick_at(13.0);
+    for step in 1..=19 {
+        let now = 13.0 + step as f64 * 0.25;
+        pose(&mut l, enemy, now, 45.1, 0.0);
+        let out = supply_tick(&mut l, id, now);
+        if step == 19 {
+            record(&mut phases, "owner_before_exit", broadcast_out(out));
+        }
+    }
+    record(
+        &mut phases,
+        "owner_exit",
+        send(
+            &mut l,
+            id,
+            json!({"t":"state","s":{"pos":[45.1,0,0]}}),
+            17.751,
+        ),
+    );
+    record(
+        &mut phases,
+        "owner_reentry",
+        send(
+            &mut l,
+            id,
+            json!({"t":"state","s":{"pos":[44.9,0,0]}}),
+            17.752,
+        ),
+    );
+    record(
+        &mut phases,
+        "owner_after_reentry",
+        broadcast_out(supply_tick(&mut l, id, 18.0)),
+    );
+    assert_eq!(l.players[&id].rounds, Some(12));
+    for step in 1..=18 {
+        let now = 18.0 + step as f64 * 0.25;
+        pose(&mut l, enemy, now, 45.1, 0.0);
+        supply_tick(&mut l, id, now);
+    }
+    record(
+        &mut phases,
+        "enemy_before_entry",
+        broadcast_out(supply_tick(&mut l, id, 22.502)),
+    );
+    record(
+        &mut phases,
+        "enemy_entry",
+        send(
+            &mut l,
+            enemy,
+            json!({"t":"state","s":{"pos":[44.9,0,0]}}),
+            22.503,
+        ),
+    );
+    record(
+        &mut phases,
+        "enemy_exit",
+        send(
+            &mut l,
+            enemy,
+            json!({"t":"state","s":{"pos":[45.1,0,0]}}),
+            22.504,
+        ),
+    );
+    record(
+        &mut phases,
+        "enemy_after_exit",
+        broadcast_out(supply_tick(&mut l, id, 22.75)),
+    );
+    for step in 1..=14 {
+        supply_tick(&mut l, id, 22.75 + step as f64 * 0.25);
+    }
+    supply_tick(&mut l, id, 26.254);
+    record(
+        &mut phases,
+        "stale_before_refresh",
+        broadcast_out(l.tick_at(27.254)),
+    );
+    record(
+        &mut phases,
+        "stale_refresh",
+        send(
+            &mut l,
+            id,
+            json!({"t":"state","s":{"pos":[44.9,0,0]}}),
+            27.504,
+        ),
+    );
+    record(
+        &mut phases,
+        "stale_after_refresh",
+        broadcast_out(supply_tick(&mut l, id, 27.75)),
+    );
+    for phase in ["owner_exit", "enemy_entry", "stale_refresh"] {
+        assert!(
+            phases[phase]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|e| e[0] == id && e[1]["t"] == "ammo" && e[1]["resupply_progress"] == 0.0),
+            "{phase}: genuine reset must be serialized"
+        );
+    }
+    assert_eq!(
+        l.players[&id].ammo.as_ref().unwrap().counts["gun:0:0"],
+        [6, 0]
+    );
+    let engine = l.targets["su_bmpt34"]
+        .def
+        .modules
+        .iter()
+        .position(|m| m.kind == tg_combat::ModuleKind::Engine)
+        .unwrap();
+    let state = l.players.get_mut(&id).unwrap().combat.as_mut().unwrap();
+    state.modules[engine] *= 0.5;
+    state.crew[0] = 83.0;
+    state.fire_s = 2.0;
+    record(
+        &mut phases,
+        "damage_before_refill",
+        send(&mut l, id, json!({"t":"repair"}), 28.0),
+    );
+    let preserved = serde_json::to_value(l.players[&id].combat.as_ref().unwrap()).unwrap();
+    assert!(preserved["repair_s"].as_f64().unwrap() > 0.0);
+    for step in 1..=18 {
+        supply_tick(&mut l, id, 27.75 + step as f64 * 0.25);
+    }
+    record(
+        &mut phases,
+        "damage_refill",
+        broadcast_out(supply_tick(&mut l, id, 32.504)),
+    );
+    let status = phases["damage_refill"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|e| e[0] == id && e[1]["t"] == "status")
+        .unwrap();
+    for field in ["modules", "crew", "roles", "fire_s", "repair_s"] {
+        assert_eq!(status[1]["state"][field], preserved[field]);
+    }
+    assert_eq!(
+        l.players[&id].ammo.as_ref().unwrap().counts["gun:0:0"],
+        [7, 0]
+    );
     for (name, values) in &phases {
         for entry in values.as_array().unwrap() {
             if entry[1]["t"] == "ammo" {
@@ -773,7 +958,7 @@ fn actual_bmpt(mode: &str) -> Value {
             }
         }
     }
-    json!({"owner":id,"enemy":enemy,"vehicle":"su_bmpt34","mode":mode,"selected":selected,"phases":phases})
+    json!({"owner":id,"enemy":enemy,"vehicle":"su_bmpt34","mode":mode,"selected":selected,"phases":phases,"dead_recovery":actual_dead_recovery(mode)})
 }
 #[test]
 fn browser_ammo_resupply_receipt_from_actual_handlers() {
@@ -794,6 +979,275 @@ fn browser_ammo_resupply_receipt_from_actual_handlers() {
         )
         .unwrap();
     }
+}
+fn actual_dead_recovery(mode: &str) -> Value {
+    let mut l = real_lobby();
+    let id = connected(&mut l);
+    let mut phases = serde_json::Map::new();
+    record(
+        &mut phases,
+        "create",
+        send(
+            &mut l,
+            id,
+            json!({"t":"create","name":"dead recovery","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+            0.0,
+        ),
+    );
+    record(
+        &mut phases,
+        "start",
+        send(&mut l, id, json!({"t":"start"}), 0.0),
+    );
+    let selected = json!({"gun:0:0":[7,0],"gun:0:1":[0,5],"gun:0:2":[1],"gun:0:3":[0]});
+    record(
+        &mut phases,
+        "first_life",
+        send(
+            &mut l,
+            id,
+            json!({"t":"deploy","vehicle":"su_bmpt34","spawn":1,"ammo_mix":selected}),
+            0.0,
+        ),
+    );
+    send(&mut l, id, json!({"t":"respawn"}), 0.0);
+    record(
+        &mut phases,
+        "missed_life",
+        send(
+            &mut l,
+            id,
+            json!({"t":"deploy","vehicle":"su_bmpt34","spawn":2,"ammo_mix":selected}),
+            5.0,
+        ),
+    );
+    record(
+        &mut phases,
+        "death",
+        send(&mut l, id, json!({"t":"respawn"}), 5.1),
+    );
+    let token = l.players[&id].token.clone();
+    l.drop_link(id, 5.2);
+    let replacement = connected(&mut l);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),5.3);
+    assert_eq!(seat, id);
+    record(&mut phases, "resume", out);
+    assert_eq!(l.players[&id].life, 2);
+    assert!(!l.players[&id].alive);
+    json!({"owner":id,"phases":phases})
+}
+
+#[test]
+fn ammo_review_rack_mutations_emit_owner_scoped_authoritative_status() {
+    for mode in ["historical", "casual"] {
+        let scenario = actual_bmpt(mode);
+        let owner = scenario["owner"].as_u64().unwrap();
+        for phase in ["deploy", "cannon", "rail", "at_5", "resume", "new_life"] {
+            let entries = scenario["phases"][phase].as_array().unwrap();
+            let status = entries
+                .iter()
+                .find(|e| e[0] == owner && e[1]["t"] == "status")
+                .unwrap_or_else(|| panic!("{mode}/{phase}: missing authoritative rack Status"));
+            assert!(status[1]["ammo_scope"]["life"].as_u64().unwrap() > 0);
+            if phase == "resume" {
+                assert!(status[1].get("ammo_revision").is_none());
+            } else {
+                assert!(status[1]["ammo_revision"].as_u64().unwrap() > 0);
+            }
+            assert!(status[1]["state"]["rack_fill"].is_array());
+            assert!(status[1]["caps"].is_object());
+            assert!(entries
+                .iter()
+                .filter(|e| e[1]["t"] == "status" && e[1].get("ammo_scope").is_some())
+                .all(|e| e[0] == owner));
+        }
+        for vehicle in ["su_t10m", "su_t10m_oplot23"] {
+            let scenario = actual_oplot(mode, vehicle);
+            for phase in ["manual", "automatic", "at_5", "recovered"] {
+                assert!(
+                    scenario["phases"][phase]
+                        .as_array()
+                        .unwrap()
+                        .iter()
+                        .any(|e| e[0] == scenario["owner"] && e[1]["t"] == "status"),
+                    "{vehicle}/{mode}/{phase}"
+                );
+            }
+        }
+    }
+}
+#[test]
+fn ammo_review_aps_snapshots_keep_rounds_private_for_every_recipient() {
+    for mode in ["historical", "casual"] {
+        for vehicle in ["su_t10m", "su_t10m_oplot23"] {
+            let scenario = actual_oplot(mode, vehicle);
+            let owner = scenario["owner"].as_u64().unwrap();
+            for entries in scenario["phases"].as_object().unwrap().values() {
+                for entry in entries.as_array().unwrap() {
+                    if entry[1]["t"] == "ammo" {
+                        let expected = if entry[1]["counts"].get("gun:1:0").is_some() {
+                            json!(owner)
+                        } else {
+                            scenario["enemy"].clone()
+                        };
+                        assert_eq!(entry[0], expected);
+                    }
+                    if entry[1]["t"] == "status" && entry[1].get("ammo_scope").is_some() {
+                        assert_eq!(entry[0], entry[1]["id"]);
+                    }
+                    for aps in entry[1]["aps"].as_array().into_iter().flatten() {
+                        if entry[0] == aps["owner"] {
+                            assert!(aps["rounds"].as_u64().is_some());
+                        } else {
+                            assert!(
+                                aps.get("rounds").is_none(),
+                                "enemy absolute stock leaked: {entry}"
+                            );
+                        }
+                        for field in ["yaw", "pitch", "heat", "spin"] {
+                            assert!(aps[field].is_number());
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+#[test]
+fn ammo_review_receipt_contains_real_transient_and_stale_interruption_phases() {
+    for mode in ["historical", "casual"] {
+        let scenario = actual_bmpt(mode);
+        for phase in [
+            "owner_before_exit",
+            "owner_exit",
+            "owner_reentry",
+            "owner_after_reentry",
+            "enemy_before_entry",
+            "enemy_entry",
+            "enemy_exit",
+            "enemy_after_exit",
+            "stale_before_refresh",
+            "stale_refresh",
+            "stale_after_refresh",
+        ] {
+            assert!(
+                scenario["phases"].get(phase).is_some(),
+                "missing actual-handler {phase}"
+            );
+        }
+    }
+}
+#[test]
+fn ammo_review_refill_status_changes_only_racks_preserving_damage_and_timers() {
+    let mut l = real_lobby();
+    let (id, room, _) = sortie(
+        &mut l,
+        "su_bmpt34",
+        json!({"gun:0:0":[7,0],"gun:0:1":[0,5],"gun:0:2":[1],"gun:0:3":[0]}),
+    );
+    capture(&mut l, id, room);
+    fire(&mut l, id, 41, "gun:0:0", "apt_25_br132p", 0.0);
+    l.tick_at(0.0);
+    for step in 1..=19 {
+        supply_tick(&mut l, id, step as f64 * 0.25);
+    }
+    let engine = l.targets["su_bmpt34"]
+        .def
+        .modules
+        .iter()
+        .position(|m| m.kind == tg_combat::ModuleKind::Engine)
+        .unwrap();
+    let p = l.players.get_mut(&id).unwrap();
+    let state = p.combat.as_mut().unwrap();
+    state.modules[engine] *= 0.5;
+    state.crew[0] = 83.0;
+    state.fire_s = 2.0;
+    state.repair_s = 3.0;
+    let before = serde_json::to_value(&state).unwrap();
+    let out = broadcast_out(supply_tick(&mut l, id, 5.0));
+    let status = message(&out, id, "status");
+    assert!(!status.is_null());
+    assert_ne!(status["state"]["rack_fill"], before["rack_fill"]);
+    let mut after = status["state"].clone();
+    let mut before = before;
+    after.as_object_mut().unwrap().remove("rack_fill");
+    before.as_object_mut().unwrap().remove("rack_fill");
+    assert_eq!(after, before);
+    assert_eq!(
+        status["state"],
+        serde_json::to_value(l.players[&id].combat.as_ref().unwrap()).unwrap()
+    );
+    assert_eq!(
+        status["ammo_revision"],
+        message(&out, id, "ammo")["revision"]
+    );
+    assert_eq!(
+        status["caps"],
+        serde_json::to_value(tg_combat::caps(
+            &l.targets["su_bmpt34"],
+            l.players[&id].combat.as_ref().unwrap()
+        ))
+        .unwrap()
+    );
+    assert!(out
+        .iter()
+        .filter(|(_, m)| matches!(
+            m,
+            ServerMsg::Status {
+                ammo_scope: Some(_),
+                ..
+            }
+        ))
+        .all(|(to, _)| *to == id));
+}
+#[test]
+fn ammo_review_resume_start_retains_each_accepted_spawn_and_dead_life() {
+    let s = actual_bmpt("historical");
+    let find = |phase: &str, kind: &str| {
+        s["phases"][phase]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|e| e[0] == s["owner"] && e[1]["t"] == kind)
+            .unwrap()[1]
+            .clone()
+    };
+    assert_eq!(
+        find("deploy_resume", "start")["spawn"],
+        find("deploy", "respawned")["spawn"]
+    );
+    assert_eq!(find("deploy_resume", "start")["spawn"], 1);
+    assert_eq!(
+        find("new_life_resume", "start")["spawn"],
+        find("new_life", "respawned")["spawn"]
+    );
+    assert_eq!(find("new_life_resume", "start")["spawn"], 2);
+    let dead = find("dead_resume", "start");
+    assert_eq!(
+        dead["members"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|m| m["id"] == s["owner"])
+            .unwrap()["alive"],
+        false
+    );
+}
+#[test]
+fn ammo_review_dead_resume_combat_snapshot_is_not_a_rack_revision() {
+    let s = actual_bmpt("historical");
+    let status = s["phases"]["dead_resume"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|e| e[0] == s["owner"] && e[1]["t"] == "status")
+        .unwrap();
+    assert_eq!(status[1]["ammo_scope"]["life"], 1);
+    assert_eq!(status[1]["state"]["destroyed"], true);
+    assert!(
+        status[1].get("ammo_revision").is_none(),
+        "a resumed combat snapshot is scoped but is not versioned by ammunition mutations"
+    );
 }
 #[test]
 fn ammo_resupply_five_seconds_is_one_grant_and_overlap_does_not_double() {

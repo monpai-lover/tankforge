@@ -68,3 +68,12 @@ test('a covered last tube acknowledgement advances once after absolute zero and 
     assert.equal(launches.confirm(41,g.def.missile,g,session,{consumeAmmo:false,scope:inventory.scope()}),null);assert.equal(g.launcher.nextTube,1);
   }
 });
+test('fresh admission fits selected live shell belt and tube readiness while later frames preserve them',()=>{
+  const id='su_bmpt34',lo=makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns),L=lo.turrets.map(t=>newLoading(t.guns.length,t.loaders.length));applyAmmo(lo,{});
+  const selected={'gun:0:0':[7,0],'gun:0:1':[0,5],'gun:0:2':[1],'gun:0:3':[0]};
+  const owner=new api.OnlineAmmo(),frame={t:'ammo',ammo_protocol_version:1,battle:1,life:1,revision:1,processed_through:0,counts:selected,targets:selected,resupply_progress:0,refilled:false};owner.begin(frame,lo,L);
+  const guns=lo.turrets[0].guns;assert.equal(guns[1].loaded,1);assert.equal(guns[1].selected,1);assert.equal(guns[1].shell.id,guns[1].ammo[1].shell.id);assert.equal(guns[1].belt,5);
+  assert.equal(guns[3].loaded,-1);assert.equal(guns[3].launcher.ready,0);assert.equal(L[0].state[3],'empty');
+  guns[1].belt=2;guns[2].launcher.nextTube=3;guns[2].launcher.cooldown=.1;L[0].state[1]='loading';L[0].loaders[0]={gun:1,remaining:2,total:4};
+  owner.receive({...frame,revision:2,resupply_progress:.95});assert.equal(guns[1].belt,2);assert.equal(guns[2].launcher.nextTube,3);assert.equal(guns[2].launcher.cooldown,.1);assert.deepEqual(L[0].loaders[0],{gun:1,remaining:2,total:4});
+});
