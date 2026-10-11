@@ -73,3 +73,41 @@ preparation tests only. Native bundle mirror,actual source R/S/corner-domain
 guards,whole-side impulse application/shared-hull integration,reciprocal
 traction and final B2 acceptance remain open. No old heavy healthy-fleet run,
 new release build or browser operation occurred.
+
+## Stable JS/native mirror — fresh independent Root checkpoint
+
+At documentation HEAD2d88b89,with the implementer holding the named helpers
+and focused tests unchanged for Root verification,Root ran `track-shape`,
+`track-lower-graph`,`track-convex-contact`,`track-finite-discovery`,
+`track-geometry`,`track-bundle`:37 PASS/0 FAIL/exit0.
+
+Fresh serial native groups were `source_inventory_`5,
+`minimum_deformation_`4,`fixed_track_compact_`3,
+`fixed_track_lower_graph_`8,`fixed_track_bundle_`6:
+**26 PASS/0 FAIL/exit0**. The actual compiled native bundle includes1500
+independently prescribed multi-shape/cap KKT cases;wide sigma.2/.3 source
+preparation also passes its native mirror. `git diff --check` exited0.
+No release/WASM build or vehicle dynamics was run. Root returned native build
+ownership to the sole implementer after completion.
+
+The bundle's fixed tangent impulse input is not a sliding-friction or traction
+implementation. Source chart/corner certification,real mass/velocity adapter,
+whole-side/shared-hull normal and reciprocal traction integration,final freeze
+correspondence,fleet and release gates remain unfinished. The checkpoint does
+not approve B2,any other pending feature,or publication.
+
+Stable helper SHA256 identities captured immediately after verification:
+
+| File | SHA256 |
+|---|---|
+| `client/web/src/sim/tank/trackBundle.js` | `2DF603A3DBA29FE71BF1619CBD1CD404802EB85ED99135C75A7DB6829191C4BC` |
+| `client/web/src/sim/tank/trackGeometry.js` | `E542DF60432CB2E9A5CF3E48EFFBF5BD31655E9848D3E8DC2033AB62CEA120CE` |
+| `crates/physics/src/tank/track_bundle.rs` | `3D224F33FC211F51858894420C24824303A4534292170D2220228CCE52D71AFF` |
+| `crates/physics/src/tank/track_geometry.rs` | `7B915D36C0271810E17E77C4E5D7D00FB847188FB6EFD76E3372E9411DF6A6FC` |
+
+Separate no-dynamics chart-column inventory across35 descriptors at side+1,
+q0,phase.25,control0−1mm and complete below-vehicle terrain rows found34
+ordinary mechanical derivative batches valid;Flak q1/q2 remained unavailable.
+This single static/air fixture is not a loaded/source/whole-fleet mechanical
+certificate. It focuses the next common-directional-chart work on the proven
+counterexample;other poses/phases still require their existing gates.
