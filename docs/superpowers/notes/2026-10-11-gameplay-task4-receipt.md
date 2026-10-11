@@ -136,3 +136,15 @@ authority or a historical fleet-data audit.
 
 User-facing behavior and reproduction steps:
 [`docs/gameplay-modes-2026-10-11.md`](../../gameplay-modes-2026-10-11.md).
+
+## Final independent acceptance at 6853c5c
+
+Fresh SPEC passed all delivery requirements, independently running 72 focused
+checks, the bundled strict/frozen registry and missing/stale receipt probes.
+Fresh QUALITY approved with no actionable findings. It independently checked
+all core/page/source/log hashes, 448 protected paths and B2's 13+2 frozen inputs.
+Root also reran the offline artifact verifier successfully. Its regenerable
+ignored manifest records the current Git HEAD under `runtimeCommit`; restoring
+only that metadata field to the original 0cbcc35 value reproduces the documented
+snapshot hash exactly. No source, log or artifact bytes changed in that rerun.
+Integration and the separate Oplot23 work remain outside this snapshot acceptance.

@@ -154,14 +154,16 @@ node client/web/build.mjs
 
 - [x] Check generated target WASM, asset and exactly one HTML `designCore` embed are byte-identical. Validate that built UI contains both mode controls, room protocol/schema and versioned rule values; run actual runtime/HUD tests against the matching artifact inputs. CPU/build acceptance is separate from browser visual acceptance, which remains restricted by the prior automatic rejection.
 - [x] Write the user-facing combined result MD with real multipliers, historic-marker scope, multiplayer compatibility, artifact path, verification and remaining B/replay boundary. Copy the reviewed page under a new name without overwriting original pages. Preserve the prior sight preview.
-- [ ] Final fresh SPEC→QUALITY review of the integrated mode feature, source diff and tests. Precisely integrate with the authorized development branch while preserving all frozen uncommitted B2 runtime hunks. Do not stage generated assets or unrelated dirty work wholesale. Push/integration decisions use existing user authorization and the required overall acceptance boundary; do not claim B2/wheels/exact-hitbox/projectile stages complete.
+- [x] Final fresh SPEC→QUALITY review of the integrated mode feature, source diff and tests at `6853c5c`: SPEC independently passed 72 checks and the actual bundled registry probes; QUALITY independently verified provenance, unchanged sources and strict negative receipt cases. No actionable findings remain.
+- [ ] Precisely integrate with the authorized development branch while preserving all frozen uncommitted B2 runtime hunks. Do not stage generated assets or unrelated dirty work wholesale. Push/integration decisions use existing user authorization and the required overall acceptance boundary; do not claim B2/wheels/exact-hitbox/projectile stages complete.
 
 ## Execution checklist
 
 - [x] Task1 rules/performance source accepted at `f1353d6`; fresh SPEC PASS and QUALITY APPROVE.
 - [x] Task2 active single-player and actual HUD accepted at `8a658cc`; fresh SPEC PASS and QUALITY APPROVE.
 - [x] Task3 room authority and online weapon-world accepted at `0cbcc35`; fresh SPEC PASS (39) then QUALITY APPROVE (29), including expired-seat profile and cancelled-map-start repairs.
-- [ ] Task4 overall acceptance and precise integration: receipt, tests, matching named page and documentation are ready; fresh integrated SPEC → QUALITY and integration/push remain pending.
+- [x] Task4 receipt, tests, matching named page and documentation accepted at `6853c5c`; fresh integrated SPEC PASS then QUALITY APPROVE.
+- [ ] Precise integration/push after the separately approved Oplot23 addition and combined delivery are accepted.
 
 Task4 delivery receipt: `docs/superpowers/notes/2026-10-11-gameplay-task4-receipt.md`.
 Root's full checks on the same frozen `0cbcc35` runtime are Node 549 PASS/0 FAIL/
