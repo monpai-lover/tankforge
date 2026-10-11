@@ -8,6 +8,7 @@ Installation, ammunition counts, belt/reload/spin-up, projectile dimensions,
 drag and curves are project estimates; source platform mass is not recalibrated.
 """
 import base64
+import argparse
 import copy
 import json
 import math
@@ -16,7 +17,6 @@ import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = ROOT / 'data/vehicles/su_t10m'
-DEST = ROOT / 'data/vehicles/su_t10m_oplot23'
 DISTANCES = (0, 100, 500, 1000, 1500, 2000, 2500)
 
 
@@ -41,6 +41,11 @@ def projectile(pid, name, kind, length, filler=0, filler_type='none'):
 
 
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--output-root', type=Path, default=ROOT,
+                        help='Write generated data beneath this directory; source reads always use the repository.')
+    output_root = parser.parse_args().output_root.resolve()
+    dest = output_root / 'data/vehicles/su_t10m_oplot23'
     files = {k: copy.deepcopy(read(SOURCE / f'{k}.json'))
              for k in ('vehicle', 'engine', 'weapons', 'visual', 'armor', 'modules', 'crew')}
     v = files['vehicle']
@@ -77,8 +82,8 @@ def main():
                  blob=base64.b64encode(zlib.compress(b'')).decode('ascii'),
                  parts=[], textures=[], shared={'from': 'su_t10m', 'mounts': ['turret', 'gun']})
     for key, value in files.items():
-        write(DEST / f'{key}.json', value)
-    write(DEST / 'model.json', model)
+        write(dest / f'{key}.json', value)
+    write(dest / 'model.json', model)
 
     src = read(ROOT / 'data/projectiles/api_145_b32.json')
     # Solve declared steel k from the current authored B-32 0 m curve, then use
@@ -99,8 +104,8 @@ def main():
         'Not ROMARM 174 g without-fuze, API-TM190 g/690 m/s or HEI-M186 g/700 m/s. '
         '102.5 mm dimension is a reference estimate; drag, impact fuze and existing14*sqrt(filler_kg) HE curve are project estimates. '
         'Factory PDF not inspected; P3 full energy/fuze calibration is outside this variant.')
-    write(ROOT / 'data/projectiles/api_23_bza.json', api)
-    write(ROOT / 'data/projectiles/hei_23_ofz.json', hei)
+    write(output_root / 'data/projectiles/api_23_bza.json', api)
+    write(output_root / 'data/projectiles/hei_23_ofz.json', hei)
     print('Authored independent Oplot23: eight new vehicle files and two new projectile files.')
 
 

@@ -21,8 +21,8 @@ const resolve=(s,id)=>{assert.equal(typeof api.resolveRangefinder,'function');re
 const spec=(sightSource,rangefinderKind)=>({...newTurretSpec(),...(sightSource?{sightSource}:{}),...(rangefinderKind?{rangefinderKind}:{}),guns:[{weapon:'xp_kda35'}]});
 const load=b=>makeLoadout('test',b,data.projectiles,data.machineGuns);
 
-test('all 42 playable vehicles and their extra sights use equipment evidence, never inferred lasers',()=>{
- assert.equal(ORDER.length,42);
+test('all 43 playable vehicles and their extra sights use equipment evidence, never inferred lasers',()=>{
+ assert.equal(ORDER.length,43);
  for(const id of ORDER){
   const t=load(data.vehicles[id]).turrets;
   assert.equal(t[0].rangefinder.kind,id==='de_panther_f'?'stereoscopic':'manual',id);

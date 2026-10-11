@@ -22,7 +22,7 @@ test('running gear: static assembly recombines the original mass, COM and full i
     const visual = new URL(`${id}/visual.json`, dir);
     return fs.existsSync(visual) && Array.isArray(JSON.parse(fs.readFileSync(visual)).running_gear?.wheels);
   });
-  assert.equal(ids.length, 35, 'includes the hidden fun_hexa source geometry');
+  assert.equal(ids.length, 36, 'includes the hidden fun_hexa source geometry');
   for (const id of ids) {
     const r = rig(id);
     const m = tracked(r).model;

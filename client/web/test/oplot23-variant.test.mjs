@@ -34,10 +34,13 @@ import { decodeAllImported, decodeImported } from '../src/gfx/imported.js';
 import { exportWorkshopModel } from '../src/game/workshopImported.js';
 import { GeoBuilder, STRIDE } from '../src/gfx/geo.js';
 import { addPart, materials } from '../src/gfx/tankmodel.js';
-import { transformPoint, transformDir } from '../src/gfx/math.js';
+import { transformPoint, transformDir, mul, translation, rotX, rotY, rotZ } from '../src/gfx/math.js';
 import { advanceGunRecoil } from '../src/game/fx.js';
 import { createHash } from 'node:crypto';
 import { spawnSync } from 'node:child_process';
+import path from 'node:path';
+import os from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
 const data = loadData(), DEG = Math.PI / 180, ME = 1;
@@ -49,7 +52,7 @@ function functionSource(name) {
   const start = source.indexOf(`  function ${name}(`);
   return start < 0 ? '' : source.slice(start, source.indexOf('\n  }', start) + 4);
 }
-function controls(id, mode = 'historical') {
+function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
   const lo = performanceApi.deriveLoadoutPerformance(loadout.makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns), mode);
   const G = { id, mode: 'battle', gameplayMode: mode, loadout: lo, zero: 0,
     s: { x: 0, y: 0, z: 0, heading: 0 }, ss: { pitch: 0, roll: 0 },
@@ -60,7 +63,7 @@ function controls(id, mode = 'historical') {
       guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })),
       loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })),
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], online: null,
-    veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse(j, p) { this.body.applyImpulseAt(j, p); }, worldPoint: p => p },
+    veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulses: [], impulse(j, p) { this.impulses.push({j,p}); this.body.applyImpulseAt(j, p); }, worldPoint(p) { return this.body.worldPoint(p); } },
   };
   const sent = [], apsCalls = [];
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
@@ -76,7 +79,7 @@ function controls(id, mode = 'historical') {
   } };
   const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
-    ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
+    ...selection, ...loadout, ...optics, rng,
     onlineFires: new OnlineFires(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
     sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
@@ -222,6 +225,33 @@ test('actual API and HEI manual fire consume rounds, recoil the rigid body and r
   }
 });
 
+test('actual autocannon recoil opposes the nominal world muzzle on tilted parented poses and acts at the physical trunnion', () => {
+  for(const [pitch,roll] of [[0,0],[.2,0],[0,.2],[.2,.1]])for(const mode of ['historical','casual']) {
+    let draw=0; const r=controls(ID,mode,{nextF32:()=>[.75,.25][draw++%2]});
+    const matrix=mul(translation(10,1,-5),mul(rotY(.6),mul(rotX(-pitch),rotZ(roll))));
+    const body=r.G.veh.body;
+    body.ex=transformDir(matrix,[1,0,0]);body.ey=transformDir(matrix,[0,1,0]);body.ez=transformDir(matrix,[0,0,1]);body.pos=[10,1,-5];
+    r.G.ss=body.attitude();r.G.s={x:10,y:1,z:-5,heading:r.G.ss.heading};
+    r.live.cycleSightGun();r.G.T[0].yaw=.7;r.G.T[1].yaw=1.1;r.G.T[1].guns[0].pitch=.25;
+    const g=r.G.loadout.turrets[1].guns[0], t=r.G.loadout.turrets[1];
+    const nominal=r.live.sightMuzzle(hullTilt(r.G.ss,1.1));
+    const parent=r.G.loadout.turrets[0];
+    const pivot=gunnery.muzzleLocal({pivot:parent.pivot,trunnion:t.pivot,muzzleOffset:0},{yaw:.7,pitch:0}).trunnion;
+    const mount={pivot,trunnion:g.trunnion.map((v,k)=>v+pivot[k]-t.pivot[k]),muzzleOffset:g.muzzleOffset};
+    const local=gunnery.muzzleLocal(mount,{yaw:1.1,pitch:.25});
+    const physicalTrunnion=body.worldPoint(local.trunnion), momentum=g.shell.mass_kg*g.shell.muzzle_velocity_ms*1.3;
+    assert.equal(r.live.fireGun(1,0),true);
+    const impulse=r.G.veh.impulses[0];assert.ok(impulse);
+    impulse.j.forEach((v,k)=>close(v,-nominal.dir[k]*momentum,`${mode} tilted nominal recoil ${pitch}/${roll}`,1e-5));
+    impulse.p.forEach((v,k)=>close(v,physicalTrunnion[k],'physical parented trunnion',1e-6));
+    const shot=r.G.shots[0];shot.origin.forEach((v,k)=>close(v,nominal.pos[k],'actual emitted origin',1e-6));
+    const actualDir=shot.s.vel.map(v=>v/g.shell.muzzle_velocity_ms);
+    assert.ok(Math.hypot(...actualDir.map((v,k)=>v-nominal.dir[k]))>1e-7,'dispersion belongs to the bullet; recoil uses the average nominal gun axis');
+    body.v.forEach((v,k)=>close(v,impulse.j[k]/body.mass,'actual rigid body velocity',1e-6));
+    assert.ok(Math.hypot(...body.w)>0,'off-center physical trunnion twists the rigid body');
+  }
+});
+
 test('actual live aiming and pose keep parent yaw, pitch, recoil and rotary cluster transform', async () => {
   assert.ok(data.vehicles[ID]); const r=controls(ID),a=controls(ID,'casual');
   for(const q of [r,a]){q.live.cycleSightGun();q.G.aimPoint=[400,200,400];q.live.aimTurrets(.005);}
@@ -271,8 +301,24 @@ test('author tool is deterministic and touches only new files; all original pack
   assert.ok(data.vehicles[ID]);
   const paths=['vehicle','weapons','visual','armor','modules','crew','engine','model'].map(k=>`data/vehicles/${ID}/${k}.json`).concat(['data/projectiles/api_23_bza.json','data/projectiles/hei_23_ofz.json']);
   const before=paths.map(p=>sha(fs.readFileSync(new URL(p,root))));
-  const run=spawnSync('python',['tools/oplot23-variant.py'],{cwd:root,encoding:'utf8'});assert.equal(run.status,0,run.stderr);
+  const beforeTimes=paths.map(p=>{const s=fs.statSync(new URL(p,root),{bigint:true});return [s.mtimeNs,s.ctimeNs];});
+  const temp=fs.mkdtempSync(path.join(os.tmpdir(),'tankforge-oplot23-'));
+  // Keep source reads real, and fail before any accidental write into this checkout.
+  // This also makes the RED run safe when the tool does not yet honor --output-root.
+  const guard=`import pathlib, runpy, sys\ntool=sys.argv[1]\nroot=pathlib.Path(tool).resolve().parent.parent\nwrite=pathlib.Path.write_text\ndef isolated_write(self,*args,**kwargs):\n    if self.resolve().is_relative_to(root): raise RuntimeError('author tool attempted to write canonical checkout')\n    return write(self,*args,**kwargs)\npathlib.Path.write_text=isolated_write\nsys.argv=[tool,*sys.argv[2:]]\nrunpy.run_path(tool,run_name='__main__')`;
+  try {
+    for(const pass of ['first','second']) {
+      const output=path.join(temp,pass);
+      const run=spawnSync('python',['-c',guard,fileURLToPath(new URL('tools/oplot23-variant.py',root)),'--output-root',output],{cwd:root,encoding:'utf8'});
+      assert.equal(run.status,0,run.stderr);
+      paths.forEach(p=>assert.deepEqual(fs.readFileSync(path.join(output,p)),fs.readFileSync(new URL(p,root)),`${pass} canonical bytes ${p}`));
+    }
+  } finally {
+    assert.equal(path.dirname(temp),os.tmpdir());
+    fs.rmSync(temp,{recursive:true,force:true});
+  }
   assert.deepEqual(paths.map(p=>sha(fs.readFileSync(new URL(p,root)))),before);
+  assert.deepEqual(paths.map(p=>{const s=fs.statSync(new URL(p,root),{bigint:true});return [s.mtimeNs,s.ctimeNs];}),beforeTimes,'canonical files were never rewritten');
   for(const[k,hash]of Object.entries(sourceHashes))assert.equal(sha(fs.readFileSync(new URL(`data/vehicles/su_t10m/${k}.json`,root))),hash,k);
   assert.deepEqual(data.vehicles.su_t10m.model,original.model,'source packed manifest remains exact');
 });

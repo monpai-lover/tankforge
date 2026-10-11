@@ -3474,8 +3474,8 @@ export function start(data, saved = {}) {
       // an automatic gun: a flash and a crack per round, the belt one shorter, a light shove
       const momentum = g.shell.mass_kg * g.shell.muzzle_velocity_ms * 1.3 * RECOIL_ROCK;
       const local = gunnery.muzzleLocal(mountOf(t, g), { yaw: rt.yaw, pitch: rt.guns[gi].pitch });
-      const back = G.veh.body.worldDir(local.dir);
-      G.veh.impulse(back.map(v => -v * momentum), G.veh.worldPoint(local.trunnion));
+      // Use the nominal world gun axis; dispersion belongs to individual bullets.
+      G.veh.impulse(mz.dir.map(v => -v * momentum), G.veh.worldPoint(local.trunnion));
       if (g.def.caliber_mm >= 20) fx.autocannonBlast(mz.pos, mz.dir, g.def.caliber_mm, impactColor([mz.pos[0], gy, mz.pos[2]]), gy);
       else fx.mgFlash(mz.pos, mz.dir, g.def.caliber_mm);
       sound.mg(g.def.caliber_mm);
