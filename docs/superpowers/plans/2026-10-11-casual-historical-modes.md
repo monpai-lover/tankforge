@@ -14,7 +14,7 @@ Accepted specification: `docs/superpowers/specs/2026-10-11-casual-historical-mod
 
 **Create:** `config/gameplay-modes.json`; `crates/gameplay/Cargo.toml`; `crates/gameplay/src/lib.rs`; `client/web/src/game/gameplayRules.js`; `client/web/src/game/gameplayPerformance.js`; `client/web/test/gameplay-rules.test.mjs`; `client/web/test/gameplay-performance.test.mjs`; `crates/physics/src/gameplay.rs`.
 
-**Modify:** root `Cargo.toml`; `crates/physics/Cargo.toml`, `crates/physics/src/lib.rs`; focused test-module hookup if needed. Keep new rules out of the math-only `tg-shared` crate. Do not touch original data or models.
+**Modify:** root `Cargo.toml`; `crates/physics/Cargo.toml`, `crates/physics/src/lib.rs`; focused test-module hookup if needed; `client/web/src/game/loadout.js` only for a backward-compatible optional launch-interval hook. Keep new rules out of the math-only `tg-shared` crate. Do not touch original data or models.
 
 - [ ] Write RED tests using real T-34-85/T-10M/Puma inputs and `loadData()`: source snapshots unchanged; historical effective values equal stock; casual forward/reverse speed ratios1.15, matched-engine-rpm tractive force1.25, turn1.25; no geometry/mass/inertia/grip changes; deriving from the same source after repeated selections never compounds. Weapon tests exercise actual loader cycles including layout-based reload, autocannon spin/belt cycles, MG timing and independent missile slots.
 
@@ -36,6 +36,7 @@ assert.deepEqual(deriveVehicleParams(stock, 'casual'), casual);
 ```json
 {
   "version": 1,
+  "modes": {
   "casual": {
     "speed": 1.15, "drive": 1.25, "steer": 1.25,
     "traverse": 1.30, "elevate": 1.20, "fire": 1.20,
@@ -45,6 +46,7 @@ assert.deepEqual(deriveVehicleParams(stock, 'casual'), casual);
     "speed": 1, "drive": 1, "steer": 1,
     "traverse": 1, "elevate": 1, "fire": 1,
     "show_enemy_markers": false
+  }
   }
 }
 ```
@@ -73,6 +75,13 @@ export function effectiveReloadSeconds(seconds, mode) {
 ```
 
 - [ ] Verify actual physical force/speed and actual emitted round counts/ready times, not only copied numbers. Add Rust/JS same-registry and tracked drivetrain comparisons using existing thresholds. Run the focused group plus existing loading, launcher, weapon and wheeled groups. Commit only Task1; new SPEC PASS then new QUALITY APPROVE, repairing any findings before proceeding.
+
+The actual launcher owner previously set cooldown to0.25 unconditionally. Add
+an optional fourth argument to `fireLauncherRound(g,L,gi,launchIntervalSeconds=g.launchIntervalSeconds??0.25)`;
+validate a finite positive supplied interval before consuming ammunition and use
+it for cooldown. Historical/default retains0.25. Tests must pass the derived
+interval into this real function and verify two-tube timing; they must not
+overwrite cooldown afterward to make a dormant helper appear integrated.
 
 ## Task 2 — single-player controls, active performance and historical HUD
 
