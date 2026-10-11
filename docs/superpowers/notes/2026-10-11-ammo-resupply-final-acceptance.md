@@ -1,7 +1,7 @@
 # 据点弹药补给：实现与验收记录
 
 2026-10-12，TankForge。运行时代码为 `1af191ad0070b090545b86b5f72d2882087f4d5f`。
-实现已通过规格与品质双审，主分支发布待完成。
+实现已通过规格与品质双审，已整合主分支并推送公开仓库。
 
 ## 玩家可见的规则
 
@@ -61,7 +61,16 @@ handler 收据 `resupply-gameplay-network.json` 和 `ammo-resupply-network.json`
 
 ## 发布与后续边界
 
-主分支整合、页面复制、整合后校验和公开仓库推送待完成，不进行生产部署。
+共享 main 与远端均在原基线 `f66c04a`、工作区干净后，无强制推送地快进至
+`266521d04dd2097e3f9255d411d2223ef2dace2d`。默认页、新命名页及 artifact 已复制，
+整合校验通过：实际共享源码、内嵌资料、核心及页面相同；旧命名页和原始参考
+字节保留。共享入口新重跑 29 PASS、0 FAIL、0 SKIP。
+
+公开仓库推送成功，远端 HEAD 另行核对相同：
+<https://github.com/monpai-lover/tankforge>。后续验收文档提交不改变已审核运行时。
+整合证据为 `target/ammo-resupply-integrated-verification.log`、
+`target/ammo-resupply-integrated-node.tap` 及 `integrated:true` 的源码/构建收据。
+没有进行生产部署。
 此交付不代表新的 G 单控、完整八种悬挂或 V3 回放替换已完成；它们继续按
 [需求状态清单](../../user-request-status-2026-10-11.md)和已确认设计实施。
 BMPT34 的 Tab 回车库再进靶场漏补仍未在当前实际入口重现，不能以本次据点
