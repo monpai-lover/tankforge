@@ -52,3 +52,24 @@ its bounded nonconvergence is not proof of infeasibility. Neither filling a
 missing inverse,nor dropping original reactions,nor assigning optimizer duals
 to physics is allowed. Full source/chart normal and reciprocal friction
 integration,loaded correspondence,fleet gates and fresh SPEC→QUALITY remain.
+
+## Fresh independent follow-up after the implementer's multi-shape fix
+
+Root reran the original external scalar and multi-shape fixtures directly
+against the changed JS helper:4000/4000 scalar and1500/1500 multi-shape/cap
+cases solved,no faults. Multi-shape maximum physical velocity error9.34322e−14;
+maximum basis pivots15. The indefinite mass counterexample remained rejected.
+Local `track-bundle`6 and `track-geometry`4 tests gave10 PASS/0 FAIL/exit0.
+
+A numerical-units check additionally scales physical mass,all raw duals/forces
+and finite caps by10000,and compliance by1/10000. This leaves the independently
+chosen velocity and all contact slacks invariant,while representing realistic
+vehicle mass/impulse magnitudes. The same1500 cases all solved,max physical
+velocity error4.91565e−13,max pivots15. The default seed/fixture is unchanged;
+the scaled fixture writes a separate external receipt.
+
+These results certify those algebra witnesses and the now passing source
+preparation tests only. Native bundle mirror,actual source R/S/corner-domain
+guards,whole-side impulse application/shared-hull integration,reciprocal
+traction and final B2 acceptance remain open. No old heavy healthy-fleet run,
+new release build or browser operation occurred.
