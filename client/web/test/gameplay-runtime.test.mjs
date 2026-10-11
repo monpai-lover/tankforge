@@ -222,7 +222,7 @@ test('actual start, garage choice, locked reselect/respawn and leave restore eff
   const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, GAMEPLAY_UPDATE_NEEDED, data, document, hud, sound: {}, canvas: {},
     select: () => G.selectAgain(), isDesign: () => false, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {},
     useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, missileBattleStart() {}, updateNetHud() {},
-    mapName: () => 'range', deploy: { close() {} }, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies = []; }, hitcam: { hide() {} }, measureInsets() {}, net: { send() {} } };
+    mapName: () => 'range', deploy: { close() {} }, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies = []; }, hitcam: { hide() {} }, measureInsets() {}, net: { send() {} },onlineAmmo:new OnlineAmmo() };
   const names = ['setMode', 'gameplayLabel', 'updateGameplayDisplay', 'chooseGameplayMode', 'startBattle', 'toGarage'];
   const live = new Function(...Object.keys(deps), `${names.map(functionSource).join('\n')}\nreturn {chooseGameplayMode, startBattle, toGarage};`)(...Object.values(deps));
   assert.equal(live.chooseGameplayMode('historical'), true);

@@ -20,6 +20,9 @@ assert.ok(fs.existsSync(receiptPath),'Generate the actual native ammunition hand
 const receipt=JSON.parse(fs.readFileSync(receiptPath,'utf8'));
 assert.deepEqual(Object.keys(receipt.sources).sort(),sourceNames.slice().sort(),'Every source/config tag is mandatory before replay');
 for(const [name,bytes]of Object.entries(receipt.sources))assert.equal(fs.readFileSync(new URL(name,root),'utf8'),bytes,`Stale native receipt: ${name}`);
+const gameplayReceipt=JSON.parse(fs.readFileSync(process.env.TG_GAMEPLAY_NETWORK_RECEIPT||new URL('target/resupply-gameplay-network.json',root),'utf8'));
+assert.deepEqual(Object.keys(gameplayReceipt.sources).sort(),sourceNames.slice().sort());
+for(const [name,bytes]of Object.entries(gameplayReceipt.sources))assert.equal(fs.readFileSync(new URL(name,root),'utf8'),bytes,`Stale gameplay receipt: ${name}`);
 assert.equal(receipt.ammo_protocol_version,1);
 const data=loadData();
 const core=loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM||new URL('../assets/tg_design.wasm',import.meta.url)),{materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)});
@@ -31,6 +34,11 @@ function initialized(s) {
   for(const phase of ['welcome','create','join','start','deploy'])replay(r,s,phase);
   assert.equal(r.G.mode,'battle');assert.deepEqual(r.onlineAmmo.counts(),s.selected);
   return r;
+}
+function deferredRuntime(local,combat=new Combat(core,data.machineGuns)) {
+  let resolve;const loaded=new Promise(r=>{resolve=r;});
+  const r=runtime(local,{combat,loadMap:()=>loaded});
+  return {r,async finish(){r.G.maps.set('coast',{});resolve();await loaded;await Promise.resolve();}};
 }
 function prediction(r,seq,ti,gi) {
   const gun=r.G.loadout.turrets[ti].guns[gi],shot={seq};r.G.shots.push(shot);
@@ -215,4 +223,56 @@ test('actual refill Status retains damaged modules crew fire and ongoing repair 
   const s=receipt.scenarios.bmpt_historical,r=initialized(s);replay(r,s,'new_life');replay(r,s,'stale_after_refresh');let writes=0;r.G.combat.ammo=()=>{writes++;throw new Error('server racks only');};
   replay(r,s,'damage_before_refill');const before=structuredClone(r.G.cstate);assert.ok(before.repair_s>0);assert.ok(before.fire_s>0);assert.ok(before.crew.some(n=>n<100));
   replay(r,s,'damage_refill');assert.deepEqual(r.G.cstate,packet(s,'damage_refill','status').state);assert.notDeepEqual(r.G.cstate.rack_fill,before.rack_fill);for(const field of ['modules','crew','roles','fire_s','repair_s'])assert.deepEqual(r.G.cstate[field],before[field]);assert.equal(writes,0);
+});
+test('actual deferred map preserves an admitted deployment mounts loading predictions controls and latest inventory',async()=>{
+  for(const s of Object.values(receipt.scenarios).filter(s=>s.vehicle==='su_bmpt34')){
+    const {r,finish}=deferredRuntime(s.mode);for(const phase of ['welcome','create','join','start','deploy'])replay(r,s,phase);
+    assert.equal(r.G.mode,'garage');assert.equal(r.onlineAmmo.scope().life,1);
+    replay(r,s,'cannon');replay(r,s,'at_5');r.net.status='open';r.net.ws={readyState:1,send(){}};r.G.online.seq=199;
+    assert.equal(r.live.fireGun(0,1),true);assert.equal(r.live.fireGun(0,2),true);r.G.apsOn=false;r.G.sightG=1;r.G.T[0].yaw=.37;r.G.T[0].guns[1].pitch=.12;r.G.zero=450;r.G.zoomIdx=2;
+    r.G.pending.push({ti:0,gi:2,t:.2});
+    const gun=r.G.loadout.turrets[0].guns[1],L=r.G.T[0].loading,counts=r.onlineAmmo.counts(),state=JSON.stringify(r.G.cstate),caps=JSON.stringify(r.G.caps),loadingState=JSON.stringify(L),shot=r.G.shots[0],pending=r.onlineFires.pending[0],launch=r.onlineLaunches.pending[0],intent=r.G.pending[0];
+    await finish();assert.equal(r.G.mode,'battle');assert.equal(r.G.loadout.turrets[0].guns[1],gun);assert.equal(r.G.T[0].loading,L);assert.equal(JSON.stringify(L),loadingState);assert.deepEqual(r.onlineAmmo.counts(),counts);assert.equal(r.onlineAmmo.scope().life,1);
+    assert.equal(JSON.stringify(r.G.cstate),state);assert.equal(JSON.stringify(r.G.caps),caps);assert.equal(r.G.shots[0],shot);assert.equal(r.onlineFires.pending[0],pending);assert.equal(r.onlineLaunches.pending[0],launch);assert.equal(r.G.pending[0],intent);assert.equal(r.G.apsOn,false);assert.equal(r.G.sightG,1);assert.equal(r.G.T[0].yaw,.37);assert.equal(r.G.T[0].guns[1].pitch,.12);assert.equal(r.G.zero,450);assert.equal(r.G.zoomIdx,2);
+    assert.equal(r.G.loadout.turrets[0].guns[3].launcher.ready,0);assert.ok(r.G.model.turrets[0].guns[3].rounds.filter(Boolean).every(n=>n.visible===false));
+    replay(r,s,'secondary_cannon','ammo');assert.ok(r.onlineAmmo.scope(),'ordinary inventory reception remains attached to the admitted life');
+  }
+});
+test('actual deferred dead resume admits scoped Status before map readiness and retains it through pose and late core binding',async()=>{
+  for(const s of Object.values(receipt.scenarios).filter(s=>s.vehicle==='su_bmpt34')){
+    for(const coreAt of ['ready','during_load','after_load']){
+      const {r,finish}=deferredRuntime(s.mode,coreAt==='ready'?new Combat(core,data.machineGuns):null);for(const phase of ['welcome','create','join'])replay(r,s,phase);
+      const returned=s.dead_recovery.phases.resume.filter(([to])=>to===s.owner).map(([,m])=>m);for(const m of returned)r.net._receive(m);
+      const status=returned.find(m=>m.t==='status');assert.equal(r.onlineAmmo.scope()?.life,2);assert.deepEqual(r.G.cstate,status.state);assert.deepEqual(r.G.caps,status.caps);
+      const gun=r.G.loadout.turrets[0].guns[0],L=r.G.T[0].loading,counts=r.onlineAmmo.counts();
+      if(coreAt==='during_load'){r.G.combat=new Combat(core,data.machineGuns);r.live.bindCombatReady();assert.deepEqual(r.G.cstate,status.state);assert.deepEqual(r.G.caps,status.caps);}
+      await finish();
+      if(coreAt==='after_load'){r.G.combat=new Combat(core,data.machineGuns);r.live.bindCombatReady();}
+      assert.equal(r.G.loadout.turrets[0].guns[0],gun);assert.equal(r.G.T[0].loading,L);assert.equal(r.onlineAmmo.scope().life,2);assert.deepEqual(r.onlineAmmo.counts(),counts);assert.deepEqual(r.G.cstate,status.state);assert.deepEqual(r.G.caps,status.caps);assert.equal(r.G.online.dead,true);assert.equal(r.G.online.benched,true);assert.equal(r.scene.children.includes(r.G.model.root),false);assert.equal(r.live.fireGun(0,1),false);
+      replay(r,s,'rail','status');assert.deepEqual(r.G.cstate,status.state);replay(r,s,'secondary_cannon','status');assert.deepEqual(r.G.cstate,status.state);
+    }
+  }
+});
+test('actual newer life during deferred map loading retains one sortie and rejects malformed and old life admission',async()=>{
+  const s=receipt.scenarios.bmpt_historical,{r,finish}=deferredRuntime(s.mode);for(const phase of ['welcome','create','join','start'])replay(r,s,phase);
+  const bench=r.G.loadout;r.net._receive(packet(s,'at_5','ammo'));r.net._receive(packet(s,'at_5','status'));assert.equal(r.onlineAmmo.scope(),null);assert.equal(r.G.loadout,bench);assert.equal(r.G.cstate,null);replay(r,s,'deploy');
+  const sortie=r.G.online,first=r.G.loadout,errors=[],old=console.error,bad=packet(s,'new_life_resume','start');
+  console.error=(...a)=>errors.push(a);try{r.net._receive({...bad,ammo:{...bad.ammo,counts:{}}});}finally{console.error=old;}
+  assert.equal(errors.length,1);assert.equal(r.G.online,sortie);assert.equal(r.G.loadout,first);assert.equal(r.onlineAmmo.scope().life,1);
+  replay(r,s,'new_life_resume');assert.equal(r.G.online,sortie);assert.equal(r.onlineAmmo.scope().life,2);const gun=r.G.loadout.turrets[0].guns[0],L=r.G.T[0].loading;r.G.apsOn=false;
+  replay(r,s,'deploy_resume');assert.equal(r.G.loadout.turrets[0].guns[0],gun);assert.equal(r.onlineAmmo.scope().life,2);
+  await finish();assert.equal(r.G.online,sortie);assert.equal(r.G.loadout.turrets[0].guns[0],gun);assert.equal(r.G.T[0].loading,L);assert.equal(r.onlineAmmo.scope().life,2);assert.equal(r.G.online.spawn,2);assert.equal(r.G.apsOn,false);assert.deepEqual(r.G.cstate,packet(s,'new_life_resume','status').state);
+});
+test('actual deferred map callback cannot revive a departed sortie or overwrite a fresh Start',async()=>{
+  const s=receipt.scenarios.bmpt_historical;
+  for(const restart of ['leave','same_battle','new_battle']){
+    const {r,finish}=deferredRuntime(s.mode);for(const phase of ['welcome','create','join','start','deploy'])replay(r,s,phase);
+    const sortie=r.G.online;r.live.toGarage();assert.equal(r.onlineAmmo.scope(),null);
+    for(const [to,m]of gameplayReceipt.phases.leave)if(to===gameplayReceipt.a)r.net._receive(m);
+    if(restart==='same_battle')for(const phase of ['create','join','start','deploy'])replay(r,s,phase);
+    if(restart==='new_battle')for(const phase of ['welcome_c','room_c','start_c'])for(const [to,m]of gameplayReceipt.phases[phase])if(to===gameplayReceipt.c)r.net._receive(m);
+    const next=r.G.online,gun=r.G.loadout.turrets[0].guns[0];if(restart!=='leave')assert.notEqual(next,sortie);
+    await finish();assert.equal(r.G.online,next);assert.equal(r.G.loadout.turrets[0].guns[0],gun);assert.equal(r.G.mode,restart==='leave'?'garage':'battle');assert.equal(r.onlineAmmo.scope()?.life,restart==='same_battle'?1:undefined);
+    if(restart==='new_battle'){assert.equal(r.G.online.battle,2);assert.equal(r.G.mapId,'range');assert.equal(r.G.gameplayMode,'casual');}
+  }
 });

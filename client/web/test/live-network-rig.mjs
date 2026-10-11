@@ -29,6 +29,8 @@ import * as ballistics from '../src/sim/ballistics.js';
 import { hullTilt } from '../src/sim/tank/tank.js';
 import { GARAGE } from '../src/game/world.js';
 import { captureMessage } from '../src/game/conquest.js';
+import { useCombat } from '../src/game/enemies.js';
+import { buildInterior } from '../src/gfx/interior.js';
 const data=loadData();
 const source=fs.readFileSync(new URL("../src/main.js",import.meta.url),"utf8").replaceAll("\r\n","\n");
 const fn = name => { const a = source.indexOf(`  function ${name}(`); return a < 0 ? '' : source.slice(a, source.indexOf('\n  }', a) + 4); };
@@ -50,9 +52,9 @@ export function runtime(local, options = {}) {
   const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, gunnery, ballistics, weaponDamage, hullTilt, captureMessage, CREW_NAME, EVENT_NAME, DEG:Math.PI/180, RECOIL_ROCK:1,GARAGE,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),cameraObstruction:{reset(){}},vehicleActionIndicator:{update(){}},rng:{nextF32:()=>.5}, pose:()=>({pos:[G.s.x,G.s.y||0,G.s.z],heading:G.s.heading}), surfaceAt:()=>0,impactColor:()=>[0,0,0], ME:1, data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
     isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }), AMMO_CFG: {}, applyAmmo,
     onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), OnlineAmmo, emptyRacks, loading, mgSim, renderer, buildTank, VehicleSim, terrain: ground(() => 0), scene, hud,
-    syncRacks(){}, Exhaust: class {}, fx: new Proxy({}, {get:()=>()=>{}}), exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit(){if(G.combat){const fresh=G.combat.fresh(G.combatKey,G.bundle);G.cstate=fresh.state;G.caps=fresh.caps;}}, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],
+    syncRacks(){}, Exhaust: class {}, fx: new Proxy({}, {get:()=>()=>{}}), exhaustOf() {}, applyXray() {}, rebuildInterior() {}, useCombat, buildInterior, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],
     mods: { choose() {}, cardOf: id => id, slots: () => [] }, measureInsets() {}, missileVehicle() {G.aps=data.vehicles[G.id].weapons.aps||null;}, missileBattleStart() {G.aps=data.vehicles[G.id].weapons.aps||null;},
-    net, lobby: { render() {}, sendVehicle() {}, show() {} }, MAP_IDS: ['range','coast'], RESPAWN_DELAY: 5,
+    net, lobby: { render() {}, sendVehicle() {}, show() {} }, MAP_IDS: ['range','coast'], RESPAWN_DELAY: 5, missileTerrain:()=>null,enemyOwner:i=>100+i,
     useWorld(id){G.map=data.maps[id]||null;}, spawnEnemies() {}, spawnRemotes() {}, resetPose(){G.veh.place(0,0,0);G.veh.compat(G.s);deps.combatInit();}, updateNetHud() {}, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {}, setMapChoice(id) { G.mapId=id; }, loadMap: options.loadMap, mapName: () => 'range', feed() {},
     deploy: { close() {} }, openDeploy() {}, cqBar, cqMsg, clearEnemies() { G.enemies=[]; }, hitcam: { hide() {} }, canvas: {}, sound: new Proxy({}, {get:()=>()=>{}}), vehicleActions:{cancel(){},reset(){}},toggleSight(){},playerName:id=>String(id),remoteOf: () => null, removeRemote() {}, addRemote() {}, benchedMember: () => true,
   };
@@ -65,9 +67,9 @@ export function runtime(local, options = {}) {
   const ta=source.indexOf("  net.on('status',"),tb=source.indexOf("  net.on('respawned',",ta);
   const qa=source.indexOf("  net.on('reconnecting',"),qb=source.indexOf("  for (const t of ['closed'",qa);
   const fa=source.indexOf('  const currentFireGun ='),fb=source.indexOf("  net.on('fire',",fa);
-  G.missiles={ready:true,nodes:new Map(),reset(){},present(){},_launchLook(){G.launchEffects=(G.launchEffects||0)+1;}};
+  G.missiles={ready:true,nodes:new Map(),reset(){},removeAps(){},addAps(){},setAps(){},present(){},_launchLook(){G.launchEffects=(G.launchEffects||0)+1;}};
   const spawns=source.slice(source.indexOf('  const RANGE_SPAWNS ='),source.indexOf('  /** Where a team')) ;
   const mounts=source.slice(source.indexOf('  const mountOf ='),source.indexOf('  const zeroElev ='));
-  const live = new Function(...Object.keys(deps), `${mounts}\n${spawns}\n${['resetPose','spawnPoint','onlineSpawn','pivotOf','conquestStep','resupplyStep','announcePoint','markDead','fireGun','launchFromGun','retryPendingLaunches','select','onlineSky','applyAps','apsAutomatic','validateOnlineLife','carriedRounds','syncRacks','reloadShown','setMode','gameplayLabel','updateGameplayDisplay','chooseGameplayMode','applyRoomGameplay','startBattle','toGarage'].map(fn).join('\n')}\n${source.slice(a,b)}\n${source.slice(ra,rb)}\n${source.slice(la,lb)}\n${source.slice(ma,mb)}\n${source.slice(sa,sb)}\n${source.slice(fa,fb)}\n${source.slice(ha,hb)}\n${source.slice(ta,tb)}\n${source.slice(qa,qb)}\nselect(G.id); return {select,chooseGameplayMode,toGarage,startBattle,conquestStep,fireGun,markDead};`)(...Object.values(deps));
-  return { G, net, gameplay, store, live, onlineAmmo:deps.onlineAmmo, onlineFires:deps.onlineFires, onlineLaunches:deps.onlineLaunches, notices,ui:{cqBar,cqMsg},spec: () => hudState.el.spec.children.map(n => n.textContent).join(' ') };
+  const live = new Function(...Object.keys(deps), `${mounts}\n${spawns}\n${['resetPose','combatInit','bindCombatReady','missileVehicle','missileBattleStart','syncApsControl','toggleAps','spawnPoint','onlineSpawn','pivotOf','conquestStep','resupplyStep','announcePoint','markDead','fireGun','launchFromGun','retryPendingLaunches','select','onlineSky','applyAps','apsAutomatic','validateOnlineLife','carriedRounds','syncRacks','reloadShown','setMode','gameplayLabel','updateGameplayDisplay','chooseGameplayMode','applyRoomGameplay','startBattle','toGarage'].map(fn).join('\n')}\n${source.slice(a,b)}\n${source.slice(ra,rb)}\n${source.slice(la,lb)}\n${source.slice(ma,mb)}\n${source.slice(sa,sb)}\n${source.slice(fa,fb)}\n${source.slice(ha,hb)}\n${source.slice(ta,tb)}\n${source.slice(qa,qb)}\nselect(G.id); return {select,chooseGameplayMode,toGarage,startBattle,conquestStep,fireGun,markDead,bindCombatReady,toggleAps};`)(...Object.values(deps));
+  return { G, net, gameplay, store, live, scene,onlineAmmo:deps.onlineAmmo, onlineFires:deps.onlineFires, onlineLaunches:deps.onlineLaunches, notices,ui:{cqBar,cqMsg},spec: () => hudState.el.spec.children.map(n => n.textContent).join(' ') };
 }

@@ -754,7 +754,7 @@ export function start(data, saved = {}) {
     // the rockets on the rails are the rounds loaded
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.def.missile && G.model.payload(ti, gi, g.launcher.ready)));
     // a new vehicle in battle (deploy screen, respawn): its own protection system, if any
-    if (G.mode === 'battle') {
+    if (G.mode === 'battle' || (G.online && initialAmmo)) {
       G.apsOn = true;
       G.apsState = null;
       G.apsFault = false;
@@ -873,18 +873,20 @@ export function start(data, saved = {}) {
   }
 
   /** Puts the vehicle where the current screen wants it: on its bay in the garage, or at the start of the range. */
-  function resetPose() {
+  function resetPose(preserveLife = false) {
     G.s = phys.newState();
     G.uPrev = 0;
     G.aLong = 0;
     G.sink = 0;
-    G.zoomIdx = 0;
-    G.zoom3 = false;
-    G.zero = 0;
-    G.ranging = null;
-    G.shots.length = 0;
-    G.bullets.length = 0;
-    G.pending.length = 0;
+    if (!preserveLife) {
+      G.zoomIdx = 0;
+      G.zoom3 = false;
+      G.zero = 0;
+      G.ranging = null;
+      G.shots.length = 0;
+      G.bullets.length = 0;
+      G.pending.length = 0;
+    }
     G.cam.pivot = null;
     cameraObstruction.reset();
     vehicleActions.reset();
@@ -916,7 +918,7 @@ export function start(data, saved = {}) {
       G.aimPoint = [0, 2, 800];
     }
     G.cam.dist = G.cam.distTarget;
-    combatInit();
+    combatInit(preserveLife);
     if (G.veh) {
       G.veh.place(G.s.x, G.s.z, G.s.heading);
       G.veh.compat(G.s);
@@ -926,7 +928,7 @@ export function start(data, saved = {}) {
     for (const t of G.T) {
       const lt = G.loadout.turrets[G.T.indexOf(t)];
       // a turret riding on another rests at its facing from that turret's own
-      t.yaw = lt.facing + (lt.parent != null ? G.loadout.turrets[lt.parent].facing : 0);
+      if (!preserveLife) t.yaw = lt.facing + (lt.parent != null ? G.loadout.turrets[lt.parent].facing : 0);
       t.carried = null;
       t.seen = null;
       t.lay = null;
@@ -1368,12 +1370,10 @@ export function start(data, saved = {}) {
     }
     gameplay.beginBattle(roomRules);
     G.gameplayMode = gameplay.activeMode();
-    select(G.id,false,G.online?.initialAmmo||null);
-    if (G.online?.initialAmmo) {
-      G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
-      G.online.initialAmmo=null;
-      syncRacks();
-    }
+    // Validated Start/Respawn may have admitted a life while its map loaded.
+    // World readiness must not replace that life or its newer authoritative state.
+    const preserveLife=!!(G.online&&onlineAmmo.scope()?.battle===G.online.battle);
+    if (!preserveLife) select(G.id);
     updateGameplayDisplay();
     useWorld(G.mapId);
     G.flooded = false;
@@ -1388,8 +1388,8 @@ export function start(data, saved = {}) {
     G.free = false;
     G.mgHeld = G.fireHeld = false;
     hud.freeLook(false);
-    resetPose();
-    missileBattleStart();
+    resetPose(preserveLife);
+    missileBattleStart(preserveLife);
     if (G.online) hud.toast(`聯機戰鬥：${mapName(G.mapId)}　你在${G.online.team === 'blue' ? '藍方' : '紅方'}　F 長按修復，J 長按棄車，R 重生，Enter 聊天`, 6);
     else if (G.conquest) hud.toast(`${G.loadout.name} 出擊：${G.map.name}・佔領模式　佔領 ${G.conquest.points.map((p) => p.id).join('／')} 點讓敵方兵力歸零，Tab 回車庫`, 6);
     else hud.toast(G.map ? `${G.loadout.name} 出擊：${G.map.name}　藍方出發點 ${spawnLabel()}，Tab 回車庫` : `${G.loadout.name} 出擊　100–2000 m 靶車：近處薄裝甲，遠處先進裝甲，Tab 回車庫`, 5);
@@ -1978,7 +1978,7 @@ export function start(data, saved = {}) {
     const me = m.members.find((x) => x.id === net.id);
     if (!me) return;
     if (G.online && m.battle<G.online.battle) return;
-    if (G.online && G.mode === 'battle' && G.online.battle === m.battle) {
+    if (G.online && G.online.battle === m.battle) {
       const current=onlineAmmo.scope();
       if(m.ammo&&current&&m.ammo.life<current.life)return;
       // A duplicated initial bench Start predates every admitted incarnation.
@@ -2009,10 +2009,13 @@ export function start(data, saved = {}) {
     }
     while (G.thumbs.length) thumbStep();
     // a deploy room: into the battle with nothing on the field, choosing on the deploy screen
-    G.online = { battle:m.battle, initialAmmo:m.ammo||null, roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: m.spawn??(benched?0:null), hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
+    G.online = { battle:m.battle, roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: m.spawn??(benched?0:null), hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
     G.conquest = null;
-    if ((!benched||m.ammo) && me.vehicle && me.vehicle !== G.id && data.vehicles[me.vehicle]) select(me.vehicle);
-    if (benched && !data.vehicles[G.id]) select(data.order[0]);
+    if (m.ammo) {
+      select(me.vehicle,false,m.ammo);
+      G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
+      if (G.online.dead) G.resupplyProgress=0;
+    } else select(data.vehicles[G.id]?G.id:data.order[0]);
     if (!MAP_IDS.includes(m.map)) hud.toast(`這個版本沒有地圖「${m.map}」，改在靶場`, 4);
     setMapChoice(m.map);
     lobby.show(false);
@@ -2398,14 +2401,16 @@ export function start(data, saved = {}) {
     return { x0, z0, size, res: n, heights };
   }
 
-  function missileBattleStart() {
+  function missileBattleStart(preserveLife = false) {
     if (!G.missiles) return;
     G.missiles.reset(missileTerrain());
-    onlineLaunches.clear();
-    G.guided = [];
-    G.apsOn = true;
-    G.apsState = null;
-    G.apsFault = false;
+    if (!preserveLife) {
+      onlineLaunches.clear();
+      G.guided = [];
+      G.apsOn = true;
+      G.apsState = null;
+      G.apsFault = false;
+    }
     missileVehicle();
     (G.enemies || []).forEach((e, i) => {
       if (e.remote || e.rangeTarget) return;
