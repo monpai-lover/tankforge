@@ -16,7 +16,7 @@ Accepted design: `docs/superpowers/specs/2026-10-11-oplot23-variant-design.md`.
 
 **Modify:** `client/web/tools/load-data.mjs` ORDER; `client/web/src/game/mods.js` family. A focused compatibility fix to an existing owner is permitted only if an actual RED proves it necessary. Preserve prior assertions if the expanded fleet requires fixture metadata/counts.
 
-- [ ] Write RED with actual `loadData`, source hash snapshots, `makeLoadout`, decoded imports, `buildTank` fake renderer, actual main firing/aiming functions and actual WASM missile/APS world. New ID must be absent before implementation. Check family selection and source export values.
+- [x] Write RED with actual `loadData`, source hash snapshots, `makeLoadout`, decoded imports, `buildTank` fake renderer, actual main firing/aiming functions and actual WASM missile/APS world. New ID must be absent before implementation. Check family selection and source export values.
 
 ```js
 assert(data.vehicles.su_t10m);
@@ -29,9 +29,9 @@ assert.equal(data.projectiles.api_23_bza.mass_kg, .174);
 assert.equal(data.projectiles.hei_23_ofz.explosive_mass_kg, .0178);
 ```
 
-- [ ] Run `node --test client/web/test/oplot23-variant.test.mjs`; record real missing/incorrect behavior.
-- [ ] Author only new files from original JSON, using deep copies. Set `vehicle.id` and hypothetical name/meta; retain base file contracts. Reference barrels 1 m/23 mm, gun 76 kg, 8000 rpm, belt500, reload30 s, spin-up.35 s; preserve platform controls/limits/radar. APS uses 23 mm/.174 kg/715 m/s/1 m and range6000–8000, rounds500. Manual ammo300 API+200 HEI. Source-informed versus project-estimated fields are documented.
-- [ ] Generate API curve using existing De Marre formula with a declared steel coefficient derived from current B-32 authored curve, new mass/speed/caliber/drag. HEI uses existing HE curve authoring and mass.0178, metadata `a_ix_2`; do not implement P3 as part of this variant. Record projectile dimensions as reference estimates.
+- [x] Run `node --test client/web/test/oplot23-variant.test.mjs`; record real missing/incorrect behavior.
+- [x] Author only new files from original JSON, using deep copies. Set `vehicle.id` and hypothetical name/meta; retain base file contracts. Reference barrels 1 m/23 mm, gun 76 kg, 8000 rpm, belt500, reload30 s, spin-up.35 s; preserve platform controls/limits/radar. APS uses 23 mm/.174 kg/715 m/s/1 m and range6000–8000, rounds500. Manual ammo300 API+200 HEI. Source-informed versus project-estimated fields are documented.
+- [x] Generate API curve using existing De Marre formula with a declared steel coefficient derived from current B-32 authored curve, new mass/speed/caliber/drag. HEI uses existing HE curve authoring and mass.0178, metadata `a_ix_2`; do not implement P3 as part of this variant. Record projectile dimensions as reference estimates.
 
 ```python
 cal, mass, velocity = 23.0, .174, 715.0
@@ -41,7 +41,7 @@ drag_per_m = .5 * 1.225 * .30 * area / mass
 velocity_at_distance = velocity * math.exp(-drag_per_m * distance)
 ```
 
-- [ ] New model manifest has empty owned packed geometry and `shared:{from:'su_t10m',mounts:['turret','gun']}`; retain source housing and exclude original barrel meshes. Add six new `visual.parts` gun/recoil cylinders on turret1/gun0, centered around [.502,2.715,.557] with 1 m muzzle offset. Use outer radius.0225 m, center-circle radius.055 m, 32 segments; interval chord.055 m exceeds outer diameter.045 m. A representative tube:
+- [x] New model manifest has empty owned packed geometry and `shared:{from:'su_t10m',mounts:['turret','gun']}`; retain source housing and exclude original barrel meshes. Add six new `visual.parts` gun/recoil cylinders on turret1/gun0, centered around [.502,2.715,.557] with 1 m muzzle offset. Use outer radius.0225 m, center-circle radius.055 m, 32 segments; interval chord.055 m exceeds outer diameter.045 m. A representative tube:
 
 ```json
 {"type":"cyl","mount":"gun","turret":1,"gun":0,"axis":"z",
@@ -50,15 +50,24 @@ velocity_at_distance = velocity * math.exp(-drag_per_m * distance)
 ```
 
 Use the existing caliber-derived bore in `addPart`; verify no front disk closes the23mm bore. Reconstruct all six centers by angle2πi/6. Preserve all original model buffers and source0 barrel geometry. Existing visual rotation remains intentionally readable, not a claim of high-RPM motion sampling.
-- [ ] Add new ID adjacent to original in ORDER and an `su_t10m` Mods family with 14.5 mm original and 23 mm custom options. Ensure server data loading sees the new directory; source family selections preserve original variant.
-- [ ] GREEN tests must measure six open tubes, inner diameter23 mm, non-overlap, matching muzzle plane and correct posed yaw/pitch/recoil; actual API and HEI shot mass/caliber/velocity/filler, consumed ammo, body impulse and readiness. Compare original and new, both modes, primary versus Oplot damage, manual/auto shared ammo, common repair gate. Use actual native core inputs, not a copied descriptor assertion alone. Probe server native data registration and healthy/damaged manual/automatic ownership when Cargo lane is granted.
-- [ ] Run focused new test plus mods/workshop/source export, weapon-control, gameplay, launcher, range and modular-damage regressions; run affected native combat/missile/server groups. Hash every original tracked data/model/asset path before/after; newly authored files are additions, not original mutations. Keep original assertions and report any count/title-only fixture changes.
-- [ ] Self-review, precise commit/freeze, fresh SPEC PASS then fresh QUALITY APPROVE. No matching page/push before acceptance.
+- [x] Add new ID adjacent to original in ORDER and an `su_t10m` Mods family with 14.5 mm original and 23 mm custom options. Ensure server data loading sees the new directory; source family selections preserve original variant.
+- [x] GREEN tests must measure six open tubes, inner diameter23 mm, non-overlap, matching muzzle plane and correct posed yaw/pitch/recoil; actual API and HEI shot mass/caliber/velocity/filler, consumed ammo, body impulse and readiness. Compare original and new, both modes, primary versus Oplot damage, manual/auto shared ammo, common repair gate. Use actual native core inputs, not a copied descriptor assertion alone. Probe server native data registration and healthy/damaged manual/automatic ownership when Cargo lane is granted.
+- [x] Run focused new test plus mods/workshop/source export, weapon-control, gameplay, launcher, range and modular-damage regressions; run affected native combat/missile/server groups. Hash every original tracked data/model/asset path before/after; newly authored files are additions, not original mutations. Keep original assertions and report any count/title-only fixture changes.
+- [x] Self-review, precise commit/freeze, fresh SPEC PASS then fresh QUALITY APPROVE. No matching page/push before acceptance.
 
 ## Task 2 — matching delivery and result documentation
 
-- [ ] Full Node and native verification after new data addition; first regenerate the mandatory source-tagged Rust-to-Node room receipt. Missing/stale bridge data must fail. No old B2 tests/code or threshold changes. Build source-matching release WASM/web page, verify target/asset/single HTML designCore bytes and source guards. If Rust unchanged, verify the newly built exact source artifact rather than claiming an unrelated cached binary.
-- [ ] Deliver a distinct named combined modes+Oplot23 page and result MD. Preserve prior pages. Clearly document source/estimated ammo and installation parameters, mode ratios and enemy-marker scope, networking compatibility, tests, and unfinished B2/X/P/replay boundary.
+- [x] Full Node and native verification after new data addition; first regenerate the mandatory source-tagged Rust-to-Node room receipt. Missing/stale bridge data must fail. No old B2 tests/code or threshold changes. Build source-matching release WASM/web page, verify target/asset/single HTML designCore bytes and source guards. If Rust unchanged, verify the newly built exact source artifact rather than claiming an unrelated cached binary.
+- [x] Deliver a distinct named combined modes+Oplot23 page and result MD. Preserve prior pages. Clearly document source/estimated ammo and installation parameters, mode ratios and enemy-marker scope, networking compatibility, tests, and unfinished B2/X/P/replay boundary.
 - [ ] Final fresh SPEC then QUALITY, precise integration/push under existing authorization, preserving dirty B2 and original source assets.
 
 Native lane is exclusive. No browser opening/HTTP/CDP/Playwright bypass; visual acceptance remains restricted independently from CPU geometry and build verification.
+
+## Execution freeze — 2026-10-11
+
+- [x] Task1 accepted at c361d0c after original implementation 3d73ac3 and both QUALITY fixes: isolated output-root checks and nominal tilted-world recoil axis. Fresh SPEC PASS then QUALITY APPROVE.
+- [x] Task2 handler receipt 1, real release WASM and web build exit 0/no fallback, post-build variant 9 + bridge 14 + WASM kinetic 10 = 33 PASS. Retained Root full groups 558 Node and 366 native + 4 old ignored verified against unchanged inputs.
+- [x] Named combined artifact and single result MD ready. Shared default range remains old; exact pre-modes backup saved. Checker supports --expect-new-default for Root's later accepted synchronization.
+- [ ] Fresh final combined SPEC then QUALITY; precise integration/default-page synchronization and public push by Root under existing authorization.
+
+Latest result: [combined result](../../gameplay-oplot23-2026-10-11.md). Receipts: [accepted Task1](../notes/2026-10-11-oplot23-task1-receipt.md) and [Task2 delivery](../notes/2026-10-11-oplot23-task2-receipt.md). Native lane released; no browser visual acceptance or unfinished B2/P/V3 claim.

@@ -1,5 +1,8 @@
 # 休閒／歷史玩法：2026-10-11 交付紀錄
 
+最新玩法 + Oplot23 合併頁及單一結果文件見[聯合交付紀錄](gameplay-oplot23-2026-10-11.md)。
+本文與 `tankforge-gameplay-modes-20261011.html` 保留純玩法的接受快照及原始 hash。
+
 TankForge 已接入單人與聯機房間的兩種玩法。Tasks1–3 的獨立 SPEC 與 QUALITY
 複核已接受；本輪交付源碼凍結於 `0cbcc35c5935fe265cc5437e85dda064b700a760`，
 僅補建與該源碼匹配的 WASM、獨立頁面和文件。交付提交 `6853c5c` 已通過

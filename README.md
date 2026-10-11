@@ -37,6 +37,7 @@ node test/online.mjs                                    # 兩個瀏覽器經 tg-
 - 設計:ARCHITECTURE.md。歷史戰車資料來源與估計值:SOURCES.md。
 - 座標系:+Z 前、+X 右、+Y 上(左手系),原點在車體中心的地面。
 - 可玩原型:`client/web/dist/tankforge-range.html`。
+  - [2026-10-11 最新聯合結果：休閒／歷史玩法 + Oplot23 六管假想改裝](docs/gameplay-oplot23-2026-10-11.md)：獨立頁面 `client/web/dist/tankforge-modes-oplot23-20261011.html`；T-10M 卡片「改裝」→「武裝」可選原 14.5 mm 或新 23 mm。G 選炮、1／2 選 API／HEI、左鍵射擊，U／Y 控制自動 APS。最後聯合複核與整合待完成；舊預設頁已精確備份，Root 接受後將同步新頁供伺服器預設使用。
   - [2026-10-11 休閒／歷史玩法、聯機相容與驗收](docs/gameplay-modes-2026-10-11.md)：單人車庫切換玩法，聯機以房間規則為準；本輪獨立頁面為 `client/web/dist/tankforge-gameplay-modes-20261011.html`，原靶場和瞄準點預覽保留。
   - **車庫**(開場畫面):下方是每台車的配圖卡片(用同一個渲染器現場拍的),上方依國別篩選,右側是規格表;拖曳環視、滾輪遠近、← → 換車、
     O 內構透視、「改裝工坊」改自訂戰車。按「開始戰鬥」(或 Enter)才進靶場;換車只能在車庫換,戰鬥中按 Tab 回車庫。
