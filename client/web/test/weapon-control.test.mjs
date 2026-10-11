@@ -18,6 +18,9 @@ import { loadCoreSync } from '../src/design/core.js';
 import { Hud } from '../src/game/hud.js';
 import { OnlineFires } from '../src/game/onlineFire.js';
 import { OnlineAmmo } from '../src/game/onlineAmmo.js';
+import { OnlineLaunches } from '../src/game/onlineLaunch.js';
+import { Missiles } from '../src/game/missiles.js';
+import { deriveLoadoutPerformance } from '../src/game/gameplayPerformance.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { decodeImported } from '../src/gfx/imported.js';
 import { STRIDE } from '../src/gfx/geo.js';
@@ -38,10 +41,11 @@ function functionSource(name) {
   const start = source.indexOf(`  function ${name}(`);
   return start < 0 ? '' : source.slice(start, source.indexOf('\n  }', start) + 4);
 }
-function controls(id, mesh = false) {
-  const rt = mesh ? runtimeParts(id, data) : null;
-  const lo = rt?.loadout || loadout.makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns);
-  const G = { id, mode: 'battle', loadout: lo, model: rt?.model, zero: 0,
+function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historical') {
+  const fixtureData = { ...data, vehicles: { ...data.vehicles, [id]: bundle } };
+  const rt = mesh ? runtimeParts(id, fixtureData) : null;
+  const lo = deriveLoadoutPerformance(rt?.loadout || loadout.makeLoadout(id, bundle, data.projectiles, data.machineGuns), mode);
+  const G = { id, mode: 'battle', gameplayMode: mode, weaponControl: { kind: 'all' }, loadout: lo, model: rt?.model || {}, zero: 0,
     s: { x: 0, y: 0, z: 0, heading: 0 }, ss: { pitch: 0, roll: 0 },
     sightT: 0, sightG: 0, sightM: -1, pending: [], zoomIdx: 0,
     cam: { yaw: 0, pitch: 0, shake: 0 }, camPos: [0, 3, 0], aimPoint: [0, 3, 800], aim: { dist: 800 },
@@ -49,27 +53,31 @@ function controls(id, mesh = false) {
     T: lo.turrets.map(t => ({ yaw: t.facing, bearing: true, yawErr: 0,
       guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })),
       loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })),
-    aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], online: null,
+    aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], guided: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
-  const sent = [], apsCalls = [];
+  const sent = [], apsCalls = [], launches = [], payloads = [];
+  if (!mesh) G.model.payload = (...args) => payloads.push(args);
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
-  const combat = new Combat(core, data.machineGuns), fresh = combat.fresh('control:' + id, data.vehicles[id]);
+  const combat = new Combat(core, data.machineGuns), fresh = combat.fresh('control:' + id, bundle);
   G.combat = combat; G.combatKey = 'control:' + id; G.cstate = fresh.state; G.caps = fresh.caps;
-  G.bundle = combat.prepare?.(G.combatKey, data.vehicles[id]) || data.vehicles[id];
+  G.bundle = combat.prepare?.(G.combatKey, bundle) || bundle;
   core.call({ op: 'mw_reset', defs: Object.values(data.missiles) });
   if (G.aps) core.call({ op: 'mw_aps', owner: ME, team: 0, def: G.aps, seed: 10 });
-  G.missiles = { setAps(owner, enabled, rate_rpm = null, rounds = null) {
+  G.missiles = new Missiles({ core, defs: data.missiles, projectiles: data.projectiles });
+  G.missiles._launchLook = (...args) => launches.push(args);
+  const setAps = G.missiles.setAps.bind(G.missiles);
+  G.missiles.setAps = (owner, enabled, rate_rpm = null, rounds = null) => {
     apsCalls.push({ owner, enabled, rounds });
-    core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
-  } };
+    setAps(owner, enabled, rate_rpm, rounds);
+  };
   const onlineAmmo=new OnlineAmmo(), selected=ammoMix(lo);
   onlineAmmo.begin({t:'ammo',ammo_protocol_version:1,battle:7,life:2,revision:1,processed_through:0,counts:selected,targets:selected,resupply_progress:0,refilled:false},lo,G.T.map(t=>t.loading));
-  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
+  const deps = { G, ME, data: fixtureData, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
-    onlineFires: new OnlineFires(), onlineAmmo, net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
+    onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {}, weaponControl() {} },
     sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
@@ -79,14 +87,28 @@ function controls(id, mesh = false) {
   const preamble = source.slice(source.indexOf('  const pose = '), source.indexOf('  // ----------------------------------------------------------------- workshop'));
   const moduleCheck = source.slice(source.indexOf('  const moduleOk ='), source.indexOf('  /** Where the protection gun'));
   const stabilizers = source.slice(source.indexOf('  const GUNNER ='), source.indexOf('  /**\n   * The hull\'s attitude'));
-  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
-  const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, syncApsControl, apsOf, aimTurrets};`)(...Object.values(deps));
+  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'launchFromGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'cycleApsRate', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
+  const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, cycleApsRate, syncApsControl, apsOf, trackHull, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
-  return { G, live, rt, sent, apsCalls, snapshot, core, combat, damage: (id, health = 0) => {
+  return { G, live, rt, sent, apsCalls, launches, payloads, snapshot, core, combat, damage: (id, health = 0) => {
     G.cstate.modules[G.bundle.modules.findIndex(m => m.id === id)] = health;
     G.caps = combat.advance(G.combatKey, G.cstate, 0, 1).caps;
   } };
 }
+function chooseControl(r, key) {
+  for (let i = 0; i < selection.weaponControlSlots(r.G.loadout).length; i++) {
+    if (selection.weaponControlKey(r.G.weaponControl) === key) return;
+    r.live.cycleSightGun();
+  }
+  assert.equal(selection.weaponControlKey(r.G.weaponControl), key, 'actual G reaches requested control');
+}
+function triggerFrame(r, dt = 1 / 60) {
+  const start = source.indexOf("    if (G.fireHeld && G.mode === 'battle') trigger();");
+  const end = source.indexOf('    G.acc += dt;', start);
+  assert.ok(start >= 0 && end > start, 'actual held-input dispatch and pending discharge frame');
+  new Function('G', 'dt', 'trigger', 'fireGun', source.slice(start, end))(r.G, dt, r.live.trigger, r.live.fireGun);
+}
+const angles = r => r.G.T.map(t => ({ yaw: t.yaw, pitches: t.guns.map(g => g.pitch) }));
 const close = (actual, expected, message, epsilon = 1e-7) => assert.ok(Math.abs(actual - expected) < epsilon, `${message}: ${actual} != ${expected}`);
 function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
   const matrix = mul(translation(...origin), mul(rotY(heading), mul(rotX(-pitch), rotZ(roll))));
@@ -97,6 +119,69 @@ function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
   if (r.rt) r.rt.model.body.local = matrix;
 }
 
+test('first G selects gun zero, cancels the ALL ripple and routes held fire only to that cannon', () => {
+  const r = controls('su_bmpt34'), guns = r.G.loadout.turrets[0].guns;
+  r.live.trigger();
+  assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[0, 0], [0, 1]], 'ALL queues both primary cannons');
+  const before = guns.map(loadout.roundsLeft);
+  r.G.fireHeld = true;
+  r.live.cycleSightGun();
+  assert.equal(selection.weaponControlKey(r.G.weaponControl), 'gun:0:0');
+  assert.equal(r.G.pending.length, 0, 'selection discards only not-yet-fired actions');
+  assert.equal(r.G.fireHeld, true);
+  triggerFrame(r);
+  assert.deepEqual(guns.map(loadout.roundsLeft), before.map((n, i) => n - (i === 0 ? 1 : 0)));
+  assert.equal(r.G.shots.length, 1);
+});
+
+test('gun 1 solo held fire debits only its pool and rejects inactive direct cannon and MG fire', () => {
+  const r = controls('su_bmpt34'), guns = r.G.loadout.turrets[0].guns;
+  chooseControl(r, 'gun:0:1');
+  const before = guns.map(loadout.roundsLeft);
+  r.G.fireHeld = true;
+  triggerFrame(r);
+  assert.deepEqual(guns.map(loadout.roundsLeft), before.map((n, i) => n - (i === 1 ? 1 : 0)));
+  assert.equal(r.live.fireGun(0, 0), false);
+  assert.deepEqual(guns.map(loadout.roundsLeft), before.map((n, i) => n - (i === 1 ? 1 : 0)));
+  r.G.mgHeld = true;
+  r.live.stepMachineGuns(1 / 60);
+  assert.equal(r.G.bullets.length, 0);
+});
+
+test('selected rocket right rail alone accepts primary and R while N and MG solo queue no rocket', () => {
+  const r = controls('su_bmpt34'), guns = r.G.loadout.turrets[0].guns;
+  chooseControl(r, 'gun:0:3');
+  r.live.trigger();
+  assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[0, 3]]);
+  r.G.pending.length = 0; r.live.trigger(true);
+  assert.deepEqual(r.G.pending, []);
+  r.live.trigger(false, true);
+  assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[0, 3]]);
+  const before = guns.map(loadout.roundsLeft);
+  assert.equal(r.live.fireGun(0, 3), true, 'actual launcher performs the discharge');
+  assert.deepEqual(guns.map(loadout.roundsLeft), before.map((n, i) => n - (i === 3 ? 1 : 0)));
+  assert.equal(r.launches.length, 1); assert.deepEqual(r.payloads, [[0, 3, 0]]);
+  assert.equal(r.live.fireGun(0, 3), false, 'empty rail cannot bypass actual readiness');
+  const m = controls('de_pz3_j'); chooseControl(m, 'mg:0');
+  m.live.trigger(false, true); assert.deepEqual(m.G.pending, []);
+});
+
+test('secondary solo accepts left and N only for the selected gun and consumes its own ammunition', () => {
+  const bundle = structuredClone(data.vehicles.su_bmpt34);
+  bundle.weapons.extra_guns[0].gun.trigger = 'secondary';
+  const r = controls('su_bmpt34', false, bundle), guns = r.G.loadout.turrets[0].guns;
+  chooseControl(r, 'gun:0:1');
+  for (const secondary of [false, true]) {
+    r.live.trigger(secondary);
+    assert.deepEqual(r.G.pending.map(p => [p.ti, p.gi]), [[0, 1]]);
+    r.G.pending.length = 0;
+  }
+  r.live.trigger(false, true); assert.deepEqual(r.G.pending, []);
+  const before = guns.map(loadout.roundsLeft);
+  assert.equal(r.live.fireGun(0, 1), true);
+  assert.deepEqual(guns.map(loadout.roundsLeft), before.map((n, i) => n - (i === 1 ? 1 : 0)));
+});
+
 test('queued then hit main gun cannot fire or consume ammo while the healthy selected MG still fires', () => {
   const r = controls('de_pz3_j'), g = r.G.loadout.turrets[0].guns[0];
   r.live.trigger();
@@ -106,7 +191,7 @@ test('queued then hit main gun cannot fire or consume ammo while the healthy sel
   assert.equal(r.live.fireGun(0, 0), false);
   assert.equal(loadout.roundsLeft(g), before);
   assert.equal(r.G.shots.length, 0);
-  r.G.sightM = 0; r.G.fireHeld = true;
+  chooseControl(r, 'mg:0'); r.G.fireHeld = true;
   r.live.stepMachineGuns(.01);
   assert.ok(r.G.bullets.length > 0, 'healthy MG remains independent of the broken main gun');
 });
@@ -121,7 +206,7 @@ test('new-core unknown own gun key cannot queue even when other weapons keep can
 
 test('MG own barrel damage stops bullets without consuming a belt and healthy gun remains ready', () => {
   const r = controls('de_pz3_j');
-  r.G.sightM = 0; r.G.fireHeld = true;
+  chooseControl(r, 'mg:0'); r.G.fireHeld = true;
   const before = r.G.MG[0].st.belt;
   r.damage('mg:' + r.G.MG[0].m.id + ':barrel');
   r.live.stepMachineGuns(.01);
@@ -133,7 +218,7 @@ test('MG own barrel damage stops bullets without consuming a belt and healthy gu
 
 test('MG firing packets carry original secondary instance and a shared firing sequence', () => {
   const r = controls('de_pz3_j');
-  r.G.online = {seq: 20}; r.G.sightM = 0; r.G.fireHeld = true;
+  r.G.online = {seq: 20}; chooseControl(r, 'mg:0'); r.G.fireHeld = true;
   r.live.stepMachineGuns(.01);
   assert.equal(r.sent[0]?.t, 'mg_fire');
   assert.equal(r.sent[0].seq, 21);
@@ -152,7 +237,7 @@ test('MG projectile retains its firing-time sequence and instance when its own b
   e.loadout = lo; e.remote = true; e.netId = 88; e.team = 1;
   useCombat(e, r.combat, 'remote:88');
   r.G.enemies = [e]; r.G.bulletShells = new Map();
-  r.G.online = {seq: 20, team: 0}; r.G.sightM = 0; r.G.fireHeld = true;
+  r.G.online = {seq: 20, team: 0}; chooseControl(r, 'mg:0'); r.G.fireHeld = true;
   r.live.stepMachineGuns(.01);
   const fired = r.sent.find(m => m.t === 'mg_fire');
   assert.ok(fired);
@@ -201,7 +286,7 @@ test('live cannon and MG projectiles consume their own partial dispersion withou
   const angle = shot => Math.acos(shot.s.vel[2] / Math.hypot(...shot.s.vel));
   close(angle(b.G.shots[0]) / angle(a.G.shots[0]), b.G.caps.weapons['gun:0:0'].dispersion_mult, 'actual cannon scatter', 1e-5);
   b.damage('mg:' + b.G.MG[0].m.id + ':barrel', 10);
-  for (const r of [a, b]) {r.G.sightM = 0; r.G.fireHeld = true; r.live.stepMachineGuns(.01);}
+  for (const r of [a, b]) {chooseControl(r, 'mg:0'); r.G.fireHeld = true; r.live.stepMachineGuns(.01);}
   assert.equal(a.G.MG[0].st.fired, b.G.MG[0].st.fired, 'feed damage does not change RPM');
   close(angle(b.G.bullets[0]) / angle(a.G.bullets[0]), b.G.caps.weapons[b.G.MG[0].m.damageKey].dispersion_mult, 'actual MG scatter', 1e-5);
   assert.equal(a.G.MG[0].st.heat, b.G.MG[0].st.heat);
@@ -298,7 +383,7 @@ test('selected roof MG camera and firing muzzle match the rendered bore on a pit
 
 test('G takes manual Oplot ownership, fires its actual gun and restores automatic preference with remaining rounds', () => {
   const r = controls('su_t10m');
-  r.live.cycleSightGun();
+  chooseControl(r, 'gun:1:0');
   assert.equal(r.G.sightT, 1);
   assert.equal(r.G.apsOn, true, 'manual selection preserves the interception preference');
   assert.equal(r.snapshot().enabled, false, 'automatic drive is paused for manual control');
@@ -308,7 +393,7 @@ test('G takes manual Oplot ownership, fires its actual gun and restores automati
   assert.equal(r.live.fireGun(1, 0), true);
   assert.equal(r.G.shots.length, 1);
   assert.equal(loadout.roundsLeft(gun), before - 1);
-  r.live.cycleSightGun();
+  chooseControl(r, 'all');
   assert.equal(r.G.sightT, 0);
   assert.equal(r.snapshot().enabled, false, 'the original firing cycle finishes before automatic control resumes');
   const t = r.G.loadout.turrets[1];
@@ -317,13 +402,13 @@ test('G takes manual Oplot ownership, fires its actual gun and restores automati
   assert.equal(r.snapshot().enabled, true);
   assert.equal(r.snapshot().rounds, before - 1, 'interception uses the remaining shared magazine');
   r.G.apsOn = false;
-  r.live.cycleSightGun(); r.live.cycleSightGun();
+  chooseControl(r, 'gun:1:0'); chooseControl(r, 'all');
   assert.equal(r.snapshot().enabled, false, 'switchback preserves an explicit disabled preference');
 });
 
 test('an old automatic snapshot cannot overwrite manually selected Oplot bearing', () => {
   const r = controls('su_t10m');
-  r.live.cycleSightGun();
+  chooseControl(r, 'gun:1:0');
   r.G.T[1].yaw = .7; r.G.T[1].guns[0].pitch = .2;
   r.live.applyAps({ aps: [{ ...r.snapshot(), owner: ME, enabled: true, mode: 'scanning', yaw: 1.2, pitch: .4, spin: 0, track_pos: [] }], events: [] }, { aps_gun_ok: true, aps_radar_ok: true });
   assert.equal(r.G.T[1].yaw, .7);
@@ -343,7 +428,7 @@ test('online manual Oplot fire uses the independently traversed rendered mount a
   const renderer = { mesh: data => ({ data, count: data.length / STRIDE }), instancedMesh: (data, capacity) => ({ data, count: data.length / STRIDE, capacity }), setInstances() {}, freeMesh() {} };
   r.G.model = buildTank(renderer, r.G.loadout, loadout.generatedTurretParts);
   r.G.online = { seq: 0, dead: false };
-  r.live.cycleSightGun();
+  chooseControl(r, 'gun:1:0');
   r.G.T[0].yaw = .7; r.G.T[1].yaw = 1.1; r.G.T[1].guns[0].pitch = .25;
   const modelGun = r.G.model.turrets[1].guns[0];
   r.G.model.turrets[0].node.yaw = .7;
@@ -354,12 +439,12 @@ test('online manual Oplot fire uses the independently traversed rendered mount a
   assert.equal(r.live.fireGun(1, 0), true);
   r.G.shots[0].origin.forEach((v, k) => close(v, mouth[k], 'Oplot round leaves rendered muzzle', 1e-6));
   const packets = r.sent.map(m => m.t);
-  assert.deepEqual(packets, ['aps', 'fire']);
-  assert.equal(r.sent[0].enabled, false, 'pause reaches the server before manual fire');
-  assert.equal(r.sent[1].shell, gun.ammo[0].shell.id);
-  assert.equal(r.sent[1].seq, 1);
-  assert.ok(!('rounds' in r.sent[0]), 'online control never asks the server to trust a client ammunition count');
-  r.live.cycleSightGun();
+  assert.deepEqual(packets, ['aps', 'aps', 'fire']);
+  assert.equal(r.sent[1].enabled, false, 'pause reaches the server before manual fire');
+  assert.equal(r.sent[2].shell, gun.ammo[0].shell.id);
+  assert.equal(r.sent[2].seq, 1);
+  assert.ok(r.sent.filter(m => m.t === 'aps').every(m => !('rounds' in m)), 'online control never asks the server to trust a client ammunition count');
+  chooseControl(r, 'all');
   assert.equal(r.sent.at(-1).t, 'aps'); assert.equal(r.sent.at(-1).enabled, true);
 });
 
@@ -388,12 +473,12 @@ test('automatic Oplot ammunition depletion selects a valid manual round and neve
   const r = controls('su_t10m'), gun = r.G.loadout.turrets[1].guns[0];
   r.live.applyAps({ aps: [{ ...r.snapshot(), owner: ME, enabled: true, mode: 'scanning', yaw: 0, pitch: 0, spin: 0, rounds: 500, track_pos: [] }], events: [] }, { aps_gun_ok: true, aps_radar_ok: true });
   assert.equal(gun.ammo[0].count, 0);
-  r.live.cycleSightGun();
+  chooseControl(r, 'gun:1:0');
   assert.equal(r.live.fireGun(1, 0), true);
   assert.equal(gun.ammo[1].count, 299, 'the selected ready round follows the remaining type');
-  r.live.cycleSightGun();
+  chooseControl(r, 'all');
   r.live.applyAps({ aps: [{ ...r.snapshot(), owner: ME, enabled: true, mode: 'empty', yaw: 0, pitch: 0, spin: 0, rounds: 0, track_pos: [] }], events: [] }, { aps_gun_ok: true, aps_radar_ok: true });
-  r.live.cycleSightGun();
+  chooseControl(r, 'gun:1:0');
   assert.equal(r.live.fireGun(1, 0), false, 'no ghost round after interception drains the magazine');
 });
 
@@ -402,7 +487,7 @@ test('a destroyed Oplot gun cannot be fired by taking manual control', () => {
   r.G.cstate = { modules: data.vehicles.su_t10m.modules.map(() => 1) };
   const i = data.vehicles.su_t10m.modules.findIndex(m => m.id === r.G.aps.gun_module);
   r.G.cstate.modules[i] = 0;
-  r.live.cycleSightGun(); r.live.trigger();
+  chooseControl(r, 'gun:1:0'); r.live.trigger();
   assert.ok(!r.G.pending.some(p => p.ti === 1), 'broken protection gun is not queued');
   assert.equal(r.live.fireGun(1, 0), false);
   assert.equal(loadout.roundsLeft(r.G.loadout.turrets[1].guns[0]), 900);
@@ -410,13 +495,13 @@ test('a destroyed Oplot gun cannot be fired by taking manual control', () => {
 
 test('selected MG primary fires only that MG and preserves the secondary battery in cannon mode', () => {
   const r = controls('su_is2', true), i = r.G.MG.findIndex(e => e.m.mount === 'pintle');
-  r.G.fireHeld = true; r.G.sightM = i;
+  r.G.fireHeld = true; chooseControl(r, `mg:${i}`);
   r.live.trigger();
   assert.equal(r.G.pending.length, 0, 'MG primary cannot queue cannons');
   r.live.stepMachineGuns(1 / 60);
   assert.ok(r.G.MG[i].st.fired > 0);
   assert.ok(r.G.MG.every((e, k) => k === i || e.st.fired === 0));
-  r.G.fireHeld = false; r.G.mgHeld = true; r.G.sightM = -1;
+  r.G.fireHeld = false; r.G.mgHeld = true; chooseControl(r, 'all');
   r.live.stepMachineGuns(1 / 60);
   assert.ok(r.G.MG.every(e => e.st.fired > 0));
 });

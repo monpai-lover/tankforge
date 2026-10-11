@@ -1,3 +1,4 @@
+import * as selection from '../src/game/weaponselection.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -38,10 +39,10 @@ function automaticControls(lo, ti) {
   assert.ok(start >= 0, 'production firing function exists');
   const body = source.slice(start, source.indexOf('\n  }', start) + 4);
   const G = { loadout: lo, shots: [], aps: null, caps: null, online: null, cam: { shake: 0 }, ss: {},
-    sightM: -1, sightT: ti, fireHeld: true, mgHeld: false,
+    weaponControl: { kind: 'gun', ti, gi: 0 }, sightM: -1, sightT: ti, fireHeld: true, mgHeld: false,
     T: lo.turrets.map(t => ({ yaw: 0, guns: t.guns.map(() => ({ pitch: 0, smoke: 0 })), loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })) };
   G.veh = { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse(j, p) { this.body.applyImpulseAt(j, p); }, worldPoint(p) { return this.body.worldPoint(p); } };
-  const deps = { G, RECOIL_ROCK: 1, weaponDamage, gunnery, ballistics, loading, syncGunShell, nextAmmo,
+  const deps = { G, RECOIL_ROCK: 1, ...selection, weaponDamage, gunnery, ballistics, loading, syncGunShell, nextAmmo,
     pose: () => ({ pos: [0, 0, 0], heading: 0 }),
     mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset }), hullTilt: () => 0,
     rng: { nextF32: () => .5 }, surfaceAt: () => 0, fx: { mgFlash() {}, autocannonBlast() {} }, sound: { mg() {} } };
@@ -49,9 +50,9 @@ function automaticControls(lo, ti) {
   const spinStart = source.indexOf("        // a rotary gun's barrels spin up");
   const spinEnd = source.indexOf('\n        });', spinStart);
   assert.ok(spinStart >= 0 && spinEnd > spinStart, 'production rotary spin cycle exists');
-  const spin = new Function('G', 't', 'ti', 'SIM_DT', 'clamp', source.slice(spinStart, spinEnd + '\n        });'.length));
+  const spin = new Function('G', 't', 'ti', 'SIM_DT', 'clamp', 'gunTrigger', source.slice(spinStart, spinEnd + '\n        });'.length));
   const clamp = (value, lo, hi) => Math.max(lo, Math.min(hi, value));
-  return { G, L: G.T[ti].loading, fire: () => fire(ti, 0), spinStep: dt => spin(G, lo.turrets[ti], ti, dt, clamp) };
+  return { G, L: G.T[ti].loading, fire: () => fire(ti, 0), spinStep: dt => spin(G, lo.turrets[ti], ti, dt, clamp, selection.gunTrigger) };
 }
 
 test('performance exports cover each independent timing owner', () => {

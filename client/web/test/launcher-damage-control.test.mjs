@@ -1,3 +1,4 @@
+import * as selection from '../src/game/weaponselection.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -26,8 +27,8 @@ function live(name, deps) {
 test('live player launch rejects disabled apparatus without spending a tube or transport request', () => {
   for (const online of [false, true]) {
     const lo = make(), g = lo.turrets[0].guns[0], requests = [];
-    const G = { loadout: lo, T: [{ loading: loading.newLoading(1, 1) }], caps: { can_fire: false }, online: online ? { seq: 0 } : null, missiles: { ready: true, launch: () => { requests.push('launch'); return 1; } }, guided: [], cam: { shake: 0 }, model: {} };
-    const launch = live('launchFromGun', { G, data, ME: 1, rng: { nextF32: () => .5 }, ...loadout, ...combatApi, ...damageApi, net: { open: true, send: () => requests.push('send') }, onlineAmmo:{scope:()=>({battle:7,life:2})}, onlineLaunches: { has: () => false, begin: () => true } });
+    const G = { weaponControl: { kind: 'all' }, loadout: lo, T: [{ loading: loading.newLoading(1, 1) }], caps: { can_fire: false }, online: online ? { seq: 0 } : null, missiles: { ready: true, launch: () => { requests.push('launch'); return 1; } }, guided: [], cam: { shake: 0 }, model: {} };
+    const launch = live('launchFromGun', { G, data, ME: 1, rng: { nextF32: () => .5 }, ...selection, ...loadout, ...combatApi, ...damageApi, net: { open: true, send: () => requests.push('send') }, onlineAmmo:{scope:()=>({battle:7,life:2})}, onlineLaunches: { has: () => false, begin: () => true } });
     const before = loadout.roundsLeft(g);
     assert.equal(launch(0, 0, { pos: [0, 2.7, 0], dir: [0, 0, 1] }), false, online ? 'online request' : 'offline launch');
     assert.deepEqual(requests, []);
@@ -42,8 +43,8 @@ test('live player launch rejects disabled apparatus without spending a tube or t
 test('live bot launch obeys combat capability and resumes after apparatus repair', () => {
   const lo = make(), g = lo.turrets[0].guns[0], requests = [];
   const e = { loadout: lo, alive: true, caps: { can_fire: false }, x: 0, z: 0, heading: 0, name: 'M901', mslT: 0, ammoLoading: [loading.newLoading(1, 1)], gunPitch: [0], pose() {}, model: { payload() {} } };
-  const G = { mode: 'battle', caps: { destroyed: false }, time: 10, enemies: [e], missiles: { ready: true, nodes: new Map(), launch: () => { requests.push('launch'); return 1; } } };
-  const fire = live('aiMissiles', { G, data, DEG: Math.PI / 180, playerMiddle: () => [0, 2.7, 500], enemyOwner: () => 2, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({ pos: [0, 0, 0], heading: 0 }), mountFor: () => ({ pivot: lo.turrets[0].pivot, trunnion: g.trunnion }), losHit: () => null, hud: { toast() {} }, loading, gunnery, ...loadout, ...combatApi, ...damageApi });
+  const G = { weaponControl: { kind: 'all' }, mode: 'battle', caps: { destroyed: false }, time: 10, enemies: [e], missiles: { ready: true, nodes: new Map(), launch: () => { requests.push('launch'); return 1; } } };
+  const fire = live('aiMissiles', { G, data, DEG: Math.PI / 180, playerMiddle: () => [0, 2.7, 500], enemyOwner: () => 2, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({ pos: [0, 0, 0], heading: 0 }), mountFor: () => ({ pivot: lo.turrets[0].pivot, trunnion: g.trunnion }), losHit: () => null, hud: { toast() {} }, loading, gunnery, ...selection, ...loadout, ...combatApi, ...damageApi });
   const before = loadout.roundsLeft(g);
   fire(.01);
   assert.deepEqual(requests, [], 'disabled bot must not launch');
@@ -64,7 +65,7 @@ test('live bot launcher elevation consumes its actual damaged own drive without 
   assert.equal(caps.weapons[g.damageKey].can_fire, true);
   const e = {loadout: lo, alive: true, caps, x: 0, z: 0, heading: 0, name: 'M901', mslT: 0, ammoLoading: lo.turrets.map(t => loading.newLoading(t.guns.length,t.loaders.length,t.guns.map(g=>!g.rack))), gunPitch: [0], pose() {}, model: { payload() {} }};
   const G = {mode: 'battle', time: 10, enemies: [e], missiles: {ready: true, nodes: new Map(), launch: (...args) => {requests.push(args); return 1;}}};
-  const fire = live('aiMissiles', {G, data, DEG: Math.PI / 180, playerMiddle: () => [0, 100, 500], enemyOwner: () => 2, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({pos: [0, 0, 0], heading: 0}), mountFor: () => ({pivot: lo.turrets[0].pivot, trunnion: lo.turrets[0].guns[0].trunnion}), losHit: () => null, hud: {toast() {}}, loading, gunnery, ...loadout, ...combatApi, ...damageApi});
+  const fire = live('aiMissiles', {G, data, DEG: Math.PI / 180, playerMiddle: () => [0, 100, 500], enemyOwner: () => 2, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({pos: [0, 0, 0], heading: 0}), mountFor: () => ({pivot: lo.turrets[0].pivot, trunnion: lo.turrets[0].guns[0].trunnion}), losHit: () => null, hud: {toast() {}}, loading, gunnery, ...selection, ...loadout, ...combatApi, ...damageApi});
   const dt = 1 / 120; fire(dt);
   assert.equal(requests.length, 1);
   const pitch = Math.asin(requests[0][4][1]);
@@ -79,9 +80,9 @@ test('actual BMPT damaged rocket rail preserves both cannons and the opposite ro
   state.modules[bundle.modules.findIndex(m => m.id === 'launcher_tt250_rail_r')] = 0;
   const caps = combat.advance('su_bmpt34', state, 0, 1).caps;
   assert.equal(caps.can_fire, true, 'a failed rocket apparatus must not disable the intact 25 mm cannons');
-  const G = { id: 'su_bmpt34', loadout: lo, caps, cstate: state, T: lo.turrets.map(t => ({ yaw: 0, bearing: true, yawErr: 0, guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })), loading: loading.newLoading(t.guns.length, 1, t.guns.map(() => true)) })), pending: [], sightM: -1, sightT: 0, ss: {}, shots: [], missiles: { ready: true, launch: () => 1 }, guided: [], cam: { shake: 0 }, model: {} };
+  const G = { weaponControl: { kind: 'all' }, id: 'su_bmpt34', loadout: lo, caps, cstate: state, T: lo.turrets.map(t => ({ yaw: 0, bearing: true, yawErr: 0, guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })), loading: loading.newLoading(t.guns.length, 1, t.guns.map(() => true)) })), pending: [], sightM: -1, sightT: 0, ss: {}, shots: [], missiles: { ready: true, launch: () => 1 }, guided: [], cam: { shake: 0 }, model: {} };
   G.veh = { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse(j, p) { this.body.applyImpulseAt(j, p); }, worldPoint(p) { return this.body.worldPoint(p); } };
-  const deps = { G, data, ME: 1, RECOIL_ROCK: 1, ...loadout, ...combatApi, ...damageApi, loading, gunnery, ballistics, mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector }), pose: () => ({ pos: [0, 0, 0], heading: 0 }), hullTilt: () => 0, rng: { nextF32: () => .5 }, surfaceAt: () => 0, impactColor: () => [1, 1, 1], fx: { autocannonBlast() {} }, sound: { mg() {} } };
+  const deps = { G, data, ME: 1, RECOIL_ROCK: 1, ...selection, ...loadout, ...combatApi, ...damageApi, loading, gunnery, ballistics, mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset, muzzleVector: g.muzzleVector }), pose: () => ({ pos: [0, 0, 0], heading: 0 }), hullTilt: () => 0, rng: { nextF32: () => .5 }, surfaceAt: () => 0, impactColor: () => [1, 1, 1], fx: { autocannonBlast() {} }, sound: { mg() {} } };
   const live = new Function(...Object.keys(deps), `${functionSource('trigger')}\n${functionSource('launchFromGun')}\n${functionSource('fireGun')}\nreturn {trigger, fireGun};`)(...Object.values(deps));
   live.trigger(false, false);
   assert.deepEqual(G.pending.map(p => p.gi), [0, 1], 'both conventional cannons remain queued');
@@ -102,8 +103,8 @@ test('queued then disabled own launcher cannot consume ammo while its healthy ca
   const vehicle = 'su_bmpt34', bundle = data.vehicles[vehicle], lo = loadout.makeLoadout(vehicle, bundle, data.projectiles, data.machineGuns), requests = [];
   const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)), {materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains)});
   const combat = new combatApi.Combat(core, data.machineGuns), r = combat.fresh('pending:m901', bundle);
-  const G = {id: vehicle, loadout: lo, caps: r.caps, cstate: r.state, T: [{yaw: 0, bearing: true, yawErr: 0, guns: lo.turrets[0].guns.map(() => ({pitch: 0, pitchErr: 0})), loading: loading.newLoading(lo.gunCount, 1)}], sightM: -1, sightT: 0, pending: [], ss: {}, missiles: {ready: true, launch: () => {requests.push('launch'); return 1;}}, guided: [], cam: {shake: 0}, model: {}};
-  const deps = {G, data, ME: 1, ...loadout, ...combatApi, ...damageApi, loading, gunnery, ballistics, mountOf: (t, g) => ({pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset}), pose: () => ({pos: [0, 0, 0], heading: 0}), hullTilt: () => 0, rng: {nextF32: () => .5}};
+  const G = {weaponControl: {kind: 'all'}, id: vehicle, loadout: lo, caps: r.caps, cstate: r.state, T: [{yaw: 0, bearing: true, yawErr: 0, guns: lo.turrets[0].guns.map(() => ({pitch: 0, pitchErr: 0})), loading: loading.newLoading(lo.gunCount, 1)}], sightM: -1, sightT: 0, pending: [], ss: {}, missiles: {ready: true, launch: () => {requests.push('launch'); return 1;}}, guided: [], cam: {shake: 0}, model: {}};
+  const deps = {G, data, ME: 1, ...selection, ...loadout, ...combatApi, ...damageApi, loading, gunnery, ballistics, mountOf: (t, g) => ({pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset}), pose: () => ({pos: [0, 0, 0], heading: 0}), hullTilt: () => 0, rng: {nextF32: () => .5}};
   const app = new Function(...Object.keys(deps), `${functionSource('trigger')}\n${functionSource('launchFromGun')}\n${functionSource('fireGun')}\nreturn {trigger, fireGun};`)(...Object.values(deps));
   app.trigger(false, true); assert.equal(G.pending.length, 1);
   const gi = G.pending[0].gi;
@@ -129,8 +130,8 @@ test('two actual workshop M901 launcher instances preserve the intact assembly a
   const caps = combat.advance('two_launchers', state, 0, 1).caps;
   assert.equal(caps.can_fire, true, 'one intact launcher assembly must keep the vehicle able to launch');
   assert.notEqual(apparatus[0].weapon_group, apparatus[1].weapon_group, 'same source weapon IDs are distinct mounted assemblies');
-  const G = { id: 'two_launchers', loadout: lo, caps, cstate: state, T: [{ loading: loading.newLoading(2, 1, [true, true]) }], missiles: { ready: true, launch: () => 1 }, guided: [], cam: { shake: 0 }, model: {} };
-  const launch = live('launchFromGun', { G, data: { ...data, vehicles: { ...data.vehicles, two_launchers: bundle } }, ME: 1, rng: { nextF32: () => .5 }, ...loadout, ...combatApi, ...damageApi });
+  const G = { weaponControl: { kind: 'all' }, id: 'two_launchers', loadout: lo, caps, cstate: state, T: [{ loading: loading.newLoading(2, 1, [true, true]) }], missiles: { ready: true, launch: () => 1 }, guided: [], cam: { shake: 0 }, model: {} };
+  const launch = live('launchFromGun', { G, data: { ...data, vehicles: { ...data.vehicles, two_launchers: bundle } }, ME: 1, rng: { nextF32: () => .5 }, ...selection, ...loadout, ...combatApi, ...damageApi });
   const before = guns.map(g => loadout.roundsLeft(g));
   const muzzle = { pos: [0, 2, 0], dir: [0, 0, 1] };
   assert.equal(launch(0, 0, muzzle), false);

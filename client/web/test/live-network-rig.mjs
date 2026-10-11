@@ -1,3 +1,4 @@
+import * as selection from '../src/game/weaponselection.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { NetClient } from '../src/game/net.js';
@@ -39,7 +40,7 @@ function node() { return { children: [], dataset: {}, style: {}, textContent: ''
 export function runtime(local, options = {}) {
   const store = storage(), gameplay = new GameplaySession(store);
   gameplay.chooseLocal(local);
-  const G = { id: 'su_t34_85', mode: 'garage', gameplayMode: gameplay.activeMode(), s: phys.newState(), pending: [], shots:[], bullets:[], guided:[],aim:{}, cam: {shake:0}, thumbs: [], mapId: 'range', maps: new Map(options.loadMap?[]:Object.entries(data.maps)), enemies: [], keys: new Set(),camPos:[0,0,0] };
+  const G = { weaponControl: { kind: 'all' }, id: 'su_t34_85', mode: 'garage', gameplayMode: gameplay.activeMode(), s: phys.newState(), pending: [], shots:[], bullets:[], guided:[],aim:{}, cam: {shake:0}, thumbs: [], mapId: 'range', maps: new Map(options.loadMap?[]:Object.entries(data.maps)), enemies: [], keys: new Set(),camPos:[0,0,0] };
   const notices=[],cqBar=node(),cqMsg=node();G.combat=options.combat||null;G.cstate=null;G.caps=null;G.carried=-1;
   const elements = new Map();
   globalThis.document = { body: { dataset: {} }, getElementById(id) { if(id==='cq-msg')return cqMsg;if(id==='cq-bar')return cqBar;if (!elements.has(id)) elements.set(id,node()); return elements.get(id); }, createElement: node, createTextNode: text => ({ textContent: text }) };
@@ -49,7 +50,7 @@ export function runtime(local, options = {}) {
   const receive=net._receive.bind(net);net._receive=m=>receive(structuredClone(m));
   const scene = { children: [], add(n) { this.children.push(n); } };
   const renderer = { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} };
-  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, gunnery, ballistics, weaponDamage, hullTilt, captureMessage, CREW_NAME, EVENT_NAME, DEG:Math.PI/180, RECOIL_ROCK:1,GARAGE,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),cameraObstruction:{reset(){}},vehicleActionIndicator:{update(){}},rng:{nextF32:()=>.5}, pose:()=>({pos:[G.s.x,G.s.y||0,G.s.z],heading:G.s.heading}), surfaceAt:()=>0,impactColor:()=>[0,0,0], ME:1, data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
+  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...selection, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, gunnery, ballistics, weaponDamage, hullTilt, captureMessage, CREW_NAME, EVENT_NAME, DEG:Math.PI/180, RECOIL_ROCK:1,GARAGE,clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),cameraObstruction:{reset(){}},vehicleActionIndicator:{update(){}},rng:{nextF32:()=>.5}, pose:()=>({pos:[G.s.x,G.s.y||0,G.s.z],heading:G.s.heading}), surfaceAt:()=>0,impactColor:()=>[0,0,0], ME:1, data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
     isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }), AMMO_CFG: {}, applyAmmo,
     onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), OnlineAmmo, emptyRacks, loading, mgSim, renderer, buildTank, VehicleSim, terrain: ground(() => 0), scene, hud,
     syncRacks(){}, Exhaust: class {}, fx: new Proxy({}, {get:()=>()=>{}}), exhaustOf() {}, applyXray() {}, rebuildInterior() {}, useCombat, buildInterior, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],

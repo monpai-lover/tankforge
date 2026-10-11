@@ -47,18 +47,7 @@ export function weaponControlLabel(lo, c) {
   return `機槍 ${c.mi + 1} · ${m.def.name || m.weapon || m.def.id} 單獨開火`;
 }
 
-/** Temporary compatibility for the legacy sight caller until its atomic control migration. */
-export function nextSightWeapon(loadout, current) {
-  const slots = [];
-  loadout.turrets.forEach((t, ti) => t.guns.forEach((_, gi) => slots.push({ ti, gi, mi: -1 })));
-  loadout.machineGuns.forEach((_, mi) => slots.push({ ti: 0, gi: 0, mi }));
-  const i = slots.findIndex(s => s.mi === current.mi && (s.mi >= 0 || (s.ti === current.ti && s.gi === current.gi)));
-  return slots[(i + 1) % slots.length] || { ti: 0, gi: 0, mi: -1 };
-}
-
 export function machineGunTrigger(selected, index, primary, secondary) {
-  // Temporary numeric compatibility for the existing runtime caller.
-  if (typeof selected === 'number') return selected >= 0 ? selected === index && (primary || secondary) : secondary;
   if (selected.kind === 'mg') return selected.mi === index && (primary || secondary);
   return selected.kind === 'all' && secondary;
 }

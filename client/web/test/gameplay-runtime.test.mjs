@@ -46,7 +46,7 @@ function functionSource(name) {
 }
 function controls(id, mode = 'historical') {
   const lo = selectionRuntime(id, mode).loadout;
-  const G = { id, mode: 'battle', gameplayMode: mode, loadout: lo, zero: 0,
+  const G = { id, mode: 'battle', weaponControl: { kind: 'all' }, gameplayMode: mode, loadout: lo, zero: 0,
     s: { x: 0, y: 0, z: 0, heading: 0 }, ss: { pitch: 0, roll: 0 },
     sightT: 0, sightG: 0, sightM: -1, pending: [], zoomIdx: 0,
     cam: { yaw: 0, pitch: 0, shake: 0 }, camPos: [0, 3, 0], aimPoint: [0, 3, 800], aim: { dist: 800 },
@@ -184,7 +184,7 @@ test('actual manual reload emits at final layout time/fire, consumes real ammo a
 test('actual MG emission cadence consumes one round and keeps heat per shot/capacity', () => {
   const a = controls('de_pz3_j', 'casual'), h = controls('de_pz3_j');
   const run = r => {
-    r.G.sightM = 0; r.G.fireHeld = true;
+    r.G.weaponControl = { kind: 'mg', mi: 0 }; r.G.sightM = 0; r.G.fireHeld = true;
     const st = r.G.MG[0].st, cap = st.belt, timestamps = [];
     for (let i = 0; i < 60; i++) { const n = r.G.bullets.length; r.live.stepMachineGuns(1 / 120); if (r.G.bullets.length > n) timestamps.push(i / 120); }
     assert.equal(st.belt, cap - r.G.bullets.length);

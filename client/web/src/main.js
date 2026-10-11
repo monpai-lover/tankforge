@@ -51,7 +51,7 @@ import { Effects, advanceGunRecoil } from './game/fx.js';
 import { Sound } from './game/audio.js';
 import { Hud, penAt } from './game/hud.js';
 import { statusViewDistance } from './game/statusview.js';
-import { nextSightWeapon, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
+import { nextWeaponControl, weaponControlSight, weaponControlLabel, gunControlActive, gunTrigger, machineGunTrigger, ammoKeyIndex } from './game/weaponselection.js';
 import { smoothFold, foldDepression, foldYawLimit, foldedPlate } from './game/folding.js';
 import { sightProjection } from './game/optics.js';
 import { Workshop } from './game/workshop.js';
@@ -298,6 +298,7 @@ export function start(data, saved = {}) {
     params: null,
     s: phys.newState(),
     T: [], // per turret: {yaw, bearing, yawErr, guns: [{pitch, pitchErr, recoil}], loading}
+    weaponControl: { kind: 'all' },
     sightT: 0,
     sightG: 0,
     sightM: -1,
@@ -701,6 +702,7 @@ export function start(data, saved = {}) {
     G.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => g.loaded < 0 && (G.T[ti].loading.state[gi] = 'empty')));
     if (initialAmmo) onlineAmmo.bindLoadings(G.T.map(t=>t.loading));
     G.MG = G.loadout.machineGuns.map((m) => ({ m, st: mgSim.newMg(m.def), aim: { yaw: 0, pitch: 0 }, bearing: true }));
+    G.weaponControl = { kind: 'all' };
     G.sightT = 0;
     G.sightG = 0;
     G.sightM = -1;
@@ -1463,7 +1465,8 @@ export function start(data, saved = {}) {
 
   function cycleSightGun() {
     G.ranging = null;
-    const next = nextSightWeapon(G.loadout, { ti: G.sightT, gi: G.sightG, mi: G.sightM });
+    G.weaponControl = nextWeaponControl(G.loadout, G.weaponControl);
+    const next = weaponControlSight(G.loadout, G.weaponControl);
     G.sightT = next.ti;
     G.sightG = next.gi;
     G.sightM = next.mi;
@@ -1471,8 +1474,7 @@ export function start(data, saved = {}) {
     syncApsControl();
     G.zoomIdx = 0;
     hud.buildAmmo(G.sightM >= 0 ? null : sightGun(), selectAmmo);
-    const mg = G.MG[G.sightM];
-    hud.toast(mg ? `切到機槍 ${mg.m.def.name || mg.m.weapon}（左鍵單獨開火）` : `瞄準鏡切到炮塔 ${G.sightT + 1} · 火炮 ${G.sightG + 1}`, 1.5);
+    hud.toast(weaponControlLabel(G.loadout, G.weaponControl), 1.5);
   }
 
   /**
@@ -3593,36 +3595,28 @@ export function start(data, saved = {}) {
   // --------------------------------------------------------------------- fire
 
   /**
-   * Queues every loaded gun that bears on the aim point; they fire as a ripple. mgTrigger: the
-   * machine-gun key, which also fires automatic guns on the turrets not in the sight.
+   * Queues eligible loaded guns for the active control; ordinary guns fire as a ripple.
    */
   function trigger(mgTrigger = false, rocket = false) {
-    if (G.sightM >= 0 && !rocket) return;
     if (G.online && G.online.dead) return;
     let n = G.pending.length;
+    const apsTi = G.aps ? G.aps.turret ?? 1 : -1;
     // rockets go one to a press (the next one still on its rail)
     let rocketGone = rocket && G.pending.some((p) => G.loadout.turrets[p.ti].guns[p.gi].def.trigger === 'rocket');
     G.loadout.turrets.forEach((t, ti) => {
       const rt = G.T[ti];
       t.guns.forEach((g, gi) => {
+        if (!gunTrigger(G.weaponControl, ti, gi, g.def, mgTrigger, rocket, apsTi)) return;
         if (!weaponDamage(G.caps, g.damageKey).can_fire) return;
         if (rt.loading.state[gi] !== 'ready') return;
         if (g.def.missile && G.caps?.weapons === undefined && !launcherCanFire(G.loadout, (G.bundle || data.vehicles[G.id])?.modules, G.cstate, g)) return;
-        // Taking the protection gun's sight gives the primary trigger to that gun alone.
-        if (!rocket && G.aps && G.sightT === (G.aps.turret ?? 1) && (ti !== G.sightT || gi !== G.sightG)) return;
         if (rocket && rocketGone) return;
         if (G.pending.some((p) => p.ti === ti && p.gi === gi)) return;
-        const own = ti === G.sightT;
+        const own = G.weaponControl.kind === 'gun' || ti === G.sightT;
         const onTarget = rt.bearing && Math.abs(rt.yawErr) < 0.02 && Math.abs(rt.guns[gi].pitchErr) < 0.02;
         if (!own && !onTarget) return;
-        // the secondary trigger (N, with the machine guns): an automatic gun on another turret, and
-        // a weapon of the secondary group (rockets); the main trigger fires everything else
-        // rockets have their own key (R)
-        if ((g.def.trigger === 'rocket') !== rocket) return;
         // the active protection gun lays and fires itself while it is switched on
-        if (G.aps && ti === (G.aps.turret ?? 1) && (apsAutomatic() || !moduleOk(G.bundle || data.vehicles[G.id], G.cstate, G.aps.gun_module))) return;
-        const secondary = !rocket && (g.def.trigger === 'secondary' || (!!g.def.autocannon && !own));
-        if (secondary !== mgTrigger) return;
+        if (ti === apsTi && (apsAutomatic() || !moduleOk(G.bundle || data.vehicles[G.id], G.cstate, G.aps.gun_module))) return;
         G.pending.push({ ti, gi, t: g.def.autocannon ? 0 : n * 0.07 });
         if (rocket) rocketGone = true;
         if (!g.def.autocannon) n++;
@@ -3631,6 +3625,7 @@ export function start(data, saved = {}) {
   }
 
   function fireGun(ti, gi) {
+    if (!gunControlActive(G.weaponControl, ti, gi)) return false;
     const t = G.loadout.turrets[ti];
     const g = t.guns[gi];
     const rt = G.T[ti];
@@ -3757,7 +3752,7 @@ export function start(data, saved = {}) {
       const e = G.MG[i];
       const damage = weaponDamage(G.caps, e.m.damageKey);
       const mz = layMg(i, dt);
-      const firing = enabled && damage.can_fire && machineGunTrigger(G.sightM, i, G.fireHeld, G.mgHeld);
+      const firing = enabled && damage.can_fire && machineGunTrigger(G.weaponControl, i, G.fireHeld, G.mgHeld);
       const n = mgSim.stepMg(e.m.def, e.st, firing && e.bearing, dt, weaponReloadRate(G.caps, e.m.damageKey));
       for (let k = 0; k < n; k++) {
         const dir = gunnery.disperse(mz.dir, e.m.def.dispersion_mrad * damage.dispersion_mult, rng);
@@ -4245,10 +4240,12 @@ export function start(data, saved = {}) {
         }
         if (done.length && !t.guns[done[0]].def.autocannon) sound.click();
         // a rotary gun's barrels spin up while its trigger is held and run down after
-        t.guns.forEach((g) => {
+        t.guns.forEach((g, gi) => {
           const a = g.def.autocannon;
           if (!a || !(a.spin_up_s > 0)) return;
-          const held = G.sightM < 0 && (ti === G.sightT ? G.fireHeld || G.mgHeld : G.mgHeld);
+          const apsTi = G.aps ? G.aps.turret ?? 1 : -1;
+          const held = (G.fireHeld && gunTrigger(G.weaponControl, ti, gi, g.def, false, false, apsTi)) ||
+            (G.mgHeld && gunTrigger(G.weaponControl, ti, gi, g.def, true, false, apsTi));
           g.spin = clamp(g.spin + (held ? SIM_DT : -2 * SIM_DT) / a.spin_up_s, 0, 1);
         });
       });

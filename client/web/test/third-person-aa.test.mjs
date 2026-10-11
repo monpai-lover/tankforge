@@ -37,7 +37,7 @@ const stabilizers = section('  const GUNNER =', '  /**\n   * The hull\'s attitud
 function rig(id = 'de_flakpz38t', realModel = false) {
   const runtime = realModel ? runtimeParts(id, data) : null;
   const lo = runtime?.loadout || loadout.makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns);
-  const G = { id, mode: 'battle', view: 'third', zero: 0, sightT: 0, sightG: 0, sightM: -1,
+  const G = { weaponControl: { kind: 'all' }, id, mode: 'battle', view: 'third', zero: 0, sightT: 0, sightG: 0, sightM: -1,
     loadout: lo, model: runtime?.model, fold: {pose:0}, MG: [], s: {x:0,y:0,z:0,heading:0}, ss: {pitch:0,roll:0},
     cam: {yaw:0,pitch:0,fov:50*DEG,dist:13,pivot:[0,1.8,0]}, aim: {yaw:0,pitch:0,dist:2500},
     aimPoint: [0,1.8,2500], T: lo.turrets.map(t => ({yaw:t.facing,bearing:true,yawErr:0,

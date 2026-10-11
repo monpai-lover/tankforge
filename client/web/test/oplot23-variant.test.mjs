@@ -56,7 +56,7 @@ function functionSource(name) {
 }
 function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
   const lo = performanceApi.deriveLoadoutPerformance(loadout.makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns), mode);
-  const G = { id, mode: 'battle', gameplayMode: mode, loadout: lo, zero: 0,
+  const G = { id, mode: 'battle', weaponControl: { kind: 'all' }, gameplayMode: mode, loadout: lo, zero: 0,
     s: { x: 0, y: 0, z: 0, heading: 0 }, ss: { pitch: 0, roll: 0 },
     sightT: 0, sightG: 0, sightM: -1, pending: [], zoomIdx: 0,
     cam: { yaw: 0, pitch: 0, shake: 0 }, camPos: [0, 3, 0], aimPoint: [0, 3, 800], aim: { dist: 800 },
@@ -101,6 +101,13 @@ function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
     G.cstate.modules[G.bundle.modules.findIndex(m => m.id === id)] = health;
     G.caps = combat.advance(G.combatKey, G.cstate, 0, 1).caps;
   } };
+}
+function chooseControl(r, key) {
+  for (let i = 0; i < selection.weaponControlSlots(r.G.loadout).length; i++) {
+    if (selection.weaponControlKey(r.G.weaponControl) === key) return;
+    r.live.cycleSightGun();
+  }
+  assert.equal(selection.weaponControlKey(r.G.weaponControl), key, 'actual G reaches requested control');
 }
 const close = (actual, expected, message, epsilon = 1e-7) => assert.ok(Math.abs(actual - expected) < epsilon, `${message}: ${actual} != ${expected}`);
 const ID = 'su_t10m_oplot23';
@@ -202,14 +209,14 @@ test('decoded shared housing excludes old barrels; actual build has six open 23 
 function loadStep(r,dt) {
   const a=source.indexOf('      G.loadout.turrets.forEach((t, ti) => {\n        t.guns.forEach((g) => tickLauncher');
   const b=source.indexOf('\n      G.acc -= SIM_DT;',a);
-  const deps={G:r.G,SIM_DT:dt,...loadout,loading,...damageApi,sound:{click(){}},clamp};
+  const deps={...selection,G:r.G,SIM_DT:dt,...loadout,loading,...damageApi,sound:{click(){}},clamp};
   new Function(...Object.keys(deps),source.slice(a,b))(...Object.values(deps));
 }
 
 test('actual API and HEI manual fire consume rounds, recoil the rigid body and retain readiness in both modes', () => {
   for(const id of ['su_t10m',ID])for(const mode of ['historical','casual']) {
     assert.ok(data.vehicles[id]); const r=controls(id,mode),g=r.G.loadout.turrets[1].guns[0];
-    r.live.cycleSightGun(); assert.equal(r.snapshot().enabled,false); g.spin=1; r.G.fireHeld=true;
+    chooseControl(r, 'gun:1:0'); assert.equal(r.snapshot().enabled,false); g.spin=1; r.G.fireHeld=true;
     const expectedRate=(id===ID?8000:10000)*(mode==='casual'?1.2:1);
     assert.equal(g.def.autocannon.rate_rpm,expectedRate); assert.equal(r.G.aps.rate_rpm,expectedRate);
     close(r.G.loadout.turrets[1].traverse/original.weapons.extra_turrets[0].traverse_deg_s,mode==='casual'?1.3:1,'traverse once');
@@ -225,7 +232,7 @@ test('actual API and HEI manual fire consume rounds, recoil the rigid body and r
       let elapsed=0;while(r.G.T[1].loading.state[0]!=='ready'&&elapsed<.1){loadStep(r,.0005);elapsed+=.0005;}
       close(elapsed,60/expectedRate,'actual cycle',.00051);
     }
-    r.live.cycleSightGun(); assert.equal(r.snapshot().rounds,loadout.roundsLeft(g),'manual/auto shared rounds');
+    chooseControl(r, 'all'); assert.equal(r.snapshot().rounds,loadout.roundsLeft(g),'manual/auto shared rounds');
   }
 });
 
@@ -236,7 +243,7 @@ test('actual autocannon recoil opposes the nominal world muzzle on tilted parent
     const body=r.G.veh.body;
     body.ex=transformDir(matrix,[1,0,0]);body.ey=transformDir(matrix,[0,1,0]);body.ez=transformDir(matrix,[0,0,1]);body.pos=[10,1,-5];
     r.G.ss=body.attitude();r.G.s={x:10,y:1,z:-5,heading:r.G.ss.heading};
-    r.live.cycleSightGun();r.G.T[0].yaw=.7;r.G.T[1].yaw=1.1;r.G.T[1].guns[0].pitch=.25;
+    chooseControl(r, 'gun:1:0');r.G.T[0].yaw=.7;r.G.T[1].yaw=1.1;r.G.T[1].guns[0].pitch=.25;
     const g=r.G.loadout.turrets[1].guns[0], t=r.G.loadout.turrets[1];
     const nominal=r.live.sightMuzzle(hullTilt(r.G.ss,1.1));
     const parent=r.G.loadout.turrets[0];
@@ -258,7 +265,7 @@ test('actual autocannon recoil opposes the nominal world muzzle on tilted parent
 
 test('actual live aiming and pose keep parent yaw, pitch, recoil and rotary cluster transform', async () => {
   assert.ok(data.vehicles[ID]); const r=controls(ID),a=controls(ID,'casual');
-  for(const q of [r,a]){q.live.cycleSightGun();q.G.aimPoint=[400,200,400];q.live.aimTurrets(.005);}
+  for(const q of [r,a]){chooseControl(q, 'gun:1:0');q.G.aimPoint=[400,200,400];q.live.aimTurrets(.005);}
   close(a.G.T[1].yaw/r.G.T[1].yaw,1.3,'actual Oplot aiming yaw'); close(a.G.T[1].guns[0].pitch/r.G.T[1].guns[0].pitch,1.2,'actual elevation');
   const renderer={mesh:vertices=>({vertices}),instancedMesh:vertices=>({vertices}),setInstances(){},freeMesh(){}};
   r.G.model=buildTank(renderer,r.G.loadout,loadout.generatedTurretParts);
@@ -282,18 +289,18 @@ test('actual WASM automatic interception emits 23 mm rounds and shares depletion
     assert.ok(fired.length,'real world emits interception bullets');
     fired.forEach(b=>{close(Math.hypot(...b.vel),715,'APS actual velocity',1e-6);assert.equal(r.G.aps.bullet_caliber_mm,23);assert.equal(r.G.aps.bullet_mass_kg,.174);});
     r.live.applyAps(last,{aps_gun_ok:true,aps_radar_ok:true}); const g=r.G.loadout.turrets[1].guns[0];
-    assert.equal(loadout.roundsLeft(g),last.aps[0].rounds);r.live.cycleSightGun();assert.equal(r.live.fireGun(1,0),true);r.live.cycleSightGun();assert.equal(r.snapshot().rounds,last.aps[0].rounds-1);
+    assert.equal(loadout.roundsLeft(g),last.aps[0].rounds);chooseControl(r, 'gun:1:0');assert.equal(r.live.fireGun(1,0),true);chooseControl(r, 'all');assert.equal(r.snapshot().rounds,last.aps[0].rounds-1);
     const blocked=r.core.call({op:'mw_step',dt:1/120,actors:[{...actor,aps_gun_ok:false}]});assert.deepEqual(blocked.fired,[]);
   }
 });
 
 test('both vehicles and modes preserve independent module, own gun, crew and common repair gates', () => {
   for(const id of ['su_t10m',ID])for(const mode of ['historical','casual']) {
-    assert.ok(data.vehicles[id]);const r=controls(id,mode);r.live.cycleSightGun();
-    r.damage(original.modules.find(m=>m.kind==='gun_breech').id);assert.equal(r.live.fireGun(0,0),false);assert.equal(r.live.fireGun(1,0),true,'healthy independent Oplot');
-    const b=controls(id,mode);b.live.cycleSightGun();b.damage('oplot_gun');assert.equal(b.live.fireGun(1,0),false);assert.equal(b.live.fireGun(0,0),true,'main gun remains healthy');
+    assert.ok(data.vehicles[id]);const r=controls(id,mode);chooseControl(r, 'gun:1:0');
+    r.damage(original.modules.find(m=>m.kind==='gun_breech').id);chooseControl(r, 'gun:0:0');assert.equal(r.live.fireGun(0,0),false);chooseControl(r, 'gun:1:0');assert.equal(r.live.fireGun(1,0),true,'healthy independent Oplot');
+    const b=controls(id,mode);chooseControl(b, 'gun:1:0');b.damage('oplot_gun');assert.equal(b.live.fireGun(1,0),false);chooseControl(b, 'gun:0:0');assert.equal(b.live.fireGun(0,0),true,'main gun remains healthy');
     for(const restriction of ['crew','repair']) {
-      const q=controls(id,mode);q.live.cycleSightGun();
+      const q=controls(id,mode);chooseControl(q, 'gun:1:0');
       if(restriction==='repair')q.G.cstate.repair_s=3;else q.G.bundle.crew.forEach((c,i)=>{if(c.role==='gunner')q.G.cstate.crew[i]=0;});
       q.G.caps=q.combat.advance(q.G.combatKey,q.G.cstate,0,1).caps;
       assert.equal(q.live.fireGun(1,0),false,restriction);const actor={};q.live.apsOf(actor,q.G.aps,q.G.loadout,q.G.T.map(t=>t.yaw),{pos:[0,0,0],heading:0},q.G.bundle,q.G.cstate,q.G.caps);assert.equal(actor.aps_gun_ok,false,restriction);

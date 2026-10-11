@@ -1,3 +1,4 @@
+import * as selection from '../src/game/weaponselection.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -23,7 +24,7 @@ function body(name,optional=false){const start=source.indexOf(`  function ${name
 const loadingFrame=source.slice(source.indexOf('      G.loadout.turrets.forEach((t, ti) => {',source.indexOf('      stepMachineGuns(SIM_DT);')),source.indexOf('      G.acc -= SIM_DT;',source.indexOf('      stepMachineGuns(SIM_DT);')));
 function runtime(id='su_bmpt34',cfg={}){
   const lo=loadout.makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns);applyAmmo(lo,cfg);
-  const G={id,mode:'battle',mapId:'battlefield',loadout:lo,bundle:data.vehicles[id],s:{x:0,z:0,heading:0},ss:{pitch:0,roll:0},online:null,
+  const G={weaponControl:{kind:'all'},id,mode:'battle',mapId:'battlefield',loadout:lo,bundle:data.vehicles[id],s:{x:0,z:0,heading:0},ss:{pitch:0,roll:0},online:null,
     sightT:0,sightG:0,sightM:-1,cam:{shake:0},camPos:[0,3,0],shots:[],bullets:[],guided:[],enemies:[],aps:lo.weapons.aps,apsOn:true,
     MG:lo.machineGuns.map(m=>({m,st:mgSim.newMg(m.def)})),
     T:lo.turrets.map(t=>({yaw:0,guns:t.guns.map(()=>({pitch:0,smoke:0})),loading:loading.newLoading(t.guns.length,t.loaders.length,t.guns.map(g=>!g.rack))})),
@@ -38,7 +39,7 @@ function runtime(id='su_bmpt34',cfg={}){
   G.missiles={ready:true,reset(){},launch:()=>++launchId,addAps:(...args)=>apsCalls.push(args),setAps:(...args)=>apsCalls.push(args)};
   const sync=new Function('G','roundsLeft','emptyRacks','applyXray',`${body('carriedRounds')}\n${body('syncRacks')}\nreturn syncRacks;`)(G,loadout.roundsLeft,emptyRacks,()=>{});
   const cqBar={hidden:true,innerHTML:''},cqMsg={textContent:''};
-  const deps={G,data,ME:1,DEG:Math.PI/180,RECOIL_ROCK:1,...loadout,...inventory,...policy,...damage,loading,gunnery,ballistics,hullTilt,captureMessage,
+  const deps={G,data,ME:1,DEG:Math.PI/180,RECOIL_ROCK:1,...selection,...loadout,...inventory,...policy,...damage,loading,gunnery,ballistics,hullTilt,captureMessage,
     sightGun:()=>G.loadout.turrets[G.sightT].guns[G.sightG],pose:()=>({pos:[0,0,0],heading:0}),
     mountOf:(t,g)=>({pivot:t.pivot,trunnion:g.trunnion,muzzleOffset:g.muzzleOffset}),
     hud:{toast:(...a)=>toasts.push(a),aps(){}},sound:{shot(){},mg(){},click(){},tone(){},apsGun(){}},fx:{muzzleBlast(){},autocannonBlast(){},mgFlash(){}},

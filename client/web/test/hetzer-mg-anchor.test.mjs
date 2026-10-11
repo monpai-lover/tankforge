@@ -17,7 +17,7 @@ const dirFrom=(yaw,pitch)=>[Math.sin(yaw)*Math.cos(pitch),Math.sin(pitch),Math.c
 const close=(a,b,message)=>assert.ok(Math.hypot(...a.map((v,k)=>v-b[k]))<2e-6,message);
 function rig(id,bundles=data) {
   const rt=runtimeParts(id,bundles),M=rt.model;
-  const G={model:M,loadout:rt.loadout,veh:{body:new RigidBody(1000,[1000,1000,1000],[0,0,0])},T:[{yaw:0}],sightM:0,zero:0,aimPoint:[0,3,500],MG:rt.loadout.machineGuns.map(m=>({m,aim:{yaw:0,pitch:0},bearing:true}))};
+  const G={weaponControl:{kind:'all'},model:M,loadout:rt.loadout,veh:{body:new RigidBody(1000,[1000,1000,1000],[0,0,0])},T:[{yaw:0}],sightM:0,zero:0,aimPoint:[0,3,500],MG:rt.loadout.machineGuns.map(m=>({m,aim:{yaw:0,pitch:0},bearing:true}))};
   G.sightM=M.mgs[0].index;
   const deps={...damageApi,G,gunnery,ballistics,mgSim,dirFrom};
   const muzzle=new Function(...Object.keys(deps),`${functionSource('layMg')}\n${functionSource('sightMuzzle')}\nreturn sightMuzzle;`)(...Object.values(deps));

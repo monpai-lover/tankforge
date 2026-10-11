@@ -22,13 +22,13 @@ import { buildTank } from '../src/gfx/tankmodel.js';
 import { VehicleSim } from '../src/game/vehicle.js';
 import { Combat, emptyRacks } from '../src/game/combat.js';
 import { Conquest, captureMessage } from '../src/game/conquest.js';
-import { nextSightWeapon } from '../src/game/weaponselection.js';
+import * as selection from '../src/game/weaponselection.js';
 import { ground } from './tankrig.mjs';
 const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replaceAll('\r\n','\n'),data=loadData();
 function body(name){const start=source.indexOf(`  function ${name}(`);assert.ok(start>=0);return source.slice(start,source.indexOf('\n  }',start)+4);}
 function runtime(id,mode){
   const lo=deriveLoadoutPerformance(loadout.makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns),mode);applyAmmo(lo,{});
-  const ti=lo.weapons.aps.turret??1,G={loadout:lo,mode:'battle',online:null,aps:lo.weapons.aps,apsOn:true,sightM:-1,sightT:0,
+  const ti=lo.weapons.aps.turret??1,G={weaponControl:{kind:'all'},loadout:lo,mode:'battle',online:null,aps:lo.weapons.aps,apsOn:true,sightM:-1,sightT:0,
     T:lo.turrets.map(t=>({loading:loading.newLoading(t.guns.length,t.loaders.length,t.guns.map(g=>!g.rack))}))};
   const core=loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm',import.meta.url)),{materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)});
   core.call({op:'mw_reset',defs:Object.values(data.missiles)});core.call({op:'mw_aps',owner:1,team:0,def:G.aps,seed:10});
@@ -66,7 +66,7 @@ function manualRuntime(id, mode) {
     G, data, ME: 1, DEG: Math.PI / 180, RECOIL_ROCK: 1,
     ...loadout, ...inventory, ...policy, ...damage, loading, phys, gunnery, ballistics, mgSim,
     deriveLoadoutPerformance, deriveVehicleParams, applyAmmo, AMMO_CFG: { [id]: { '1.0': chosen } },
-    nextSightWeapon, hullTilt, buildTank, VehicleSim, terrain, emptyRacks, captureMessage,
+    ...selection, hullTilt, buildTank, VehicleSim, terrain, emptyRacks, captureMessage,
     renderer: { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} },
     scene: { children: [], add(root) { this.children.push(root); } },
     onlineFires: { clear() {} }, onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), isDesign: () => false,
@@ -100,6 +100,14 @@ function manualRuntime(id, mode) {
   const ti = G.aps.turret ?? 1;
   return { ...r, live, frame, chosen, toasts, lifecycle, ti, g: G.loadout.turrets[ti].guns[0], L: G.T[ti].loading };
 }
+function chooseControl(r, key) {
+  for (let i = 0; i < selection.weaponControlSlots(r.G.loadout).length; i++) {
+    if (selection.weaponControlKey(r.G.weaponControl) === key) return;
+    r.live.cycleSightGun();
+  }
+  assert.equal(selection.weaponControlKey(r.G.weaponControl), key, 'actual G reaches requested control');
+}
+
 test('actual APS control and rate changes inhibit a healthy gun during normal loading',()=>{
   const r=runtime('su_t10m','historical');loading.fired(r.L,0);r.live.syncApsControl();assert.equal(r.step(0).aps[0].enabled,false,'requested on must wait for normal loader');
   r.live.cycleApsRate();assert.equal(r.step(0).aps[0].enabled,false,'rate selection must keep the reload gate');assert.equal(r.G.apsOn,true);
@@ -145,7 +153,7 @@ test('actual manual Oplot short-load exhaustion stays idle until its owned-point
     r.live.applyAps(warm, { aps_gun_ok: true, aps_radar_ok: true });
     const remaining = loadout.roundsLeft(g);
     assert.ok(remaining > 0 && remaining < 7, 'warm automatic and manual control share the actual selected pool');
-    r.live.cycleSightGun();
+    chooseControl(r, 'gun:1:0');
     assert.equal(G.sightT, ti);
     for (let i = 0; i < remaining; i++) {
       assert.equal(r.live.fireGun(ti, 0), true, 'actual manual handler accepts each remaining finite round');
@@ -161,7 +169,7 @@ test('actual manual Oplot short-load exhaustion stays idle until its owned-point
     assert.equal(L.state[0], 'empty', 'the last shot retains the original idle-empty semantics');
     assert.ok(L.loaders.every(loader => loader.gun === -1), 'no invented last-shot loading job');
     assert.equal(r.live.fireGun(ti, 0), false);
-    r.live.cycleSightGun();
+    chooseControl(r, 'all');
     assert.equal(G.sightT, 0);
     assert.equal(G.apsOn, true, 'manual ownership did not change the U preference');
     r.live.syncApsControl();
@@ -202,11 +210,11 @@ test('actual manual Oplot short-load exhaustion stays idle until its owned-point
     assert.equal(g.belt, 7);
     assert.equal(g.loaded, 0);
     assert.equal(G.apsOn, true);
-    r.live.cycleSightGun();
+    chooseControl(r, 'gun:1:0');
     assert.equal(r.live.fireGun(ti, 0), true, 'manual control resumes only after completion');
     assert.equal(loadout.roundsLeft(g), 6);
     r.frame(1);
-    r.live.cycleSightGun();
+    chooseControl(r, 'all');
     r.threat(900);
     let resumed;
     for (let i = 0; i < 1200; i++) { resumed = r.step(1 / 120); if (resumed.fired.length) break; }
