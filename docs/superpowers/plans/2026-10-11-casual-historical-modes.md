@@ -143,8 +143,8 @@ shared dispatch-owner regression, not only a RoomInfo serialization test.
 
 **Modify/create:** `docs/gameplay-modes-2026-10-11.md`, relevant README instructions and a distinctly named built preview/page; no browser operation or automatic production publish. Oplot23 is a separate additional task after the user's barrel-layout answer, not a fake replacement by rules scaling.
 
-- [ ] First regenerate the mandatory Rust-to-Node protocol receipt with `TG_GAMEPLAY_NETWORK_RECEIPT=target/gameplay-network.json cargo test -p tg-server browser_protocol_receipt_from_actual_handlers --lib`. Its tags include the actual server handlers, gameplay crate, manifests and registry bytes. Then run full Node suite and complete native workspace tests with the default stack/target, no concurrent Cargo. A missing or stale receipt is a failure, never an optional skip. Record all failures; never relax prior tolerances or silently skip new runtime paths. Source baseline in this isolated branch excludes uncommitted B2, so don't copy B2 tests/code or its old failing heavy fleet probes into this feature.
-- [ ] Verify original source hashes/empty diffs for `data/vehicles`, `data/projectiles`, engine/weapon/armor files and all imported/packed models. Verify mode config and `tg-gameplay` source bytes are present and equal in JS/Rust build consumers. Run actual release `tg-design-wasm` compile before web build; fail if the bundle uses stale core fallback.
+- [x] First regenerate the mandatory Rust-to-Node protocol receipt with `TG_GAMEPLAY_NETWORK_RECEIPT=target/gameplay-network.json cargo test -p tg-server browser_protocol_receipt_from_actual_handlers --lib`. Its tags include the actual server handlers, gameplay crate, manifests and registry bytes. Then run full Node suite and complete native workspace tests with the default stack/target, no concurrent Cargo. A missing or stale receipt is a failure, never an optional skip. Record all failures; never relax prior tolerances or silently skip new runtime paths. Source baseline in this isolated branch excludes uncommitted B2, so don't copy B2 tests/code or its old failing heavy fleet probes into this feature.
+- [x] Verify original source hashes/empty diffs for `data/vehicles`, `data/projectiles`, engine/weapon/armor files and all imported/packed models. Verify mode config and `tg-gameplay` source bytes are present and equal in JS/Rust build consumers. Run actual release `tg-design-wasm` compile before web build; fail if the bundle uses stale core fallback.
 
 ```powershell
 cargo build -p tg-design-wasm --release --target wasm32-unknown-unknown
@@ -152,16 +152,26 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 node client/web/build.mjs
 ```
 
-- [ ] Check generated target WASM, asset and exactly one HTML `designCore` embed are byte-identical. Validate that built UI contains both mode controls, room protocol/schema and versioned rule values; run actual runtime/HUD tests against the matching artifact inputs. CPU/build acceptance is separate from browser visual acceptance, which remains restricted by the prior automatic rejection.
-- [ ] Write the user-facing combined result MD with real multipliers, historic-marker scope, multiplayer compatibility, artifact path, verification and remaining B/replay boundary. Copy the reviewed page under a new name without overwriting original pages. Preserve the prior sight preview.
+- [x] Check generated target WASM, asset and exactly one HTML `designCore` embed are byte-identical. Validate that built UI contains both mode controls, room protocol/schema and versioned rule values; run actual runtime/HUD tests against the matching artifact inputs. CPU/build acceptance is separate from browser visual acceptance, which remains restricted by the prior automatic rejection.
+- [x] Write the user-facing combined result MD with real multipliers, historic-marker scope, multiplayer compatibility, artifact path, verification and remaining B/replay boundary. Copy the reviewed page under a new name without overwriting original pages. Preserve the prior sight preview.
 - [ ] Final fresh SPEC→QUALITY review of the integrated mode feature, source diff and tests. Precisely integrate with the authorized development branch while preserving all frozen uncommitted B2 runtime hunks. Do not stage generated assets or unrelated dirty work wholesale. Push/integration decisions use existing user authorization and the required overall acceptance boundary; do not claim B2/wheels/exact-hitbox/projectile stages complete.
 
 ## Execution checklist
 
 - [x] Task1 rules/performance source accepted at `f1353d6`; fresh SPEC PASS and QUALITY APPROVE.
 - [x] Task2 active single-player and actual HUD accepted at `8a658cc`; fresh SPEC PASS and QUALITY APPROVE.
-- [ ] Task3 room authority and online weapon-world accepted.
-- [ ] Task4 tests, matching page, documentation and precise integration accepted.
+- [x] Task3 room authority and online weapon-world accepted at `0cbcc35`; fresh SPEC PASS (39) then QUALITY APPROVE (29), including expired-seat profile and cancelled-map-start repairs.
+- [ ] Task4 overall acceptance and precise integration: receipt, tests, matching named page and documentation are ready; fresh integrated SPEC → QUALITY and integration/push remain pending.
+
+Task4 delivery receipt: `docs/superpowers/notes/2026-10-11-gameplay-task4-receipt.md`.
+Root's full checks on the same frozen `0cbcc35` runtime are Node 549 PASS/0 FAIL/
+0 SKIP and native 364 PASS/0 FAIL/4 existing ignored, recorded in
+`target/modes-full-node-fixed.tap` and `target/modes-full-native.log`. Task4
+regenerated the actual-handler receipt and freshly ran 62 focused tests, then 72
+including actual rebuilt WASM kinetic-impact after release/web build. Missing
+and stale receipts both fail as required. All 448 protected sources (except the
+intentional rebuilt WASM) and B2's 13+2 frozen files are unchanged. Original range
+and sight-dot pages have separate verified hashes; generated HTML is not staged.
 
 Native environment uses `C:/Users/24908/.codex/scratch/tankforge-rust/rustup`
 and `.../cargo`, with `.../cargo/bin` on PATH. Never set `CARGO_TARGET_DIR` or
