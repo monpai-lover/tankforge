@@ -152,7 +152,7 @@ node client/web/build.mjs
 
 ## Execution checklist
 
-- [ ] Task1 rules/performance source accepted.
+- [x] Task1 rules/performance source accepted at `f1353d6`; fresh SPEC PASS and QUALITY APPROVE.
 - [ ] Task2 active single-player and actual HUD accepted.
 - [ ] Task3 room authority and online weapon-world accepted.
 - [ ] Task4 tests, matching page, documentation and precise integration accepted.
