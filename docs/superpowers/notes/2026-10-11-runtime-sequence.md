@@ -65,7 +65,11 @@ The committed foundation is not a completed ammunition/fuse/FX implementation.
    gaps. Original reference URL reaches login; the user subsequently supplied
    hit-replay V3 source with screenshots. Root actually viewed flight/APHE/hit
    frames, so presentation reference input is available. Read its intake note;
-   adapt presentation to real events/models, not its illustrative C damage model.
+   On2026-10-11 the user confirmed this is their own source and authorized
+   maximum reuse. Directly port suitable camera, clock/playback, shaders,
+   projectile geometry, trace/shard and sampling code into existing owners;
+   replace demo trajectories/proxy modules/illustrative damage with real
+   events/models. Preserve the supplied MIT notice; no source-permission gap.
    The camera/victim runtime integration remains pending P4/P5.
 6. Full regression, original-source hashes, performance, actual release WASM
    and HTML/catalog identity; final review, remote overlap check and precisely
