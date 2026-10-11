@@ -26,10 +26,25 @@
 | [Weaponsystems：GSh-6-23](https://weaponsystems.net/system/566-23mm%2BGryazev-Shipunov%2BGSh-6-23) | 六管 23×115 mm 武器；约 715 m/s；炮管 1 m；武器约 76 kg；供弹形式影响射速 | 二手资料；不能证明该炮曾实际装在本项目的 Oplot 坦克上 |
 | [Arsenal 弹药目录](https://www.arsenal-bg.com/index.php/c/artillery-rounds-32) | 23×115 mm 的 API、HEI 等弹种及 GSh-23/GSh-6-23M/AM-23 兼容类别 | 目录可检索；详细产品页曾返回 403，具体弹重、引信与装药待核验 |
 | [ROMARM 2024 目录](https://romarm.ro/wp-content/uploads/2024/10/ROMARM-Catalogue-2024_web.pdf) | 搜索索引显示 720 m/s，174 g 弹体及 329/331 g 全弹相关表格 | PDF 打开超时；表格注明弹体质量不含引信，不能把 174 g 当作已核验的完整 HEI 弹丸质量 |
+| [ROMARM 23×115 mm 原厂数据表](https://romarm.ro/wp-content/uploads/2021/04/42_Datasheet-23x115mm-ROUNDS.pdf) | 可检索表格列出 BZA API：弹体 174 g、弹体长度 98.5 mm、全弹 331 g、720 m/s、无引信；OFZ HEI：不含引信弹体 174 g、长度 102.5 mm、B-23A 引信 | 独立获取返回网站 JavaScript 验证页，未拿到可直接渲染的 PDF。装药质量和完整 HEI 弹丸质量仍未核验 |
 
 23×115 mm 与 23×152 mm 的弹药不可混用。炮弹质量也不可用全弹质量
 替代。尚未核实的装药、引信延迟、穿甲曲线应明确标记估计／未知，不能
 以不同厂家的数字拼出一个声称完全真实的弹种。
+
+原厂网站当前返回验证页面，本次没有执行页面中的脚本。搜索索引表与
+其目录互相一致，可以作为带可信度标签的参数来源；它们不等于已检查
+原 PDF 的版面。API 没有引信，174 g 的该项歧义较小。HEI 的引信与装药
+应采用另有来源的完整弹丸数据或明确的项目估计，不能直接套同一个质量。
+
+补充检索取得了 [Arsenal API 表的索引](https://arsenal-defense.com/wp-content/uploads/spec-sheets/API_23x115_AIR.pdf)
+与 [HEI 表的公开副本](https://www.scribd.com/doc/299583319/23x115-Mm-Rounds-HEI-With-High)：
+API 约 174 g、715 m/s，全弹约 331 g；HEI 约 174 g、715 m/s，
+A-IX-2 装药约 17.8 g。同表中的 API-TM 是 190 g／690 m/s，HEI-M
+是 186 g／700 m/s，不能把升级弹的参数混入普通型号。原 PDF 链接曾
+重定向到无关页面，所以这些新增数据仍按索引／副本证据记录。
+API 表只提供「200 m、10 mm 板、相对射线 60°」这一穿甲条件；这不是
+完整的垂直穿深曲线。若生成曲线，必须明确是项目估计，并说明角度定义。
 
 已确认沿用六管外形，可参考 GSh-6-23 的弹道与尺寸重建炮管，但车辆上的
 该改装仍需标明项目改装／假想版本，直到找到可靠的一手安装资料。
