@@ -1,3 +1,4 @@
+import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -41,7 +42,7 @@ function functionSource(name) {
   const start = source.indexOf(`  function ${name}(`);
   return start < 0 ? '' : source.slice(start, source.indexOf('\n  }', start) + 4);
 }
-function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historical') {
+function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historical', clock = performance) {
   const fixtureData = { ...data, vehicles: { ...data.vehicles, [id]: bundle } };
   const rt = mesh ? runtimeParts(id, fixtureData) : null;
   const lo = deriveLoadoutPerformance(rt?.loadout || loadout.makeLoadout(id, bundle, data.projectiles, data.machineGuns), mode);
@@ -54,6 +55,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], guided: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
+  G.veh.netState=()=>({pos:G.veh.body.origin(),ex:G.veh.body.ex,ez:G.veh.body.ez,v:G.veh.body.v,w:G.veh.body.w,track:[0,0],rpm:0,gear:0});
   const creationStart = source.indexOf('    G.T = G.loadout.turrets.map(');
   const creationEnd = source.indexOf('    G.loadout.turrets.forEach((t, ti) => t.guns.forEach', creationStart);
   assert.ok(creationStart >= 0 && creationEnd > creationStart, 'actual select turret construction and attachment seed');
@@ -62,7 +64,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
     carried: m.mount === 'pintle' && m.anchor !== 'hull' ? G.T[0].yaw : 0 }));
   const sent = [], apsCalls = [], launches = [], payloads = [], apsHud = [], toasts = [], tones = [], apsSounds = [];
   if (!mesh) G.model.payload = (...args) => payloads.push(args);
-  const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
+  const core = loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
   const combat = new Combat(core, data.machineGuns), fresh = combat.fresh('control:' + id, bundle);
   G.combat = combat; G.combatKey = 'control:' + id; G.cstate = fresh.state; G.caps = fresh.caps;
@@ -78,7 +80,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   };
   const onlineAmmo=new OnlineAmmo(), selected=ammoMix(lo);
   onlineAmmo.begin({t:'ammo',ammo_protocol_version:1,battle:7,life:2,revision:1,processed_through:0,counts:selected,targets:selected,resupply_progress:0,refilled:false},lo,G.T.map(t=>t.loading));
-  const deps = { G, ME, data: fixtureData, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
+  const deps = { G, stabilizerDrives, performance:clock, ME, data: fixtureData, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast: text => toasts.push(text), aps: state => apsHud.push(state), weaponControl() {} },
@@ -91,8 +93,8 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
   const preamble = source.slice(source.indexOf('  const pose = '), source.indexOf('  // ----------------------------------------------------------------- workshop'));
   const moduleCheck = source.slice(source.indexOf('  const moduleOk ='), source.indexOf('  /** Where the protection gun'));
   const stabilizers = source.slice(source.indexOf('  const GUNNER ='), source.indexOf('  /**\n   * The hull\'s attitude'));
-  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'launchFromGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'cycleApsRate', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
-  const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, cycleApsRate, syncApsControl, apsOf, trackHull, aimTurrets};`)(...Object.values(deps));
+  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'launchFromGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'cycleApsRate', 'apsAutomatic', 'apsHullPose','apsFrame','heldApsPose','sendOnlineState','acceptApsPose','suspendApsPose','syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
+  const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, cycleApsRate, syncApsControl, sendOnlineState, apsOf, trackHull, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
   return { G, live, rt, sent, apsCalls, launches, payloads, apsHud, toasts, tones, apsSounds, snapshot, core, combat, damage: (id, health = 0) => {
     G.cstate.modules[G.bundle.modules.findIndex(m => m.id === id)] = health;
@@ -128,6 +130,106 @@ function tiltBody(r, pitch, roll, heading = 0, origin = [0, 0, 0]) {
   r.G.s = { x: origin[0], y: origin[1], z: origin[2], heading: body.attitude().heading };
   r.G.ss = body.attitude();
   if (r.rt) r.rt.model.body.local = matrix;
+}
+
+function apsPoseReceipt() {
+  const path=process.env.TG_GAMEPLAY_NETWORK_RECEIPT || new URL('../../../target/weapon-control-gameplay-network.json',import.meta.url);
+  const receipt=JSON.parse(fs.readFileSync(path,'utf8')), root=new URL('../../../',import.meta.url);
+  const mandatory=['Cargo.toml','config/gameplay-modes.json','crates/gameplay/Cargo.toml','crates/gameplay/src/lib.rs','crates/server/Cargo.toml','crates/server/src/gameplay.rs','crates/server/src/gameplay_tests.rs','crates/server/src/lobby.rs','crates/server/src/missiles.rs','crates/server/src/server.rs','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs','crates/design-wasm/src/lib.rs','crates/missile/src/tests.rs','config/stabilizer-drives.json'];
+  assert.deepEqual(Object.keys(receipt.sources).sort(),mandatory.sort());
+  for(const [path,bytes]of Object.entries(receipt.sources))assert.equal(fs.readFileSync(new URL(path,root),'utf8'),bytes,`Stale gyro handler receipt: ${path}`);
+  return receipt;
+}
+test('aps_pose actual stabilized aimTurrets State observations are admitted under the shared motor profile',()=>{
+  const receipt=apsPoseReceipt();
+  for(const s of Object.values(receipt.aps_gyro)) {
+    let at=0;const r=controls(s.vehicle,false,data.vehicles[s.vehicle],s.mode,{now:()=>at*1000});
+    chooseControl(r,'gun:0:0');r.G.aimPoint=[0,3,800];r.G.online={seq:0};const inputs=[];
+    for(let i=0;i<=36;i++){at=i/60;tiltBody(r,0,0,i*.012);if(i)r.live.aimTurrets(1/60);
+      if(i%3===0){r.live.sendOnlineState();const state=r.sent.at(-1).s;inputs.push({at,ex:state.ex,ez:state.ez,tur:state.tur});}}
+    assert.deepEqual(inputs,s.inputs,'actual current aimTurrets and existing State encoder reproduce every genuinely handled input');
+    const manual=r.G.loadout.turrets[0].traverse,gyro=stabilizerDrives.two_plane.traverse_deg_s;
+    assert.ok(inputs.slice(1).some((v,i)=>Math.abs(v.tur[0][0]-inputs[i].tur[0][0])/(v.at-inputs[i].at)/DEG>manual),'real hull compensation exceeds the gunner laying rate');
+    for(const [i,v]of inputs.entries()){close(v.tur[1][0]-v.tur[0][0],0,'held child motor receives physical parent carry');if(i)assert.ok(Math.abs(v.tur[0][0]-inputs[i-1].tur[0][0])/(v.at-inputs[i-1].at)/DEG<=gyro+.25);}
+    assert.ok(s.phases.enable.some(([to,m])=>to===s.owner&&m.t==='aps_pose'));
+    for(const phase of ['impossible_enable','damaged_parent_enable'])assert.equal(s.phases[phase].some(([,m])=>m.t==='aps_pose'),false,'above effective or damage-adjusted motor limit cannot claim control');
+  }
+});
+
+for(const id of ['su_t10m','su_t10m_oplot23'])for(const mode of ['historical','casual'])test(`aps_pose ${id} ${mode} actual six-step encoder fits the finite parented-joint quantization bound`,()=>{
+  const s=apsPoseReceipt().aps_quantization[`${id}_${mode}`];let at=0;
+  const r=controls(id,false,data.vehicles[id],mode,{now:()=>at*1000});
+  r.G.apsOn=false;r.live.syncApsControl();r.G.T[0].yaw=.00004;r.G.T[1].yaw=.00006;r.G.T[1].carried=.00004;r.G.T[1].guns[0].pitch=.02;
+  r.G.online={seq:0};r.live.sendOnlineState();const before=JSON.parse(JSON.stringify(r.sent.at(-1).s)), motor=r.G.T[1].yaw-r.G.T[0].yaw;
+  const pv=r.G.loadout.turrets[0].pivot;assert.deepEqual(pv,[0,1.56,.45]);
+  r.G.aimPoint=[pv[0]+(5-pv[2])*Math.tan(.00996),2.715,5];
+  for(let step=0;step<6;step++)r.live.aimTurrets(1/120);
+  at=.05;r.live.sendOnlineState();const current=JSON.parse(JSON.stringify(r.sent.at(-1).s));
+  const exact=(r.G.T[1].yaw-r.G.T[0].yaw)-motor,encoded=(current.tur[1][0]-current.tur[0][0])-(before.tur[1][0]-before.tur[0][0]);
+  const budget=r.G.loadout.turrets[1].traverse*DEG*.05;
+  assert.ok(Math.abs(exact)<=budget+1e-12,'actual six fixed steps obey the authored motor rate');
+  assert.ok(Math.abs(encoded)>budget+1.1e-4,'this real input exercises the former rejection');
+  assert.ok(Math.abs(encoded)<=budget+2e-4+1e-12,'four independently rounded yaw endpoints have a finite two-quantum error');
+  for(const [actual,handled]of [[before,s.before],[current,s.current]])assert.deepEqual({...actual,ammo_scope:handled.ammo_scope},handled,'exact current aiming/State encoder reproduces every actual handler input');
+  assert.equal(s.current_valid,true,'source-real wire observations must be admitted');assert.equal(s.adopted.enabled,true);
+  const ack=s.phases.enable.find(([to,m])=>to===s.owner&&m.t==='aps_pose')[1];assert.equal(ack.request_t,current.t);assert.equal(ack.state_t,current.t);
+  const impossible=(s.bad.tur[1][0]-s.bad.tur[0][0])-(s.before.tur[1][0]-s.before.tur[0][0]);
+  assert.ok(Math.abs(impossible)>budget+2e-4+1e-12,'the counterfeit is outside the finite rounding bound');assert.equal(s.rejected_valid,false);assert.equal(s.poisoned,false);
+  for(const phase of ['rejected_current','rejected_enable'])assert.equal(s.phases[phase].some(([,m])=>m.t==='aps_pose'),false);
+});
+
+for (const id of ['su_t10m', 'su_t10m_oplot23']) for (const mode of ['historical', 'casual']) {
+  test(`aps_pose ${id} ${mode} first nonzero spawn and rejected held pose use a true adoption transition`,async()=>{
+    const r=await apsControls(id,mode);tiltBody(r,.12,.1,.7);r.G.T[0].yaw=.3;r.G.T[1].yaw=.6;r.G.T[1].guns[0].pitch=.2;
+    r.live.syncApsControl();const first=r.snapshot(),b=r.G.veh.body,local=gunnery.gunDirLocal({yaw:.6,pitch:.2});
+    const bore=[0,1,2].map(k=>b.ex[k]*local[0]+b.ey[k]*local[1]+b.ez[k]*local[2]);
+    close(gunnery.wrapPi(first.yaw-Math.atan2(bore[0],bore[2])),0,'first startup adopts nonzero real hull');
+    close(first.pitch,Math.atan2(bore[1],Math.hypot(bore[0],bore[2])),'first startup adopts tilted bore');
+    chooseControl(r,'gun:1:0');r.G.T[1].guns[0].pitch=2;chooseControl(r,'all');assert.equal(r.snapshot().enabled,false);assert.equal(r.G.apsNativeEnabled,false);
+    r.G.T[1].guns[0].pitch=.2;r.live.syncApsControl();assert.equal(r.snapshot().enabled,true);close(r.snapshot().pitch,first.pitch,'valid retry adopts instead of reviving an old native pose');
+    r.G.online={seq:9};r.G.missiles.core=null;r.G.weaponControl={kind:'gun',ti:0,gi:0};r.live.syncApsControl();
+    assert.deepEqual(r.sent.at(-1),{t:'aps',enabled:false},'late/unavailable core still inhibits the actual server owner');
+  });
+  for (const [pitch, roll, heading, parent, motor, elevation] of [[0,0,.4,.5,.4,.2],[.12,.1,.6,.7,.4,.2],[-.2,.3,-.5,-.4,.8,.6],[.4,.2,.7,.6,.2,70*DEG]]) {
+    test(`aps_pose ${id} ${mode} actual modeled bore round trip ${pitch}/${roll}/${elevation}`, async () => {
+      const r = await apsControls(id, mode), {G} = r, ti = G.aps.turret ?? 1;
+      tiltBody(r, pitch, roll, heading); G.T[0].yaw=parent; G.T[ti].yaw=parent+motor; G.T[ti].guns[0].pitch=elevation;
+      const model=G.model; model.body.local=mul(rotY(heading),mul(rotX(-pitch),rotZ(roll)));
+      model.turrets[0].node.yaw=parent; model.turrets[ti].node.yaw=motor; model.turrets[ti].guns[0].node.pitch=-elevation; model.root.update(null);
+      const bore=transformDir(model.turrets[ti].guns[0].node.world,[0,0,1]);
+      const yaw=Math.atan2(bore[0],bore[2]), wp=Math.atan2(bore[1],Math.hypot(bore[0],bore[2]));
+      r.live.applyAps({aps:[{...r.snapshot(),owner:ME,enabled:true,mode:'search',yaw,pitch:wp}],events:[]},{aps_gun_ok:true,aps_radar_ok:true});
+      close(gunnery.wrapPi(G.T[ti].yaw-parent-motor),0,'native world bore returns actual local yaw',1e-6);
+      close(G.T[ti].guns[0].pitch,elevation,'native world bore returns actual mechanical elevation',1e-6);
+    });
+  }
+  test(`aps_pose ${id} ${mode} ALL adopts the actual held bore before native travel`, async () => {
+    const r = await apsControls(id, mode), ti = r.G.aps.turret ?? 1;
+    r.live.syncApsControl(); chooseControl(r, 'gun:1:0');
+    tiltBody(r, 0, 0, .4); r.G.T[0].yaw = .5; r.G.T[ti].yaw = .9;
+    r.G.T[ti].carried = .5; r.G.T[ti].guns[0].pitch = .2;
+    const held = structuredClone(r.G.T[ti].loading), stock = loadout.roundsLeft(r.G.loadout.turrets[ti].guns[0]);
+    chooseControl(r, 'all'); const native = r.snapshot();
+    close(gunnery.wrapPi(native.yaw - 1.3), 0, 'native adopts current carried world bore', 1e-6);
+    close(native.pitch, .2, 'native adopts held elevation', 1e-6);
+    assert.deepEqual(r.G.T[ti].loading, held); assert.equal(native.rounds, stock);
+    const actor = { id: ME, team: 0, alive: true, center: [0, 1.3, 0] };
+    r.live.apsOf(actor, r.G.aps, r.G.loadout, r.G.T.map(t => t.yaw), { pos: [0,0,0], heading: .4 }, r.G.bundle, r.G.cstate, r.G.caps);
+    const step = r.core.call({ op: 'mw_step', dt: 1 / 120, actors: [actor] }); r.live.applyAps(step, actor);
+    assert.ok(Math.abs(gunnery.wrapPi(r.G.T[ti].yaw - .9)) <= r.G.aps.traverse_deg_s * DEG / 120 + 1e-8);
+    assert.ok(Math.abs(r.G.T[ti].guns[0].pitch - .2) <= r.G.aps.elevate_deg_s * DEG / 120 + 1e-8);
+  });
+  test(`aps_pose ${id} ${mode} selected parent carry is adopted without child traverse`, async () => {
+    const r = await apsControls(id, mode), ti = r.G.aps.turret ?? 1;
+    chooseControl(r, 'gun:0:0'); r.G.T[0].yaw = .2; r.G.T[ti].yaw = .65; r.G.T[ti].carried = .2;
+    r.G.T[ti].guns[0].pitch = .23; r.G.aimPoint = [500,20,100];
+    for (let k = 0; k < 120; k++) { tiltBody(r, 0, 0, k * .003); r.live.aimTurrets(1 / 60); }
+    close(gunnery.wrapPi(r.G.T[ti].yaw-r.G.T[0].yaw), .45, 'child relative motor is held');
+    const held = r.G.s.heading+r.G.T[ti].yaw;
+    chooseControl(r, 'all'); const native = r.snapshot();
+    close(gunnery.wrapPi(native.yaw-held), 0, 'native adopts real parent and hull carry', 1e-6);
+    close(native.pitch, .23, 'carry preserves held elevation', 1e-6);
+  });
 }
 
 for (const id of ['su_is2', 'de_pz3_j', 'de_hetzer']) {
@@ -711,7 +813,8 @@ for (const id of ['su_t10m', 'su_t10m_oplot23']) for (const mode of ['historical
     chooseControl(r, key); r.live.toggleAps(); chooseControl(r, 'all');
     assert.equal(G.apsOn, false); assert.equal(r.snapshot().enabled, false, 'U off in MG SOLO survives ALL');
     assert.deepEqual(preserved(), held); assert.equal(G.online.seq, 9);
-    assert.ok(r.sent.every(m => m.t === 'aps' && !('rounds' in m)));
+    assert.ok(r.sent.every(m => (m.t === 'aps' || m.t === 'state') && !('rounds' in m)));
+    const enable=r.sent.findIndex(m=>m.t==='aps'&&m.enabled); assert.equal(r.sent[enable-1].t,'state','final legal pose is published immediately before enable');
     assert.equal(G.missiles, owner);
     assert.deepEqual(bundle.weapons.secondary, data.vehicles.su_is2.weapons.secondary, 'the fixture retains authentic MG authoring');
     assert.equal(data.vehicles[id].weapons.secondary.length, 0, 'the shared authored Oplot bundle is unchanged');

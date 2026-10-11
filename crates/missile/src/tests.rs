@@ -13,7 +13,7 @@ fn tank(id: u32, team: u8, gun_ok: bool, radar_ok: bool) -> Actor {
         vel: [0.0; 3],
         obb: Some(Obb { center: [0.0, 1.3, 0.0], axes: [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]], half: [1.7, 1.3, 3.4] }),
         aps_pivot: Some([0.5, 2.8, 0.2]),
-        aps_base_yaw: 0.0,
+        aps_base_yaw: 0.0, aps_axes: None,
         aps_gun_ok: gun_ok,
         aps_radar_ok: radar_ok,
         aps_traverse_mult: 1.0,
@@ -23,7 +23,7 @@ fn tank(id: u32, team: u8, gun_ok: bool, radar_ok: bool) -> Actor {
 }
 
 fn shooter(id: u32) -> Actor {
-    Actor { id, team: 1, alive: true, center: [0.0, 1.2, 0.0], vel: [0.0; 3], obb: None, aps_pivot: None, aps_base_yaw: 0.0, aps_gun_ok: true, aps_radar_ok: true, aps_traverse_mult: 1.0, aps_elevate_mult: 1.0, aps_dispersion_mult: 1.0 }
+    Actor { id, team: 1, alive: true, center: [0.0, 1.2, 0.0], vel: [0.0; 3], obb: None, aps_pivot: None, aps_base_yaw: 0.0, aps_axes: None, aps_gun_ok: true, aps_radar_ok: true, aps_traverse_mult: 1.0, aps_elevate_mult: 1.0, aps_dispersion_mult: 1.0 }
 }
 
 fn damage_actor(traverse: f64, elevate: f64, dispersion: f64) -> Actor {
@@ -32,6 +32,81 @@ fn damage_actor(traverse: f64, elevate: f64, dispersion: f64) -> Actor {
     actor["aps_elevate_mult"] = elevate.into();
     actor["aps_dispersion_mult"] = dispersion.into();
     serde_json::from_value(actor).unwrap()
+}
+
+#[test]
+fn aps_pose_tilted_stop_is_rate_bounded_in_the_mechanical_frame() {
+    let mut w = world(vec![]);
+    w.add_aps(1, 0, ApsDef::oplot_mo(), 4);
+    let tilt: f64 = 0.4;
+    let axes = [[1.0,0.0,0.0],[0.0,tilt.cos(),-tilt.sin()],[0.0,tilt.sin(),tilt.cos()]];
+    let mut raw = serde_json::to_value(tank(1, 0, true, true)).unwrap();
+    raw["aps_axes"] = serde_json::json!(axes);
+    let actor: Actor = serde_json::from_value(raw).unwrap();
+    let stop = w.aps[0].def.max_elevation_deg.to_radians();
+    w.aps[0].yaw = 0.0; w.aps[0].pitch = stop + tilt;
+    w.step(MAX_STEP, &[actor]);
+    let d = dir_of(w.aps[0].yaw,w.aps[0].pitch);
+    let local = [dot(d,axes[0]),dot(d,axes[1]),dot(d,axes[2])];
+    let (_, elevation) = yaw_pitch(local);
+    assert!((elevation-stop).abs() <= w.aps[0].def.elevate_deg_s.to_radians()*MAX_STEP+1e-9, "world clamp must not jump the tilted mechanical joint: {elevation}/{stop}");
+}
+
+#[test]
+fn aps_pose_adoption_only_changes_four_fields_and_rejects_untrusted_inputs() {
+    let mut w = world(vec![]); w.add_aps(1,0,ApsDef::oplot_mo(),21);
+    let actors = [tank(1,0,true,true),shooter(99)];
+    tow_at(&mut w,[0.0,2.0,1000.0],3);
+    for _ in 0..1200 { if !w.step(MAX_STEP,&actors).fired.is_empty() { break; } }
+    assert!(w.aps[0].heat>0.0 && w.aps[0].spin>0.0 && w.aps[0].fired>0);
+    w.set_aps(1,false,Some(11000.0));
+    let warm_heat=w.aps[0].heat; let warm_spin=w.aps[0].spin;
+    w.step(0.05,&actors);
+    assert!(w.aps[0].heat<warm_heat && w.aps[0].spin<warm_spin);
+    let mut before=serde_json::to_value(&w.aps[0]).unwrap();
+    assert!(w.adopt_aps_pose(1,1.3,0.2));
+    let mut after=serde_json::to_value(&w.aps[0]).unwrap();
+    for key in ["yaw","pitch","yaw_cmd","pitch_cmd"] { before.as_object_mut().unwrap().remove(key); after.as_object_mut().unwrap().remove(key); }
+    assert_eq!(serde_json::to_vec(&before).unwrap(),serde_json::to_vec(&after).unwrap());
+    for (owner,yaw,pitch) in [(99,0.0,0.0),(1,f64::NAN,0.0),(1,0.0,f64::INFINITY),(1,f64::NEG_INFINITY,0.0)] {
+        let before=serde_json::to_vec(&w.aps[0]).unwrap();
+        assert!(!w.adopt_aps_pose(owner,yaw,pitch)); assert_eq!(before,serde_json::to_vec(&w.aps[0]).unwrap());
+    }
+    w.set_aps(1,true,None);
+    let before=serde_json::to_vec(&w.aps[0]).unwrap(); assert!(!w.adopt_aps_pose(1,0.0,0.0)); assert_eq!(before,serde_json::to_vec(&w.aps[0]).unwrap());
+    let mut actor=damage_actor(0.25,0.3,1.0);actor.aps_base_yaw=0.9;
+    w.step(MAX_STEP,&[actor]);
+    assert!(wrap(w.aps[0].yaw-1.3).abs()<=w.aps[0].def.traverse_deg_s.to_radians()*0.25*MAX_STEP+1e-9);
+    assert!((w.aps[0].pitch-0.2).abs()<=w.aps[0].def.elevate_deg_s.to_radians()*0.3*MAX_STEP+1e-9);
+}
+
+#[test]
+fn aps_pose_enabled_carry_and_equal_bore_rehandoff_keep_motor_rates() {
+    let mut w=world(vec![]);w.add_aps(1,0,ApsDef::oplot_mo(),21);w.set_aps(1,false,None);
+    assert!(w.adopt_aps_pose(1,0.3,0.2));w.set_aps(1,true,None);
+    w.step(MAX_STEP,&[tank(1,0,true,true)]);
+    let old=w.aps[0].yaw;
+    let mut actor=tank(1,0,true,true);actor.aps_base_yaw=0.4;
+    w.step(MAX_STEP,&[actor.clone()]);
+    assert!(wrap(w.aps[0].yaw-0.4-old).abs()<=w.aps[0].def.traverse_deg_s.to_radians()*MAX_STEP+1e-9,"parent carry cannot become a motor jump");
+    // No disabled step: a manual compensation happens to preserve the exact
+    // world bore while the parent changes again. Adoption cannot use equality
+    // with the old emitted bore as a substitute for an ownership transition.
+    let held=w.aps[0].yaw;let pitch=w.aps[0].pitch;w.set_aps(1,false,None);
+    actor.aps_base_yaw=0.7;assert!(w.adopt_aps_pose(1,held,pitch));w.set_aps(1,true,None);
+    w.step(MAX_STEP,&[actor]);
+    assert!(wrap(w.aps[0].yaw-held).abs()<=w.aps[0].def.traverse_deg_s.to_radians()*MAX_STEP+1e-9,"re-enable must start in the adopted current frame");
+}
+
+#[test]
+fn aps_pose_moving_tilted_parent_preserves_physical_carry_at_damaged_rates() {
+    let mut w=world(vec![]);w.add_aps(1,0,ApsDef::oplot_mo(),21);w.set_aps(1,false,None);w.adopt_aps_pose(1,0.4,0.2);w.set_aps(1,true,None);
+    let mut a=damage_actor(0.25,0.3,1.0);w.step(MAX_STEP,&[a.clone()]);let old=(w.aps[0].yaw,w.aps[0].pitch);
+    let tilt: f64=0.15;let yaw: f64=0.3;let turn=|v:V3|[v[0]*yaw.cos()+v[2]*yaw.sin(),v[1],-v[0]*yaw.sin()+v[2]*yaw.cos()];
+    let axes=[turn([1.0,0.0,0.0]),turn([0.0,tilt.cos(),-tilt.sin()]),turn([0.0,tilt.sin(),tilt.cos()])];
+    a.aps_axes=Some(axes);w.step(MAX_STEP,&[a]);let d=dir_of(w.aps[0].yaw,w.aps[0].pitch);let local=axes.map(|axis|dot(axis,d));let now=yaw_pitch(local);
+    assert!(wrap(now.0-old.0).abs()<=w.aps[0].def.traverse_deg_s.to_radians()*0.25*MAX_STEP+1e-9);
+    assert!((now.1-old.1).abs()<=w.aps[0].def.elevate_deg_s.to_radians()*0.3*MAX_STEP+1e-9);
 }
 
 #[test]

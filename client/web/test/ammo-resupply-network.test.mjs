@@ -7,6 +7,8 @@ import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { runtime } from './live-network-rig.mjs';
 import { roundsLeft } from '../src/game/loadout.js';
+import * as loadout from '../src/game/loadout.js';
+import * as loading from '../src/sim/loading.js';
 import { NetClient, roomGameplayProfile } from '../src/game/net.js';
 import { Combat } from '../src/game/combat.js';
 import { loadCoreSync } from '../src/design/core.js';
@@ -14,18 +16,167 @@ import { loadData } from '../tools/load-data.mjs';
 import { Missiles } from '../src/game/missiles.js';
 
 const root=new URL('../../../',import.meta.url);
-const sourceNames=['Cargo.toml','config/gameplay-modes.json','crates/gameplay/Cargo.toml','crates/gameplay/src/lib.rs','crates/server/Cargo.toml','crates/server/src/gameplay.rs','crates/server/src/gameplay_tests.rs','crates/server/src/lobby.rs','crates/server/src/missiles.rs','crates/server/src/server.rs','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs'];
-const receiptPath=process.env.TG_AMMO_RESUPPLY_RECEIPT||new URL('target/ammo-resupply-network.json',root);
+const sourceNames=['Cargo.toml','config/gameplay-modes.json','crates/gameplay/Cargo.toml','crates/gameplay/src/lib.rs','crates/server/Cargo.toml','crates/server/src/gameplay.rs','crates/server/src/gameplay_tests.rs','crates/server/src/lobby.rs','crates/server/src/missiles.rs','crates/server/src/server.rs','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs','crates/design-wasm/src/lib.rs','crates/missile/src/tests.rs','config/stabilizer-drives.json'];
+const receiptPath=process.env.TG_AMMO_RESUPPLY_RECEIPT||new URL('target/weapon-control-ammo-network.json',root);
 assert.ok(fs.existsSync(receiptPath),'Generate the actual native ammunition handler receipt before replay');
 const receipt=JSON.parse(fs.readFileSync(receiptPath,'utf8'));
 assert.deepEqual(Object.keys(receipt.sources).sort(),sourceNames.slice().sort(),'Every source/config tag is mandatory before replay');
 for(const [name,bytes]of Object.entries(receipt.sources))assert.equal(fs.readFileSync(new URL(name,root),'utf8'),bytes,`Stale native receipt: ${name}`);
-const gameplayReceipt=JSON.parse(fs.readFileSync(process.env.TG_GAMEPLAY_NETWORK_RECEIPT||new URL('target/resupply-gameplay-network.json',root),'utf8'));
+const gameplayReceipt=JSON.parse(fs.readFileSync(process.env.TG_GAMEPLAY_NETWORK_RECEIPT||new URL('target/weapon-control-gameplay-network.json',root),'utf8'));
 assert.deepEqual(Object.keys(gameplayReceipt.sources).sort(),sourceNames.slice().sort());
 for(const [name,bytes]of Object.entries(gameplayReceipt.sources))assert.equal(fs.readFileSync(new URL(name,root),'utf8'),bytes,`Stale gameplay receipt: ${name}`);
 assert.equal(receipt.ammo_protocol_version,1);
 const data=loadData();
 const core=loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM||new URL('../assets/tg_design.wasm',import.meta.url)),{materials:data.materials,catalog:data.designCatalog,terrains:Object.values(data.terrains)});
+
+test('aps_pose genuine warm handler outputs require the matching final-State acknowledgement and a later Snap',()=>{
+  assert.deepEqual(Object.keys(receipt.aps_handoffs),Object.keys(gameplayReceipt.aps_handoffs));
+  for(const key of Object.keys(receipt.aps_handoffs))for(const field of ['held','carried','before'])assert.deepEqual(receipt.aps_handoffs[key][field],gameplayReceipt.aps_handoffs[key][field],'both independently generated producers carry the same physical handler evidence');
+  for(const s of Object.values(receipt.aps_handoffs)) {
+    let clock=.01;const sent=[];
+    const r=runtime(s.mode,{combat:new Combat(core,data.machineGuns),clock:{now:()=>clock*1000}});
+    r.net.status='open';r.net.ws={readyState:1,send:text=>sent.push(JSON.parse(text))};
+    for(const phase of ['welcome','create','start','deploy','initial_state','warm'])replay(r,s,phase);
+    r.G.weaponControl={kind:'gun',ti:1,gi:0};r.live.syncApsControl();replay(r,s,'disable');
+    const gun=r.G.loadout.turrets[1].guns[0],L=r.G.T[1].loading;
+    r.G.online.seq=76;assert.equal(r.live.fireGun(1,0),true);replay(r,s,'manual');
+    const t=r.G.loadout.turrets[1],seconds=loadout.reloadTime(t,0,0,s.mode);
+    assert.deepEqual(loading.tick(L,seconds/2,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode)),[],'actual normal loader remains busy');
+    assert.deepEqual(loading.tick(L,seconds,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode)),[0]);
+    loadout.refillBelt(gun);gun.loaded=loadout.nextAmmo(gun);loadout.syncGunShell(gun);
+    const setHeld=state=>{r.G.veh.place(0,0,Math.atan2(state.ez[0],state.ez[2]));r.G.veh.compat(r.G.s);state.tur.forEach((joint,i)=>{r.G.T[i].yaw=joint[0];r.G.T[i].guns[0].pitch=joint[1];});r.G.T[1].carried=state.tur[0][0];clock=state.t;};
+    setHeld(s.held);r.G.weaponControl={kind:'all'};r.live.syncApsControl();
+    assert.equal(sent.at(-2).t,'state');assert.equal(sent.at(-1).t,'aps');assert.equal(sent.at(-2).s.t,s.held.t);assert.equal(sent.at(-2).s.aps_instance,'gun:1:0');assert.deepEqual(sent.at(-2).s.ammo_scope,r.onlineAmmo.scope());
+    const held={yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},stock=r.onlineAmmo.counts();
+    replay(r,s,'warm','snap');assert.deepEqual({yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},held,'old enabled Snap cannot write before acknowledgement');
+    replay(r,s,'enable');replay(r,s,'warm','snap');assert.deepEqual({yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},held,'pre-barrier enabled Snap cannot write after acknowledgement');
+    replay(r,s,'next_snap');const next=packet(s,'next_snap','snap').aps.find(a=>a.owner===s.owner);
+    assert.ok(Math.abs(r.G.T[1].yaw-(next.yaw-.4))<1e-7);assert.ok(Math.abs(r.G.T[1].guns[0].pitch-next.pitch)<1e-7);assert.deepEqual(r.onlineAmmo.counts(),stock,'pose barrier does not mutate independent stock');
+    r.G.weaponControl={kind:'gun',ti:0,gi:0};r.live.syncApsControl();setHeld(s.carried);r.G.weaponControl={kind:'all'};r.live.syncApsControl();
+    replay(r,s,'enable');assert.equal(r.G.online.apsPose.barrier,null,'obsolete acknowledgement cannot own a newer transition');
+    r.G.weaponControl={kind:'gun',ti:0,gi:0};r.live.syncApsControl();replay(r,s,'carry_enable');assert.equal(r.G.online.apsPose,null,'rapid ALL to SOLO invalidates its pending acknowledgement');
+    r.G.weaponControl={kind:'all'};clock+=.001;r.live.syncApsControl();replay(r,s,'carry_enable');assert.equal(r.G.online.apsPose.barrier,null,'repeated toggle rejects the prior real acknowledgement');
+    assert.equal(r.onlineAmmo.scope().life,s.held.ammo_scope.life);assert.equal(r.G.loadout.turrets[1].guns[0],gun);assert.equal(r.G.T[1].loading,L);
+    const pendingStock=r.onlineAmmo.counts(),life=r.onlineAmmo.scope();setHeld(s.restarted);
+    r.net._emit('reconnecting',{});r.G.online.stateT=null;replay(r,s,'resume');r.net._emit('resumed',{});
+    assert.equal(sent.at(-2).s.t,s.restarted.t,'the authenticated resumed transport can restart its State clock');
+    const oldTransport=packet(s,'initial_state','aps_pose');assert.equal(oldTransport.request_t,r.G.online.apsPose.state_t,'real previous transport and resumed State clocks collide');
+    replay(r,s,'initial_state');assert.equal(r.G.online.apsPose.barrier,null,'previous transport acknowledgement cannot claim the resumed same life even at identical State.t');
+    replay(r,s,'restarted_state');replay(r,s,'restarted_enable');assert.ok(Number.isSafeInteger(r.G.online.apsPose.barrier));replay(r,s,'restarted_snap');
+    assert.deepEqual(r.onlineAmmo.scope(),life);assert.deepEqual(r.onlineAmmo.counts(),pendingStock);assert.equal(r.G.loadout.turrets[1].guns[0],gun);assert.equal(r.G.T[1].loading,L);
+  }
+});
+
+test('aps_pose admitted real Oplot lives defer the barrier through map and core readiness and cancel old callbacks on leave',async()=>{
+  for(const s of Object.values(receipt.aps_readiness))for(const coreAt of ['ready','during_load','after_load','leave']) {
+    let resolve;const loaded=new Promise(r=>{resolve=r;}),sent=[];
+    const r=runtime(s.mode,{combat:coreAt==='ready'?new Combat(core,data.machineGuns):null,loadMap:()=>loaded,clock:{now:()=>10}});
+    r.net.status='open';r.net.ws={readyState:1,send:text=>sent.push(JSON.parse(text))};
+    for(const phase of ['welcome','create','start','deploy'])replay(r,s,phase);
+    assert.equal(r.G.mode,'garage');const gun=r.G.loadout.turrets[1].guns[0],L=r.G.T[1].loading,counts=r.onlineAmmo.counts(),scope=r.onlineAmmo.scope();
+    assert.equal(sent.some(m=>m.t==='aps'&&m.enabled),false,'life admission cannot publish enable before actual world readiness');
+    if(coreAt==='during_load'){r.G.combat=new Combat(core,data.machineGuns);r.live.bindCombatReady();}
+    if(coreAt==='leave')replay(r,s,'leave');
+    r.G.maps.set('coast',{});resolve();await loaded;await Promise.resolve();await Promise.resolve();
+    if(coreAt==='leave'){assert.equal(r.G.online,null);assert.equal(r.G.mode,'garage');assert.equal(sent.some(m=>m.t==='aps'&&m.enabled),false);continue;}
+    assert.equal(r.G.loadout.turrets[1].guns[0],gun);assert.equal(r.G.T[1].loading,L);assert.deepEqual(r.onlineAmmo.counts(),counts);assert.deepEqual(r.onlineAmmo.scope(),scope);
+    if(coreAt==='after_load'){assert.equal(sent.some(m=>m.t==='aps'&&m.enabled),false,'late core still defers enabling');r.G.combat=new Combat(core,data.machineGuns);r.live.bindCombatReady();}
+    assert.equal(r.G.mode,'battle');assert.equal(sent.at(-2).t,'state');assert.equal(sent.at(-1).t,'aps');assert.equal(sent.at(-2).s.t,s.state.t);assert.deepEqual(sent.at(-2).s.tur,s.state.tur);
+    assert.ok(Math.abs(sent.at(-2).s.ez[0]-s.state.ez[0])<1e-7,'first force-State carries actual nonzero source spawn heading');
+    const held=r.G.T[1].yaw;replay(r,s,'snap');assert.equal(r.G.T[1].yaw,held,'startup Snap cannot write before accepted barrier');
+    replay(r,s,'pose');replay(r,s,'enable');assert.equal(r.G.online.apsPose.barrier,0);replay(r,s,'snap');assert.ok(Math.abs(r.G.T[1].yaw)<1e-4);
+  }
+});
+
+test('aps_pose genuine seven-round refill suspends the old enabled writer until a resumed readiness barrier',()=>{
+  for(const s of Object.values(receipt.aps_short)) {
+    let clock=0;const sent=[],r=runtime(s.mode,{combat:new Combat(core,data.machineGuns),clock:{now:()=>clock*1000}});
+    r.net.status='open';r.net.ws={readyState:1,send:text=>sent.push(JSON.parse(text))};
+    for(const phase of ['welcome','create','start','deploy'])replay(r,s,phase);
+    r.G.veh.place(0,0,0);r.G.veh.compat(r.G.s);replay(r,s,'initial_state');
+    const t=r.G.loadout.turrets[1],gun=t.guns[0],L=r.G.T[1].loading;
+    r.G.weaponControl={kind:'gun',ti:1,gi:0};r.live.syncApsControl();replay(r,s,'disable');
+    for(let i=0;i<7;i++){assert.equal(r.live.fireGun(1,0),true);if(L.state[0]!=='empty'){loading.tick(L,1e-6,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode));const done=loading.tick(L,loading.progress(L,0).remaining,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode));assert.deepEqual(done,[0]);}loadout.refillBelt(gun);gun.loaded=loadout.nextAmmo(gun);if(gun.loaded<0)L.state[0]='empty';loadout.syncGunShell(gun);}
+    replay(r,s,'manual');assert.equal(roundsLeft(gun),0);r.G.weaponControl={kind:'all'};r.live.syncApsControl();replay(r,s,'empty_state');replay(r,s,'enable_empty');assert.ok(Number.isSafeInteger(r.G.online.apsPose.barrier));
+    clock=5;r.G.veh.place(0,0,.4);r.G.veh.compat(r.G.s);r.G.T[0].yaw=.5;r.G.T[1].yaw=.5;r.G.T[1].carried=.5;
+    replay(r,s,'grant');assert.equal(roundsLeft(gun),7);assert.notEqual(L.state[0],'ready');assert.deepEqual(gun.ammo.map(a=>a.count),s.selected['gun:1:0']);
+    const held=r.G.T[1].yaw;replay(r,s,'empty_active','snap');assert.equal(r.G.T[1].yaw,held,'delayed pre-suspension enabled Snap cannot reclaim the refill');
+    const request=r.G.online.apsPose;replay(r,s,'automatic','snap');assert.equal(r.G.online.apsPose,request,'old off/automatic tick cannot replace a later ownership transition');
+    const seconds=s.ready_at-5;assert.deepEqual(loading.tick(L,seconds-.01,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode)),[]);
+    replay(r,s,'before_ready');assert.equal(r.G.T[1].yaw,held);assert.equal(r.G.apsState.enabled,false);
+    assert.deepEqual(loading.tick(L,.02,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode)),[0]);loadout.refillBelt(gun);gun.loaded=loadout.nextAmmo(gun);loadout.syncGunShell(gun);
+    replay(r,s,'ready');assert.ok(Number.isSafeInteger(r.G.online.apsPose.barrier));assert.equal(r.G.T[1].yaw,held,'barrier tick itself cannot write the pose');
+    replay(r,s,'empty_active','snap');assert.equal(r.G.T[1].yaw,held);replay(r,s,'after_ready');assert.ok(Math.abs(r.G.T[1].yaw-.5)<1e-7);assert.equal(roundsLeft(gun),7);assert.equal(gun.loaded,0);assert.equal(gun.belt,7);
+  }
+});
+for(const cause of ['stale','invalid'])test(`aps_pose genuine ${cause} server suspension recovers the current final-State barrier`,()=>{
+  assert.equal(Object.keys(receipt.aps_suspensions).length,8);
+  assert.deepEqual(Object.keys(receipt.aps_suspensions),Object.keys(gameplayReceipt.aps_suspensions));
+  for(const s of Object.values(receipt.aps_suspensions).filter(s=>s.cause===cause)) {
+    const other=gameplayReceipt.aps_suspensions[`${s.vehicle}_${s.mode}_${cause}`];
+    for(const field of ['held','before','adopted','counts'])assert.deepEqual(s[field],other[field],'independent producers retain the same physical history');
+    let clock=.01;const sent=[],r=runtime(s.mode,{combat:new Combat(core,data.machineGuns),clock:{now:()=>clock*1000}});
+    r.net.status='open';r.net.ws={readyState:1,send:text=>sent.push(JSON.parse(text))};
+    for(const phase of ['welcome','create','start','deploy','initial_state','initial_enable','initial_snap'])replay(r,s,phase);
+    r.G.veh.place(0,0,0);r.G.veh.compat(r.G.s);replay(r,s,'warm');
+    assert.ok(Number.isSafeInteger(r.G.online.apsPose.barrier));assert.ok(r.G.apsState.heat>0,'real interception has warmed the system');
+    clock=s.primary_at;assert.equal(r.live.fireGun(0,0),true);replay(r,s,'primary');
+    const gun=r.G.loadout.turrets[1].guns[0],L=r.G.T[1].loading,primary=r.G.T[0].loading,t=r.G.loadout.turrets[0];
+    assert.deepEqual(loading.tick(primary,.25,(gi,li)=>loadout.reloadTime(t,gi,li,s.mode)),[]);assert.equal(primary.state[0],'loading');
+    const loader=structuredClone(primary),stock=r.onlineAmmo.counts(),scope=r.onlineAmmo.scope();assert.deepEqual(stock,s.counts);
+    clock=s.held.t;s.held.tur.forEach((joint,i)=>{r.G.T[i].yaw=joint[0];r.G.T[i].guns[0].pitch=joint[1];});r.G.T[1].carried=s.held.tur[0][0];
+    const held={yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},old=r.G.online.apsPose,n=sent.length;
+    replay(r,s,'off_snap');
+    assert.notEqual(r.G.online.apsPose,old);assert.equal(r.G.online.apsPose.barrier,null);
+    assert.equal(sent.length,n+2);assert.equal(sent.at(-2).t,'state');assert.equal(sent.at(-1).t,'aps');assert.equal(sent.at(-1).enabled,true);
+    assert.equal(sent.at(-2).s.t,s.held.t);assert.deepEqual(sent.at(-2).s.tur,s.held.tur);assert.deepEqual(sent.at(-2).s.ammo_scope,scope);
+    assert.equal(r.G.apsState.enabled,false);assert.equal(r.G.apsState.heat,packet(s,'off_snap','snap').aps.find(a=>a.owner===s.owner).heat);
+    replay(r,s,'initial_state');replay(r,s,'warm','snap');
+    assert.equal(r.G.online.apsPose.barrier,null,'old ACK cannot own the forced current State');assert.deepEqual({yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},held,'old enabled Snap cannot overwrite the current held bore');
+    replay(r,s,'inflight_state');replay(r,s,'rate_while_suspended');replay(r,s,'recovery_state');
+    assert.equal(r.G.online.apsPose.barrier,null,'regular State and Y do not bypass the explicit current request');
+    replay(r,s,'recovery_enable');
+    assert.ok(Number.isSafeInteger(r.G.online.apsPose.barrier),'actual current handler ACK must release this pending barrier');
+    assert.deepEqual({yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},held,'ACK itself cannot move the gun');
+    assert.deepEqual(r.onlineAmmo.counts(),stock);assert.deepEqual(primary,loader);assert.equal(r.G.loadout.turrets[1].guns[0],gun);assert.equal(r.G.T[1].loading,L);
+    const barrier=r.G.online.apsPose;replay(r,s,'initial_state');replay(r,s,'off_snap');replay(r,s,'warm','snap');
+    assert.equal(r.G.online.apsPose,barrier,'old off Snap cannot replace the accepted current transition');assert.deepEqual({yaw:r.G.T[1].yaw,pitch:r.G.T[1].guns[0].pitch},held);
+    replay(r,s,'later_snap');const next=packet(s,'later_snap','snap').aps.find(a=>a.owner===s.owner);
+    assert.ok(packet(s,'later_snap','snap').tick>barrier.barrier);assert.equal(next.enabled,true);
+    assert.ok(Math.abs(next.yaw-s.adopted.yaw)<=s.adopted.def.traverse_deg_s*Math.PI/180*.05+1e-8);assert.ok(Math.abs(next.pitch-s.adopted.pitch)<=s.adopted.def.elevate_deg_s*Math.PI/180*.05+1e-8);
+    assert.ok(Math.abs(r.G.T[1].yaw-next.yaw)<1e-7);assert.ok(Math.abs(r.G.T[1].guns[0].pitch-next.pitch)<1e-7);
+    assert.equal(r.G.apsState.heat,next.heat);assert.equal(r.G.apsState.spin,next.spin);assert.equal(roundsLeft(gun),next.rounds);
+    assert.deepEqual(primary,loader);assert.equal(r.G.T[1].loading,L);assert.deepEqual(r.onlineAmmo.scope(),scope);
+  }
+});
+test('aps_pose genuine rejected final request accepts its later trusted State without an obsolete correlation',()=>{
+  assert.equal(Object.keys(receipt.aps_quantization).length,4);
+  for(const s of Object.values(receipt.aps_quantization)) {
+    let clock=.01;const sent=[],r=runtime(s.mode,{combat:new Combat(core,data.machineGuns),clock:{now:()=>clock*1000}});
+    r.net.status='open';r.net.ws={readyState:1,send:text=>sent.push(JSON.parse(text))};
+    for(const phase of ['rejected_welcome','rejected_create','rejected_start','rejected_deploy'])replay(r,s,phase);
+    r.G.veh.place(0,0,0);r.G.veh.compat(r.G.s);replay(r,s,'rejected_before');
+    r.live.toggleAps();assert.equal(r.G.apsOn,false);replay(r,s,'rejected_disable');
+    const held=state=>{state.tur.forEach((joint,i)=>{r.G.T[i].yaw=joint[0];r.G.T[i].guns[0].pitch=joint[1];});r.G.T[1].carried=state.tur[0][0];clock=state.t;};
+    held(s.bad);r.live.toggleAps();assert.equal(r.G.apsOn,true);
+    assert.equal(sent.at(-2).t,'state');assert.equal(sent.at(-2).s.t,s.bad.t);assert.deepEqual(sent.at(-2).s.tur,s.bad.tur);assert.equal(sent.at(-1).t,'aps');
+    const pending=r.G.online.apsPose,stock=r.onlineAmmo.counts(),scope=r.onlineAmmo.scope(),gun=r.G.loadout.turrets[1].guns[0],L=r.G.T[1].loading;
+    replay(r,s,'rejected_current');replay(r,s,'rejected_enable');replay(r,s,'rejected_snap');
+    assert.equal(pending.barrier,null);assert.equal(r.G.apsState.enabled,false);assert.equal(r.G.T[1].yaw,s.bad.tur[1][0]);
+    replay(r,s,'rejected_before');replay(r,s,'unrelated');assert.equal(pending.barrier,null,'the actual old ACK and unrelated observations cannot release the current request');
+    held(s.later);r.live.sendOnlineState();assert.equal(sent.at(-1).s.t,s.later.t);assert.equal(pending.state_t,s.bad.t,'regular current State retains the pending final-State request');
+    replay(r,s,'later_current');assert.ok(Number.isSafeInteger(pending.barrier),'the actual current ACK must correlate the rejected .05 request with trusted .1 admission');
+    const ack=packet(s,'later_current','aps_pose');assert.equal(ack.request_t,s.bad.t);assert.equal(ack.state_t,s.later.t);assert.equal(ack.transport,r.net.token);
+    assert.deepEqual(r.onlineAmmo.counts(),stock);assert.deepEqual(r.onlineAmmo.scope(),scope);assert.equal(r.G.T[1].yaw,s.later.tur[1][0]);
+    replay(r,s,'rejected_before');replay(r,s,'rejected_snap');assert.equal(r.G.online.apsPose,pending);assert.equal(r.G.T[1].yaw,s.later.tur[1][0]);
+    replay(r,s,'later_snap');const next=packet(s,'later_snap','snap').aps.find(a=>a.owner===s.owner);
+    assert.equal(next.enabled,true);assert.ok(packet(s,'later_snap','snap').tick>pending.barrier);
+    assert.ok(Math.abs(next.yaw-s.later.tur[1][0])<=s.adopted.def.traverse_deg_s*Math.PI/180*.05+1e-8);
+    assert.ok(Math.abs(next.pitch-s.later.tur[1][1])<=s.adopted.def.elevate_deg_s*Math.PI/180*.05+1e-8);
+    assert.ok(Math.abs(r.G.T[1].yaw-next.yaw)<1e-7);assert.ok(Math.abs(r.G.T[1].guns[0].pitch-next.pitch)<1e-7);
+    assert.equal(roundsLeft(gun),next.rounds);assert.equal(r.G.T[1].loading,L);assert.equal(r.G.apsState.heat,next.heat);assert.deepEqual(r.onlineAmmo.counts(),stock);
+  }
+});
 const packets=(s,name,t=null)=>s.phases[name].filter(([to,m])=>to===s.owner&&(!t||m.t===t)).map(([,m])=>structuredClone(m));
 const packet=(s,name,t)=>packets(s,name,t)[0];
 const replay=(r,s,name,t=null)=>{for(const m of packets(s,name,t))r.net._receive(m);};

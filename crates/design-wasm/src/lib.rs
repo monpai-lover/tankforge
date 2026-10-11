@@ -213,6 +213,10 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 st.missiles.end(id, tg_missile::MStatus::Struck);
                 Ok(json!({}))
             }
+            "mw_aps_pose" => {
+                let owner: u32 = field(req, "owner")?;
+                Ok(json!({"adopted": st.missiles.adopt_aps_pose(owner, field(req, "yaw")?, field(req, "pitch")?)}))
+            }
             "mw_aps" => {
                 let owner: u32 = field(req, "owner")?;
                 if req.get("remove").and_then(|v| v.as_bool()).unwrap_or(false) {

@@ -8,6 +8,25 @@ use std::collections::HashMap;
 use std::path::Path;
 use tg_combat::{Target, TargetState};
 use tg_missile::{Actor, ApsDef, HeightGrid, MissileDef, Obb};
+use crate::ammo::AmmoScope;
+use serde::Deserialize;
+use std::sync::LazyLock;
+
+#[derive(Clone,Copy,Deserialize)]
+#[serde(deny_unknown_fields)]
+struct StabilizerDrive {traverse_deg_s:f64,elevate_deg_s:f64}
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct StabilizerDrives {none:StabilizerDrive,vertical:StabilizerDrive,two_plane:StabilizerDrive}
+
+fn stabilizer_drive(name: Option<&str>) -> StabilizerDrive {
+    static DRIVES:LazyLock<StabilizerDrives>=LazyLock::new(|| {
+        let drives:StabilizerDrives=serde_json::from_str(include_str!("../../../config/stabilizer-drives.json")).expect("invalid shared stabilizer drives");
+        assert!([drives.none,drives.vertical,drives.two_plane].iter().all(|d|[d.traverse_deg_s,d.elevate_deg_s].iter().all(|v|v.is_finite()&&*v>=0.0)),"invalid stabilizer motor rate");drives
+    });
+    match name {Some("vertical")=>DRIVES.vertical,Some("two_plane")=>DRIVES.two_plane,_=>DRIVES.none}
+}
 
 /// A vehicle's active protection: the system, the turret it lays, the modules that are its gun
 /// and radar, and where its gun stands (hull frame, turrets at bearing 0).
@@ -178,6 +197,97 @@ fn turn(v: [f64; 3], yaw: f64) -> [f64; 3] {
     [v[0] * c + v[2] * s, v[1], -v[0] * s + v[2] * c]
 }
 
+fn wrap(a: f64) -> f64 { (a+std::f64::consts::PI).rem_euclid(2.0*std::f64::consts::PI)-std::f64::consts::PI }
+
+fn aps_hull_frame(p: Pose) -> Option<Pose> {
+    let ex=unit(p.ex)?;
+    let ey=unit([p.ez[1]*ex[2]-p.ez[2]*ex[1],p.ez[2]*ex[0]-p.ez[0]*ex[2],p.ez[0]*ex[1]-p.ez[1]*ex[0]])?;
+    let ez=[ex[1]*ey[2]-ex[2]*ey[1],ex[2]*ey[0]-ex[0]*ey[2],ex[0]*ey[1]-ex[1]*ey[0]];
+    Some(Pose {pos:p.pos,ex,ey,ez})
+}
+
+#[derive(Clone, Debug)]
+pub struct AcceptedApsPose {
+    pub instance: String,
+    pub scope: AmmoScope,
+    pub at: f64,
+    pub state_t: f64,
+    pub motor_yaw: f64,
+    pub elevation: f64,
+    pub parent_yaw: f64,
+    pub hull: Pose,
+    pub world_yaw: f64,
+    pub world_pitch: f64,
+    pub joints: Vec<(usize, f64, f64)>,
+}
+
+/// Exact bound source joints, observed on the server clock. State.t only orders
+/// observations/correlates ownership; it never increases a motor's travel budget.
+pub fn accepted_aps_pose(s: &Value, spec: &ApsSpec, target: &Target, state: &TargetState,
+    gameplay: crate::gameplay::RoomGameplay, scope: AmmoScope, now: f64,
+    previous: Option<&AcceptedApsPose>, automatic_until: Option<f64>) -> Option<AcceptedApsPose> {
+    let submitted: AmmoScope=serde_json::from_value(s["ammo_scope"].clone()).ok()?;
+    if submitted!=scope || !now.is_finite() { return None; }
+    let binding=target.weapon_bindings.values().find(|b| b.kind==tg_combat::weapon_damage::WeaponKind::Cannon
+        && b.turret_index==Some(spec.turret) && b.gun_index==Some(0)
+        && b.binding_error.is_none() && b.critical.iter().any(|&i|Some(&target.def.modules[i].id)==spec.gun_module.as_ref()))?;
+    if s["aps_instance"].as_str()!=Some(binding.key.as_str()) {return None;}
+    let state_t=s["t"].as_f64()?;
+    if !state_t.is_finite() || previous.is_some_and(|p|p.scope==scope && state_t<=p.state_t) {return None;}
+    let ex=arr3(&s["ex"])?;let ez=arr3(&s["ez"])?;
+    let dot=|a:[f64;3],b:[f64;3]|a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+    if !ex.into_iter().chain(ez).all(f64::is_finite) || (dot(ex,ex)-1.0).abs()>0.00025 || (dot(ez,ez)-1.0).abs()>0.00025 || dot(ex,ez).abs()>0.00025 {return None;}
+    let hull=aps_hull_frame(pose_of(s)?)?;let tur=s["tur"].as_array()?;let w=&target.def.weapons;
+    let caps=tg_combat::caps(target,state);let mut joints=Vec::new();let mut ti=spec.turret;
+    loop {
+        if joints.iter().any(|(seen,_,_)|*seen==ti) {return None;}
+        let layout=if ti==0 {w} else {w["extra_turrets"].get(ti-1)?};
+        let gun=if ti==0 {&w["main_gun"]} else {&layout["guns"][0]["gun"]};
+        let parent=if ti==0 {None} else {layout["parent"].as_u64().map(|n|n as usize)};
+        let raw=tur.get(ti)?;let yaw=raw[0].as_f64()?;let elevation=raw[1].as_f64()?;
+        let parent_yaw=match parent {Some(p)=>tur.get(p)?[0].as_f64()?,None=>0.0};
+        if ![yaw,elevation,parent_yaw].into_iter().all(f64::is_finite) {return None;}
+        let motor=wrap(yaw-parent_yaw);let facing=layout["facing_deg"].as_f64().unwrap_or(0.0).to_radians();
+        if let Some(arc)=layout["yaw_limit_deg"].as_array() {
+            let rel=wrap(motor-facing);if rel<arc.first()?.as_f64()?.to_radians()-1e-4 || rel>arc.get(1)?.as_f64()?.to_radians()+1e-4 {return None;}
+        }
+        let mut depression=gun["max_depression_deg"].as_f64()?.to_radians();
+        if let Some(table)=layout["depression_by_bearing_deg"].as_array().filter(|v|!v.is_empty()) {
+            let x=motor.rem_euclid(2.0*std::f64::consts::PI)/(2.0*std::f64::consts::PI)*table.len() as f64;
+            let i=x.floor() as usize;let f=x-i as f64;
+            depression=(table[i%table.len()].as_f64()?*(1.0-f)+table[(i+1)%table.len()].as_f64()?*f).to_radians();
+        }
+        if elevation < -depression-1e-4 || elevation > gun["max_elevation_deg"].as_f64()?.to_radians()+1e-4 {return None;}
+        let bound=target.weapon_bindings.values().find(|b|b.kind==tg_combat::weapon_damage::WeaponKind::Cannon&&b.turret_index==Some(ti)&&b.gun_index==Some(0)&&b.binding_error.is_none())?;
+        let damage=caps.weapons.get(&bound.key)?;
+        if let Some((_,old_yaw,old_pitch))=previous.filter(|p|p.scope==scope&&p.instance==binding.key).and_then(|p|p.joints.iter().find(|(old,_,_)|*old==ti)) {
+            let elapsed=(now-previous?.at).max(0.0);
+            let gyro=stabilizer_drive(layout["stabilizer"].as_str());
+            let traverse=((if ti==0 {gun["traverse_deg_s"].as_f64()?} else {layout["traverse_deg_s"].as_f64()?})*gameplay.rules().traverse).max(gyro.traverse_deg_s);
+            let elevate=(gun["elevate_deg_s"].as_f64()?*gameplay.rules().elevate).max(gyro.elevate_deg_s);
+            let automatic_elapsed=if ti==spec.turret {automatic_until.map(|until|(until-previous.unwrap().at).clamp(0.0,elapsed)).unwrap_or(0.0)} else {0.0};
+            let native=gameplay.aps(&spec.def);
+            let yaw_budget=traverse*(elapsed-automatic_elapsed)+native.traverse_deg_s*automatic_elapsed;
+            let pitch_budget=elevate*(elapsed-automatic_elapsed)+native.elevate_deg_s*automatic_elapsed;
+            // Each wire angle has at most half a 1e-4 rad quantum of error.
+            // A parented yaw delta subtracts four rounded angles (two endpoints
+            // for child and parent); unparented yaw and pitch subtract only two.
+            let yaw_quantization=if parent.is_some() {2e-4} else {1e-4};
+            let roundoff=1e-12;
+            if wrap(motor-old_yaw).abs()>yaw_budget.to_radians()*damage.traverse_mult as f64+yaw_quantization+roundoff
+                || (elevation-old_pitch).abs()>pitch_budget.to_radians()*damage.elevate_mult as f64+1e-4+roundoff {return None;}
+        }
+        joints.push((ti,motor,elevation));
+        match parent {Some(p)=>ti=p,None=>break}
+    }
+    let motor_yaw=joints[0].1;let elevation=joints[0].2;
+    let parent_yaw=if spec.turret==0 {0.0} else {tur.get(spec.parent)?[0].as_f64()?};
+    let local=turn([0.0,elevation.sin(),elevation.cos()],motor_yaw+parent_yaw);
+    let d=[0,1,2].map(|k|hull.ex[k]*local[0]+hull.ey[k]*local[1]+hull.ez[k]*local[2]);
+    Some(AcceptedApsPose {instance:binding.key.clone(),scope,at:now,state_t,motor_yaw,elevation,parent_yaw,hull,
+        world_yaw:d[0].atan2(d[2]),world_pitch:d[1].atan2(d[0].hypot(d[2])),joints})
+}
+
 fn module_ok(t: &Target, st: Option<&TargetState>, id: &Option<String>) -> bool {
     let (Some(id), Some(st)) = (id, st) else { return true };
     match t.def.modules.iter().position(|m| &m.id == id) {
@@ -204,8 +314,9 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
         }
         None => (p.point([0.0, 1.2, 0.0]), None),
     };
-    let mut a = Actor { id, team, alive, center, vel: v, obb, aps_pivot: None, aps_base_yaw: 0.0, aps_gun_ok: true, aps_radar_ok: true, aps_traverse_mult: 1.0, aps_elevate_mult: 1.0, aps_dispersion_mult: 1.0 };
+    let mut a = Actor { id, team, alive, center, vel: v, obb, aps_pivot: None, aps_base_yaw: 0.0, aps_axes: None, aps_gun_ok: true, aps_radar_ok: true, aps_traverse_mult: 1.0, aps_elevate_mult: 1.0, aps_dispersion_mult: 1.0 };
     if let (Some(spec), Some(t)) = (aps, t) {
+        let p=aps_hull_frame(p)?;
         let yaws = yaws_of(s);
         let py = yaws.get(spec.parent).copied().unwrap_or(0.0);
         let piv = if spec.turret == 0 {
@@ -214,9 +325,12 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
             let r = turn([spec.pivot[0] - spec.parent_pivot[0], spec.pivot[1] - spec.parent_pivot[1], spec.pivot[2] - spec.parent_pivot[2]], py);
             [spec.parent_pivot[0] + r[0], spec.parent_pivot[1] + r[1], spec.parent_pivot[2] + r[2]]
         };
-        let off = turn([spec.trunnion[0] - spec.pivot[0], spec.trunnion[1] - spec.pivot[1], spec.trunnion[2] - spec.pivot[2]], py);
+        let off = turn([spec.trunnion[0] - spec.pivot[0], spec.trunnion[1] - spec.pivot[1], spec.trunnion[2] - spec.pivot[2]], yaws.get(spec.turret).copied().unwrap_or(0.0));
         a.aps_pivot = Some(p.point([piv[0] + off[0], piv[1] + off[1], piv[2] + off[2]]));
         a.aps_base_yaw = p.heading() + if spec.turret == 0 { 0.0 } else { py };
+        let frame_yaw=if spec.turret==0 {0.0} else {py};
+        a.aps_axes=Some([turn([1.0,0.0,0.0],frame_yaw),[0.0,1.0,0.0],turn([0.0,0.0,1.0],frame_yaw)]
+            .map(|v|[0,1,2].map(|k|p.ex[k]*v[0]+p.ey[k]*v[1]+p.ez[k]*v[2])));
         let fresh;
         let st = if let Some(st) = st { st } else { fresh = t.fresh_state(); &fresh };
         let caps = tg_combat::caps(t, st);
@@ -238,6 +352,49 @@ pub fn actor_of(id: u32, team: u8, alive: bool, s: &Value, t: Option<&Target>, a
 mod tests {
     use super::*;
     use serde_json::json;
+
+    #[test]
+    fn aps_pose_quantization_bounds_are_per_joint_not_free_motor_time() {
+        let data=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");let c=crate::server::load_combat(&data);let md=load(&data);
+        for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {
+            let target=&c.targets[vehicle];let spec=&md.aps[vehicle];let state=target.fresh_state();let scope=AmmoScope{battle:1,life:1};
+            let gameplay=crate::gameplay::RoomGameplay::parse(json!(mode),json!(1)).unwrap();
+            let before=json!({"pos":[0,0,0],"ex":[1,0,0],"ez":[0,0,1],"tur":[[0,0],[0,0]],"t":0.0,"ammo_scope":scope,"aps_instance":"gun:1:0"});
+            let previous=accepted_aps_pose(&before,spec,target,&state,gameplay,scope,0.0,None,None).unwrap();
+            let mut observation=before.clone();observation["t"]=json!(0.001);observation["tur"][1][0]=json!(0.0002);
+            assert!(accepted_aps_pose(&observation,spec,target,&state,gameplay,scope,0.0,Some(&previous),None).is_some(),"two parent/child yaw endpoints have a finite 2e-4 quantization bound at zero trusted elapsed");
+            observation["tur"][1][0]=json!(0.00020001);
+            assert!(accepted_aps_pose(&observation,spec,target,&state,gameplay,scope,0.0,Some(&previous),None).is_none(),"quantization cannot become extra motor time");
+            observation["tur"]=json!([[0.00010001,0],[0.00010001,0]]);
+            assert!(accepted_aps_pose(&observation,spec,target,&state,gameplay,scope,0.0,Some(&previous),None).is_none(),"unparented yaw retains the single-angle 1e-4 endpoint bound");
+            observation["tur"]=json!([[0.0001,0.0001],[0.0001,0.0001]]);
+            assert!(accepted_aps_pose(&observation,spec,target,&state,gameplay,scope,0.0,Some(&previous),None).is_some());
+            observation["tur"][1][1]=json!(0.00010001);
+            assert!(accepted_aps_pose(&observation,spec,target,&state,gameplay,scope,0.0,Some(&previous),None).is_none(),"pitch is one rounded angle, even on the child");
+        }}
+    }
+
+    #[test]
+    fn aps_pose_actual_trunnion_and_rounded_frame_remain_orthonormal_at_zero_motor_rate() {
+        let data=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");let c=crate::server::load_combat(&data);let md=load(&data);
+        let t=&c.targets["su_t10m"];let spec=&md.aps["su_t10m"];
+        let (pitch,roll,heading)=(0.12_f64,0.1_f64,0.6_f64);
+        let rounded=|v:[f64;3]|v.map(|n|(n*1e4).round()/1e4);
+        let ex=rounded(turn([roll.cos(),roll.sin()*pitch.cos(),-roll.sin()*pitch.sin()],heading));
+        let ez=rounded(turn([0.0,pitch.sin(),pitch.cos()],heading));
+        let s=json!({"pos":[0,0,0],"ex":ex,"ez":ez,"tur":[[0,0],[std::f64::consts::FRAC_PI_2,0.2]]});
+        let mut a=actor_of(1,0,true,&s,Some(t),Some(spec),Some(&t.fresh_state())).unwrap();
+        let p=aps_hull_frame(pose_of(&s).unwrap()).unwrap();let offset=turn([spec.trunnion[0]-spec.pivot[0],spec.trunnion[1]-spec.pivot[1],spec.trunnion[2]-spec.pivot[2]],std::f64::consts::FRAC_PI_2);
+        let expected=p.point([0,1,2].map(|k|spec.pivot[k]+offset[k]));assert_eq!(a.aps_pivot,Some(expected));
+        let axes=a.aps_axes.unwrap();let dot=|a:[f64;3],b:[f64;3]|a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+        for i in 0..3 {for j in 0..3 {assert!((dot(axes[i],axes[j])-if i==j {1.0} else {0.0}).abs()<1e-12);}}
+        let local=[0.4_f64.sin()*0.2_f64.cos(),0.2_f64.sin(),0.4_f64.cos()*0.2_f64.cos()];
+        let d=[0,1,2].map(|k|axes[0][k]*local[0]+axes[1][k]*local[1]+axes[2][k]*local[2]);
+        let mut w=tg_missile::World::new(Vec::new());w.add_aps(1,0,spec.def.clone(),3);w.set_aps(1,false,None);assert!(w.adopt_aps_pose(1,d[0].atan2(d[2]),d[1].atan2(d[0].hypot(d[2]))));w.set_aps(1,true,None);
+        a.aps_traverse_mult=0.0;a.aps_elevate_mult=0.0;w.step(1.0/120.0,&[a]);
+        let out=w.aps_of(1).unwrap();let d=[out.yaw.sin()*out.pitch.cos(),out.pitch.sin(),out.yaw.cos()*out.pitch.cos()];
+        let returned=axes.map(|axis|dot(axis,d));for k in 0..3 {assert!((returned[k]-local[k]).abs()<1e-12,"zero-rate motor cannot move under rounded network basis");}
+    }
 
     #[test]
     fn fold_state_defaults_and_clamps_before_the_float_cast() {

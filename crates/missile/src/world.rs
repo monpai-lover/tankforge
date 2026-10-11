@@ -111,6 +111,10 @@ pub struct Actor {
     pub aps_pivot: Option<V3>,
     #[serde(default)]
     pub aps_base_yaw: f64,
+    /// Orthonormal world axes of the mount's parent frame. Legacy yaw-only actors
+    /// derive these from aps_base_yaw; the live hull/parent owner supplies all axes.
+    #[serde(default)]
+    pub aps_axes: Option<[V3; 3]>,
     #[serde(default = "yes")]
     pub aps_gun_ok: bool,
     #[serde(default = "yes")]
@@ -195,6 +199,10 @@ pub struct Aps {
     pub fired: u32,
     pub kills: u32,
     pub rng: Rng,
+    /// Private servo frame history. Only enabled stepping owns it; a true enable
+    /// transition begins in the current mount after the four-field pose adoption.
+    #[serde(skip)]
+    previous_axes: Option<[V3;3]>,
 }
 
 /// A bullet fired this step, for drawing.
@@ -362,6 +370,7 @@ impl World {
             fired: 0,
             kills: 0,
             rng: Rng::new(seed ^ 0x51ed_270b),
+            previous_axes: None,
         });
     }
 
@@ -377,6 +386,7 @@ impl World {
     /// The same, and the rounds left in its magazine (fired by hand while it was off).
     pub fn set_aps_rounds(&mut self, owner: u32, enabled: bool, rate_rpm: Option<f64>, rounds: Option<u32>) {
         if let Some(a) = self.aps.iter_mut().find(|a| a.owner == owner) {
+            if enabled && !a.enabled { a.previous_axes=None; }
             a.enabled = enabled;
             if let Some(r) = rate_rpm {
                 a.rate_rpm = r.clamp(a.def.rate_range_rpm[0], a.def.rate_range_rpm[1]);
@@ -389,6 +399,16 @@ impl World {
 
     pub fn aps_of(&self, owner: u32) -> Option<&Aps> {
         self.aps.iter().find(|a| a.owner == owner)
+    }
+
+    /// Transfer a held bore into an existing disabled servo without resetting its
+    /// ammunition, thermal state, selected rate, radar, or interception history.
+    pub fn adopt_aps_pose(&mut self, owner: u32, world_yaw: f64, world_pitch: f64) -> bool {
+        if !world_yaw.is_finite() || !world_pitch.is_finite() { return false; }
+        let Some(a) = self.aps.iter_mut().find(|a| a.owner == owner && !a.enabled) else { return false };
+        a.yaw = wrap(world_yaw); a.pitch = world_pitch;
+        a.yaw_cmd = a.yaw; a.pitch_cmd = a.pitch;
+        true
     }
 
     /// Advances everything by `dt` seconds; `actors` are the vehicles as they stand now.
@@ -758,6 +778,22 @@ pub fn bullet_time(r: f64, v0: f64, k: f64) -> f64 {
     }
 }
 
+fn aps_axes(actor: &Actor) -> [V3; 3] {
+    actor.aps_axes.unwrap_or_else(|| {
+        let (s, c) = actor.aps_base_yaw.sin_cos();
+        [[c, 0.0, -s], [0.0, 1.0, 0.0], [s, 0.0, c]]
+    })
+}
+
+fn aps_local_dir(actor: &Actor, world: V3) -> V3 {
+    aps_axes(actor).map(|axis| dot(axis, world))
+}
+
+fn aps_world_dir(actor: &Actor, local: V3) -> V3 {
+    let axes = aps_axes(actor);
+    [0, 1, 2].map(|k| axes[0][k]*local[0]+axes[1][k]*local[1]+axes[2][k]*local[2])
+}
+
 #[allow(clippy::too_many_arguments)]
 fn step_aps(a: &mut Aps, actor: Option<&Actor>, missiles: &[Missile], terrain: &HeightGrid, defs: &HashMap<String, MissileDef>, now: f64, h: f64, bullets: &mut Vec<Bullet>, out: &mut StepOut) {
     let me = a.owner;
@@ -975,23 +1011,42 @@ fn step_aps(a: &mut Aps, actor: Option<&Actor>, missiles: &[Missile], terrain: &
         want = yaw_pitch(sub(tr.pos, pivot));
     } else {
         // nothing in the air: the gun rests forward on the turret's bearing
-        want = (actor.aps_base_yaw, 0.0);
+        want = yaw_pitch(aps_world_dir(actor, [0.0, 0.0, 1.0]));
     }
     // limits: the depression the hull allows at this bearing, the gun's top elevation
-    let rel = wrap(want.0 - actor.aps_base_yaw);
+    let (rel, elevation) = yaw_pitch(aps_local_dir(actor, dir_of(want.0, want.1)));
     let lo = a.def.min_pitch(rel);
     let hi = a.def.max_elevation_deg.to_radians();
-    let bears = want.1 >= lo && want.1 <= hi;
-    a.yaw_cmd = want.0;
-    a.pitch_cmd = want.1.clamp(lo, hi);
+    let bears = elevation >= lo && elevation <= hi;
+    let command = yaw_pitch(aps_world_dir(actor, dir_of(rel, elevation.clamp(lo, hi))));
+    a.yaw_cmd = command.0;
+    a.pitch_cmd = command.1;
     // servos: a short lag, then no faster than their rates
     let lag = a.def.servo_lag_s.max(h);
-    let dy = wrap(a.yaw_cmd - a.yaw) * (h / lag).min(1.0);
-    let dp = (a.pitch_cmd - a.pitch) * (h / lag).min(1.0);
+    let bore=dir_of(a.yaw,a.pitch);
+    let local=match a.previous_axes {Some(axes)=>axes.map(|axis|dot(axis,bore)),None=>aps_local_dir(actor,bore)};
+    let (motor_yaw, motor_pitch) = yaw_pitch(local);
+    let dy = wrap(rel - motor_yaw) * (h / lag).min(1.0);
     let ry = a.def.traverse_deg_s.to_radians() * actor.aps_traverse_mult.clamp(0.0, 1.0) * h;
     let rp = a.def.elevate_deg_s.to_radians() * actor.aps_elevate_mult.clamp(0.0, 1.0) * h;
-    a.yaw = wrap(a.yaw + dy.clamp(-ry, ry));
-    a.pitch = (a.pitch + dp.clamp(-rp, rp)).clamp(lo, hi);
+    // Limit the command in the joint frame, then rate-limit travel. An absolute
+    // post-step clamp would teleport a held joint on a tilted hull or moving stop.
+    let yaw_step=dy.clamp(-ry,ry);
+    let mut next_yaw=wrap(motor_yaw+yaw_step);
+    let pitch_goal=elevation.clamp(lo,hi).max(a.def.min_pitch(next_yaw));
+    let dp=(pitch_goal-motor_pitch)*(h/lag).min(1.0);
+    let next_pitch=motor_pitch+dp.clamp(-rp,rp);
+    if next_pitch<a.def.min_pitch(next_yaw) {
+        // A bearing-dependent stop can narrow while traversing. Hold the yaw
+        // travel at the reachable stop while elevation catches up at its rate.
+        let (mut left,mut right)=(0.0,1.0);
+        for _ in 0..24 {let fraction=(left+right)*0.5;let yaw=wrap(motor_yaw+yaw_step*fraction);
+            if next_pitch>=a.def.min_pitch(yaw) {left=fraction;} else {right=fraction;}}
+        next_yaw=wrap(motor_yaw+yaw_step*left);
+    }
+    let advanced = yaw_pitch(aps_world_dir(actor, dir_of(next_yaw,next_pitch)));
+    a.yaw = advanced.0; a.pitch = advanced.1;
+    a.previous_axes=Some(aps_axes(actor));
     let aim_dir = dir_of(a.yaw, a.pitch);
     let laid = {
         let wd = dir_of(want.0, want.1);

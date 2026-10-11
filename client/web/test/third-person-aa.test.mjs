@@ -1,3 +1,4 @@
+import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -43,7 +44,7 @@ function rig(id = 'de_flakpz38t', realModel = false) {
     cam: {yaw:0,pitch:0,fov:50*DEG,dist:13,pivot:[0,1.8,0]}, aim: {yaw:0,pitch:0,dist:2500},
     aimPoint: [0,1.8,2500], T: lo.turrets.map(t => ({yaw:t.facing,bearing:true,yawErr:0,
       guns:t.guns.map(() => ({pitch:0,pitchErr:0}))})) };
-  const deps = {...damageApi,G, DEG, clamp, dirFrom, gunnery, ballistics, hullTilt, foldDepression, foldYawLimit, gunControlActive, ...loadout};
+  const deps = {stabilizerDrives,...damageApi,G, DEG, clamp, dirFrom, gunnery, ballistics, hullTilt, foldDepression, foldYawLimit, gunControlActive, ...loadout};
   delete deps.sightLevels;
   const live = new Function(...Object.keys(deps), `${cameraConstants}\n${preamble}\n${stabilizers}\n${functionSource('trackHull')}\n${functionSource('aimTurrets')}\n${functionSource('toggleSight')}\nreturn {aimTurrets,toggleSight};`)(...Object.values(deps));
   return {G,live,runtime};

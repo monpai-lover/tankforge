@@ -1,3 +1,5 @@
+import { Missiles } from '../src/game/missiles.js';
+import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -57,21 +59,21 @@ function controls(id, mode = 'historical') {
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
+  G.veh.netState=()=>({pos:G.veh.body.origin(),ex:G.veh.body.ex,ez:G.veh.body.ez,v:G.veh.body.v,w:G.veh.body.w,track:[0,0],rpm:0,gear:0});
   const sent = [], apsCalls = [];
-  const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
+  const core = loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
   const combat = new Combat(core, data.machineGuns), fresh = combat.fresh('control:' + id, data.vehicles[id]);
   G.combat = combat; G.combatKey = 'control:' + id; G.cstate = fresh.state; G.caps = fresh.caps;
   G.bundle = combat.prepare?.(G.combatKey, data.vehicles[id]) || data.vehicles[id];
   core.call({ op: 'mw_reset', defs: Object.values(data.missiles) });
   if (G.aps) core.call({ op: 'mw_aps', owner: ME, team: 0, def: G.aps, seed: 10 });
-  G.missiles = { setAps(owner, enabled, rate_rpm = null, rounds = null) {
-    apsCalls.push({ owner, enabled, rounds });
-    core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
-  } };
+  G.missiles = new Missiles({core,defs:data.missiles,projectiles:data.projectiles});
+  const setAps=G.missiles.setAps.bind(G.missiles);
+  G.missiles.setAps=(owner,enabled,rate_rpm=null,rounds=null)=>{apsCalls.push({owner,enabled,rounds});setAps(owner,enabled,rate_rpm,rounds);};
   const onlineAmmo=new OnlineAmmo(), selected=inventory.ammoMix(lo);
   onlineAmmo.begin({t:'ammo',ammo_protocol_version:1,battle:7,life:2,revision:1,processed_through:0,counts:selected,targets:selected,resupply_progress:0,refilled:false},lo,G.T.map(t=>t.loading));
-  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, ...inventory,
+  const deps = { G, stabilizerDrives, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, ...inventory,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     onlineFires: new OnlineFires(), onlineAmmo, net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
@@ -84,7 +86,7 @@ function controls(id, mode = 'historical') {
   const preamble = source.slice(source.indexOf('  const pose = '), source.indexOf('  // ----------------------------------------------------------------- workshop'));
   const moduleCheck = source.slice(source.indexOf('  const moduleOk ='), source.indexOf('  /** Where the protection gun'));
   const stabilizers = source.slice(source.indexOf('  const GUNNER ='), source.indexOf('  /**\n   * The hull\'s attitude'));
-  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
+  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'apsHullPose','apsFrame','heldApsPose','sendOnlineState','acceptApsPose','suspendApsPose','syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
   const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, syncApsControl, apsOf, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
   return { G, live, sent, apsCalls, snapshot, core, combat, damage: (id, health = 0) => {
@@ -99,7 +101,7 @@ function selectionRuntime(id, mode, build = loadout.PRESETS.hexa.build) {
   const G = { mode: 'garage', gameplayMode: mode, s: phys.newState(), pending: [], cam: {}, build: structuredClone(build) };
   const hud = new Proxy({}, { get: () => () => {} });
   const scene = { children: [], add(root) { this.children.push(root); } };
-  const deps = { G, data, LANG_INDEX: 0, isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }),
+  const deps = { G, stabilizerDrives, data, LANG_INDEX: 0, isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }),
     onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), scene, store: { set() {} }, STORE_VEHICLE: 'unused', ...loadout, ...performanceApi, ...inventory, ...resupply, phys, applyAmmo, AMMO_CFG: {}, loading, mgSim, gunnery,
     renderer, buildTank, VehicleSim, terrain, Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {},
     resetPose() { G.veh.place(0, 0, 0); G.veh.compat(G.s); },
@@ -199,7 +201,7 @@ test('actual MG emission cadence consumes one round and keeps heat per shot/capa
 test('actual enemy/remote selection and APS registration use locked mode descriptors', () => {
   for (const name of ['spawnEnemies', 'addRemote']) {
     const G = { id: 'su_t34_85', gameplayMode: 'casual', mode: 'battle', s: {}, enemies: [] };
-    const deps = { G, data, ENEMY_POOL: ['su_t10m'], clearEnemies() { G.enemies = []; }, rangeVehicleTargets: () => [{ id: 'su_t10m', x: 0, z: 0, heading: 0 }],
+    const deps = { G, stabilizerDrives, data, ENEMY_POOL: ['su_t10m'], clearEnemies() { G.enemies = []; }, rangeVehicleTargets: () => [{ id: 'su_t10m', x: 0, z: 0, heading: 0 }],
       ...loadout, ...performanceApi, buildTank, renderer: { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} },
       scene: { add() {} }, Enemy, terrain: ground(() => 0), onlineSpawn: () => ({ x: 0, z: 0, heading: 0 }), useCombat };
     new Function(...Object.keys(deps), `${functionSource(name)}\n${name === 'spawnEnemies' ? 'spawnEnemies()' : "addRemote({ id: 9, vehicle: 'su_t10m', team: 'red', name: 'other' })"};`)(...Object.values(deps));
@@ -219,7 +221,7 @@ test('actual start, garage choice, locked reselect/respawn and leave restore eff
   Object.assign(G, { thumbs: [], mapId: 'range', maps: new Map(), enemies: [], keys: new Set() });
   const elements = new Map(), document = { body: { dataset: {} }, getElementById(id) { if (!elements.has(id)) elements.set(id, {}); return elements.get(id); } };
   const hud = new Proxy({}, { get: () => () => {} });
-  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, GAMEPLAY_UPDATE_NEEDED, data, document, hud, sound: {}, canvas: {},
+  const deps = { G, stabilizerDrives, gameplay, GAMEPLAY_RULES_VERSION, GAMEPLAY_UPDATE_NEEDED, data, document, hud, sound: {}, canvas: {},
     select: () => G.selectAgain(), isDesign: () => false, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {},
     useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, missileBattleStart() {}, updateNetHud() {},
     mapName: () => 'range', deploy: { close() {} }, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies = []; }, hitcam: { hide() {} }, measureInsets() {}, net: { send() {} },onlineAmmo:new OnlineAmmo() };
@@ -273,7 +275,7 @@ test('actual player and bot missile launch paths emit scaled tube intervals and 
     Object.assign(G, { mode: 'battle', time: 0, guided: [], T: [{ yaw: 0, guns: [{ pitch: 0 }], loading: loading.newLoading(1, 1) }] });
     const emissions = [], mdef = data.missiles[g.def.missile];
     G.missiles = { ready: true, nodes: new Map(), guide() {}, launch(...args) { emissions.push({ at: G.time, args }); return emissions.length; } };
-    const deps = { G, data, ME, DEG, rng: { nextF32: () => .5 }, ...loadout, ...damageApi, launcherCanFire,
+    const deps = { G, stabilizerDrives, data, ME, DEG, rng: { nextF32: () => .5 }, ...loadout, ...damageApi, launcherCanFire,
       playerMiddle: () => [0, 2.7, 500], enemyOwner: () => 100, enemyYaws: e => [e.turretYaw || 0], enemyPose: () => ({ pos: [0, 0, 0], heading: 0 }),
       mountFor: (lo, yaws, ti) => ({ pivot: lo.turrets[ti].pivot, trunnion: lo.turrets[ti].guns[0].trunnion }),
       losHit: () => null, loading, gunnery, hud: { toast() {} } };

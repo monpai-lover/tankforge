@@ -1,5 +1,5 @@
 // Local native→browser integration. Generate the receipt explicitly:
-// TG_GAMEPLAY_NETWORK_RECEIPT=<repo>/target/gameplay-network.json cargo test -p tg-server browser_protocol_receipt_from_actual_handlers --lib
+// TG_GAMEPLAY_NETWORK_RECEIPT=<repo>/target/weapon-control-gameplay-network.json cargo test -p tg-server browser_protocol_receipt_from_actual_handlers --lib
 // node --test client/web/test/gameplay-network.test.mjs
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -26,10 +26,10 @@ import * as resupply from '../src/game/ammoResupply.js';
 import { runtime } from './live-network-rig.mjs';
 
 const root = new URL('../../../', import.meta.url);
-const receiptPath = process.env.TG_GAMEPLAY_NETWORK_RECEIPT || new URL('target/gameplay-network.json', root);
+const receiptPath = process.env.TG_GAMEPLAY_NETWORK_RECEIPT || new URL('target/weapon-control-gameplay-network.json', root);
 assert.ok(fs.existsSync(receiptPath), 'Generate the actual native handler receipt before this suite');
 const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
-assert.deepEqual(Object.keys(receipt.sources).sort(), ['crates/server/src/lobby.rs','crates/server/src/gameplay.rs','crates/server/src/server.rs','crates/server/src/missiles.rs','crates/server/src/gameplay_tests.rs','crates/gameplay/src/lib.rs','Cargo.toml','crates/server/Cargo.toml','crates/gameplay/Cargo.toml','config/gameplay-modes.json','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs'].sort(), 'Every source/config tag is mandatory');
+assert.deepEqual(Object.keys(receipt.sources).sort(), ['crates/server/src/lobby.rs','crates/server/src/gameplay.rs','crates/server/src/server.rs','crates/server/src/missiles.rs','crates/server/src/gameplay_tests.rs','crates/gameplay/src/lib.rs','Cargo.toml','crates/server/Cargo.toml','crates/gameplay/Cargo.toml','config/gameplay-modes.json','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs','crates/design-wasm/src/lib.rs','crates/missile/src/tests.rs','config/stabilizer-drives.json'].sort(), 'Every source/config tag is mandatory');
 for (const [path, bytes] of Object.entries(receipt.sources)) assert.ok(fs.readFileSync(new URL(path, root), 'utf8') === bytes, `Stale native receipt: ${path}`);
 const data = loadData();
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');

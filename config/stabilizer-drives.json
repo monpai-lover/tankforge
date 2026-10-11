@@ -1,0 +1,5 @@
+{
+  "none": { "traverse_deg_s": 0, "elevate_deg_s": 0 },
+  "vertical": { "traverse_deg_s": 0, "elevate_deg_s": 9 },
+  "two_plane": { "traverse_deg_s": 50, "elevate_deg_s": 50 }
+}

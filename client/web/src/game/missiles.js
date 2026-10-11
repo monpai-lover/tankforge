@@ -126,6 +126,10 @@ export class Missiles {
     if (this.core) this.core.call({ op: 'mw_aps', owner, enabled, rate_rpm: rateRpm, rounds });
   }
 
+  adoptApsPose(owner, yaw, pitch) {
+    return !!(this.core && this.core.call({ op: 'mw_aps_pose', owner, yaw, pitch }).adopted);
+  }
+
   removeAps(owner) {
     if (this.core) this.core.call({ op: 'mw_aps', owner, remove: true });
     this.aps.delete(owner);

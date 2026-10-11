@@ -12,7 +12,8 @@ fn loaded() -> (crate::server::CombatData, crate::missiles::MissileData) {
 fn mix(v: Value) -> AmmoMix {
     serde_json::from_value(v).unwrap()
 }
-fn send(l: &mut Lobby, id: u32, v: Value, now: f64) -> Out {
+fn send(l: &mut Lobby, id: u32, mut v: Value, now: f64) -> Out {
+    if v["t"]=="state" {super::gameplay_tests::fixture_state(l,id,&mut v["s"],now);}
     l.handle(id, serde_json::from_value(v).unwrap(), now)
 }
 fn message(out: &Out, id: u32, kind: &str) -> Value {
@@ -22,7 +23,7 @@ fn message(out: &Out, id: u32, kind: &str) -> Value {
         .find(|m| m["t"] == kind)
         .unwrap_or(Value::Null)
 }
-fn real_lobby() -> Lobby {
+pub(super) fn real_lobby() -> Lobby {
     let (c, m) = loaded();
     let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
     let (shells, vehicles, maps) = crate::server::load_catalog(&path);
@@ -118,13 +119,56 @@ pub(super) fn source_tags() -> Value {
         "crates/server/src/ammo.rs":include_str!("ammo.rs"),
         "crates/server/src/ammo_tests.rs":include_str!("ammo_tests.rs"),
         "config/ammo-resupply.json":include_str!("../../../config/ammo-resupply.json"),
+        "config/stabilizer-drives.json":include_str!("../../../config/stabilizer-drives.json"),
         "crates/combat/src/lib.rs":include_str!("../../combat/src/lib.rs"),
         "crates/combat/src/weapon_damage.rs":include_str!("../../combat/src/weapon_damage.rs"),
         "crates/missile/src/world.rs":include_str!("../../missile/src/world.rs"),
         "crates/missile/src/def.rs":include_str!("../../missile/src/def.rs")
+        ,"crates/design-wasm/src/lib.rs":include_str!("../../design-wasm/src/lib.rs")
+        ,"crates/missile/src/tests.rs":include_str!("../../missile/src/tests.rs")
     })
 }
-fn broadcast_out(out: Broadcast) -> Out {
+
+pub(super) fn actual_short_aps_receipts() -> Value {
+    let mut scenarios=serde_json::Map::new();
+    for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {
+        let mut l=real_lobby().with_points(HashMap::from([("coast".into(),vec![CapPoint{id:"A".into(),x:0.0,z:0.0,r:45.0}])]));
+        let id=connected(&mut l);let mut phases=serde_json::Map::new();
+        record(&mut phases,"welcome",send(&mut l,id,json!({"t":"hello","name":"seven","gameplay_rules_version":1,"ammo_protocol_version":1}),0.0));
+        record(&mut phases,"create",send(&mut l,id,json!({"t":"create","name":"seven","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),0.0));
+        let room=l.players[&id].room.unwrap();record(&mut phases,"start",send(&mut l,id,json!({"t":"start"}),0.0));
+        let catalog=AmmoCatalog::from_target(&l.targets[vehicle],l.mdata.aps.get(vehicle)).unwrap();let mut selected=catalog.validate_mix(None).unwrap();selected.get_mut("gun:1:0").unwrap().fill(0);selected.get_mut("gun:1:0").unwrap()[0]=7;
+        record(&mut phases,"deploy",send(&mut l,id,json!({"t":"deploy","vehicle":vehicle,"ammo_mix":selected}),0.0));
+        record(&mut phases,"initial_state",send(&mut l,id,json!({"t":"state","s":{"pos":[0,0,0]}}),0.0));capture(&mut l,id,room);
+        record(&mut phases,"automatic",broadcast_out(l.tick_at(0.0)));
+        record(&mut phases,"disable",send(&mut l,id,json!({"t":"aps","enabled":false}),0.0));
+        let shell=catalog.guns["gun:1:0"].ammo[0].clone();let mut shots=Vec::new();
+        for seq in 1..=7 {let out=fire(&mut l,id,seq,"gun:1:0",&shell,0.0);assert!(!message(&out,id,"fire_accepted").is_null());shots.extend(out);}
+        record(&mut phases,"manual",shots);assert_eq!(l.players[&id].ammo.as_ref().unwrap().counts["gun:1:0"].iter().sum::<u32>(),0);
+        record(&mut phases,"empty_state",send(&mut l,id,json!({"t":"state","s":{"pos":[0,0,0],"t":0.001}}),0.0));
+        record(&mut phases,"enable_empty",send(&mut l,id,json!({"t":"aps","enabled":true}),0.0));record(&mut phases,"empty_active",broadcast_out(l.tick_at(0.0)));
+        for i in 1..=20 {let now=i as f64*0.25;let heading=0.4*i as f64/20.0;let yaw=0.5*i as f64/20.0;
+            send(&mut l,id,json!({"t":"state","s":{"pos":[0,0,0],"ex":[heading.cos(),0,-heading.sin()],"ez":[heading.sin(),0,heading.cos()],"tur":[[yaw,0],[yaw,0]],"t":now}}),now);
+            let out=l.tick_at(now);if i==20 {record(&mut phases,"grant",broadcast_out(out));}}
+        assert_eq!(l.players[&id].ammo.as_ref().unwrap().counts["gun:1:0"],selected["gun:1:0"]);let until=l.players[&id].aps_reload_until.unwrap();
+        record(&mut phases,"request_ready",send(&mut l,id,json!({"t":"aps","enabled":true}),5.0));
+        let heading: f64=0.4;let scope=l.ammo_scope(id);let held=json!({"pos":[0,0,0],"ex":[heading.cos(),0,-heading.sin()],"ez":[heading.sin(),0,heading.cos()],"tur":[[0.5,0],[0.5,0]],"ammo_scope":scope,"aps_instance":"gun:1:0","t":until-0.01});
+        record(&mut phases,"held_state",send(&mut l,id,json!({"t":"state","s":held.clone()}),until-0.01));record(&mut phases,"before_ready",broadcast_out(l.tick_at(until-0.01)));
+        assert!(!l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().enabled);
+        record(&mut phases,"ready",broadcast_out(l.tick_at(until)));assert!(l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().enabled);
+        let a=l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap();assert!((a.yaw-0.9).abs()<1e-8&&a.pitch.abs()<1e-8);assert_eq!(a.rounds,7);
+        record(&mut phases,"after_ready",broadcast_out(l.tick_at(until+0.05)));
+        scenarios.insert(format!("{vehicle}_{mode}"),json!({"vehicle":vehicle,"mode":mode,"owner":id,"selected":selected,"held":held,"ready_at":until,"phases":phases}));
+    }}json!(scenarios)
+}
+
+#[test]
+fn aps_pose_seven_round_refill_requires_a_fresh_readiness_barrier() {
+    let scenarios=actual_short_aps_receipts();for s in scenarios.as_object().unwrap().values() {
+        assert!(s["phases"]["ready"].as_array().unwrap().iter().any(|entry|entry[0]==s["owner"]&&entry[1]["t"]=="aps_pose"),"actual reload readiness must publish its accepted pose barrier");
+    }
+}
+pub(super) fn broadcast_out(out: Broadcast) -> Out {
     out.into_iter()
         .flat_map(|(to, msg)| to.into_iter().map(move |id| (id, msg.clone())))
         .collect()
@@ -475,6 +519,7 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
             .unwrap()
             .enabled
     );
+    pose(&mut l,id,until,0.0,0.0);
     record(&mut phases, "ready", broadcast_out(l.tick_at(until)));
     assert!(
         l.rooms[&room]
@@ -973,7 +1018,7 @@ fn browser_ammo_resupply_receipt_from_actual_handlers() {
         std::fs::write(
             path,
             serde_json::to_vec(
-                &json!({"ammo_protocol_version":1,"sources":source_tags(),"scenarios":scenarios}),
+                &json!({"ammo_protocol_version":1,"sources":source_tags(),"scenarios":scenarios,"aps_handoffs":super::gameplay_tests::actual_aps_handoffs(),"aps_readiness":super::gameplay_tests::actual_aps_readiness(),"aps_short":actual_short_aps_receipts(),"aps_gyro":super::gameplay_tests::actual_aps_gyro(),"aps_suspensions":super::gameplay_tests::actual_aps_suspensions(),"aps_quantization":super::gameplay_tests::actual_aps_quantization()}),
             )
             .unwrap(),
         )
@@ -1539,6 +1584,7 @@ fn ammo_resupply_empty_oplot_waits_for_trusted_source_belt_cycle() {
                     .unwrap()
                     .enabled
             );
+            pose(&mut l,id,5.0+seconds,0.0,0.0);
             l.tick_at(5.0 + seconds);
             assert!(
                 l.rooms[&room]
@@ -1645,6 +1691,7 @@ fn ammo_resupply_oplot_reload_preserves_off_intent_and_damage_adjusts_remaining_
                     .enabled,
                 "reload completion preserves explicit off intent"
             );
+            pose(&mut l,id,until,0.0,0.0);
             send(&mut l, id, json!({"t":"aps","enabled":true}), until);
             assert!(
                 l.rooms[&room]

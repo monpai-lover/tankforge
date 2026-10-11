@@ -69,6 +69,7 @@ import * as ballistics from './sim/ballistics.js';
 import * as loading from './sim/loading.js';
 import * as mgSim from './sim/mg.js';
 import { Rng } from './sim/rng.js';
+import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 
 const DEG = Math.PI / 180;
 const SIM_DT = 1 / 120;
@@ -804,6 +805,10 @@ export function start(data, saved = {}) {
         e.interior = buildInterior(renderer, e.model, e.loadout, e.bundle.modules || [], e.bundle.crew || []);
       }
     }
+    if (G.missiles && !G.missiles.ready && G.combat.core) {
+      G.missiles.core=G.combat.core;
+      if (G.mode==='battle' && G.veh) missileBattleStart(!!(G.online && onlineAmmo.scope()));
+    }
   }
 
   // vectors in the data files are {x, y, z}; some generated ones are [x, y, z]
@@ -1053,7 +1058,7 @@ export function start(data, saved = {}) {
     // ... and flies missiles and rockets and the active protection that shoots at them (crates/missile)
     G.missiles = new Missiles({ core: c, defs: data.missiles, projectiles: data.projectiles, renderer, scene, fx, sound });
     G.missiles.onGround = (pt, def, owner) => missileGround(pt, def, owner);
-    if (G.mode === 'battle' && G.veh) missileBattleStart();
+    if (G.mode === 'battle' && G.veh) missileBattleStart(!!(G.online && onlineAmmo.scope()));
     refreshDesigns();
   });
 
@@ -1924,7 +1929,17 @@ export function start(data, saved = {}) {
     o.sendAcc += dt;
     if (o.sendAcc < 1 / SEND_HZ) return;
     o.sendAcc = Math.min(o.sendAcc - 1 / SEND_HZ, 1 / SEND_HZ);
+    sendOnlineState();
+  }
+
+  /** Existing State encoding, force-published before an automatic ownership request. */
+  function sendOnlineState(transition = null) {
+    const o = G.online;
+    if (!o || o.dead || o.benched || G.mode !== 'battle' || !G.veh) return null;
     const ns = G.veh.netState();
+    const stateT = Math.max(Math.round(performance.now()) / 1000, (o.stateT ?? -Infinity) + .001);
+    o.stateT = stateT;
+    if (transition) transition.state_t = stateT;
     const r = (k) => (v) => Math.round(v * k) / k;
     net.send({
       t: 'state',
@@ -1939,10 +1954,13 @@ export function start(data, saved = {}) {
         gear: ns.gear,
         tur: G.T.map((t) => [r(1e4)(t.yaw), r(1e4)(t.guns[0] ? t.guns[0].pitch : 0)]),
         fold: r(1e4)(G.fold?.pose || 0),
-        t: r(1000)(performance.now() / 1000),
+        t: stateT,
+        ammo_scope: onlineAmmo.scope(),
+        aps_instance: G.aps ? G.loadout.turrets[G.aps.turret ?? 1].guns[0].damageKey : undefined,
         steer: ns.steer != null ? r(1000)(ns.steer) : undefined,
       },
     });
+    return stateT;
   }
 
   /** The first building, bunker, wall or hedgehog the segment p0 -> p1 meets on a battle map. */
@@ -2058,6 +2076,7 @@ export function start(data, saved = {}) {
     }
     updateNetHud(true);
   });
+  net.on('aps_pose', acceptApsPose);
   net.on('snap', (m) => {
     const o = G.online;
     if (!o || G.mode !== 'battle') return;
@@ -2102,6 +2121,7 @@ export function start(data, saved = {}) {
       if(!onlineLaunches.has(g)&&roundsLeft(g)===0){G.T[ti].loading.state[gi]='empty';g.loaded=-1;syncGunShell(g);}
       if(G.model.payload)G.model.payload(ti,gi,g.launcher.ready);
     }
+    if (m.refilled && G.aps && G.T[G.aps.turret ?? 1].loading.state[0]!=='ready') suspendApsPose();
   });
   net.on('fire_accepted', m => {
     const scope=currentAmmoScope(m);if(!scope)return;
@@ -2292,10 +2312,12 @@ export function start(data, saved = {}) {
   });
   // the connection dropped in a battle: the game goes on while the client takes the seat back
   net.on('reconnecting', () => {
+    if (G.online) {G.online.apsPose=null;G.online.apsControlDesired=null;}
     G.resupplyProgress=0;cqMsg.textContent='';
     if (G.online) hud.toast('與伺服器的連線中斷，重新連線中…', 18);
   });
   net.on('resumed', () => {
+    syncApsControl();
     if (G.online) {
       retryPendingLaunches(true);
       hud.toast('已重新連線', 2.5);
@@ -2443,6 +2465,8 @@ export function start(data, saved = {}) {
   function missileVehicle() {
     if (!G.missiles) return;
     G.missiles.removeAps(ME);
+    G.apsNativeEnabled = false;
+    if (G.online) {G.online.apsControlDesired=null;G.online.apsPose=null;}
     G.aps = G.loadout?.weapons?.aps || null;
     if (G.aps) {
       G.missiles.addAps(ME, 0, G.aps, 3);
@@ -2495,15 +2519,92 @@ export function start(data, saved = {}) {
     return !!(G.aps && G.apsOn && G.weaponControl.kind === 'all');
   }
 
+  /** APS uses the same orthonormal hull axes as the rendered rigid body. */
+  function apsHullPose() {
+    const b = G.veh?.body;
+    return b ? { pos: b.origin(), ex: b.ex, ey: b.ey, ez: b.ez } : null;
+  }
+
+  function apsFrame(ps, parentYaw = 0) {
+    const ex = ps.ex || gunnery.rotateYaw([1, 0, 0], ps.heading || 0);
+    const ey = ps.ey || [0, 1, 0], ez = ps.ez || gunnery.rotateYaw([0, 0, 1], ps.heading || 0);
+    const world = v => [0, 1, 2].map(k => ex[k] * v[0] + ey[k] * v[1] + ez[k] * v[2]);
+    return [world(gunnery.rotateYaw([1, 0, 0], parentYaw)), ey.slice(), world(gunnery.rotateYaw([0, 0, 1], parentYaw))];
+  }
+
+  function heldApsPose() {
+    const ti = G.aps.turret ?? 1, t = G.loadout.turrets[ti], rt = G.T[ti], ps = apsHullPose();
+    if (!ps || !rt) return null;
+    const seen=new Set();let joint=ti;
+    while (joint!=null) {
+      if (seen.has(joint)) return null;seen.add(joint);
+      const source=G.loadout.turrets[joint], state=G.T[joint];
+      if (!source || !state || !state.guns[0]) return null;
+      const parent=source.parent!=null ? G.T[source.parent]?.yaw : 0;
+      const motor=gunnery.wrapPi(state.yaw-parent), elevation=state.guns[0].pitch;
+      if (![motor,elevation,parent].every(Number.isFinite)) return null;
+      const offset=gunnery.wrapPi(motor-source.facing),gun=source.guns[0].def;
+      if (source.limit && (offset<source.limit[0]-1e-8 || offset>source.limit[1]+1e-8)) return null;
+      if (elevation < -depressionAt(source,motor,gun.max_depression_deg)*DEG-1e-8 || elevation>gun.max_elevation_deg*DEG+1e-8) return null;
+      joint=source.parent;
+    }
+    const parentYaw = t.parent != null ? G.T[t.parent].yaw : 0;
+    const axes = apsFrame(ps, parentYaw), local = gunnery.gunDirLocal({ yaw: gunnery.wrapPi(rt.yaw - parentYaw), pitch: rt.guns[0].pitch });
+    const d = [0, 1, 2].map(k => axes[0][k] * local[0] + axes[1][k] * local[1] + axes[2][k] * local[2]);
+    if (!d.every(Number.isFinite)) return null;
+    return { yaw: Math.atan2(d[0], d[2]), pitch: Math.atan2(d[1], Math.hypot(d[0], d[2])) };
+  }
+
   function syncApsControl() {
-    if (G.mode !== 'battle' || !G.aps || !G.missiles) return;
+    if (!G.aps || !G.missiles) return;
+    const desired = apsAutomatic();
+    if (G.online && !desired) {
+      G.online.apsPose=null;G.online.apsControlDesired=false;net.send({t:'aps',enabled:false});
+    }
+    if (G.mode !== 'battle') return;
     const ti = G.aps.turret ?? 1;
     const g = G.loadout.turrets[ti].guns[0];
-    const desired = apsAutomatic();
     // The normal disabled path cools/spins down and clears tracks for later reacquisition.
     const enabled = desired && G.T[ti].loading.state[0] === 'ready';
+    if (G.apsNativeEnabled !== true || !enabled) {
+      // addAps starts enabled. Every first startup transfers the real held bore.
+      G.missiles.setAps(ME, false);
+      G.apsNativeEnabled=false;
+      const held = heldApsPose();
+      if (!held || !G.missiles.adoptApsPose(ME, held.yaw, held.pitch)) return;
+    }
     G.missiles.setAps(ME, enabled, null, roundsLeft(g));
-    if (G.online) net.send({ t: 'aps', enabled: desired });
+    G.apsNativeEnabled = enabled;
+    if (G.online) {
+      const o=G.online;
+      if (desired && o.apsControlDesired!==true) {
+        // Life admission precedes map/core readiness. Keep the life and inventory
+        // while waiting; the actual startup invokes this same owner when ready.
+        if (o.dead || o.benched || !G.missiles.ready || !net.open || !onlineAmmo.scope()) return;
+        const scope=onlineAmmo.scope(), pending={sortie:o,scope:{...scope},instance:g.damageKey,state_t:null,barrier:null};
+        o.apsPose=pending;o.apsControlDesired=true;
+        if (sendOnlineState(pending)==null) {o.apsControlDesired=null;o.apsPose=null;return;}
+        net.send({t:'aps',enabled:true});
+      }
+    }
+  }
+
+  function acceptApsPose(m) {
+    const o=G.online,p=o?.apsPose,scope=onlineAmmo.scope();
+    if (!p || p.sortie!==o || !apsAutomatic() || o.dead || o.benched || !scope
+      || m.instance!==p.instance || m.request_t!==p.state_t || m.transport!==net.token
+      || m.ammo_scope?.battle!==scope.battle || m.ammo_scope?.life!==scope.life
+      || p.scope.battle!==scope.battle || p.scope.life!==scope.life
+      || !Number.isSafeInteger(m.tick) || m.tick<0 || ![m.yaw,m.pitch,m.parent_yaw,m.state_t].every(Number.isFinite)
+      || m.state_t<p.state_t) return;
+    if (p.barrier!=null) return;
+    p.barrier=m.tick;
+  }
+
+  function suspendApsPose() {
+    if (!G.online || !apsAutomatic()) return;
+    G.online.apsPose=null;G.online.apsControlDesired=null;
+    syncApsControl();
   }
 
   function toggleAps() {
@@ -2523,7 +2624,7 @@ export function start(data, saved = {}) {
     const cur = G.apsState ? G.apsState.rate_rpm : G.aps.rate_rpm;
     const next = cur >= hi - 1 ? lo : Math.min(hi, cur + 1000);
     const ti = G.aps.turret ?? 1;
-    G.missiles.setAps(ME, apsAutomatic() && G.T[ti].loading.state[0] === 'ready', next);
+    G.missiles.setAps(ME, G.apsNativeEnabled===true && apsAutomatic() && G.T[ti].loading.state[0] === 'ready', next);
     if (G.online) net.send({ t: 'aps', enabled: apsAutomatic(), rate: next });
     hud.toast(`${G.aps.name} 射速 ${next} 發/分`, 1.5);
   }
@@ -2550,8 +2651,11 @@ export function start(data, saved = {}) {
   function apsOf(actor, aps, lo, yaws, ps, bundle, cstate, caps) {
     if (!aps) return;
     const ti = aps.turret ?? 1;
-    actor.aps_pivot = gunnery.muzzleWorld(ps, mountFor(lo, yaws, ti), { yaw: yaws[ti] || 0, pitch: 0 }).trunnion;
-    actor.aps_base_yaw = ps.heading + (yaws[lo.turrets[ti].parent ?? 0] || 0);
+    const parentYaw = lo.turrets[ti].parent != null ? yaws[lo.turrets[ti].parent] || 0 : 0;
+    const axes = apsFrame(ps, 0), local = gunnery.muzzleLocal(mountFor(lo, yaws, ti), { yaw: yaws[ti] || 0, pitch: 0 }).trunnion;
+    actor.aps_pivot = [0, 1, 2].map(k => ps.pos[k] + axes[0][k] * local[0] + axes[1][k] * local[1] + axes[2][k] * local[2]);
+    actor.aps_base_yaw = (ps.heading || 0) + parentYaw;
+    actor.aps_axes = apsFrame(ps, parentYaw);
     const damage = weaponDamage(caps, lo.turrets[ti].guns[0].damageKey);
     actor.aps_gun_ok = damage.can_fire && moduleOk(bundle, cstate, aps.gun_module);
     actor.aps_traverse_mult = damage.traverse_mult;
@@ -2580,7 +2684,7 @@ export function start(data, saved = {}) {
     });
     const actors = [];
     const mine = { id: ME, team: 0, alive: !(G.caps && G.caps.destroyed), center: playerMiddle(), vel: G.veh.body.v.slice() };
-    apsOf(mine, G.aps, G.loadout, G.T.map((t) => t.yaw), pose(), G.bundle, G.cstate, G.caps);
+    apsOf(mine, G.aps, G.loadout, G.T.map((t) => t.yaw), apsHullPose(), G.bundle, G.cstate, G.caps);
     actors.push(mine);
     (G.enemies || []).forEach((e, i) => {
       const o = e.veh.body.origin();
@@ -2635,11 +2739,16 @@ export function start(data, saved = {}) {
     G.missiles.present(res, 1 / 20);
     if (!G.aps) return;
     const b = G.bundle || data.vehicles[G.id];
+    const currentTick=Number.isSafeInteger(m.tick) && m.tick>=(G.online?.apsLatestTick ?? -Infinity);
+    if (currentTick && G.online) G.online.apsLatestTick=m.tick;
     const mine = { aps_gun_ok: weaponDamage(G.caps, G.loadout.turrets[G.aps.turret ?? 1].guns[0].damageKey).can_fire && moduleOk(b, G.cstate, G.aps.gun_module), aps_radar_ok: moduleOk(b, G.cstate, G.aps.radar_module) };
     // our own system, as the server runs it
     const own = res.aps.filter((a) => a.owner === net.id).map((a) => ({ ...a, owner: ME }));
     const evs = res.events.filter((e) => e.aps === net.id).map((e) => ({ ...e, aps: ME }));
-    applyAps({ aps: own, events: evs }, mine);
+    const barrier=G.online?.apsPose;
+    const suspended=currentTick && barrier?.barrier!=null && m.tick>barrier.barrier && own.some(a=>!a.enabled);
+    applyAps({ aps: own, events: evs, tick: m.tick, poseTickCurrent:currentTick }, mine);
+    if (suspended) suspendApsPose();
   }
 
   function applyAps(res, mine) {
@@ -2648,10 +2757,15 @@ export function start(data, saved = {}) {
       if (a.owner === ME && G.aps) {
         const ti = G.aps.turret ?? 1;
         const g = G.loadout.turrets[ti].guns[0];
-        if (apsAutomatic() && a.enabled && a.mode !== 'dead') {
+        const barrier=G.online?.apsPose;
+        const owned=!G.online || (res.poseTickCurrent===true && barrier?.sortie===G.online && barrier.barrier!=null && Number.isSafeInteger(res.tick) && res.tick>barrier.barrier
+          && onlineAmmo.scope()?.battle===barrier.scope.battle && onlineAmmo.scope()?.life===barrier.scope.life && !G.online.dead && !G.online.benched);
+        if (owned && apsAutomatic() && a.enabled && a.mode !== 'dead') {
           // the system lays its own turret (its yaw is kept in the hull frame, as every turret's)
-          G.T[ti].yaw = gunnery.wrapPi(a.yaw - G.s.heading);
-          G.T[ti].guns[0].pitch = a.pitch;
+          const ps = apsHullPose(), axes = apsFrame(ps, 0), d = dirFrom(a.yaw, a.pitch);
+          const local = axes.map(axis => axis.reduce((sum, v, k) => sum + v * d[k], 0));
+          G.T[ti].yaw = Math.atan2(local[0], local[2]);
+          G.T[ti].guns[0].pitch = Math.atan2(local[1], Math.hypot(local[0], local[2]));
           if (a.firing && Math.random() < 0.5) G.cam.shake = Math.min(0.5, G.cam.shake + 0.05);
         }
         // Automatic and manual control share the same magazine. A snapshot can
@@ -3989,9 +4103,9 @@ export function start(data, saved = {}) {
   const STABILIZER = {
     none: {},
     // M4A3 Westinghouse gyro: elevation only, a coarse match and a slow hydraulic drive
-    vertical: { ff: 0.85, tiltTau: 0.10, servo: 0.05, elev: 9 * DEG },
+    vertical: { ff: 0.85, tiltTau: 0.10, servo: 0.05, elev: stabilizerDrives.vertical.elevate_deg_s * DEG },
     // post-war two-plane: well matched gyros, electro-hydraulic drives in both planes
-    two_plane: { ff: 0.98, tiltTau: 0.04, servo: 0.02, elev: 50 * DEG, yawFf: 0.98, yawTau: 0.05, trav: 50 * DEG },
+    two_plane: { ff: 0.98, tiltTau: 0.04, servo: 0.02, elev: stabilizerDrives.two_plane.elevate_deg_s * DEG, yawFf: 0.98, yawTau: 0.05, trav: stabilizerDrives.two_plane.traverse_deg_s * DEG },
   };
 
   /**

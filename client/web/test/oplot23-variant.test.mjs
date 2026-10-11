@@ -1,3 +1,5 @@
+import { Missiles } from '../src/game/missiles.js';
+import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -67,21 +69,21 @@ function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
     aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulses: [], impulse(j, p) { this.impulses.push({j,p}); this.body.applyImpulseAt(j, p); }, worldPoint(p) { return this.body.worldPoint(p); } },
   };
+  G.veh.netState=()=>({pos:G.veh.body.origin(),ex:G.veh.body.ex,ez:G.veh.body.ez,v:G.veh.body.v,w:G.veh.body.w,track:[0,0],rpm:0,gear:0});
   const sent = [], apsCalls = [];
-  const core = loadCoreSync(fs.readFileSync(new URL('../assets/tg_design.wasm', import.meta.url)),
+  const core = loadCoreSync(fs.readFileSync(process.env.TG_TEST_WASM || new URL('../assets/tg_design.wasm', import.meta.url)),
     { materials: data.materials, catalog: data.designCatalog, terrains: Object.values(data.terrains) });
   const combat = new Combat(core, data.machineGuns), fresh = combat.fresh('control:' + id, data.vehicles[id]);
   G.combat = combat; G.combatKey = 'control:' + id; G.cstate = fresh.state; G.caps = fresh.caps;
   G.bundle = combat.prepare?.(G.combatKey, data.vehicles[id]) || data.vehicles[id];
   core.call({ op: 'mw_reset', defs: Object.values(data.missiles) });
   if (G.aps) core.call({ op: 'mw_aps', owner: ME, team: 0, def: G.aps, seed: 10 });
-  G.missiles = { setAps(owner, enabled, rate_rpm = null, rounds = null) {
-    apsCalls.push({ owner, enabled, rounds });
-    core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
-  } };
+  G.missiles = new Missiles({core,defs:data.missiles,projectiles:data.projectiles});
+  const setAps=G.missiles.setAps.bind(G.missiles);
+  G.missiles.setAps=(owner,enabled,rate_rpm=null,rounds=null)=>{apsCalls.push({owner,enabled,rounds});setAps(owner,enabled,rate_rpm,rounds);};
   const onlineAmmo=new OnlineAmmo(), selected=ammoMix(lo);
   onlineAmmo.begin({t:'ammo',ammo_protocol_version:1,battle:7,life:2,revision:1,processed_through:0,counts:selected,targets:selected,resupply_progress:0,refilled:false},lo,G.T.map(t=>t.loading));
-  const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
+  const deps = { G, stabilizerDrives, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng,
     onlineFires: new OnlineFires(), onlineAmmo, net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
@@ -94,7 +96,7 @@ function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
   const preamble = source.slice(source.indexOf('  const pose = '), source.indexOf('  // ----------------------------------------------------------------- workshop'));
   const moduleCheck = source.slice(source.indexOf('  const moduleOk ='), source.indexOf('  /** Where the protection gun'));
   const stabilizers = source.slice(source.indexOf('  const GUNNER ='), source.indexOf('  /**\n   * The hull\'s attitude'));
-  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
+  const functions = ['cycleSightGun', 'trigger', 'fireGun', 'layMg', 'sightMuzzle', 'stepMachineGuns', 'hitEnemy', 'wireShot', 'updateBullets', 'currentLos', 'applyAps', 'toggleAps', 'apsAutomatic', 'apsHullPose','apsFrame','heldApsPose','sendOnlineState','acceptApsPose','suspendApsPose','syncApsControl', 'mountFor', 'apsOf', 'trackHull', 'aimTurrets'].map(functionSource).join('\n');
   const live = new Function(...Object.keys(deps), `${preamble}\n${moduleCheck}\n${stabilizers}\n${functions}\nreturn {cycleSightGun, trigger, fireGun, layMg, sightMuzzle, stepMachineGuns, updateBullets, currentLos, applyAps, toggleAps, syncApsControl, apsOf, aimTurrets};`)(...Object.values(deps));
   const snapshot = () => core.call({ op: 'mw_step', dt: 1 / 60, actors: [] }).aps[0];
   return { G, live, sent, apsCalls, snapshot, core, combat, damage: (id, health = 0) => {

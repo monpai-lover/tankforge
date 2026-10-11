@@ -331,6 +331,9 @@ pub enum ServerMsg {
     FireAccepted { seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope },
     FireRejected { seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope, reason: String },
     Ammo { #[serde(flatten)] inventory: AmmoFrame },
+    /// Ordered ownership barrier; ammunition and prediction revisions are untouched.
+    ApsPose { instance: String, #[serde(rename="ammo_scope")] scope: AmmoScope, transport: String, request_t: f64, state_t: f64, tick: u64,
+        yaw: f64, pitch: f64, parent_yaw: f64, ex: [f64;3], ey: [f64;3], ez: [f64;3] },
     Damage {
         target: u32,
         from: u32,
@@ -398,6 +401,14 @@ pub struct Player {
     ammo_racks_dirty: bool,
     deployment_spawn: Option<u32>,
     aps_desired_enabled: bool,
+    accepted_aps_pose: Option<crate::missiles::AcceptedApsPose>,
+    aps_pose_valid: bool,
+    aps_pose_automatic_until: Option<f64>,
+    aps_pose_request_t: Option<f64>,
+    aps_pose_observed_t: Option<f64>,
+    aps_pose_needs_request: bool,
+    aps_pose_transport_reset: bool,
+    aps_pending_pose_ack: Option<ServerMsg>,
     aps_reload_until: Option<f64>,
     aps_reload_remaining: f64,
     aps_reload_updated_at: f64,
@@ -659,7 +670,7 @@ impl Lobby {
         let token = self.new_token(id);
         self.players.insert(
             id,
-            Player { deployment_spawn:None, ammo_racks_dirty:false, ammo_dirty: false, ammo_compatible: false, life: 0, ammo_plan: None, ammo: None, discharge_receipts: HashMap::new(), supply_since: None, supply_progress: 0.0, aps_desired_enabled: true, aps_reload_until: None, aps_reload_remaining: 0.0, aps_reload_updated_at: 0.0, gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
+            Player { deployment_spawn:None, ammo_racks_dirty:false, ammo_dirty: false, ammo_compatible: false, life: 0, ammo_plan: None, ammo: None, discharge_receipts: HashMap::new(), supply_since: None, supply_progress: 0.0, aps_desired_enabled: true, accepted_aps_pose: None, aps_pose_valid: false, aps_pose_automatic_until: None, aps_pose_request_t: None, aps_pose_observed_t: None, aps_pose_needs_request: false, aps_pose_transport_reset: false, aps_pending_pose_ack: None, aps_reload_until: None, aps_reload_remaining: 0.0, aps_reload_updated_at: 0.0, gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
         );
         (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION }), (id, self.room_list())])
     }
@@ -694,7 +705,9 @@ impl Lobby {
         self.reset_supply(id);
         if let Some(p) = self.players.get_mut(&id) {
             p.away = Some(now);
+            p.aps_pose_valid=false;
         }
+        self.sync_aps_pose_control(id,now);
         Vec::new()
     }
 
@@ -721,6 +734,8 @@ impl Lobby {
         p.token = token.clone();
         // its position history jumps: no speed check on the first state back
         p.last_pos = None;
+        p.aps_pose_valid=false;
+        p.aps_pose_transport_reset=true;p.aps_pose_request_t=None;p.aps_pose_observed_t=None;p.aps_pending_pose_ack=None;
         p.trail.clear();
         p.grace_until = now + SPAWN_GRACE;
         let mut out = vec![(old, ServerMsg::Welcome { id: old, name: p.name.clone(), maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION })];
@@ -934,10 +949,40 @@ impl Lobby {
         if let (Some(target), Some(state)) = (self.targets.get(&p.vehicle), p.combat.as_mut()) {
             let before=state.rack_fill.clone();tg_combat::load_ammo(target,state,total);p.ammo_racks_dirty|=state.rack_fill!=before;
         }
-        let enabled = p.aps_desired_enabled && p.aps_reload_remaining <= 0.0 && p.ammo.as_ref().is_some_and(|a|a.revision<MAX_SAFE_COUNTER);
         if let Some(w) = p.room.and_then(|room| self.rooms.get_mut(&room)).and_then(|r| r.world.as_mut()) {
-            if let Some(rounds) = aps_rounds { w.set_aps_rounds(id, enabled, None, Some(rounds)); }
+            if let Some(rounds) = aps_rounds { let enabled=w.aps_of(id).is_some_and(|a|a.enabled); w.set_aps_rounds(id, enabled, None, Some(rounds)); }
         }
+        if let Some((_,ack))=self.sync_aps_pose_control(id,self.now) {
+            self.players.get_mut(&id).unwrap().aps_pending_pose_ack=Some(ack);
+        }
+    }
+
+    fn sync_aps_pose_control(&mut self, id: u32, now: f64) -> Option<(u32,ServerMsg)> {
+        let p=self.players.get(&id)?;let room=p.room?;
+        let accepted=p.accepted_aps_pose.as_ref().filter(|a|p.aps_pose_valid && now>=a.at && now-a.at<=*POSE_MAX_AGE_SECONDS && p.ammo.as_ref().is_some_and(|stock|stock.scope==a.scope));
+        let desired=p.aps_desired_enabled && p.aps_reload_remaining<=0.0 && p.alive && p.away.is_none()
+            && self.rooms.get(&room).is_some_and(|r|r.playing) && p.ammo.as_ref().is_some_and(|a|a.revision<MAX_SAFE_COUNTER);
+        let w=self.rooms.get_mut(&room)?.world.as_mut()?;
+        let was_enabled=w.aps_of(id)?.enabled;
+        let enabled=desired&&accepted.is_some()&&!p.aps_pose_needs_request;
+        if !enabled {
+            let pose_lost=was_enabled && accepted.is_none();
+            w.set_aps(id,false,None);let p=self.players.get_mut(&id)?;p.aps_pending_pose_ack=None;
+            if pose_lost {
+                // An in-flight regular State must not reclaim a pose-lost writer
+                // before the client force-publishes its current held State/request.
+                // Reload-only pauses retain their existing pending correlation.
+                p.aps_pose_needs_request=true;p.aps_pose_request_t=None;
+                p.aps_pose_automatic_until=Some(now);
+            }
+            return None;
+        }
+        let a=accepted?;
+        if !was_enabled && !w.adopt_aps_pose(id,a.world_yaw,a.world_pitch) {return None;}
+        w.set_aps(id,true,None);
+        if was_enabled {return None;}
+        Some((id,ServerMsg::ApsPose {instance:a.instance.clone(),scope:a.scope,transport:p.token.clone(),request_t:p.aps_pose_request_t.unwrap_or(a.state_t),state_t:a.state_t,tick:self.tick,
+            yaw:a.motor_yaw,pitch:a.elevation,parent_yaw:a.parent_yaw,ex:a.hull.ex,ey:a.hull.ey,ez:a.hull.ez}))
     }
     fn ammo_status(&self, id: u32) -> Option<(u32,ServerMsg)> {
         let p=self.players.get(&id)?;let ledger=p.ammo.as_ref()?;let state=p.combat.as_ref()?;let target=self.targets.get(&p.vehicle)?;
@@ -1010,7 +1055,7 @@ impl Lobby {
             let spec = self.mdata.room_aps(&vehicle, gameplay);
             if let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) {
                 match spec {
-                    Some(sp) => w.add_aps(id, team_index(team), sp.def, id.wrapping_mul(2_654_435_761)),
+                    Some(sp) => {w.add_aps(id, team_index(team), sp.def, id.wrapping_mul(2_654_435_761));w.set_aps(id,false,None);},
                     None => w.remove_aps(id),
                 }
             }
@@ -1020,6 +1065,13 @@ impl Lobby {
             p.life = life; p.ammo_plan = Some(ledger.targets.clone()); p.ammo = Some(ledger); p.ammo_dirty=false;
             p.supply_since = None; p.supply_progress = 0.0;
             p.aps_desired_enabled = true; p.aps_reload_until = None; p.aps_reload_remaining = 0.0; p.aps_reload_updated_at = now;
+            p.accepted_aps_pose=None;p.aps_pose_valid=false;
+            p.aps_pose_automatic_until=None;
+            p.aps_pose_request_t=None;
+            p.aps_pose_observed_t=None;
+            p.aps_pose_needs_request=false;
+            p.aps_pose_transport_reset=false;
+            p.aps_pending_pose_ack=None;
             p.hp = FULL_HP;
             p.alive = true;
             p.grace_until = now + SPAWN_GRACE;
@@ -1265,6 +1317,20 @@ impl Lobby {
                 if !self.rooms.get(&room).map(|r| r.playing).unwrap_or(false) {
                     return Vec::new();
                 }
+                p.aps_pose_valid=false;
+                // Correlation may name a rejected final State, while trusted
+                // joints/time remain in accepted_aps_pose until real admission.
+                // Only ordered finite observations of this exact current bound
+                // weapon/life can become request metadata on this transport.
+                let ordered_aps_observation=if let (Some(spec),Some(target),Some(stock))=(self.mdata.aps.get(&p.vehicle),self.targets.get(&p.vehicle),p.ammo.as_ref()) {
+                    let bound=target.weapon_bindings.values().any(|b|b.kind==tg_combat::weapon_damage::WeaponKind::Cannon
+                        && b.turret_index==Some(spec.turret) && b.gun_index==Some(0) && b.binding_error.is_none()
+                        && s["aps_instance"].as_str()==Some(b.key.as_str())
+                        && b.critical.iter().any(|&i|Some(&target.def.modules[i].id)==spec.gun_module.as_ref()));
+                    if bound && serde_json::from_value::<AmmoScope>(s["ammo_scope"].clone()).ok()==Some(stock.scope) {
+                        if let Some(t)=s["t"].as_f64().filter(|t|t.is_finite()&&p.aps_pose_observed_t.is_none_or(|old|*t>old)) {p.aps_pose_observed_t=Some(t);true} else {false}
+                    } else {false}
+                } else {false};
                 let Some(pos) = pos_of(&s) else { return Vec::new() };
                 let stale_previous_pose=p.last_pos.is_some_and(|(_,at)|now-at>*POSE_MAX_AGE_SECONDS);
                 if let Some((last, at)) = p.last_pos {
@@ -1280,8 +1346,21 @@ impl Lobby {
                 while p.trail.front().is_some_and(|(t, _)| now - t > TRAIL) {
                     p.trail.pop_front();
                 }
+                if ordered_aps_observation {if let (Some(spec),Some(target),Some(state),Some(stock))=(self.mdata.aps.get(&p.vehicle),self.targets.get(&p.vehicle),p.combat.as_ref(),p.ammo.as_ref()) {
+                    let automatic=self.rooms[&room].world.as_ref().and_then(|w|w.aps_of(id)).is_some_and(|a|a.enabled);
+                    let automatic_until=if automatic {Some(now)} else {p.aps_pose_automatic_until};
+                    let mut previous=p.accepted_aps_pose.clone();
+                    if p.aps_pose_transport_reset {if let Some(old)=previous.as_mut() {old.state_t=f64::NEG_INFINITY;}}
+                    if let Some(accepted)=crate::missiles::accepted_aps_pose(&s,spec,target,state,self.rooms[&room].gameplay,stock.scope,now,previous.as_ref(),automatic_until) {
+                        p.accepted_aps_pose=Some(accepted);p.aps_pose_valid=true;
+                        p.aps_pose_automatic_until=None;
+                        p.aps_pose_transport_reset=false;
+                    }
+                }}
                 p.state = Some(s);
-                self.supply_pose_changed(id,room,stale_previous_pose,now)
+                let mut out=self.supply_pose_changed(id,room,stale_previous_pose,now);
+                if let Some(ack)=self.sync_aps_pose_control(id,now) {out.push(ack);}
+                out
             }
             ClientMsg::Fire { seq, scope, instance, o, d, shell } => self.discharge_fire(id, scope, seq, instance.as_deref(), o, d, &shell, now),
             ClientMsg::MgFire { seq, scope, instance, gun, o, d } => self.discharge_mg(id, scope, seq, instance.as_deref(), &gun, o, d, now),
@@ -1386,9 +1465,14 @@ impl Lobby {
                 let Some(room) = self.players.get(&id).and_then(|p| p.room) else { return Vec::new() };
                 if let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) {
                     let p = self.players.get_mut(&id).unwrap(); p.aps_desired_enabled = enabled;
-                    w.set_aps(id, enabled && p.aps_reload_remaining <= 0.0 && p.ammo.as_ref().is_some_and(|a|a.revision<MAX_SAFE_COUNTER), rate.filter(|r| r.is_finite()));
+                    if rate.is_none() {p.aps_pose_needs_request=false;}
+                    if enabled && (p.aps_pose_request_t.is_none() || (rate.is_none() && w.aps_of(id).is_some_and(|a|!a.enabled))) {p.aps_pose_request_t=p.aps_pose_observed_t;}
+                    if !enabled {p.aps_pose_request_t=None;}
+                    let retained=w.aps_of(id).is_some_and(|a|a.enabled)&&enabled;
+                    if !enabled&&w.aps_of(id).is_some_and(|a|a.enabled) {p.aps_pose_automatic_until=Some(now);}
+                    w.set_aps(id,retained,rate.filter(|r| r.is_finite()));
                 }
-                Vec::new()
+                self.sync_aps_pose_control(id,now).into_iter().collect()
             }
             ClientMsg::Chat { text } => {
                 let p = &self.players[&id];
@@ -2022,6 +2106,11 @@ impl Lobby {
         let rooms: Vec<u32> = self.rooms.values().filter(|r| r.playing && r.world.is_some()).map(|r| r.id).collect();
         for room in rooms {
             let members = self.rooms[&room].members.clone();
+            for &id in &members {
+                let generated=self.sync_aps_pose_control(id,self.now);
+                if let Some(ack)=self.players.get_mut(&id).and_then(|p|p.aps_pending_pose_ack.take()) {out.push((vec![id],ack));}
+                if let Some((to,ack))=generated {out.push((vec![to],ack));}
+            }
             let actors: Vec<tg_missile::Actor> = members
                 .iter()
                 .filter_map(|m| self.players.get(m))
@@ -2814,7 +2903,9 @@ mod tests {
         l.handle(a, ClientMsg::Start, 0.0);
         l.handle(a, ClientMsg::State { s: json!({ "pos": [0.0, 0.0, 0.0], "ex": [1, 0, 0], "ez": [0, 0, 1] }) }, 0.0);
         // the T-10M faces the launcher
-        l.handle(b, ClientMsg::State { s: json!({ "pos": [0.0, 0.0, 600.0], "ex": [-1, 0, 0], "ez": [0, 0, -1], "tur": [[0.0, 0.0], [0.0, 0.0]] }) }, 0.0);
+        let mut s=json!({ "pos": [0.0, 0.0, 600.0], "ex": [-1, 0, 0], "ez": [0, 0, -1], "tur": [[0.0, 0.0], [0.0, 0.0]] });
+        gameplay_tests::fixture_state(&l,b,&mut s,0.0);
+        l.handle(b,ClientMsg::State{s},0.0);
         (l, a, b)
     }
 
@@ -2832,7 +2923,9 @@ mod tests {
         let mut msgs: Out = Vec::new();
         for _ in 0..200 {
             l.handle(a, ClientMsg::Guide { id: mid, sight: [0.0, 2.3, 0.0], aim: [0.0, 1.2, 600.0] }, now);
-            for (to, m) in l.tick() {
+            let tick_now=l.now+0.05;let ids:Vec<u32>=l.players.values().filter(|p|l.mdata.aps.contains_key(&p.vehicle)).map(|p|p.id).collect();
+            for id in ids {let mut s=l.players[&id].state.clone().unwrap();s.as_object_mut().unwrap().remove("tur");s.as_object_mut().unwrap().remove("t");gameplay_tests::fixture_state(l,id,&mut s,tick_now);l.handle(id,ClientMsg::State{s},tick_now);}
+            for (to, m) in l.tick_at(tick_now) {
                 if let ServerMsg::Snap { ev: e, .. } = &m {
                     ev.extend(e.iter().cloned());
                 }
@@ -3076,7 +3169,7 @@ mod tests {
         for k in 0..4u32 {
             let (ev, _) = tow_at_b(&mut l, a, 10 + k, 2.0 + k as f64 * 20.0);
             assert!(ev.iter().any(|e| kind(e) == "detect"), "the radar sees it");
-            assert!(ev.iter().any(|e| kind(e) == "fire_start"), "the gun fires");
+            assert!(ev.iter().any(|e| kind(e) == "fire_start"), "the gun fires at {k}; valid={}, pose={:?}, aps={:?}",l.players[&b].aps_pose_valid,l.players[&b].accepted_aps_pose,l.rooms.values().find_map(|r|r.world.as_ref().and_then(|w|w.aps_of(b))));
             if ev.iter().any(|e| kind(e) == "intercept") {
                 downed += 1;
                 assert!(ev.iter().position(|e| kind(e) == "bullet_hit") < ev.iter().position(|e| kind(e) == "intercept"), "a bullet hit first");
