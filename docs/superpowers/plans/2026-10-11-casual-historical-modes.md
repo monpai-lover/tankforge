@@ -119,7 +119,7 @@ Apply this only to auxiliary markers, not the rendered scene or damage targets. 
 
 **Create:** `crates/server/src/gameplay.rs`; `client/web/test/gameplay-network.test.mjs`; focused server gameplay tests in a separate module when appropriate.
 
-**Modify:** `crates/server/Cargo.toml`, `src/lib.rs`, `src/lobby.rs`, `src/missiles.rs`; `client/web/src/game/lobbyui.js`, `game/net.js`, `src/main.js`; missile-world definition derivation if an owner is required. This is room-rule integration, not a new movement-authority or full per-weapon reload anti-cheat implementation.
+**Modify:** `crates/server/Cargo.toml`, `src/lib.rs`, `src/lobby.rs`, `src/missiles.rs`, `src/server.rs` for the actual hello/resume socket dispatch; `client/web/src/game/lobbyui.js`, `game/net.js`, `src/main.js`; missile-world definition derivation if an owner is required. This is room-rule integration, not a new movement-authority or full per-weapon reload anti-cheat implementation.
 
 - [ ] Write RED exercising actual `Lobby::handle` room creation/list/join/start/state/resume/deploy/fire/MG/missile handlers, not only serialized struct constructors. Use two clients with different local preferences; historical room stays historical. Assert unknown ID/version and midbattle changes are rejected; members with unsupported rule versions cannot silently join a new mode room. Update existing fixture literals only for required protocol metadata; retain every old behavioral assertion.
 - [ ] Add `gameplay_mode` and `gameplay_rules_version` to create/room/start/resume/deploy rule envelopes. New clients advertise supported version in hello; the server stores compatibility on Player. Old/missing/invalid capability attempting a new-mode room gets the clear update-needed error. New browser with unsupported server disables the new room-start path and displays that update message instead of pretending rules synced. Do not silently treat an invalid room rule as casual.
@@ -130,7 +130,13 @@ Apply this only to auxiliary markers, not the rendered scene or damage targets. 
 ```
 
 - [ ] Keep one immutable profile per Room. Every room/list/start/resume response carries that profile; client session consumes server values before reconstructing selected vehicles/weapons. Room UI creation selector and badges display the two labels. Mode is not a client's per-state performance field; incoming state cannot switch it.
-- [ ] Derive room APS and missile/rocket weapon timing from original definitions plus room rules. Keep original automatic/manual ownership, per-instance damage health and shared ammo gates. Adjust existing firing quotas and bounded queue allowances consistently with increased legal throughput; historical keeps original quotas. Source definition maps are never mutated between rooms. Missile guidance/G/warhead and radar cycles remain original. Explicitly exercise two rooms with different profiles in the same server.
+
+The socket owner in `server.rs` matches resume Hello before normal `Lobby::handle`.
+Validate the reconnecting socket's rules capability before restoring the old seat
+or sending room/start messages; do not inherit the old socket's supported version
+for an incompatible replacement connection. Include a real socket-dispatch or
+shared dispatch-owner regression, not only a RoomInfo serialization test.
+- [ ] Derive room APS and missile/rocket weapon timing from original definitions plus room rules. Keep original automatic/manual ownership, per-instance damage health and shared ammo gates. Adjust existing firing quotas, the socket message bucket and rate-dependent bounded queue allowances consistently with increased legal throughput; historical keeps original quotas. Scale the existing global state-jump speed limit with the room speed factor so it does not reject new legal casual motion; this remains the original coarse check, not new movement authority. Source definition maps are never mutated between rooms. Missile guidance/G/warhead and radar cycles remain original. Explicitly exercise two rooms with different profiles in the same server.
 - [ ] Test legal confirmed main/MG fire, rejection of damaged/empty/invalid/duplicate/overquota requests, independent double-tube cooldown and manual/automatic Oplot. Verify lobby→NetClient→actual runtime session→HUD context, reconnect/respawn and leave-to-local preference. Run focused server/Node groups then complete existing server tests. Commit Task3 after fresh SPEC and fresh QUALITY reviews.
 
 ## Task 4 — final verification, matching artifacts and precise integration
