@@ -178,6 +178,7 @@ export class NetClient {
         else {
           // the seat was gone: we are a new player in the lobby
           this.room = null;
+          this.battleProfile = null;
           this._emit('closed', {});
         }
         return;

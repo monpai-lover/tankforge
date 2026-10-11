@@ -1339,7 +1339,13 @@ export function start(data, saved = {}) {
     // a battle map is decoded the first time it is used
     if (G.mapId !== 'range' && !G.maps.has(G.mapId)) {
       hud.toast('地圖載入中…', 3);
-      loadMap(G.mapId).then(() => startBattle(roomRules)).catch((e) => hud.toast('地圖載入失敗：' + e.message, 5));
+      // Each online Start owns its sortie object. Leaving or a newer Start retires it.
+      const sortie = G.online;
+      loadMap(G.mapId).then(() => {
+        if (G.online === sortie) startBattle(roomRules);
+      }).catch((e) => {
+        if (G.online === sortie) hud.toast('地圖載入失敗：' + e.message, 5);
+      });
       return;
     }
     gameplay.beginBattle(roomRules);
@@ -1378,7 +1384,6 @@ export function start(data, saved = {}) {
   }
 
   function toGarage() {
-    if (G.mode === 'garage') return;
     if (G.mode === 'test') testRange.exit();
     if (isDesign(G.id) && G.id.startsWith('design:__')) select(data.order[0]);
     if (G.xray) setXray(false);
@@ -1902,7 +1907,7 @@ export function start(data, saved = {}) {
     while (G.thumbs.length) thumbStep();
     // a deploy room: into the battle with nothing on the field, choosing on the deploy screen
     const benched = !!net.room?.deploy && me.alive === false;
-    G.online = { team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: benched ? 0 : null, hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
+    G.online = { roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: benched ? 0 : null, hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
     G.conquest = null;
     if (!benched && me.vehicle && me.vehicle !== G.id && data.vehicles[me.vehicle]) select(me.vehicle);
     if (benched && !data.vehicles[G.id]) select(data.order[0]);
@@ -1918,6 +1923,11 @@ export function start(data, saved = {}) {
     }
   });
   net.on('room', (m) => {
+    if (G.online && G.mode === 'garage' && G.online.roomId !== m.room.id) {
+      G.online = null;
+      deploy.close();
+      updateNetHud(true);
+    }
     applyRoomGameplay(m.room);
     const o = G.online;
     if (!o) return;

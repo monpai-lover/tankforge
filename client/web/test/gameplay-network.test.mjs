@@ -91,7 +91,7 @@ test('room/start/deploy messages require exact room rules and cannot silently re
   assert.equal(starts.length,1); assert.equal(deploys.length,1); assert.ok(errors.length>=7);
 });
 function node() { return { children: [], dataset: {}, style: {}, textContent: '', append(...c) { this.children.push(...c); } }; }
-function runtime(local) {
+function runtime(local, options = {}) {
   const store = storage(), gameplay = new GameplaySession(store);
   gameplay.chooseLocal(local);
   const G = { id: 'su_t34_85', mode: 'garage', gameplayMode: gameplay.activeMode(), s: phys.newState(), pending: [], cam: {}, thumbs: [], mapId: 'range', maps: new Map(), enemies: [], keys: new Set() };
@@ -106,8 +106,8 @@ function runtime(local) {
     onlineFires: new OnlineFires(), loading, mgSim, renderer, buildTank, VehicleSim, terrain: ground(() => 0), scene, hud,
     Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {}, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],
     mods: { choose() {}, cardOf: id => id, slots: () => [] }, measureInsets() {}, missileVehicle() {}, missileBattleStart() {},
-    net, lobby: { render() {}, sendVehicle() {}, show() {} }, MAP_IDS: ['range'], RESPAWN_DELAY: 5,
-    useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, updateNetHud() {}, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {}, setMapChoice() {}, mapName: () => 'range', feed() {},
+    net, lobby: { render() {}, sendVehicle() {}, show() {} }, MAP_IDS: ['range','coast'], RESPAWN_DELAY: 5,
+    useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, updateNetHud() {}, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {}, setMapChoice(id) { G.mapId=id; }, loadMap: options.loadMap, mapName: () => 'range', feed() {},
     deploy: { close() {} }, openDeploy() {}, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies=[]; }, hitcam: { hide() {} }, canvas: {}, sound: {}, remoteOf: () => null, removeRemote() {}, addRemote() {}, benchedMember: () => true,
   };
   const a=source.indexOf("  net.on('start',"),b=source.indexOf("  net.on('snap',",a);
@@ -207,6 +207,118 @@ test('joining an online room from a local battle ends that sortie before applyin
   try { r.net._receive(packet('room',receipt.a,'room')); } finally { console.error=original; }
   assert.equal(errors.length,0,'actual handler cannot keep a conflicting local battle lock');
   assert.equal(r.G.mode,'garage'); assert.equal(r.G.gameplayMode,'historical');
+  r.net._receive(packet('start',receipt.a,'start'));
+  assert.equal(r.G.mode,'battle'); assert.equal(r.G.gameplayMode,'historical');
+});
+
+async function reconnectReply(r, replies, event) {
+  const Original=globalThis.WebSocket;
+  globalThis.WebSocket=class extends Original {
+    constructor() { super(); queueMicrotask(()=>{ this.onopen(); for(const reply of replies) this.receive(reply); }); }
+  };
+  let timer;
+  const finished=new Promise((resolve,reject)=>{
+    timer=setTimeout(()=>reject(new Error(`No ${event} from actual reconnect`)),3000);
+    r.net.on(event,resolve);
+  });
+  try {
+    const dropped=r.net.ws; dropped.readyState=3; dropped.onclose();
+    await finished;
+    return r.net.ws;
+  } finally { clearTimeout(timer); globalThis.WebSocket=Original; }
+}
+async function openSortie(r, id, welcome, phases) {
+  const Socket=socket(), opening=r.net.connect('ws://fixture/ws','local');
+  const ws=Socket.last; ws.onopen(); ws.receive(packet(welcome,id,'welcome')); await opening;
+  for(const phase of phases) for(const [to,m] of receipt.phases[phase]) if(to===id) ws.receive(m);
+  return ws;
+}
+test('expired-token reconnect accepts a new seat, restores local garage and can join another legal mode', async () => {
+  const r=runtime('historical'), saved=r.store.values.get('tankforge.gameplay.v1');
+  try {
+    await openSortie(r,receipt.c,'welcome_c',['room_c','start_c']);
+    assert.equal(r.G.gameplayMode,'casual'); assert.equal(r.G.mode,'battle');
+    const freshId=receipt.c+1000;
+    const welcome={...packet('welcome_a',receipt.a,'welcome'),id:freshId,token:'fresh-seat-token'};
+    const ws=await reconnectReply(r,[welcome],'closed');
+    assert.equal(r.G.mode,'garage'); assert.equal(r.G.gameplayMode,'historical');
+    assert.equal(r.store.values.get('tankforge.gameplay.v1'),saved);
+    assert.equal(r.net.open,true,'accepted replacement connection stays open');
+    assert.equal(r.net.id,freshId); assert.equal(r.net.token,welcome.token);
+    const member={...packet('room',receipt.a,'room').room.members[0],id:freshId,alive:false};
+    const room={...packet('room',receipt.a,'room'),room:{...packet('room',receipt.a,'room').room,id:900,host:freshId,members:[member]}};
+    ws.receive(room);
+    ws.receive({...packet('start',receipt.a,'start'),members:[member]});
+    assert.equal(r.G.mode,'battle','stale casual profile cannot reject the new historical sortie');
+    assert.equal(r.G.gameplayMode,'historical'); assert.equal(r.net.open,true);
+    assert.deepEqual(r.net.battleProfile,{mode:'historical',version:1});
+  } finally { r.net.close(); }
+});
+test('actual valid socket reconnect preserves the current mount and spent ammunition', async () => {
+  const r=runtime('casual');
+  try {
+    await openSortie(r,receipt.a,'welcome_a',['room','start','deploy_a']);
+    const gun=r.G.loadout.turrets[0].guns[0]; gun.ammo[0].count--;
+    const spent=gun.ammo[0].count;
+    await reconnectReply(r,receipt.phases.resume.filter(([to])=>to===receipt.a).map(([,m])=>m),'resumed');
+    assert.equal(r.G.mode,'battle'); assert.equal(r.G.gameplayMode,'historical');
+    assert.equal(r.G.loadout.turrets[0].guns[0],gun); assert.equal(gun.ammo[0].count,spent);
+    assert.equal(r.net.open,true); assert.equal(r.net.id,receipt.a);
+  } finally { r.net.close(); }
+});
+function pendingSortie() {
+  let resolve;
+  const loaded=new Promise(r=>{resolve=r;});
+  const r=runtime('casual',{loadMap:()=>loaded});
+  r.net._receive(packet('welcome_a',receipt.a,'welcome'));
+  r.net._receive(packet('room',receipt.a,'room'));
+  const start={...packet('start',receipt.a,'start'),map:'coast'};
+  r.net._receive(start);
+  return {r,start,async finish() { r.G.maps.set('coast',{}); resolve(); await loaded; await Promise.resolve(); }};
+}
+test('cancelled pending online map starts restore local effective garage stats and cannot restart an old sortie', async () => {
+  for(const cancel of ['leave','unsupported_welcome','invalid_room','new_room']) {
+    const {r,finish}=pendingSortie();
+    assert.equal(r.G.mode,'garage'); assert.ok(r.G.online); assert.equal(r.G.gameplayMode,'historical');
+    if(cancel==='unsupported_welcome') r.net._receive({t:'welcome',id:receipt.a});
+    else if(cancel==='invalid_room') r.net._receive({t:'room',room:{...r.net.room,gameplay_rules_version:2}});
+    else {
+      r.net._receive({t:'left_room'});
+      if(cancel==='new_room') r.net._receive({t:'room',room:{...packet('room_c',receipt.c,'room').room,id:901,host:receipt.a,members:[{...packet('room',receipt.a,'room').room.members[0]}]}});
+    }
+    assert.equal(r.G.online,null);
+    assert.equal(r.G.gameplayMode,'casual',`${cancel}: local/next-room profile must repaint even when already garage`);
+    assert.equal(r.G.params.vTop,r.G.stockParams.vTop*1.15);
+    assert.match(r.spec(),/休閒/);
+    await finish();
+    assert.equal(r.G.mode,'garage',`${cancel}: old map completion cannot start a battle`);
+    assert.equal(r.gameplay.battle,null); assert.equal(r.G.gameplayMode,'casual');
+  }
+});
+test('valid duplicated pending online starts lock one battle only after its map becomes ready', async () => {
+  for(const duplicate of [false,true]) {
+    const {r,start,finish}=pendingSortie();
+    let begins=0; const begin=r.gameplay.beginBattle.bind(r.gameplay);
+    r.gameplay.beginBattle=(...args)=>{begins++;return begin(...args);};
+    const sortie=r.G.online, sameRoom=packet('start',receipt.a,'room');
+    r.net._receive({...sameRoom,room:{...sameRoom.room,map:'coast'}});
+    assert.equal(r.G.online,sortie,'same-room update retains the valid pending sortie');
+    if(duplicate) r.net._receive(start);
+    assert.equal(r.G.mode,'garage'); assert.equal(begins,0);
+    await finish();
+    assert.equal(r.G.mode,'battle'); assert.equal(r.G.gameplayMode,'historical');
+    assert.equal(begins,1); assert.equal(r.gameplay.local,'casual');
+  }
+});
+test('a different valid room with the same profile retires the pending sortie before old map completion', async () => {
+  const {r,finish}=pendingSortie();
+  const room={...packet('room',receipt.a,'room'),room:{...packet('room',receipt.a,'room').room,id:902}};
+  r.net._receive(room);
+  assert.equal(r.net.room.id,902); assert.equal(r.G.online,null,'old room cannot retain a pending battle owner');
+  assert.equal(r.G.mode,'garage'); assert.equal(r.G.gameplayMode,'historical');
+  assert.match(r.spec(),/歷史：原始性能/);
+  await finish();
+  assert.equal(r.G.mode,'garage'); assert.equal(r.gameplay.battle,null);
   r.net._receive(packet('start',receipt.a,'start'));
   assert.equal(r.G.mode,'battle'); assert.equal(r.G.gameplayMode,'historical');
 });
