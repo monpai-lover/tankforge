@@ -2186,8 +2186,14 @@ export function start(data, saved = {}) {
         if(!scope||scope.battle!==m.ammo_scope?.battle||scope.life!==m.ammo_scope?.life)return;
         if(m.ammo_revision!==undefined) {
           if(!Number.isSafeInteger(m.ammo_revision)||m.ammo_revision<=0)return;
+          if(m.ammo_revision<onlineAmmo.confirmedRevision)return;
           if(last&&last.battle===scope.battle&&last.life===scope.life&&m.ammo_revision<=last.revision)return;
           G.online.ammoRackStatus={...scope,revision:m.ammo_revision};
+        } else {
+          // A resumed full snapshot covers the current inventory's racks. Always
+          // admit its combat state: damage can change at the same ammo revision.
+          const covered=last&&last.battle===scope.battle&&last.life===scope.life?last.revision:0;
+          G.online.ammoRackStatus={...scope,revision:Math.max(covered,onlineAmmo.confirmedRevision)};
         }
       }
       G.cstate = m.state;

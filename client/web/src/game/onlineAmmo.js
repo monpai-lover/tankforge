@@ -17,6 +17,7 @@ export class OnlineAmmo {
   clear() { this._scope=null; this._mounts=[]; this._targets=null; this._base=null; this._projected=null; this._revision=0; this._through=0; this._lastSeq=0; this._pending=new Map(); this._lo=null; this._loadings=null; }
   scope() { return this._scope ? {...this._scope} : null; }
   counts() { return this._projected ? clone(this._projected) : null; }
+  get confirmedRevision() { return this._revision; }
   get processedThrough() { return this._through; }
   bindLoadings(loadings) { this._loadings=loadings; }
 

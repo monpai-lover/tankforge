@@ -150,6 +150,34 @@ test('actual scoped rack Status admits either delivery order and preserves autho
     const current=structuredClone(r.G.cstate);r.net._receive(status);r.net._receive({...grant,ammo_scope:{...grant.ammo_scope,life:0},ammo_revision:999});r.net._receive({...grant,ammo_scope:{...grant.ammo_scope,life:2},ammo_revision:999});assert.deepEqual(r.G.cstate,current);assert.equal(writes,0);
   }
 });
+test('actual newer inventory from dead resume fences delayed rack Status without changing confirmed stock',()=>{
+  for(const s of Object.values(receipt.scenarios).filter(s=>s.vehicle==='su_bmpt34')){
+    const dead=initialized(s);replay(dead,s,'cannon');const delayed=packet(s,'rail','status');
+    assert.ok(delayed.ammo_revision>dead.G.online.ammoRackStatus.revision,'delayed rack mutation crosses the prior Status watermark');
+    replay(dead,s,'dead_resume');const snapshot=packet(s,'dead_resume','status'),counts=dead.onlineAmmo.counts(),targets=dead.G.loadout.turrets.flatMap(t=>t.guns.map(g=>g.ammo.map(a=>a.max))),state=JSON.stringify(dead.G.cstate),caps=JSON.stringify(dead.G.caps);
+    assert.equal(snapshot.ammo_revision,undefined);assert.equal(dead.G.cstate.destroyed,true);assert.equal(dead.G.online.dead,true);
+    dead.net._receive(delayed);assert.equal(JSON.stringify(dead.G.cstate),state);assert.equal(JSON.stringify(dead.G.caps),caps);assert.deepEqual(dead.onlineAmmo.counts(),counts);assert.deepEqual(dead.G.loadout.turrets.flatMap(t=>t.guns.map(g=>g.ammo.map(a=>a.max))),targets);
+    replay(dead,s,'dead_resume');assert.equal(JSON.stringify(dead.G.cstate),state);assert.equal(JSON.stringify(dead.G.caps),caps);assert.deepEqual(dead.onlineAmmo.counts(),counts);
+  }
+});
+test('actual newer inventory fences unseen older rack Status while equal current Status remains admissible',()=>{
+  for(const s of Object.values(receipt.scenarios).filter(s=>s.vehicle==='su_bmpt34')){
+    const refilled=initialized(s);replay(refilled,s,'cannon','ammo');replay(refilled,s,'at_5','ammo');const before=refilled.G.cstate,stock=refilled.onlineAmmo.counts();
+    refilled.net._receive(packet(s,'cannon','status'));assert.equal(refilled.G.cstate,before,'an earlier unseen rack Status cannot pass a newer confirmed Ammo revision');assert.deepEqual(refilled.onlineAmmo.counts(),stock);
+    const grant=packet(s,'at_5','status');refilled.net._receive(grant);assert.deepEqual(refilled.G.cstate,grant.state,'equal-revision current Status remains admissible after Ammo');assert.deepEqual(refilled.G.caps,grant.caps);
+    const admitted=refilled.G.cstate;refilled.net._receive(grant);assert.equal(refilled.G.cstate,admitted,'last accepted Status still deduplicates equal-revision rack mutations');assert.deepEqual(refilled.onlineAmmo.counts(),stock);
+  }
+});
+test('actual scope-only combat snapshot covers current racks while still admitting damage at the same ammo revision',()=>{
+  for(const s of Object.values(receipt.scenarios).filter(s=>s.vehicle==='su_bmpt34')){
+    const snapshot=packet(s,'dead_resume','status');
+    const missed=initialized(s);replay(missed,s,'dead_resume');const covered=JSON.stringify(missed.G.cstate),stock=missed.onlineAmmo.counts();
+    replay(missed,s,'secondary_cannon','status');assert.equal(JSON.stringify(missed.G.cstate),covered,'a current full snapshot already covers the delayed equal inventory rack revision');assert.deepEqual(missed.onlineAmmo.counts(),stock);
+    const sameRevision=initialized(s);replay(sameRevision,s,'secondary_cannon');const live=JSON.stringify(sameRevision.G.cstate);replay(sameRevision,s,'dead_resume');
+    assert.notEqual(JSON.stringify(sameRevision.G.cstate),live);assert.equal(sameRevision.G.cstate.destroyed,true,'scope-only combat state must be admitted even when ammo revision did not change');assert.deepEqual(sameRevision.G.cstate,snapshot.state);assert.deepEqual(sameRevision.G.caps,snapshot.caps);
+    const deadState=JSON.stringify(sameRevision.G.cstate);replay(sameRevision,s,'secondary_cannon','status');assert.equal(JSON.stringify(sameRevision.G.cstate),deadState);
+  }
+});
 test('actual recipient-qualified APS snapshots preserve remote presentation without private rounds',()=>{
   for(const s of Object.values(receipt.scenarios).filter(s=>s.vehicle!=='su_bmpt34')){
     const messages=s.phases.automatic.filter(([to,m])=>to===s.enemy&&m.t==='snap').map(([,m])=>m);assert.ok(messages.length);
