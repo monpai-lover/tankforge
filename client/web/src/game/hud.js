@@ -1487,6 +1487,16 @@ export class Hud {
       g.fillStyle = 'rgba(12,12,10,0.95)';
       g.fillText(text, x, y);
     }
+    // The active weapon's zero mark follows the same projected offset as the
+    // range ladder, including while reloading or hot. The scope clip handles
+    // an offscreen weapon; the existing rim arrow still shows its direction.
+    g.fillStyle = '#f3edcf';
+    g.strokeStyle = 'rgba(12,12,10,0.95)';
+    g.lineWidth = 1.6 * s;
+    g.beginPath();
+    g.arc(cx + ox, cy + oy, 2 * s, 0, Math.PI * 2);
+    g.fill();
+    g.stroke();
     if (off > 2.5 * s) {
       // where the gunner is asking the gun to go: an open ring in the middle of the picture
       const col = o.blocked ? '#e2664a' : '#e2b34a';
