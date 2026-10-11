@@ -241,7 +241,8 @@ fn ticker(hub: Shared) {
             next = Instant::now() + period;
         }
         let mut h = lock(&hub);
-        let out = h.lobby.tick();
+        let now = h.now();
+        let out = h.lobby.tick_at(now);
         h.broadcast(out);
         // fire, crew changing seats and repairs, four times a second
         if h.lobby_ticks % 5 == 0 {

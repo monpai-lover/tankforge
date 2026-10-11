@@ -27,6 +27,7 @@ import { designReplayReport } from './game/projectileReplay.js';
 import { Missiles } from './game/missiles.js';
 import { OnlineLaunches } from './game/onlineLaunch.js';
 import { OnlineFires } from './game/onlineFire.js';
+import { OnlineAmmo } from './game/onlineAmmo.js';
 import { Mods } from './game/mods.js';
 import { Exhaust, exhaustOf } from './game/exhaust.js';
 import { LANG, LANG_INDEX, setLang } from './i18n.js';
@@ -35,7 +36,7 @@ import { NetClient, SEND_HZ } from './game/net.js';
 import { LobbyUi } from './game/lobbyui.js';
 import { DeployScreen, applyAmmo, loadAmmoConfig } from './game/deploy.js';
 import { Conquest, captureMessage } from './game/conquest.js';
-import { captureAmmoPlan, needsAmmo, refillAmmo, consumeApsRounds } from './game/ammoInventory.js';
+import { ammoMix, captureAmmoPlan, needsAmmo, refillAmmo, consumeApsRounds } from './game/ammoInventory.js';
 import { newResupplyState, eligiblePoint, stepResupply } from './game/ammoResupply.js';
 import { Terrain, CHUNK, N as DEFORM_N } from './game/terrain.js';
 import { VehicleSim } from './game/vehicle.js';
@@ -521,6 +522,7 @@ export function start(data, saved = {}) {
     mapName,
     vehicleName,
     currentVehicle: () => G.id,
+    ammoMix: id => {const lo=makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns);applyAmmo(lo,AMMO_CFG);return ammoMix(lo);},
     usable: (id) => !!data.vehicles[id],
     onChange: () => {
       document.getElementById('net-btn').dataset.on = net.inRoom ? '2' : net.open ? '1' : '0';
@@ -552,7 +554,7 @@ export function start(data, saved = {}) {
       // the rounds chosen: the server fills the racks from the bottom up with them
       const lo = makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns);
       applyAmmo(lo, AMMO_CFG);
-      net.send({ t: 'deploy', vehicle: id, spawn, rounds: carriedRounds(lo) });
+      net.send({ t: 'deploy', vehicle: id, spawn, ammo_mix: ammoMix(lo) });
       sound.start();
       requestLock();
     },
@@ -662,6 +664,8 @@ export function start(data, saved = {}) {
   function select(id, keepPose = false) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
     onlineFires.clear();
+    onlineLaunches.clear();
+    onlineAmmo.clear();
     const keptPose = keepPose && G.veh ? { x: G.s.x, z: G.s.z, heading: G.s.heading } : null;
     const { bundle: sourceBundle, projectiles } = bundleFor(id);
     G.sourceBundle = sourceBundle;
@@ -1361,6 +1365,12 @@ export function start(data, saved = {}) {
     gameplay.beginBattle(roomRules);
     G.gameplayMode = gameplay.activeMode();
     select(G.id);
+    if (G.online?.initialAmmo) {
+      onlineAmmo.begin({t:'ammo',...G.online.initialAmmo},G.loadout,G.T.map(t=>t.loading));
+      G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
+      G.online.initialAmmo=null;
+      syncRacks(true);
+    }
     updateGameplayDisplay();
     useWorld(G.mapId);
     G.flooded = false;
@@ -1950,10 +1960,27 @@ export function start(data, saved = {}) {
     return [p0[0] + (p1[0] - p0[0]) * t0, p0[1] + (p1[1] - p0[1]) * t0, p0[2] + (p1[2] - p0[2]) * t0];
   }
 
+  function validateOnlineLife(frame, id) {
+    if (!frame || !data.vehicles[id]) throw new Error('缺少出擊彈藥庫存，請更新伺服器');
+    const fresh=makeLoadout(id,data.vehicles[id],data.projectiles,data.machineGuns);
+    applyAmmo(fresh,AMMO_CFG);
+    new OnlineAmmo().begin({t:'ammo',...frame},fresh);
+  }
+
   net.on('start', (m) => {
     const roomRules = applyRoomGameplay(m);
     const me = m.members.find((x) => x.id === net.id);
-    if (!me || (G.online && G.mode === 'battle')) return;
+    if (!me) return;
+    if (G.online && m.battle<G.online.battle) return;
+    if (G.online && G.mode === 'battle' && G.online.battle === m.battle) {
+      if (m.ammo && onlineAmmo.receive({t:'ammo',...m.ammo})) G.resupplyProgress=m.ammo.resupply_progress;
+      G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
+      syncRacks(true);
+      return;
+    }
+    const benched = !!net.room?.deploy && me.alive === false;
+    if (!Number.isSafeInteger(m.battle) || m.battle<=0) throw new Error('無效的戰鬥彈藥範圍');
+    if (!benched) {validateOnlineLife(m.ammo,me.vehicle);if(m.ammo.battle!==m.battle)throw new Error('無效的戰鬥彈藥範圍');}
     if (G.mode === 'battle') toGarage();
     if (G.mode === 'test') {
       testRange.exit();
@@ -1961,8 +1988,7 @@ export function start(data, saved = {}) {
     }
     while (G.thumbs.length) thumbStep();
     // a deploy room: into the battle with nothing on the field, choosing on the deploy screen
-    const benched = !!net.room?.deploy && me.alive === false;
-    G.online = { roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: benched ? 0 : null, hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
+    G.online = { battle:m.battle, initialAmmo:m.ammo||null, roomId: net.room?.id, team: me.team, slot: me.slot, members: new Map(m.members.map((x) => [x.id, x])), seq: 0, sendAcc: 0, dead: me.alive === false, benched, spawn: benched ? 0 : null, hp: me.hp ?? 100, diedAt: performance.now() - (benched ? RESPAWN_DELAY * 1000 : 0), deployAt: Infinity, scuttleAsk: 0 };
     G.conquest = null;
     if (!benched && me.vehicle && me.vehicle !== G.id && data.vehicles[me.vehicle]) select(me.vehicle);
     if (benched && !data.vehicles[G.id]) select(data.order[0]);
@@ -2026,19 +2052,33 @@ export function start(data, saved = {}) {
   // a missile or rocket left a launcher: ours gets its id in the battle (to guide it); others' launch is seen
   const onlineLaunches = new OnlineLaunches();
   const onlineFires = new OnlineFires();
+  const onlineAmmo = new OnlineAmmo();
   const currentFireGun = seq => {
     const p = onlineFires.pending.find(p => p.seq === seq);
     return p && G.loadout.turrets[p.ti]?.guns[p.gi];
   };
+  const currentAmmoScope = m => {const scope=onlineAmmo.scope();return scope && scope.battle===m.ammo_scope?.battle && scope.life===m.ammo_scope?.life ? scope : null;};
+  net.on('ammo', m => {
+    if (!G.online || !onlineAmmo.receive(m)) return;
+    G.online.seq=Math.max(G.online.seq,onlineAmmo.processedThrough);
+    G.resupplyProgress=m.resupply_progress;
+    syncRacks(true);
+    for(const [ti,t] of G.loadout.turrets.entries()) for(const [gi,g] of t.guns.entries()) if(g.launcher) {
+      if(!onlineLaunches.has(g)&&roundsLeft(g)===0){G.T[ti].loading.state[gi]='empty';g.loaded=-1;syncGunShell(g);}
+      if(G.model.payload)G.model.payload(ti,gi,g.launcher.ready);
+    }
+  });
   net.on('fire_accepted', m => {
-    onlineFires.confirm(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000);
+    const scope=currentAmmoScope(m);if(!scope)return;
+    onlineFires.confirm(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000, {scope});
   });
   net.on('fire_rejected', m => {
-    const p = onlineFires.reject(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000);
+    const scope=currentAmmoScope(m);if(!scope)return;
+    const p = onlineFires.reject(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000, {refund:false,scope});
     if (!p) return;
     const i = G.shots.indexOf(p.shot);
     if (i >= 0) G.shots.splice(i, 1);
-    hud.toast('炮彈未射出，已退回彈藥。', 2.5);
+    hud.toast('炮彈未射出，彈藥以伺服器庫存為準。', 2.5);
   });
   G.pendingLaunch = onlineLaunches.pending;
   const sendOnlineLaunch = msg => net.send(msg);
@@ -2046,9 +2086,10 @@ export function start(data, saved = {}) {
   net.on('launched', (m) => {
     if (!G.online || G.mode !== 'battle' || !G.missiles) return;
     if (m.from === net.id) {
+      const scope=currentAmmoScope(m);if(!scope)return;
       const waiting = onlineLaunches.pending.find(p => p.msg.seq === m.seq);
       const gun = waiting && G.loadout.turrets[waiting.ti]?.guns[waiting.gi];
-      const p = onlineLaunches.confirm(m.seq, m.missile, gun, G.online);
+      const p = onlineLaunches.confirm(m.seq, m.missile, gun, G.online, {consumeAmmo:false,scope});
       if (!p) return; // duplicate or obsolete acknowledgement: never spend a second round
       const def = data.missiles[m.missile];
       if (def && def.guidance !== 'none') G.guided.push({ id: m.id, ti: p.ti, gi: p.gi, fresh: true });
@@ -2059,7 +2100,8 @@ export function start(data, saved = {}) {
   });
   net.on('launch_rejected', (m) => {
     if (!G.online || G.mode !== 'battle') return;
-    onlineLaunches.reject(m.seq, m.retry_after_s, G.online);
+    const scope=currentAmmoScope(m);if(!scope)return;
+    onlineLaunches.reject(m.seq, m.retry_after_s, G.online, scope);
   });
   net.on('fire', (m) => {
     if (!G.online || G.mode !== 'battle') return;
@@ -2137,6 +2179,15 @@ export function start(data, saved = {}) {
     const o = G.online;
     if (!o) return;
     if (m.id === net.id) {
+      if (m.battle!==o.battle) return;
+      const current=onlineAmmo.scope();
+      if(current && m.life<current.life) return;
+      if(current && m.life===current.life) {
+        if(!m.ammo)throw new Error('缺少出擊彈藥庫存，請更新伺服器');
+        if(onlineAmmo.receive({t:'ammo',...m.ammo}))G.resupplyProgress=m.ammo.resupply_progress;o.seq=Math.max(o.seq,onlineAmmo.processedThrough);syncRacks(true);return;
+      }
+      validateOnlineLife(m.ammo,m.vehicle);
+      if(m.ammo.battle!==m.battle||m.ammo.life!==m.life)throw new Error('無效的出擊彈藥範圍');
       const first = o.benched;
       o.dead = false;
       o.benched = false;
@@ -2146,6 +2197,10 @@ export function start(data, saved = {}) {
       // a fresh vehicle (the one chosen, with the rounds chosen) at the chosen start
       const id = m.vehicle && data.vehicles[m.vehicle] ? m.vehicle : G.id;
       select(id);
+      if (!m.ammo) throw new Error('缺少出擊彈藥庫存，請更新伺服器');
+      onlineAmmo.begin({t:'ammo',...m.ammo},G.loadout,G.T.map(t=>t.loading));
+      o.seq=Math.max(o.seq,onlineAmmo.processedThrough);
+      syncRacks(true);
       if (G.view === 'sight') toggleSight();
       G.view = 'third';
       hud.toast(first ? `${G.loadout.name} 出擊！` : `重新出擊：${G.loadout.name}`, 2.5);
@@ -2546,7 +2601,7 @@ export function start(data, saved = {}) {
         }
         // Automatic and manual control share the same magazine. A snapshot can
         // consume rounds, but never restore rounds already fired by the gunner.
-        consumeApsRounds(G.loadout, g.damageKey, Math.max(0, roundsLeft(g) - a.rounds));
+        if (!G.online) consumeApsRounds(G.loadout, g.damageKey, Math.max(0, roundsLeft(g) - a.rounds));
         g.belt = Math.min(g.belt, roundsLeft(g));
         if (G.T[ti].loading.state[0] === 'ready' && !(g.ammo[g.loaded]?.count > 0)) {
           g.loaded = nextAmmo(g);
@@ -2789,9 +2844,9 @@ export function start(data, saved = {}) {
     if (!weaponDamage(G.caps, g.damageKey).can_fire || !G.missiles?.ready || !mdef || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0) || (G.caps?.weapons === undefined && !launcherCanFire(G.loadout, (G.bundle || data.vehicles[G.id])?.modules, G.cstate, g))) return false;
     if (G.online) {
       // Reserve one tube until the server confirms it; jitter must never spend a rejected round.
-      if (!net.open || onlineLaunches.has(g)) return false;
+      if (!net.open || !onlineAmmo.scope() || G.online.seq >= 0xffffffff || onlineLaunches.has(g)) return false;
       const seq = ++G.online.seq;
-      const msg = { t: 'launch', seq, instance: g.damageKey, missile: mdef.id, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: mz.dir.map((v) => Math.round(v * 1e5) / 1e5) };
+      const msg = { t: 'launch', seq, ammo_scope:onlineAmmo.scope(), instance: g.damageKey, missile: mdef.id, ammo:g.ammo[g.loaded].shell.id, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: mz.dir.map((v) => Math.round(v * 1e5) / 1e5) };
       if (!onlineLaunches.begin({ gun: g, loading: rt.loading, ti, gi, msg, session: G.online }, performance.now() / 1000)) return false;
       net.send(msg);
       return true;
@@ -3537,22 +3592,24 @@ export function start(data, saved = {}) {
     const g = t.guns[gi];
     const rt = G.T[ti];
     const damage = weaponDamage(G.caps, g.damageKey);
-    if (!damage.can_fire || G.online?.dead || (G.online && !net.open)) return false;
+    if (!damage.can_fire || G.online?.dead || (G.online && (!net.open || !onlineAmmo.scope() || G.online.seq >= 0xffffffff))) return false;
     if (rt.loading.state[gi] !== 'ready' || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
     if (G.aps && ti === (G.aps.turret ?? 1) && !moduleOk(G.bundle || data.vehicles[G.id], G.cstate, G.aps.gun_module)) return false;
     const mount = g.def.missile ? launcherMount(g, mountOf(t, g)) : mountOf(t, g);
     const mz = gunnery.muzzleWorld(pose(), mount, { yaw: rt.yaw, pitch: rt.guns[gi].pitch + hullTilt(G.ss, rt.yaw) });
     if (g.def.missile) return launchFromGun(ti, gi, mz);
-    loading.fired(rt.loading, gi);
+    const ammoId=g.ammo[g.loaded].shell.id;
     const dir = gunnery.disperse(mz.dir, g.def.dispersion_mrad * damage.dispersion_mult, rng);
     const shot = { s: ballistics.newShot(mz.pos, dir, g.shell), shell: g.shell, age: 0, origin: mz.pos.slice(), travelled: 0 };
-    G.shots.push(shot);
     if (G.online) {
       // the others see the shot; a hit only counts on the server if it names this one
       shot.seq = ++G.online.seq;
-      onlineFires.begin({ seq: shot.seq, gun: g, ammo: g.ammo[g.loaded], loading: rt.loading, ti, gi, session: G.online, shot }, performance.now() / 1000);
-      net.send({ t: 'fire', seq: shot.seq, instance: g.damageKey, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: g.shell.id });
+      onlineFires.begin({ seq: shot.seq, scope:onlineAmmo.scope(), gun: g, ammo: g.ammo[g.loaded], loading: rt.loading, ti, gi, session: G.online, shot }, performance.now() / 1000);
+      onlineAmmo.predictCannon(shot.seq,g.damageKey,ammoId);
+      net.send({ t: 'fire', seq: shot.seq, ammo_scope:onlineAmmo.scope(), instance: g.damageKey, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: ammoId });
     }
+    G.shots.push(shot);
+    loading.fired(rt.loading, gi);
     const gy = surfaceAt(mz.pos[0], mz.pos[2]);
     const auto = g.def.autocannon;
     if (auto) {
@@ -3568,7 +3625,7 @@ export function start(data, saved = {}) {
       rt.guns[gi].recoilT = 0;
       rt.guns[gi].smoke = Math.min(0.12, rt.guns[gi].smoke + 0.025);
       G.cam.shake = Math.min(0.5, G.cam.shake + 0.04);
-      g.ammo[g.loaded].count = Math.max(0, g.ammo[g.loaded].count - 1);
+      if (!G.online) g.ammo[g.loaded].count = Math.max(0, g.ammo[g.loaded].count - 1);
       g.loaded = -1;
       syncGunShell(g);
       if (nextAmmo(g) < 0) rt.loading.state[gi] = 'empty';
@@ -3591,7 +3648,7 @@ export function start(data, saved = {}) {
     G.cam.shake = Math.min(1.6, G.cam.shake + 0.8);
     if (ti === G.sightT) G.cam.kick = 0.016;
     // the round is gone from the rack; the loader takes the selected type next
-    g.ammo[g.loaded].count = Math.max(0, g.ammo[g.loaded].count - 1);
+    if (!G.online) g.ammo[g.loaded].count = Math.max(0, g.ammo[g.loaded].count - 1);
     g.loaded = -1;
     syncGunShell(g);
     if (nextAmmo(g) < 0) rt.loading.state[gi] = 'empty';
@@ -3652,7 +3709,7 @@ export function start(data, saved = {}) {
   }
 
   function stepMachineGuns(dt) {
-    const enabled = G.mode === 'battle' && !G.workshop && !(G.online && G.online.dead) && !G.caps?.destroyed;
+    const enabled = G.mode === 'battle' && !G.workshop && !(G.online && (G.online.dead || !onlineAmmo.scope() || G.online.seq >= 0xffffffff)) && !G.caps?.destroyed;
     for (let i = 0; i < G.MG.length; i++) {
       const e = G.MG[i];
       const damage = weaponDamage(G.caps, e.m.damageKey);
@@ -3663,8 +3720,9 @@ export function start(data, saved = {}) {
         const dir = gunnery.disperse(mz.dir, e.m.def.dispersion_mrad * damage.dispersion_mult, rng);
         const bullet = { s: ballistics.newShot(mz.pos, dir, e.m.bullet), def: e.m.def, instance: e.m.damageKey, age: 0, travelled: 0, tracer: mgSim.isTracer(e.m.def, e.st) };
         if (G.online) {
+          if(G.online.seq>=0xffffffff)break;
           bullet.seq = ++G.online.seq;
-          net.send({ t: 'mg_fire', seq: bullet.seq, instance: bullet.instance, gun: e.m.def.id, o: mz.pos.map(v => Math.round(v * 1000) / 1000), d: dir.map(v => Math.round(v * 1e5) / 1e5) });
+          net.send({ t: 'mg_fire', seq: bullet.seq, ammo_scope:onlineAmmo.scope(), instance: bullet.instance, gun: e.m.def.id, o: mz.pos.map(v => Math.round(v * 1000) / 1000), d: dir.map(v => Math.round(v * 1e5) / 1e5) });
         }
         G.bullets.push(bullet);
         fx.mgFlash(mz.pos, mz.dir, e.m.def.caliber_mm);

@@ -1,3 +1,5 @@
+import { OnlineAmmo } from '../src/game/onlineAmmo.js';
+import { OnlineLaunches } from '../src/game/onlineLaunch.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -67,7 +69,7 @@ function manualRuntime(id, mode) {
     nextSightWeapon, hullTilt, buildTank, VehicleSim, terrain, emptyRacks, captureMessage,
     renderer: { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} },
     scene: { children: [], add(root) { this.children.push(root); } },
-    onlineFires: { clear() {} }, isDesign: () => false,
+    onlineFires: { clear() {} }, onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), isDesign: () => false,
     bundleFor: vehicle => ({ bundle: data.vehicles[vehicle], projectiles: data.projectiles }),
     store: { set() {} }, STORE_VEHICLE: 'unused', LANG_INDEX: 0,
     Exhaust: class {}, exhaustOf() {}, rebuildInterior() {}, applyXray() {}, statusShape() {}, measureInsets() {}, reloadShown() {},

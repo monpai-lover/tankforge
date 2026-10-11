@@ -79,15 +79,15 @@ fn two_players_meet_in_a_room_and_fight() {
     let port = start(None);
     let mut a = Client::connect(port);
     let mut b = Client::connect(port);
-    a.send(json!({"t": "hello", "name": "甲", "gameplay_rules_version":1}));
-    b.send(json!({"t": "hello", "name": "乙", "gameplay_rules_version":1}));
+    a.send(json!({"t": "hello", "name": "甲", "gameplay_rules_version":1,"ammo_protocol_version":1}));
+    b.send(json!({"t": "hello", "name": "乙", "gameplay_rules_version":1,"ammo_protocol_version":1}));
     let wa = a.expect("welcome");
     assert_eq!(wa["maps"], json!(["range", "coast"]));
     let id_a = wa["id"].as_u64().unwrap();
     let wb = b.expect("welcome");
     let id_b = wb["id"].as_u64().unwrap();
     let token_b = wb["token"].as_str().unwrap().to_string();
-    a.send(json!({"t": "create", "name": "測試房", "map": "coast", "max": 4,"gameplay_mode":"historical","gameplay_rules_version":1}));
+    a.send(json!({"t": "create", "name": "測試房", "map": "coast", "max": 4,"gameplay_mode":"historical","gameplay_rules_version":1,"ammo_protocol_version":1}));
     let room = a.expect("room")["room"].clone();
     assert_eq!(room["members"][0]["name"], "甲");
     // b sees it in the list and joins
@@ -100,7 +100,7 @@ fn two_players_meet_in_a_room_and_fight() {
     assert_eq!(rooms["rooms"][0]["name"], "測試房");
     b.send(json!({"t": "join", "room": room["id"]}));
     for c in [&mut a, &mut b] {
-        c.send(json!({"t": "vehicle", "id": "su_t34_85"}));
+        c.send(json!({"t": "vehicle", "id": "su_t34_85","ammo_mix":{"gun:0:0":[20,0,0]}}));
     }
     // the host starts once the room shows both vehicles chosen
     loop {
@@ -114,7 +114,8 @@ fn two_players_meet_in_a_room_and_fight() {
     let st = b.expect("start");
     assert_eq!(st["map"], "coast");
     assert_eq!(st["members"].as_array().unwrap().len(), 2);
-    a.expect("start");
+    let owner_start=a.expect("start");
+    let scope=json!({"battle":owner_start["battle"],"life":owner_start["ammo"]["life"]});
     // both send their state; each sees both in a snapshot
     a.send(json!({"t": "state", "s": {"pos": [10.0, 0.0, 5.0]}}));
     b.send(json!({"t": "state", "s": {"pos": [-10.0, 0.0, 5.0]}}));
@@ -127,16 +128,16 @@ fn two_players_meet_in_a_room_and_fight() {
     assert!(snap["players"].as_array().unwrap().iter().any(|p| p["id"].as_u64() == Some(id_b) && p["s"]["pos"][0] == -10.0));
     // An explicit foreign mount is refused and never relayed. The own gun is
     // accepted once; a duplicate replies to its owner without relaying another shot.
-    a.send(json!({"t":"fire","seq":0,"instance":"gun:99:0","o":[10,2,5],"d":[-1,0,0],"shell":"aphe_85_br365"}));
+    a.send(json!({"t":"fire","seq":1,"ammo_scope":scope,"instance":"gun:99:0","o":[10,2,5],"d":[-1,0,0],"shell":"aphe_85_br365"}));
     let refused = a.expect("fire_rejected");
-    assert_eq!(refused["seq"],0);assert_eq!(refused["reason"],"weapon_disabled");
-    a.send(json!({"t": "fire", "seq": 1, "instance":"gun:0:0", "o": [10, 2, 5], "d": [-1, 0, 0], "shell": "aphe_85_br365"}));
-    assert_eq!(a.expect("fire_accepted")["seq"],1);
+    assert_eq!(refused["seq"],1);assert_eq!(refused["reason"],"weapon_disabled");
+    a.send(json!({"t": "fire", "seq": 2, "ammo_scope":scope, "instance":"gun:0:0", "o": [10, 2, 5], "d": [-1, 0, 0], "shell": "aphe_85_br365"}));
+    assert_eq!(a.expect("fire_accepted")["seq"],2);
     let f = b.expect("fire");
-    assert_eq!(f["from"].as_u64(), Some(id_a));assert_eq!(f["seq"],1);
-    a.send(json!({"t":"fire","seq":1,"instance":"gun:0:0","o":[10,2,5],"d":[-1,0,0],"shell":"aphe_85_br365"}));
-    let duplicate=a.expect("fire_rejected");assert_eq!(duplicate["seq"],1);assert_eq!(duplicate["reason"],"sequence_conflict");
-    a.send(json!({"t": "hit", "seq": 1, "target": id_b, "result": "pen", "plate": "hull_side"}));
+    assert_eq!(f["from"].as_u64(), Some(id_a));assert_eq!(f["seq"],2);
+    a.send(json!({"t":"fire","seq":2,"ammo_scope":scope,"instance":"gun:0:0","o":[10,2,5],"d":[-1,0,0],"shell":"aphe_85_br365"}));
+    let duplicate=a.expect("fire_accepted");assert_eq!(duplicate["seq"],2);assert_eq!(duplicate["ammo_scope"],scope);
+    a.send(json!({"t": "hit", "seq": 2, "target": id_b, "result": "pen", "plate": "hull_side"}));
     let d = b.expect("damage");
     assert_eq!((d["killed"].as_bool(), d["hp"].as_f64()), (Some(true), Some(0.0)));
     a.expect("damage");
@@ -148,19 +149,25 @@ fn two_players_meet_in_a_room_and_fight() {
     // The new socket's capability is checked before any welcome/room/seat transfer.
     for capability in [Value::Null,json!("1"),json!(0),json!(2)] {
         let mut incompatible = Client::connect(port);
-        incompatible.send(json!({"t":"hello","name":"old client","resume":token_b,"gameplay_rules_version":capability}));
+        incompatible.send(json!({"t":"hello","name":"old client","resume":token_b,"gameplay_rules_version":capability,"ammo_protocol_version":1}));
         let rejection=incompatible.next();
         assert_eq!(rejection["t"],"error","no placeholder welcome or old-seat room leaks");
         assert!(rejection["msg"].as_str().unwrap().contains("更新"));
         b.send(json!({"t":"ping","at":77.0}));
         assert_eq!(b.expect("pong")["at"],77.0,"incompatible transfer never closes the old socket");
     }
+    for capability in [Value::Null,json!("1"),json!(0),json!(2),json!(1.5)] {
+        let mut incompatible=Client::connect(port);
+        incompatible.send(json!({"t":"hello","name":"old ammo client","resume":token_b,"gameplay_rules_version":1,"ammo_protocol_version":capability}));
+        let rejection=incompatible.next();assert_eq!(rejection["t"],"error");assert!(rejection["msg"].as_str().unwrap().contains("更新"));
+        b.send(json!({"t":"ping","at":78.0}));assert_eq!(b.expect("pong")["at"],78.0);
+    }
     // b's connection drops in the battle: the seat is held, and a new connection with b's token
     // takes it back under b's id
     drop(b);
     std::thread::sleep(Duration::from_millis(200));
     let mut c = Client::connect(port);
-    c.send(json!({"t": "hello", "name": "乙", "resume": token_b,"gameplay_rules_version":1}));
+    c.send(json!({"t": "hello", "name": "乙", "resume": token_b,"gameplay_rules_version":1,"ammo_protocol_version":1}));
     let wc = c.expect("welcome");
     assert_eq!(wc["id"].as_u64(), Some(id_b));
     assert_ne!(wc["token"].as_str(), Some(token_b.as_str()));

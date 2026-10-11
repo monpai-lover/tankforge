@@ -6,11 +6,15 @@
 // 'closed'). Pings carry the last round trip, which the server's lag compensation uses.
 export const SEND_HZ = 20;
 import { GAMEPLAY_RULES_VERSION, gameplayRules } from './gameplayRules.js';
+import ammoPolicy from '../../../../config/ammo-resupply.json' with { type: 'json' };
+export const AMMO_PROTOCOL_VERSION = ammoPolicy.ammo_protocol_version;
+export const AMMO_UPDATE_NEEDED = '彈藥協定版本不相容，請更新遊戲與伺服器';
 
 export const GAMEPLAY_UPDATE_NEEDED = '玩法規則版本不相容，請更新遊戲與伺服器';
 
 /** Protocol fields are required. Missing/unknown rules must never become a local default. */
 export function roomGameplayProfile(envelope) {
+  if (envelope?.ammo_protocol_version !== AMMO_PROTOCOL_VERSION) throw new Error(AMMO_UPDATE_NEEDED);
   const mode = envelope?.gameplay_mode, version = envelope?.gameplay_rules_version;
   gameplayRules(mode, version);
   return Object.freeze({ mode, version });
@@ -49,6 +53,7 @@ export class NetClient {
     this.url = null;
     this.reconnecting = false;
     this.gameplaySupported = false;
+    this.ammoSupported = false;
     this.battleProfile = null;
   }
 
@@ -84,7 +89,7 @@ export class NetClient {
     this.close();
     this.url = url;
     this.name = name;
-    return this._open(url, { t: 'hello', name, gameplay_rules_version: GAMEPLAY_RULES_VERSION });
+    return this._open(url, { t: 'hello', name, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION });
   }
 
   /** Opens the socket and sends `hello`; resolves on the welcome. */
@@ -115,7 +120,7 @@ export class NetClient {
         }
         const accepted = this._receive(msg);
         if (accepted === false) {
-          if (!welcomed) reject(new Error(GAMEPLAY_UPDATE_NEEDED));
+          if (!welcomed) reject(new Error(this.protocolError || GAMEPLAY_UPDATE_NEEDED));
           ws.close();
           return;
         }
@@ -172,7 +177,7 @@ export class NetClient {
       wait = Math.min(wait * 2, 4000);
       if (!this.reconnecting) return;
       try {
-        const w = await this._open(this.url, { t: 'hello', name: this.name, resume: this.token, gameplay_rules_version: GAMEPLAY_RULES_VERSION });
+        const w = await this._open(this.url, { t: 'hello', name: this.name, resume: this.token, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION });
         this.reconnecting = false;
         if (w.id === oldId) this._emit('resumed', {});
         else {
@@ -201,6 +206,7 @@ export class NetClient {
     this.room = null;
     this.rooms = [];
     this.gameplaySupported = false;
+    this.ammoSupported = false;
     this.battleProfile = null;
   }
 
@@ -218,18 +224,22 @@ export class NetClient {
   }
 
   send(msg) {
-    if (['create', 'start'].includes(msg.t) && !this.gameplaySupported) {
-      this._emit('error', { t: 'error', msg: GAMEPLAY_UPDATE_NEEDED });
+    if (['create', 'start', 'join', 'deploy', 'respawn'].includes(msg.t) && (!this.gameplaySupported || !this.ammoSupported)) {
+      this._emit('error', { t: 'error', msg: !this.ammoSupported ? AMMO_UPDATE_NEEDED : GAMEPLAY_UPDATE_NEEDED });
       return false;
     }
     if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(msg));
   }
 
   _receive(msg) {
+    if (msg.t === 'welcome' && msg.ammo_protocol_version !== AMMO_PROTOCOL_VERSION) {
+      this.ammoSupported=false;this.gameplaySupported=false;
+      return this._rejectGameplay(AMMO_UPDATE_NEEDED);
+    }
     if (msg.t === 'welcome' && this.battleProfile && msg.gameplay_rules_version !== GAMEPLAY_RULES_VERSION) return this._rejectGameplay();
     if (['room', 'start', 'respawned'].includes(msg.t)) {
       try {
-        if (!this.gameplaySupported) throw new Error(GAMEPLAY_UPDATE_NEEDED);
+        if (!this.gameplaySupported || !this.ammoSupported) throw new Error(GAMEPLAY_UPDATE_NEEDED);
         const profile = roomGameplayProfile(msg.t === 'room' ? msg.room : msg);
         if (this.room && (msg.t !== 'room' || this.room.id === msg.room.id)) {
           const fixed = roomGameplayProfile(this.room);
@@ -246,6 +256,7 @@ export class NetClient {
         this.name = msg.name;
         this.maps = msg.maps || [];
         this.gameplaySupported = msg.gameplay_rules_version === GAMEPLAY_RULES_VERSION;
+        this.ammoSupported = msg.ammo_protocol_version === AMMO_PROTOCOL_VERSION;
         if (!this.gameplaySupported) this._emit('error', { t: 'error', msg: GAMEPLAY_UPDATE_NEEDED });
         if (msg.token) this.token = msg.token;
         break;
@@ -274,12 +285,13 @@ export class NetClient {
     this._emit(msg.t, msg);
   }
 
-  _rejectGameplay() {
+  _rejectGameplay(error = GAMEPLAY_UPDATE_NEEDED) {
+    this.protocolError = error;
     if (this.battleProfile || this.room?.playing) {
       this.close();
-      this._emit('closed', { msg: GAMEPLAY_UPDATE_NEEDED });
+      this._emit('closed', { msg: error });
     }
-    this._emit('error', { t: 'error', msg: GAMEPLAY_UPDATE_NEEDED });
+    this._emit('error', { t: 'error', msg: error });
     return false;
   }
 }

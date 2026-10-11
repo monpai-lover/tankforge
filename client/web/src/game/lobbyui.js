@@ -114,10 +114,10 @@ export class LobbyUi {
   }
 
   /** Tells the room which vehicle is chosen (after a change of card). */
-  sendVehicle() {
-    if (!this.net.inRoom) return;
+  sendVehicle(beforeJoin = false) {
+    if (!beforeJoin && !this.net.inRoom) return;
     const id = this.o.currentVehicle();
-    if (this.o.usable(id)) this.net.send({ t: 'vehicle', id });
+    if (this.o.usable(id)) this.net.send({ t: 'vehicle', id, ammo_mix: this.o.ammoMix?.(id) });
   }
 
   sendChat() {
@@ -155,6 +155,7 @@ export class LobbyUi {
       }
       case 'join':
         this.board = null;
+        this.sendVehicle(true);
         net.send({ t: 'join', room: Number(b.dataset.room) });
         break;
       case 'leave':

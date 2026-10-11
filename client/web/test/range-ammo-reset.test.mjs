@@ -1,3 +1,4 @@
+import { OnlineAmmo } from '../src/game/onlineAmmo.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -42,7 +43,7 @@ function runtime(id = 'su_bmpt34', cfg = {}) {
   gameplay.beginBattle();
   let respawns = 0;
   const deps = { G, data, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, loading, mgSim, applyAmmo, AMMO_CFG: cfg,
-    onlineFires, onlineLaunches, renderer, scene, buildTank, VehicleSim, terrain: ground(() => 0), ME: 1,
+    onlineFires, onlineLaunches, onlineAmmo:new OnlineAmmo(), renderer, scene, buildTank, VehicleSim, terrain: ground(() => 0), ME: 1,
     isDesign: () => false, store: { set() {} }, STORE_VEHICLE: 'unused', LANG_INDEX: 0,
     Exhaust: class {}, fx: {}, exhaustOf() {}, rebuildInterior() {}, applyXray() {}, combatInit() {},
     mods: { choose() {}, cardOf: id => id, slots: () => [] }, hud, reloadShown() {}, selectAmmo() {},

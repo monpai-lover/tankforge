@@ -1,9 +1,35 @@
 //! Dependency-light gameplay policy shared by browser and native runtime owners.
 use serde::{Deserialize, Serialize};
-use std::sync::OnceLock;
+use std::sync::{LazyLock, OnceLock};
 
 pub const GAMEPLAY_RULES_VERSION: u32 = 1;
 const RULES_JSON: &str = include_str!("../../../config/gameplay-modes.json");
+
+pub const AMMO_PROTOCOL_VERSION: u32 = 1;
+const AMMO_JSON: &str = include_str!("../../../config/ammo-resupply.json");
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct AmmoPolicy {
+    ammo_protocol_version: u32,
+    resupply_seconds: f64,
+    pose_max_age_seconds: f64,
+}
+fn parse_ammo_policy(json: &str) -> Result<AmmoPolicy, String> {
+    let policy: AmmoPolicy = serde_json::from_str(json).map_err(|e| e.to_string())?;
+    if policy.ammo_protocol_version != AMMO_PROTOCOL_VERSION {
+        return Err("Unsupported ammunition protocol version".into());
+    }
+    if [policy.resupply_seconds, policy.pose_max_age_seconds].iter().any(|n| !n.is_finite() || *n <= 0.0) {
+        return Err("Invalid ammunition resupply time".into());
+    }
+    Ok(policy)
+}
+fn ammo_policy() -> &'static AmmoPolicy {
+    static POLICY: OnceLock<AmmoPolicy> = OnceLock::new();
+    POLICY.get_or_init(|| parse_ammo_policy(AMMO_JSON).expect("Invalid embedded ammunition policy"))
+}
+pub static RESUPPLY_SECONDS: LazyLock<f64> = LazyLock::new(|| ammo_policy().resupply_seconds);
+pub static POSE_MAX_AGE_SECONDS: LazyLock<f64> = LazyLock::new(|| ammo_policy().pose_max_age_seconds);
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -74,6 +100,20 @@ pub fn rules(mode: GameplayMode) -> &'static GameplayRules {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ammo_resupply_shared_policy_is_strict_and_source_derived() {
+        assert_eq!(AMMO_PROTOCOL_VERSION, 1);
+        assert_eq!(*RESUPPLY_SECONDS, 5.0); assert_eq!(*POSE_MAX_AGE_SECONDS, 1.0);
+        for change in ["\"ammo_protocol_version\": 2", "\"ammo_protocol_version\": 1.1", "\"ammo_protocol_version\": \"1\""] {
+            assert!(parse_ammo_policy(&AMMO_JSON.replace("\"ammo_protocol_version\": 1", change)).is_err());
+        }
+        for change in ["\"resupply_seconds\": 0", "\"resupply_seconds\": -1", "\"resupply_seconds\": \"5\""] {
+            assert!(parse_ammo_policy(&AMMO_JSON.replace("\"resupply_seconds\": 5", change)).is_err());
+        }
+        assert!(parse_ammo_policy(&AMMO_JSON.replace("\"pose_max_age_seconds\": 1", "\"pose_max_age_seconds\": 0")).is_err());
+        assert!(parse_ammo_policy(&AMMO_JSON.replacen('{', "{\"extra\":1,", 1)).is_err());
+    }
 
     #[test]
     fn exact_shared_rules_and_cached_identity() {

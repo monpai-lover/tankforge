@@ -23,12 +23,13 @@ import { buildTank } from '../src/gfx/tankmodel.js';
 import { ground } from './tankrig.mjs';
 import * as inventory from '../src/game/ammoInventory.js';
 import * as resupply from '../src/game/ammoResupply.js';
+import { runtime } from './live-network-rig.mjs';
 
 const root = new URL('../../../', import.meta.url);
 const receiptPath = process.env.TG_GAMEPLAY_NETWORK_RECEIPT || new URL('target/gameplay-network.json', root);
 assert.ok(fs.existsSync(receiptPath), 'Generate the actual native handler receipt before this suite');
 const receipt = JSON.parse(fs.readFileSync(receiptPath, 'utf8'));
-assert.deepEqual(Object.keys(receipt.sources).sort(), ['crates/server/src/lobby.rs','crates/server/src/gameplay.rs','crates/server/src/server.rs','crates/server/src/missiles.rs','crates/server/src/gameplay_tests.rs','crates/gameplay/src/lib.rs','Cargo.toml','crates/server/Cargo.toml','crates/gameplay/Cargo.toml','config/gameplay-modes.json'].sort(), 'Every source/config tag is mandatory');
+assert.deepEqual(Object.keys(receipt.sources).sort(), ['crates/server/src/lobby.rs','crates/server/src/gameplay.rs','crates/server/src/server.rs','crates/server/src/missiles.rs','crates/server/src/gameplay_tests.rs','crates/gameplay/src/lib.rs','Cargo.toml','crates/server/Cargo.toml','crates/gameplay/Cargo.toml','config/gameplay-modes.json','crates/server/src/ammo.rs','crates/server/src/ammo_tests.rs','config/ammo-resupply.json','crates/combat/src/lib.rs','crates/combat/src/weapon_damage.rs','crates/missile/src/world.rs','crates/missile/src/def.rs'].sort(), 'Every source/config tag is mandatory');
 for (const [path, bytes] of Object.entries(receipt.sources)) assert.ok(fs.readFileSync(new URL(path, root), 'utf8') === bytes, `Stale native receipt: ${path}`);
 const data = loadData();
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -92,32 +93,6 @@ test('room/start/deploy messages require exact room rules and cannot silently re
   net._receive(packet('deploy_a', receipt.a, 'respawned'));
   assert.equal(starts.length,1); assert.equal(deploys.length,1); assert.ok(errors.length>=7);
 });
-function node() { return { children: [], dataset: {}, style: {}, textContent: '', append(...c) { this.children.push(...c); } }; }
-function runtime(local, options = {}) {
-  const store = storage(), gameplay = new GameplaySession(store);
-  gameplay.chooseLocal(local);
-  const G = { id: 'su_t34_85', mode: 'garage', gameplayMode: gameplay.activeMode(), s: phys.newState(), pending: [], cam: {}, thumbs: [], mapId: 'range', maps: new Map(), enemies: [], keys: new Set() };
-  const elements = new Map();
-  globalThis.document = { body: { dataset: {} }, getElementById(id) { if (!elements.has(id)) elements.set(id,node()); return elements.get(id); }, createElement: node, createTextNode: text => ({ textContent: text }) };
-  const hudState = { el: Object.fromEntries(['kind','name','vehName','based','outline','spec'].map(k => [k,node()])) };
-  const hud = new Proxy({ showSpec(...args) { hudState.el.spec.children=[]; Hud.prototype.showSpec.call(hudState,...args); } }, { get(o,k) { return o[k] || (() => {}); } });
-  const net = new NetClient(), scene = { children: [], add(n) { this.children.push(n); } };
-  const renderer = { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} };
-  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, ...netApi, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, data, document, store, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0,
-    isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }), AMMO_CFG: {}, applyAmmo,
-    onlineFires: new OnlineFires(), loading, mgSim, renderer, buildTank, VehicleSim, terrain: ground(() => 0), scene, hud,
-    Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {}, statusShape() {}, selectAmmo() {}, sightGun: () => G.loadout.turrets[0].guns[0],
-    mods: { choose() {}, cardOf: id => id, slots: () => [] }, measureInsets() {}, missileVehicle() {}, missileBattleStart() {},
-    net, lobby: { render() {}, sendVehicle() {}, show() {} }, MAP_IDS: ['range','coast'], RESPAWN_DELAY: 5,
-    useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, updateNetHud() {}, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {}, setMapChoice(id) { G.mapId=id; }, loadMap: options.loadMap, mapName: () => 'range', feed() {},
-    deploy: { close() {} }, openDeploy() {}, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies=[]; }, hitcam: { hide() {} }, canvas: {}, sound: {}, remoteOf: () => null, removeRemote() {}, addRemote() {}, benchedMember: () => true,
-  };
-  const a=source.indexOf("  net.on('start',"),b=source.indexOf("  net.on('snap',",a);
-  const ra=source.indexOf("  net.on('respawned',"),rb=source.indexOf("  net.on('ended',",ra);
-  const la=source.indexOf("  for (const t of ['closed', 'left_room'])"),lb=source.indexOf("  const chatIn =",la);
-  const live = new Function(...Object.keys(deps), `${['select','reloadShown','setMode','gameplayLabel','updateGameplayDisplay','chooseGameplayMode','applyRoomGameplay','startBattle','toGarage'].map(fn).join('\n')}\n${source.slice(a,b)}\n${source.slice(ra,rb)}\n${source.slice(la,lb)}\nselect(G.id); return {select,chooseGameplayMode,toGarage,startBattle};`)(...Object.values(deps));
-  return { G, net, gameplay, store, live, spec: () => hudState.el.spec.children.map(n => n.textContent).join(' ') };
-}
 test('actual native room→NetClient→main selection/session→HUD fixes two local preferences through reconnect and respawn then restores local on leave', () => {
   for (const [id,local,welcome] of [[receipt.a,'casual','welcome_a'],[receipt.b,'historical','welcome_b']]) {
     const r=runtime(local), saved=r.store.values.get('tankforge.gameplay.v1');
@@ -134,7 +109,7 @@ test('actual native room→NetClient→main selection/session→HUD fixes two lo
     assert.equal(r.G.params.vTop,r.G.stockParams.vTop);
     if (id===receipt.a) {
       for (const [to,m] of receipt.phases.respawn) if(to===id) r.net._receive(m);
-      const gun=r.G.loadout.turrets[0].guns[0]; gun.ammo[0].count--;
+      const gun=r.G.loadout.turrets[0].guns[0]; r.onlineAmmo.predictCannon(41,gun.damageKey,gun.ammo[0].shell.id);r.G.online.seq=41;
       const spent=gun.ammo[0].count;
       for (const [to,m] of receipt.phases.resume) if(to===id) r.net._receive(m);
       assert.equal(r.G.loadout.turrets[0].guns[0],gun,'valid same-profile resume does not rebuild the mount');
@@ -259,8 +234,8 @@ test('expired-token reconnect accepts a new seat, restores local garage and can 
 test('actual valid socket reconnect preserves the current mount and spent ammunition', async () => {
   const r=runtime('casual');
   try {
-    await openSortie(r,receipt.a,'welcome_a',['room','start','deploy_a']);
-    const gun=r.G.loadout.turrets[0].guns[0]; gun.ammo[0].count--;
+    await openSortie(r,receipt.a,'welcome_a',['room','start','deploy_a','respawn']);
+    const gun=r.G.loadout.turrets[0].guns[0]; r.onlineAmmo.predictCannon(41,gun.damageKey,gun.ammo[0].shell.id);r.G.online.seq=41;
     const spent=gun.ammo[0].count;
     await reconnectReply(r,receipt.phases.resume.filter(([to])=>to===receipt.a).map(([,m])=>m),'resumed');
     assert.equal(r.G.mode,'battle'); assert.equal(r.G.gameplayMode,'historical');

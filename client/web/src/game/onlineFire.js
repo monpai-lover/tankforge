@@ -22,21 +22,24 @@ export class OnlineFires {
     }
   }
 
-  _take(seq, gun, session, now) {
+  _take(seq, gun, session, now, scope = null) {
     this.retire(now);
     const i = this.pending.findIndex(p => p.seq === seq);
     if (i < 0) return null;
+    const pending = this.pending[i];
+    if (scope && pending.scope && (scope.battle !== pending.scope.battle || scope.life !== pending.scope.life)) return null;
     const p = this.pending.splice(i, 1)[0];
     return p.gun === gun && p.session === session && p.gun.ammo.includes(p.ammo) ? p : null;
   }
 
-  confirm(seq, gun, session, now) {
-    return this._take(seq, gun, session, now);
+  confirm(seq, gun, session, now, { scope = null } = {}) {
+    return this._take(seq, gun, session, now, scope);
   }
 
-  reject(seq, gun, session, now) {
-    const p = this._take(seq, gun, session, now);
+  reject(seq, gun, session, now, { refund = true, scope = null } = {}) {
+    const p = this._take(seq, gun, session, now, scope);
     if (!p) return null;
+    if (!refund) return p;
     p.ammo.count = Math.min(p.ammo.max ?? Infinity, p.ammo.count + 1);
     // A last-round prediction may mark the gun empty. Queue only that idle case;
     // preserve selection, a later loaded round and any reload already in progress.

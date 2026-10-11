@@ -15,6 +15,7 @@ import { loadData } from '../tools/load-data.mjs';
 import { loadCoreSync } from '../src/design/core.js';
 import { Hud } from '../src/game/hud.js';
 import { OnlineFires } from '../src/game/onlineFire.js';
+import { OnlineAmmo } from '../src/game/onlineAmmo.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { Combat, launcherCanFire, bulletShell } from '../src/game/combat.js';
 import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
@@ -29,7 +30,7 @@ import { GAMEPLAY_RULES_VERSION } from '../src/game/gameplayRules.js';
 import { GAMEPLAY_UPDATE_NEEDED } from '../src/game/net.js';
 import { normalizeWorkshopBuild } from '../src/game/workshopBuild.js';
 import * as damageApi from '../src/game/weaponDamage.js';
-import { consumeApsRounds } from '../src/game/ammoInventory.js';
+import { ammoMix, consumeApsRounds } from '../src/game/ammoInventory.js';
 import { Mods, familyOf } from '../src/game/mods.js';
 import { decodeAllImported, decodeImported } from '../src/gfx/imported.js';
 import { exportWorkshopModel } from '../src/game/workshopImported.js';
@@ -78,10 +79,12 @@ function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
     apsCalls.push({ owner, enabled, rounds });
     core.call({ op: 'mw_aps', owner, enabled, rate_rpm, rounds });
   } };
+  const onlineAmmo=new OnlineAmmo(), selected=ammoMix(lo);
+  onlineAmmo.begin({t:'ammo',ammo_protocol_version:1,battle:7,life:2,revision:1,processed_through:0,counts:selected,targets:selected,resupply_progress:0,refilled:false},lo,G.T.map(t=>t.loading));
   const deps = { G, ME, data, DEG, RECOIL_ROCK: 1, BULLET_DT: 1 / 120, clamp, dirFrom, hullTilt, gunnery, ballistics, mgSim, loading, consumeApsRounds,
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng,
-    onlineFires: new OnlineFires(), net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
+    onlineFires: new OnlineFires(), onlineAmmo, net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
     sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},

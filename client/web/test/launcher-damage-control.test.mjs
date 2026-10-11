@@ -27,7 +27,7 @@ test('live player launch rejects disabled apparatus without spending a tube or t
   for (const online of [false, true]) {
     const lo = make(), g = lo.turrets[0].guns[0], requests = [];
     const G = { loadout: lo, T: [{ loading: loading.newLoading(1, 1) }], caps: { can_fire: false }, online: online ? { seq: 0 } : null, missiles: { ready: true, launch: () => { requests.push('launch'); return 1; } }, guided: [], cam: { shake: 0 }, model: {} };
-    const launch = live('launchFromGun', { G, data, ME: 1, rng: { nextF32: () => .5 }, ...loadout, ...combatApi, ...damageApi, net: { open: true, send: () => requests.push('send') }, onlineLaunches: { has: () => false, begin: () => true } });
+    const launch = live('launchFromGun', { G, data, ME: 1, rng: { nextF32: () => .5 }, ...loadout, ...combatApi, ...damageApi, net: { open: true, send: () => requests.push('send') }, onlineAmmo:{scope:()=>({battle:7,life:2})}, onlineLaunches: { has: () => false, begin: () => true } });
     const before = loadout.roundsLeft(g);
     assert.equal(launch(0, 0, { pos: [0, 2.7, 0], dir: [0, 0, 1] }), false, online ? 'online request' : 'offline launch');
     assert.deepEqual(requests, []);

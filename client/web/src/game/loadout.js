@@ -115,9 +115,15 @@ export function launcherMount(g, mount) {
  * The mode-owned interval is source-derived; stock callers retain 0.25 seconds.
  */
 export function fireLauncherRound(g, L, gi, intervalSeconds = g.launchIntervalSeconds ?? 0.25) {
+  return commitLauncherLaunch(g, L, gi, g.ammo[g.loaded]?.shell.id, intervalSeconds);
+}
+
+/** A server-admitted launch advances the original tube even if its inventory arrived first. */
+export function commitLauncherLaunch(g, L, gi, ammoId, intervalSeconds = g.launchIntervalSeconds ?? 0.25, { consumeAmmo = true } = {}) {
   if (typeof intervalSeconds !== 'number' || !Number.isFinite(intervalSeconds) || intervalSeconds <= 0) throw new Error('Invalid launch interval');
-  if (L.state[gi] !== 'ready' || !g.launcher?.ready || g.launcher.cooldown > 1e-9 || g.loaded < 0 || !(g.ammo[g.loaded]?.count > 0)) return false;
-  g.ammo[g.loaded].count--;
+  const original = g.ammo.find(a => a.shell.id === ammoId);
+  if (!original || !g.launcher?.ready || (consumeAmmo && (L.state[gi] !== 'ready' || g.launcher.cooldown > 1e-9 || g.loaded < 0 || g.ammo[g.loaded] !== original || !(original.count > 0)))) return false;
+  if (consumeAmmo) original.count--;
   g.launcher.ready = Math.min(g.launcher.ready - 1, roundsLeft(g));
   g.launcher.nextTube++;
   g.launcher.cooldown = intervalSeconds;

@@ -1,7 +1,12 @@
 use super::*;
 use serde_json::json;
 
-fn send(l: &mut Lobby, id: u32, value: Value, now: f64) -> Out {
+fn send(l: &mut Lobby, id: u32, mut value: Value, now: f64) -> Out {
+    if value["t"] == "hello" { value["ammo_protocol_version"] = json!(1); }
+    if matches!(value["t"].as_str(), Some("fire"|"launch"|"mg_fire")) {
+        let scope=l.ammo_scope(id); value["ammo_scope"]=json!(scope);
+        if value["t"]=="launch" {value["ammo"]=json!(l.mdata.defs.iter().find(|def|Some(def.id.as_str())==value["missile"].as_str()).map(|def|def.warhead.clone()).unwrap_or_default());}
+    }
     l.handle(id, serde_json::from_value(value).unwrap(), now)
 }
 fn connected(l: &mut Lobby, capability: Value) -> u32 {
@@ -150,10 +155,10 @@ fn room_launcher_spacing_and_retry_time_accept_legal_twin_tube_cadence() {
         let interval=if mode=="casual" {0.25/1.2} else {0.25};
         let rejection=message(&send(&mut l,id,launch(2),1.1),id,"launch_rejected");
         assert!((rejection["retry_after_s"].as_f64().unwrap()-(interval-0.1)).abs()<1e-9);
-        assert!(!message(&send(&mut l,id,launch(2),1.0+interval+1e-8),id,"launched").is_null());
+        assert!(!message(&send(&mut l,id,launch(3),1.0+interval+1e-8),id,"launched").is_null());
         assert_eq!(l.players[&id].missiles_left["bgm71a_tow"],10);
         let before=l.players[&id].missiles_left.clone();
-        assert!(!message(&send(&mut l,id,launch(2),2.0),id,"launched").is_null());
+        assert!(!message(&send(&mut l,id,launch(3),2.0),id,"launched").is_null());
         assert_eq!(l.players[&id].missiles_left,before,"receipt retry cannot spend twice");
     }
 }
@@ -165,7 +170,7 @@ fn room_fire_and_mg_quotas_and_coarse_speed_bounds_match_legal_throughput() {
         let shot=|seq|json!({"t":"fire","seq":seq,"instance":"gun:0:0","shell":"apcbc_88_l56","o":[0,0,0],"d":[0,0,1]});
         for seq in 1..=limit { assert!(!message(&send(&mut l,id,shot(seq),1.0),id,"fire_accepted").is_null(),"{mode} seq {seq}"); }
         assert_eq!(message(&send(&mut l,id,shot(limit+1),1.0),id,"fire_rejected")["reason"],"rate_limited");
-        assert_eq!(message(&send(&mut l,id,shot(1),1.0),id,"fire_rejected")["reason"],"sequence_conflict");
+        assert_eq!(message(&send(&mut l,id,shot(1),1.0),id,"fire_accepted")["seq"],1);
         let mg=l.targets["de_tiger_e"].weapon_bindings.values().find(|b|b.kind==WeaponKind::MachineGun && b.model_id=="mg34").unwrap().key.clone();
         for seq in 1000..1000+auto+1 { send(&mut l,id,json!({"t":"mg_fire","seq":seq,"gun":"mg34","instance":mg,"o":[0,0,0],"d":[0,0,1]}),1.0); }
         assert_eq!(l.players[&id].fired.iter().filter(|f| f.kind==WeaponKind::MachineGun).count(),auto as usize);
@@ -184,7 +189,7 @@ fn actual_socket_dispatch_checks_replacement_before_restoring_or_rotating_the_se
     l.drop_link(old,1.0);
     let (placeholder,_) = l.connect();
     for capability in [Value::Null,json!("1"),json!(0),json!(2),json!([1])] {
-        let msg=serde_json::from_value(json!({"t":"hello","name":"replacement","resume":token,"gameplay_rules_version":capability})).unwrap();
+        let msg=serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"replacement","resume":token,"gameplay_rules_version":capability})).unwrap();
         let (seat,out)=l.dispatch_socket(placeholder,msg,2.0);
         assert_eq!(seat,placeholder);
         assert!(message(&out,placeholder,"error")["msg"].as_str().unwrap_or("").contains("更新"));
@@ -193,7 +198,7 @@ fn actual_socket_dispatch_checks_replacement_before_restoring_or_rotating_the_se
         assert_eq!(l.players[&old].away,Some(1.0));
         assert!(l.players[&placeholder].room.is_none());
     }
-    let msg=serde_json::from_value(json!({"t":"hello","name":"replacement","resume":token,"gameplay_rules_version":1})).unwrap();
+    let msg=serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"replacement","resume":token,"gameplay_rules_version":1})).unwrap();
     let (seat,out)=l.dispatch_socket(placeholder,msg,2.0);
     assert_eq!(seat,old);
     assert!(!l.players.contains_key(&placeholder));
@@ -214,17 +219,17 @@ fn casual_keeps_manual_automatic_oplot_ownership_and_independent_damage_and_ammo
     let before=l.players[&id].rounds;
     assert_eq!(message(&send(&mut l,id,fire(1,"gun:1:0","api_145_b32"),1.0),id,"fire_rejected")["reason"],"automatic_protection");
     send(&mut l,id,json!({"t":"aps","enabled":false}),1.0);
-    assert!(!message(&send(&mut l,id,fire(1,"gun:1:0","api_145_b32"),1.1),id,"fire_accepted").is_null());
+    assert!(!message(&send(&mut l,id,fire(2,"gun:1:0","api_145_b32"),1.1),id,"fire_accepted").is_null());
     assert_eq!(l.players[&id].rounds,before,"independent protection never spends primary ammunition");
     assert_eq!(l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().rounds,899);
-    assert_eq!(message(&send(&mut l,id,fire(1,"gun:1:0","api_145_b32"),1.2),id,"fire_rejected")["reason"],"sequence_conflict");
+    assert_eq!(message(&send(&mut l,id,fire(2,"gun:1:0","api_145_b32"),1.2),id,"fire_accepted")["seq"],2);
     let own=l.targets["su_t10m"].weapon_bindings["gun:1:0"].critical.clone();
     for &i in &own { l.players.get_mut(&id).unwrap().combat.as_mut().unwrap().modules[i]=0.0; }
-    assert_eq!(message(&send(&mut l,id,fire(2,"gun:1:0","api_145_b32"),1.3),id,"fire_rejected")["reason"],"weapon_disabled");
+    assert_eq!(message(&send(&mut l,id,fire(3,"gun:1:0","api_145_b32"),1.3),id,"fire_rejected")["reason"],"weapon_disabled");
     for i in own { l.players.get_mut(&id).unwrap().combat.as_mut().unwrap().modules[i]=l.targets["su_t10m"].def.modules[i].max_health; }
-    l.rooms.get_mut(&room).unwrap().world.as_mut().unwrap().set_aps_rounds(id,false,None,Some(0));
-    assert_eq!(message(&send(&mut l,id,fire(2,"gun:1:0","api_145_b32"),1.4),id,"fire_rejected")["reason"],"no_ammo");
-    assert_eq!(message(&send(&mut l,id,fire(3,"gun:99:0","api_145_b32"),1.5),id,"fire_rejected")["reason"],"weapon_disabled");
+    l.players.get_mut(&id).unwrap().ammo.as_mut().unwrap().counts.get_mut("gun:1:0").unwrap().fill(0);l.sync_ammo(id);
+    assert_eq!(message(&send(&mut l,id,fire(4,"gun:1:0","api_145_b32"),1.4),id,"fire_rejected")["reason"],"no_ammo");
+    assert_eq!(message(&send(&mut l,id,fire(5,"gun:99:0","api_145_b32"),1.5),id,"fire_rejected")["reason"],"weapon_disabled");
 
     // A fresh casual world actually runs the same automatic gun while the primary is broken.
     let mut l=real_lobby();
@@ -290,25 +295,14 @@ fn browser_protocol_receipt_from_actual_handlers() {
     let token=l.players[&a].token.clone();
     l.drop_link(a,9.0);
     let (replacement,_) = l.connect();
-    let (_,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resumed","resume":token,"gameplay_rules_version":1})).unwrap(),10.0);
+    let (_,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"resumed","resume":token,"gameplay_rules_version":1})).unwrap(),10.0);
     phases.insert("resume".into(),serde_json::to_value(out).unwrap());
     phases.insert("leave".into(),serde_json::to_value(send(&mut l,a,json!({"t":"leave"}),11.0)).unwrap());
     let (c,_) = l.connect();
     phases.insert("welcome_c".into(),serde_json::to_value(send(&mut l,c,json!({"t":"hello","name":"casual","gameplay_rules_version":1}),12.0)).unwrap());
     phases.insert("room_c".into(),serde_json::to_value(create(&mut l,c,"casual")).unwrap());
     phases.insert("start_c".into(),serde_json::to_value(send(&mut l,c,json!({"t":"start"}),12.0)).unwrap());
-    let sources=json!({
-        "crates/server/src/lobby.rs":include_str!("lobby.rs"),
-        "crates/server/src/gameplay.rs":include_str!("gameplay.rs"),
-        "crates/server/src/server.rs":include_str!("server.rs"),
-        "crates/server/src/missiles.rs":include_str!("missiles.rs"),
-        "crates/server/src/gameplay_tests.rs":include_str!("gameplay_tests.rs"),
-        "crates/gameplay/src/lib.rs":include_str!("../../gameplay/src/lib.rs"),
-        "Cargo.toml":include_str!("../../../Cargo.toml"),
-        "crates/server/Cargo.toml":include_str!("../Cargo.toml"),
-        "crates/gameplay/Cargo.toml":include_str!("../../gameplay/Cargo.toml"),
-        "config/gameplay-modes.json":include_str!("../../../config/gameplay-modes.json")
-    });
+    let sources=super::ammo_tests::source_tags();
     std::fs::write(path,serde_json::to_vec(&json!({"a":a,"b":b,"c":c,"phases":phases,"sources":sources})).unwrap()).unwrap();
 }
 #[test]
@@ -324,7 +318,7 @@ fn room_rules_follow_actual_create_list_join_start_state_deploy_and_respawn() {
     profile(&message(&joined,b,"room")["room"], "historical");
     let started = send(&mut l,a,json!({"t":"start"}),0.0);
     profile(&message(&started,b,"start"), "historical");
-    let deployed = send(&mut l,a,json!({"t":"deploy","vehicle":"test","rounds":0}),1.0);
+    let deployed = send(&mut l,a,json!({"t":"deploy","vehicle":"test"}),1.0);
     profile(&message(&deployed,a,"respawned"), "historical");
     send(&mut l,a,json!({"t":"state","s":{"pos":[0,0,0],"gameplay_mode":"casual","gameplay_rules_version":99}}),1.0);
     profile(&message(&send(&mut l,b,json!({"t":"join","room":room}),2.0),b,"room")["room"], "historical");

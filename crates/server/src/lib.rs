@@ -3,6 +3,7 @@
 //! hand-written WebSocket ([`ws`]), the room and battle rules with no networking in them
 //! ([`lobby`]), and the threads that tie them to sockets ([`server`]).
 pub mod lobby;
+pub mod ammo;
 pub mod gameplay;
 pub mod missiles;
 pub mod server;
