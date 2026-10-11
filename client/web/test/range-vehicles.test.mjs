@@ -11,6 +11,10 @@ import { Terrain } from '../src/game/terrain.js';
 import { groundRay, hitTargets, humpLift, COURSE, FIELD } from '../src/game/world.js';
 import { loadCoreSync } from '../src/design/core.js';
 import { Combat } from '../src/game/combat.js';
+import { GameplaySession } from '../src/game/gameplaySession.js';
+import { GAMEPLAY_RULES_VERSION } from '../src/game/gameplayRules.js';
+import { deriveLoadoutPerformance } from '../src/game/gameplayPerformance.js';
+import { isGameplayAlly, visibleGameplayMarker } from '../src/game/gameplayMarkers.js';
 
 const data = loadData();
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -31,7 +35,7 @@ function live(names, deps) {
 test('single-player range actually invokes vehicle spawning when entering battle', () => {
   let spawns = 0;
   const G = {mode:'garage',thumbs:[],mapId:'range',maps:new Map(),map:null,online:null,loadout:{name:'test'}};
-  const deps = {G,hud:{toast(){},freeLook(){}},useWorld(){},setMode(mode){G.mode=mode;},spawnEnemies(){spawns++;},resetPose(){},missileBattleStart(){},updateNetHud(){}};
+  const deps = {G,gameplay:new GameplaySession(),GAMEPLAY_RULES_VERSION,select(){},updateGameplayDisplay(){},hud:{toast(){},freeLook(){}},useWorld(){},setMode(mode){G.mode=mode;},spawnEnemies(){spawns++;},resetPose(){},missileBattleStart(){},updateNetHud(){}};
   live(['startBattle'],deps).startBattle();
   assert.equal(spawns,1,'the range must spawn real vehicles as well as paper targets');
 });
@@ -66,8 +70,8 @@ test('actual range models settle, have clear firing lanes and independent combat
   let freed=0;
   const renderer={mesh:d=>({data:d,count:d.length/STRIDE}),instancedMesh:(d,capacity)=>({data:d,count:d.length/STRIDE,capacity}),setInstances(){},freeMesh(){freed++;},texture(){return {};},freeTexture(){}};
   const scene={children:[],add(root){this.children.push(root);}};
-  const G={map:null,id:'xp_bmp_k64',enemies:[],combat:null};
-  const deps={G,data,renderer,scene,terrain,makeLoadout,buildTank,generatedTurretParts,Enemy,useCombat,rangeVehicleTargets:()=>rows,ENEMY_POOL:['su_t54'],hitcam:{hide(){}}};
+  const G={map:null,gameplayMode:'historical',id:'xp_bmp_k64',enemies:[],combat:null};
+  const deps={G,data,renderer,scene,terrain,makeLoadout,deriveLoadoutPerformance,buildTank,generatedTurretParts,Enemy,useCombat,rangeVehicleTargets:()=>rows,ENEMY_POOL:['su_t54'],hitcam:{hide(){}}};
   const app=live(['clearEnemies','spawnEnemies','hitEnemy','bindCombatReady'],deps);
   app.spawnEnemies();
   assert.equal(G.enemies.length,8);
@@ -129,7 +133,12 @@ test('range targets cannot autonomously fire missiles even if a launcher is fitt
 
 test('range targets do not activate defensive guns, while map enemies retain active protection', () => {
   const registered=[];
-  const G={missiles:{reset(){},addAps(...args){registered.push(args);}},enemies:[{bundle:{weapons:{aps:{name:'training APS'}}},rangeTarget:true},{bundle:{weapons:{aps:{name:'map APS'}}}}]};
+  const apsTarget = name => {
+    const bundle = structuredClone(data.vehicles.su_t10m);
+    bundle.weapons.aps.name = name;
+    return {bundle,loadout:deriveLoadoutPerformance(makeLoadout('su_t10m',bundle,data.projectiles,data.machineGuns),'historical')};
+  };
+  const G={missiles:{reset(){},addAps(...args){registered.push(args);}},enemies:[{...apsTarget('training APS'),rangeTarget:true},apsTarget('map APS')]};
   live(['missileBattleStart'],{G,missileTerrain:()=>null,onlineLaunches:{clear(){}},missileVehicle(){},enemyOwner:i=>100+i}).missileBattleStart();
   assert.deepEqual(registered.map(a=>a[0]),[101]);
 });
@@ -137,8 +146,8 @@ test('range targets do not activate defensive guns, while map enemies retain act
 test('far range target tags remain visible and ordinary map and online tag rules are preserved', () => {
   let tags=[];
   const make = (x,flags={}) => ({x,z:100,veh:{body:{origin:()=>[x,0,100]}},box:{top:2},name:'vehicle',alive:true,rangeM:2000,...flags});
-  const G={mode:'battle',online:null,map:null,mapTick:0,s:{x:0,z:0},enemies:[make(2000,{rangeTarget:true}),make(2000),make(5,{rangeTarget:true,rangeM:100})]};
-  const deps={G,project:()=>[0,0,1],groundRay:()=>Infinity,buildingHit:()=>null,surfaceAt:()=>0,hud:{drawNameTags(t){tags=t;}}};
+  const G={mode:'battle',gameplayMode:'casual',online:null,map:null,mapTick:0,s:{x:0,z:0},enemies:[make(2000,{rangeTarget:true}),make(2000),make(5,{rangeTarget:true,rangeM:100})]};
+  const deps={G,isGameplayAlly,visibleGameplayMarker,project:()=>[0,0,1],groundRay:()=>Infinity,buildingHit:()=>null,surfaceAt:()=>0,hud:{drawNameTags(t){tags=t;}}};
   const draw=live(['drawVehicleTags'],deps).drawVehicleTags;
   draw([0,2,0],null,1280,800);
   assert.equal(tags.length,2,'2000 m training target and near target labelled, unrelated enemies excluded');
