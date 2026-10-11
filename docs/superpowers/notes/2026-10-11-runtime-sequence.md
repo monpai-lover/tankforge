@@ -70,6 +70,10 @@ The committed foundation is not a completed ammunition/fuse/FX implementation.
    projectile geometry, trace/shard and sampling code into existing owners;
    replace demo trajectories/proxy modules/illustrative damage with real
    events/models. Preserve the supplied MIT notice; no source-permission gap.
+   The latest multi-hit requirement appends consecutive/simultaneous same-target
+   reports within one stable view/session, without replay replacement or
+   camera/clock resets. Keep individual sources, accepted poses and arrivals,
+   bounded instances and true victim lethal cause; see P4 and updated designs.
    The camera/victim runtime integration remains pending P4/P5.
 6. Full regression, original-source hashes, performance, actual release WASM
    and HTML/catalog identity; final review, remote overlap check and precisely
