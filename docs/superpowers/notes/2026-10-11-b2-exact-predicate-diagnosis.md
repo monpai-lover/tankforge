@@ -87,3 +87,24 @@ External evidence under scratch: `tankforge-b2-exact-kkt.mjs/.test.mjs`,
 The contact freeze still matches all 13 hashes. Source-owner, native mirror,
 decoded/fleet, vehicle integration and performance acceptance remain open;
 B3–B6, wheels, exact hitboxes and projectile/replay stages remain pending.
+
+## Bounded exact active-set result
+
+The external search completed 64 pivot transitions / 65 candidate checks in
+21.378 s and refused with `pivotLimit`. Every candidate has exactly zero
+original generalized-force residual; the largest pivot integer has 4,063 bits.
+Admitting the first strictly negative ground row 3 changes selected rank 24
+to 25 and creates eight wrong-side duals, including approximately
+`-4.730654806570818e18` and `-4.729586071173282e18` at rows 1 and 525.
+Releasing them leads to further exchanges of near-identical original rows.
+The best count of exact primal failures was 61; the final count was 302.
+No feasible certificate was obtained. This is bounded solver failure only,
+not physical infeasibility and not permission to alter the original law.
+
+Root freshly ran the completed external active-set regression suite:
+**8 PASS, 0 FAIL**, including the analytic closed/open/true-gap cases,
+dependent target exchange, finite caps, deterministic bound ties, and pivot
+and time exhaustion. Production contact and constructor hashes are unchanged.
+Further runtime arithmetic variants or exact certificate adoption are not
+approved. The history is `tankforge-b2-exact-active-road.json`; external
+implementation and tests are `tankforge-b2-exact-active-set.mjs/.test.mjs`.

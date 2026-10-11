@@ -47,3 +47,18 @@ No browser visual acceptance, WASM rebuild, generated HTML update or release
 is claimed. Full B2 suspension/track support and the remaining damage/replay
 stages continue separately; their unfinished state does not turn this small
 sight fix into an integration release.
+
+## Later isolated preview build
+
+Root subsequently built a separate preview from committed source `0767ee8`,
+without any uncommitted B2 runtime changes. The actual release WASM build and
+web bundle succeeded; the target, copied asset and unique page embed are
+byte-identical. The preview's sight/weapon group passed **39/39**, including
+actual MG ballistic graduation, parallax/tilted-hull alignment and independent
+Oplot firing. The project copy matches the generated HTML hash.
+
+User-facing file:
+`C:/Users/24908/Documents/ChatGPT/tankforge/client/web/dist/tankforge-sight-dot-preview-20261011.html`.
+Build and scope details are in `docs/sight-dot-preview-2026-10-11.md`. The
+ordinary range page, main source, broad B2 work and remote repository were
+not replaced or published. No browser visual acceptance is claimed.
