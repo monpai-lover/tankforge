@@ -34,3 +34,37 @@ browser, baseline overwrite or vehicle dynamics fleet run occurred.
 
 Root returned the native build resource to `b2_resume_impl` immediately
 after these checks; the sole runtime implementer may resume frozen files.
+
+## Actual-source maps and parent reconstruction follow-up
+
+After the generic original-route raw-parent correction, Root freshly ran
+the frozen source-mechanics/common-chart JS groups:6 PASS/0 FAIL. Eight
+relevant input files had identical before/after hashes during the run.
+`trackSourceMechanics.js` SHA256:
+`92d31bb84efeb3fee020fcef51341a61575959b008dfac02ef3cf5c5db963a80`;
+`trackMechanicalChart.js`:
+`c5405f37f368a083f0681267b6dac86b05bcaabc846713a878319c218d49c481`.
+The independent captured-source M56 proof is documented separately in
+`2026-10-11-b2-m56-common-chart-proof.md`.
+
+At the implementer's subsequent frozen JS/native source-map checkpoint,
+Root independently ran:
+
+- JS `track-source-mechanics`, `track-mechanical-chart` and
+  `track-finite-discovery`: **12 PASS/0 FAIL/0 SKIP/exit0**.
+- Serial native `fixed_track_source_mechanics_`3,
+  `fixed_track_mechanical_chart_`3 and `source_inventory_`5:
+  **11 PASS/0 FAIL/0 IGNORED**, every command exit0.
+
+This covers both source sides, nominal coherent M56 and Flak corners,
+regular two-sided M56, mixed actual source normal/tangent fixed-feature
+motion including COM and original-radius belt derivative, stale engine
+pose, rejected independently one-sided columns and the original full
+hull/all-q/two-belt kinetic-energy identity. The new body sampling guard
+binds15 original pose/COM scalars. Root did not rerun the entire43-JS /
+32-native helper checkpoint, which remains implementer-reported evidence.
+
+Native ownership was returned immediately to the sole implementer. Actual
+shared normal/reciprocal friction, owner impulses, final-freeze loaded
+correspondence, production graph and all-fleet acceptance are still pending.
+No WASM/build/browser/baseline update or runtime commit occurred here.
