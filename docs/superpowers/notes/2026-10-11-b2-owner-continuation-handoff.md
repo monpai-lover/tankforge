@@ -68,6 +68,28 @@ part of integration. The existing dense joint traction scratch must not be
 preallocated at the full 16384 source ceiling. Production scale/performance
 and B6 are not granted by the focused helper reviews.
 
+Root's external static potential-feature observation enumerated35 original
+source routes through `primitiveTerrainResidual` without healthy stepping or
+mechanical loads. TigerE's feasible nominal source route emitted74,581 potential
+terrain features (6144 vertices,43838 local-grid,24599 trusted-breakpoint), with
+3824 within2mm of its lowest source point. Maximum potential old-run-region
+count was26,455. A complete-potential dense ground scratch estimate for TigerE
+was267,120,502,896 bytes, before bearing rows. This is an input-scale observation,
+not accepted lower-graph geometry, force or production memory certification.
+Probe/receipt: `C:/Users/24908/.codex/scratch/tankforge-root-potential-ground-inventory.mjs`
+and `.json`. Compute complete-potential region summaries while streaming;
+do not allocate dense traction storage at this enumeration's capacity.
+
+The sole implementer separately measured actual static M56 source inventories:
+nominal q0 per side1677 rows (1668 ground/9 bearing), regular-q per side409
+rows (400 ground/9 bearing), shape rank6. These are implementer observations
+pending Root replication, not loaded force certification. They identify the
+dense ground-squared helper scratch as a concrete owner-integration blocker.
+The implementer is repairing scratch with original rank-selected force columns,
+a target-rows-by-rank system and one combined original tangent impulse response,
+retaining every raw normal/tangent bound and equality. Changed helper files
+must freeze and pass fresh SPEC then QUALITY before owner implementation.
+
 No original vehicle/weapon/armor/engine data or GLB/packed asset mutation, WASM
 publication, browser workaround or broad staging is authorized by this handoff.
 Continue B3–B6, W, X and P2–P5 after full Task2 review; multi-hit/V3/player-death
