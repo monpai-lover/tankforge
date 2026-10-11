@@ -26,6 +26,7 @@ import { applyAmmo } from '../src/game/deploy.js';
 import { ground } from './tankrig.mjs';
 import { GameplaySession } from '../src/game/gameplaySession.js';
 import { GAMEPLAY_RULES_VERSION } from '../src/game/gameplayRules.js';
+import { GAMEPLAY_UPDATE_NEEDED } from '../src/game/net.js';
 import { normalizeWorkshopBuild } from '../src/game/workshopBuild.js';
 const damageApi = await import('../src/game/weaponDamage.js').catch(() => ({}));
 
@@ -212,7 +213,7 @@ test('actual start, garage choice, locked reselect/respawn and leave restore eff
   Object.assign(G, { thumbs: [], mapId: 'range', maps: new Map(), enemies: [], keys: new Set() });
   const elements = new Map(), document = { body: { dataset: {} }, getElementById(id) { if (!elements.has(id)) elements.set(id, {}); return elements.get(id); } };
   const hud = new Proxy({}, { get: () => () => {} });
-  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, data, document, hud, sound: {}, canvas: {},
+  const deps = { G, gameplay, GAMEPLAY_RULES_VERSION, GAMEPLAY_UPDATE_NEEDED, data, document, hud, sound: {}, canvas: {},
     select: () => G.selectAgain(), isDesign: () => false, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {},
     useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, missileBattleStart() {}, updateNetHud() {},
     mapName: () => 'range', deploy: { close() {} }, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies = []; }, hitcam: { hide() {} }, measureInsets() {}, net: { send() {} } };
@@ -235,8 +236,9 @@ test('actual start, garage choice, locked reselect/respawn and leave restore eff
   assert.match(elements.get('gameplay-rule').textContent, /休閒/);
   live.toGarage();
   G.online = { team: 'blue' };
-  live.startBattle();
-  assert.equal(G.gameplayMode, 'historical', 'legacy rooms retain source server physics until rules sync');
+  assert.throws(() => live.startBattle(), /更新/, 'online start requires authoritative room rules');
+  live.startBattle({ mode: 'historical', version: GAMEPLAY_RULES_VERSION });
+  assert.equal(G.gameplayMode, 'historical', 'supported historical rooms retain source server physics');
   live.toGarage();
 });
 

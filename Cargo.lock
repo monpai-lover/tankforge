@@ -208,6 +208,7 @@ dependencies = [
  "serde_json",
  "tg-armor",
  "tg-combat",
+ "tg-gameplay",
  "tg-missile",
  "tg-shared",
  "tg-weapon",

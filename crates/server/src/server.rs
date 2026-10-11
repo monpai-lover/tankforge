@@ -18,11 +18,6 @@ use std::time::{Duration, Instant};
 pub const TICK_HZ: f64 = 20.0;
 /// More connections than this are turned away.
 const MAX_CONNECTIONS: usize = 256;
-/// Frames queued for one client before it counts as too slow to keep.
-const QUEUE: usize = 512;
-/// Messages a client may send per second (states at 20 Hz, shots, hits and pings fit easily,
-/// an automatic gun's rounds and hits included).
-const RATE: f64 = 240.0;
 /// A client silent this long is gone (the game pings every few seconds).
 const IDLE: Duration = Duration::from_secs(30);
 
@@ -353,20 +348,21 @@ fn writer(rx: Receiver<Frame>, mut stream: TcpStream) {
 fn websocket(mut reader: BufReader<TcpStream>, stream: TcpStream, hub: Shared) -> io::Result<()> {
     stream.set_read_timeout(Some(IDLE))?;
     stream.set_write_timeout(Some(Duration::from_secs(5)))?;
-    let (tx, rx) = sync_channel::<Frame>(QUEUE);
+    let (tx, rx) = sync_channel::<Frame>(crate::gameplay::socket_queue_capacity());
     let (mut id, serial) = {
         let mut h = lock(&hub);
-        let (id, out) = h.lobby.connect();
+        // Hello is the only welcome. A placeholder welcome could resolve a reconnect before
+        // the replacement's rules capability and seat transfer have been accepted.
+        let (id, _) = h.lobby.connect();
         h.serials += 1;
         let serial = h.serials;
         h.conns.insert(id, Conn { tx: tx.clone(), stream: stream.try_clone()?, serial });
-        h.dispatch(out);
         (id, serial)
     };
     let w = stream.try_clone()?;
     let writer_thread = thread::Builder::new().name("write".into()).spawn(move || writer(rx, w))?;
-    // a leaky bucket: RATE messages a second, bursts up to one second's worth
-    let mut bucket = RATE;
+    // A leaky bucket: the room's policy messages/second, bursts up to one second's worth.
+    let mut bucket = lock(&hub).lobby.socket_rate(id);
     let mut last = Instant::now();
     let result = loop {
         let msg = match ws::read_message(&mut reader, true) {
@@ -374,7 +370,8 @@ fn websocket(mut reader: BufReader<TcpStream>, stream: TcpStream, hub: Shared) -
             Err(e) => break Err(e),
         };
         let t = Instant::now();
-        bucket = (bucket + (t - last).as_secs_f64() * RATE).min(RATE);
+        let rate = lock(&hub).lobby.socket_rate(id);
+        bucket = (bucket + (t - last).as_secs_f64() * rate).min(rate);
         last = t;
         match msg {
             ws::Incoming::Text(text) => {
@@ -384,29 +381,17 @@ fn websocket(mut reader: BufReader<TcpStream>, stream: TcpStream, hub: Shared) -
                 bucket -= 1.0;
                 let mut h = lock(&hub);
                 match serde_json::from_str::<ClientMsg>(&text) {
-                    // a reconnect: this socket takes over the held seat and its id
-                    Ok(ClientMsg::Hello { name, resume: Some(token) }) => {
-                        let now = h.now();
-                        match h.lobby.resume(id, &token, now) {
-                            Some((old, out)) => {
-                                if let Some(c) = h.conns.remove(&id) {
-                                    // a stale socket still registered for the seat is closed
-                                    if let Some(prev) = h.conns.insert(old, c) {
-                                        let _ = prev.stream.shutdown(Shutdown::Both);
-                                    }
-                                }
-                                id = old;
-                                h.dispatch(out);
-                            }
-                            None => {
-                                let out = h.lobby.handle(id, ClientMsg::Hello { name, resume: None }, now);
-                                h.dispatch(out);
-                            }
-                        }
-                    }
                     Ok(m) => {
                         let now = h.now();
-                        let out = h.lobby.handle(id, m, now);
+                        let (seat, out) = h.lobby.dispatch_socket(id, m, now);
+                        if seat != id {
+                            if let Some(c) = h.conns.remove(&id) {
+                                if let Some(prev) = h.conns.insert(seat, c) {
+                                    let _ = prev.stream.shutdown(Shutdown::Both);
+                                }
+                            }
+                            id = seat;
+                        }
                         h.dispatch(out);
                     }
                     Err(_) => h.dispatch(vec![(id, ServerMsg::Error { msg: "看不懂的訊息".into() })]),

@@ -26,20 +26,23 @@ use tg_combat::{Target, TargetState as CombatState};
 use tg_combat::weapon_damage::{select_weapon, WeaponKind};
 use tg_shared::Vec3;
 use tg_weapon::ProjectileDef;
+use crate::gameplay::{compatible, RoomGameplay, UPDATE_NEEDED};
+use tg_gameplay::GAMEPLAY_RULES_VERSION;
+
+#[cfg(test)]
+#[path = "gameplay_tests.rs"]
+mod gameplay_tests;
 
 pub const MAX_ROOMS: usize = 64;
 pub const MAX_NAME: usize = 24;
-/// Faster than this between two states (m/s) is not driving.
-const MAX_SPEED: f64 = 30.0;
 /// How long after (re)spawning a vehicle may be anywhere.
 const SPAWN_GRACE: f64 = 2.0;
 /// How long a fired shot can still be reported as a hit.
 const SHOT_LIFE: f64 = 8.0;
-/// At most this many shots in any 10 s (a multi-gun ripple included); an automatic gun of
-/// [`AUTOCANNON_MM`] or less may fire [`AUTO_BURST`].
+/// Original quota retained by legacy historical fixtures; room limits come from gameplay.
+#[cfg(test)]
 const FIRE_BURST: usize = 16;
 const AUTOCANNON_MM: f64 = 40.0;
-const AUTO_BURST: usize = 600;
 pub const RESPAWN_DELAY: f64 = 5.0;
 /// Conquest: each side's tickets at the start, what a lost vehicle costs, how fast holding fewer
 /// points than the enemy bleeds them (per second per point short), how long one vehicle takes
@@ -105,6 +108,8 @@ pub enum ClientMsg {
         name: String,
         #[serde(default)]
         resume: Option<String>,
+        #[serde(default)]
+        gameplay_rules_version: Value,
     },
     List,
     /// `deploy`: the battle starts with nobody on the field; every player chooses a vehicle,
@@ -118,6 +123,10 @@ pub enum ClientMsg {
         /// Only vehicles of these years (first, last) may be brought into the room.
         #[serde(default)]
         era: Option<[u32; 2]>,
+        #[serde(default)]
+        gameplay_mode: Value,
+        #[serde(default)]
+        gameplay_rules_version: Value,
     },
     Join { room: u32 },
     Leave,
@@ -200,6 +209,8 @@ pub fn shot_seed(id: u32, seq: u32) -> u64 {
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
 pub struct RoomInfo {
+    #[serde(flatten)]
+    pub gameplay: RoomGameplay,
     pub id: u32,
     pub name: String,
     pub map: String,
@@ -227,6 +238,8 @@ pub struct Member {
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
 pub struct RoomDetail {
+    #[serde(flatten)]
+    pub gameplay: RoomGameplay,
     pub id: u32,
     pub name: String,
     pub map: String,
@@ -274,11 +287,11 @@ pub struct SnapPlayer {
 #[serde(tag = "t", rename_all = "snake_case")]
 pub enum ServerMsg {
     /// token: this player's secret for taking the seat back after a dropped connection.
-    Welcome { id: u32, name: String, maps: Vec<String>, token: String },
+    Welcome { id: u32, name: String, maps: Vec<String>, token: String, gameplay_rules_version: u32 },
     Rooms { rooms: Vec<RoomInfo> },
     Room { room: RoomDetail },
     LeftRoom,
-    Start { map: String, members: Vec<Member> },
+    Start { map: String, members: Vec<Member>, #[serde(flatten)] gameplay: RoomGameplay },
     Ended {
         members: Vec<Member>,
         /// Conquest: the side that won (tickets), None when the host ended it.
@@ -319,7 +332,7 @@ pub enum ServerMsg {
     /// A vehicle's damage changed without a hit: fire, a crew member taking another seat, repairs.
     Status { id: u32, state: Value, caps: Value, events: Vec<String> },
     /// Back on the field: with which vehicle, at which of the team's spawn points.
-    Respawned { id: u32, vehicle: String, spawn: u32 },
+    Respawned { id: u32, vehicle: String, spawn: u32, #[serde(flatten)] gameplay: RoomGameplay },
     /// Conquest, four times a second: the points and both sides' tickets [blue, red].
     Capture { points: Vec<PointState>, tickets: [f64; 2] },
     Chat { from: u32, name: String, text: String },
@@ -333,8 +346,6 @@ pub type Broadcast = Vec<(Vec<u32>, ServerMsg)>;
 
 // ------------------------------------------------------------------ state
 
-const MAX_SEQUENCES: usize = 2048;
-const MAX_LAUNCH_RECEIPTS: usize = 256;
 const LAUNCH_RECEIPT_LIFE: f64 = 60.0;
 
 #[derive(Clone, Debug)]
@@ -359,6 +370,7 @@ struct Fired {
 
 #[derive(Clone, Debug)]
 pub struct Player {
+    gameplay_compatible: bool,
     pub id: u32,
     pub name: String,
     pub room: Option<u32>,
@@ -422,9 +434,9 @@ impl Player {
         self.retired_seq.is_some_and(|floor| seq <= floor) || self.sequences.contains(&seq)
     }
 
-    fn remember_sequence(&mut self, seq: u32) {
+    fn remember_sequence(&mut self, seq: u32, capacity: usize) {
         self.sequences.push_back(seq);
-        if self.sequences.len() > MAX_SEQUENCES {
+        if self.sequences.len() > capacity {
             let old = self.sequences.pop_front().unwrap();
             self.retired_seq = Some(self.retired_seq.unwrap_or(0).max(old));
         }
@@ -454,6 +466,7 @@ impl Player {
 
 #[derive(Clone, Debug)]
 pub struct Room {
+    gameplay: RoomGameplay,
     pub id: u32,
     pub name: String,
     pub map: String,
@@ -625,9 +638,9 @@ impl Lobby {
         let token = self.new_token(id);
         self.players.insert(
             id,
-            Player { id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
+            Player { gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
         );
-        (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token }), (id, self.room_list())])
+        (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION }), (id, self.room_list())])
     }
 
     /// An unguessable seat token: splitmix64 over a counter, the id and the wall clock.
@@ -670,25 +683,47 @@ impl Lobby {
             return None;
         }
         let old = self.players.values().find(|p| p.id != new_id && p.token == token).map(|p| p.id)?;
+        let compatible = self.players.get(&new_id)?.gameplay_compatible;
+        if self.players[&old].room.is_some() && !compatible { return None; }
         // the placeholder from connect() goes; it never joined anything
         if self.players.get(&new_id).is_some_and(|p| p.room.is_none()) {
             self.players.remove(&new_id);
         }
         let token = self.new_token(old);
         let p = self.players.get_mut(&old)?;
+        p.gameplay_compatible = compatible;
         p.away = None;
         p.token = token.clone();
         // its position history jumps: no speed check on the first state back
         p.last_pos = None;
         p.trail.clear();
         p.grace_until = now + SPAWN_GRACE;
-        let mut out = vec![(old, ServerMsg::Welcome { id: old, name: p.name.clone(), maps: self.maps.clone(), token })];
+        let mut out = vec![(old, ServerMsg::Welcome { id: old, name: p.name.clone(), maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION })];
         if let Some(room) = p.room {
             out.extend(self.room_changed(room));
         } else {
             out.push((old, self.room_list()));
         }
         Some((old, out))
+    }
+
+    /// Used by the socket reader: validate the replacement's capability before touching a
+    /// held seat or emitting its room. Socket ownership transfers only when the returned id changes.
+    pub fn dispatch_socket(&mut self, id: u32, msg: ClientMsg, now: f64) -> (u32, Out) {
+        if let ClientMsg::Hello { name, resume: Some(token), gameplay_rules_version } = msg {
+            let supported = compatible(&gameplay_rules_version);
+            let room_seat = self.players.values().any(|p| p.id != id && p.token == token && p.room.is_some());
+            if room_seat && !supported { return (id, Self::err(id, UPDATE_NEEDED)); }
+            if let Some(p) = self.players.get_mut(&id) { p.gameplay_compatible = supported; }
+            if let Some((old, mut out)) = self.resume(id, &token, now) {
+                if let Some(room) = self.players[&old].room.filter(|r| self.rooms.get(r).is_some_and(|r| r.playing)) {
+                    out.push((old, self.start_msg(room)));
+                }
+                return (old, out);
+            }
+            return (id, self.handle(id, ClientMsg::Hello { name, resume: None, gameplay_rules_version }, now));
+        }
+        (id, self.handle(id, msg, now))
     }
 
     /// Lets go of the seats whose connection has been gone longer than RESUME_GRACE.
@@ -701,12 +736,17 @@ impl Lobby {
         out
     }
 
+    pub fn socket_rate(&self, id: u32) -> f64 {
+        self.players.get(&id).and_then(|p| p.room).and_then(|r| self.rooms.get(&r))
+            .map(|r| r.gameplay.socket_rate()).unwrap_or(crate::gameplay::DEFAULT_SOCKET_RATE)
+    }
+
     pub fn room_list(&self) -> ServerMsg {
         ServerMsg::Rooms {
             rooms: self
                 .rooms
                 .values()
-                .map(|r| RoomInfo { id: r.id, name: r.name.clone(), map: r.map.clone(), players: r.members.len(), max: r.max, playing: r.playing, host: self.players.get(&r.host).map(|p| p.name.clone()).unwrap_or_default(), era: r.era })
+                .map(|r| RoomInfo { gameplay: r.gameplay, id: r.id, name: r.name.clone(), map: r.map.clone(), players: r.members.len(), max: r.max, playing: r.playing, host: self.players.get(&r.host).map(|p| p.name.clone()).unwrap_or_default(), era: r.era })
                 .collect(),
         }
     }
@@ -718,7 +758,7 @@ impl Lobby {
 
     fn detail(&self, room: u32) -> Option<RoomDetail> {
         let r = self.rooms.get(&room)?;
-        Some(RoomDetail { id: r.id, name: r.name.clone(), map: r.map.clone(), max: r.max, host: r.host, playing: r.playing, deploy: r.deploy, members: r.members.iter().filter_map(|m| self.member(*m)).collect(), era: r.era })
+        Some(RoomDetail { gameplay: r.gameplay, id: r.id, name: r.name.clone(), map: r.map.clone(), max: r.max, host: r.host, playing: r.playing, deploy: r.deploy, members: r.members.iter().filter_map(|m| self.member(*m)).collect(), era: r.era })
     }
 
     /// The room's state to everyone in it, and the room list to everyone in the lobby.
@@ -785,7 +825,7 @@ impl Lobby {
 
     fn start_msg(&self, room: u32) -> ServerMsg {
         let r = &self.rooms[&room];
-        ServerMsg::Start { map: r.map.clone(), members: r.members.iter().filter_map(|m| self.member(*m)).collect() }
+        ServerMsg::Start { map: r.map.clone(), members: r.members.iter().filter_map(|m| self.member(*m)).collect(), gameplay: r.gameplay }
     }
 
     /// A vehicle lost: the death counted, and in conquest its side's tickets.
@@ -826,7 +866,8 @@ impl Lobby {
         });
         let carried = self.players.get(&id).and_then(|p| self.mdata.launchers.get(&p.vehicle)).cloned().unwrap_or_default();
         if let Some((room, vehicle, team)) = self.players.get(&id).and_then(|p| p.room.map(|r| (r, p.vehicle.clone(), p.team))) {
-            let spec = self.mdata.aps.get(&vehicle).cloned();
+            let gameplay = self.rooms[&room].gameplay;
+            let spec = self.mdata.room_aps(&vehicle, gameplay);
             if let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) {
                 match spec {
                     Some(sp) => w.add_aps(id, team_index(team), sp.def, id.wrapping_mul(2_654_435_761)),
@@ -853,18 +894,27 @@ impl Lobby {
         }
         self.now = self.now.max(now);
         match msg {
-            ClientMsg::Hello { name, .. } => {
+            ClientMsg::Hello { name, gameplay_rules_version, .. } => {
                 let fallback = format!("車長{id}");
                 let p = self.players.get_mut(&id).expect("player");
                 p.name = clean_name(&name, &fallback);
-                let mut out = vec![(id, ServerMsg::Welcome { id, name: p.name.clone(), maps: self.maps.clone(), token: p.token.clone() })];
+                p.gameplay_compatible = compatible(&gameplay_rules_version);
+                let mut out = vec![(id, ServerMsg::Welcome { id, name: p.name.clone(), maps: self.maps.clone(), token: p.token.clone(), gameplay_rules_version: GAMEPLAY_RULES_VERSION })];
                 if let Some(room) = p.room {
                     out.extend(self.room_changed(room));
                 }
                 out
             }
             ClientMsg::List => vec![(id, self.room_list())],
-            ClientMsg::Create { name, map, max, deploy, era } => {
+            ClientMsg::Create { name, map, max, deploy, era, gameplay_mode, gameplay_rules_version } => {
+                if self.players[&id].room.and_then(|r| self.rooms.get(&r)).is_some_and(|r| r.playing) {
+                    return Self::err(id, "戰鬥中不能更換玩法規則");
+                }
+                if !self.players[&id].gameplay_compatible { return Self::err(id, UPDATE_NEEDED); }
+                let gameplay = match RoomGameplay::parse(gameplay_mode, gameplay_rules_version) {
+                    Ok(rules) => rules,
+                    Err(error) => return Self::err(id, error),
+                };
                 if self.rooms.len() >= MAX_ROOMS {
                     return Self::err(id, "房間已滿，請稍後再試");
                 }
@@ -876,7 +926,7 @@ impl Lobby {
                 let rid = self.next_room;
                 self.next_room += 1;
                 let pname = self.players[&id].name.clone();
-                self.rooms.insert(rid, Room { id: rid, name: clean_name(&name, &format!("{pname} 的房間")), map, max: max.clamp(2, 16), host: id, members: vec![id], playing: false, deploy, era, points: Vec::new(), tickets: [TICKETS; 2], world: None });
+                self.rooms.insert(rid, Room { gameplay, id: rid, name: clean_name(&name, &format!("{pname} 的房間")), map, max: max.clamp(2, 16), host: id, members: vec![id], playing: false, deploy, era, points: Vec::new(), tickets: [TICKETS; 2], world: None });
                 let (team, slot) = (Team::Blue, 0);
                 if let Some(p) = self.players.get_mut(&id) {
                     p.room = Some(rid);
@@ -890,6 +940,7 @@ impl Lobby {
                 out
             }
             ClientMsg::Join { room } => {
+                if !self.players[&id].gameplay_compatible { return Self::err(id, UPDATE_NEEDED); }
                 let Some(r) = self.rooms.get(&room) else { return Self::err(id, "房間不存在") };
                 if r.members.contains(&id) {
                     return self.room_changed(room);
@@ -952,6 +1003,7 @@ impl Lobby {
                 }
             }
             ClientMsg::Start => {
+                if !self.players[&id].gameplay_compatible { return Self::err(id, UPDATE_NEEDED); }
                 let Some(room) = self.players[&id].room else { return Self::err(id, "不在房間裡") };
                 let r = &self.rooms[&room];
                 if r.host != id {
@@ -1039,7 +1091,7 @@ impl Lobby {
                 if let Some((last, at)) = p.last_pos {
                     let dt = (now - at).max(0.02);
                     let d = ((pos[0] - last[0]).powi(2) + (pos[2] - last[2]).powi(2)).sqrt();
-                    if now > p.grace_until && d / dt > MAX_SPEED {
+                    if now > p.grace_until && d / dt > self.rooms[&room].gameplay.max_speed() {
                         // a jump no vehicle can drive: keep the last good state
                         return Vec::new();
                     }
@@ -1093,7 +1145,7 @@ impl Lobby {
                 self.players.get_mut(&id).expect("player").rounds = None;
                 self.spawn(id, now);
                 let vehicle = self.players[&id].vehicle.clone();
-                let mut out = self.to_room(room, ServerMsg::Respawned { id, vehicle, spawn: 0 });
+                let mut out = self.to_room(room, ServerMsg::Respawned { id, vehicle, spawn: 0, gameplay: self.rooms[&room].gameplay });
                 out.extend(self.room_changed(room));
                 out
             }
@@ -1125,7 +1177,7 @@ impl Lobby {
                 p.vehicle = vehicle.clone();
                 p.rounds = rounds.filter(|_| cap > 0).map(|n| n.min(cap));
                 self.spawn(id, now);
-                let mut out = self.to_room(room, ServerMsg::Respawned { id, vehicle, spawn });
+                let mut out = self.to_room(room, ServerMsg::Respawned { id, vehicle, spawn, gameplay: self.rooms[&room].gameplay });
                 out.extend(self.room_changed(room));
                 out
             }
@@ -1266,7 +1318,7 @@ impl Lobby {
         let p = self.players.get_mut(&id).unwrap();
         p.prune_fired(now);
         let count = p.fired.iter().filter(|f| f.small == small).count();
-        if count >= if small { AUTO_BURST } else { FIRE_BURST } { return Self::reject_fire(id, seq, "rate_limited"); }
+        if count >= self.rooms[&room].gameplay.fire_burst(small) { return Self::reject_fire(id, seq, "rate_limited"); }
         if aps_shell {
             let Some(w) = self.rooms.get_mut(&room).and_then(|r| r.world.as_mut()) else { return Self::reject_fire(id, seq, "weapon_disabled") };
             let Some(a) = w.aps_of(id) else { return Self::reject_fire(id, seq, "weapon_disabled") };
@@ -1277,7 +1329,7 @@ impl Lobby {
         } else if let Some(t) = self.targets.get(&p.vehicle) {
             p.spend_round(t);
         }
-        p.remember_sequence(seq);
+        p.remember_sequence(seq, self.rooms[&room].gameplay.sequence_capacity());
         p.fired.push_back(Fired { seq, at: now, shell: shell.into(), used: false, small, kind: WeaponKind::Cannon, instance: selected });
         let msg = ServerMsg::Fire { from: id, seq, o, d, shell: shell.into() };
         let mut out: Out = self.to_room(room, msg).into_iter().filter(|(to,_)| *to != id).collect();
@@ -1297,8 +1349,9 @@ impl Lobby {
         };
         let p = self.players.get_mut(&id).unwrap();
         p.prune_fired(now);
-        if p.fired.iter().filter(|f| f.small).count() >= AUTO_BURST { return Vec::new(); }
-        p.remember_sequence(seq);
+        let gameplay = self.rooms[&p.room.unwrap()].gameplay;
+        if p.fired.iter().filter(|f| f.small).count() >= gameplay.fire_burst(true) { return Vec::new(); }
+        p.remember_sequence(seq, gameplay.sequence_capacity());
         p.fired.push_back(Fired { seq, at: now, shell: gun.into(), used: false, small: true, kind: WeaponKind::MachineGun, instance: selected });
         Vec::new()
     }
@@ -1351,7 +1404,7 @@ impl Lobby {
                 if self.own_weapon(id, instance, Some(g), None, None, WeaponKind::MachineGun).is_err() { return Vec::new(); }
                 let p = self.players.get_mut(&id).expect("player");
                 if now - p.mg_window.0 > 1.0 { p.mg_window = (now, 0); }
-                if p.mg_window.1 >= 40 { return Vec::new(); }
+                if p.mg_window.1 >= self.rooms[&room].gameplay.legacy_mg_window() { return Vec::new(); }
                 let Some(def) = self.bullets.get(g) else { return Vec::new() };
                 p.mg_window.1 += 1;
                 (def.clone(), shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32))
@@ -1603,8 +1656,9 @@ impl Lobby {
         if p.rounds_left(self.targets.get(&p.vehicle)) == Some(0) || p.missiles_left.get(missile).copied().unwrap_or(0) == 0 {
             return Self::reject_launch(id, seq, "no_ammo", 0.0);
         }
-        if now - p.last_launch < 0.25 {
-            return Self::reject_launch(id, seq, "rate_limited", 0.25 - (now - p.last_launch));
+        let interval = self.rooms[&room].gameplay.launch_interval();
+        if now - p.last_launch < interval {
+            return Self::reject_launch(id, seq, "rate_limited", interval - (now - p.last_launch));
         }
         let team = team_index(p.team);
         let seed = (shot_seed(id, seq) & 0xffff_ffff) as u32;
@@ -1615,10 +1669,10 @@ impl Lobby {
             *n -= 1;
         }
         if let Some(t) = self.targets.get(&p.vehicle) { p.spend_round(t); }
-        p.remember_sequence(seq);
+        p.remember_sequence(seq, self.rooms[&room].gameplay.sequence_capacity());
         p.last_launch = now;
         let receipt = ServerMsg::Launched { from: id, seq, id: mid, missile: missile.into(), o, d };
-        if p.launch_receipts.len() >= MAX_LAUNCH_RECEIPTS {
+        if p.launch_receipts.len() >= self.rooms[&room].gameplay.launch_receipt_capacity() {
             if let Some(oldest) = p.launch_receipts.iter().min_by(|a,b| a.1.at.total_cmp(&b.1.at)).map(|(&seq,_)| seq) { p.launch_receipts.remove(&oldest); }
         }
         p.launch_receipts.insert(seq, LaunchReceipt { at: now, instance: selected, request_instance: instance.map(String::from), message: receipt.clone() });
@@ -1786,6 +1840,11 @@ mod tests {
         }
         l
     }
+    fn connect_compatible(l: &mut Lobby) -> (u32, Out) {
+        let (id, out) = l.connect();
+        l.handle(id, ClientMsg::Hello { name: format!("車長{id}"), resume: None, gameplay_rules_version: json!(1) }, 0.0);
+        (id, out)
+    }
     fn msgs_to(out: &Out, id: u32) -> Vec<&ServerMsg> {
         out.iter().filter(|(to, _)| *to == id).map(|(_, m)| m).collect()
     }
@@ -1796,9 +1855,9 @@ mod tests {
     /// Two players a and b in a started battle on the range.
     fn battle() -> (Lobby, u32, u32) {
         let mut l = lobby();
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(a, ClientMsg::Vehicle { id: "de_tiger_e".into() }, 0.0);
@@ -1819,7 +1878,7 @@ mod tests {
         assert!(l.players[&a].away.is_some());
         assert!(l.sweep(10.0).is_empty());
         // a new connection with a wrong token is just a new player
-        let (c, _) = l.connect();
+        let (c, _) = connect_compatible(&mut l);
         assert!(l.resume(c, "0123456789abcdef0123", 11.0).is_none());
         // with the right one it becomes a again, and the token changes
         let (old, out) = l.resume(c, &token, 12.0).expect("resumed");
@@ -1834,7 +1893,7 @@ mod tests {
         l.sweep(20.0 + RESUME_GRACE + 0.5);
         assert!(!l.players.contains_key(&a));
         // outside a battle a dropped connection leaves at once
-        let (d, _) = l.connect();
+        let (d, _) = connect_compatible(&mut l);
         l.drop_link(d, 30.0);
         assert!(!l.players.contains_key(&d));
     }
@@ -1858,7 +1917,7 @@ mod tests {
         }
         assert!((l.one_way(a) - 0.1).abs() < 1e-9);
         // no history for a shooter yet: believed
-        let (c, _) = l.connect();
+        let (c, _) = connect_compatible(&mut l);
         assert!(l.hit_plausible(c, b, 2.0, 900.0, 800.0));
     }
 
@@ -1891,12 +1950,12 @@ mod tests {
     #[test]
     fn players_create_join_and_leave_rooms() {
         let mut l = lobby();
-        let (a, out) = l.connect();
+        let (a, out) = connect_compatible(&mut l);
         assert!(matches!(msgs_to(&out, a)[0], ServerMsg::Welcome { .. }));
-        let (b, _) = l.connect();
-        l.handle(a, ClientMsg::Hello { name: "阿明\u{7}".into(), resume: None }, 0.0);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Hello { name: "阿明\u{7}".into(), resume: None, gameplay_rules_version: json!(1) }, 0.0);
         assert_eq!(l.players[&a].name, "阿明");
-        let out = l.handle(a, ClientMsg::Create { name: "河口決戰".into(), map: "coast".into(), max: 4, deploy: false, era: None }, 0.0);
+        let out = l.handle(a, ClientMsg::Create { name: "河口決戰".into(), map: "coast".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         // b, in the lobby, sees the new room
         assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Rooms { rooms } if rooms.len() == 1 && rooms[0].name == "河口決戰")));
@@ -1906,8 +1965,8 @@ mod tests {
         // teams are balanced
         assert_ne!(d.members[0].team, d.members[1].team);
         // an unknown map, a full room, a missing room
-        let (c, _) = l.connect();
-        assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Create { name: "x".into(), map: "moon".into(), max: 4, deploy: false, era: None }, 0.0), c)[0], ServerMsg::Error { .. }));
+        let (c, _) = connect_compatible(&mut l);
+        assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Create { name: "x".into(), map: "moon".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0), c)[0], ServerMsg::Error { .. }));
         assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Join { room: 99 }, 0.0), c)[0], ServerMsg::Error { .. }));
         // the host leaves: b becomes host; b leaves: the room is gone
         l.handle(a, ClientMsg::Leave, 0.0);
@@ -1919,9 +1978,9 @@ mod tests {
     #[test]
     fn the_host_starts_the_battle_and_states_are_relayed() {
         let mut l = lobby();
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         // only the host may start, and only with everyone's vehicle chosen
@@ -1931,7 +1990,7 @@ mod tests {
         l.handle(a, ClientMsg::Vehicle { id: "de_tiger_e".into() }, 0.0);
         l.handle(b, ClientMsg::Vehicle { id: "su_t34_85".into() }, 0.0);
         let out = l.handle(a, ClientMsg::Start, 0.0);
-        assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Start { map, members } if map == "range" && members.len() == 2)));
+        assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Start { map, members, .. } if map == "range" && members.len() == 2)));
         l.handle(a, ClientMsg::State { s: state(0.0) }, 0.0);
         l.handle(b, ClientMsg::State { s: state(50.0) }, 0.0);
         let snap = l.tick();
@@ -1945,7 +2004,7 @@ mod tests {
         l.handle(b, ClientMsg::State { s: state(53.0) }, 3.2);
         assert_eq!(pos_of(l.players[&b].state.as_ref().unwrap()).unwrap()[0], 53.0);
         // someone joining a battle under way is sent straight in
-        let (c, _) = l.connect();
+        let (c, _) = connect_compatible(&mut l);
         let out = l.handle(c, ClientMsg::Join { room }, 4.0);
         assert!(msgs_to(&out, c).iter().any(|m| matches!(m, ServerMsg::Start { .. })));
         // no changing sides in battle; the host ends it and everyone is back in the room
@@ -1964,10 +2023,10 @@ mod tests {
     #[test]
     fn hits_count_only_for_real_shots_and_the_server_keeps_the_hit_points() {
         let mut l = lobby();
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        let (c, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        let (c, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(c, ClientMsg::Join { room }, 0.0);
@@ -2026,9 +2085,9 @@ mod tests {
         let mut points = HashMap::new();
         points.insert("coast".to_string(), vec![CapPoint { id: "A".into(), x: 0.0, z: 0.0, r: 40.0 }, CapPoint { id: "B".into(), x: 300.0, z: 0.0, r: 40.0 }]);
         let mut l = lobby().with_points(points);
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "coast".into(), max: 8, deploy: true, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "coast".into(), max: 8, deploy: true, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         // nobody has chosen a vehicle, and the host may still start: everyone to the deploy screen
@@ -2038,7 +2097,7 @@ mod tests {
         // a vehicle that is not allowed, then a real one at spawn point 1
         assert!(matches!(msgs_to(&l.handle(a, ClientMsg::Deploy { vehicle: "proto_x".into(), spawn: 0, rounds: None }, 1.0), a)[0], ServerMsg::Error { .. }));
         let out = l.handle(a, ClientMsg::Deploy { vehicle: "de_tiger_e".into(), spawn: 1, rounds: None }, 1.0);
-        assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Respawned { id, vehicle, spawn: 1 } if *id == a && vehicle == "de_tiger_e")));
+        assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Respawned { id, vehicle, spawn: 1, .. } if *id == a && vehicle == "de_tiger_e")));
         assert!(l.players[&a].alive && l.players[&a].vehicle == "de_tiger_e");
         // on the field already: a second deploy does nothing
         assert!(l.handle(a, ClientMsg::Deploy { vehicle: "su_t34_85".into(), spawn: 0, rounds: None }, 1.5).is_empty());
@@ -2068,7 +2127,7 @@ mod tests {
         assert!(!l.handle(b, ClientMsg::Deploy { vehicle: "de_tiger_e".into(), spawn: 0, rounds: None }, 2.0 + RESPAWN_DELAY).is_empty());
         assert_eq!(l.players[&b].vehicle, "de_tiger_e");
         // someone joining now waits on the deploy screen
-        let (c, _) = l.connect();
+        let (c, _) = connect_compatible(&mut l);
         let out = l.handle(c, ClientMsg::Join { room }, 8.0);
         assert!(msgs_to(&out, c).iter().any(|m| matches!(m, ServerMsg::Start { .. })) && !l.players[&c].alive);
         // red runs out of tickets: blue wins and the battle is over
@@ -2092,9 +2151,9 @@ mod tests {
         let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
         let c = crate::server::load_combat(&data);
         let mut l = Lobby::new(HashMap::new(), HashSet::new(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets);
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(a, ClientMsg::Vehicle { id: "de_tiger_e".into() }, 0.0);
@@ -2211,8 +2270,8 @@ mod tests {
         let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
         let c = crate::server::load_combat(&data);
         let mut l = Lobby::new(HashMap::new(), ["su_t34_85".to_string()].into_iter().collect(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets);
-        let (a, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: true, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: true, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         l.handle(a, ClientMsg::Start, 0.0);
         let cap = l.targets["su_t34_85"].def.ammo_capacity;
         assert_eq!(cap, 60, "24 + 31 + 5 rounds");
@@ -2374,9 +2433,9 @@ mod tests {
         let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
         let c = crate::server::load_combat(&data);
         let mut l = Lobby::new(HashMap::new(), HashSet::new(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets).with_missiles(crate::missiles::load(&data));
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(a, ClientMsg::Vehicle { id: "us_m901_itv".into() }, 0.0);
@@ -2661,9 +2720,9 @@ mod tests {
         years.insert("de_tiger_e".to_string(), 1943);
         years.insert("su_t10m".to_string(), 1962);
         let mut l = Lobby::new(HashMap::new(), ["de_tiger_e", "su_t10m"].into_iter().map(String::from).collect(), vec!["range".into()]).with_years(years);
-        let (a, _) = l.connect();
-        let (b, _) = l.connect();
-        let out = l.handle(a, ClientMsg::Create { name: "二戰".into(), map: "range".into(), max: 4, deploy: false, era: Some([1945, 1939]) }, 0.0);
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        let out = l.handle(a, ClientMsg::Create { name: "二戰".into(), map: "range".into(), max: 4, deploy: false, era: Some([1945, 1939]), gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         assert_eq!(l.rooms[&room].era, Some([1939, 1945]));
         assert!(out.iter().any(|(_, m)| matches!(m, ServerMsg::Rooms { rooms } if rooms[0].era == Some([1939, 1945]))));
@@ -2689,8 +2748,8 @@ mod tests {
         let m: ClientMsg = serde_json::from_str(r#"{"t":"mg_hit","target":2,"gun":"m2hb","shot":{"o":[1,2,3],"d":[0,0,1],"yaw":0.1,"speed":800,"dist":100,"seed":7}}"#).unwrap();
         assert!(matches!(m, ClientMsg::MgHit { target: 2, .. }));
         assert_eq!(shot_seed(3, 5), 3 * 1_000_003 + 5 * 7919);
-        let s = serde_json::to_string(&ServerMsg::Respawned { id: 4, vehicle: "us_m8".into(), spawn: 1 }).unwrap();
-        assert_eq!(s, r#"{"t":"respawned","id":4,"vehicle":"us_m8","spawn":1}"#);
+        let s = serde_json::to_string(&ServerMsg::Respawned { id: 4, vehicle: "us_m8".into(), spawn: 1, gameplay: RoomGameplay::parse(json!("historical"), json!(1)).unwrap() }).unwrap();
+        assert_eq!(s, r#"{"t":"respawned","id":4,"vehicle":"us_m8","spawn":1,"gameplay_mode":"historical","gameplay_rules_version":1}"#);
         let m: ClientMsg = serde_json::from_str(r#"{"t":"deploy","vehicle":"us_m8"}"#).unwrap();
         assert!(matches!(m, ClientMsg::Deploy { spawn: 0, .. }));
         let m: ClientMsg = serde_json::from_str(r#"{"t":"create","name":"a","map":"normandy","max":8,"deploy":true}"#).unwrap();
@@ -2901,8 +2960,8 @@ mod tests {
         for seq in 1..=2200 {
             l.mg_fire(a,seq,Some(&mg.key),&mg.model_id,[0.0,2.0,0.0],[0.0,0.0,1.0],seq as f64*0.03);
         }
-        assert_eq!(l.players[&a].sequences.len(),MAX_SEQUENCES);
-        assert!(l.players[&a].fired.len()<=AUTO_BURST);
+        assert_eq!(l.players[&a].sequences.len(),2048);
+        assert!(l.players[&a].fired.len()<=600);
         let before=l.players[&a].fired.len();
         l.mg_fire(a,1,Some(&mg.key),&mg.model_id,[0.0,2.0,0.0],[0.0,0.0,1.0],70.0);
         assert_eq!(l.players[&a].fired.len(),before);

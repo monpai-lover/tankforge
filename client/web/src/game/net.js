@@ -5,6 +5,16 @@
 // takes the seat back with the token from the welcome ('reconnecting', then 'resumed' or
 // 'closed'). Pings carry the last round trip, which the server's lag compensation uses.
 export const SEND_HZ = 20;
+import { GAMEPLAY_RULES_VERSION, gameplayRules } from './gameplayRules.js';
+
+export const GAMEPLAY_UPDATE_NEEDED = '玩法規則版本不相容，請更新遊戲與伺服器';
+
+/** Protocol fields are required. Missing/unknown rules must never become a local default. */
+export function roomGameplayProfile(envelope) {
+  const mode = envelope?.gameplay_mode, version = envelope?.gameplay_rules_version;
+  gameplayRules(mode, version);
+  return Object.freeze({ mode, version });
+}
 
 /** Where the server probably is: the page's own host when it was served by tg-server. */
 export function defaultServer() {
@@ -38,6 +48,8 @@ export class NetClient {
     this.token = null;
     this.url = null;
     this.reconnecting = false;
+    this.gameplaySupported = false;
+    this.battleProfile = null;
   }
 
   on(type, fn) {
@@ -72,7 +84,7 @@ export class NetClient {
     this.close();
     this.url = url;
     this.name = name;
-    return this._open(url, { t: 'hello', name });
+    return this._open(url, { t: 'hello', name, gameplay_rules_version: GAMEPLAY_RULES_VERSION });
   }
 
   /** Opens the socket and sends `hello`; resolves on the welcome. */
@@ -101,13 +113,17 @@ export class NetClient {
         } catch {
           return;
         }
-        // taking a seat back: the server welcomes every new socket first, then answers the hello
-        // (with the old id if the seat was still held) -- the second welcome is the one that counts
-        if (msg.t === 'welcome' && hello.resume && !ws.skippedFirst) {
-          ws.skippedFirst = true;
+        const accepted = this._receive(msg);
+        if (accepted === false) {
+          if (!welcomed) reject(new Error(GAMEPLAY_UPDATE_NEEDED));
+          ws.close();
           return;
         }
-        this._receive(msg);
+        if (msg.t === 'error' && !welcomed) {
+          reject(new Error(msg.msg));
+          ws.close();
+          return;
+        }
         if (msg.t === 'welcome' && !welcomed) {
           welcomed = true;
           this.status = 'open';
@@ -156,7 +172,7 @@ export class NetClient {
       wait = Math.min(wait * 2, 4000);
       if (!this.reconnecting) return;
       try {
-        const w = await this._open(this.url, { t: 'hello', name: this.name, resume: this.token });
+        const w = await this._open(this.url, { t: 'hello', name: this.name, resume: this.token, gameplay_rules_version: GAMEPLAY_RULES_VERSION });
         this.reconnecting = false;
         if (w.id === oldId) this._emit('resumed', {});
         else {
@@ -183,13 +199,15 @@ export class NetClient {
     this.status = 'off';
     this.room = null;
     this.rooms = [];
+    this.gameplaySupported = false;
+    this.battleProfile = null;
   }
 
   close() {
     this.reconnecting = false;
-    if (!this.ws) return;
     const ws = this.ws;
     this._reset();
+    if (!ws) return;
     try {
       ws.close();
     } catch {
@@ -199,15 +217,35 @@ export class NetClient {
   }
 
   send(msg) {
+    if (['create', 'start'].includes(msg.t) && !this.gameplaySupported) {
+      this._emit('error', { t: 'error', msg: GAMEPLAY_UPDATE_NEEDED });
+      return false;
+    }
     if (this.ws && this.ws.readyState === 1) this.ws.send(JSON.stringify(msg));
   }
 
   _receive(msg) {
+    if (msg.t === 'welcome' && this.battleProfile && msg.gameplay_rules_version !== GAMEPLAY_RULES_VERSION) return this._rejectGameplay();
+    if (['room', 'start', 'respawned'].includes(msg.t)) {
+      try {
+        if (!this.gameplaySupported) throw new Error(GAMEPLAY_UPDATE_NEEDED);
+        const profile = roomGameplayProfile(msg.t === 'room' ? msg.room : msg);
+        if (this.room && (msg.t !== 'room' || this.room.id === msg.room.id)) {
+          const fixed = roomGameplayProfile(this.room);
+          if (profile.mode !== fixed.mode || profile.version !== fixed.version) throw new Error(GAMEPLAY_UPDATE_NEEDED);
+        }
+        if (this.battleProfile && (profile.mode !== this.battleProfile.mode || profile.version !== this.battleProfile.version)) throw new Error(GAMEPLAY_UPDATE_NEEDED);
+      } catch {
+        return this._rejectGameplay();
+      }
+    }
     switch (msg.t) {
       case 'welcome':
         this.id = msg.id;
         this.name = msg.name;
         this.maps = msg.maps || [];
+        this.gameplaySupported = msg.gameplay_rules_version === GAMEPLAY_RULES_VERSION;
+        if (!this.gameplaySupported) this._emit('error', { t: 'error', msg: GAMEPLAY_UPDATE_NEEDED });
         if (msg.token) this.token = msg.token;
         break;
       case 'rooms':
@@ -218,6 +256,13 @@ export class NetClient {
         break;
       case 'left_room':
         this.room = null;
+        this.battleProfile = null;
+        break;
+      case 'start':
+        this.battleProfile = roomGameplayProfile(msg);
+        break;
+      case 'ended':
+        this.battleProfile = null;
         break;
       case 'pong':
         this.rtt = Math.max(0, performance.now() - msg.at);
@@ -226,5 +271,14 @@ export class NetClient {
         break;
     }
     this._emit(msg.t, msg);
+  }
+
+  _rejectGameplay() {
+    if (this.battleProfile || this.room?.playing) {
+      this.close();
+      this._emit('closed', { msg: GAMEPLAY_UPDATE_NEEDED });
+    }
+    this._emit('error', { t: 'error', msg: GAMEPLAY_UPDATE_NEEDED });
+    return false;
   }
 }

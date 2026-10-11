@@ -34,6 +34,16 @@ pub struct MissileData {
     pub launchers: HashMap<String, HashMap<String, u32>>,
 }
 
+impl MissileData {
+    /// Each room gets a fresh gun profile; geometry, radar, guidance and ballistics remain
+    /// source-valued. Actor damage multipliers are applied separately during world stepping.
+    pub fn room_aps(&self, vehicle: &str, gameplay: crate::gameplay::RoomGameplay) -> Option<ApsSpec> {
+        let mut spec = self.aps.get(vehicle)?.clone();
+        spec.def = gameplay.aps(&spec.def);
+        Some(spec)
+    }
+}
+
 fn arr3(v: &Value) -> Option<[f64; 3]> {
     let a = v.as_array()?;
     Some([a.first()?.as_f64()?, a.get(1)?.as_f64()?, a.get(2)?.as_f64()?])

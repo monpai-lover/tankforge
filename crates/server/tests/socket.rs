@@ -53,15 +53,21 @@ impl Client {
         self.w.write_all(&frame).unwrap();
     }
 
+    fn next(&mut self) -> Value {
+        loop {
+            if let ws::Incoming::Text(text) = ws::read_message(&mut self.r, false).unwrap() {
+                return serde_json::from_str(&text).unwrap();
+            }
+        }
+    }
+
     /// The next message of type `t` (others skipped), within a few seconds.
     fn expect(&mut self, t: &str) -> Value {
         let until = Instant::now() + Duration::from_secs(5);
         while Instant::now() < until {
-            if let ws::Incoming::Text(text) = ws::read_message(&mut self.r, false).unwrap() {
-                let v: Value = serde_json::from_str(&text).unwrap();
-                if v["t"] == t {
-                    return v;
-                }
+            let v = self.next();
+            if v["t"] == t {
+                return v;
             }
         }
         panic!("no {t}");
@@ -73,14 +79,15 @@ fn two_players_meet_in_a_room_and_fight() {
     let port = start(None);
     let mut a = Client::connect(port);
     let mut b = Client::connect(port);
+    a.send(json!({"t": "hello", "name": "甲", "gameplay_rules_version":1}));
+    b.send(json!({"t": "hello", "name": "乙", "gameplay_rules_version":1}));
     let wa = a.expect("welcome");
     assert_eq!(wa["maps"], json!(["range", "coast"]));
     let id_a = wa["id"].as_u64().unwrap();
     let wb = b.expect("welcome");
     let id_b = wb["id"].as_u64().unwrap();
     let token_b = wb["token"].as_str().unwrap().to_string();
-    a.send(json!({"t": "hello", "name": "甲"}));
-    a.send(json!({"t": "create", "name": "測試房", "map": "coast", "max": 4}));
+    a.send(json!({"t": "create", "name": "測試房", "map": "coast", "max": 4,"gameplay_mode":"historical","gameplay_rules_version":1}));
     let room = a.expect("room")["room"].clone();
     assert_eq!(room["members"][0]["name"], "甲");
     // b sees it in the list and joins
@@ -138,13 +145,22 @@ fn two_players_meet_in_a_room_and_fight() {
     assert_eq!(a.expect("pong")["at"], 12.5);
     b.send(json!({"t": "nonsense"}));
     b.expect("error");
+    // The new socket's capability is checked before any welcome/room/seat transfer.
+    for capability in [Value::Null,json!("1"),json!(0),json!(2)] {
+        let mut incompatible = Client::connect(port);
+        incompatible.send(json!({"t":"hello","name":"old client","resume":token_b,"gameplay_rules_version":capability}));
+        let rejection=incompatible.next();
+        assert_eq!(rejection["t"],"error","no placeholder welcome or old-seat room leaks");
+        assert!(rejection["msg"].as_str().unwrap().contains("更新"));
+        b.send(json!({"t":"ping","at":77.0}));
+        assert_eq!(b.expect("pong")["at"],77.0,"incompatible transfer never closes the old socket");
+    }
     // b's connection drops in the battle: the seat is held, and a new connection with b's token
     // takes it back under b's id
     drop(b);
     std::thread::sleep(Duration::from_millis(200));
     let mut c = Client::connect(port);
-    c.expect("welcome");
-    c.send(json!({"t": "hello", "name": "乙", "resume": token_b}));
+    c.send(json!({"t": "hello", "name": "乙", "resume": token_b,"gameplay_rules_version":1}));
     let wc = c.expect("welcome");
     assert_eq!(wc["id"].as_u64(), Some(id_b));
     assert_ne!(wc["token"].as_str(), Some(token_b.as_str()));

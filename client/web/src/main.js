@@ -38,7 +38,7 @@ import { Conquest, captureMessage } from './game/conquest.js';
 import { Terrain, CHUNK, N as DEFORM_N } from './game/terrain.js';
 import { VehicleSim } from './game/vehicle.js';
 import { GameplaySession } from './game/gameplaySession.js';
-import { GAMEPLAY_RULES_VERSION } from './game/gameplayRules.js';
+import { roomGameplayProfile, GAMEPLAY_UPDATE_NEEDED } from './game/net.js';
 import { deriveLoadoutPerformance, deriveVehicleParams } from './game/gameplayPerformance.js';
 import { isGameplayAlly, visibleGameplayMarker } from './game/gameplayMarkers.js';
 import { hullTilt } from './sim/tank/tank.js';
@@ -1312,6 +1312,17 @@ export function start(data, saved = {}) {
     return true;
   }
 
+  function applyRoomGameplay(envelope) {
+    const profile = roomGameplayProfile(envelope);
+    if (G.mode === 'battle' && !G.online) toGarage();
+    gameplay.setRoomProfile(profile);
+    const previous = G.gameplayMode;
+    G.gameplayMode = gameplay.activeMode();
+    if (previous !== G.gameplayMode && G.mode !== 'battle') select(G.id, true);
+    updateGameplayDisplay();
+    return profile;
+  }
+
   document.getElementById('gameplay-btn').addEventListener('click', (e) => {
     e.currentTarget.blur();
     chooseGameplayMode(G.gameplayMode === 'casual' ? 'historical' : 'casual');
@@ -1319,6 +1330,7 @@ export function start(data, saved = {}) {
 
   function startBattle(roomRules = null) {
     if (G.mode === 'battle' || G.thumbs.length) return;
+    if (G.online && roomRules === null) throw new Error(GAMEPLAY_UPDATE_NEEDED);
     if (G.protect) setProtect(false);
     if (G.mode === 'test') testRange.exit();
     if (G.workshop) setWorkshop(false);
@@ -1330,8 +1342,7 @@ export function start(data, saved = {}) {
       loadMap(G.mapId).then(() => startBattle(roomRules)).catch((e) => hud.toast('地圖載入失敗：' + e.message, 5));
       return;
     }
-    // Legacy rooms still run source rules until the versioned room protocol is connected.
-    gameplay.beginBattle(roomRules ?? (G.online ? { mode: 'historical', version: GAMEPLAY_RULES_VERSION } : null));
+    gameplay.beginBattle(roomRules);
     G.gameplayMode = gameplay.activeMode();
     select(G.id);
     updateGameplayDisplay();
@@ -1374,6 +1385,7 @@ export function start(data, saved = {}) {
     if (document.pointerLockElement === canvas && document.exitPointerLock) document.exitPointerLock();
     if (G.online) {
       // leaving an online battle leaves its room
+      gameplay.setRoomProfile(null);
       G.online = null;
       net.send({ t: 'leave' });
     }
@@ -1879,6 +1891,7 @@ export function start(data, saved = {}) {
   }
 
   net.on('start', (m) => {
+    const roomRules = applyRoomGameplay(m);
     const me = m.members.find((x) => x.id === net.id);
     if (!me || (G.online && G.mode === 'battle')) return;
     if (G.mode === 'battle') toGarage();
@@ -1897,7 +1910,7 @@ export function start(data, saved = {}) {
     setMapChoice(m.map);
     lobby.show(false);
     feed(`戰鬥開始：${mapName(m.map)}，${m.members.length} 人`);
-    startBattle();
+    startBattle(roomRules);
     if (benched) {
       // our vehicle is not there until it deploys
       scene.children = scene.children.filter((c) => c !== G.model.root);
@@ -1905,6 +1918,7 @@ export function start(data, saved = {}) {
     }
   });
   net.on('room', (m) => {
+    applyRoomGameplay(m.room);
     const o = G.online;
     if (!o) return;
     o.members = new Map(m.room.members.map((x) => [x.id, x]));
@@ -2054,6 +2068,7 @@ export function start(data, saved = {}) {
     }
   });
   net.on('respawned', (m) => {
+    applyRoomGameplay(m);
     const o = G.online;
     if (!o) return;
     if (m.id === net.id) {
@@ -2118,7 +2133,13 @@ export function start(data, saved = {}) {
   });
   for (const t of ['closed', 'left_room']) {
     net.on(t, () => {
-      if (!G.online) return;
+      gameplay.setRoomProfile(null);
+      if (!G.online) {
+        G.gameplayMode = gameplay.activeMode();
+        if (G.mode === 'garage') select(G.id, true);
+        updateGameplayDisplay();
+        return;
+      }
       G.online = null;
       deploy.close();
       toGarage();

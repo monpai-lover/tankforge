@@ -2,11 +2,16 @@
 // map, size) or join one, then in the room pick a side, mark ready and (the host) start the
 // battle. The vehicle is the one chosen in the garage cards below; only the standard vehicles
 // can go online, since every player needs the same data for them.
-import { defaultServer, normalizeServer } from './net.js';
+import { defaultServer, normalizeServer, roomGameplayProfile, GAMEPLAY_UPDATE_NEEDED } from './net.js';
+import { GAMEPLAY_RULES_VERSION } from './gameplayRules.js';
 
 const STORE_SERVER = 'tankforge.server.v1';
 const STORE_NAME = 'tankforge.name.v1';
 const SIZES = [2, 4, 6, 8, 10, 12, 16];
+const modeLabel = r => {
+  try { return roomGameplayProfile(r).mode === 'casual' ? '休閒' : '歷史'; }
+  catch { return '需要更新'; }
+};
 /** Era limits a room can be created with: only vehicles of those years may be brought. */
 export const ERAS = {
   any: { label: '不限', years: null },
@@ -138,12 +143,14 @@ export class LobbyUi {
         net.send({ t: 'list' });
         break;
       case 'create': {
+        if (!net.gameplaySupported) { this.error = GAMEPLAY_UPDATE_NEEDED; break; }
         const name = this.el.querySelector('#lb-room-name').value;
         const map = this.el.querySelector('#lb-map').value;
         const max = Number(this.el.querySelector('#lb-max').value);
         const era = ERAS[this.el.querySelector('#lb-era').value]?.years || null;
+        const gameplay_mode = this.el.querySelector('#lb-gameplay').value;
         this.board = null;
-        net.send({ t: 'create', name, map, max, deploy: true, ...(era ? { era } : {}) });
+        net.send({ t: 'create', name, map, max, deploy: true, gameplay_mode, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ...(era ? { era } : {}) });
         break;
       }
       case 'join':
@@ -165,6 +172,7 @@ export class LobbyUi {
         break;
       }
       case 'start':
+        if (!net.gameplaySupported) { this.error = GAMEPLAY_UPDATE_NEEDED; break; }
         this.board = null;
         net.send({ t: 'start' });
         break;
@@ -204,7 +212,7 @@ export class LobbyUi {
       const rows = net.rooms.length
         ? net.rooms
             .map(
-              (r) => `<li><span class="lb-rn">${esc(r.name)}</span><span class="lb-rm">${esc(this.o.mapName(r.map))} · ${r.players}/${r.max}${r.era ? ` · ${r.era[0]}–${r.era[1]}` : ''} · ${r.playing ? '<b class="lb-play">戰鬥中</b>' : '等待中'}</span><span class="lb-rh">房主 ${esc(r.host)}</span><button type="button" class="tool" data-act="join" data-room="${r.id}" ${r.players >= r.max ? 'disabled' : ''}>${r.players >= r.max ? '已滿' : '加入'}</button></li>`,
+              (r) => `<li><span class="lb-rn">${esc(r.name)}</span><span class="lb-rm">${esc(this.o.mapName(r.map))} · ${modeLabel(r)} · ${r.players}/${r.max}${r.era ? ` · ${r.era[0]}–${r.era[1]}` : ''} · ${r.playing ? '<b class="lb-play">戰鬥中</b>' : '等待中'}</span><span class="lb-rh">房主 ${esc(r.host)}</span><button type="button" class="tool" data-act="join" data-room="${r.id}" ${r.players >= r.max || !net.gameplaySupported || modeLabel(r) === '需要更新' ? 'disabled' : ''}>${r.players >= r.max ? '已滿' : '加入'}</button></li>`,
             )
             .join('')
         : '<li class="lb-empty">還沒有房間，建立一個吧</li>';
@@ -216,10 +224,11 @@ export class LobbyUi {
         <label class="lb-field">房名<input id="lb-room-name" maxlength="24" placeholder="${esc(net.name)} 的房間" autocomplete="off"></label>
         <div class="lb-row">
           <label class="lb-field">地圖<select id="lb-map">${maps}</select></label>
+          <label class="lb-field">玩法<select id="lb-gameplay"><option value="casual">休閒</option><option value="historical">歷史</option></select></label>
           <label class="lb-field">年代<select id="lb-era">${Object.entries(ERAS).map(([k, e]) => `<option value="${k}">${e.label}</option>`).join('')}</select></label>
           <label class="lb-field">人數<select id="lb-max">${SIZES.map((n) => `<option ${n === 8 ? 'selected' : ''}>${n}</option>`).join('')}</select></label>
         </div>
-        <button type="button" class="tool lb-main" data-act="create">建立房間</button>`;
+        <button type="button" class="tool lb-main" data-act="create" ${net.gameplaySupported ? '' : 'disabled'}>建立房間</button>`;
     } else {
       const r = net.room;
       const me = this.me();
@@ -234,7 +243,7 @@ export class LobbyUi {
       };
       const warn = !r.deploy && !this.o.usable(veh) ? `<p class="lb-err">「${esc(this.o.vehicleName(veh))}」不能聯機（自訂與設計局的車只在本機），請在下方選一般車輛</p>` : '';
       body = `
-        <div class="lb-row"><h3 class="lb-title">${esc(r.name)}</h3><span class="lb-rm">${esc(this.o.mapName(r.map))} · ${r.members.length}/${r.max}${r.era ? ` · 限 ${r.era[0]}–${r.era[1]} 年` : ''}${r.playing ? ' · <b class="lb-play">戰鬥中</b>' : ''}</span></div>
+        <div class="lb-row"><h3 class="lb-title">${esc(r.name)}</h3><span class="lb-rm">${esc(this.o.mapName(r.map))} · ${modeLabel(r)} · ${r.members.length}/${r.max}${r.era ? ` · 限 ${r.era[0]}–${r.era[1]} 年` : ''}${r.playing ? ' · <b class="lb-play">戰鬥中</b>' : ''}</span></div>
         ${this.board ? '<p class="lb-note">上一場的戰績（擊毀/陣亡）</p>' : ''}
         <div class="lb-teams">${side('blue')}${side('red')}</div>
         ${warn}
@@ -244,10 +253,11 @@ export class LobbyUi {
           <button type="button" class="tool" data-act="ready">${me && me.ready ? '取消準備' : '準備'}</button>
           <button type="button" class="tool" data-act="leave">離開房間</button>
         </div>
-        ${net.isHost ? `<button type="button" class="tool lb-main" data-act="start">${r.playing ? '戰鬥進行中' : '開始戰鬥'}</button>` : `<p class="lb-note">${r.playing ? '戰鬥進行中，按「開始戰鬥」加入' : '等待房主開始…'}</p>`}
+        ${net.isHost ? `<button type="button" class="tool lb-main" data-act="start" ${net.gameplaySupported ? '' : 'disabled'}>${r.playing ? '戰鬥進行中' : '開始戰鬥'}</button>` : `<p class="lb-note">${r.playing ? '戰鬥進行中，按「開始戰鬥」加入' : '等待房主開始…'}</p>`}
         <div class="lb-chat"><ol id="lb-chat-log"></ol><div class="lb-row"><input id="lb-chat-in" maxlength="200" placeholder="聊天…" autocomplete="off"><button type="button" class="tool" data-act="chat">送出</button></div></div>`;
     }
-    const err = this.error ? `<p class="lb-err">${esc(this.error)}</p>` : '';
+    const warning = this.error || (net.open && !net.gameplaySupported ? GAMEPLAY_UPDATE_NEEDED : '');
+    const err = warning ? `<p class="lb-err">${esc(warning)}</p>` : '';
     // keep what is being typed across a redraw
     const keep = {};
     for (const i of this.el.querySelectorAll('input, select')) keep[i.id] = i.value;

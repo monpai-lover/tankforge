@@ -176,7 +176,7 @@ function domFixture() {
     return { dataset: {}, children: [], textContent: '', hidden: false,
       classList: { add(c) { if (!classes.has(c)) transitions.push(['add', c]); classes.add(c); },
         remove(c) { if (classes.has(c)) transitions.push(['remove', c]); classes.delete(c); }, contains: c => classes.has(c) },
-      append(e) { this.children.push(e); }, getContext: () => ({}),
+      append(e) { this.children.push(e); }, getContext: () => ({ setTransform() {}, clearRect() {} }),
       get offsetWidth() { reads.push(1); return 20; } };
   };
   globalThis.document = { body: { dataset: {} },
@@ -204,7 +204,7 @@ test('HUD preserves a kill over continuous ordinary hits, expires it, and clears
   hud.tick(.5);
   hud.hitMarker('未擊穿', 'nopen'); assert.equal(hud.el.hitMarker.dataset.kind, 'nopen');
   const G = { mode: 'battle' };
-  closure('setMode', '  function startBattle(', { G, hud, sound: {}, document })( 'garage');
+  closure('setMode', '  function gameplayLabel(', { G, hud, sound: {}, document })( 'garage');
   assert.equal(hud.el.hitMarker.classList.contains('show'), false);
   hud.tick(0); assert.equal(hud.el.hitMarker.classList.contains('show'), false);
   hud.hitMarker('擊穿', 'pen');
