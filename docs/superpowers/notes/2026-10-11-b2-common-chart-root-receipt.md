@@ -68,3 +68,17 @@ Native ownership was returned immediately to the sole implementer. Actual
 shared normal/reciprocal friction, owner impulses, final-freeze loaded
 correspondence, production graph and all-fleet acceptance are still pending.
 No WASM/build/browser/baseline update or runtime commit occurred here.
+
+## Static nominal fleet applicability inventory
+
+Root additionally ran unchanged stock35 tracked descriptors through an
+external applicability inventory at one side,phase.25, control0−1mm,
+three separate terrain columns below the source and alternating joint
+q direction±.13. Result:1 regular fully two-sided map and34 prepared
+common derivative charts; no descriptor lacked both at this fixture.
+Every common `mechanicalValid` stays false. Probe/receipt:
+`C:/Users/24908/.codex/scratch/tankforge-root-common-chart-fleet-inventory.mjs`
+and `.json`, exit0. This only inventories helper applicability: no new
+source FD, limited-q, loaded force/friction, nonlinear step correspondence,
+multi-phase or dynamics fleet PASS is asserted. The old baseline and
+production enable flag were unchanged.

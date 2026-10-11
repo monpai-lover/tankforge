@@ -62,7 +62,10 @@ all9 bodies solely to prove format, nose and normal conversion. These are
 **not** historical dimensions, original catalog changes or final physical
 projectile scales. Source demo proportions are not measurement metadata:
 APDS/APFSDS core diameter and gun bore are different; fin span, collar,
-cap/jacket and sabot envelope need separate stage profiles. For example,
+cap/jacket and sabot envelope need separate stage profiles. Preserve these
+roles at the original generator primitive interface before `Builder.merge`
+groups by kind/id/colour; a merged colour bucket is not a core/fin binding.
+For example,
 TankForge PMC287 declares14mm core diameter for its35mm weapon, not a35mm
 core. Do not normalize all fins to a core diameter or treat the source
 ATGM whole-body length as a shell warhead length. Spin HEAT must omit the
@@ -92,11 +95,21 @@ early return prevents append. `_withProjectile` owns only one ordinary
 shell and one jet. V3 also has one event, so its reusable rendering/clock
 functions need a session-level event list, not repeated standalone restarts.
 Existing replay-pose regression explicitly expects replacement; retain
-that behavior for deliberate new analysis/different-target sessions and
-add separate same-target append/resource tests rather than deleting lease
+that behavior for deliberate new analysis, queued target after end/skip
+and victim preemption, while other ordinary targets queue during active
+multi-hit playback. Add same-target append/resource tests rather than deleting lease
 coverage. Small-window/full-screen share one prepared frame containing all
 eligible events and a stable camera/clock, with event-specific physical
-timestamps/body termination and cumulative accepted target changes.
+timestamps/body termination and cumulative accepted target changes. Lock
+the already played physical→film mapping prefix; append future spans only.
+Past late events catch up present cumulative state/description without
+replaying approach or retiming their physical source. Equal-time events
+follow authoritative state order. Each event's accepted frame maps its
+own paths into fixed session space; replay the detached target's accepted
+pose/geometry timeline, initial health and state revision chain. Do not
+reuse the first hit's transform for later hits or apply an old complete
+state over a newer one. Pin actual lethal/cause ancestry separately from
+ordinary event retirement and retain still-referenced derivative leases.
 
 Actual call sites: `main.js` protection analysis at489, design range1074,
 ordinary battle `onCombatHit`2120–2129 via `camTarget`493. They currently
@@ -123,3 +136,11 @@ Reuse the archive's supplied full MIT notice,
 Copyright(c)2026 Replay Lab Contributors, when porting substantial source.
 The user's ownership authorization is already recorded; no renewed
 permission question is needed.
+
+Fresh read-only document review identified and then rechecked6 seam
+clarifications: other-target queuing, physical versus network arrival,
+immutable played clock prefix and late catch-up, per-event accepted frames
+and target state versions/leases, trusted identity/time/lethal envelope,
+and source primitive roles before merge. After Root's corrections the
+review reports document PASS, with no remaining contradiction. This is
+document-only review; none of P4/P5's pending runtime seams is certified.
