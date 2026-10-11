@@ -32,6 +32,17 @@ shape velocity with the geometry optimizer's minimum-deformation displacement.
 Inspect the joint q cone and actual nonlinear transition of each proposed
 accepted step; an invalid cone/chart requires a bounded whole-source rebuild.
 
+Impulse withdrawal applies only to retries/rebuilds within the same active
+physical substep solve epoch. After an accepted substep, its impulses are
+committed velocity history: begin/commit clears removable bookkeeping without
+subtracting that history on the next substep. Raw normal warm guesses and the
+currently removable applied response are separate. Store actual world hull,
+relative-q and belt response so same-epoch withdrawal preserves interleaved
+external updates. A deterministic local epoch boundary needs no wall clock or
+new network protocol. Test both same-epoch retry and repeated accepted substeps;
+the latter must retain prior support/drive/recoil velocity. The writer explicitly
+acknowledged this lifecycle clarification before owner implementation.
+
 ## Original run budget
 
 The original `ct.run[k] >= 0` sample's k/c/cap is a total budget. Assign it
