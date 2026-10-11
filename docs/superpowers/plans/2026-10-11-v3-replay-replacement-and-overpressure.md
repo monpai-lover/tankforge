@@ -73,10 +73,14 @@ createReplaySession(renderer, target, evidence, purpose); // ReplaySession
 // ReplaySession.append(evidence), prepareFrame(frameId,filmTimeS),
 // camera(frame,rect,purpose), promoteVictim(death), finish(reason).
 // prepareFrame returns the identical read-only ReplayFrame object for a repeated frameId.
+// ReplayFrame.state is cumulative recorded presentation state at the current cursor;
+// it never reapplies damage or replaces a newer accepted state with a late older snapshot.
 
 // Session diagnostics are observable in tests, not new player-facing controls.
 // diagnostics(): {events,pinnedEvents,slots,geometryLeases,samples,aggregated,
-//                  filmTimeS,physicalTimeS,originFrame,cameraEpoch,targetSnapshots}.
+//                  filmTimeS,physicalTimeS,originFrame,cameraEpoch,targetSnapshots,
+//                  retiredThrough,unresolvedGapRanges,sparseRetiredCount,coveragePressure}.
+// hasPinnedCause(eventId) is a read-only diagnostic of retained causal source ownership.
 ```
 
 Timed adapter records are `body_stages`, `traces`, `pieces`, `bursts`, `arrivals`; each has a stable local ID, source, parent event ID and actual start/end/contact time when known. Missing legacy timing is `null`/unknown, not inferred exact time. `arrivals` reference module/crew index and an authoritative before→after delta/version. A frame stores display intensity separately from physical mass/energy and never changes the report.
@@ -175,7 +179,7 @@ export function validateReplayEvidence(raw, admittedActor) {
 
 Extend limits to 64 impacts, 256 flight samples, 256 segments/arrivals per event, 64 joints, 1,024 running-gear entries, 128 payload/variant entries, finite scalar/transform values, nonempty bounded IDs/hash strings, and a validated right-handed orthonormal basis. These are protocol/resource guards, not physical constants. Use the core's bounded limits when smaller. Reject over-limit evidence; do not allocate then discover it is malformed. Legacy reports remain explicit legacy analysis data and cannot authorize a fictional fatal shell.
 
-- [ ] **1.7 Generate and consume a native receipt in Node.** The fixture phases are `direct`, `same_shell_two_weapons`, `fire_a_hit_b_death`, `reignition`, `extinguish`, `duplicate`, `snapshot_before_fatal`, `resume`, `respawn_stale`, `rejected`, `observer`. Store native source SHA-256 entries for the writer's changed lobby/receipt/combat files. The Node test fails if the file is missing or source hashes differ. Feed each serialized message to production `NetClient._receive`; compare emitted evidence/health/death values to native IDs and recipient lists. Do not construct a substitute “equivalent” message in JS. Test the production validator on malformed/old-life records and assert snapshot acquisition count stays zero.
+- [ ] **1.7 Generate and consume a native receipt in Node.** The fixture phases are `direct`, `same_shell_two_weapons`, `fire_a_hit_b_death`, `reignition`, `extinguish`, `duplicate`, `snapshot_before_fatal`, `resume`, `respawn_stale`, `rejected`, `observer`, `gap_1_3_late_2_fatal_older_cause`, `coverage_checkpoint`. For the gap phase, begin a fresh admitted actor/life at baseline commit 0; the native handler generates canonical commits 1, 2, 3 and fatal 4 in order, with 1 the actual active causal source. The client test deliberately delivers 1, 3, late 2, duplicate 3, then fatal 4. Preserve source/event/version identities and actual states from the native receipts. The optional owner `replay_checkpoint` is `{actor,baseline_commit,covered_through,state_version,state,canonical_identity_binding,active_causes}`; it explicitly asserts the represented compacted range and retained causes. A normal newer state snapshot is not this proof. Store native source SHA-256 entries for the writer's changed lobby/receipt/combat files. The Node test fails if the file is missing or source hashes differ. Feed each serialized message to production `NetClient._receive`; compare emitted evidence/health/death values to native IDs and recipient lists. Do not construct a substitute “equivalent” message in JS. Test the production validator on malformed/old-life records and assert snapshot acquisition count stays zero.
 
 ```powershell
 $taskRepo = (Get-Location).Path
@@ -278,7 +282,7 @@ assert.equal(session.events.size,3);
 
 `session.events` is a read-only diagnostic Map keyed by event ID. Tests call `createReplaySession` with renderer/target/evidence/purpose. The test helper accepts native evidence and clones only physical time/version fields for pure-session boundary fixtures; the production native→client route remains unmodified in the integration test. Run `node --test client/web/test/replay-session.test.mjs`; expected RED: missing session or current `cur.t=0` replacement/snapshot disposal.
 
-- [ ] **3.2 Implement the event/revision owner and transaction.** Validate evidence and compatible key before resource acquisition. Acquire one R snapshot; retain event metadata, own pose frames and immutable geometry revision leases. Store the accepted pose/shape timeline by physical time and `commit_seq`. `append` returns duplicate without work for an existing ID; wrong actor/life/build returns a reason; same key appends. Do not call `snapshotReplayTarget` for every event. Apply later revisions to the one display target only at their recorded arrival; retain earlier source revision references until all dependent processes retire. Never mutate the live target or remap earlier event points through a later pose. A failed new revision acquisition rolls back only that append and preserves the running session.
+- [ ] **3.2 Implement the event/revision owner and transaction.** Validate evidence and compatible key before resource acquisition. Acquire one R snapshot; retain event metadata, own pose frames and immutable geometry revision leases. Store the accepted pose/shape timeline by physical time and `commit_seq`. `append` deduplicates each logical source/terminal record by its own identity only after assessing new fatal/cause components; a known source with a new death is accepted, while an entirely repeated receipt returns duplicate without work. Wrong actor/life/build returns a reason; same key appends. Do not call `snapshotReplayTarget` for every event. Apply later revisions to the one display target only at their recorded arrival; retain earlier source revision references until all dependent processes retire. Never mutate the live target or remap earlier event points through a later pose. A failed new revision acquisition rolls back only that append and preserves the running session.
 
 Transform from each event hull frame into fixed session coordinates using this complete function; `sessionFrame` is the first accepted hull basis and never changes:
 
@@ -297,7 +301,47 @@ export function eventPointInSession(p, eventFrame, sessionFrame, out) {
 
 Use session-owned scratch instead of the temporary `w` array in render hot loops. Verify rotated/moving second-hit frames and the hull-origin-versus-COM fixture independently.
 
-- [ ] **3.3 Add timeline/late/overload RED cases, then implement them.** Assert accepted geometry revision 6 for event A is unchanged after event B binds revision 7 to an already broken barrel; event B's own report uses 7. A post-cursor late report merges only missing arrived deltas by event/version, does not overwrite current state with its full old snapshot, and cannot replay approach or clock prefix. Equal-time damage commits follow `commit_seq`; an unresolved version gap exposes `incomplete_state_chain`. Continuous 1,000-hit MG/autocannon stream holds ≤64 ordinary event records, ≤4,096 trace/piece slots, one display snapshot, ≤four other-target queued metadata sessions and one active delayed cause, while fatal/cause records remain pinned. Pinned history is one source report plus terminal record and ≤16 compact mechanism nodes; compact longer intermediate chains while retaining actual root/terminal IDs/count. Dedupe retains the active ring, retired commit watermark and ≤64 unresolved gaps; an old retired packet cannot grow a permanent Set or replay approach. Retire completed records before aggregating decorative source/time bins; active-capacity overflow becomes bounded summary metadata, never a new view. Last arrival extends completion tail by 1.5 film seconds; finite event/slot counts do not change core state. Add two-target, queue-after-end/skip, incompatible build, append acquisition failure, full/corner repeated frame ID and seek-arrival tests. Run the session test RED first, implement, then GREEN.
+- [ ] **3.3 Add timeline/late/overload RED cases, then implement them.** Assert accepted geometry revision 6 for event A is unchanged after event B binds revision 7 to an already broken barrel; event B's own report uses 7. A post-cursor late report merges only missing historical arrival evidence by event/version; if a newer full state already includes that commit, do not apply its delta a second time or replace the newer state with its older snapshot. It cannot replay approach or clock prefix. Equal-time damage commits follow `commit_seq`; an unresolved version gap exposes `incomplete_state_chain`.
+
+Define `retiredThrough` as **contiguous** coverage of processed records whose ordinary presentation work is retirement-eligible from the admitted session baseline, or an explicit authority-confirmed compacted prefix. Pinned causal resources outlive this ordinary retirement and do not prevent coverage from advancing. It is never the maximum delivered/seen/retired commit. Include canonical nonvisual status/mechanism commits in coverage. Retired records above a hole keep compact `(actor,commit_seq,event_id)` proofs until the hole closes; an unseen valid record in a hole is accepted as late. A duplicate requires an exact retained identity or canonical authority-bound identity within the real covered prefix. Conflicting IDs at one commit are protocol errors. Ordinary Snap/Status versions cannot prove compaction. `covered_prefix` distinguishes state represented by an explicit checkpoint from an animation actually played.
+
+Use the native `gap_1_3_late_2_fatal_older_cause` phase from 1.7 for this concrete vector in `replay-session.test.mjs` and the native→NetClient test. Deliver 1, let its ordinary work retire while retaining its active cause; deliver 3, let its visible work retire with the completion tail still active. Assert `retiredThrough === 1`, gap `[2,2]`, one sparse retired proof for 3, and current displayed state equal to the actual commit-3 state. Deliver unseen 2 behind the cursor: accept/mark late, close the gap, and advance coverage to 3 only after its processing/retirement. Deliver duplicate 3, then the actual fatal 4 whose cause is 1. The exact new assertions are:
+
+```js
+// one/two/three/fatal are the canonical native fixture's four records.
+// The fixture has already delivered and visually retired 1 and 3 while the tail is active.
+const beforeGap = session.diagnostics();
+assert.equal(beforeGap.retiredThrough,1);
+assert.deepEqual(beforeGap.unresolvedGapRanges,[[2,2]]);
+assert.equal(beforeGap.sparseRetiredCount,1);
+assert.equal(session.hasPinnedCause(one.event_id),true);
+const late = session.append(two);
+assert.equal(late.accepted,true);
+assert.equal(late.late,true);
+assert.equal(late.duplicate,false);
+// prepareFrame processes the late record at the same current cursor, with a fresh frame ID.
+const afterGapFrame = session.prepareFrame(102,beforeGap.filmTimeS);
+assert.deepEqual(afterGapFrame.state,three.report.state);
+assert.equal(session.diagnostics().retiredThrough,3);
+assert.deepEqual(session.diagnostics().unresolvedGapRanges,[]);
+assert.equal(session.diagnostics().cameraEpoch,beforeGap.cameraEpoch);
+assert.equal(session.diagnostics().targetSnapshots,1);
+assert.equal(session.diagnostics().filmTimeS,beforeGap.filmTimeS);
+const repeated = session.append(three);
+assert.equal(repeated.duplicate,true);
+const acceptedFatal = session.append(fatal);
+assert.equal(acceptedFatal.accepted,true);
+assert.equal(session.hasPinnedCause(one.event_id),true);
+assert.equal(fatal.deaths[0].cause_event_id,one.event_id);
+assert.equal(session.diagnostics().cameraEpoch,beforeGap.cameraEpoch);
+assert.equal(session.diagnostics().targetSnapshots,1);
+```
+
+Assert separately that the pinned source retains event 1's original report/pose and the new death retains event 4's terminal state/versions; ordinary retirement or covered-prefix dedupe cannot release that source. The deferred fatal receipt may have source `event_id` 1 plus the new `deaths[0]` terminal event 4: treat those as separate logical records, not one source-ID duplicate. `append(fatal)` accepts the new terminal record; a repeated fatal receipt is duplicate only when all source/terminal components are already covered. Validate/pin newly required fatal cause evidence before ordinary visual dedupe, including a source supplied after its ordinary report was compacted. Same-view promotion happens once; it does not replay event 1's approach, reapply damage, rewind played knots or import foreign fragments. Add a duplicate fatal-4 receipt and confirm neither death presentation nor causal pin acquisition repeats.
+
+Continuous 1,000-hit MG/autocannon stream holds ≤64 ordinary event records, ≤4,096 trace/piece slots, one display snapshot, ≤four other-target queued metadata sessions and one active delayed cause, while fatal/cause records remain pinned. Pinned history is one source report plus terminal record and ≤16 compact mechanism nodes; compact longer intermediate chains while retaining actual root/terminal IDs/count. Gap storage is ≤64 compact ranges and sparse retired identity proofs ≤64 entries; no permanent event-ID Set. If either coverage bound would be exceeded, keep the existing proofs/gaps, report `coverage_pressure` and request the trusted owner checkpoint defined in 1.7. Suspend ordinary history admission at that boundary while accepting gap-closing and reserved fatal/cause records; refused history is not marked processed/duplicate. The current camera/processes and authoritative health/death flow continue. Only the validated checkpoint can compact the missing prefix; a larger maximum sequence cannot. Exercise repeated sparse arrivals with a persistent low gap and later checkpoint/fatal cause, proving boundedness without losing that gap or the pinned root.
+
+Retire completed records before aggregating decorative source/time bins; active-capacity overflow becomes bounded summary metadata, never a new view. Last arrival extends completion tail by 1.5 film seconds; finite event/slot counts do not change core state. Add two-target, queue-after-end/skip, incompatible build, append acquisition failure, full/corner repeated frame ID and seek-arrival tests. Run the session test RED first, implement, then GREEN. These are presentation/causal gates, not completion evidence for exact geometry, trusted flight, charge physics or cabin calibration.
 
 - [ ] **3.4 Implement Player accepted-pose reconstruction inside R.** Add `capturePlayerImpactPose(player, acceptedPose)` and use it before the actual incoming core/state commit. `acceptedPose` from native B/X is preferred; receipt-time fallback remains `legacy_receipt_pose`. Save independent gun elevation/recoil/roll, each turret parent-relative transforms, all MGs, fold, launchers/readiness/payload and accepted running gear/geometry. Extend the actual T-54/WASM lethal fixture into a Player-shaped control fixture; preserve pre-core hull/joints through live death yaw, gun pitch, turret toss, reset/respawn and lazy interior creation. Keep mesh lease/private instance/rollback tests and launcher payload freeze. Test that earlier target snapshots do not move at detonation even while the live death model moves.
 
@@ -387,6 +431,6 @@ Run `cargo test -p tg-combat blast_`, `cargo test -p tg-server blast_ --lib`, th
 
 ## Plan self-review
 
-Coverage mapping: authoritative identity/source/private evidence and delayed scoring → Task 1; maximum V3 reuse/source notice/axis/clock/body signatures → Task 2; same-view simultaneous/continuous/late/geometry timeline/fatal/deploy/resources → Task 3; source cutaway/traces/shards/depth/MSAA/shared frame → Task 4; actual compartments/openings/material/breach/HESH/APHE/near burst/APS/native receipt → Task 5. Original-assets/rules/pages/sole writer and source-matched validation → execution rules and final gate.
+Coverage mapping: authoritative identity/source/private evidence and delayed scoring → Task 1; maximum V3 reuse/source notice/axis/clock/body signatures → Task 2; same-view simultaneous/continuous/late/geometry timeline/fatal/deploy/resources, contiguous retirement and the 1→3→late 2→duplicate 3→fatal older-cause vector → Task 3; source cutaway/traces/shards/depth/MSAA/shared frame → Task 4; actual compartments/openings/material/breach/HESH/APHE/near burst/APS/native receipt → Task 5. Original-assets/rules/pages/sole writer and source-matched validation → execution rules and final gate.
 
 All implementation boxes remain unchecked. Existing reference/core/pose test receipts are context, not GREEN receipts for this plan. The chosen interfaces use the same actor fields, version fields, physical seconds, revision ownership and function names throughout. No new life owner or parallel damage simulation is introduced.
