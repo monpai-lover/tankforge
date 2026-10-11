@@ -7,6 +7,7 @@
 // Nothing here sets the hull's attitude: heave, pitch and roll come from the station forces at
 // their mounts, weight transfer from forces acting at the ground below the centre of mass.
 import { makeParams } from '../physics.js';
+import { deriveVehicleParams } from '../../game/gameplayPerformance.js';
 import { pressureFactor, groundPressure } from '../terra.js';
 import { RigidBody, GRAVITY } from './body.js';
 import { makeSuspension, newSuspensionState, applySuspension, supportUnder, syncSuspensionPose } from './suspension.js';
@@ -44,7 +45,7 @@ export function boxInertia(mass, size) {
  * {stations: [{z, y, r}], trackX, trackWidth, thickness, sprocket, idler}, bellyY: hull floor.
  */
 export function makeTank(vehicle, engineFile, gear, opts = {}) {
-  const p = makeParams(vehicle, engineFile);
+  const p = deriveVehicleParams(makeParams(vehicle, engineFile), opts.mode ?? 'historical');
   const hull = vehicle.hull;
   const ph = vehicle.physics;
   const mass = hull.mass_kg;

@@ -37,6 +37,10 @@ import { DeployScreen, applyAmmo, loadAmmoConfig } from './game/deploy.js';
 import { Conquest, captureMessage } from './game/conquest.js';
 import { Terrain, CHUNK, N as DEFORM_N } from './game/terrain.js';
 import { VehicleSim } from './game/vehicle.js';
+import { GameplaySession } from './game/gameplaySession.js';
+import { GAMEPLAY_RULES_VERSION } from './game/gameplayRules.js';
+import { deriveLoadoutPerformance, deriveVehicleParams } from './game/gameplayPerformance.js';
+import { isGameplayAlly, visibleGameplayMarker } from './game/gameplayMarkers.js';
 import { hullTilt } from './sim/tank/tank.js';
 import { PhysDebug } from './game/physdebug.js';
 import { RenderScale } from './gfx/renderscale.js';
@@ -139,6 +143,7 @@ const store = {
 };
 
 export function start(data, saved = {}) {
+  const gameplay = new GameplaySession(store);
   setShellSheet(data.images?.shell_icons);
   setCrewModel(data.crewModel);
   setMgModels(data.mgModels);
@@ -332,6 +337,7 @@ export function start(data, saved = {}) {
     fireHeld: false,
     pending: [],
     mode: 'garage', // 'garage' (choose a vehicle) | 'battle' (on the range)
+    gameplayMode: gameplay.activeMode(),
     thumbs: [], // vehicle ids whose card picture still has to be rendered
     thumbTotal: 0,
     thumbRestore: null,
@@ -533,7 +539,7 @@ export function start(data, saved = {}) {
         const inEra = !era || (year >= era[0] && year <= era[1]);
         return { id, name: v.name, nation: NATION_NAME[v.meta?.nation] || '', kind: CLASS_NAME[v.meta?.class] || '', thumb: hud.cards.get(cid)?.pic || null, usable: inEra, year, why: inEra ? '' : `這個房間只能用 ${era[0]}–${era[1]} 年的車輛（${year}）` };
       }),
-    loadoutOf: (id) => makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns),
+    loadoutOf: (id) => deriveLoadoutPerformance(makeLoadout(id, data.vehicles[id], data.projectiles, data.machineGuns), G.gameplayMode),
     map: deployMap,
     members: () => (G.online ? [...G.online.members.values()].map((m) => ({ ...m, me: m.id === net.id })) : []),
     vehicleName,
@@ -560,7 +566,7 @@ export function start(data, saved = {}) {
       const m = G.map;
       return {
         name: m.name,
-        mode: m.points?.length ? '佔領模式' : '殲滅模式',
+        mode: `${m.points?.length ? '佔領模式' : '殲滅模式'}・${gameplayLabel()}`,
         picture: G.maps.get(G.mapId)?.minimap || null,
         x0: m.x0,
         z0: m.z0,
@@ -570,10 +576,10 @@ export function start(data, saved = {}) {
         team,
         points: cq ? cq.points : m.points || [],
         tickets: cq ? cq.tickets : null,
-        others: (G.enemies || []).filter((e) => e.remote).map((e) => ({ x: e.x, z: e.z, alive: e.alive, friend: o && e.team === o.team })),
+        others: (G.enemies || []).filter((e) => e.remote && visibleGameplayMarker(e, G.gameplayMode, o?.team)).map((e) => ({ x: e.x, z: e.z, alive: e.alive, friend: isGameplayAlly(e, o?.team) })),
       };
     }
-    return { name: '靶場', mode: '殲滅模式', picture: null, x0: -300, z0: -150, size: 700, grid: 7, spawns: [RANGE_SPAWNS[team] || RANGE_SPAWNS.blue], team, points: [], tickets: null, others: [] };
+    return { name: '靶場', mode: `殲滅模式・${gameplayLabel()}`, picture: null, x0: -300, z0: -150, size: 700, grid: 7, spawns: [RANGE_SPAWNS[team] || RANGE_SPAWNS.blue], team, points: [], tickets: null, others: [] };
   }
   /** Opens the deploy screen (online, a deploy room, not on the field). */
   function openDeploy(title) {
@@ -648,7 +654,7 @@ export function start(data, saved = {}) {
   /** Reload seconds shown to the player for gun gi of turret ti (first loader). */
   function reloadShown(ti, gi) {
     const t = G.loadout.turrets[ti];
-    return reloadTime(t, gi, 0) * (t.guns[gi].rack && t.loaders.length === 0 ? 1.6 : 1);
+    return reloadTime(t, gi, 0, G.gameplayMode) * (t.guns[gi].rack && t.loaders.length === 0 ? 1.6 : 1);
   }
 
   function select(id, keepPose = false) {
@@ -666,10 +672,11 @@ export function start(data, saved = {}) {
     }
     G.id = id;
     store.set(STORE_VEHICLE, id);
-    G.loadout = makeLoadout(id, bundle, projectiles, data.machineGuns);
+    G.loadout = deriveLoadoutPerformance(makeLoadout(id, bundle, projectiles, data.machineGuns), G.gameplayMode);
     // the rounds chosen on the deploy screen (the racks' default mix until one is chosen)
     if (data.vehicles[id]) applyAmmo(G.loadout, AMMO_CFG);
-    G.params = phys.makeParams(bundle.vehicle, bundle.engine);
+    G.stockParams = phys.makeParams(bundle.vehicle, bundle.engine);
+    G.params = deriveVehicleParams(G.stockParams, G.gameplayMode);
     G.firedAt = [];
     G.T = G.loadout.turrets.map((t) => {
       return {
@@ -704,7 +711,7 @@ export function start(data, saved = {}) {
     applyXray();
     if (G.protect) protection.attach(G.model, G.loadout, protBundle());
     // the vehicle's physics: hull rigid body on its road-wheel stations and tracks (sim/tank)
-    G.veh = new VehicleSim(bundle, G.model, terrain);
+    G.veh = new VehicleSim(bundle, G.model, terrain, G.gameplayMode);
     G.ss = G.veh.attitude();
     G.sag = { 1: { x: 1, v: 0 }, [-1]: { x: 1, v: 0 } };
     if (keptPose) {
@@ -722,7 +729,7 @@ export function start(data, saved = {}) {
     if (data.vehicles[id]) mods.choose(id);
     hud.markSelected(mods.cardOf(id));
     hud.renameCard(mods.cardOf(id), G.loadout.name, bundle.vehicle.meta?.class, bundle.vehicle.meta?.year);
-    hud.showSpec(G.loadout, G.params, reloadShown);
+    hud.showSpec(G.loadout, G.params, reloadShown, G.gameplayMode, G.stockParams);
     hud.showMods(mods.slots(id, LANG_INDEX), (vid) => {
       select(vid, true);
       // the card's picture follows the variant fitted
@@ -1275,12 +1282,42 @@ export function start(data, saved = {}) {
   function setMode(mode) {
     G.ranging = null;
     hud.hideHitMarker();
+    G.mapTick = 0;
+    for (const e of G.enemies || []) e.seen = null;
+    hud.resetGameplayMarkers();
     G.mode = mode;
     document.body.dataset.mode = mode;
     sound.engineOn = mode === 'battle';
   }
 
-  function startBattle() {
+  function gameplayLabel() {
+    return G.gameplayMode === 'casual' ? '休閒' : '歷史';
+  }
+
+  function updateGameplayDisplay() {
+    const casual = G.gameplayMode === 'casual';
+    document.getElementById('gameplay-btn').textContent = `玩法：${gameplayLabel()}`;
+    document.getElementById('gameplay-rule').textContent = casual
+      ? '休閒・機動與操作加速，顯示敵軍標記' : '歷史・原始性能，僅顯示友軍標記';
+  }
+
+  function chooseGameplayMode(mode) {
+    if (!gameplay.chooseLocal(mode)) return false;
+    G.gameplayMode = gameplay.activeMode();
+    G.mapTick = 0;
+    for (const e of G.enemies || []) e.seen = null;
+    hud.resetGameplayMarkers();
+    select(G.id, true);
+    updateGameplayDisplay();
+    return true;
+  }
+
+  document.getElementById('gameplay-btn').addEventListener('click', (e) => {
+    e.currentTarget.blur();
+    chooseGameplayMode(G.gameplayMode === 'casual' ? 'historical' : 'casual');
+  });
+
+  function startBattle(roomRules = null) {
     if (G.mode === 'battle' || G.thumbs.length) return;
     if (G.protect) setProtect(false);
     if (G.mode === 'test') testRange.exit();
@@ -1290,9 +1327,14 @@ export function start(data, saved = {}) {
     // a battle map is decoded the first time it is used
     if (G.mapId !== 'range' && !G.maps.has(G.mapId)) {
       hud.toast('地圖載入中…', 3);
-      loadMap(G.mapId).then(() => startBattle()).catch((e) => hud.toast('地圖載入失敗：' + e.message, 5));
+      loadMap(G.mapId).then(() => startBattle(roomRules)).catch((e) => hud.toast('地圖載入失敗：' + e.message, 5));
       return;
     }
+    // Legacy rooms still run source rules until the versioned room protocol is connected.
+    gameplay.beginBattle(roomRules ?? (G.online ? { mode: 'historical', version: GAMEPLAY_RULES_VERSION } : null));
+    G.gameplayMode = gameplay.activeMode();
+    select(G.id);
+    updateGameplayDisplay();
     useWorld(G.mapId);
     G.flooded = false;
     setMode('battle');
@@ -1341,6 +1383,10 @@ export function start(data, saved = {}) {
     cqBar.hidden = true;
     cqMsg.textContent = '';
     setMode('garage');
+    gameplay.endBattle();
+    G.gameplayMode = gameplay.activeMode();
+    select(G.id);
+    updateGameplayDisplay();
     useWorld('range');
     clearEnemies();
     if (G.missiles) G.missiles.reset(null);
@@ -1495,10 +1541,10 @@ export function start(data, saved = {}) {
       const sourceBundle = data.vehicles[id];
       const key = `${G.map ? 'ai' : 'range'}:${i}:${id}`;
       const bundle = G.combat ? G.combat.prepare(key, sourceBundle) : sourceBundle;
-      const lo = makeLoadout(id, bundle, data.projectiles, data.machineGuns);
+      const lo = deriveLoadoutPerformance(makeLoadout(id, bundle, data.projectiles, data.machineGuns), G.gameplayMode);
       const model = buildTank(renderer, lo, generatedTurretParts);
       scene.add(model.root);
-      const e = new Enemy(id, bundle, model, terrain, sp, aim);
+      const e = new Enemy(id, bundle, model, terrain, sp, aim, G.gameplayMode);
       e.sourceBundle = sourceBundle;
       e.loadout = lo;
       e.rangeTarget = !G.map;
@@ -1515,10 +1561,11 @@ export function start(data, saved = {}) {
     const tags = [];
     const check = G.mapTick % 6 === 0;
     for (const e of G.enemies) {
+      if (!visibleGameplayMarker(e, G.gameplayMode, G.online?.team)) continue;
       if (!e.remote && !e.rangeTarget) continue;
       const p = [e.x, e.veh.body.origin()[1] + e.box.top + 1.0, e.z];
       const dist = Math.hypot(e.x - G.s.x, e.z - G.s.z);
-      const friend = !!(G.online && e.team === G.online.team);
+      const friend = isGameplayAlly(e, G.online?.team);
       if (check || e.seen == null) {
         const d = [p[0] - camPos[0], p[1] - camPos[1], p[2] - camPos[2]];
         const l = Math.hypot(d[0], d[1], d[2]) || 1;
@@ -1603,10 +1650,10 @@ export function start(data, saved = {}) {
     if (!sourceBundle) return null;
     const key = `remote:${m.id}:${m.vehicle}`;
     const bundle = G.combat ? G.combat.prepare(key, sourceBundle) : sourceBundle;
-    const lo = makeLoadout(m.vehicle, bundle, data.projectiles, data.machineGuns);
+    const lo = deriveLoadoutPerformance(makeLoadout(m.vehicle, bundle, data.projectiles, data.machineGuns), G.gameplayMode);
     const model = buildTank(renderer, lo, generatedTurretParts);
     scene.add(model.root);
-    const e = new Enemy(m.vehicle, bundle, model, terrain, onlineSpawn(m.team, m.slot), null);
+    const e = new Enemy(m.vehicle, bundle, model, terrain, onlineSpawn(m.team, m.slot), null, G.gameplayMode);
     e.sourceBundle = sourceBundle;
     e.combatKey = key;
     e.loadout = lo;
@@ -2182,7 +2229,7 @@ export function start(data, saved = {}) {
     G.apsFault = false;
     missileVehicle();
     (G.enemies || []).forEach((e, i) => {
-      const aps = e.bundle.weapons?.aps;
+      const aps = e.loadout.weapons?.aps;
       if (aps && !e.remote && !e.rangeTarget) G.missiles.addAps(enemyOwner(i), 1, aps, 11 + i);
       e.mslT = 6 + i * 4;
       e.mslIds = [];
@@ -2318,7 +2365,7 @@ export function start(data, saved = {}) {
     (G.enemies || []).forEach((e, i) => {
       const o = e.veh.body.origin();
       const a = { id: enemyOwner(i), team: 1, alive: e.alive, center: [o[0], o[1] + e.box.top * 0.5, o[2]], vel: [0, 0, 0] };
-      apsOf(a, e.bundle.weapons?.aps, e.loadout, enemyYaws(e), enemyPose(e), e.bundle, e.cstate, e.caps);
+      apsOf(a, e.loadout.weapons?.aps, e.loadout, enemyYaws(e), enemyPose(e), e.bundle, e.cstate, e.caps);
       actors.push(a);
     });
     // the gunner holds the sight on the target: each of our wire-guided missiles follows the line
@@ -2413,7 +2460,7 @@ export function start(data, saved = {}) {
         hud.aps({ ...a, name: G.aps.name, gunOk: mine.aps_gun_ok, radarOk: mine.aps_radar_ok, blips });
       } else if (a.owner >= 100) {
         const e = (G.enemies || [])[a.owner - 100];
-        const aps = e?.bundle.weapons?.aps;
+        const aps = e?.loadout.weapons?.aps;
         if (!e || !aps || !e.alive) continue;
         const ti = aps.turret ?? 1;
         if (!e.turretYaws) e.turretYaws = enemyYaws(e).slice();
@@ -2604,7 +2651,7 @@ export function start(data, saved = {}) {
       fireLauncherRound(g, e.mslLoading, 0);
       e.gunPitch[ti] = pitch;
       e.pose();
-      e.mslT = g.launcher.ready > 0 ? 0.25 : g.def.reload_s;
+      e.mslT = g.launcher.ready > 0 ? g.launchIntervalSeconds ?? 0.25 : g.def.reload_s;
       hud.toast(`${e.name} 發射 ${mdef.name}！`, 2.5);
     });
   }
@@ -3468,7 +3515,7 @@ export function start(data, saved = {}) {
     const laid = body.localDir(dirFrom(Math.atan2(d[0], d[2]), Math.atan2(d[1], Math.hypot(d[0], d[2])) + ballistics.elevationAt(m.table, G.sightM === i ? G.zero : range)));
     const want = { yaw: Math.atan2(laid[0], laid[2]), pitch: Math.atan2(laid[1], Math.hypot(laid[0], laid[2])) };
     const damage = weaponDamage(G.caps, m.damageKey);
-    e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew * damage.traverse_mult, dt, m.slew * damage.elevate_mult);
+    e.bearing = mgSim.slewMount(e.aim, want, m.arc, m.slew * damage.traverse_mult, dt, (m.elevateSlew ?? m.slew) * damage.elevate_mult);
     const pitch = e.aim.pitch;
     if (m.mount === 'pintle') {
       const local = gunnery.muzzleLocal({ pivot: base, trunnion: base, muzzleOffset: m.muzzleOffset ?? 1, muzzleVector: m.muzzleVector }, { yaw: e.aim.yaw, pitch });
@@ -3964,7 +4011,7 @@ export function start(data, saved = {}) {
       stepMachineGuns(SIM_DT);
       G.loadout.turrets.forEach((t, ti) => {
         t.guns.forEach((g) => tickLauncher(g, SIM_DT));
-        const done = loading.tick(G.T[ti].loading, SIM_DT, (gi, li) => reloadTime(t, gi, li), gi => weaponReloadRate(G.caps, t.guns[gi].damageKey, t.guns[gi].noDedicatedLoader));
+        const done = loading.tick(G.T[ti].loading, SIM_DT, (gi, li) => reloadTime(t, gi, li, G.gameplayMode), gi => weaponReloadRate(G.caps, t.guns[gi].damageKey, t.guns[gi].noDedicatedLoader));
         for (const gi of done) {
           const g = t.guns[gi];
           refillBelt(g);
@@ -4429,9 +4476,9 @@ export function start(data, saved = {}) {
       hud.drawCompass(orbit ? G.s.heading + srt.yaw : G.cam.yaw, G.s.heading, G.s.heading + srt.yaw, touch || canvas.clientWidth < 760);
       // the map changes slowly: every third frame is plenty
       if (G.mapTick++ % 3 === 0) {
-        const others = (G.enemies || []).map((e) => ({ x: e.x, z: e.z, alive: e.alive, friend: !!(G.online && e.remote && e.team === G.online.team) }));
-        if (G.mapEntry) hud.drawBattleMap({ image: G.mapEntry.minimap, map: G.map, x: G.s.x, z: G.s.z, hull: G.s.heading, gun: G.s.heading + srt.yaw, view: G.cam.yaw, spawns: G.map.spawns, points: G.conquest ? G.conquest.points : G.map.points, enemies: others });
-        else hud.drawMinimap({ x: G.s.x, z: G.s.z, hull: G.s.heading, gun: G.s.heading + srt.yaw, view: G.cam.yaw, zones: MAP_ZONES, humps: MAP_HUMPS, targets: world.targets, others });
+        const others = (G.enemies || []).map((e) => ({ x: e.x, z: e.z, alive: e.alive, remote: e.remote, team: e.team }));
+        if (G.mapEntry) hud.drawBattleMap({ gameplayMode: G.gameplayMode, team: G.online?.team, image: G.mapEntry.minimap, map: G.map, x: G.s.x, z: G.s.z, hull: G.s.heading, gun: G.s.heading + srt.yaw, view: G.cam.yaw, spawns: G.map.spawns, points: G.conquest ? G.conquest.points : G.map.points, enemies: others });
+        else hud.drawMinimap({ gameplayMode: G.gameplayMode, team: G.online?.team, x: G.s.x, z: G.s.z, hull: G.s.heading, gun: G.s.heading + srt.yaw, view: G.cam.yaw, zones: MAP_ZONES, humps: MAP_HUMPS, targets: world.targets, others });
       }
     }
     document.body.dataset.view = inSight ? 'sight' : 'third';
@@ -4441,6 +4488,7 @@ export function start(data, saved = {}) {
   // --------------------------------------------------------------------- boot
 
   setMode('garage');
+  updateGameplayDisplay();
   document.body.dataset.workshop = '0';
   const all = entries();
   const wanted = saved.id || store.get(STORE_VEHICLE);

@@ -3,6 +3,8 @@
 // table computed by the ballistics module for the loaded shell, so it is correct by construction.
 import { shellIcon, shellKind, shellTypeLabel } from './shellicons.js';
 import { TERRAIN_LABEL } from './world.js';
+import { isGameplayAlly, visibleGameplayMarker } from './gameplayMarkers.js';
+import { gameplayRules } from './gameplayRules.js';
 
 const NATION = { germany: '德', ussr: '蘇', usa: '美', uk: '英', fictional: '原創', design: '設計' };
 const NATION_FULL = { germany: '德國', ussr: '蘇聯', usa: '美國', uk: '英國', fictional: '原創', design: '設計局' };
@@ -338,11 +340,12 @@ export class Hud {
     if (c && typeof c.button.scrollIntoView === 'function') c.button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   }
 
-  showSpec(loadout, params, reloadOf) {
+  showSpec(loadout, params, reloadOf, gameplayMode = 'historical', stockParams = params) {
     const v = loadout.vehicle;
     const meta = v.meta || {};
     const mass = v.hull.mass_kg / 1000;
-    const hp = loadout.engine.engine.horsepower;
+    const hp = params.engine.horsepower;
+    const rules = gameplayRules(gameplayMode);
     const custom = loadout.id === 'custom';
     const designed = String(loadout.id).startsWith('design:');
     this.el.kind.textContent = [NATION_FULL[meta.nation] || '', CLASS[custom ? 'custom' : meta.class] || '', meta.year ? String(meta.year) : ''].filter(Boolean).join('　·　');
@@ -354,8 +357,10 @@ export class Hud {
     this.el.outline.textContent = OUTLINE[kind] || '';
     this.el.outline.dataset.kind = kind || '';
     const rows = [
+      ['玩法', gameplayMode === 'casual' ? `休閒：速度 ×${rules.speed}、驅動／轉向 ×${rules.drive}、迴轉 ×${rules.traverse}、俯仰／射速 ×${rules.fire}` : '歷史：原始性能，僅顯示友軍標記'],
+      ['原始性能', `${stockParams.engine.horsepower} hp　極速 ${(stockParams.vTop * 3.6).toFixed(0)} km/h（下列為目前玩法）`],
       ['戰鬥全重', mass.toFixed(1) + ' t'],
-      ['動力', `${hp} hp（${(hp / mass).toFixed(1)} hp/t）`],
+      ['動力', `${hp.toFixed(0)} hp（${(hp / mass).toFixed(1)} hp/t）`],
       ['極速', `${(params.vTop * 3.6).toFixed(0)} km/h　倒車 ${(params.maxReverseSpeed * 3.6).toFixed(0)} km/h`],
       ['接地壓力', `${(params.groundPressure / 1000).toFixed(0)} kPa`],
       ['轉向', params.minTurnRadius > 0 ? `需行進轉向（最小半徑 ${params.minTurnRadius} m）` : '可原地轉向'],
@@ -1033,10 +1038,16 @@ export class Hud {
     g.fill();
   }
 
-  /**
-   * Map of the range, north (down-range) up, centred on the vehicle.
-   * m = {x, z, hull, gun, view (radians), zones: [{rect, color}], targets: [{x, z, hits}], humps: [{x0, x1, z0, z1}], shots: [[x, z]]}
-   */
+  /** Clear previous assistance pixels synchronously, before the next throttled map redraw. */
+  resetGameplayMarkers() {
+    this.mapCtx.setTransform(1, 0, 0, 1, 0, 0);
+    this.mapCtx.clearRect(0, 0, this.map.width, this.map.height);
+    this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    this.ctx.clearRect(0, 0, this.overlay.width, this.overlay.height);
+    this.drawNameTags([]);
+  }
+
+  /** Map of the range, north up, retaining fixed range boards independently of vehicle markers. */
   drawMinimap(m) {
     const c = this.map;
     const css = c.clientWidth || 188;
@@ -1095,13 +1106,14 @@ export class Hud {
     }
     // other players (online)
     for (const e of m.others || []) {
+      if (!visibleGameplayMarker(e, m.gameplayMode, m.team)) continue;
       let [x, y] = P(e.x, e.z);
       const k = Math.max(Math.abs(x - R), Math.abs(y - R)) / (R - 6 * dpr);
       if (k > 1) {
         x = R + (x - R) / k;
         y = R + (y - R) / k;
       }
-      g.fillStyle = !e.alive ? '#555' : e.friend ? '#4f8cff' : '#e8463a';
+      g.fillStyle = !e.alive ? '#555' : isGameplayAlly(e, m.team) ? '#4f8cff' : '#e8463a';
       g.beginPath();
       g.arc(x, y, 4 * dpr, 0, Math.PI * 2);
       g.fill();
@@ -1206,8 +1218,9 @@ export class Hud {
       g.fillText(p.id, x, y + 0.4 * dpr);
     }
     for (const e of m.enemies || []) {
+      if (!visibleGameplayMarker(e, m.gameplayMode, m.team)) continue;
       const [x, y] = P(e.x, e.z);
-      g.fillStyle = !e.alive ? '#555' : e.friend ? '#4f8cff' : '#e8463a';
+      g.fillStyle = !e.alive ? '#555' : isGameplayAlly(e, m.team) ? '#4f8cff' : '#e8463a';
       g.beginPath();
       g.arc(x, y, 3.5 * dpr, 0, Math.PI * 2);
       g.fill();

@@ -11,6 +11,8 @@
 // unsteered axles (or the middle, when front and rear both steer); the hull turns because the
 // tyres push it round, and leans, slides and lifts a wheel because the forces act where they do.
 import { makeParams, torqueAt } from '../physics.js';
+import { deriveVehicleParams } from '../../game/gameplayPerformance.js';
+import { gameplayRules } from '../../game/gameplayRules.js';
 import { RigidBody, GRAVITY } from '../tank/body.js';
 import { boxInertia } from '../tank/tank.js';
 import { applyObstacles } from '../tank/obstacles.js';
@@ -42,7 +44,7 @@ export function wheelsFromVisual(rg) {
 
 /** vehicle: vehicle.json, engineFile: engine.json, wheels: from wheelsFromVisual. */
 export function makeWheeled(vehicle, engineFile, wheels, opts = {}) {
-  const p = makeParams(vehicle, engineFile);
+  const p = deriveVehicleParams(makeParams(vehicle, engineFile), opts.mode ?? 'historical');
   const hull = vehicle.hull;
   const ph = vehicle.physics;
   const mass = hull.mass_kg;
@@ -99,6 +101,7 @@ export function makeWheeled(vehicle, engineFile, wheels, opts = {}) {
   }
   for (const w of wheels) collide.push([w.x + Math.sign(w.x) * w.w * 0.4, w.y, w.z + w.r * 0.9], [w.x + Math.sign(w.x) * w.w * 0.4, w.y, w.z - w.r * 0.9]);
   return {
+    steerRate: STEER_RATE * gameplayRules(opts.mode ?? 'historical').steer,
     kind: 'wheeled',
     p,
     mass,
@@ -206,7 +209,7 @@ export function stepWheeled(tm, t, input, terrain, dt) {
     // ---- steering: the lock narrows with speed (no driver throws a car over at speed)
     const lock = Math.atan(tm.lever / tm.minR) / (1 + (Math.abs(u) / 14) ** 2);
     const want = steerIn * lock;
-    ds.steer += clamp(want - ds.steer, -STEER_RATE * h, STEER_RATE * h);
+    ds.steer += clamp(want - ds.steer, -tm.steerRate * h, tm.steerRate * h);
 
     // ---- engine and gearbox (automatic, by road speed)
     const reversing = throttle < 0 || (throttle === 0 && u < -0.3);

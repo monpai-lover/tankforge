@@ -33,12 +33,12 @@ export class Enemy {
    * bundle: vehicle files (armor.json included); model: a built tank (gfx/tankmodel); terrain:
    * the ground; at: {x, z, heading}; aimAt: [x, z] where its turret looks.
    */
-  constructor(id, bundle, model, terrain, at, aimAt) {
+  constructor(id, bundle, model, terrain, at, aimAt, mode = 'historical') {
     this.id = id;
     this.bundle = bundle;
     this.model = model;
     this.name = bundle.vehicle.name;
-    this.veh = new VehicleSim(bundle, model, terrain);
+    this.veh = new VehicleSim(bundle, model, terrain, mode);
     this.veh.place(at.x, at.z, at.heading);
     for (let i = 0; i < 240; i++) this.veh.step({ throttle: 0, steer: 0, brake: 1 }, 1 / 120, false);
     const o = this.veh.body.origin();

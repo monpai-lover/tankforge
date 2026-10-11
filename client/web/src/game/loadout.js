@@ -11,6 +11,7 @@ import { fired as queueReload } from '../sim/loading.js';
 import { workshopImportedModel, exportWorkshopModel } from './workshopImported.js';
 import { workshopTurretSeat } from './turretSeat.js';
 import { resolveRangefinder, equipmentSight } from './rangefinderEquipment.js';
+import { effectiveReloadSeconds } from './gameplayPerformance.js';
 export { DEFAULT_RANGEFINDER } from './rangefinderEquipment.js';
 
 export const SIGHT_RANGES = Array.from({ length: 30 }, (_, i) => (i + 1) * 100);
@@ -166,7 +167,7 @@ function turretEntry(id, pivot, ring, size, traverse, facingDeg, limitDeg, sight
 }
 
 /** Seconds for `loaderIdx` to load one round into gun `g` of turret `t`. */
-export function reloadTime(turret, gunIdx, loaderIdx) {
+export function reloadTime(turret, gunIdx, loaderIdx, mode = 'historical') {
   const g = turret.guns[gunIdx];
   // an automatic gun cycles itself until the belt is out; then the belt is changed
   const auto = g.def.autocannon;
@@ -183,10 +184,10 @@ export function reloadTime(turret, gunIdx, loaderIdx) {
   // Layout-driven when the vehicle says where its loaders and racks are; otherwise the gun's data value.
   if (g.rack && turret.loaders.length) {
     const loader = turret.loaders[Math.min(loaderIdx, turret.loaders.length - 1)];
-    return design.layoutReloadTime(g.shell.mass_kg, loader, g.rack, g.breech).total;
+    return effectiveReloadSeconds(design.layoutReloadTime(g.shell.mass_kg, loader, g.rack, g.breech).total, mode);
   }
-  if (g.rack) return design.layoutReloadTime(g.shell.mass_kg, g.breech, g.rack, g.breech).total;
-  return g.def.reload_s;
+  if (g.rack) return effectiveReloadSeconds(design.layoutReloadTime(g.shell.mass_kg, g.breech, g.rack, g.breech).total, mode);
+  return effectiveReloadSeconds(g.def.reload_s, mode);
 }
 
 const MG_RANGES = [100, 200, 300, 400, 500, 600, 800, 1000, 1200];

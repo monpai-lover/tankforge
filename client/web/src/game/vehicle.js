@@ -25,15 +25,15 @@ export function gearFromModel(model) {
 
 export class VehicleSim {
   /** bundle: vehicle files; model: the drawn tank (running gear geometry, hull floor). */
-  constructor(bundle, model, terrain) {
+  constructor(bundle, model, terrain, mode = 'historical') {
     this.terrain = terrain;
     // an armoured car (physics.drive "wheeled") runs on tyres, everything else on tracks
     this.wheeled = bundle.vehicle.physics?.drive === 'wheeled' && model.runningGear?.kind === 'wheels';
     if (this.wheeled) {
-      this.tm = makeWheeled(bundle.vehicle, bundle.engine, wheelsFromVisual(model.runningGear), { bellyY: model.hullBottom ?? 0.45 });
+      this.tm = makeWheeled(bundle.vehicle, bundle.engine, wheelsFromVisual(model.runningGear), { bellyY: model.hullBottom ?? 0.45, mode });
       this.t = newWheeled(this.tm);
     } else {
-      this.tm = makeTank(bundle.vehicle, bundle.engine, gearFromModel(model), { bellyY: model.hullBottom ?? 0.4 });
+      this.tm = makeTank(bundle.vehicle, bundle.engine, gearFromModel(model), { bellyY: model.hullBottom ?? 0.4, mode });
       this.t = newTank(this.tm);
     }
     this.rut = 1;
