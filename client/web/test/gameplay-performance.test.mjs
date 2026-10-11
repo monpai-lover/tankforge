@@ -37,13 +37,19 @@ function automaticControls(lo, ti) {
   assert.ok(start >= 0, 'production firing function exists');
   const body = source.slice(start, source.indexOf('\n  }', start) + 4);
   const G = { loadout: lo, shots: [], aps: null, caps: null, online: null, cam: { shake: 0 }, ss: {},
+    sightM: -1, sightT: ti, fireHeld: true, mgHeld: false,
     T: lo.turrets.map(t => ({ yaw: 0, guns: t.guns.map(() => ({ pitch: 0, smoke: 0 })), loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })) };
   const deps = { G, weaponDamage, gunnery, ballistics, loading, syncGunShell, nextAmmo,
     pose: () => ({ pos: [0, 0, 0], heading: 0 }),
     mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset }), hullTilt: () => 0,
     rng: { nextF32: () => .5 }, surfaceAt: () => 0, fx: { mgFlash() {}, autocannonBlast() {} }, sound: { mg() {} } };
   const fire = new Function(...Object.keys(deps), `${body}\nreturn fireGun;`)(...Object.values(deps));
-  return { G, L: G.T[ti].loading, fire: () => fire(ti, 0) };
+  const spinStart = source.indexOf("        // a rotary gun's barrels spin up");
+  const spinEnd = source.indexOf('\n        });', spinStart);
+  assert.ok(spinStart >= 0 && spinEnd > spinStart, 'production rotary spin cycle exists');
+  const spin = new Function('G', 't', 'ti', 'SIM_DT', 'clamp', source.slice(spinStart, spinEnd + '\n        });'.length));
+  const clamp = (value, lo, hi) => Math.max(lo, Math.min(hi, value));
+  return { G, L: G.T[ti].loading, fire: () => fire(ti, 0), spinStep: dt => spin(G, lo.turrets[ti], ti, dt, clamp) };
 }
 
 test('performance exports cover each independent timing owner', () => {
@@ -190,6 +196,59 @@ test('actual automatic cannon rounds, belt changes and loader independence use o
   refillBelt(g);
   assert.equal(g.belt, Math.min(source.def.autocannon.belt_rounds, roundsLeft(g)));
   assert.equal(g.def.autocannon.spin_up_s, source.def.autocannon.spin_up_s);
+});
+
+for (const mode of ['historical', 'casual']) test(`${mode}: cold rotary gun advances partial-spin loading and emits the real ready sequence`, () => {
+  const source = data.vehicles.su_t10m.weapons, snapshot = structuredClone(source);
+  const original = source.extra_turrets[0].guns[0].gun.autocannon;
+  const lo = deriveLoadoutPerformance(make('su_t10m'), mode), t = lo.turrets[1], g = t.guns[0];
+  const { G, L, fire, spinStep } = automaticControls(lo, 1);
+  const dt = 1 / 120, factor = mode === 'casual' ? 1.2 : 1;
+  const rounds = roundsLeft(g), belt = g.belt, fireTicks = [0], cycles = [];
+  let cycle;
+  assert.equal(g.spin, 0, 'fresh source gun starts cold');
+  assert.equal(g.def.autocannon.spin_up_s, original.spin_up_s);
+  assert.equal(fire(), true, 'the initially loaded round is allowed at cold start');
+  for (let tick = 1; tick <= 48; tick++) {
+    const done = loading.tick(L, dt, (gi, li) => {
+      const seconds = reloadTime(t, gi, li);
+      const expected = 60 / (original.rate_rpm * factor) / Math.max(.12, g.spin);
+      close(seconds, expected, 'cold or partial-spin cycle duration');
+      cycle = { spin: g.spin, seconds, startTick: tick - 1 };
+      cycles.push(cycle);
+      return seconds;
+    });
+    // Match the live owner order: loading advances first, then the held trigger spins up.
+    spinStep(dt);
+    close(g.spin, Math.min(tick * dt / original.spin_up_s, 1), 'original spin-up clock');
+    if (done.length) {
+      assert.deepEqual(done, [0]);
+      close((tick - cycle.startTick) * dt, Math.ceil((cycle.seconds - 1e-9) / dt) * dt, 'actual ready time at fixed simulation steps');
+      g.loaded = nextAmmo(g); syncGunShell(g);
+      assert.equal(fire(), true);
+      fireTicks.push(tick);
+    }
+    assert.equal(fire(), false, 'loading prevents another emitted round');
+    assert.equal(G.shots.length, fireTicks.length);
+    assert.equal(roundsLeft(g), rounds - fireTicks.length);
+    assert.equal(g.belt, belt - fireTicks.length);
+    assert.equal(g.beltChange, false, 'partial spin does not cause a belt change');
+  }
+  assert.equal(cycles[0].spin, 0);
+  close(fireTicks[1] * dt, Math.ceil((60 / original.rate_rpm / factor / .12 - 1e-9) / dt) * dt, 'first cold-spin ready boundary');
+  assert.ok(cycles.some(c => c.spin > .12 && c.spin < 1), 'real firing sequence includes partial spin');
+  assert.ok(cycles.some(c => c.spin === 1), 'same sequence reaches full-spin cadence');
+  assert.ok(fireTicks.length > 10, 'actual projectile sequence spans the ramp');
+  assert.equal(g.spin, 1);
+  assert.ok(G.shots.every(shot => shot.shell === g.ammo[0].shell), 'projectile references stay original');
+  const emitted = G.shots.length, remainingBelt = g.belt;
+  G.fireHeld = false;
+  spinStep(original.spin_up_s / 4);
+  close(g.spin, .5, 'released trigger uses the original spin-down clock');
+  spinStep(original.spin_up_s / 4);
+  close(g.spin, 0, 'barrels stop without consuming another round');
+  assert.equal(G.shots.length, emitted); assert.equal(g.belt, remainingBelt);
+  assert.deepEqual(source, snapshot, 'source weapon and spin values remain immutable');
 });
 
 test('real machine gun emits the accelerated cadence and keeps heat per round, bullets and belt capacity', () => {
