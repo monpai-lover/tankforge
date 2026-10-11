@@ -55,6 +55,28 @@ Fresh Root post-integration checks:
   `145e327..ff96373 main -> main`; `git ls-remote` independently confirmed
   `ff9637321f4b9a778642c8e9004b975ad4b8e6f5` on remote main.
 
+An additional cross-check of all 811 raw verification inputs initially rejected
+the main checkout. Enumeration found exactly three differences, all in existing
+BMPT source-reference text files: main retains mixed CRLF endings whereas the
+isolated Git checkout has LF. The remaining **808/811 inputs match byte-for-byte**.
+Each of these three files is identical after an in-memory CRLF-to-LF comparison;
+no file was normalized or overwritten. Git shows no path change from 145e327 to
+the final source; their last source commit is the original archive intake 8f547c5.
+Their main bytes are preserved with these exact hashes:
+
+| Existing reference under `data/vehicles/su_bmpt34/source/` | Main bytes | Main SHA-256 |
+|---|---:|---|
+| `25mm_72k_cannon.blk` | 67 | `f987cce5a90fd8529cdeeae8633ead937bcd7c921011113a9ab0a77f3a8df150` |
+| `bmpt34.blk` | 69,231 | `1a2b81d43054f91ad75f864586059b02b500c754e225c26f32e6cc8667230173` |
+| `usr_bmpt34.csv` | 923 | `3247d4f29668f09408c3c21b213aa911bf0a75a6db524c1d2daa4255c6322154` |
+
+Root separately compared actual main `loadData()` serialization against the
+delivered page: all nine runtime data groups match exactly. All current handler
+raw tags and executable inputs match. The original isolated 448-file/B2 guards
+retain their original assertions; this records checkout-specific reference bytes,
+not a relaxed guard or an asset modification. Enumeration evidence is local
+`target/oplot23-main-input-differences.json`.
+
 Public repository: <https://github.com/monpai-lover/tankforge>.
 This final status update changes documentation only and follows the source push.
 Generated HTML, build logs and target manifests are local artifacts, not staged.
