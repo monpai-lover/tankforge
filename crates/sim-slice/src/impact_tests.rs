@@ -140,6 +140,14 @@ fn all_five_active_owners_share_raw_two_layer_state() {
         &mut stack,
         &identities,
     );
+    let mut legacy = serde_json::to_value(&stack).unwrap();
+    legacy["traversal"]
+        .as_object_mut()
+        .unwrap()
+        .remove("cumulative_path_m");
+    let old: impact::ImpactState = serde_json::from_value(legacy).unwrap();
+    assert_eq!(old.current, stack.current);
+    assert_eq!(old.traversal.unwrap().cumulative_path_m, 0.0);
     let target = tg_combat::Target::new(
         tg_combat::TargetDef {
             id: "p1".into(),
@@ -225,6 +233,19 @@ fn all_five_active_owners_share_raw_two_layer_state() {
     ] {
         for event in events {
             event.transition.budget.validate().unwrap();
+            if event.transition.verdict == ImpactVerdict::Passed {
+                let distance = (event.exit_position - event.entry_position).length() as f64;
+                let transit = distance / event.transition.entry.velocity_m_s.length() as f64;
+                assert!(
+                    (event.transition.output.elapsed_s
+                        - event.transition.entry.elapsed_s
+                        - transit)
+                        .abs()
+                        < 1e-8,
+                    "shared transit in {}",
+                    event.transition.layer_id
+                );
+            }
         }
     }
     let repeated = tg_design::trace::shoot(&model, &tg_design::trace::TargetState::default(), &req);
@@ -272,4 +293,112 @@ fn slice_real_flight_uses_actual_vector_and_reaches_second_plate() {
             .abs()
             < 1e-5
     );
+}
+
+#[test]
+fn slice_plate_exit_time_is_shared_even_when_passed_with_zero_energy() {
+    for thickness in [50.0, 150.0] {
+        let mut front = plate("first", 0.0);
+        front.thickness_mm = thickness;
+        let mut data = Data {
+            materials: MaterialDb::from_vec(vec![material()]),
+            projectile: shell(),
+            plates: vec![front],
+            modules: vec![],
+            crew: vec![],
+        };
+        let ballistic = BallisticState::from_muzzle(
+            Vec3::new(0.0, 1.0, -2.0),
+            Vec3::new(0.0, 0.0, 1.0),
+            &data.projectile,
+        );
+        let mut slice = event();
+        run_kinetic_contacts(
+            &mut data,
+            &mut slice,
+            &ballistic,
+            0,
+            Vec3::new(0.0, 1.0, 0.0),
+            0.02,
+            1,
+        );
+        let contact = &slice.impact_events[0];
+        assert_eq!(contact.transition.verdict, ImpactVerdict::Passed);
+        let output = contact.transition.output.elapsed_s;
+        assert!(
+            (output - contact.transition.entry.elapsed_s - thickness as f64 * 0.001 / 100.0).abs()
+                < 1e-10
+        );
+        assert!(slice
+            .projectile_path
+            .iter()
+            .any(|p| (p.pos - contact.exit_position).length() < 1e-6
+                && (p.t as f64 - output).abs() < 1e-8));
+        let carriers: Vec<_> = slice.fragments.iter().filter(|f| f.is_penetrator).collect();
+        if thickness == 150.0 {
+            assert_eq!(slice.impact_state.as_ref().unwrap().energy_j(), 0.0);
+            assert!(
+                carriers.is_empty(),
+                "exhausted passed carrier cannot invent positive-distance continuation"
+            );
+        } else {
+            assert_eq!(carriers[0].provenance.start_s, Some(output));
+        }
+    }
+}
+
+#[test]
+fn slice_primary_target_is_not_deposited_again_across_plate_segments() {
+    let radio: Module = serde_json::from_value(serde_json::json!({
+        "id":"radio", "kind":"radio", "center":[0,1,0.3],
+        "half_extents":[0.2,0.2,0.25], "health":100, "max_health":100
+    }))
+    .unwrap();
+    let mut data = Data {
+        materials: MaterialDb::from_vec(vec![material()]),
+        projectile: shell(),
+        plates: vec![plate("first", 0.0), plate("second", 0.2)],
+        modules: vec![radio],
+        crew: vec![],
+    };
+    let result = run_shot(
+        &Scenario {
+            shooter_pos: Vec3::new(0.0, 1.0, -2.0),
+            aim_point: Vec3::new(0.0, 1.0, 0.2),
+            seed: 1,
+        },
+        &mut data,
+    );
+    let deposits: Vec<_> = result
+        .event
+        .impact_events
+        .iter()
+        .filter(|e| e.transition.verdict == ImpactVerdict::Deposited)
+        .collect();
+    assert_eq!(
+        deposits.len(),
+        1,
+        "one physical primary radio contact: {:?}",
+        deposits
+            .iter()
+            .map(|e| e.transition.budget.target_deposition_j)
+            .collect::<Vec<_>>()
+    );
+    let last_plate = result
+        .event
+        .impact_events
+        .iter()
+        .find(|e| e.transition.layer_id == "plate:second")
+        .unwrap();
+    assert!(
+        (result.event.impact_state.as_ref().unwrap().energy_j()
+            - last_plate.transition.budget.core_out_j)
+            .abs()
+            < 1e-4
+    );
+    assert!(
+        (result.event.impact_state.as_ref().unwrap().energy_j() - 316.563969).abs() < 1e-3,
+        "one radio contact must preserve the legal second-plate output"
+    );
+    assert_eq!(result.event.damaged_modules.len(), 1);
 }

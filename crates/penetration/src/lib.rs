@@ -58,30 +58,127 @@ pub fn resolve(p: &ProjectileDef, plate: &ArmorPlate, mat: &Material, ctx: Impac
 
 /// Stateful kinetic adapter. Declared layer/traversal identity comes from geometry,
 /// not the RNG seed or a triangle index. Legacy chemical verdicts remain P3.
-pub fn resolve_with_state(p: &ProjectileDef, plate: &ArmorPlate, mat: &Material, ctx: ImpactContext, state: &mut impact::ImpactState, layer_id: &str, traversal_id: u32) -> Result<(PenetrationReport, impact::ImpactTransition), impact::ImpactError> {
-    let full=resolve_verdict(p,plate,mat,ctx,state.remaining_pen_mm as f32);
-    resolve_with_state_progress(p,plate,mat,ctx,state,&LayerProgress{layer_id,traversal_id,cumulative_required_mm:full.required_mm as f64})
+pub fn resolve_with_state(
+    p: &ProjectileDef,
+    plate: &ArmorPlate,
+    mat: &Material,
+    ctx: ImpactContext,
+    state: &mut impact::ImpactState,
+    layer_id: &str,
+    traversal_id: u32,
+) -> Result<(PenetrationReport, impact::ImpactTransition), impact::ImpactError> {
+    let full = resolve_verdict(p, plate, mat, ctx, state.remaining_pen_mm as f32);
+    resolve_with_state_progress(
+        p,
+        plate,
+        mat,
+        ctx,
+        state,
+        &LayerProgress {
+            layer_id,
+            traversal_id,
+            cumulative_required_mm: full.required_mm as f64,
+        },
+    )
 }
 
 /// Fixed complete physical-layer geometry plus independent cumulative progress.
 /// Geometry subdivision must advance this resistance cursor, never resize the
 /// plate or assign a fresh identity for a triangle/primitive/substep.
-pub struct LayerProgress<'a> {pub layer_id:&'a str,pub traversal_id:u32,pub cumulative_required_mm:f64}
-pub fn validate_kinetic_contact(p:&ProjectileDef,thickness_mm:f32,mat:&Material,ctx:ImpactContext)->Result<(),impact::ImpactError>{
-    if !p.kind.is_kinetic() || [ctx.incidence_deg,ctx.distance_m,p.normalization_deg,p.ricochet_angle_deg,p.shatter_angle_deg].iter().any(|v|!v.is_finite()) || ctx.incidence_deg<0.0 || ctx.distance_m<0.0
-        || [thickness_mm,mat.kinetic_factor,mat.density_kg_m3,mat.hardness_bhn].iter().any(|v|!v.is_finite() || *v<0.0){return Err(impact::ImpactError::InvalidInput);}
+pub struct LayerProgress<'a> {
+    pub layer_id: &'a str,
+    pub traversal_id: u32,
+    pub cumulative_required_mm: f64,
+}
+pub fn validate_kinetic_contact(
+    p: &ProjectileDef,
+    thickness_mm: f32,
+    mat: &Material,
+    ctx: ImpactContext,
+) -> Result<(), impact::ImpactError> {
+    if !p.kind.is_kinetic()
+        || [
+            ctx.incidence_deg,
+            ctx.distance_m,
+            p.normalization_deg,
+            p.ricochet_angle_deg,
+            p.shatter_angle_deg,
+        ]
+        .iter()
+        .any(|v| !v.is_finite())
+        || ctx.incidence_deg < 0.0
+        || ctx.distance_m < 0.0
+        || [
+            thickness_mm,
+            mat.kinetic_factor,
+            mat.density_kg_m3,
+            mat.hardness_bhn,
+        ]
+        .iter()
+        .any(|v| !v.is_finite() || *v < 0.0)
+    {
+        return Err(impact::ImpactError::InvalidInput);
+    }
     Ok(())
 }
-pub fn resolve_with_state_progress(p:&ProjectileDef,plate:&ArmorPlate,mat:&Material,ctx:ImpactContext,state:&mut impact::ImpactState,progress:&LayerProgress<'_>)->Result<(PenetrationReport,impact::ImpactTransition),impact::ImpactError>{
-    validate_kinetic_contact(p,plate.thickness_mm,mat,ctx)?;
-    let LayerProgress{layer_id,traversal_id,cumulative_required_mm}=*progress;
-    let available=state.traversal.as_ref().filter(|c|c.layer_id==layer_id && c.traversal_id==traversal_id).map(|c|c.entry.remaining_pen_mm).unwrap_or(state.remaining_pen_mm);
-    let entry_energy=state.traversal.as_ref().filter(|c|c.layer_id==layer_id && c.traversal_id==traversal_id).map(|c|c.entry.energy_j()).unwrap_or(state.energy_j());
+pub fn resolve_with_state_progress(
+    p: &ProjectileDef,
+    plate: &ArmorPlate,
+    mat: &Material,
+    ctx: ImpactContext,
+    state: &mut impact::ImpactState,
+    progress: &LayerProgress<'_>,
+) -> Result<(PenetrationReport, impact::ImpactTransition), impact::ImpactError> {
+    validate_kinetic_contact(p, plate.thickness_mm, mat, ctx)?;
+    let LayerProgress {
+        layer_id,
+        traversal_id,
+        cumulative_required_mm,
+    } = *progress;
+    let available = state
+        .traversal
+        .as_ref()
+        .filter(|c| c.layer_id == layer_id && c.traversal_id == traversal_id)
+        .map(|c| c.entry.remaining_pen_mm)
+        .unwrap_or(state.remaining_pen_mm);
+    let entry_energy = state
+        .traversal
+        .as_ref()
+        .filter(|c| c.layer_id == layer_id && c.traversal_id == traversal_id)
+        .map(|c| c.entry.energy_j())
+        .unwrap_or(state.energy_j());
     let mut report = resolve_verdict(p, plate, mat, ctx, available as f32);
-    if !report.required_mm.is_finite() || !cumulative_required_mm.is_finite() || cumulative_required_mm<0.0 || cumulative_required_mm>report.required_mm as f64+1e-5 {return Err(impact::ImpactError::InvalidTraversal);}
-    report.required_mm=cumulative_required_mm as f32;
-    if !matches!(report.result,PenetrationResult::Ricochet | PenetrationResult::Shattered) {
-        report.result=if available>=cumulative_required_mm && (entry_energy>0.0 || cumulative_required_mm==0.0) {PenetrationResult::Penetrated{residual_mm:(available-cumulative_required_mm) as f32,speed_fraction:0.0}}else{PenetrationResult::Stopped};
+    if !report.required_mm.is_finite()
+        || !cumulative_required_mm.is_finite()
+        || cumulative_required_mm < 0.0
+        || cumulative_required_mm > report.required_mm as f64 + 1e-5
+    {
+        return Err(impact::ImpactError::InvalidTraversal);
+    }
+    // Existing adapters expose resistance progress. Its fraction maps onto the
+    // fixed complete layer path; the shared cursor retains the physical debit.
+    let cumulative_path_m = report.los_mm as f64
+        * 0.001
+        * if report.required_mm > 0.0 {
+            cumulative_required_mm / report.required_mm as f64
+        } else {
+            1.0
+        };
+    report.required_mm = cumulative_required_mm as f32;
+    if !matches!(
+        report.result,
+        PenetrationResult::Ricochet | PenetrationResult::Shattered
+    ) {
+        report.result = if available >= cumulative_required_mm
+            && (entry_energy > 0.0 || cumulative_required_mm == 0.0)
+        {
+            PenetrationResult::Penetrated {
+                residual_mm: (available - cumulative_required_mm) as f32,
+                speed_fraction: 0.0,
+            }
+        } else {
+            PenetrationResult::Stopped
+        };
     }
     let verdict = match report.result {
         PenetrationResult::Penetrated { .. } => impact::ImpactVerdict::Passed,
@@ -89,14 +186,28 @@ pub fn resolve_with_state_progress(p:&ProjectileDef,plate:&ArmorPlate,mat:&Mater
         PenetrationResult::Shattered => impact::ImpactVerdict::Shattered,
         PenetrationResult::Stopped => impact::ImpactVerdict::Stopped,
     };
-    let tr = impact::advance_kinetic_layer(state, &impact::DeclaredLayerContact {
-        layer_id: layer_id.into(), traversal_id, cumulative_required_mm,
-        thickness_mm: plate.thickness_mm as f64, density_kg_m3: mat.density_kg_m3 as f64,
-        verdict, emit_spall: p.caliber_mm >= 20.0,
-    })?;
+    let tr = impact::advance_kinetic_layer(
+        state,
+        &impact::DeclaredLayerContact {
+            layer_id: layer_id.into(),
+            traversal_id,
+            cumulative_required_mm,
+            cumulative_path_m,
+            thickness_mm: plate.thickness_mm as f64,
+            density_kg_m3: mat.density_kg_m3 as f64,
+            verdict,
+            emit_spall: p.caliber_mm >= 20.0,
+        },
+    )?;
     if matches!(report.result, PenetrationResult::Penetrated { .. }) {
-        report.result = PenetrationResult::Penetrated { residual_mm: state.remaining_pen_mm as f32,
-            speed_fraction: if tr.entry.energy_j() > 0.0 { (tr.output.energy_j()/tr.entry.energy_j()).sqrt() as f32 } else { 0.0 } };
+        report.result = PenetrationResult::Penetrated {
+            residual_mm: state.remaining_pen_mm as f32,
+            speed_fraction: if tr.entry.energy_j() > 0.0 {
+                (tr.output.energy_j() / tr.entry.energy_j()).sqrt() as f32
+            } else {
+                0.0
+            },
+        };
     }
     Ok((report, tr))
 }

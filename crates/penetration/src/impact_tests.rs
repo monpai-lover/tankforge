@@ -12,6 +12,7 @@ fn contact(layer: &str, traversal: u32, required: f64) -> DeclaredLayerContact {
         layer_id: layer.into(),
         traversal_id: traversal,
         cumulative_required_mm: required,
+        cumulative_path_m: required * 0.001,
         thickness_mm: 100.0,
         density_kg_m3: 7850.0,
         verdict: ImpactVerdict::Passed,
@@ -154,6 +155,7 @@ fn active_single_and_stack_progress_keep_one_fixed_physical_layer() {
     };
     let (_, whole) =
         resolve_with_state(&shell, &plate, &material, ctx, &mut full, "fixed", 0).unwrap();
+    assert!((whole.output.elapsed_s - 0.001).abs() < 1e-10);
     let mut partial = initial.clone();
     let mut mass = 0.0;
     let mut energy = 0.0;
@@ -178,13 +180,14 @@ fn active_single_and_stack_progress_keep_one_fixed_physical_layer() {
     assert_eq!(full.remaining_pen_mm, partial.remaining_pen_mm);
     assert!((mass - whole.allocations[0].mass_kg).abs() < 1e-10);
     assert!((energy - whole.budget.armour_debris_j).abs() < 1e-4);
+    assert_eq!(partial.elapsed_s, full.elapsed_s);
     let plates: Vec<_> = (0..4)
-        .map(|_| PlateCrossing {
+        .map(|i| PlateCrossing {
             material: &material,
             thickness_mm: 100.0,
             path_mm: 100.0,
             incidence_deg: 0.0,
-            gap_before_mm: 0.0,
+            gap_before_mm: if i == 0 { 0.0 } else { 150.0 },
         })
         .collect();
     let progress: Vec<_> = [25.0, 50.0, 50.0, 100.0]
@@ -209,6 +212,14 @@ fn active_single_and_stack_progress_keep_one_fixed_physical_layer() {
     assert!((stack.energy_j() - full.energy_j()).abs() < 1e-3);
     assert_eq!(report.total_required_mm, 100.0);
     assert_eq!(report.impacts[2].budget.armour_debris_j, 0.0);
+    assert_eq!(
+        stack.elapsed_s, full.elapsed_s,
+        "duplicate progress must not charge transit or its supplied gap again"
+    );
+    assert_eq!(
+        report.impacts[2].entry.elapsed_s,
+        report.impacts[2].output.elapsed_s
+    );
     let before = stack.clone();
     let bad = [StackTraversalProgress {
         identity: LayerIdentity {
@@ -236,10 +247,12 @@ fn active_single_and_stack_progress_keep_one_fixed_physical_layer() {
     let (_, duplicate) =
         resolve_with_state(&shell, &exact_plate, &material, ctx, &mut exact, "exact", 0).unwrap();
     assert_eq!(first.verdict, ImpactVerdict::Passed);
+    assert!((first.output.elapsed_s - 0.0015).abs() < 1e-10);
     assert_eq!(duplicate.verdict, ImpactVerdict::Passed);
     assert_eq!(duplicate.budget.input_j, 0.0);
     assert!(duplicate.allocations.is_empty());
     assert_eq!(exact.remaining_pen_mm, 0.0);
+    assert_eq!(duplicate.output.elapsed_s, first.output.elapsed_s);
     for value in [f32::NAN, -1.0] {
         for field in 0..3 {
             let mut invalid_plate = plate.clone();

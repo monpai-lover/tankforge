@@ -165,6 +165,9 @@ pub struct LayerTraversalCursor {
     pub cumulative_required_mm: f64,
     pub cumulative_work_j: f64,
     pub cumulative_pen_used_mm: f64,
+    /// Passed distance, timed at this traversal's incoming speed (P1 estimate).
+    #[serde(default)]
+    pub cumulative_path_m: f64,
     pub armour_mass_bound_kg: f64,
     pub cumulative_armour_mass_kg: f64,
 }
@@ -244,6 +247,7 @@ impl ImpactState {
                 c.cumulative_required_mm,
                 c.cumulative_work_j,
                 c.cumulative_pen_used_mm,
+                c.cumulative_path_m,
                 c.armour_mass_bound_kg,
                 c.cumulative_armour_mass_kg,
             ];
@@ -312,6 +316,7 @@ pub struct DeclaredLayerContact {
     pub layer_id: String,
     pub traversal_id: u32,
     pub cumulative_required_mm: f64,
+    pub cumulative_path_m: f64,
     pub thickness_mm: f64,
     pub density_kg_m3: f64,
     pub verdict: ImpactVerdict,
@@ -536,6 +541,7 @@ pub fn advance_kinetic_layer(
     state.validate()?;
     if [
         contact.cumulative_required_mm,
+        contact.cumulative_path_m,
         contact.thickness_mm,
         contact.density_kg_m3,
     ]
@@ -568,11 +574,13 @@ pub fn advance_kinetic_layer(
             cumulative_required_mm: 0.0,
             cumulative_work_j: 0.0,
             cumulative_pen_used_mm: 0.0,
+            cumulative_path_m: 0.0,
             armour_mass_bound_kg: mass_bound,
             cumulative_armour_mass_kg: 0.0,
         },
     };
     if contact.cumulative_required_mm < cursor.cumulative_required_mm
+        || contact.cumulative_path_m < cursor.cumulative_path_m
         || (mass_bound - cursor.armour_mass_bound_kg).abs() > 1e-9 * mass_bound.max(1.0)
     {
         return Err(ImpactError::InvalidTraversal);
@@ -606,6 +614,17 @@ pub fn advance_kinetic_layer(
     };
     next.remaining_pen_mm =
         (entry.remaining_pen_mm - (used - cursor.cumulative_pen_used_mm)).max(0.0);
+    if verdict == ImpactVerdict::Passed {
+        // P1 compatibility transit uses the traversal's incoming speed, so
+        // subdivision/duplicate boundaries have the same time as one contact.
+        // In particular, a Passed/E0 exit still has a finite actual exit time.
+        let speed = cursor.entry.velocity_m_s.length() as f64;
+        let distance = contact.cumulative_path_m - cursor.cumulative_path_m;
+        if distance > 0.0 && speed > 0.0 {
+            next.elapsed_s += distance / speed;
+        }
+        cursor.cumulative_path_m = contact.cumulative_path_m;
+    }
     if verdict != ImpactVerdict::Passed {
         work = input;
         next.remaining_pen_mm = 0.0;

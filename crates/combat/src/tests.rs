@@ -16,6 +16,65 @@ fn zero_kinetic_energy_does_not_damage_crew() {
 }
 
 #[test]
+fn passing_plate_core_segment_starts_at_output_snapshot() {
+    let mut def = box_tank(false).def;
+    def.plates = vec![plate(
+        "front",
+        ArmorZone::HullSide,
+        50.0,
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, -1.0],
+        [1.0, 0.0, 0.0],
+        1.0,
+        1.0,
+    )];
+    def.modules.clear();
+    def.crew = vec![crew(CrewRole::Driver, [0.0, 1.0, 0.5])];
+    let target = Target::new(def, &rha());
+    let mut p = ProjectileDef::generic_ap(10.0, 150.0);
+    p.mass_kg = 0.1;
+    p.normalization_deg = 0.0;
+    let r = shoot(
+        &target,
+        &target.fresh_state(),
+        &Shot {
+            shell: p,
+            origin: Vec3::new(0.0, 1.0, -2.0),
+            dir: Vec3::new(0.0, 0.0, 1.0),
+            speed_ms: 100.0,
+            distance_m: 0.0,
+            seed: 1,
+            turret_yaw: 0.0,
+        },
+    );
+    let contact = &r.impact_events[0];
+    let core = r
+        .fragments
+        .iter()
+        .find(|f| {
+            f.provenance.source == impact::FragmentSource::Core
+                && f.provenance.parent_event_id == contact.transition.event_id
+                && (f.from - contact.exit_position).length() < 1e-6
+        })
+        .expect("outgoing core segment must start at the plate exit");
+    assert_eq!(
+        core.provenance.start_s,
+        Some(contact.transition.output.elapsed_s)
+    );
+    assert!(
+        (core.provenance.physical.as_ref().unwrap().energy_j
+            - contact.transition.budget.core_out_j)
+            .abs()
+            < 1e-3
+    );
+    assert!(r
+        .impact_events
+        .iter()
+        .filter(|e| e.transition.verdict == impact::ImpactVerdict::Deposited)
+        .all(|e| e.time_s > contact.transition.output.elapsed_s));
+}
+
+#[test]
 fn invalid_kinetic_material_contact_preserves_targets_and_carrier() {
     for value in [f32::NAN,-1.0] {for field in 0..4 {
         let mut mat=rha();let mut def=box_tank(false).def;

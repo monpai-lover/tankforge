@@ -22,7 +22,17 @@ pub(crate) fn event(
 }
 
 pub(crate) fn core_provenance(transition: &ImpactTransition) -> FragmentProvenance {
-    let s = &transition.entry;
+    core_snapshot_provenance(transition, &transition.entry)
+}
+
+pub(crate) fn outgoing_core_provenance(transition: &ImpactTransition) -> FragmentProvenance {
+    core_snapshot_provenance(transition, &transition.output)
+}
+
+fn core_snapshot_provenance(
+    transition: &ImpactTransition,
+    s: &tg_penetration::impact::ImpactSnapshot,
+) -> FragmentProvenance {
     FragmentProvenance {
         fragment_id: s.body_id.clone(),
         parent_event_id: transition.event_id.clone(),

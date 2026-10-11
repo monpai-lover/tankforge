@@ -1290,7 +1290,9 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
             state: st.clone(),
             title: String::new(),
             turret_yaw: shot.turret_yaw,
-            mechanism_revision: None, impact_events: vec![], impact_state: None,
+            mechanism_revision: None,
+            impact_events: vec![],
+            impact_state: None,
         },
         mod_dmg: HashMap::new(),
         crew_dmg: HashMap::new(),
@@ -1298,7 +1300,8 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
         newly_killed: vec![],
     };
     // only the part of the line that crosses the vehicle's box
-    let Some((t_in, t_out)) = ray_box(shot.origin, d, (t.lo + t.hi) * 0.5, (t.hi - t.lo) * 0.5) else {
+    let Some((t_in, t_out)) = ray_box(shot.origin, d, (t.lo + t.hi) * 0.5, (t.hi - t.lo) * 0.5)
+    else {
         w.rep.title = "未命中".into();
         return w.rep;
     };
@@ -1317,14 +1320,26 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
     let chemical = shell.kind.is_chemical();
     let kinetic = shell.kind.is_kinetic();
     let mut impact_state = if kinetic {
-        match impact::initialize_impact(shell,d*shot.speed_ms,pen as f64,"core") {
-            Ok(s) if shot.speed_ms.is_finite() && shot.speed_ms>=0.0 => Some(s),
-            _ => { w.rep.events.push("rejected_impact_input".into()); return w.rep; }
+        match impact::initialize_impact(shell, d * shot.speed_ms, pen as f64, "core") {
+            Ok(s) if shot.speed_ms.is_finite() && shot.speed_ms >= 0.0 => Some(s),
+            _ => {
+                w.rep.events.push("rejected_impact_input".into());
+                return w.rep;
+            }
         }
-    } else { None };
-    if kinetic { w.rep.mechanism_revision=Some(impact::MECHANISM_REVISION.into()); }
+    } else {
+        None
+    };
+    if kinetic {
+        w.rep.mechanism_revision = Some(impact::MECHANISM_REVISION.into());
+    }
     // APHE and every capped round with a filler (APCBC-HE such as the PzGr 39): a delayed burst
-    let aphe = kinetic && shell.explosive_mass_kg > 0.0 && !matches!(shell.kind, ProjectileKind::Apcr | ProjectileKind::Apds | ProjectileKind::Apfsds);
+    let aphe = kinetic
+        && shell.explosive_mass_kg > 0.0
+        && !matches!(
+            shell.kind,
+            ProjectileKind::Apcr | ProjectileKind::Apds | ProjectileKind::Apfsds
+        );
     let he = shell.kind == ProjectileKind::He;
     let hesh = shell.kind == ProjectileKind::Hesh;
     let mut touched = false;
@@ -1332,19 +1347,21 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
     let mut fuse_at: Option<f32> = None;
     let mut jet_end: Option<f32> = None;
     let mut last_t = 0.0f32;
+    let mut core_parent: Option<(Vec3, impact::ImpactTransition)> = None;
     let mut alive = true;
     let mut through_armour = false;
     let mut hit_something = false;
     let energy = |speed: f32| 0.5 * shell.mass_kg * core * speed * speed;
-    let first_point = |w: &mut Work, p: Vec3, n: Option<Vec3>, plate: Option<String>, angle: f32| {
-        if w.rep.impact.is_none() {
-            w.rep.impact = Some(p);
-            w.rep.normal = n;
-            w.rep.plate = plate;
-            w.rep.angle_deg = angle;
-            w.rep.path.push(p);
-        }
-    };
+    let first_point =
+        |w: &mut Work, p: Vec3, n: Option<Vec3>, plate: Option<String>, angle: f32| {
+            if w.rep.impact.is_none() {
+                w.rep.impact = Some(p);
+                w.rep.normal = n;
+                w.rep.plate = plate;
+                w.rep.angle_deg = angle;
+                w.rep.path.push(p);
+            }
+        };
     for ev in events {
         if !alive {
             break;
@@ -1366,35 +1383,94 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 break;
             }
         }
-        if let Some(state) = impact_state.as_mut() { state.advance_time((ev.t-last_t).max(0.0) as f64); }
-        last_t = ev.t;
+        if let Some(state) = impact_state.as_mut() {
+            state.advance_time((ev.t - last_t).max(0.0) as f64);
+        }
+        last_t = last_t.max(ev.t);
         let point = start + d * ev.t;
         match ev.kind {
             EvKind::Plate(i) => {
                 let pl = w.p.plates[i].clone();
-                let Some(h) = pl.intersect(start, d) else { continue };
+                let Some(h) = pl.intersect(start, d) else {
+                    continue;
+                };
                 let entering = d.dot(pl.normal) < 0.0;
                 let first = !touched;
                 touched = true;
                 hit_something = true;
-                first_point(&mut w, point, Some(h.facing_normal), Some(pl.id.clone()), h.incidence_deg);
+                first_point(
+                    &mut w,
+                    point,
+                    Some(h.facing_normal),
+                    Some(pl.id.clone()),
+                    h.incidence_deg,
+                );
                 let mat = t.material(&pl.material);
                 let inc = h.incidence_deg;
-                if kinetic && tg_penetration::validate_kinetic_contact(shell,pl.thickness_mm,&mat,tg_penetration::ImpactContext{incidence_deg:inc,distance_m:shot.distance_m}).is_err(){
-                    w.rep.events.push("rejected_impact_contact".into());if !through_armour{w.rep.outcome=Outcome::Stopped;}alive=false;break;
+                if kinetic
+                    && tg_penetration::validate_kinetic_contact(
+                        shell,
+                        pl.thickness_mm,
+                        &mat,
+                        tg_penetration::ImpactContext {
+                            incidence_deg: inc,
+                            distance_m: shot.distance_m,
+                        },
+                    )
+                    .is_err()
+                {
+                    w.rep.events.push("rejected_impact_contact".into());
+                    if !through_armour {
+                        w.rep.outcome = Outcome::Stopped;
+                    }
+                    alive = false;
+                    break;
+                }
+                if let Some((origin, parent)) = core_parent.take() {
+                    if (point - origin).length() > 1e-6 {
+                        w.rep.fragments.push(Frag {
+                            from: origin,
+                            to: point,
+                            hit: None,
+                            damage: 0.0,
+                            kind: "shell".into(),
+                            provenance: impact_report::outgoing_core_provenance(&parent),
+                            budget: None,
+                        });
+                    }
                 }
                 if he || hesh {
                     // contact fuse: it bursts on the plate
                     w.rep.path.push(point);
                     let kg = shell.explosive_mass_kg.max(0.01);
                     // the data's HE penetration when it gives one, else from the filler
-                    let rating = if hesh { pen } else if pen > 0.5 { pen.max(he_pen_mm(kg) * 0.8) } else { he_pen_mm(kg) };
+                    let rating = if hesh {
+                        pen
+                    } else if pen > 0.5 {
+                        pen.max(he_pen_mm(kg) * 0.8)
+                    } else {
+                        he_pen_mm(kg)
+                    };
                     let inner = point + d * (pl.thickness_mm * 0.001 + 0.03);
                     if pl.zone != ArmorZone::Skirt && rating >= pl.thickness_mm {
-                        w.note_layer(i, inc, pl.thickness_mm, pl.thickness_mm, rating, rating - pl.thickness_mm, true, point, entering);
+                        w.note_layer(
+                            i,
+                            inc,
+                            pl.thickness_mm,
+                            pl.thickness_mm,
+                            rating,
+                            rating - pl.thickness_mm,
+                            true,
+                            point,
+                            entering,
+                        );
                         // the blast breaks in: a scab of the plate flies inwards, the shock wounds
                         let n = if hesh { 30 } else { 18 };
-                        let each = if hesh { 6000.0 * (kg / 1.0).sqrt() } else { 3000.0 * (kg / 0.5).sqrt() };
+                        let each = if hesh {
+                            6000.0 * (kg / 1.0).sqrt()
+                        } else {
+                            3000.0 * (kg / 0.5).sqrt()
+                        };
                         let into = if entering { d } else { -pl.normal };
                         for _ in 0..n {
                             let dir = cone_dir(into, if hesh { 55.0 } else { 60.0 }, &mut w.rng);
@@ -1403,7 +1479,17 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                         w.blast_inside(inner, kg * if hesh { 0.4 } else { 0.8 });
                         w.rep.outcome = Outcome::Overpressure;
                     } else {
-                        w.note_layer(i, inc, pl.thickness_mm, pl.thickness_mm, rating, 0.0, false, point, entering);
+                        w.note_layer(
+                            i,
+                            inc,
+                            pl.thickness_mm,
+                            pl.thickness_mm,
+                            rating,
+                            0.0,
+                            false,
+                            point,
+                            entering,
+                        );
                         w.blast_outside(point - d * 0.05, kg);
                         w.rep.outcome = Outcome::Blast;
                     }
@@ -1415,48 +1501,150 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                     alive = false;
                     break;
                 }
-                let eff = if chemical { inc } else { (inc - shell.normalization_deg).max(0.0) };
+                let eff = if chemical {
+                    inc
+                } else {
+                    (inc - shell.normalization_deg).max(0.0)
+                };
                 let los = pl.thickness_mm / eff.to_radians().cos().max(0.02);
-                let factor = if chemical { mat.chemical_factor } else { mat.kinetic_factor };
+                let factor = if chemical {
+                    mat.chemical_factor
+                } else {
+                    mat.kinetic_factor
+                };
                 let req = los * factor;
                 let overmatch = kinetic && shell.caliber_mm >= 3.0 * pl.thickness_mm;
                 if let Some(state) = impact_state.as_mut() {
-                    let layer_id=format!("plate:{}",pl.id);
-                    let available = state.traversal.as_ref().filter(|c|c.layer_id==layer_id && c.traversal_id==0).map(|c|c.entry.remaining_pen_mm).unwrap_or(state.remaining_pen_mm);
-                    let verdict=if state.energy_j()==0.0 && req>0.0 {impact::ImpactVerdict::Stopped}
-                        else if first && !overmatch && inc>=shell.ricochet_angle_deg { impact::ImpactVerdict::Ricochet }
-                        else if inc>=shell.shatter_angle_deg && mat.hardness_bhn>=350.0 { impact::ImpactVerdict::Shattered }
-                        else if available<req as f64 { impact::ImpactVerdict::Stopped } else { impact::ImpactVerdict::Passed };
-                    let before=state.remaining_pen_mm as f32;
-                    let Ok(tr)=impact::advance_kinetic_layer(state,&impact::DeclaredLayerContact { layer_id,traversal_id:0,cumulative_required_mm:req as f64,
-                        thickness_mm:pl.thickness_mm as f64,density_kg_m3:mat.density_kg_m3 as f64,verdict,emit_spall:entering && shell.caliber_mm>=20.0 }) else {
-                        w.rep.events.push("rejected_impact_contact".into()); alive=false; break;
+                    let layer_id = format!("plate:{}", pl.id);
+                    let available = state
+                        .traversal
+                        .as_ref()
+                        .filter(|c| c.layer_id == layer_id && c.traversal_id == 0)
+                        .map(|c| c.entry.remaining_pen_mm)
+                        .unwrap_or(state.remaining_pen_mm);
+                    let verdict = if state.energy_j() == 0.0 && req > 0.0 {
+                        impact::ImpactVerdict::Stopped
+                    } else if first && !overmatch && inc >= shell.ricochet_angle_deg {
+                        impact::ImpactVerdict::Ricochet
+                    } else if inc >= shell.shatter_angle_deg && mat.hardness_bhn >= 350.0 {
+                        impact::ImpactVerdict::Shattered
+                    } else if available < req as f64 {
+                        impact::ImpactVerdict::Stopped
+                    } else {
+                        impact::ImpactVerdict::Passed
                     };
-                    pen=state.remaining_pen_mm as f32; speed=state.velocity_m_s.length();
-                    let passed=verdict==impact::ImpactVerdict::Passed;
-                    let inner=point+d*(los*0.001+0.0001);
-                    w.note_layer(i,inc,los,req,before,pen,passed,point,entering);
-                    w.rep.impact_events.push(impact_report::event(tr.clone(),point,if passed {inner}else{point},h.facing_normal));
+                    let before = state.remaining_pen_mm as f32;
+                    let Ok(tr) = impact::advance_kinetic_layer(
+                        state,
+                        &impact::DeclaredLayerContact {
+                            layer_id,
+                            traversal_id: 0,
+                            cumulative_required_mm: req as f64,
+                            cumulative_path_m: los as f64 * 0.001,
+                            thickness_mm: pl.thickness_mm as f64,
+                            density_kg_m3: mat.density_kg_m3 as f64,
+                            verdict,
+                            emit_spall: entering && shell.caliber_mm >= 20.0,
+                        },
+                    ) else {
+                        w.rep.events.push("rejected_impact_contact".into());
+                        alive = false;
+                        break;
+                    };
+                    pen = state.remaining_pen_mm as f32;
+                    speed = state.velocity_m_s.length();
+                    let passed = verdict == impact::ImpactVerdict::Passed;
+                    let inner = point + d * (los * 0.001);
+                    // Plate transit is already included in the shared output.
+                    // Subsequent free travel begins at the actual plate exit.
+                    if passed {
+                        last_t = ev.t + los * 0.001;
+                    }
+                    w.note_layer(i, inc, los, req, before, pen, passed, point, entering);
+                    w.rep.impact_events.push(impact_report::event(
+                        tr.clone(),
+                        point,
+                        if passed { inner } else { point },
+                        h.facing_normal,
+                    ));
                     if !passed {
                         w.rep.path.push(point);
-                        if !through_armour {w.rep.outcome=match verdict {impact::ImpactVerdict::Ricochet=>{w.rep.ricochet_dir=Some((d-h.facing_normal*(2.0*d.dot(h.facing_normal))).normalized());Outcome::Ricochet},impact::ImpactVerdict::Shattered=>Outcome::Shattered,_=>Outcome::Stopped};}
-                        if aphe && verdict==impact::ImpactVerdict::Stopped && pl.thickness_mm>=shell.fuse_sensitivity_mm {w.blast_outside(point-d*0.05,shell.explosive_mass_kg*0.5);}
-                        alive=false; break;
+                        if !through_armour {
+                            w.rep.outcome = match verdict {
+                                impact::ImpactVerdict::Ricochet => {
+                                    w.rep.ricochet_dir = Some(
+                                        (d - h.facing_normal * (2.0 * d.dot(h.facing_normal)))
+                                            .normalized(),
+                                    );
+                                    Outcome::Ricochet
+                                }
+                                impact::ImpactVerdict::Shattered => Outcome::Shattered,
+                                _ => Outcome::Stopped,
+                            };
+                        }
+                        if aphe
+                            && verdict == impact::ImpactVerdict::Stopped
+                            && pl.thickness_mm >= shell.fuse_sensitivity_mm
+                        {
+                            w.blast_outside(point - d * 0.05, shell.explosive_mass_kg * 0.5);
+                        }
+                        alive = false;
+                        break;
                     }
                     if entering {
-                        let params=match shell.kind {
-                            ProjectileKind::Apcr | ProjectileKind::Apds=>tg_damage::DamageParams {base_frag_count:2,frags_per_residual_mm:0.05,max_frags:10,cone_half_angle_deg:11.0,..Default::default()},
-                            ProjectileKind::Apfsds=>tg_damage::DamageParams {base_frag_count:3,frags_per_residual_mm:0.05,max_frags:12,cone_half_angle_deg:10.0,..Default::default()},
-                            _=>tg_damage::DamageParams {base_frag_count:(4.0+shell.caliber_mm*0.04) as u32,frags_per_residual_mm:0.12,max_frags:36,cone_half_angle_deg:22.0,..Default::default()},
+                        let params = match shell.kind {
+                            ProjectileKind::Apcr | ProjectileKind::Apds => {
+                                tg_damage::DamageParams {
+                                    base_frag_count: 2,
+                                    frags_per_residual_mm: 0.05,
+                                    max_frags: 10,
+                                    cone_half_angle_deg: 11.0,
+                                    ..Default::default()
+                                }
+                            }
+                            ProjectileKind::Apfsds => tg_damage::DamageParams {
+                                base_frag_count: 3,
+                                frags_per_residual_mm: 0.05,
+                                max_frags: 12,
+                                cone_half_angle_deg: 10.0,
+                                ..Default::default()
+                            },
+                            _ => tg_damage::DamageParams {
+                                base_frag_count: (4.0 + shell.caliber_mm * 0.04) as u32,
+                                frags_per_residual_mm: 0.12,
+                                max_frags: 36,
+                                cone_half_angle_deg: 22.0,
+                                ..Default::default()
+                            },
                         };
-                        let fragments=tg_damage::generate_allocated_fragments(inner,d,None,&tr,&params,&mut w.rng);
-                        for fragment in &fragments {w.kinetic_fragment(fragment,4.0);}
+                        let fragments = tg_damage::generate_allocated_fragments(
+                            inner, d, None, &tr, &params, &mut w.rng,
+                        );
+                        for fragment in &fragments {
+                            w.kinetic_fragment(fragment, 4.0);
+                        }
                     }
-                    if pl.zone==ArmorZone::Skirt {continue;}
-                    through_armour=true; w.rep.outcome=Outcome::Penetrated;
+                    core_parent = Some((inner, tr));
+                    if pl.zone == ArmorZone::Skirt {
+                        if state.energy_j() <= 0.0 {
+                            alive = false;
+                            break;
+                        }
+                        continue;
+                    }
+                    through_armour = true;
+                    w.rep.outcome = Outcome::Penetrated;
                     if entering {
-                        inside=true; w.rep.path.push(inner);
-                        if aphe && fuse_at.is_none() && pl.thickness_mm>=shell.fuse_sensitivity_mm {fuse_at=Some(ev.t+(speed*shell.fuse_delay_s).max(0.15));}
+                        inside = true;
+                        w.rep.path.push(inner);
+                        if aphe && fuse_at.is_none() && pl.thickness_mm >= shell.fuse_sensitivity_mm
+                        {
+                            fuse_at = Some(ev.t + (speed * shell.fuse_delay_s).max(0.15));
+                        }
+                    }
+                    if state.energy_j() <= 0.0 {
+                        alive = false;
+                        break;
                     }
                     continue;
                 }
@@ -1489,7 +1677,10 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                     }
                     w.rep.path.push(point);
                     // an APHE fuse started by the blow fires outside the plate: the running gear may suffer
-                    if aphe && pl.thickness_mm >= shell.fuse_sensitivity_mm && shell.explosive_mass_kg > 0.0 {
+                    if aphe
+                        && pl.thickness_mm >= shell.fuse_sensitivity_mm
+                        && shell.explosive_mass_kg > 0.0
+                    {
                         w.blast_outside(point - d * 0.05, shell.explosive_mass_kg * 0.5);
                     }
                     alive = false;
@@ -1509,14 +1700,19 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 w.rep.outcome = Outcome::Penetrated;
                 if entering {
                     inside = true;
-                    let inner = point + d * (pl.thickness_mm * 0.001 / eff.to_radians().cos().max(0.2) + 0.02);
+                    let inner = point
+                        + d * (pl.thickness_mm * 0.001 / eff.to_radians().cos().max(0.2) + 0.02);
                     w.rep.path.push(inner);
                     let e = energy(speed);
                     w.spall(inner, d, shell, pen, e);
                     if chemical && jet_end.is_none() {
                         jet_end = Some(ev.t + 0.6 + pen / 120.0);
                     }
-                    if aphe && fuse_at.is_none() && shell.explosive_mass_kg > 0.0 && pl.thickness_mm >= shell.fuse_sensitivity_mm {
+                    if aphe
+                        && fuse_at.is_none()
+                        && shell.explosive_mass_kg > 0.0
+                        && pl.thickness_mm >= shell.fuse_sensitivity_mm
+                    {
                         fuse_at = Some(ev.t + (speed * shell.fuse_delay_s).max(0.15));
                     }
                 }
@@ -1534,27 +1730,92 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                     } else {
                         w.blast_outside(point, kg);
                     }
-                    w.rep.outcome = if inside { w.rep.outcome } else { Outcome::Blast };
+                    w.rep.outcome = if inside {
+                        w.rep.outcome
+                    } else {
+                        Outcome::Blast
+                    };
                     alive = false;
                     break;
                 }
-                if let Some(state)=impact_state.as_mut() {
-                    let absorption=absorb_mm(m.kind) as f64 * if w.st.modules[i]>0.0 {1.0}else{0.5};
-                    let Ok(tr)=impact::deposit_contact_energy(state,absorption,&format!("core/module:{}",m.id)) else {alive=false;break;};
-                    let damage=w.hurt_module(i,module_damage(tr.budget.target_deposition_j as f32),0.8);
-                    w.rep.fragments.push(Frag {from:point,to:point,hit:Some(m.id.clone()),damage,kind:"shell".into(),provenance:impact_report::core_provenance(&tr),budget:Some(tr.budget)});
-                    w.rep.impact_events.push(impact_report::event(tr,point,point,Vec3::ZERO));
-                    pen=state.remaining_pen_mm as f32;speed=state.velocity_m_s.length();
-                    if !through_armour && w.rep.outcome==Outcome::Miss {w.rep.outcome=if m.is_external(){Outcome::External}else{Outcome::Unarmoured};}
-                    if pen<=0.0 {w.rep.path.push(point);alive=false;break;}
+                if let Some(state) = impact_state.as_mut() {
+                    let absorption =
+                        absorb_mm(m.kind) as f64 * if w.st.modules[i] > 0.0 { 1.0 } else { 0.5 };
+                    let Ok(tr) = impact::deposit_contact_energy(
+                        state,
+                        absorption,
+                        &format!("core/module:{}", m.id),
+                    ) else {
+                        alive = false;
+                        break;
+                    };
+                    let damage =
+                        w.hurt_module(i, module_damage(tr.budget.target_deposition_j as f32), 0.8);
+                    let (origin, provenance) = core_parent
+                        .as_ref()
+                        .map(|(origin, parent)| {
+                            (*origin, impact_report::outgoing_core_provenance(parent))
+                        })
+                        .unwrap_or((point, impact_report::core_provenance(&tr)));
+                    w.rep.fragments.push(Frag {
+                        from: origin,
+                        to: point,
+                        hit: Some(m.id.clone()),
+                        damage,
+                        kind: "shell".into(),
+                        provenance,
+                        budget: Some(tr.budget),
+                    });
+                    core_parent = Some((point, tr.clone()));
+                    w.rep
+                        .impact_events
+                        .push(impact_report::event(tr, point, point, Vec3::ZERO));
+                    pen = state.remaining_pen_mm as f32;
+                    speed = state.velocity_m_s.length();
+                    if !through_armour && w.rep.outcome == Outcome::Miss {
+                        w.rep.outcome = if m.is_external() {
+                            Outcome::External
+                        } else {
+                            Outcome::Unarmoured
+                        };
+                    }
+                    if pen <= 0.0 {
+                        w.rep.path.push(point);
+                        alive = false;
+                        break;
+                    }
                     continue;
                 }
                 let e = energy(speed);
-                let dmg = if chemical { if jet_end.is_some() { 150.0 } else { 60.0 } } else { module_damage(e) };
+                let dmg = if chemical {
+                    if jet_end.is_some() {
+                        150.0
+                    } else {
+                        60.0
+                    }
+                } else {
+                    module_damage(e)
+                };
                 let damage = w.hurt_module(i, dmg, 0.8);
-                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(m.id.clone()), damage, kind: if chemical { "jet".into() } else { "shell".into() }, provenance: Default::default(), budget: None });
+                w.rep.fragments.push(Frag {
+                    from: point,
+                    to: point,
+                    hit: Some(m.id.clone()),
+                    damage,
+                    kind: if chemical {
+                        "jet".into()
+                    } else {
+                        "shell".into()
+                    },
+                    provenance: Default::default(),
+                    budget: None,
+                });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
-                    w.rep.outcome = if m.is_external() { Outcome::External } else { Outcome::Unarmoured };
+                    w.rep.outcome = if m.is_external() {
+                        Outcome::External
+                    } else {
+                        Outcome::Unarmoured
+                    };
                 }
                 let a = absorb_mm(m.kind) * if w.st.modules[i] > 0.0 { 1.0 } else { 0.5 };
                 let before = pen;
@@ -1577,24 +1838,71 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 if he || hesh {
                     w.rep.path.push(point);
                     w.burst_fragments(point, d, speed * 0.3, shell);
-                    w.rep.outcome = if through_armour { w.rep.outcome } else { Outcome::Unarmoured };
+                    w.rep.outcome = if through_armour {
+                        w.rep.outcome
+                    } else {
+                        Outcome::Unarmoured
+                    };
                     alive = false;
                     break;
                 }
-                if let Some(state)=impact_state.as_mut() {
-                    let Ok(tr)=impact::deposit_contact_energy(state,CREW_ABSORB_MM as f64,&format!("core/crew:{i}")) else {alive=false;break;};
-                    let damage=w.hurt_crew(i,crew_damage(tr.budget.target_deposition_j as f32));
-                    w.rep.fragments.push(Frag {from:point,to:point,hit:Some(format!("crew:{i}")),damage,kind:"shell".into(),provenance:impact_report::core_provenance(&tr),budget:Some(tr.budget)});
-                    w.rep.impact_events.push(impact_report::event(tr,point,point,Vec3::ZERO));
-                    pen=state.remaining_pen_mm as f32;speed=state.velocity_m_s.length();
-                    if !through_armour && w.rep.outcome==Outcome::Miss {w.rep.outcome=Outcome::Unarmoured;}
-                    if pen<=0.0 {w.rep.path.push(point);alive=false;break;}
+                if let Some(state) = impact_state.as_mut() {
+                    let Ok(tr) = impact::deposit_contact_energy(
+                        state,
+                        CREW_ABSORB_MM as f64,
+                        &format!("core/crew:{i}"),
+                    ) else {
+                        alive = false;
+                        break;
+                    };
+                    let damage = w.hurt_crew(i, crew_damage(tr.budget.target_deposition_j as f32));
+                    let (origin, provenance) = core_parent
+                        .as_ref()
+                        .map(|(origin, parent)| {
+                            (*origin, impact_report::outgoing_core_provenance(parent))
+                        })
+                        .unwrap_or((point, impact_report::core_provenance(&tr)));
+                    w.rep.fragments.push(Frag {
+                        from: origin,
+                        to: point,
+                        hit: Some(format!("crew:{i}")),
+                        damage,
+                        kind: "shell".into(),
+                        provenance,
+                        budget: Some(tr.budget),
+                    });
+                    core_parent = Some((point, tr.clone()));
+                    w.rep
+                        .impact_events
+                        .push(impact_report::event(tr, point, point, Vec3::ZERO));
+                    pen = state.remaining_pen_mm as f32;
+                    speed = state.velocity_m_s.length();
+                    if !through_armour && w.rep.outcome == Outcome::Miss {
+                        w.rep.outcome = Outcome::Unarmoured;
+                    }
+                    if pen <= 0.0 {
+                        w.rep.path.push(point);
+                        alive = false;
+                        break;
+                    }
                     continue;
                 }
                 let e = energy(speed);
                 let dmg = if chemical { 160.0 } else { crew_damage(e) };
                 let damage = w.hurt_crew(i, dmg);
-                w.rep.fragments.push(Frag { from: point, to: point, hit: Some(format!("crew:{}", i)), damage, kind: if chemical { "jet".into() } else { "shell".into() }, provenance: Default::default(), budget: None });
+                w.rep.fragments.push(Frag {
+                    from: point,
+                    to: point,
+                    hit: Some(format!("crew:{}", i)),
+                    damage,
+                    kind: if chemical {
+                        "jet".into()
+                    } else {
+                        "shell".into()
+                    },
+                    provenance: Default::default(),
+                    budget: None,
+                });
                 if !through_armour && w.rep.outcome == Outcome::Miss {
                     w.rep.outcome = Outcome::Unarmoured;
                 }
@@ -1617,7 +1925,24 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
                 w.burst_fragments(at, d, speed, shell);
             }
             _ => {
-                let end = start + d * jet_end.unwrap_or(exit_t).min(exit_t).max(last_t);
+                let end_distance = jet_end.unwrap_or(exit_t).min(exit_t).max(last_t);
+                let end = start + d * end_distance;
+                if let Some((origin, parent)) = &core_parent {
+                    if (end - *origin).length() > 1e-6 {
+                        w.rep.fragments.push(Frag {
+                            from: *origin,
+                            to: end,
+                            hit: None,
+                            damage: 0.0,
+                            kind: "shell".into(),
+                            provenance: impact_report::outgoing_core_provenance(parent),
+                            budget: None,
+                        });
+                    }
+                    if let Some(state) = impact_state.as_mut() {
+                        state.advance_time((end_distance - last_t).max(0.0) as f64);
+                    }
+                }
                 w.rep.path.push(end);
                 if fuse_at.is_some() {
                     w.rep.events.push("overpenetration".into());
@@ -1626,7 +1951,7 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
         }
     }
     let _ = inside;
-    w.rep.impact_state=impact_state;
+    w.rep.impact_state = impact_state;
     w.rep.hit = hit_something;
     finish(&mut w);
     w.rep

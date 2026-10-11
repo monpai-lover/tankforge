@@ -63,10 +63,10 @@ test('actual WASM spall is allocated from plate work at its generating layer', (
   for (const event of impacts) {
     ledger(event.budget);
     assert.ok(Math.abs(event.budget.armour_debris_j - (event.budget.input_j - event.budget.core_out_j) * .3) < .001);
-    const samples = new Map(report.fragments.filter(f => f.parent_event_id === event.event_id).map(f => [f.fragment_id, f]));
+    const samples = new Map(report.fragments.filter(f => f.parent_event_id === event.event_id && f.source === 'armour_spall').map(f => [f.fragment_id, f]));
     const mass = [...samples.values()].reduce((n, f) => n + f.physical.mass_kg, 0);
     assert.ok(mass <= 7850 * .05 * Math.PI * (.075 / 2) ** 2);
-    for (const sample of samples.values()) { assert.equal(sample.source, 'armour_spall'); assert.equal(sample.weight, 1); assert.ok(sample.from.z >= event.entry_position.z); }
+    for (const sample of samples.values()) { assert.equal(sample.source, 'armour_spall'); assert.equal(sample.weight, 1); assert.ok(sample.from.z >= event.entry_position.z); assert.equal(sample.start_s, event.output.elapsed_s); }
   }
 });
 
@@ -163,5 +163,34 @@ test('actual WASM combat rejects illegal kinetic material contacts without damag
     assert.equal(r.impact_events.length, 0);
     const s = r.impact_state, v = s.velocity_m_s;
     assert.ok(Math.abs(s.mass_kg * (v.x ** 2 + v.y ** 2 + v.z ** 2) / 2 - 500) < .001);
+  }
+});
+
+test('actual WASM plate output, exit path and generating-layer carrier share transit time', () => {
+  for (const thickness of [50, 150]) {
+    const d = designBox(); d.armor_layers = []; d.armor_faces[0].thickness_mm = thickness;
+    core.setDesign(d);
+    const report = core.shoot({ shell, origin: [0, 1, -2], dir: [0, 0, 1], speed_ms: 100, distance_m: 0, seed: 1, path: [] });
+    const contact = report.event.impact_events[0];
+    assert.equal(contact.verdict, 'passed');
+    assert.ok(Math.abs(contact.output.elapsed_s - contact.entry.elapsed_s - thickness / 100000) < 1e-9);
+    assert.ok(report.event.projectile_path.some(p => Math.abs(p.pos.z - contact.exit_position.z) < 1e-6 && Math.abs(p.t - contact.output.elapsed_s) < 1e-8));
+    const carriers = report.event.fragments.filter(f => f.is_penetrator);
+    if (thickness === 150) {
+      assert.equal(contact.budget.core_out_j, 0);
+      assert.equal(carriers.length, 0);
+      assert.equal(report.event.impact_state.elapsed_s, contact.output.elapsed_s);
+    } else assert.equal(carriers[0].start_s, contact.output.elapsed_s);
+
+    const front = plate('front', 0); front.thickness_mm = thickness;
+    const state = target(`p1:transit:${thickness}`, [front]);
+    const combat = fire(`p1:transit:${thickness}`, state);
+    const impact = combat.impact_events[0];
+    assert.ok(Math.abs(impact.output.elapsed_s - impact.entry.elapsed_s - thickness / 100000) < 1e-9);
+    if (thickness === 150) {
+      assert.equal(impact.budget.core_out_j, 0);
+      assert.ok(combat.path.every(p => p.z <= impact.exit_position.z + 1e-6));
+      assert.equal(combat.impact_state.elapsed_s, impact.output.elapsed_s);
+    }
   }
 });
