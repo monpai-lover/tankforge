@@ -34,17 +34,17 @@ Files: client/web/src/main.js; client/web/test/range-ammo-reset.test.mjs.
   guards; inspect the final diff and `git diff --check`.
   Actual keyboard coverage: live BMPT34 R remains the rocket action; Backspace resets and
   refills; nonrocket vehicle R resets; actual Tab/Enter takes the garage/sortie path.
-- [ ] Commit only the three named plan/test/runtime paths. Fresh read-only SPEC review checks
+- [x] Commit only the three named plan/test/runtime paths. Fresh read-only SPEC review checks
   all design requirements; fresh QUALITY follows. Repair findings as root writer and re-review.
 
 ## Task 2: Build and publish the approved repair
 
-- [ ] Preserve existing named pages and both B2 frozen inputs. Compile source-matched WASM
+- [x] Preserve existing named pages and both B2 frozen inputs. Compile source-matched WASM
   through the existing build owner, then generate tankforge-range-ammo-reset-20261011.html.
-- [ ] Compare embedded data and independently bundled source to the generated page; run focused
+- [x] Compare embedded data and independently bundled source to the generated page; run focused
   post-build tests and the complete Node regression suite with actual bridge receipt environment.
   No native logic changes: unchanged native receipts may be retained after input verification.
-- [ ] Record source/page/core hashes, fresh checks, old page preservation and review outcomes.
+- [x] Record source/page/core hashes, fresh checks, old page preservation and review outcomes.
   New capture-point gameplay and historical steering remain awaiting their existing approvals.
 - [ ] Integrate accepted commits to the clean shared main, copy the verified page to named
   and default paths, rerun lifecycle checks against main, push without force, verify remote HEAD.
