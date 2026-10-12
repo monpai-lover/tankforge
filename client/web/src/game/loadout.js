@@ -47,6 +47,7 @@ function gunEntry(def, shells, trunnion, muzzleOffset, rack, mount = null, modul
   });
   const gun = {
     def,
+    sourceVehicle: mount?.sourceVehicle || null,
     ammo,
     mechanizedLoading,
     loadingOwner: mechanizedLoading ? 'mechanized' : def.autocannon ? 'autocannon' : def.missile ? 'launcher' : 'manual',
@@ -472,7 +473,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     sight: t.sight,
     stabilizer: t.stabilizer,
     ...(t.open_top ? { open_top: true } : {}),
-    guns: t.guns.map((g) => ({ gun: g.gun, mount_m: g.mount_m, muzzle_offset_m: g.muzzle_offset_m, rack_m: g.rack_m })),
+    guns: t.guns.map((g) => ({ gun: g.gun, mount_m: g.mount_m, muzzle_offset_m: g.muzzle_offset_m, rack_m: g.rack_m, ...(g.sourceVehicle&&{sourceVehicle:g.sourceVehicle}) })),
   });
 
   let weapons;
@@ -489,6 +490,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
     const g0 = first.guns[0];
     weapons = {
       main_gun: g0.gun,
+      ...(g0.sourceVehicle&&{sourceVehicle:g0.sourceVehicle}),
       mount_m: g0.mount_m,
       muzzle_offset_m: g0.muzzle_offset_m,
       sight: first.sight,
@@ -498,7 +500,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
       loaders_m: first.loaders_m,
       facing_deg: first.facing_deg,
       ...(first.yaw_limit_deg ? { yaw_limit_deg: first.yaw_limit_deg } : {}),
-      extra_guns: first.guns.slice(1).map((g) => ({ gun: g.gun, mount_m: g.mount_m, muzzle_offset_m: g.muzzle_offset_m, rack_m: g.rack_m })),
+      extra_guns: first.guns.slice(1).map((g) => ({ gun: g.gun, mount_m: g.mount_m, muzzle_offset_m: g.muzzle_offset_m, rack_m: g.rack_m, ...(g.sourceVehicle&&{sourceVehicle:g.sourceVehicle}) })),
     };
     turretDef = { size_m: first.size_m, ring_diameter_m: first.ring_diameter_m, position_m: first.position_m, ...(first.open_top ? { open_top: true } : {}) };
     extra = rest;
@@ -520,7 +522,7 @@ export function buildToBundle(build, data, id = 'custom_build', name = '自訂�
   const imported = workshopImportedModel(base, retainStock);
   if (imported) vehicle.model = 'model.json';
   else delete vehicle.model;
-  const bundle = { vehicle, weapons, engine: base.engine, visual: { ...base.visual, parts: [...hullParts, ...barbettes] }, imported };
+  const bundle = { vehicle, weapons, engine: {...base.engine,audio_source_vehicle:base.vehicle.id}, visual: { ...base.visual, parts: [...hullParts, ...barbettes] }, imported };
   const hp = base.engine.engine.horsepower;
   const stats = {
     mass,

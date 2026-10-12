@@ -16,7 +16,7 @@ export function newMg(def) {
  * Advances one gun by dt seconds. `trigger` = the gunner is holding the trigger.
  * Returns how many rounds left the barrel during this step.
  */
-export function stepMg(def, st, trigger, dt, reloadRate = 1) {
+export function stepMg(def, st, trigger, dt, reloadRate = 1, onRound = null) {
   const interval = 60 / def.rate_rpm;
   st.heat = Math.max(0, st.heat - dt / def.cool_s);
   if (st.hot && st.heat < RESUME_HEAT) st.hot = false;
@@ -34,11 +34,14 @@ export function stepMg(def, st, trigger, dt, reloadRate = 1) {
   }
   let n = 0;
   while (st.cooldown <= 0) {
+    const emissionOffset = Math.max(0, Math.min(dt, dt + st.cooldown));
     st.cooldown += interval;
     st.belt -= 1;
     st.fired += 1;
     st.heat += 1 / def.heat_rounds;
     n += 1;
+    // Presentation observation cannot reject an already emitted round.
+    if (onRound) { try { onRound(emissionOffset, st.fired); } catch {} }
     if (st.belt <= 0) {
       st.belt = 0;
       st.reload = def.reload_s;

@@ -324,10 +324,11 @@ pub enum ServerMsg {
         fired: Vec<Value>,
     },
     /// A missile left a launcher: its id in the battle (the shooter's `seq` tells it which).
-    Launched { from: u32, seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope, id: u32, missile: String, o: [f64; 3], d: [f64; 3] },
+    Launched { from: u32, seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope, id: u32, missile: String, o: [f64; 3], d: [f64; 3], audio_version: u8, instance: String, weapon: String, at: f64 },
     /// The requested tube did not fire. The client retains it and may retry after this interval.
     LaunchRejected { seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope, reason: String, retry_after_s: f64 },
-    Fire { from: u32, seq: u32, o: [f64; 3], d: [f64; 3], shell: String },
+    Fire { from: u32, seq: u32, o: [f64; 3], d: [f64; 3], shell: String, audio_version: u8, instance: String, weapon: String, #[serde(rename="ammo_scope")] scope: AmmoScope, at: f64 },
+    MgFired { from: u32, seq: u32, o: [f64; 3], d: [f64; 3], gun: String, audio_version: u8, instance: String, #[serde(rename="ammo_scope")] scope: AmmoScope, at: f64 },
     FireAccepted { seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope },
     FireRejected { seq: u32, #[serde(rename="ammo_scope")] scope: AmmoScope, reason: String },
     Ammo { #[serde(flatten)] inventory: AmmoFrame },
@@ -1614,8 +1615,13 @@ impl Lobby {
         let fingerprint = format!("mg_fire|{instance:?}|{gun:?}|{o:?}|{d:?}");
         if let Some(out) = self.discharge_guard(id, scope, seq, &fingerprint, false, now) { return out; }
         self.mg_fire_inner(id, seq, instance, gun, o, d, now);
-        let accepted = self.players[&id].fired.iter().any(|f| f.seq == seq && f.kind == WeaponKind::MachineGun);
-        let out = if accepted { vec![(id, ServerMsg::FireAccepted { seq, scope })] } else { self.reject_fire(id, seq, "weapon_disabled") };
+        let accepted = self.players[&id].fired.iter().find(|f| f.seq == seq && f.kind == WeaponKind::MachineGun).map(|f|f.instance.clone());
+        let out = if let Some(selected)=accepted {
+            let p=&self.players[&id];let model=self.targets[&p.vehicle].weapon_bindings[&selected].model_id.clone();
+            let peer=ServerMsg::MgFired{from:id,seq,o,d,gun:model,audio_version:1,instance:selected,scope,at:now};
+            let mut out:Out=self.to_room(p.room.unwrap(),peer).into_iter().filter(|(to,_)|*to!=id).collect();
+            out.push((id,ServerMsg::FireAccepted{seq,scope}));out
+        } else { self.reject_fire(id, seq, "weapon_disabled") };
         self.terminal_discharge(id, seq, fingerprint, out, now)
     }
     #[allow(clippy::too_many_arguments)]
@@ -1674,9 +1680,10 @@ impl Lobby {
         }
         p.ammo.as_mut().unwrap().spend(&self.ammo_catalogs[&p.vehicle], &selected, shell).expect("validated one-round debit");
         p.remember_sequence(seq, self.rooms[&room].gameplay.sequence_capacity());
-        p.fired.push_back(Fired { seq, at: now, shell: shell.into(), used: false, small, kind: WeaponKind::Cannon, instance: selected });
+        let model=self.targets[&p.vehicle].weapon_bindings[&selected].model_id.clone();
+        p.fired.push_back(Fired { seq, at: now, shell: shell.into(), used: false, small, kind: WeaponKind::Cannon, instance: selected.clone() });
         self.sync_ammo(id);
-        let msg = ServerMsg::Fire { from: id, seq, o, d, shell: shell.into() };
+        let msg = ServerMsg::Fire { from: id, seq, o, d, shell: shell.into(), audio_version:1,instance:selected,weapon:model,scope:self.ammo_scope(id),at:now };
         let mut out: Out = self.to_room(room, msg).into_iter().filter(|(to,_)| *to != id).collect();
         out.push((id, ServerMsg::FireAccepted { seq, scope: self.ammo_scope(id) }));
         out
@@ -2089,7 +2096,8 @@ impl Lobby {
         p.ammo.as_mut().unwrap().spend(&self.ammo_catalogs[&p.vehicle], &selected, ammo).expect("validated launcher debit");
         p.remember_sequence(seq, self.rooms[&room].gameplay.sequence_capacity());
         p.last_launch = now;
-        let receipt = ServerMsg::Launched { from: id, seq, scope: p.ammo.as_ref().unwrap().scope, id: mid, missile: missile.into(), o, d };
+        let model=self.targets[&p.vehicle].weapon_bindings[&selected].model_id.clone();
+        let receipt = ServerMsg::Launched { from: id, seq, scope: p.ammo.as_ref().unwrap().scope, id: mid, missile: missile.into(), o, d, audio_version:1,instance:selected.clone(),weapon:model,at:now };
         if p.launch_receipts.len() >= self.rooms[&room].gameplay.launch_receipt_capacity() {
             if let Some(oldest) = p.launch_receipts.iter().min_by(|a,b| a.1.at.total_cmp(&b.1.at)).map(|(&seq,_)| seq) { p.launch_receipts.remove(&oldest); }
         }
@@ -2149,7 +2157,10 @@ impl Lobby {
                 .collect();
             // tracers, and one round per gun per tick for its flash
             let mut flashed = HashSet::new();
-            let fired: Vec<Value> = res.fired.iter().filter(|f| f.tracer || flashed.insert(f.aps)).map(|f| serde_json::json!({"aps": f.aps, "pos": f.pos, "vel": f.vel, "tracer": f.tracer})).collect();
+            let fired: Vec<Value> = res.fired.iter().filter(|f| f.tracer || flashed.insert(f.aps)).map(|f| {
+                let binding=self.players.get(&f.aps).and_then(|p|self.ammo_catalogs.get(&p.vehicle).and_then(|catalog|catalog.guns.iter().find(|(_,gun)|gun.aps)).and_then(|(key,_)|self.targets.get(&p.vehicle).and_then(|t|t.weapon_bindings.get(key))));
+                serde_json::json!({"aps":f.aps,"pos":f.pos,"vel":f.vel,"tracer":f.tracer,"audio_version":1,"ordinal":f.ordinal,"at":f.at,"instance":binding.map(|b|b.key.as_str()),"weapon":binding.map(|b|b.model_id.as_str())})
+            }).collect();
             let ev: Vec<Value> = res.events.iter().filter_map(|e| serde_json::to_value(e).ok()).collect();
             let ended: HashMap<u32, (u32, String)> = w.ended.iter().map(|m| (m.id, (m.owner, m.def.clone()))).collect();
             let warheads: HashMap<String, String> = self.mdata.defs.iter().map(|d| (d.id.clone(), d.warhead.clone())).collect();
@@ -3264,6 +3275,26 @@ mod tests {
         assert!(parsed.is_ok(), "mg_fire packet missing from protocol");
         l.handle(a,parsed.unwrap(),1.0);
         assert!(l.players[&a].fired.is_empty());
+    }
+
+    #[test]
+    fn accepted_audio_discharge_metadata_uses_validated_mounts_and_never_rebroadcasts_retries() {
+        let (mut l,a,b,_) = combat_lobby();
+        let gun=l.targets["de_tiger_e"].weapon_bindings.values().find(|x|x.kind==WeaponKind::Cannon).unwrap().clone();
+        let scope=l.ammo_scope(a);
+        let fire=|seq|ClientMsg::Fire{seq,scope,instance:Some(gun.key.clone()),o:[0.0,2.0,0.0],d:[0.0,0.0,1.0],shell:gun.ammo[0].clone()};
+        let out=l.handle(a,fire(91),1.0);
+        let peer=out.iter().find_map(|(to,m)|(*to==b&&matches!(m,ServerMsg::Fire{..})).then(||serde_json::to_value(m).unwrap())).unwrap();
+        assert_eq!(peer["weapon"],gun.model_id);assert_eq!(peer["instance"],gun.key);assert_eq!(peer["audio_version"],1);assert_eq!(peer["at"],1.0);
+        assert_eq!(peer["ammo_scope"]["life"],scope.life);
+        assert!(!l.handle(a,fire(91),1.1).iter().any(|(to,_)|*to==b));
+        let mg=l.targets["de_tiger_e"].weapon_bindings.values().find(|x|x.kind==WeaponKind::MachineGun).unwrap().clone();
+        let request=|seq,instance:String|ClientMsg::MgFire{seq,scope,instance:Some(instance),gun:mg.model_id.clone(),o:[0.0,2.0,0.0],d:[0.0,0.0,1.0]};
+        assert!(!l.handle(a,request(92,"mg:foreign".into()),1.2).iter().any(|(to,_)|*to==b));
+        let out=l.handle(a,request(93,mg.key.clone()),1.3);
+        let peer=out.iter().find_map(|(to,m)|(*to==b&&matches!(m,ServerMsg::MgFired{..})).then(||serde_json::to_value(m).unwrap())).unwrap();
+        assert_eq!(peer["gun"],mg.model_id);assert_eq!(peer["instance"],mg.key);assert_eq!(peer["seq"],93);
+        assert!(!l.handle(a,request(93,mg.key.clone()),1.4).iter().any(|(to,_)|*to==b));
     }
 
     fn wire(value: Value) -> ClientMsg { serde_json::from_value(value).unwrap() }

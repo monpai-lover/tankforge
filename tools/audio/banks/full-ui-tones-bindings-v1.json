@@ -1,0 +1,177 @@
+{
+  "schemaVersion": 1,
+  "bankId": "full-ui-tones-v1",
+  "selectionState": "planned",
+  "adoption": {
+    "source": "human-direct-instruction",
+    "statement": "同時完成所有的音效生成和替換",
+    "date": "2026-10-13",
+    "scope": "all-seven-existing-aps-control-ui-tone-states",
+    "subjectiveAudition": "NOT RUN"
+  },
+  "profiles": [
+    {
+      "id": "ui_tone_on",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:on",
+      "cues": {
+        "tone": "ui_tone_on"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    },
+    {
+      "id": "ui_tone_off",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:off",
+      "cues": {
+        "tone": "ui_tone_off"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    },
+    {
+      "id": "ui_tone_detect",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:detect",
+      "cues": {
+        "tone": "ui_tone_detect"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    },
+    {
+      "id": "ui_tone_lock",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:lock",
+      "cues": {
+        "tone": "ui_tone_lock"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    },
+    {
+      "id": "ui_tone_overheat",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:overheat",
+      "cues": {
+        "tone": "ui_tone_overheat"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    },
+    {
+      "id": "ui_tone_empty",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:empty",
+      "cues": {
+        "tone": "ui_tone_empty"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    },
+    {
+      "id": "ui_tone_fault",
+      "kind": "ui",
+      "group": "uiTones",
+      "bindings": [],
+      "selector": "tone:fault",
+      "cues": {
+        "tone": "ui_tone_fault"
+      },
+      "stateOwner": "Existing actual Sound.tone kind events; no simulation/state change."
+    }
+  ],
+  "cues": {
+    "ui_tone_on": {
+      "file": "client/web/assets/full-game-audio/ui_tone_on.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ui_tone_off": {
+      "file": "client/web/assets/full-game-audio/ui_tone_off.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ui_tone_detect": {
+      "file": "client/web/assets/full-game-audio/ui_tone_detect.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ui_tone_lock": {
+      "file": "client/web/assets/full-game-audio/ui_tone_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ui_tone_overheat": {
+      "file": "client/web/assets/full-game-audio/ui_tone_overheat.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ui_tone_empty": {
+      "file": "client/web/assets/full-game-audio/ui_tone_empty.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ui_tone_fault": {
+      "file": "client/web/assets/full-game-audio/ui_tone_fault.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.4,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    }
+  }
+}

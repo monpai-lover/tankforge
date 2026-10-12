@@ -280,7 +280,7 @@ export function useCombat(e, combat, key) {
  * segment, dir its direction (world, unit), speed m/s, distance flown. Returns the combat report
  * (with the hull-space shot it was made from, for the hit camera).
  */
-export function combatHit(e, p0, dir, shell, speed, distance, seed) {
+export function combatHit(e, p0, dir, shell, speed, distance, seed, onResolved = null) {
   const b = e.veh.body;
   // a point on the flight line a little short of the vehicle, in its own frame
   const o = b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]);
@@ -289,6 +289,8 @@ export function combatHit(e, p0, dir, shell, speed, distance, seed) {
   const pose = captureImpactPose(e);
   const r = e.combat.shoot(e.combatKey, e.cstate, shot);
   rememberImpactPose(r, pose);
+  // Presentation observes the terminal report before damage changes the target's pose.
+  try { onResolved?.(r); } catch {}
   e.cstate = r.state;
   e.caps = r.caps;
   if (r.caps.destroyed && e.alive) {

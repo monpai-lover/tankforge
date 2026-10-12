@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "bankId": "full-world-supplement-v1",
+  "selectionState": "planned",
+  "adoption": {
+    "source": "human-direct-instruction",
+    "statement": "同時完成所有的音效生成和替換",
+    "date": "2026-10-13",
+    "scope": "existing-world-tree-fall-collision"
+  },
+  "profiles": [
+    {
+      "id": "wood_collision",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "selector": "wood_collision",
+      "cues": {
+        "debris": "collision_tree_wood"
+      },
+      "sourceEvidence": "Actual main.js tree-fall collision: w.collide returns fell>0, hull velocity loses momentum and treesDown increments. This cue replaces the prior bare Sound.impact(4,false); no invented projectile or explosive outcome."
+    }
+  ],
+  "cues": {
+    "collision_tree_wood": {
+      "level": 0.55
+    }
+  }
+}

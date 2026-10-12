@@ -266,6 +266,10 @@ fn ammo_resupply_discharge_wire_requires_nested_scope() {
             missile: "tow".into(),
             o: [0.0; 3],
             d: [0.0, 0.0, 1.0],
+            audio_version: 1,
+            instance: "gun:0:0".into(),
+            weapon: "m220_tow".into(),
+            at: 0.0,
         },
     ] {
         let value = serde_json::to_value(reply).unwrap();

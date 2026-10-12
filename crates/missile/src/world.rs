@@ -212,6 +212,11 @@ pub struct Fired {
     pub pos: V3,
     pub vel: V3,
     pub tracer: bool,
+    /// Presentation identity/time, derived after an actual round leaves the accumulator.
+    #[serde(default)]
+    pub ordinal: u32,
+    #[serde(default)]
+    pub at: f64,
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
@@ -1084,7 +1089,8 @@ fn step_aps(a: &mut Aps, actor: Option<&Actor>, missiles: &[Missile], terrain: &
             let pos = add(muzzle, mul(vel, lead));
             let tracer = a.def.tracer_every > 0 && a.fired % a.def.tracer_every == 0;
             bullets.push(Bullet { aps: me, team: a.team, pos, vel, age: lead, tracer });
-            out.fired.push(Fired { aps: me, pos: muzzle, vel, tracer });
+            let at=now+h-(a.acc/(a.rate_rpm/60.0).max(1.0)).min(h);
+            out.fired.push(Fired { aps: me, pos: muzzle, vel, tracer, ordinal:a.fired, at });
             a.heat += 1.0 / a.def.heat_rounds.max(1.0);
             if a.heat >= 1.0 && !a.overheated {
                 a.overheated = true;

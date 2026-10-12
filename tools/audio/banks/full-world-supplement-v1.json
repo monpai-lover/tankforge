@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 2,
+  "bankId": "full-world-supplement-v1",
+  "provider": "ElevenLabs",
+  "modelId": "eleven_text_to_sound_v2",
+  "outputFormat": "mp3_44100_128",
+  "modelVerifiedOn": "2026-10-12",
+  "modelReference": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
+  "basedOnCommit": "84033dd10d019bef0b7be344d6eedb77b9f87b38",
+  "authoringStatus": "Root source audit identified existing tree-fall sound missing from the frozen primary catalogs; explicit full-replacement scope applies.",
+  "cues": [
+    {
+      "id": "collision_tree_wood",
+      "kind": "impact",
+      "group": "impacts",
+      "durationSeconds": 1.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual main.js tree-fall collision: w.collide returns fell>0, hull velocity loses momentum and treesDown increments. This cue replaces the prior bare Sound.impact(4,false); no invented projectile or explosive outcome.",
+      "prompt": "One close dry impact as a heavy armored vehicle pushes through a wooden tree trunk: immediate deep solid thud, sharp wood crack and splinter snaps, then a short settling wooden debris tail. Compact single collision. No explosion, gunfire, engine, voices, music, wind or ambient background.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    }
+  ],
+  "recipes": [],
+  "totals": {
+    "generationRequests": 1,
+    "requestedSeconds": 1.5,
+    "estimatedCreditsAt40PerSecond": 60
+  }
+}

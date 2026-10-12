@@ -8,10 +8,12 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { loadData } from './tools/load-data.mjs';
 import { loadReloadAudio } from './tools/load-reload-audio.mjs';
+import { loadFullAudio } from './tools/load-full-audio.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const { order: ORDER, vehicles, projectiles, terrains, machineGuns, missiles, materials, designCatalog, maps } = loadData();
 const reloadAudio = loadReloadAudio(path.join(here, '../..'));
+const fullAudio = loadFullAudio(path.join(here, '../..'));
 
 // The designer core (crates/design via crates/design-wasm). Rebuilt from the Rust sources when a
 // toolchain with the wasm32 target is available; otherwise the committed assets/tg_design.wasm
@@ -50,7 +52,7 @@ const crewModel = fs.existsSync(crewPath) ? JSON.parse(fs.readFileSync(crewPath,
 // the roof machine guns, reduced from the reference models (tools/mg_asset.py)
 const mgPath = path.join(here, 'assets/mg_models.json');
 const mgModels = fs.existsSync(mgPath) ? JSON.parse(fs.readFileSync(mgPath, 'utf8')) : null;
-const data = JSON.stringify({ order: ORDER, vehicles, projectiles, terrains, machineGuns, missiles, materials, designCatalog, designCore, sfx, reloadAudio, images, crewModel, mgModels, maps }).replace(/<\//g, '<\\/');
+const data = JSON.stringify({ order: ORDER, vehicles, projectiles, terrains, machineGuns, missiles, materials, designCatalog, designCore, sfx, reloadAudio, fullAudio, images, crewModel, mgModels, maps }).replace(/<\//g, '<\\/');
 
 const candidates = [process.env.ESBUILD_BIN, path.join(here, 'node_modules/.bin/esbuild'), '/opt/npm-tools/node_modules/.bin/esbuild', 'esbuild'].filter(Boolean);
 const esbuild = candidates.find((c) => c === 'esbuild' || fs.existsSync(c));

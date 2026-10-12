@@ -82,7 +82,10 @@ export class Missiles {
     this.aps = new Map(); // owner -> latest state
     this.camPos = [0, 0, 0];
     this.local = true;
+    this.audioMounts = new Map();
+    this.audioOrdinals = new Map();
   }
+  setAudioMount(owner, weaponId, instance, position) { this.audioMounts.set(owner,{weaponId,instance,position}); }
 
   get ready() {
     return !!this.core;
@@ -90,17 +93,21 @@ export class Missiles {
 
   /** Clears the sky (a new battle): the terrain grid the missiles fly over and the radar sees. */
   reset(terrain = null) {
+    this.sound?.resetMissiles?.();
+    for (const id of this.nodes.keys()) this.sound.removeProjectile?.(id);
+    for (const owner of this.aps.keys()) this.sound.cancelOwner?.(`aps:${owner}`);
     for (const v of this.nodes.values()) this._drop(v);
     this.nodes.clear();
     this.tracers.length = 0;
     this.aps.clear();
+    this.audioMounts.clear();this.audioOrdinals.clear();
     if (this.core) this.core.call({ op: 'mw_reset', defs: Object.values(this.defs), terrain });
   }
 
-  launch(def, owner, team, pos, dir, seed, id = null) {
+  launch(def, owner, team, pos, dir, seed, id = null, audio = {}) {
     if (!this.core) return null;
     const r = this.core.call({ op: 'mw_launch', def, owner, team, pos, dir, seed: seed >>> 0, id });
-    if (r.id != null) this._launchLook(def, pos, dir);
+    if (r.id != null) this._launchLook(def, pos, dir,{...audio,projectileId:r.id,emitterId:`missile:${owner}`});
     return r.id;
   }
 
@@ -110,6 +117,7 @@ export class Missiles {
 
   /** The missile struck something the world does not know of (a vehicle, a building). */
   end(id) {
+    this.sound.removeProjectile?.(id);
     if (this.core) this.core.call({ op: 'mw_end', id });
     const v = this.nodes.get(id);
     if (v) {
@@ -171,13 +179,19 @@ export class Missiles {
       v.t += dt;
       this._pose(v);
       this._trail(v, dt);
+      if(v.prev)this.sound.projectileSegment?.({id:m.id,p0:v.prev,p1:v.pos,velocity:v.vel,time:this.sound.full?.listener.time??0,caliber:def.caliber_mm,motor:v.motor});
     }
     // how they ended, while the missiles are still known
-    for (const a of res.aps || []) this.aps.set(a.owner, a);
+    for (const a of res.aps || []) {
+      this.aps.set(a.owner,a);
+      const mount=this.audioMounts?.get(a.owner);
+      this.sound?.rotaryState?.({weaponId:a.weapon||mount?.weaponId,emitterId:`aps:${a.owner}`,spin:a.spin,firing:a.firing,position:mount?.position,time:this.sound?.full?.listener.time??0});
+    }
     this._fired(res.fired || []);
     for (const e of res.events || []) this._event(e);
     for (const [id, v] of this.nodes) {
       if (!seen.has(id)) {
+        this.sound.removeProjectile?.(id);
         this._drop(v);
         this.nodes.delete(id);
       }
@@ -273,7 +287,7 @@ export class Missiles {
     }
   }
 
-  _launchLook(defId, pos, dir) {
+  _launchLook(defId, pos, dir, audio = {}) {
     const def = this.defs[defId];
     if (!def) return;
     const heavy = def.guidance === 'none';
@@ -285,7 +299,7 @@ export class Missiles {
       const j = () => (Math.random() - 0.5) * 2;
       fx.spawn({ pos, vel: [-dir[0] * s + j(), -dir[1] * s + Math.random(), -dir[2] * s + j()], life: 1.6 + Math.random() * 1.6, size0: heavy ? 0.8 : 0.4, size1: heavy ? 3.6 : 2.2, color: [0.72, 0.7, 0.66], alpha: 0.5, drag: 1.5, gravity: -0.3, fadeIn: 0.04 });
     }
-    this.sound.launch(dist(pos, this.camPos), heavy);
+    this.sound.launch(dist(pos, this.camPos), heavy,{...audio,missileId:defId,position:pos,direction:dir,time:audio.time??this.sound.full?.listener.time??0});
   }
 
   _fired(list) {
@@ -293,6 +307,10 @@ export class Missiles {
     const fx = this.fx;
     const flashed = new Set();
     for (const f of list) {
+      const mount=this.audioMounts.get(f.aps),state=this.aps.get(f.aps);
+      const ordinal=Number.isSafeInteger(f.ordinal)?f.ordinal:(this.audioOrdinals.get(f.aps)||0)+1;
+      this.audioOrdinals.set(f.aps,ordinal);
+      if(this.sound?.full&&(this.local||Number.isSafeInteger(f.ordinal)))this.sound.shot?.(state?.def?.bullet_caliber_mm||14.5,{weaponId:f.weapon||mount?.weaponId,emitterId:`aps:${f.aps}`,eventId:ordinal,position:f.pos,direction:norm(f.vel),velocity:f.vel,time:this.local?this.sound.full.listener.time:this.sound.remoteAudioTime?.('aps-world',f.at,this.sound.full.listener.time)});
       if (f.tracer) this.tracers.push({ pos: f.pos.slice(), o: f.pos.slice(), vel: f.vel.slice(), life: 1.6 });
       if (!flashed.has(f.aps)) {
         flashed.add(f.aps);
@@ -331,7 +349,7 @@ export class Missiles {
           // the warhead goes off in the air: the shaped charge's jet flash, fireball, fragments
           fx.explosion(e.point, null, kg, false);
           fx.spawn({ pos: e.point, life: 0.08, size0: 3.5, size1: 7, color: [1, 0.95, 0.85], alpha: 1, additive: true });
-          this.sound.blast(kg, d(e.point));
+          this.sound.blast(kg, d(e.point),{eventId:`missile:${e.missile}`,position:e.point,time:this.sound.full?.listener.time??0});
         } else {
           // broken up: the motor bursts and the pieces fall
           fx.explosion(e.point, null, Math.min(kg * 0.15, 0.6), false);
@@ -339,7 +357,8 @@ export class Missiles {
             const j = () => (Math.random() - 0.5) * 12;
             fx.spawn({ pos: e.point, vel: [j(), Math.random() * 6, j()], life: 1.6 + Math.random(), size0: 0.08, size1: 0.06, color: [0.12, 0.12, 0.11], alpha: 1, gravity: 9.8, drag: 0.3 });
           }
-          this.sound.blast(0.5, d(e.point));
+          this.sound.contact?.({eventId:`missile:${e.missile}`,position:e.point,debris:'metal_debris',bursts:[],time:this.sound.full?.listener.time??0});
+          if(!this.sound.fullEnabled)this.sound.blast(0.5,d(e.point));
         }
         break;
       }

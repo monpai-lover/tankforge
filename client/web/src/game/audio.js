@@ -3,6 +3,7 @@
 // Sample slots. Put an audio file with one of these names (.ogg / .mp3 / .wav) in
 // client/web/assets/sfx/ and rebuild: it is embedded in the page and replaces the synthesised sound.
 import { ReloadAudio, reloadProfile, observeReloadWork, observeReloadStage, observeReloadReady } from './audioReload.js';
+import { FullAudio, validateFullBank } from './audioFull.js';
 
 export const SFX_SLOTS = ['engine_loop', 'track_loop', 'shot_light', 'shot_medium', 'shot_heavy', 'mg_light', 'mg_heavy', 'impact_ground', 'impact_metal', 'reload_done', 'rangefinder'];
 
@@ -18,12 +19,59 @@ export class Sound {
     this.reloadUrls = {};
     this.reloadWanted = new Set();
     this.reloadDecoded = new Set();
+    this.reloadPressure = new Map();
     this.reloadVoices = new Set();
-    this.reloadAudio = new ReloadAudio((cue) => this._playReloadCue(cue));
+    this.reloadAudio = new ReloadAudio((cue, owner) => this._playReloadCue(cue, owner));
     this.reloadEnabled = false;
     this.reloadAudible = true;
     this.reloadDecodeEpoch = 0;
     this.reloadBytes = 0;
+    this.reloadDecodeInFlight = 0;
+    this.fullDecodeInFlight = 0;
+    this.full = null;
+    this.fullOwned = false;
+    this.delayedReloads = new Map();
+  }
+
+  get fullEnabled() { return this.fullOwned; }
+  loadFullBank(bank) {
+    this.cancelReloads({retainBlocked:true});
+    this.full?.dispose(); this.full = null;
+    if (!validateFullBank(bank)) return false;
+    // A generated bank owns all migrated moments, even while a clip is decoding.
+    for (const loop of Object.values(this.loops || {})) { try { loop.stop(); loop.disconnect(); } catch {} }
+    for (const node of [this.osc1, this.osc2, this.trackSource, this.aps?.whine, this.aps?.buzz, this.aps?.noise]) { try { node?.stop(); node?.disconnect(); } catch {} }
+    this.fullOwned = true; this.full = new FullAudio(this, bank); return true;
+  }
+  prepareFullBank(loadout, bundle) { this.full?.prepare(loadout, bundle); }
+  setListener(value) { this.full?.setListener(value); }
+  remoteAudioTime(domain, at, time) { return this.full?.remoteTime(domain,at,time) ?? time; }
+  confirmFire(seq) { this.full?.confirm(seq); }
+  rejectFire(seq) { this.full?.pending.delete(seq); }
+  rotaryState(event) { this.full?.rotaryState(event); }
+  vehicleState(event) { this.full?.vehicle(event); }
+  contact(event) { this.full?.contact(event); }
+  resolvedContact(report, shell, body, event = {}) {
+    if (!report || !body) return;
+    const point = p => Array.isArray(p) ? p : [p.x, p.y, p.z];
+    const layer = report.layers?.[0], local = layer?.point || report.impact;
+    this.contact({ ...event, eventId:event.eventId ?? report, position:local ? body.worldPoint(point(local)) : event.position || body.origin?.(), outcome:report.outcome, material:layer?.material || layer?.crossing?.material, shellKind:shell?.kind, caliber:shell?.caliber_mm, bursts:(report.bursts || []).map(b=>({...b,worldPosition:body.worldPoint(point(b.pos))})), spall:report.fragments?.some(f=>f.kind==='spall'), debris:report.fragments?.some(f=>f.kind==='shell'||f.kind==='burst')?'metal_debris':null, cookoff:report.events?.includes('ammo_detonation'), ricochet:report.ricochet_dir && body.worldDir(point(report.ricochet_dir)) });
+  }
+  projectileSegment(event) { this.full?.segment(event); }
+  removeProjectile(id) { this.full?.removeProjectile(id); }
+  resetMissiles() { this.full?.resetMissiles(); }
+  mgLoading(m, st, previous) { this.full?.mgLoading(m, st, previous); }
+  uiCue(kind) { this.full?.ui(kind); }
+  cancelFull() { for(const voice of [...this.delayedReloads.values()])voice.stop(); this.full?.cancel(); }
+  cancelOwner(owner) { this.full?.cancelOwner(owner); }
+  setFullAudible(on) { this.full?.suspend(!on); }
+  dispose() {
+    this.cancelReloads(); this.full?.dispose();
+    for (const node of [this.osc1, this.osc2, this.trackSource, ...Object.values(this.loops || {}), this.aps?.whine, this.aps?.buzz, this.aps?.noise]) { try { node?.stop(); node?.disconnect(); } catch {} }
+    for (const node of [this.master, this.compressor]) { try { node?.disconnect(); } catch {} }
+    const ctx=this.ctx;this.ctx=null;this.master=null;this.compressor=null;this.full=null;this.reloadDecodeEpoch++;
+    this.reloadSamples={};this.reloadWanted.clear();this.reloadDecoded.clear();this.reloadPressure.clear();this.reloadBytes=0;
+    try { ctx?.close(); } catch {}
   }
 
   /** Build-verified reviewed selections only; raw/candidate banks remain silent. */
@@ -34,6 +82,7 @@ export class Sound {
     this.reloadUrls = {};
     this.reloadWanted.clear();
     this.reloadDecoded.clear();
+    this.reloadPressure.clear();
     this.reloadBytes = 0;
     const manual = bank?.reviewState === 'reviewed';
     const automatic = bank?.automaticAdoption?.source === 'human-direct-instruction' && bank.automaticAdoption.scope === 'three-fitted-az-t72-stages' && bank.automaticAdoption.mechanism === 'az_t72';
@@ -52,31 +101,54 @@ export class Sound {
       const p = reloadProfile(gun.def, a.shell, gun.mechanizedLoading);
       if (p) for (const stage of p.staged ? ['drive', 'ram', 'lock'] : ['grab', 'load', 'lock']) {
         const id = p.staged ? `az_t72_${stage}` : `${p.style}_manual_${stage}`;
-        if (this.reloadUrls[id] && !this.reloadDecoded.has(id)) this.reloadWanted.add(id);
+        if (this.reloadUrls[id] && !this.reloadDecoded.has(id) && !this.reloadPressure.has(id)) this.reloadWanted.add(id);
       }
     }
     this._decodeReloadPending();
   }
 
   async _decodeReloadPending() {
+    this.full?.syncContext();
+    if (!this.ctx || this.reloadDecodeRunning) return;
+    for (const [id, bytes] of this.reloadPressure) if (this._reloadCacheRoom(bytes)) {
+      this.reloadPressure.delete(id);
+      this.reloadWanted.add(id);
+    }
     if (!this.ctx || this.reloadDecodeRunning || !this.reloadWanted.size) return;
     this.reloadDecodeRunning = true;
     const epoch = this.reloadDecodeEpoch;
     const ctx = this.ctx;
     const worker = async () => {
       while (epoch === this.reloadDecodeEpoch && this.reloadWanted.size) {
+        if(this.fullOwned&&this.reloadDecodeInFlight+this.fullDecodeInFlight>=2)break;
         const id = this.reloadWanted.values().next().value;
+        const url = this.reloadUrls[id];
         this.reloadWanted.delete(id);
         this.reloadDecoded.add(id);
+        this.reloadDecodeInFlight++;
         try {
-          const data = await (await fetch(this.reloadUrls[id])).arrayBuffer();
+          const data = await (await fetch(url)).arrayBuffer();
           const buffer = await ctx.decodeAudioData(data);
           const bytes = buffer.length * buffer.numberOfChannels * 4;
-          if (epoch === this.reloadDecodeEpoch && Number.isFinite(bytes) && bytes > 0 && this.reloadBytes + bytes <= 32 * 1024 * 1024) {
+          if (epoch !== this.reloadDecodeEpoch || ctx !== this.ctx) continue;
+          if (Number.isFinite(bytes) && bytes > 0 && this._reloadCacheRoom(bytes)) {
             this.reloadSamples[id] = buffer;
             this.reloadBytes += bytes;
+            this.reloadPressure.delete(id);
+          } else if (Number.isFinite(bytes) && bytes > 0 && bytes <= 32 * 1024 * 1024) {
+            // Pressure retains only the required size, never rejected decoded PCM.
+            this.reloadDecoded.delete(id);
+            if (this.reloadPressure.size < 96) this.reloadPressure.set(id, bytes);
           }
         } catch { /* A missing/undecodable selected cue is silent, never synthesized. */ }
+        finally {
+          if ((epoch !== this.reloadDecodeEpoch || ctx !== this.ctx) && this.ctx && this.reloadUrls[id] === url && !this.reloadSamples[id]) {
+            this.reloadDecoded.delete(id);
+            this.reloadWanted.add(id);
+          }
+          this.reloadDecodeInFlight--;
+          this.full?.decode();
+        }
       }
     };
     await Promise.all([worker(), worker()]);
@@ -84,7 +156,20 @@ export class Sound {
     if (epoch !== this.reloadDecodeEpoch) this._decodeReloadPending();
   }
 
-  _playReloadCue(id) {
+  _reloadCacheRoom(bytes) {
+    if (this.full) return this.full.makeCacheRoom(bytes);
+    return Number.isFinite(bytes) && bytes > 0 && this.reloadBytes + bytes <= 32 * 1024 * 1024 && Object.keys(this.reloadSamples).length < 96;
+  }
+
+  _playReloadCue(id, owner, admitted = false) {
+    this.full?.syncContext();
+    const delayed=this.full&&owner&&/(_manual_grab|az_t72_drive)$/.test(id);
+    if(delayed&&!admitted&&!this.full.fireTimes.has(owner)) {
+      if(this.delayedReloads.size>=8)return null;
+      let stopped=false,voice=null;
+      const waiting={release:()=>{if(stopped)return;this.delayedReloads.delete(owner);voice=this._playReloadCue(id,owner,true);},stop:()=>{stopped=true;voice?.stop();if(this.delayedReloads.get(owner)===waiting)this.delayedReloads.delete(owner);}};
+      this.delayedReloads.set(owner,waiting);return waiting;
+    }
     const buffer = this.reloadSamples[id];
     if (!this.ctx || !this.master || !buffer || !this.reloadAudible || this.muted || this.ctx.state === 'suspended' || this.reloadVoices.size >= 8) return null;
     let source = null, gain = null, voice = null, ended = false;
@@ -113,11 +198,15 @@ export class Sound {
       source.playbackRate.value = 1;
       gain.gain.value = .8;
       source.connect(gain);
-      gain.connect(this.master);
+      const bus=this.full?this.full.bus('loading'):this.master;
+      if(!bus)throw new Error('Loading audio bus unavailable');
+      gain.connect(bus);
       voice = { stop };
       source.onended = finish;
       this.reloadVoices.add(voice);
-      source.start();
+      const fireTime=delayed?this.full.fireTimes.get(owner):null;
+      const startAt=Number.isFinite(fireTime)?Math.max(this.ctx.currentTime,(this.full.clock??this.ctx.currentTime-this.full.listener.time)+fireTime+1.5):this.ctx.currentTime;
+      source.start(startAt);
       return ended ? null : voice;
     } catch {
       stop();
@@ -126,24 +215,29 @@ export class Sound {
   }
 
   reloadWork(gun, L, gi, rate) {
-    return this.reloadEnabled && observeReloadWork(this.reloadAudio, gun, L, gi, rate);
+    this.full?.syncContext();
+    if(this.full&&!this.reloadAudio.jobs.has(gun)&&this.reloadAudio.size+this.full.jobs.size>=8)return true;
+    if (this.reloadEnabled && reloadProfile(gun.def,gun.ammo[gun.loaded>=0?gun.loaded:gun.selected]?.shell,gun.mechanizedLoading)) return observeReloadWork(this.reloadAudio, gun, L, gi, rate);
+    return this.full?.work(gun,L,gi,rate) || false;
   }
 
   reloadStage(gun, L, gi, event) {
+    this.full?.syncContext();
     return this.reloadEnabled && observeReloadStage(this.reloadAudio, gun, L, gi, event);
   }
 
   reloadReady(gun, L, gi) {
-    if (!this.reloadEnabled) return false;
+    this.full?.syncContext();
+    if (!this.reloadEnabled) return this.full?.ready(gun) || false;
     // Completion policy belongs to this installed weapon/round, even if its job
     // was blocked, budget-limited or inaudible. Playback still requires actual ready.
     const round = gun.ammo[gun.loaded >= 0 ? gun.loaded : gun.selected];
     const owned = !!reloadProfile(gun.def, round?.shell, gun.mechanizedLoading);
     observeReloadReady(this.reloadAudio, gun, L, gi);
-    return owned;
+    return owned || this.full?.ready(gun) || false;
   }
 
-  cancelReload(gun, blockCycle = false, cycle) { this.reloadAudio.cancel(gun, { blockCycle, cycle }); }
+  cancelReload(gun, blockCycle = false, cycle) { this.reloadAudio.cancel(gun, { blockCycle, cycle }); this.delayedReloads.get(gun)?.stop(); this.full?.cancelJob(gun); }
   setReloadAudible(on) {
     this.reloadAudible = !!on;
     if (!on) this.suspendReloads();
@@ -151,10 +245,13 @@ export class Sound {
   suspendReloads() {
     this.reloadAudio.suspend();
     for (const voice of this.reloadVoices) voice.stop();
+    for(const voice of [...this.delayedReloads.values()])voice.stop();
   }
   cancelReloads(options) {
     this.reloadAudio.cancelAll(options);
     for (const voice of this.reloadVoices) voice.stop();
+    for(const voice of [...this.delayedReloads.values()])voice.stop();
+    if (this.full) for (const owner of this.full.jobs.keys()) this.full.cancelJob(owner);
   }
 
   /** urls: {slot: data-URL or URL}. Decoded when the audio context exists. */
@@ -164,13 +261,15 @@ export class Sound {
   }
 
   async _decodePending() {
-    if (!this.ctx) return;
+    if (!this.ctx || this.fullOwned) return;
     const entries = Object.entries(this.pending);
     this.pending = {};
     for (const [slot, url] of entries) {
       try {
         const buf = await (await fetch(url)).arrayBuffer();
-        this.samples[slot] = await this.ctx.decodeAudioData(buf);
+        const decoded = await this.ctx.decodeAudioData(buf);
+        if(this.fullOwned)continue;
+        this.samples[slot] = decoded;
         if (slot === 'engine_loop') this._startLoop('engine_loop', this.engGain);
         if (slot === 'track_loop') this._startLoop('track_loop', this.trackGain);
       } catch (err) {
@@ -209,16 +308,38 @@ export class Sound {
     return true;
   }
 
+  _buildOutputGraph(ctx) {
+    for (const node of [this.master, this.compressor]) { try { node?.disconnect(); } catch {} }
+    this.master = this.compressor = null;
+    if (!ctx) return;
+    this.master = ctx.createGain();
+    this.master.gain.value = this.muted ? 0 : 0.5;
+    if (this.fullOwned && ctx.createDynamicsCompressor) {
+      try {
+        this.compressor = ctx.createDynamicsCompressor();
+        this.compressor.threshold.value = -8;
+        this.compressor.knee.value = 12;
+        this.compressor.ratio.value = 8;
+        this.compressor.attack.value = .001;
+        this.compressor.release.value = .2;
+        this.master.connect(this.compressor);
+        this.compressor.connect(ctx.destination);
+        return;
+      } catch { try { this.compressor?.disconnect(); } catch {} this.compressor = null; }
+    }
+    this.master.connect(ctx.destination);
+  }
+
   /** Must be called from a user gesture. */
   start() {
-    if (this.ctx) return;
+    if (this.ctx) { if(this.ctx.state==='suspended') { try { this.ctx.resume?.()?.catch?.(()=>{}); } catch {} } return; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
     const ctx = new AC();
     this.ctx = ctx;
-    this.master = ctx.createGain();
-    this.master.gain.value = 0.5;
-    this.master.connect(ctx.destination);
+    this._buildOutputGraph(ctx);
+
+    if (this.fullOwned) { this.full?.decode(); this._decodeReloadPending(); return; }
 
     this.engGain = ctx.createGain();
     this.engGain.gain.value = 0;
@@ -246,6 +367,7 @@ export class Sound {
     const src = ctx.createBufferSource();
     src.buffer = this.noiseBuf;
     src.loop = true;
+    this.trackSource = src;
     this.trackFilter = ctx.createBiquadFilter();
     this.trackFilter.type = 'bandpass';
     this.trackFilter.frequency.value = 180;
@@ -268,6 +390,7 @@ export class Sound {
 
   /** rpmFrac 0..1, load 0..1, speed m/s */
   drive(rpmFrac, load, speed) {
+    if (this.fullOwned) return;
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     const f = 28 + rpmFrac * 62;
@@ -302,7 +425,8 @@ export class Sound {
     src.stop(t + duration + 0.05);
   }
 
-  shot(caliber) {
+  shot(caliber, event) {
+    if (this.fullOwned) return this.full?.weapon(caliber, event, 'weapon');
     if (!this.ctx) return;
     const slot = caliber < 60 ? 'shot_light' : caliber <= 100 ? 'shot_medium' : 'shot_heavy';
     if (this._play(slot, 1, 0.94 + Math.random() * 0.12) || this._play('shot_medium', Math.min(1.4, caliber / 88), 88 / Math.max(40, caliber) * 0.5 + 0.5)) return;
@@ -324,7 +448,8 @@ export class Sound {
   }
 
   /** One machine-gun round. Calls closer together than a few hundredths of a second share a report. */
-  mg(caliber) {
+  mg(caliber, event) {
+    if (this.fullOwned) return this.full?.weapon(caliber, event, event?.kind === 'weapon' ? 'weapon' : 'mg');
     if (!this.ctx) return;
     const t = this.ctx.currentTime;
     if (t - this.lastMg < 0.035) return;
@@ -345,26 +470,30 @@ export class Sound {
     o.stop(t + 0.08);
   }
 
-  impact(distance, metal = false) {
+  impact(distance, metal = false, event) {
+    if (this.fullOwned) { if (event) this.full?.contact(event); return; }
     if (!this.ctx) return;
     if (this._play(metal ? 'impact_metal' : 'impact_ground', Math.max(0.1, 1 / (1 + distance / 150)))) return;
     this._burst(0.5, 1400, 120, Math.max(0.08, 0.6 / (1 + distance / 150)));
   }
 
   ping() {
+    if (this.fullOwned) return this.full?.ui('rangefinder');
     if (!this.ctx) return;
     if (this._play('rangefinder', 0.6)) return;
     this._burst(0.05, 5000, 2500, 0.18);
   }
 
-  click() {
+  click(caliber = 75) {
+    if (this.fullOwned) return this.full?.ui('ready',caliber);
     if (!this.ctx) return;
     if (this._play('reload_done', 0.8)) return;
     this._burst(0.07, 3000, 900, 0.35);
   }
 
   /** A missile or rocket leaving its tube or rail: the eject bang and the motor's rushing roar. */
-  launch(distance, heavy = false) {
+  launch(distance, heavy = false, event) {
+    if (this.fullOwned) { if (event) this.full?.launch(event); return; }
     if (!this.ctx) return;
     const k = Math.max(0.06, 1 / (1 + distance / 120));
     this._burst(heavy ? 0.6 : 0.35, 2600, 160, 0.9 * k);
@@ -389,7 +518,8 @@ export class Sound {
   }
 
   /** A warhead going off in the air or on the ground. */
-  blast(kg, distance) {
+  blast(kg, distance, event) {
+    if (this.fullOwned) { if (event) this.full?.contact({ ...event, bursts: [{ explosive_kg: kg, position:event.position }] }); return; }
     if (!this.ctx) return;
     const k = Math.max(0.05, 1 / (1 + distance / 200)) * Math.min(1.6, 0.5 + Math.cbrt(Math.max(kg, 0.1)) * 0.5);
     this._burst(1.4, 1800, 60, 1.3 * k);
@@ -400,6 +530,7 @@ export class Sound {
    * and while it fires the buzz of the rounds at the cyclic rate (a 10,000 rpm gun hums at 167 Hz).
    */
   apsGun(spin, firing, rpm, distance) {
+    if (this.fullOwned) return;
     if (!this.ctx) return;
     const ctx = this.ctx;
     const t = ctx.currentTime;
@@ -435,7 +566,7 @@ export class Sound {
       nf.connect(ng);
       ng.connect(this.master);
       noise.start();
-      this.aps = { whine, wg, buzz, bg, ng };
+      this.aps = { whine, wg, buzz, bg, ng, noise };
     }
     const a = this.aps;
     const k = Math.max(0.03, 1 / (1 + distance / 60));
@@ -448,6 +579,7 @@ export class Sound {
 
   /** The protection system's tones: a track found, a lock, too hot, empty, a fault. */
   tone(kind) {
+    if (this.fullOwned) return this.full?.ui(kind);
     if (!this.ctx) return;
     const ctx = this.ctx;
     const t0 = ctx.currentTime;

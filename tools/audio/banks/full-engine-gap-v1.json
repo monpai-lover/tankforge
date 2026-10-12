@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 2,
+  "bankId": "full-engine-gap-v1",
+  "provider": "ElevenLabs",
+  "modelId": "eleven_text_to_sound_v2",
+  "outputFormat": "mp3_44100_128",
+  "modelVerifiedOn": "2026-10-12",
+  "modelReference": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
+  "basedOnCommit": "84033dd10d019bef0b7be344d6eedb77b9f87b38",
+  "authoringStatus": "Root selected bounded completion subset; original uncertain receipt preserved",
+  "cues": [
+    {
+      "id": "engine_hl157_stop",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 1,
+      "loop": false,
+      "promptInfluence": 0.45,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:de_vk1602"
+      ],
+      "sourceEvidence": "Authored family E06 hl157; de_vk1602. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "One a Maybach HL 157 P petrol engine stopping from idle: motor pulses decelerate into a compact mechanical stop, close outside the engine deck. Interpreted game sound. One stop only, no restart, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E06"
+    },
+    {
+      "id": "engine_diesel_light_idle",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "Seamless isolated loop of a light diesel armored-vehicle engine running steadily at idle RPM, close outside the engine deck: restrained regular motor pulses. Constant speed and level. No revving, start, stop, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E07"
+    },
+    {
+      "id": "engine_diesel_light_mid",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "Seamless isolated loop of a light diesel armored-vehicle engine running steadily at medium RPM, close outside the engine deck: firm regular pulses and controlled mechanical vibration. Constant speed and level. No revving, start, stop, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E07"
+    },
+    {
+      "id": "engine_diesel_light_high",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "Seamless isolated loop of a light diesel armored-vehicle engine running steadily at high RPM, close outside the engine deck: fast regular pulses and weighty sustained vibration. Constant speed and level. No revving, start, stop, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E07"
+    },
+    {
+      "id": "engine_diesel_light_load",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 3,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "Seamless isolated mechanical load texture for a light diesel armored-vehicle engine under steady heavy load: restrained weighty vibration and laboring mechanical body at constant speed. Texture for mixing with an RPM loop. No acceleration, gearshift, start, stop, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E07"
+    },
+    {
+      "id": "engine_diesel_light_start",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 2,
+      "loop": false,
+      "promptInfluence": 0.45,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "One a light diesel armored-vehicle engine starting: short starter travel and ignition settling into a brief idle, close outside the engine deck. Interpreted game sound. One start only, no acceleration, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E07"
+    },
+    {
+      "id": "engine_diesel_light_stop",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 1,
+      "loop": false,
+      "promptInfluence": 0.45,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "One a light diesel armored-vehicle engine stopping from idle: motor pulses decelerate into a compact mechanical stop, close outside the engine deck. Interpreted game sound. One stop only, no restart, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E07"
+    },
+    {
+      "id": "engine_diesel_medium_idle",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:su_t34_1940",
+        "engine:su_t34_85",
+        "engine:su_is2",
+        "engine:su_t54",
+        "engine:us_m10"
+      ],
+      "sourceEvidence": "Authored family E08 diesel_medium; su_t34_1940, su_t34_85, su_is2, su_t54, us_m10. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "Seamless isolated loop of a medium diesel armored-vehicle engine running steadily at idle RPM, close outside the engine deck: restrained regular motor pulses. Constant speed and level. No revving, start, stop, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E08"
+    },
+    {
+      "id": "engine_diesel_medium_mid",
+      "kind": "engine_loop",
+      "group": "engines",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [
+        "engine:su_t34_1940",
+        "engine:su_t34_85",
+        "engine:su_is2",
+        "engine:su_t54",
+        "engine:us_m10"
+      ],
+      "sourceEvidence": "Authored family E08 diesel_medium; su_t34_1940, su_t34_85, su_is2, su_t54, us_m10. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "prompt": "Seamless isolated loop of a medium diesel armored-vehicle engine running steadily at medium RPM, close outside the engine deck: firm regular pulses and controlled mechanical vibration. Constant speed and level. No revving, start, stop, tracks, gunfire, voices or music.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned",
+      "engineFamily": "E08"
+    }
+  ],
+  "recipes": []
+}

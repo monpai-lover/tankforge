@@ -1,0 +1,166 @@
+{
+  "schemaVersion": 2,
+  "bankId": "full-ui-tones-v1",
+  "provider": "ElevenLabs",
+  "modelId": "eleven_text_to_sound_v2",
+  "outputFormat": "mp3_44100_128",
+  "modelVerifiedOn": "2026-10-12",
+  "modelReference": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
+  "basedOnCommit": "84033dd10d019bef0b7be344d6eedb77b9f87b38",
+  "authoringStatus": "Explicit user full audio replacement includes typed UI state tones; first take only, no semantic audition or provider call by author.",
+  "cues": [
+    {
+      "id": "ui_tone_on",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state on: client/web/src/game/audio.js Sound.tone(kind), source pattern 900Hz then1200Hz,0.05+0.07s. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one short two-note confirmation rising from a mid tone to a brighter high tone. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    },
+    {
+      "id": "ui_tone_off",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state off: client/web/src/game/audio.js Sound.tone(kind), source pattern 1200Hz then900Hz,0.05+0.07s. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one short two-note confirmation descending from a high tone to a lower mid tone. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    },
+    {
+      "id": "ui_tone_detect",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state detect: client/web/src/game/audio.js Sound.tone(kind), source pattern 1300Hz,0.06s. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one very short single high radar detection chirp. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    },
+    {
+      "id": "ui_tone_lock",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state lock: client/web/src/game/audio.js Sound.tone(kind), source pattern 1800Hz0.05s,gap0.04s,1800Hz0.05s. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one concise pair of matching high target-lock chirps, with a short silence between. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    },
+    {
+      "id": "ui_tone_overheat",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state overheat: client/web/src/game/audio.js Sound.tone(kind), source pattern 700/500/700/500Hz,0.12s each. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one compact four-note warning, alternating mid and lower tones rapidly. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    },
+    {
+      "id": "ui_tone_empty",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state empty: client/web/src/game/audio.js Sound.tone(kind), source pattern 320Hz0.25s. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one brief low ammunition-empty tone with a smooth short decay. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    },
+    {
+      "id": "ui_tone_fault",
+      "kind": "ui",
+      "group": "uiTones",
+      "durationSeconds": 0.5,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": false,
+      "bindings": [],
+      "sourceEvidence": "Actual typed UI state fault: client/web/src/game/audio.js Sound.tone(kind), source pattern 200Hz square0.18s,gap0.06s,200Hz square0.18s. Calls are owned by main.js actual APS/control states; generated presentation replaces its tone only, without changing state/timing. Artistic interpretation, not numerical pitch or authentic recording claim.",
+      "prompt": "Isolated electronic armored-vehicle control cue: one concise pair of matching very low rough fault beeps, with a short silence between. Precise immediate attack, restrained level, compact dry decay. Exactly this one short pattern. No alarm siren, voices, static, engine, gunfire, music or ambience.",
+      "subjectiveAudition": "NOT RUN",
+      "reviewState": "planned"
+    }
+  ],
+  "recipes": [],
+  "batches": [
+    {
+      "id": "full-ui-tones-01",
+      "ids": [
+        "ui_tone_on",
+        "ui_tone_off",
+        "ui_tone_detect",
+        "ui_tone_lock",
+        "ui_tone_overheat",
+        "ui_tone_empty",
+        "ui_tone_fault"
+      ],
+      "takeNumbers": [
+        1
+      ],
+      "maxRequests": 7,
+      "maxDurationSeconds": 60,
+      "requestedSeconds": 3.5,
+      "estimatedCredits": 140
+    }
+  ],
+  "totals": {
+    "generationRequests": 7,
+    "requestedSeconds": 3.5,
+    "estimatedCreditsAt40PerSecond": 140
+  }
+}

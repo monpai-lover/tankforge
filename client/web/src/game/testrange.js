@@ -231,7 +231,7 @@ export class TestRange {
     const dir = dirFrom(G.cam.yaw, pitch);
     this.shots.push({ s: ballistics.newShot(pos, dir, shell), shell, age: 0, origin: pos.slice(), travelled: 0, path: [{ t: 0, p: pos.slice() }] });
     this.env.fx.muzzleBlast(add(pos, mul(dir, 1.2)), dir, shell.caliber_mm, null);
-    this.env.sound.shot(shell.caliber_mm);
+    this.env.sound.shot(shell.caliber_mm,{generic:true,emitterId:'designer-test',eventId:this.audioFired=(this.audioFired||0)+1,position:pos,direction:dir,time:G.time});
     G.cam.shake = Math.min(1.2, G.cam.shake + 0.5);
   }
 
@@ -344,7 +344,10 @@ export class TestRange {
     const W = (p) => gunnery.toWorldPoint(pose, V(p));
     const impact = W(ev.impact_position);
     const res = ev.penetration_result;
-    this.env.sound.impact(lenv(sub3(impact, [0, 0, 0])), res === 'penetrated');
+    const audioReport=designReplayReport({resp,shell:sh.shell});
+    audioReport.events=resp.capabilities.ammo_detonated?['ammo_detonation']:[];
+    this.env.sound.resolvedContact?.(audioReport,sh.shell,{worldPoint:W,worldDir:p=>gunnery.toWorldDir(pose,V(p))},{eventId:resp,position:impact,time:this.G.time});
+    if(!this.env.sound.fullEnabled)this.env.sound.impact(lenv(sub3(impact, [0, 0, 0])), res === 'penetrated');
     const n = gunnery.toWorldDir(pose, V(ev.impact_normal));
     // impact flash and a mark on the plate
     this.env.fx.spawn({ pos: impact, life: 0.14, size0: 0.4, size1: 1.6, color: res === 'penetrated' ? [1, 0.6, 0.3] : [1, 0.9, 0.6], alpha: 0.95, additive: true });

@@ -1,0 +1,5343 @@
+{
+  "schemaVersion": 1,
+  "bankId": "full-game-v1",
+  "selectionState": "planned",
+  "adoption": {
+    "source": "human-direct-instruction",
+    "statement": "同時完成所有的音效生成和替換",
+    "date": "2026-10-13",
+    "scope": "all-game-audio-generation-and-replacement",
+    "subjectiveAudition": "NOT RUN",
+    "provenance": "Provider-generated interpreted game assets; no authentic historical recording claim."
+  },
+  "profiles": [
+    {
+      "id": "weapon_kwk39_50",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kwk39_50_l60",
+        "gun:kwk39_1"
+      ],
+      "cues": {
+        "report": "report_kwk39_50"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "kwk39_50",
+      "caliberMm": 50,
+      "sourceEvidence": "Loaded source identity kwk39_50, 50 mm. data/vehicles/de_pz3_j/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kwk40_75_l48",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kwk40_75_l48"
+      ],
+      "cues": {
+        "report": "report_kwk40_75_l48"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "kwk40_75_l48",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity kwk40_75_l48, 75 mm. data/vehicles/de_pz4_h/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kwk36_88_l56",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kwk36_88_l56"
+      ],
+      "cues": {
+        "report": "report_kwk36_88_l56"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "kwk36_88_l56",
+      "caliberMm": 88,
+      "sourceEvidence": "Loaded source identity kwk36_88_l56, 88 mm. data/vehicles/de_tiger_e/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kwk42_75_l70",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kwk42_75_l70"
+      ],
+      "cues": {
+        "report": "report_kwk42_75_l70"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "kwk42_75_l70",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity kwk42_75_l70, 75 mm. data/vehicles/de_panther_g/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kwk44_1_75_l70",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kwk44_1_75_l70"
+      ],
+      "cues": {
+        "report": "report_kwk44_1_75_l70"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "kwk44_1_75_l70",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity kwk44_1_75_l70, 75 mm. data/vehicles/de_panther_f/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_l11_76",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:l11_76"
+      ],
+      "cues": {
+        "report": "report_l11_76"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "l11_76",
+      "caliberMm": 76.2,
+      "sourceEvidence": "Loaded source identity l11_76, 76.2 mm. data/vehicles/su_t34_1940/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_zis_s_53_85",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:zis_s_53_85"
+      ],
+      "cues": {
+        "report": "report_zis_s_53_85"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "zis_s_53_85",
+      "caliberMm": 85,
+      "sourceEvidence": "Loaded source identity zis_s_53_85, 85 mm. data/vehicles/su_t34_85/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_d25t_122",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:d25t_122"
+      ],
+      "cues": {
+        "report": "report_d25t_122"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "d25t_122",
+      "caliberMm": 121.92,
+      "sourceEvidence": "Loaded source identity d25t_122, 121.92 mm. data/vehicles/su_is2/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m62_t2_122",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m62_t2_122"
+      ],
+      "cues": {
+        "report": "report_m62_t2_122"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m62_t2_122",
+      "caliberMm": 121.92,
+      "sourceEvidence": "Loaded source identity m62_t2_122, 121.92 mm. data/vehicles/su_t10m/weapons.json#/main_gun; data/vehicles/su_t10m_oplot23/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_oplot_mo_14_5x6",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:oplot_mo_14_5x6"
+      ],
+      "cues": {
+        "spinUp": "rotary_oplot_mo_14_5x6_spin_up",
+        "fireLoop": "rotary_oplot_mo_14_5x6_fire_loop",
+        "stop": "rotary_oplot_mo_14_5x6_stop"
+      },
+      "mechanism": "rotary",
+      "sourceIdentity": "oplot_mo_14_5x6",
+      "caliberMm": 14.5,
+      "sourceEvidence": "Loaded source identity oplot_mo_14_5x6, 14.5 mm. data/vehicles/su_t10m/weapons.json#/extra_turrets/0/guns/0/gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted.",
+      "apsSources": [
+        "aps:su_t10m:oplot_gun"
+      ]
+    },
+    {
+      "id": "weapon_oplot23_gsh6_23_custom",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:oplot23_gsh6_23_custom"
+      ],
+      "cues": {
+        "spinUp": "rotary_oplot23_gsh6_23_custom_spin_up",
+        "fireLoop": "rotary_oplot23_gsh6_23_custom_fire_loop",
+        "stop": "rotary_oplot23_gsh6_23_custom_stop"
+      },
+      "mechanism": "rotary",
+      "sourceIdentity": "oplot23_gsh6_23_custom",
+      "caliberMm": 23,
+      "sourceEvidence": "Loaded source identity oplot23_gsh6_23_custom, 23 mm. data/vehicles/su_t10m_oplot23/weapons.json#/extra_turrets/0/guns/0/gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted.",
+      "apsSources": [
+        "aps:su_t10m_oplot23:oplot_gun"
+      ]
+    },
+    {
+      "id": "weapon_72k_25",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:72k_25"
+      ],
+      "cues": {
+        "report": "report_72k_25"
+      },
+      "mechanism": "automatic",
+      "sourceIdentity": "72k_25",
+      "caliberMm": 25,
+      "sourceEvidence": "Loaded source identity 72k_25, 25 mm. data/vehicles/su_bmpt34/weapons.json#/main_gun; data/vehicles/su_bmpt34/weapons.json#/extra_guns/0/gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_tt250_rocket",
+      "kind": "missile",
+      "group": "firing",
+      "bindings": [
+        "gun:tt250_rail_r",
+        "gun:tt250_rail_l",
+        "missile:tt250_rocket"
+      ],
+      "cues": {
+        "launch": "launch_tt250_rocket",
+        "motor": "motor_tt250_rocket"
+      },
+      "mechanism": "launcher",
+      "sourceIdentity": "tt250_rocket",
+      "caliberMm": 420,
+      "sourceEvidence": "Loaded source identity tt250_rocket, 420 mm. data/vehicles/su_bmpt34/weapons.json#/extra_guns/1/gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_d10t_100",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:d10t_100"
+      ],
+      "cues": {
+        "report": "report_d10t_100"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "d10t_100",
+      "caliberMm": 100,
+      "sourceEvidence": "Loaded source identity d10t_100, 100 mm. data/vehicles/su_t54/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_2a46_1_125",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:2a46_1_125"
+      ],
+      "cues": {
+        "report": "report_2a46_1_125"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "2a46_1_125",
+      "caliberMm": 125,
+      "sourceEvidence": "Loaded source identity 2a46_1_125, 125 mm. data/vehicles/su_t72a/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m6_37mm",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m6_37mm"
+      ],
+      "cues": {
+        "report": "report_m6_37mm"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m6_37mm",
+      "caliberMm": 37,
+      "sourceEvidence": "Loaded source identity m6_37mm, 37 mm. data/vehicles/us_m8/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m7_3in",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m7_3in"
+      ],
+      "cues": {
+        "report": "report_m7_3in"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m7_3in",
+      "caliberMm": 76.2,
+      "sourceEvidence": "Loaded source identity m7_3in, 76.2 mm. data/vehicles/us_m10/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m3_75",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m3_75"
+      ],
+      "cues": {
+        "report": "report_m3_75"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m3_75",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity m3_75, 75 mm. data/vehicles/us_m4a2/weapons.json#/main_gun; data/vehicles/us_m4a3_75w/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m1a1_76",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m1a1_76"
+      ],
+      "cues": {
+        "report": "report_m1a1_76"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m1a1_76",
+      "caliberMm": 76.2,
+      "sourceEvidence": "Loaded source identity m1a1_76, 76.2 mm. data/vehicles/us_m4a1_76w/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m1a2_76",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m1a2_76"
+      ],
+      "cues": {
+        "report": "report_m1a2_76"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m1a2_76",
+      "caliberMm": 76.2,
+      "sourceEvidence": "Loaded source identity m1a2_76, 76.2 mm. data/vehicles/us_m4a3_76w_hvss/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m54_90mm",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m54_90mm"
+      ],
+      "cues": {
+        "report": "report_m54_90mm"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m54_90mm",
+      "caliberMm": 90,
+      "sourceEvidence": "Loaded source identity m54_90mm, 90 mm. data/vehicles/us_m56/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_bgm71a_tow",
+      "kind": "missile",
+      "group": "firing",
+      "bindings": [
+        "gun:m220_tow",
+        "missile:bgm71a_tow"
+      ],
+      "cues": {
+        "launch": "launch_bgm71a_tow",
+        "motor": "motor_bgm71a_tow"
+      },
+      "mechanism": "launcher",
+      "sourceIdentity": "bgm71a_tow",
+      "caliberMm": 152,
+      "sourceEvidence": "Loaded source identity bgm71a_tow, 152 mm. data/vehicles/us_m901_itv/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_qf_75_mk5",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:qf_75_mk5"
+      ],
+      "cues": {
+        "report": "report_qf_75_mk5"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "qf_75_mk5",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity qf_75_mk5, 75 mm. data/vehicles/uk_cromwell_iv/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kda_35",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kda_35",
+        "gun:kda_35_gepard"
+      ],
+      "cues": {
+        "report": "report_kda_35"
+      },
+      "mechanism": "automatic",
+      "sourceIdentity": "kda_35",
+      "caliberMm": 35,
+      "sourceEvidence": "Loaded source identity kda_35, 35 mm. data/vehicles/xp_kda35/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_xp_78_lr",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:xp_78_lr"
+      ],
+      "cues": {
+        "report": "report_xp_78_lr"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "xp_78_lr",
+      "caliberMm": 78,
+      "sourceEvidence": "Loaded source identity xp_78_lr, 78 mm. data/vehicles/xp_w78/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_pak36t_47",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:pak36t_47"
+      ],
+      "cues": {
+        "report": "report_pak36t_47"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "pak36t_47",
+      "caliberMm": 47,
+      "sourceEvidence": "Loaded source identity pak36t_47, 47 mm. data/vehicles/de_pzjg1/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_flak38_20",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:flak38_20"
+      ],
+      "cues": {
+        "report": "report_flak38_20"
+      },
+      "mechanism": "automatic",
+      "sourceIdentity": "flak38_20",
+      "caliberMm": 20,
+      "sourceEvidence": "Loaded source identity flak38_20, 20 mm. data/vehicles/de_flakpz38t/weapons.json#/main_gun; data/vehicles/de_hetzer_flak/weapons.json#/main_gun; data/vehicles/de_rso_flak/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_pak39_75_l48",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:pak39_75_l48"
+      ],
+      "cues": {
+        "report": "report_pak39_75_l48"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "pak39_75_l48",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity pak39_75_l48, 75 mm. data/vehicles/de_hetzer/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_pak40_75",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:pak40_75"
+      ],
+      "cues": {
+        "report": "report_pak40_75"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "pak40_75",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity pak40_75, 75 mm. data/vehicles/de_rso_pak40/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_qf6pdr_mk2",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:qf6pdr_mk2"
+      ],
+      "cues": {
+        "report": "report_qf6pdr_mk2"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "qf6pdr_mk2",
+      "caliberMm": 57,
+      "sourceEvidence": "Loaded source identity qf6pdr_mk2, 57 mm. data/vehicles/uk_cmp_portee/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_mk103_30",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:mk103_30"
+      ],
+      "cues": {
+        "report": "report_mk103_30"
+      },
+      "mechanism": "automatic",
+      "sourceIdentity": "mk103_30",
+      "caliberMm": 30,
+      "sourceEvidence": "Loaded source identity mk103_30, 30 mm. data/vehicles/de_hetzer_mk103/weapons.json#/main_gun; data/vehicles/de_hetzer_mk103_camo/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kwk38_20",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:kwk38_20"
+      ],
+      "cues": {
+        "report": "report_kwk38_20"
+      },
+      "mechanism": "automatic",
+      "sourceIdentity": "kwk38_20",
+      "caliberMm": 20,
+      "sourceEvidence": "Loaded source identity kwk38_20, 20 mm. data/vehicles/de_sdkfz140_1/weapons.json#/main_gun; data/vehicles/de_hetzer_sdkfz1401/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_9m113_konkurs",
+      "kind": "missile",
+      "group": "firing",
+      "bindings": [
+        "gun:9p135_konkurs",
+        "missile:9m113_konkurs"
+      ],
+      "cues": {
+        "launch": "launch_9m113_konkurs",
+        "motor": "motor_9m113_konkurs"
+      },
+      "mechanism": "launcher",
+      "sourceIdentity": "9m113_konkurs",
+      "caliberMm": 135,
+      "sourceEvidence": "Loaded source identity 9m113_konkurs, 135 mm. data/vehicles/xp_bmp_k64_atgm/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_9m133_kornet",
+      "kind": "missile",
+      "group": "firing",
+      "bindings": [
+        "gun:9p163_kornet",
+        "missile:9m133_kornet"
+      ],
+      "cues": {
+        "launch": "launch_9m133_kornet",
+        "motor": "motor_9m133_kornet"
+      },
+      "mechanism": "launcher",
+      "sourceIdentity": "9m133_kornet",
+      "caliberMm": 152,
+      "sourceEvidence": "Loaded source identity 9m133_kornet, 152 mm. data/vehicles/xp_bmp_k64_kornet/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m46_130",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:m46_130"
+      ],
+      "cues": {
+        "report": "report_m46_130"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "m46_130",
+      "caliberMm": 130,
+      "sourceEvidence": "Loaded source identity m46_130, 130 mm. data/vehicles/su_att_m46/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_gun_75",
+      "kind": "weapon",
+      "group": "firing",
+      "bindings": [
+        "gun:gun_75"
+      ],
+      "cues": {
+        "report": "report_gun_75"
+      },
+      "mechanism": "cannon",
+      "sourceIdentity": "gun_75",
+      "caliberMm": 75,
+      "sourceEvidence": "Loaded source identity gun_75, 75 mm. data/vehicles/proto_a/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted.",
+      "selector": "custom:medium"
+    },
+    {
+      "id": "weapon_mg34",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:mg34"
+      ],
+      "cues": {
+        "report": "report_mg34_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "mg34",
+      "caliberMm": 7.92,
+      "sourceEvidence": "Loaded source identity mg34, 7.92 mm. data/machine_guns.json selector mg34. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_mg42",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:mg42"
+      ],
+      "cues": {
+        "report": "report_mg42_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "mg42",
+      "caliberMm": 7.92,
+      "sourceEvidence": "Loaded source identity mg42, 7.92 mm. data/machine_guns.json selector mg42. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_dt",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:dt"
+      ],
+      "cues": {
+        "report": "report_dt_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "dt",
+      "caliberMm": 7.62,
+      "sourceEvidence": "Loaded source identity dt, 7.62 mm. data/machine_guns.json selector dt. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_dshk",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:dshk"
+      ],
+      "cues": {
+        "report": "report_dshk_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "dshk",
+      "caliberMm": 12.7,
+      "sourceEvidence": "Loaded source identity dshk, 12.7 mm. data/machine_guns.json selector dshk. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_sgmt",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:sgmt"
+      ],
+      "cues": {
+        "report": "report_sgmt_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "sgmt",
+      "caliberMm": 7.62,
+      "sourceEvidence": "Loaded source identity sgmt, 7.62 mm. data/machine_guns.json selector sgmt. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_pkt",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:pkt"
+      ],
+      "cues": {
+        "report": "report_pkt_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "pkt",
+      "caliberMm": 7.62,
+      "sourceEvidence": "Loaded source identity pkt, 7.62 mm. data/machine_guns.json selector pkt. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_nsvt",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:nsvt"
+      ],
+      "cues": {
+        "report": "report_nsvt_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "nsvt",
+      "caliberMm": 12.7,
+      "sourceEvidence": "Loaded source identity nsvt, 12.7 mm. data/machine_guns.json selector nsvt. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m1919a4",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:m1919a4"
+      ],
+      "cues": {
+        "report": "report_m1919a4_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "m1919a4",
+      "caliberMm": 7.62,
+      "sourceEvidence": "Loaded source identity m1919a4, 7.62 mm. data/machine_guns.json selector m1919a4. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_m2hb",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:m2hb"
+      ],
+      "cues": {
+        "report": "report_m2hb_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "m2hb",
+      "caliberMm": 12.7,
+      "sourceEvidence": "Loaded source identity m2hb, 12.7 mm. data/machine_guns.json selector m2hb. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_besa",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:besa"
+      ],
+      "cues": {
+        "report": "report_besa_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "besa",
+      "caliberMm": 7.92,
+      "sourceEvidence": "Loaded source identity besa, 7.92 mm. data/machine_guns.json selector besa. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_mg_proto",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:mg_proto"
+      ],
+      "cues": {
+        "report": "report_mg_proto_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "mg_proto",
+      "caliberMm": 7.62,
+      "sourceEvidence": "Loaded source identity mg_proto, 7.62 mm. data/machine_guns.json selector mg_proto. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "weapon_kpvt",
+      "kind": "mg",
+      "group": "firing",
+      "bindings": [
+        "mg:kpvt",
+        "gun:kpvt_145"
+      ],
+      "cues": {
+        "report": "report_kpvt_single"
+      },
+      "mechanism": "machineGun",
+      "sourceIdentity": "kpvt",
+      "caliberMm": 14.5,
+      "sourceEvidence": "Loaded source identity kpvt, 14.5 mm. data/vehicles/xp_bmp_k64/weapons.json#/main_gun. Approved sharing only. Interpreted game sound; exact operating mechanism and recording authenticity not asserted."
+    },
+    {
+      "id": "engine_E01",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:us_m8",
+        "engine:de_pzjg1",
+        "engine:de_flakpz38t",
+        "engine:de_hetzer",
+        "engine:de_hetzer_flak",
+        "engine:de_hetzer_mk103",
+        "engine:de_hetzer_mk103_camo",
+        "engine:de_sdkfz140_1",
+        "engine:de_hetzer_sdkfz1401",
+        "engine:uk_cmp_portee"
+      ],
+      "cues": {
+        "idle": "engine_petrol_compact_idle",
+        "mid": "engine_petrol_compact_mid",
+        "high": "engine_petrol_compact_high",
+        "load": "engine_petrol_compact_load",
+        "start": "engine_petrol_compact_start",
+        "stop": "engine_petrol_compact_stop"
+      },
+      "family": "E01",
+      "description": "a compact petrol armored-vehicle engine",
+      "sourceEvidence": "Authored family E01 petrol_compact; us_m8, de_pzjg1, de_flakpz38t, de_hetzer, de_hetzer_flak, de_hetzer_mk103, de_hetzer_mk103_camo, de_sdkfz140_1, de_hetzer_sdkfz1401, uk_cmp_portee. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "us_m8",
+          "hp": 110,
+          "idleRpm": 550,
+          "maxRpm": 3200,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_pzjg1",
+          "hp": 100,
+          "idleRpm": 600,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_flakpz38t",
+          "hp": 150,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_hetzer",
+          "hp": 160,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_hetzer_flak",
+          "hp": 160,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_hetzer_mk103",
+          "hp": 160,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_hetzer_mk103_camo",
+          "hp": 160,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_sdkfz140_1",
+          "hp": 160,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_hetzer_sdkfz1401",
+          "hp": 160,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "uk_cmp_portee",
+          "hp": 85,
+          "idleRpm": 500,
+          "maxRpm": 3400,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E02",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:de_pz3_j",
+        "engine:de_pz4_h"
+      ],
+      "cues": {
+        "idle": "engine_petrol_medium_idle",
+        "mid": "engine_petrol_medium_mid",
+        "high": "engine_petrol_medium_high",
+        "load": "engine_petrol_medium_load",
+        "start": "engine_petrol_medium_start",
+        "stop": "engine_petrol_medium_stop"
+      },
+      "family": "E02",
+      "description": "a medium petrol armored-vehicle engine",
+      "sourceEvidence": "Authored family E02 petrol_medium; de_pz3_j, de_pz4_h. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "de_pz3_j",
+          "hp": 300,
+          "idleRpm": 800,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_pz4_h",
+          "hp": 300,
+          "idleRpm": 800,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E03",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:de_tiger_e",
+        "engine:de_panther_g",
+        "engine:de_panther_f",
+        "engine:de_aufkl_panther"
+      ],
+      "cues": {
+        "idle": "engine_petrol_heavy_idle",
+        "mid": "engine_petrol_heavy_mid",
+        "high": "engine_petrol_heavy_high",
+        "load": "engine_petrol_heavy_load",
+        "start": "engine_petrol_heavy_start",
+        "stop": "engine_petrol_heavy_stop"
+      },
+      "family": "E03",
+      "description": "a large heavy petrol armored-vehicle engine",
+      "sourceEvidence": "Authored family E03 petrol_heavy; de_tiger_e, de_panther_g, de_panther_f, de_aufkl_panther. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "de_tiger_e",
+          "hp": 690,
+          "idleRpm": 800,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_panther_g",
+          "hp": 700,
+          "idleRpm": 800,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_panther_f",
+          "hp": 700,
+          "idleRpm": 800,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_aufkl_panther",
+          "hp": 700,
+          "idleRpm": 800,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E04",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:us_m4a3_75w",
+        "engine:us_m4a3_76w_hvss",
+        "engine:uk_cromwell_iv"
+      ],
+      "cues": {
+        "idle": "engine_petrol_large_idle",
+        "mid": "engine_petrol_large_mid",
+        "high": "engine_petrol_large_high",
+        "load": "engine_petrol_large_load",
+        "start": "engine_petrol_large_start",
+        "stop": "engine_petrol_large_stop"
+      },
+      "family": "E04",
+      "description": "a large petrol armored-vehicle engine",
+      "sourceEvidence": "Authored family E04 petrol_large; us_m4a3_75w, us_m4a3_76w_hvss, uk_cromwell_iv. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "us_m4a3_75w",
+          "hp": 500,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "us_m4a3_76w_hvss",
+          "hp": 500,
+          "idleRpm": 600,
+          "maxRpm": 2600,
+          "fuel": "petrol"
+        },
+        {
+          "id": "uk_cromwell_iv",
+          "hp": 600,
+          "idleRpm": 600,
+          "maxRpm": 2550,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E05",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:us_m4a1_76w"
+      ],
+      "cues": {
+        "idle": "engine_r975_radial_idle",
+        "mid": "engine_r975_radial_mid",
+        "high": "engine_r975_radial_high",
+        "load": "engine_r975_radial_load",
+        "start": "engine_r975_radial_start",
+        "stop": "engine_r975_radial_stop"
+      },
+      "family": "E05",
+      "description": "a Continental R975-C4 petrol radial engine",
+      "sourceEvidence": "Authored family E05 r975_radial; us_m4a1_76w. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "us_m4a1_76w",
+          "hp": 400,
+          "idleRpm": 800,
+          "maxRpm": 2400,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E06",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:de_vk1602"
+      ],
+      "cues": {
+        "idle": "engine_hl157_idle",
+        "mid": "engine_hl157_mid",
+        "high": "engine_hl157_high",
+        "load": "engine_hl157_load",
+        "start": "engine_hl157_start",
+        "stop": "engine_hl157_stop"
+      },
+      "family": "E06",
+      "description": "a Maybach HL 157 P petrol engine",
+      "sourceEvidence": "Authored family E06 hl157; de_vk1602. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "de_vk1602",
+          "hp": 550,
+          "idleRpm": 700,
+          "maxRpm": 3500,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E07",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:us_m901_itv",
+        "engine:xp_kda35",
+        "engine:xp_w78"
+      ],
+      "cues": {
+        "idle": "engine_diesel_light_idle",
+        "mid": "engine_diesel_light_mid",
+        "high": "engine_diesel_light_high",
+        "load": "engine_diesel_light_load",
+        "start": "engine_diesel_light_start",
+        "stop": "engine_diesel_light_stop"
+      },
+      "family": "E07",
+      "description": "a light diesel armored-vehicle engine",
+      "sourceEvidence": "Authored family E07 diesel_light; us_m901_itv, xp_kda35, xp_w78. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "us_m901_itv",
+          "hp": 212,
+          "idleRpm": 600,
+          "maxRpm": 2800,
+          "fuel": "diesel"
+        },
+        {
+          "id": "xp_kda35",
+          "hp": 400,
+          "idleRpm": 650,
+          "maxRpm": 2600,
+          "fuel": "diesel"
+        },
+        {
+          "id": "xp_w78",
+          "hp": 400,
+          "idleRpm": 650,
+          "maxRpm": 2600,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "engine_E08",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:su_t34_1940",
+        "engine:su_t34_85",
+        "engine:su_is2",
+        "engine:su_t54",
+        "engine:us_m10"
+      ],
+      "cues": {
+        "idle": "engine_diesel_medium_idle",
+        "mid": "engine_diesel_medium_mid",
+        "high": "engine_diesel_medium_high",
+        "load": "engine_diesel_medium_load",
+        "start": "engine_diesel_medium_start",
+        "stop": "engine_diesel_medium_stop"
+      },
+      "family": "E08",
+      "description": "a medium diesel armored-vehicle engine",
+      "sourceEvidence": "Authored family E08 diesel_medium; su_t34_1940, su_t34_85, su_is2, su_t54, us_m10. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "su_t34_1940",
+          "hp": 500,
+          "idleRpm": 600,
+          "maxRpm": 1900,
+          "fuel": "diesel"
+        },
+        {
+          "id": "su_t34_85",
+          "hp": 500,
+          "idleRpm": 600,
+          "maxRpm": 1900,
+          "fuel": "diesel"
+        },
+        {
+          "id": "su_is2",
+          "hp": 520,
+          "idleRpm": 600,
+          "maxRpm": 2000,
+          "fuel": "diesel"
+        },
+        {
+          "id": "su_t54",
+          "hp": 520,
+          "idleRpm": 600,
+          "maxRpm": 2000,
+          "fuel": "diesel"
+        },
+        {
+          "id": "us_m10",
+          "hp": 375,
+          "idleRpm": 500,
+          "maxRpm": 2100,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "engine_E09",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:su_t10m",
+        "engine:su_t10m_oplot23",
+        "engine:de_gepard"
+      ],
+      "cues": {
+        "idle": "engine_diesel_heavy_idle",
+        "mid": "engine_diesel_heavy_mid",
+        "high": "engine_diesel_heavy_high",
+        "load": "engine_diesel_heavy_load",
+        "start": "engine_diesel_heavy_start",
+        "stop": "engine_diesel_heavy_stop"
+      },
+      "family": "E09",
+      "description": "a large heavy diesel armored-vehicle engine",
+      "sourceEvidence": "Authored family E09 diesel_heavy; su_t10m, su_t10m_oplot23, de_gepard. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "su_t10m",
+          "hp": 750,
+          "idleRpm": 600,
+          "maxRpm": 2100,
+          "fuel": "diesel"
+        },
+        {
+          "id": "su_t10m_oplot23",
+          "hp": 750,
+          "idleRpm": 600,
+          "maxRpm": 2100,
+          "fuel": "diesel"
+        },
+        {
+          "id": "de_gepard",
+          "hp": 830,
+          "idleRpm": 650,
+          "maxRpm": 2200,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "engine_E10",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:us_m4a2"
+      ],
+      "cues": {
+        "idle": "engine_gm6046_idle",
+        "mid": "engine_gm6046_mid",
+        "high": "engine_gm6046_high",
+        "load": "engine_gm6046_load",
+        "start": "engine_gm6046_start",
+        "stop": "engine_gm6046_stop"
+      },
+      "family": "E10",
+      "description": "a GM 6046 twin diesel engine, two 6-71 engines",
+      "sourceEvidence": "Authored family E10 gm6046; us_m4a2. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "us_m4a2",
+          "hp": 410,
+          "idleRpm": 500,
+          "maxRpm": 2900,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "engine_E11",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:xp_bmp_k64",
+        "engine:xp_bmp_k64_atgm",
+        "engine:xp_bmp_k64_kornet"
+      ],
+      "cues": {
+        "idle": "engine_5tdf_idle",
+        "mid": "engine_5tdf_mid",
+        "high": "engine_5tdf_high",
+        "load": "engine_5tdf_load",
+        "start": "engine_5tdf_start",
+        "stop": "engine_5tdf_stop"
+      },
+      "family": "E11",
+      "description": "a 5TDF diesel engine",
+      "sourceEvidence": "Authored family E11 5tdf; xp_bmp_k64, xp_bmp_k64_atgm, xp_bmp_k64_kornet. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "xp_bmp_k64",
+          "hp": 700,
+          "idleRpm": 800,
+          "maxRpm": 2800,
+          "fuel": "diesel"
+        },
+        {
+          "id": "xp_bmp_k64_atgm",
+          "hp": 700,
+          "idleRpm": 800,
+          "maxRpm": 2800,
+          "fuel": "diesel"
+        },
+        {
+          "id": "xp_bmp_k64_kornet",
+          "hp": 700,
+          "idleRpm": 800,
+          "maxRpm": 2800,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "engine_E12",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:su_att_m46"
+      ],
+      "cues": {
+        "idle": "engine_a401_idle",
+        "mid": "engine_a401_mid",
+        "high": "engine_a401_high",
+        "load": "engine_a401_load",
+        "start": "engine_a401_start",
+        "stop": "engine_a401_stop"
+      },
+      "family": "E12",
+      "description": "an A-401 diesel engine",
+      "sourceEvidence": "Authored family E12 a401; su_att_m46. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "su_att_m46",
+          "hp": 415,
+          "idleRpm": 500,
+          "maxRpm": 1700,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "engine_E13",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:de_rso_flak",
+        "engine:de_rso_pak40"
+      ],
+      "cues": {
+        "idle": "engine_steyr1500a_idle",
+        "mid": "engine_steyr1500a_mid",
+        "high": "engine_steyr1500a_high",
+        "load": "engine_steyr1500a_load",
+        "start": "engine_steyr1500a_start",
+        "stop": "engine_steyr1500a_stop"
+      },
+      "family": "E13",
+      "description": "a Steyr 1500A V8 petrol engine",
+      "sourceEvidence": "Authored family E13 steyr1500a; de_rso_flak, de_rso_pak40. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "de_rso_flak",
+          "hp": 85,
+          "idleRpm": 550,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        },
+        {
+          "id": "de_rso_pak40",
+          "hp": 85,
+          "idleRpm": 550,
+          "maxRpm": 3000,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E14",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:us_m56",
+        "engine:de_sdkfz234_2"
+      ],
+      "cues": {
+        "idle": "engine_neutral_compact_idle",
+        "mid": "engine_neutral_compact_mid",
+        "high": "engine_neutral_compact_high",
+        "load": "engine_neutral_compact_load",
+        "start": "engine_neutral_compact_start",
+        "stop": "engine_neutral_compact_stop"
+      },
+      "family": "E14",
+      "description": "a generic compact armored-vehicle engine of unspecified fuel and model",
+      "sourceEvidence": "Authored family E14 neutral_compact; us_m56, de_sdkfz234_2. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "us_m56",
+          "hp": 200,
+          "idleRpm": 650,
+          "maxRpm": 3200,
+          "fuel": null
+        },
+        {
+          "id": "de_sdkfz234_2",
+          "hp": 210,
+          "idleRpm": 600,
+          "maxRpm": 2250,
+          "fuel": "petrol"
+        }
+      ]
+    },
+    {
+      "id": "engine_E15",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:su_bmpt34",
+        "engine:proto_a"
+      ],
+      "cues": {
+        "idle": "engine_neutral_medium_idle",
+        "mid": "engine_neutral_medium_mid",
+        "high": "engine_neutral_medium_high",
+        "load": "engine_neutral_medium_load",
+        "start": "engine_neutral_medium_start",
+        "stop": "engine_neutral_medium_stop"
+      },
+      "family": "E15",
+      "description": "a generic medium armored-vehicle engine of unspecified fuel and model",
+      "sourceEvidence": "Authored family E15 neutral_medium; su_bmpt34, proto_a. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "su_bmpt34",
+          "hp": 500,
+          "idleRpm": 600,
+          "maxRpm": 1800,
+          "fuel": null
+        },
+        {
+          "id": "proto_a",
+          "hp": 500,
+          "idleRpm": 700,
+          "maxRpm": 2600,
+          "fuel": null
+        }
+      ]
+    },
+    {
+      "id": "engine_E16",
+      "kind": "engine",
+      "group": "engines",
+      "bindings": [
+        "engine:su_t72a"
+      ],
+      "cues": {
+        "idle": "engine_v46_6_idle",
+        "mid": "engine_v46_6_mid",
+        "high": "engine_v46_6_high",
+        "load": "engine_v46_6_load",
+        "start": "engine_v46_6_start",
+        "stop": "engine_v46_6_stop"
+      },
+      "family": "E16",
+      "description": "a V-46-6 diesel tank engine",
+      "sourceEvidence": "Authored family E16 v46_6; su_t72a. HP and actual RPM: each data/vehicles/<id>/engine.json#/engine; authored fuel: visual.json#/exhaust/fuel. Named engine only from vehicle.json#/meta/notes; E16 from docs/t72a-autoloader-research-2026-10-12.json. E14/E15 remain neutral for missing/conflicting fuel. Sharing retains actual vehicle RPM/load; interpreted game sound.",
+      "vehicles": [
+        {
+          "id": "su_t72a",
+          "hp": 780,
+          "idleRpm": 600,
+          "maxRpm": 2000,
+          "fuel": "diesel"
+        }
+      ]
+    },
+    {
+      "id": "track_light",
+      "kind": "runningGear",
+      "group": "runningGear",
+      "bindings": [],
+      "cues": {
+        "roll": "track_light"
+      },
+      "selector": "track_light",
+      "sourceEvidence": "Explicit generic physical running-gear/surface category from approved detailed-audio design. Actual tracked/wheeled choice uses visual.running_gear.kind; actual terrain IDs use data/terrains.json. No exact historical running-gear recording claimed."
+    },
+    {
+      "id": "track_medium",
+      "kind": "runningGear",
+      "group": "runningGear",
+      "bindings": [],
+      "cues": {
+        "roll": "track_medium"
+      },
+      "selector": "track_medium",
+      "sourceEvidence": "Explicit generic physical running-gear/surface category from approved detailed-audio design. Actual tracked/wheeled choice uses visual.running_gear.kind; actual terrain IDs use data/terrains.json. No exact historical running-gear recording claimed."
+    },
+    {
+      "id": "track_heavy",
+      "kind": "runningGear",
+      "group": "runningGear",
+      "bindings": [],
+      "cues": {
+        "roll": "track_heavy"
+      },
+      "selector": "track_heavy",
+      "sourceEvidence": "Explicit generic physical running-gear/surface category from approved detailed-audio design. Actual tracked/wheeled choice uses visual.running_gear.kind; actual terrain IDs use data/terrains.json. No exact historical running-gear recording claimed."
+    },
+    {
+      "id": "wheel_road",
+      "kind": "runningGear",
+      "group": "runningGear",
+      "bindings": [],
+      "cues": {
+        "roll": "wheel_road"
+      },
+      "selector": "wheel_road",
+      "sourceEvidence": "Explicit generic physical running-gear/surface category from approved detailed-audio design. Actual tracked/wheeled choice uses visual.running_gear.kind; actual terrain IDs use data/terrains.json. No exact historical running-gear recording claimed."
+    },
+    {
+      "id": "surface_soft",
+      "kind": "surface",
+      "group": "runningGear",
+      "bindings": [],
+      "cues": {
+        "texture": "surface_soft"
+      },
+      "selector": "surface_soft",
+      "sourceEvidence": "Explicit generic physical running-gear/surface category from approved detailed-audio design. Actual tracked/wheeled choice uses visual.running_gear.kind; actual terrain IDs use data/terrains.json. No exact historical running-gear recording claimed."
+    },
+    {
+      "id": "surface_gravel",
+      "kind": "surface",
+      "group": "runningGear",
+      "bindings": [],
+      "cues": {
+        "texture": "surface_gravel"
+      },
+      "selector": "surface_gravel",
+      "sourceEvidence": "Explicit generic physical running-gear/surface category from approved detailed-audio design. Actual tracked/wheeled choice uses visual.running_gear.kind; actual terrain IDs use data/terrains.json. No exact historical running-gear recording claimed."
+    },
+    {
+      "id": "impact_stopped",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "attack": "impact_stopped"
+      },
+      "selector": "stopped",
+      "sourceEvidence": "Actual combat Outcome stopped: crates/combat/src/lib.rs; position/outcome must come from an actual report, never HUD kill or caliber. Interpreted physical attack layer."
+    },
+    {
+      "id": "impact_penetrated",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "attack": "impact_penetrated"
+      },
+      "selector": "penetrated",
+      "sourceEvidence": "Actual combat Outcome penetrated: crates/combat/src/lib.rs; position/outcome must come from an actual report, never HUD kill or caliber. Interpreted physical attack layer."
+    },
+    {
+      "id": "impact_ricochet",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "attack": "impact_ricochet"
+      },
+      "selector": "ricochet",
+      "sourceEvidence": "Actual combat Outcome ricochet: crates/combat/src/lib.rs; position/outcome must come from an actual report, never HUD kill or caliber. Interpreted physical attack layer."
+    },
+    {
+      "id": "impact_shattered",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "attack": "impact_shattered"
+      },
+      "selector": "shattered",
+      "sourceEvidence": "Actual combat Outcome shattered: crates/combat/src/lib.rs; position/outcome must come from an actual report, never HUD kill or caliber. Interpreted physical attack layer."
+    },
+    {
+      "id": "tail_steel",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "tail": "tail_steel"
+      },
+      "selector": "steel",
+      "sourceEvidence": "Explicit physical material tail. data/materials.json has steel-family, aluminium and composite; data/terrains.json has earth/gravel. Resolve actual contacted layer/terrain, not vehicle nation or shell name."
+    },
+    {
+      "id": "tail_aluminium",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "tail": "tail_aluminium"
+      },
+      "selector": "aluminium",
+      "sourceEvidence": "Explicit physical material tail. data/materials.json has steel-family, aluminium and composite; data/terrains.json has earth/gravel. Resolve actual contacted layer/terrain, not vehicle nation or shell name."
+    },
+    {
+      "id": "tail_composite",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "tail": "tail_composite"
+      },
+      "selector": "composite",
+      "sourceEvidence": "Explicit physical material tail. data/materials.json has steel-family, aluminium and composite; data/terrains.json has earth/gravel. Resolve actual contacted layer/terrain, not vehicle nation or shell name."
+    },
+    {
+      "id": "tail_earth_gravel",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "tail": "tail_earth_gravel"
+      },
+      "selector": "earth_gravel",
+      "sourceEvidence": "Explicit physical material tail. data/materials.json has steel-family, aluminium and composite; data/terrains.json has earth/gravel. Resolve actual contacted layer/terrain, not vehicle nation or shell name."
+    },
+    {
+      "id": "armour_spall",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "debris": "armour_spall"
+      },
+      "selector": "armour_spall",
+      "sourceEvidence": "Explicit generic debris layer; actual report fragments/spall or confirmed ground contact authorizes emission. crates/combat/src/lib.rs fragments; main.js ground/building collision paths."
+    },
+    {
+      "id": "metal_debris",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "debris": "metal_debris"
+      },
+      "selector": "metal_debris",
+      "sourceEvidence": "Explicit generic debris layer; actual report fragments/spall or confirmed ground contact authorizes emission. crates/combat/src/lib.rs fragments; main.js ground/building collision paths."
+    },
+    {
+      "id": "earth_debris",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "debris": "earth_debris"
+      },
+      "selector": "earth_debris",
+      "sourceEvidence": "Explicit generic debris layer; actual report fragments/spall or confirmed ground contact authorizes emission. crates/combat/src/lib.rs fragments; main.js ground/building collision paths."
+    },
+    {
+      "id": "heat_small",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "shapedCharge": "heat_small"
+      },
+      "selector": "small",
+      "sourceEvidence": "Explicit physical shaped-charge size category for loaded heat/heat_fs. Select only an actual detonation report/burst; kind alone is insufficient. data/projectiles/*.json explosive_mass_kg and actual combat bursts."
+    },
+    {
+      "id": "heat_large",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "shapedCharge": "heat_large"
+      },
+      "selector": "large",
+      "sourceEvidence": "Explicit physical shaped-charge size category for loaded heat/heat_fs. Select only an actual detonation report/burst; kind alone is insufficient. data/projectiles/*.json explosive_mass_kg and actual combat bursts."
+    },
+    {
+      "id": "internal_filler_small",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "internalBurst": "internal_filler_small"
+      },
+      "selector": "small",
+      "sourceEvidence": "Explicit internal-burst category. APHE and filler-bearing APCBC have fuse/filler fields; play only an actual report burst with inside=true and explosive mass, never kind alone."
+    },
+    {
+      "id": "internal_filler_medium",
+      "kind": "impact",
+      "group": "impacts",
+      "bindings": [],
+      "cues": {
+        "internalBurst": "internal_filler_medium"
+      },
+      "selector": "medium",
+      "sourceEvidence": "Explicit internal-burst category. APHE and filler-bearing APCBC have fuse/filler fields; play only an actual report burst with inside=true and explosive mass, never kind alone."
+    },
+    {
+      "id": "blast_micro",
+      "kind": "blast",
+      "group": "explosions",
+      "bindings": [],
+      "cues": {
+        "blast": "blast_micro"
+      },
+      "selector": "micro",
+      "sourceEvidence": "Explicit explosive-mass class. Loaded explosive masses span0.006–125kg,data/projectiles/*.json. Use actual burst mass/position once; ammunition identity alone cannot create a burst."
+    },
+    {
+      "id": "blast_small",
+      "kind": "blast",
+      "group": "explosions",
+      "bindings": [],
+      "cues": {
+        "blast": "blast_small"
+      },
+      "selector": "small",
+      "sourceEvidence": "Explicit explosive-mass class. Loaded explosive masses span0.006–125kg,data/projectiles/*.json. Use actual burst mass/position once; ammunition identity alone cannot create a burst."
+    },
+    {
+      "id": "blast_medium",
+      "kind": "blast",
+      "group": "explosions",
+      "bindings": [],
+      "cues": {
+        "blast": "blast_medium"
+      },
+      "selector": "medium",
+      "sourceEvidence": "Explicit explosive-mass class. Loaded explosive masses span0.006–125kg,data/projectiles/*.json. Use actual burst mass/position once; ammunition identity alone cannot create a burst."
+    },
+    {
+      "id": "blast_large",
+      "kind": "blast",
+      "group": "explosions",
+      "bindings": [],
+      "cues": {
+        "blast": "blast_large"
+      },
+      "selector": "large",
+      "sourceEvidence": "Explicit explosive-mass class. Loaded explosive masses span0.006–125kg,data/projectiles/*.json. Use actual burst mass/position once; ammunition identity alone cannot create a burst."
+    },
+    {
+      "id": "blast_very_heavy",
+      "kind": "blast",
+      "group": "explosions",
+      "bindings": [],
+      "cues": {
+        "blast": "blast_very_heavy"
+      },
+      "selector": "very_heavy",
+      "sourceEvidence": "Explicit explosive-mass class. Loaded explosive masses span0.006–125kg,data/projectiles/*.json. Use actual burst mass/position once; ammunition identity alone cannot create a burst."
+    },
+    {
+      "id": "ammo_cookoff",
+      "kind": "blast",
+      "group": "explosions",
+      "bindings": [],
+      "cues": {
+        "cookoff": "ammo_cookoff"
+      },
+      "selector": "ammo_detonation",
+      "sourceEvidence": "Actual ammo_detonation capability/event authorizes cue; destroyed vehicle or kill label alone does not. crates/combat/src/lib.rs and capability/event adapter."
+    },
+    {
+      "id": "flight_small_approach",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "approach": "flight_small_approach"
+      },
+      "selector": "small",
+      "sourceEvidence": "Explicit pass-by phase. Actual previous/current world positions and velocity determine proximity/approach/recede; data/projectiles/*.json supplies size/mass/velocity. No flyby without a nearby real trajectory."
+    },
+    {
+      "id": "flight_small_recede",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "recede": "flight_small_recede"
+      },
+      "selector": "small",
+      "sourceEvidence": "Explicit pass-by phase. Actual previous/current world positions and velocity determine proximity/approach/recede; data/projectiles/*.json supplies size/mass/velocity. No flyby without a nearby real trajectory."
+    },
+    {
+      "id": "supersonic_small_crack",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "sonicCrack": "supersonic_small_crack"
+      },
+      "selector": "small",
+      "sourceEvidence": "Actual current projectile speed must exceed local sound speed and near trajectory crosses listener; source velocities span135–1760m/s. No sonic crack for a subsonic missile from warhead size."
+    },
+    {
+      "id": "ricochet_small_pass",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "ricochetPass": "ricochet_small_pass"
+      },
+      "selector": "small",
+      "sourceEvidence": "Only actual ricochet_dir and continued outgoing path authorize this cue. crates/combat/src/lib.rs and main.js ricochet presentation."
+    },
+    {
+      "id": "flight_large_approach",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "approach": "flight_large_approach"
+      },
+      "selector": "large",
+      "sourceEvidence": "Explicit pass-by phase. Actual previous/current world positions and velocity determine proximity/approach/recede; data/projectiles/*.json supplies size/mass/velocity. No flyby without a nearby real trajectory."
+    },
+    {
+      "id": "flight_large_recede",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "recede": "flight_large_recede"
+      },
+      "selector": "large",
+      "sourceEvidence": "Explicit pass-by phase. Actual previous/current world positions and velocity determine proximity/approach/recede; data/projectiles/*.json supplies size/mass/velocity. No flyby without a nearby real trajectory."
+    },
+    {
+      "id": "supersonic_large_crack",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "sonicCrack": "supersonic_large_crack"
+      },
+      "selector": "large",
+      "sourceEvidence": "Actual current projectile speed must exceed local sound speed and near trajectory crosses listener; source velocities span135–1760m/s. No sonic crack for a subsonic missile from warhead size."
+    },
+    {
+      "id": "ricochet_large_pass",
+      "kind": "flight",
+      "group": "flight",
+      "bindings": [],
+      "cues": {
+        "ricochetPass": "ricochet_large_pass"
+      },
+      "selector": "large",
+      "sourceEvidence": "Only actual ricochet_dir and continued outgoing path authorize this cue. crates/combat/src/lib.rs and main.js ricochet presentation."
+    },
+    {
+      "id": "ready_light",
+      "kind": "ui",
+      "group": "ui",
+      "bindings": [],
+      "cues": {
+        "ready": "ready_light"
+      },
+      "selector": "light",
+      "sourceEvidence": "Explicit original-design ready latch. Emit actual readyWithAmmo only when detailed manual/AZ/feed/launcher audio does not own completion; avoid duplicate lock."
+    },
+    {
+      "id": "ready_medium",
+      "kind": "ui",
+      "group": "ui",
+      "bindings": [],
+      "cues": {
+        "ready": "ready_medium"
+      },
+      "selector": "medium",
+      "sourceEvidence": "Explicit original-design ready latch. Emit actual readyWithAmmo only when detailed manual/AZ/feed/launcher audio does not own completion; avoid duplicate lock."
+    },
+    {
+      "id": "ready_heavy",
+      "kind": "ui",
+      "group": "ui",
+      "bindings": [],
+      "cues": {
+        "ready": "ready_heavy"
+      },
+      "selector": "heavy",
+      "sourceEvidence": "Explicit original-design ready latch. Emit actual readyWithAmmo only when detailed manual/AZ/feed/launcher audio does not own completion; avoid duplicate lock."
+    },
+    {
+      "id": "rangefinder_confirmation",
+      "kind": "ui",
+      "group": "ui",
+      "bindings": [],
+      "cues": {
+        "confirm": "rangefinder_confirmation"
+      },
+      "selector": "rangefinder",
+      "sourceEvidence": "Actual successful rangefinder confirmation main.js. Never emit from a pending/failed range request."
+    },
+    {
+      "id": "console_action",
+      "kind": "ui",
+      "group": "ui",
+      "bindings": [],
+      "cues": {
+        "action": "console_action"
+      },
+      "selector": "console",
+      "sourceEvidence": "Explicit console/control action. Bind actual action; existing state-specific APS tones retain their typed semantics."
+    },
+    {
+      "id": "custom_light",
+      "kind": "weapon",
+      "group": "customWeapons",
+      "bindings": [],
+      "cues": {
+        "report": "report_custom_light"
+      },
+      "selector": "custom:light"
+    },
+    {
+      "id": "custom_heavy",
+      "kind": "weapon",
+      "group": "customWeapons",
+      "bindings": [],
+      "cues": {
+        "report": "report_custom_heavy"
+      },
+      "selector": "custom:heavy"
+    },
+    {
+      "id": "loading_manual_de",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "grab": "de_manual_grab",
+        "load": "de_manual_load",
+        "lock": "de_manual_lock"
+      },
+      "mechanism": "manual_unitary",
+      "style": "de",
+      "source": "existing-reviewed-regional-bank"
+    },
+    {
+      "id": "loading_manual_su",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "grab": "su_manual_grab",
+        "load": "su_manual_load",
+        "lock": "su_manual_lock"
+      },
+      "mechanism": "manual_unitary",
+      "style": "su",
+      "source": "existing-reviewed-regional-bank"
+    },
+    {
+      "id": "loading_manual_us",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "grab": "us_manual_grab",
+        "load": "us_manual_load",
+        "lock": "us_manual_lock"
+      },
+      "mechanism": "manual_unitary",
+      "style": "us",
+      "source": "existing-reviewed-regional-bank"
+    },
+    {
+      "id": "loading_az_t72",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [
+        "gun:2a46_1_125"
+      ],
+      "cues": {
+        "drive": "az_t72_drive",
+        "ram": "az_t72_ram",
+        "lock": "az_t72_lock"
+      },
+      "mechanism": "az_t72",
+      "source": "existing-user-directed-fitted-bank"
+    },
+    {
+      "id": "loading_manual_separate",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "projectileGrab": "separate_projectile_grab",
+        "projectileLoad": "separate_projectile_load",
+        "chargeGrab": "separate_charge_grab",
+        "chargeLoad": "separate_charge_load",
+        "lock": "su_manual_lock"
+      },
+      "mechanism": "manual_separate_generic",
+      "sourceEvidence": "M46 explicit separate loading; D25/M62 generic two-piece presentation, no automatic/powered assistant claim."
+    },
+    {
+      "id": "loading_feed_belt",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "grab": "feed_belt_grab",
+        "load": "feed_belt_load",
+        "lock": "feed_belt_lock"
+      },
+      "mechanism": "feed_belt",
+      "artisticInterpretation": true
+    },
+    {
+      "id": "loading_feed_disc",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "grab": "feed_disc_grab",
+        "load": "feed_disc_load",
+        "lock": "feed_disc_lock"
+      },
+      "mechanism": "feed_disc",
+      "artisticInterpretation": true
+    },
+    {
+      "id": "loading_feed_clip",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [],
+      "cues": {
+        "grab": "feed_clip_grab",
+        "load": "feed_clip_load",
+        "lock": "feed_clip_lock"
+      },
+      "mechanism": "feed_clip",
+      "artisticInterpretation": true
+    },
+    {
+      "id": "loading_bgm71a_tow",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [
+        "gun:m220_tow"
+      ],
+      "cues": {
+        "grab": "reload_bgm71a_tow_grab",
+        "load": "reload_bgm71a_tow_load",
+        "lock": "reload_bgm71a_tow_lock"
+      },
+      "mechanism": "launcher_assembly"
+    },
+    {
+      "id": "loading_9m113_konkurs",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [
+        "gun:9p135_konkurs"
+      ],
+      "cues": {
+        "grab": "reload_9m113_konkurs_grab",
+        "load": "reload_9m113_konkurs_load",
+        "lock": "reload_9m113_konkurs_lock"
+      },
+      "mechanism": "launcher_assembly"
+    },
+    {
+      "id": "loading_9m133_kornet",
+      "kind": "loading",
+      "group": "loading",
+      "bindings": [
+        "gun:9p163_kornet"
+      ],
+      "cues": {
+        "grab": "reload_9m133_kornet_grab",
+        "load": "reload_9m133_kornet_load",
+        "lock": "reload_9m133_kornet_lock"
+      },
+      "mechanism": "launcher_assembly"
+    }
+  ],
+  "cues": {
+    "report_kwk39_50": {
+      "file": "client/web/assets/full-game-audio/report_kwk39_50.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kwk40_75_l48": {
+      "file": "client/web/assets/full-game-audio/report_kwk40_75_l48.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kwk36_88_l56": {
+      "file": "client/web/assets/full-game-audio/report_kwk36_88_l56.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kwk42_75_l70": {
+      "file": "client/web/assets/full-game-audio/report_kwk42_75_l70.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kwk44_1_75_l70": {
+      "file": "client/web/assets/full-game-audio/report_kwk44_1_75_l70.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_l11_76": {
+      "file": "client/web/assets/full-game-audio/report_l11_76.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_zis_s_53_85": {
+      "file": "client/web/assets/full-game-audio/report_zis_s_53_85.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_d25t_122": {
+      "file": "client/web/assets/full-game-audio/report_d25t_122.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m62_t2_122": {
+      "file": "client/web/assets/full-game-audio/report_m62_t2_122.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rotary_oplot_mo_14_5x6_spin_up": {
+      "file": "client/web/assets/full-game-audio/rotary_oplot_mo_14_5x6_spin_up.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rotary_oplot_mo_14_5x6_fire_loop": {
+      "file": "client/web/assets/full-game-audio/rotary_oplot_mo_14_5x6_fire_loop.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rotary_oplot_mo_14_5x6_stop": {
+      "file": "client/web/assets/full-game-audio/rotary_oplot_mo_14_5x6_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rotary_oplot23_gsh6_23_custom_spin_up": {
+      "file": "client/web/assets/full-game-audio/rotary_oplot23_gsh6_23_custom_spin_up.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rotary_oplot23_gsh6_23_custom_fire_loop": {
+      "file": "client/web/assets/full-game-audio/rotary_oplot23_gsh6_23_custom_fire_loop.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rotary_oplot23_gsh6_23_custom_stop": {
+      "file": "client/web/assets/full-game-audio/rotary_oplot23_gsh6_23_custom_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_72k_25": {
+      "file": "client/web/assets/full-game-audio/report_72k_25.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "launch_tt250_rocket": {
+      "file": "client/web/assets/full-game-audio/launch_tt250_rocket.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "motor_tt250_rocket": {
+      "file": "client/web/assets/full-game-audio/motor_tt250_rocket.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_d10t_100": {
+      "file": "client/web/assets/full-game-audio/report_d10t_100.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_2a46_1_125": {
+      "file": "client/web/assets/full-game-audio/report_2a46_1_125.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m6_37mm": {
+      "file": "client/web/assets/full-game-audio/report_m6_37mm.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m7_3in": {
+      "file": "client/web/assets/full-game-audio/report_m7_3in.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m3_75": {
+      "file": "client/web/assets/full-game-audio/report_m3_75.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m1a1_76": {
+      "file": "client/web/assets/full-game-audio/report_m1a1_76.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m1a2_76": {
+      "file": "client/web/assets/full-game-audio/report_m1a2_76.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m54_90mm": {
+      "file": "client/web/assets/full-game-audio/report_m54_90mm.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "launch_bgm71a_tow": {
+      "file": "client/web/assets/full-game-audio/launch_bgm71a_tow.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "motor_bgm71a_tow": {
+      "file": "client/web/assets/full-game-audio/motor_bgm71a_tow.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_qf_75_mk5": {
+      "file": "client/web/assets/full-game-audio/report_qf_75_mk5.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kda_35": {
+      "file": "client/web/assets/full-game-audio/report_kda_35.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_xp_78_lr": {
+      "file": "client/web/assets/full-game-audio/report_xp_78_lr.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_pak36t_47": {
+      "file": "client/web/assets/full-game-audio/report_pak36t_47.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_flak38_20": {
+      "file": "client/web/assets/full-game-audio/report_flak38_20.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_pak39_75_l48": {
+      "file": "client/web/assets/full-game-audio/report_pak39_75_l48.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_pak40_75": {
+      "file": "client/web/assets/full-game-audio/report_pak40_75.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_qf6pdr_mk2": {
+      "file": "client/web/assets/full-game-audio/report_qf6pdr_mk2.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_mk103_30": {
+      "file": "client/web/assets/full-game-audio/report_mk103_30.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kwk38_20": {
+      "file": "client/web/assets/full-game-audio/report_kwk38_20.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "launch_9m113_konkurs": {
+      "file": "client/web/assets/full-game-audio/launch_9m113_konkurs.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "motor_9m113_konkurs": {
+      "file": "client/web/assets/full-game-audio/motor_9m113_konkurs.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "launch_9m133_kornet": {
+      "file": "client/web/assets/full-game-audio/launch_9m133_kornet.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "motor_9m133_kornet": {
+      "file": "client/web/assets/full-game-audio/motor_9m133_kornet.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m46_130": {
+      "file": "client/web/assets/full-game-audio/report_m46_130.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_gun_75": {
+      "file": "client/web/assets/full-game-audio/report_gun_75.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_mg34_single": {
+      "file": "client/web/assets/full-game-audio/report_mg34_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_mg42_single": {
+      "file": "client/web/assets/full-game-audio/report_mg42_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_dt_single": {
+      "file": "client/web/assets/full-game-audio/report_dt_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_dshk_single": {
+      "file": "client/web/assets/full-game-audio/report_dshk_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_sgmt_single": {
+      "file": "client/web/assets/full-game-audio/report_sgmt_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_pkt_single": {
+      "file": "client/web/assets/full-game-audio/report_pkt_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_nsvt_single": {
+      "file": "client/web/assets/full-game-audio/report_nsvt_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m1919a4_single": {
+      "file": "client/web/assets/full-game-audio/report_m1919a4_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_m2hb_single": {
+      "file": "client/web/assets/full-game-audio/report_m2hb_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_besa_single": {
+      "file": "client/web/assets/full-game-audio/report_besa_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_mg_proto_single": {
+      "file": "client/web/assets/full-game-audio/report_mg_proto_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_kpvt_single": {
+      "file": "client/web/assets/full-game-audio/report_kpvt_single.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_compact_idle": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_compact_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_compact_mid": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_compact_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_compact_high": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_compact_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_compact_load": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_compact_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_compact_start": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_compact_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_compact_stop": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_compact_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_medium_idle": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_medium_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_medium_mid": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_medium_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_medium_high": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_medium_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_medium_load": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_medium_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_medium_start": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_medium_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_medium_stop": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_medium_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_heavy_idle": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_heavy_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_heavy_mid": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_heavy_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_heavy_high": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_heavy_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_heavy_load": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_heavy_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_heavy_start": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_heavy_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_heavy_stop": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_heavy_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_large_idle": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_large_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_large_mid": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_large_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_large_high": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_large_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_large_load": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_large_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_large_start": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_large_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_petrol_large_stop": {
+      "file": "client/web/assets/full-game-audio/engine_petrol_large_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_r975_radial_idle": {
+      "file": "client/web/assets/full-game-audio/engine_r975_radial_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_r975_radial_mid": {
+      "file": "client/web/assets/full-game-audio/engine_r975_radial_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_r975_radial_high": {
+      "file": "client/web/assets/full-game-audio/engine_r975_radial_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_r975_radial_load": {
+      "file": "client/web/assets/full-game-audio/engine_r975_radial_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_r975_radial_start": {
+      "file": "client/web/assets/full-game-audio/engine_r975_radial_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_r975_radial_stop": {
+      "file": "client/web/assets/full-game-audio/engine_r975_radial_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_hl157_idle": {
+      "file": "client/web/assets/full-game-audio/engine_hl157_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_hl157_mid": {
+      "file": "client/web/assets/full-game-audio/engine_hl157_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_hl157_high": {
+      "file": "client/web/assets/full-game-audio/engine_hl157_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_hl157_load": {
+      "file": "client/web/assets/full-game-audio/engine_hl157_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_hl157_start": {
+      "file": "client/web/assets/full-game-audio/engine_hl157_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_hl157_stop": {
+      "file": "client/web/assets/full-game-audio/engine_hl157_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_light_idle": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_light_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_light_mid": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_light_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_light_high": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_light_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_light_load": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_light_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_light_start": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_light_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_light_stop": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_light_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_medium_idle": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_medium_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_medium_mid": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_medium_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_medium_high": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_medium_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_medium_load": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_medium_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_medium_start": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_medium_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_medium_stop": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_medium_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_heavy_idle": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_heavy_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_heavy_mid": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_heavy_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_heavy_high": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_heavy_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_heavy_load": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_heavy_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_heavy_start": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_heavy_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_diesel_heavy_stop": {
+      "file": "client/web/assets/full-game-audio/engine_diesel_heavy_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_gm6046_idle": {
+      "file": "client/web/assets/full-game-audio/engine_gm6046_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_gm6046_mid": {
+      "file": "client/web/assets/full-game-audio/engine_gm6046_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_gm6046_high": {
+      "file": "client/web/assets/full-game-audio/engine_gm6046_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_gm6046_load": {
+      "file": "client/web/assets/full-game-audio/engine_gm6046_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_gm6046_start": {
+      "file": "client/web/assets/full-game-audio/engine_gm6046_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_gm6046_stop": {
+      "file": "client/web/assets/full-game-audio/engine_gm6046_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_5tdf_idle": {
+      "file": "client/web/assets/full-game-audio/engine_5tdf_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_5tdf_mid": {
+      "file": "client/web/assets/full-game-audio/engine_5tdf_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_5tdf_high": {
+      "file": "client/web/assets/full-game-audio/engine_5tdf_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_5tdf_load": {
+      "file": "client/web/assets/full-game-audio/engine_5tdf_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_5tdf_start": {
+      "file": "client/web/assets/full-game-audio/engine_5tdf_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_5tdf_stop": {
+      "file": "client/web/assets/full-game-audio/engine_5tdf_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_a401_idle": {
+      "file": "client/web/assets/full-game-audio/engine_a401_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_a401_mid": {
+      "file": "client/web/assets/full-game-audio/engine_a401_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_a401_high": {
+      "file": "client/web/assets/full-game-audio/engine_a401_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_a401_load": {
+      "file": "client/web/assets/full-game-audio/engine_a401_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_a401_start": {
+      "file": "client/web/assets/full-game-audio/engine_a401_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_a401_stop": {
+      "file": "client/web/assets/full-game-audio/engine_a401_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_steyr1500a_idle": {
+      "file": "client/web/assets/full-game-audio/engine_steyr1500a_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_steyr1500a_mid": {
+      "file": "client/web/assets/full-game-audio/engine_steyr1500a_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_steyr1500a_high": {
+      "file": "client/web/assets/full-game-audio/engine_steyr1500a_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_steyr1500a_load": {
+      "file": "client/web/assets/full-game-audio/engine_steyr1500a_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_steyr1500a_start": {
+      "file": "client/web/assets/full-game-audio/engine_steyr1500a_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_steyr1500a_stop": {
+      "file": "client/web/assets/full-game-audio/engine_steyr1500a_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_compact_idle": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_compact_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_compact_mid": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_compact_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_compact_high": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_compact_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_compact_load": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_compact_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_compact_start": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_compact_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_compact_stop": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_compact_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_medium_idle": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_medium_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_medium_mid": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_medium_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_medium_high": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_medium_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_medium_load": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_medium_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_medium_start": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_medium_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_neutral_medium_stop": {
+      "file": "client/web/assets/full-game-audio/engine_neutral_medium_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_v46_6_idle": {
+      "file": "client/web/assets/full-game-audio/engine_v46_6_idle.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_v46_6_mid": {
+      "file": "client/web/assets/full-game-audio/engine_v46_6_mid.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_v46_6_high": {
+      "file": "client/web/assets/full-game-audio/engine_v46_6_high.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_v46_6_load": {
+      "file": "client/web/assets/full-game-audio/engine_v46_6_load.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_v46_6_start": {
+      "file": "client/web/assets/full-game-audio/engine_v46_6_start.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "engine_v46_6_stop": {
+      "file": "client/web/assets/full-game-audio/engine_v46_6_stop.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "track_light": {
+      "file": "client/web/assets/full-game-audio/track_light.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "track_medium": {
+      "file": "client/web/assets/full-game-audio/track_medium.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "track_heavy": {
+      "file": "client/web/assets/full-game-audio/track_heavy.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "wheel_road": {
+      "file": "client/web/assets/full-game-audio/wheel_road.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "surface_soft": {
+      "file": "client/web/assets/full-game-audio/surface_soft.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "surface_gravel": {
+      "file": "client/web/assets/full-game-audio/surface_gravel.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": true,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.22,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "impact_stopped": {
+      "file": "client/web/assets/full-game-audio/impact_stopped.wav",
+      "sha256": null,
+      "durationSeconds": 0.75,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "impact_penetrated": {
+      "file": "client/web/assets/full-game-audio/impact_penetrated.wav",
+      "sha256": null,
+      "durationSeconds": 0.75,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "impact_ricochet": {
+      "file": "client/web/assets/full-game-audio/impact_ricochet.wav",
+      "sha256": null,
+      "durationSeconds": 0.75,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "impact_shattered": {
+      "file": "client/web/assets/full-game-audio/impact_shattered.wav",
+      "sha256": null,
+      "durationSeconds": 0.75,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "tail_steel": {
+      "file": "client/web/assets/full-game-audio/tail_steel.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "tail_aluminium": {
+      "file": "client/web/assets/full-game-audio/tail_aluminium.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "tail_composite": {
+      "file": "client/web/assets/full-game-audio/tail_composite.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "tail_earth_gravel": {
+      "file": "client/web/assets/full-game-audio/tail_earth_gravel.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "armour_spall": {
+      "file": "client/web/assets/full-game-audio/armour_spall.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "metal_debris": {
+      "file": "client/web/assets/full-game-audio/metal_debris.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "earth_debris": {
+      "file": "client/web/assets/full-game-audio/earth_debris.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "heat_small": {
+      "file": "client/web/assets/full-game-audio/heat_small.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "heat_large": {
+      "file": "client/web/assets/full-game-audio/heat_large.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "internal_filler_small": {
+      "file": "client/web/assets/full-game-audio/internal_filler_small.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "internal_filler_medium": {
+      "file": "client/web/assets/full-game-audio/internal_filler_medium.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "blast_micro": {
+      "file": "client/web/assets/full-game-audio/blast_micro.wav",
+      "sha256": null,
+      "durationSeconds": 0.75,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "blast_small": {
+      "file": "client/web/assets/full-game-audio/blast_small.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "blast_medium": {
+      "file": "client/web/assets/full-game-audio/blast_medium.wav",
+      "sha256": null,
+      "durationSeconds": 3,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "blast_large": {
+      "file": "client/web/assets/full-game-audio/blast_large.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "blast_very_heavy": {
+      "file": "client/web/assets/full-game-audio/blast_very_heavy.wav",
+      "sha256": null,
+      "durationSeconds": 5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ammo_cookoff": {
+      "file": "client/web/assets/full-game-audio/ammo_cookoff.wav",
+      "sha256": null,
+      "durationSeconds": 4,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "flight_small_approach": {
+      "file": "client/web/assets/full-game-audio/flight_small_approach.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "flight_small_recede": {
+      "file": "client/web/assets/full-game-audio/flight_small_recede.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "supersonic_small_crack": {
+      "file": "client/web/assets/full-game-audio/supersonic_small_crack.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ricochet_small_pass": {
+      "file": "client/web/assets/full-game-audio/ricochet_small_pass.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "flight_large_approach": {
+      "file": "client/web/assets/full-game-audio/flight_large_approach.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "flight_large_recede": {
+      "file": "client/web/assets/full-game-audio/flight_large_recede.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "supersonic_large_crack": {
+      "file": "client/web/assets/full-game-audio/supersonic_large_crack.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ricochet_large_pass": {
+      "file": "client/web/assets/full-game-audio/ricochet_large_pass.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ready_light": {
+      "file": "client/web/assets/full-game-audio/ready_light.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.45,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ready_medium": {
+      "file": "client/web/assets/full-game-audio/ready_medium.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.45,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "ready_heavy": {
+      "file": "client/web/assets/full-game-audio/ready_heavy.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.45,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "rangefinder_confirmation": {
+      "file": "client/web/assets/full-game-audio/rangefinder_confirmation.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.45,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "console_action": {
+      "file": "client/web/assets/full-game-audio/console_action.wav",
+      "sha256": null,
+      "durationSeconds": 0.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.45,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_custom_light": {
+      "file": "client/web/assets/full-game-audio/report_custom_light.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "report_custom_heavy": {
+      "file": "client/web/assets/full-game-audio/report_custom_heavy.wav",
+      "sha256": null,
+      "durationSeconds": 2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.8,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "separate_projectile_grab": {
+      "file": "client/web/assets/full-game-audio/separate_projectile_grab.wav",
+      "sha256": null,
+      "durationSeconds": 0.9,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "separate_projectile_load": {
+      "file": "client/web/assets/full-game-audio/separate_projectile_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.4,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "separate_charge_grab": {
+      "file": "client/web/assets/full-game-audio/separate_charge_grab.wav",
+      "sha256": null,
+      "durationSeconds": 0.8,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "separate_charge_load": {
+      "file": "client/web/assets/full-game-audio/separate_charge_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_belt_grab": {
+      "file": "client/web/assets/full-game-audio/feed_belt_grab.wav",
+      "sha256": null,
+      "durationSeconds": 0.8,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_belt_load": {
+      "file": "client/web/assets/full-game-audio/feed_belt_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_belt_lock": {
+      "file": "client/web/assets/full-game-audio/feed_belt_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.6,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_disc_grab": {
+      "file": "client/web/assets/full-game-audio/feed_disc_grab.wav",
+      "sha256": null,
+      "durationSeconds": 0.8,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_disc_load": {
+      "file": "client/web/assets/full-game-audio/feed_disc_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_disc_lock": {
+      "file": "client/web/assets/full-game-audio/feed_disc_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.6,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_clip_grab": {
+      "file": "client/web/assets/full-game-audio/feed_clip_grab.wav",
+      "sha256": null,
+      "durationSeconds": 0.8,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_clip_load": {
+      "file": "client/web/assets/full-game-audio/feed_clip_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.2,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "feed_clip_lock": {
+      "file": "client/web/assets/full-game-audio/feed_clip_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.6,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_bgm71a_tow_grab": {
+      "file": "client/web/assets/full-game-audio/reload_bgm71a_tow_grab.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_bgm71a_tow_load": {
+      "file": "client/web/assets/full-game-audio/reload_bgm71a_tow_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_bgm71a_tow_lock": {
+      "file": "client/web/assets/full-game-audio/reload_bgm71a_tow_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.7,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_9m113_konkurs_grab": {
+      "file": "client/web/assets/full-game-audio/reload_9m113_konkurs_grab.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_9m113_konkurs_load": {
+      "file": "client/web/assets/full-game-audio/reload_9m113_konkurs_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_9m113_konkurs_lock": {
+      "file": "client/web/assets/full-game-audio/reload_9m113_konkurs_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.7,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_9m133_kornet_grab": {
+      "file": "client/web/assets/full-game-audio/reload_9m133_kornet_grab.wav",
+      "sha256": null,
+      "durationSeconds": 1,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_9m133_kornet_load": {
+      "file": "client/web/assets/full-game-audio/reload_9m133_kornet_load.wav",
+      "sha256": null,
+      "durationSeconds": 1.5,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    },
+    "reload_9m133_kornet_lock": {
+      "file": "client/web/assets/full-game-audio/reload_9m133_kornet_lock.wav",
+      "sha256": null,
+      "durationSeconds": 0.7,
+      "loop": false,
+      "sampleRate": 44100,
+      "channels": 1,
+      "level": 0.65,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": false,
+      "selectionState": "planned"
+    }
+  },
+  "externalCues": {
+    "de_manual_grab": {
+      "file": "client/web/assets/reload-audio/de_manual_grab.wav",
+      "sha256": "c99ba251d8e63e1f857f6c5ddfc7f8f1f1438ec797a18a0fe5b579f89ef8c885",
+      "durationSeconds": 0.88,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "de_manual_load": {
+      "file": "client/web/assets/reload-audio/de_manual_load.wav",
+      "sha256": "893561d635773924fb1767575aad159405676de0acd2f1a485414509b1bb6d28",
+      "durationSeconds": 1.36,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "de_manual_lock": {
+      "file": "client/web/assets/reload-audio/de_manual_lock.wav",
+      "sha256": "24d72ebd92733f59cd8ac2d1cd7c40f7b539acd9e64d55b32374d34898234189",
+      "durationSeconds": 0.6802494331065759,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "su_manual_grab": {
+      "file": "client/web/assets/reload-audio/su_manual_grab.wav",
+      "sha256": "207e088e7d6269cbe94c1877d2e892183448e585e230266985d4800a9b0b90f6",
+      "durationSeconds": 0.88,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "su_manual_load": {
+      "file": "client/web/assets/reload-audio/su_manual_load.wav",
+      "sha256": "590d37febc429690733359389462ca8fc7ba80677918a3e517ae35314b5c397d",
+      "durationSeconds": 1.36,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "su_manual_lock": {
+      "file": "client/web/assets/reload-audio/su_manual_lock.wav",
+      "sha256": "bdef2b530a32d63cd39423bb282896c6cf95057848fd3301603a40f0c4c77b3f",
+      "durationSeconds": 0.6802494331065759,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "us_manual_grab": {
+      "file": "client/web/assets/reload-audio/us_manual_grab.wav",
+      "sha256": "a88cf4f03f324f5aabb2be50c8a5986d4c1b314f56f2cb8b9148c8ae561a7afa",
+      "durationSeconds": 0.88,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "us_manual_load": {
+      "file": "client/web/assets/reload-audio/us_manual_load.wav",
+      "sha256": "07b8a8230074afe053775245652bbe7e624512d1ee44d686767e7b10f2431a09",
+      "durationSeconds": 1.36,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "us_manual_lock": {
+      "file": "client/web/assets/reload-audio/us_manual_lock.wav",
+      "sha256": "5c02ab8acdb9211b4b54fcb6abd7f06a42734efd69a8c1129ab2d48c8b1f799f",
+      "durationSeconds": 0.6802494331065759,
+      "loop": false,
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/reload-audio.json",
+      "selectionManifestSha256": "4882416609b4bceaa110cd1f6602e6bb0d0169d0da268fd025c868fd86b8641d",
+      "adoption": {
+        "source": "human",
+        "statement": "裝填聲合適",
+        "scope": "nine-regional-manual-stages",
+        "date": "2026-10-12",
+        "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+      }
+    },
+    "az_t72_drive": {
+      "file": "client/web/assets/az-t72-audio/az_t72_drive.wav",
+      "sha256": "d3cdf180e385d74c6706e525bd400e3144b37c1d5eb949f63afc7840119765b4",
+      "durationSeconds": 1.5,
+      "loop": false,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/az-t72-audio.json",
+      "selectionManifestSha256": "5acf00a7ec1434550196dfdbb0c1c007de6787711fd90dc021fa621074e0e5d9",
+      "adoption": {
+        "source": "human-direct-instruction",
+        "statement": "自动装弹的 也用上 找个现实里用自动装弹的车",
+        "scope": "three-fitted-az-t72-stages",
+        "vehicle": "T-72A",
+        "mechanism": "az_t72",
+        "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording",
+        "subjectiveAudition": "NOT RUN"
+      }
+    },
+    "az_t72_ram": {
+      "file": "client/web/assets/az-t72-audio/az_t72_ram.wav",
+      "sha256": "71056173c634ce8bb3dd0d337fa1e9ceb3414bd687a3301f760ea395024f26ef",
+      "durationSeconds": 2,
+      "loop": false,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/az-t72-audio.json",
+      "selectionManifestSha256": "5acf00a7ec1434550196dfdbb0c1c007de6787711fd90dc021fa621074e0e5d9",
+      "adoption": {
+        "source": "human-direct-instruction",
+        "statement": "自动装弹的 也用上 找个现实里用自动装弹的车",
+        "scope": "three-fitted-az-t72-stages",
+        "vehicle": "T-72A",
+        "mechanism": "az_t72",
+        "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording",
+        "subjectiveAudition": "NOT RUN"
+      }
+    },
+    "az_t72_lock": {
+      "file": "client/web/assets/az-t72-audio/az_t72_lock.wav",
+      "sha256": "3c7a04ccca48b0a9e3d083cec443abe17110566cfcac18098e8d07133745b21c",
+      "durationSeconds": 1,
+      "loop": false,
+      "subjectiveAudition": "NOT RUN",
+      "readyForGame": true,
+      "selectionManifest": "client/web/assets/az-t72-audio.json",
+      "selectionManifestSha256": "5acf00a7ec1434550196dfdbb0c1c007de6787711fd90dc021fa621074e0e5d9",
+      "adoption": {
+        "source": "human-direct-instruction",
+        "statement": "自动装弹的 也用上 找个现实里用自动装弹的车",
+        "scope": "three-fitted-az-t72-stages",
+        "vehicle": "T-72A",
+        "mechanism": "az_t72",
+        "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording",
+        "subjectiveAudition": "NOT RUN"
+      }
+    }
+  },
+  "vehicleEngines": {
+    "us_m8": "E01",
+    "de_pzjg1": "E01",
+    "de_flakpz38t": "E01",
+    "de_hetzer": "E01",
+    "de_hetzer_flak": "E01",
+    "de_hetzer_mk103": "E01",
+    "de_hetzer_mk103_camo": "E01",
+    "de_sdkfz140_1": "E01",
+    "de_hetzer_sdkfz1401": "E01",
+    "uk_cmp_portee": "E01",
+    "de_pz3_j": "E02",
+    "de_pz4_h": "E02",
+    "de_tiger_e": "E03",
+    "de_panther_g": "E03",
+    "de_panther_f": "E03",
+    "de_aufkl_panther": "E03",
+    "us_m4a3_75w": "E04",
+    "us_m4a3_76w_hvss": "E04",
+    "uk_cromwell_iv": "E04",
+    "us_m4a1_76w": "E05",
+    "de_vk1602": "E06",
+    "us_m901_itv": "E07",
+    "xp_kda35": "E07",
+    "xp_w78": "E07",
+    "su_t34_1940": "E08",
+    "su_t34_85": "E08",
+    "su_is2": "E08",
+    "su_t54": "E08",
+    "us_m10": "E08",
+    "su_t10m": "E09",
+    "su_t10m_oplot23": "E09",
+    "de_gepard": "E09",
+    "us_m4a2": "E10",
+    "xp_bmp_k64": "E11",
+    "xp_bmp_k64_atgm": "E11",
+    "xp_bmp_k64_kornet": "E11",
+    "su_att_m46": "E12",
+    "de_rso_flak": "E13",
+    "de_rso_pak40": "E13",
+    "us_m56": "E14",
+    "de_sdkfz234_2": "E14",
+    "su_bmpt34": "E15",
+    "proto_a": "E15",
+    "su_t72a": "E16"
+  },
+  "vehicleRunningGear": {
+    "de_pz3_j": "track_medium",
+    "de_pz4_h": "track_medium",
+    "de_tiger_e": "track_heavy",
+    "de_panther_g": "track_heavy",
+    "de_panther_f": "track_heavy",
+    "de_sdkfz234_2": "wheel_road",
+    "su_t34_1940": "track_medium",
+    "su_t34_85": "track_medium",
+    "su_is2": "track_heavy",
+    "su_t10m": "track_heavy",
+    "su_t10m_oplot23": "track_heavy",
+    "su_bmpt34": "track_medium",
+    "su_t54": "track_heavy",
+    "su_t72a": "track_heavy",
+    "us_m8": "wheel_road",
+    "us_m10": "track_medium",
+    "us_m4a2": "track_medium",
+    "us_m4a3_75w": "track_medium",
+    "us_m4a1_76w": "track_medium",
+    "us_m4a3_76w_hvss": "track_medium",
+    "us_m56": "track_light",
+    "us_m901_itv": "track_light",
+    "uk_cromwell_iv": "track_medium",
+    "xp_kda35": "wheel_road",
+    "xp_w78": "wheel_road",
+    "de_pzjg1": "track_light",
+    "de_flakpz38t": "track_light",
+    "de_hetzer": "track_medium",
+    "de_hetzer_flak": "track_light",
+    "de_rso_flak": "track_light",
+    "de_rso_pak40": "track_light",
+    "de_gepard": "track_heavy",
+    "uk_cmp_portee": "wheel_road",
+    "de_aufkl_panther": "track_heavy",
+    "de_vk1602": "track_medium",
+    "de_hetzer_mk103": "track_light",
+    "de_hetzer_mk103_camo": "track_light",
+    "de_sdkfz140_1": "track_light",
+    "de_hetzer_sdkfz1401": "track_light",
+    "xp_bmp_k64": "wheel_road",
+    "xp_bmp_k64_atgm": "wheel_road",
+    "xp_bmp_k64_kornet": "wheel_road",
+    "su_att_m46": "track_medium",
+    "proto_a": "track_medium"
+  },
+  "surfaces": {
+    "road": null,
+    "dirt": "surface_soft",
+    "grass": "surface_soft",
+    "sand": "surface_soft",
+    "mud": "surface_soft",
+    "snow": "surface_soft",
+    "gravel": "surface_gravel",
+    "wetland": "surface_soft"
+  },
+  "reloads": {
+    "weapon": {
+      "kwk39_50_l60": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "kwk40_75_l48": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "kwk36_88_l56": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "kwk42_75_l70": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "kwk44_1_75_l70": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "kwk39_1": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "l11_76": {
+        "profile": "loading_manual_su",
+        "mechanism": "manual_unitary_generic",
+        "style": "su",
+        "artisticInterpretation": true
+      },
+      "zis_s_53_85": {
+        "profile": "loading_manual_su",
+        "mechanism": "manual_unitary_generic",
+        "style": "su",
+        "artisticInterpretation": true
+      },
+      "d25t_122": {
+        "profile": "loading_manual_separate",
+        "mechanism": "manual_separate_generic",
+        "artisticInterpretation": true
+      },
+      "m62_t2_122": {
+        "profile": "loading_manual_separate",
+        "mechanism": "manual_separate_generic",
+        "artisticInterpretation": true
+      },
+      "oplot_mo_14_5x6": {
+        "profile": "loading_feed_belt",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "oplot23_gsh6_23_custom": {
+        "profile": "loading_feed_belt",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "72k_25": {
+        "profile": "loading_feed_clip",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "tt250_rail_r": {
+        "profile": null,
+        "mechanism": "normally_unreachable",
+        "reason": "One-shot rails have no normal reserve reload; never fake nominal1s reset."
+      },
+      "tt250_rail_l": {
+        "profile": null,
+        "mechanism": "normally_unreachable",
+        "reason": "One-shot rails have no normal reserve reload; never fake nominal1s reset."
+      },
+      "d10t_100": {
+        "profile": "loading_manual_su",
+        "mechanism": "manual_unitary_generic",
+        "style": "su",
+        "artisticInterpretation": true
+      },
+      "2a46_1_125": {
+        "profile": "loading_az_t72",
+        "mechanism": "az_t72",
+        "existing": true
+      },
+      "m6_37mm": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "m7_3in": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "m3_75": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "m1a1_76": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "m1a2_76": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "m54_90mm": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "m220_tow": {
+        "profile": "loading_bgm71a_tow",
+        "mechanism": "launcher_assembly"
+      },
+      "qf_75_mk5": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "kda_35": {
+        "profile": "loading_feed_belt",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "xp_78_lr": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "pak36t_47": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "flak38_20": {
+        "profile": "loading_feed_clip",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "pak39_75_l48": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "pak40_75": {
+        "profile": "loading_manual_de",
+        "mechanism": "manual_unitary_generic",
+        "style": "de",
+        "artisticInterpretation": true
+      },
+      "kda_35_gepard": {
+        "profile": "loading_feed_belt",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "qf6pdr_mk2": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      },
+      "mk103_30": {
+        "profile": "loading_feed_belt",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "kwk38_20": {
+        "profile": "loading_feed_clip",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "kpvt_145": {
+        "profile": "loading_feed_belt",
+        "mechanism": "automatic_feed_generic",
+        "artisticInterpretation": true
+      },
+      "9p135_konkurs": {
+        "profile": "loading_9m113_konkurs",
+        "mechanism": "launcher_assembly"
+      },
+      "9p163_kornet": {
+        "profile": "loading_9m133_kornet",
+        "mechanism": "launcher_assembly"
+      },
+      "m46_130": {
+        "profile": "loading_manual_separate",
+        "mechanism": "manual_separate_generic",
+        "artisticInterpretation": false
+      },
+      "gun_75": {
+        "profile": "loading_manual_us",
+        "mechanism": "manual_unitary_generic",
+        "style": "us",
+        "artisticInterpretation": true
+      }
+    },
+    "mg": {
+      "kpvt": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "mg34": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "dt": {
+        "profile": "loading_feed_disc",
+        "mechanism": "feed_disc_generic",
+        "artisticInterpretation": true
+      },
+      "sgmt": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "dshk": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "m1919a4": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "m2hb": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "besa": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "mg42": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "mg_proto": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "pkt": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      },
+      "nsvt": {
+        "profile": "loading_feed_belt",
+        "mechanism": "feed_belt_generic",
+        "artisticInterpretation": true
+      }
+    }
+  },
+  "effectSelectors": {
+    "outcome": {
+      "stopped": "impact_stopped",
+      "penetrated": "impact_penetrated",
+      "ricochet": "impact_ricochet",
+      "shattered": "impact_shattered"
+    },
+    "material": {
+      "rha": "tail_steel",
+      "cha": "tail_steel",
+      "high_hardness_steel": "tail_steel",
+      "aluminium": "tail_aluminium",
+      "spaced": "tail_steel",
+      "composite": "tail_composite",
+      "applied": "tail_steel",
+      "skirt": "tail_steel",
+      "era": "tail_composite"
+    },
+    "blastMassKg": [
+      {
+        "maxExclusive": 0.05,
+        "cue": "blast_micro"
+      },
+      {
+        "maxExclusive": 0.25,
+        "cue": "blast_small"
+      },
+      {
+        "maxExclusive": 1,
+        "cue": "blast_medium"
+      },
+      {
+        "maxExclusive": 5,
+        "cue": "blast_large"
+      },
+      {
+        "maxExclusive": null,
+        "cue": "blast_very_heavy"
+      }
+    ],
+    "heatMassKg": {
+      "splitAt": 0.5,
+      "small": "heat_small",
+      "large": "heat_large"
+    },
+    "fillerMassKg": {
+      "splitAt": 0.1,
+      "small": "internal_filler_small",
+      "large": "internal_filler_medium"
+    },
+    "projectileSizeMm": {
+      "splitAt": 60,
+      "small": {
+        "approach": "flight_small_approach",
+        "recede": "flight_small_recede",
+        "crack": "supersonic_small_crack",
+        "ricochet": "ricochet_small_pass"
+      },
+      "large": {
+        "approach": "flight_large_approach",
+        "recede": "flight_large_recede",
+        "crack": "supersonic_large_crack",
+        "ricochet": "ricochet_large_pass"
+      }
+    }
+  },
+  "rejectedCandidateIds": [
+    "report_kwk36_88",
+    "report_zis_s53_85",
+    "report_m3_75"
+  ],
+  "unreviewedOptionalCandidateIds": [
+    "report_mg42_single",
+    "report_m2hb_single",
+    "engine_petrol_heavy_idle",
+    "engine_diesel_heavy_idle"
+  ],
+  "policy": {
+    "missingCue": "silent",
+    "noUnrelatedFallback": true,
+    "noRuntimeGeneratedSynthesis": true,
+    "sourceAdmission": "Root fills verified SHA and readyForGame after decode/objective checks; direct adoption does not imply subjective PASS.",
+    "emitterIdentity": "entityId/instance separate from weapon identity",
+    "events": "Actual accepted discharge, contact/outcome/burst, trajectory, refill work, engine/mode state only; no HUD inference."
+  },
+  "sourceEvidence": [
+    {
+      "path": "client/web/tools/load-data.mjs",
+      "sha256": "7e9b3baa6d6dd1416025dbbfc2782c6291133cce3c83cb4a9d546dd26404093c"
+    },
+    {
+      "path": "data/machine_guns.json",
+      "sha256": "ed7186afe276c2489a2fade90c8a86f26d0517fe0f7e25e17c304613da3df888"
+    },
+    {
+      "path": "data/missiles.json",
+      "sha256": "1a1b8b5de0b969e37c539b31da62557419ed3b689be1f18de4993a69d117732b"
+    },
+    {
+      "path": "docs/superpowers/specs/2026-10-12-detailed-audio-design.md",
+      "sha256": "c20060fa4c821c47ae487b685542f49bf6f6f931ef7dff2befa770662d6a4629"
+    },
+    {
+      "path": "docs/t72a-autoloader-research-2026-10-12.json",
+      "sha256": "ccf39909b959f396e476e45e5f9dceabdf18473f28f4734514774f53592f211a"
+    }
+  ]
+}

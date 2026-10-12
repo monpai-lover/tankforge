@@ -191,6 +191,7 @@ export function start(data, saved = {}) {
   const sound = new Sound();
   sound.loadSamples(data.sfx);
   sound.loadReloadBank(data.reloadAudio);
+  sound.loadFullBank(data.fullAudio);
   const world = buildWorld(renderer);
   const terrain = new Terrain(data.terrains, humpLift);
   const groundAt = (x, z) => terrain.height(x, z);
@@ -638,7 +639,7 @@ export function start(data, saved = {}) {
       const f = r.files;
       const shells = Object.fromEntries((r.design_extra.shells || []).map((x) => [x.id, x]));
       G.compiled.set(key, {
-        bundle: { vehicle: { ...f['vehicle.json'], name: design.name }, weapons: f['weapons.json'], engine: f['engine.json'], visual: f['visual.json'], modules: f['modules.json'], crew: f['crew.json'], design: r.design_extra },
+        bundle: { vehicle: { ...f['vehicle.json'], name: design.name }, weapons: f['weapons.json'], engine: {...f['engine.json'],audio_kind:design.engine.kind}, visual: f['visual.json'], modules: f['modules.json'], crew: f['crew.json'], design: r.design_extra },
         projectiles: { ...data.projectiles, ...shells },
         shells: Object.values(shells),
       });
@@ -668,6 +669,7 @@ export function start(data, saved = {}) {
   function select(id, keepPose = false, initialAmmo = null) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
     sound.cancelReloads();
+    sound.cancelFull?.();
     onlineFires.clear();
     onlineLaunches.clear();
     onlineAmmo.clear();
@@ -687,6 +689,7 @@ export function start(data, saved = {}) {
     store.set(STORE_VEHICLE, id);
     G.loadout = deriveLoadoutPerformance(makeLoadout(id, bundle, projectiles, data.machineGuns), G.gameplayMode);
     sound.prepareReloadBank(G.loadout);
+    sound.prepareFullBank?.(G.loadout, bundle);
     // the rounds chosen on the deploy screen (the racks' default mix until one is chosen)
     if (data.vehicles[id]) applyAmmo(G.loadout, AMMO_CFG);
     if (initialAmmo) {onlineAmmo.begin({t:'ammo',...initialAmmo},G.loadout);G.resupplyProgress=initialAmmo.resupply_progress;}
@@ -1320,6 +1323,7 @@ export function start(data, saved = {}) {
 
   function setMode(mode) {
     sound.cancelReloads();
+    sound.cancelFull?.();
     G.ranging = null;
     hud.hideHitMarker();
     G.mapTick = 0;
@@ -1484,6 +1488,7 @@ export function start(data, saved = {}) {
   function cycleSightGun() {
     G.ranging = null;
     G.weaponControl = nextWeaponControl(G.loadout, G.weaponControl);
+    sound.uiCue?.('console');
     const next = weaponControlSight(G.loadout, G.weaponControl);
     G.sightT = next.ti;
     G.sightG = next.gi;
@@ -1742,6 +1747,7 @@ export function start(data, saved = {}) {
     return e;
   }
   function removeRemote(e) {
+    sound.cancelOwner?.(`enemy:${e.netId??e.id}`);
     scene.children = scene.children.filter((c) => c !== e.model.root);
     if (e.interior) e.interior.dispose();
     e.model.dispose();
@@ -1905,6 +1911,7 @@ export function start(data, saved = {}) {
     const o = G.online;
     if (!o || (o.dead&&!force)) return;
     sound.cancelReloads();
+    sound.cancelFull?.();
     o.dead = true;
     G.resupplyProgress=0;cqMsg.textContent='';
     vehicleActions.cancel();
@@ -2145,9 +2152,11 @@ export function start(data, saved = {}) {
   net.on('fire_accepted', m => {
     const scope=currentAmmoScope(m);if(!scope)return;
     onlineFires.confirm(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000, {scope});
+    sound.confirmFire?.(m.seq);
   });
   net.on('fire_rejected', m => {
     const scope=currentAmmoScope(m);if(!scope)return;
+    sound.rejectFire?.(m.seq);
     const p = onlineFires.reject(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000, {refund:false,scope});
     if (!p) return;
     sound.cancelReload(p.gun, true, p.reloadCycle);
@@ -2168,10 +2177,10 @@ export function start(data, saved = {}) {
       if (!p) return; // duplicate or obsolete acknowledgement: never spend a second round
       const def = data.missiles[m.missile];
       if (def && def.guidance !== 'none') G.guided.push({ id: m.id, ti: p.ti, gi: p.gi, fresh: true });
-      G.missiles._launchLook(m.missile, m.o || p.msg.o, m.d || p.msg.d);
+      G.missiles._launchLook(m.missile, m.o || p.msg.o, m.d || p.msg.d,{projectileId:m.id,weaponId:p.gun.def.id,instance:p.gun.damageKey,emitterId:`launcher:${m.from}/${p.gun.damageKey}`,time:G.time});
       G.cam.shake = Math.min(1.2, G.cam.shake + (def?.guidance === 'none' ? 0.9 : 0.35));
       if (G.model.payload) G.model.payload(p.ti, p.gi, p.gun.launcher.ready);
-    } else G.missiles._launchLook(m.missile, m.o, m.d);
+    } else G.missiles._launchLook(m.missile, m.o, m.d,{projectileId:m.id,weaponId:m.weapon,instance:m.instance,emitterId:`launcher:${m.from}/${m.instance}`,time:G.time});
   });
   net.on('launch_rejected', (m) => {
     if (!G.online || G.mode !== 'battle') return;
@@ -2189,13 +2198,29 @@ export function start(data, saved = {}) {
     const dust = m.o[1] - gy < 3.2 ? impactColor([m.o[0], gy, m.o[2]]) : null;
     if (automatic && shell.caliber_mm >= 20) fx.autocannonBlast(m.o, m.d, shell.caliber_mm, dust, gy);
     else fx.muzzleBlast(m.o, m.d, shell.caliber_mm, dust, gy);
-    if (Math.hypot(m.o[0] - G.s.x, m.o[2] - G.s.z) < 1500) sound.shot(shell.caliber_mm * 0.8);
+    if (Math.hypot(m.o[0] - G.s.x, m.o[2] - G.s.z) < 1500) sound.shot(shell.caliber_mm * 0.8, { weaponId:m.weapon, emitterId:`remote:${m.from}/${m.instance}`, eventId:`${m.ammo_scope?.battle}/${m.ammo_scope?.life}/${m.seq}`, position:m.o, direction:m.d, time:sound.remoteAudioTime?.('server-fire',m.at,G.time)??G.time });
+  });
+  net.on('mg_fired', m => {
+    if(!G.online||G.mode!=='battle'||!data.machineGuns[m.gun]||!m.o?.every(Number.isFinite)||!m.d?.every(Number.isFinite))return;
+    const seen=G.peerBulletEvents||(G.peerBulletEvents=new Map()),key=`${m.from}/${m.instance}/${m.ammo_scope?.battle}/${m.ammo_scope?.life}/${m.seq}`;
+    if(seen.has(key))return;if(seen.size>=128)seen.delete(seen.keys().next().value);seen.set(key,G.time);
+    const definition=data.machineGuns[m.gun];
+    G.bullets.push({s:ballistics.newShot(m.o,m.d,mgSim.bulletOf(definition)),def:definition,instance:m.instance,from:m.from,age:0,travelled:0,tracer:false});
+    sound.mg(data.machineGuns[m.gun].caliber_mm,{weaponId:m.gun,emitterId:`remote:${m.from}/${m.instance}`,eventId:`${m.ammo_scope?.battle}/${m.ammo_scope?.life}/${m.seq}`,position:m.o,direction:m.d,time:sound.remoteAudioTime?.('server-fire',m.at,G.time)??G.time});
   });
   net.on('damage', (m) => {
     const o = G.online;
     if (!o) return;
     const e = remoteOf(m.target);
     const rep = m.report || null;
+    const audioBody=m.target===net.id?G.veh?.body:e?.veh.body;
+    const evidence=m.replay||m.hit_feedback,sourceShell=evidence&&data.projectiles[evidence.projectile_id];
+    const audioPoint=p=>{
+      const local=arr3(p),accepted=evidence?.accepted_pose;
+      if(accepted&&evidence.coordinates==='target_hull_metres')return accepted.hull_origin.map((v,i)=>v+accepted.ex[i]*local[0]+accepted.ey[i]*local[1]+accepted.ez[i]*local[2]);
+      return audioBody.worldPoint(local);
+    };
+    if(rep&&audioBody)sound.contact?.({eventId:evidence?.event_id||rep,position:rep.layers?.[0]?.point?audioPoint(rep.layers[0].point):audioBody.origin(),outcome:rep.outcome,material:rep.layers?.[0]?.material,shellKind:sourceShell?.kind,caliber:sourceShell?.caliber_mm,bursts:(rep.bursts||[]).map(b=>({...b,worldPosition:audioPoint(b.pos)})),spall:rep.fragments?.some(f=>f.kind==='spall'),debris:rep.fragments?.some(f=>f.kind==='shell'||f.kind==='burst')?'metal_debris':null,cookoff:rep.events?.includes('ammo_detonation'),time:sound.remoteAudioTime?.('server-fire',evidence?.impact_time_s,G.time)??G.time});
     if (e) {
       e.hp = m.hp;
       // the server's word on what is left of it
@@ -2400,11 +2425,12 @@ export function start(data, saved = {}) {
   function onCombatHit(e, rep, shell, dist, mg = false, detail = '') {
     const o = e.veh.body.origin();
     const top = [o[0], o[1] + (e.box ? e.box.top : 2), o[2]];
+    if(!(e.remote&&G.online))sound.resolvedContact?.(rep,shell,e.veh.body,{position:top,time:G.time});
     if (rep.events.includes('ammo_detonation')) {
       fx.ammoExplosion(top);
       // the turret goes up with it
       if (e.model.turrets[0] && !e.toss) e.toss = { t: 0, y: 0, vy: 9 + Math.random() * 5, spin: (Math.random() - 0.5) * 3, tilt: (Math.random() - 0.5) * 2 };
-      sound.impact(1, true);
+      if (!sound.fullEnabled) sound.impact(1, true);
     }
     hitcam.show(camTarget(e), rep, shell, dist, mg, detail);
     G.lastCombat = { id: e.id, title: rep.title, outcome: rep.outcome, events: rep.events.slice(), crew: rep.crew.length, modules: rep.modules.length, destroyed: rep.caps.destroyed, mg };
@@ -2420,6 +2446,7 @@ export function start(data, saved = {}) {
       if (Math.hypot(e.x - pt[0], e.z - pt[2]) > r + e.radius) continue;
       const local = e.veh.body.localPoint(pt);
       const rep = G.combat.splash(e.combatKey, e.cstate, local, kg, e.turretYaw || 0, (rng.nextF32() * 4294967295) >>> 0);
+      sound.resolvedContact?.(rep,shell,e.veh.body,{position:pt,time:G.time});
       e.cstate = rep.state;
       e.caps = rep.caps;
       if (rep.modules.length || rep.crew.length) {
@@ -2674,6 +2701,7 @@ export function start(data, saved = {}) {
     const parentYaw = lo.turrets[ti].parent != null ? yaws[lo.turrets[ti].parent] || 0 : 0;
     const axes = apsFrame(ps, 0), local = gunnery.muzzleLocal(mountFor(lo, yaws, ti), { yaw: yaws[ti] || 0, pitch: 0 }).trunnion;
     actor.aps_pivot = [0, 1, 2].map(k => ps.pos[k] + axes[0][k] * local[0] + axes[1][k] * local[1] + axes[2][k] * local[2]);
+    G.missiles?.setAudioMount?.(actor.id,lo.turrets[ti].guns[0].def.id,lo.turrets[ti].guns[0].damageKey,actor.aps_pivot);
     actor.aps_base_yaw = (ps.heading || 0) + parentYaw;
     actor.aps_axes = apsFrame(ps, parentYaw);
     const damage = weaponDamage(caps, lo.turrets[ti].guns[0].damageKey);
@@ -2756,6 +2784,7 @@ export function start(data, saved = {}) {
     if (!G.missiles) return;
     G.missiles.local = false;
     const res = { missiles: m.ms || [], aps: m.aps || [], events: m.ev || [], fired: m.fired || [] };
+    for(const a of res.aps){const own=a.owner===net.id,enemy=own?null:remoteOf(a.owner),lo=own?G.loadout:enemy?.loadout,aps=own?G.aps:lo?.weapons.aps,g=lo?.turrets[aps?.turret??1]?.guns[0];if(g)G.missiles.setAudioMount?.(a.owner,g.def.id,g.damageKey,own?G.veh.body.origin():enemy.veh.body.origin());}
     G.missiles.present(res, 1 / 20);
     if (!G.aps) return;
     const b = G.bundle || data.vehicles[G.id];
@@ -2889,7 +2918,7 @@ export function start(data, saved = {}) {
       const dist = sg.owner === ME ? Math.hypot(best.point[0] - G.s.x, best.point[2] - G.s.z) : 500;
       if (best.kind === 'building') {
         fx.shellGround(best.point, MASONRY_DUST, war);
-        sound.blast(war.explosive_mass_kg || 1, Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]));
+        sound.blast(war.explosive_mass_kg, Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]),{eventId:`missile:${sg.id}`,position:best.point,time:G.time,shellKind:war.kind});
         splashNear(best.point, war, sg.owner === ME);
       } else if (best.kind === 'enemy') {
         const e = best.e;
@@ -2897,7 +2926,7 @@ export function start(data, saved = {}) {
           fx.shellArmor(best.point, dir, null, war, 'stopped');
           continue;
         }
-        const rep = combatHit(e, p0, dir, war, speed, dist, seed());
+        const rep = combatHit(e, p0, dir, war, speed, dist, seed(), report=>{if(!(e.remote&&G.online))sound.resolvedContact?.(report,war,e.veh.body,{position:best.point,time:G.time});});
         const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
         fx.shellArmor(best.point, dir, nrm, war, rep.outcome);
         sound.impact(Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]), true);
@@ -2916,7 +2945,7 @@ export function start(data, saved = {}) {
     const war = def && data.projectiles[def.warhead];
     if (!war) return;
     fx.shellGround(pt, impactColor(pt), war);
-    sound.blast(war.explosive_mass_kg || 1, Math.hypot(pt[0] - G.camPos[0], pt[2] - G.camPos[2]));
+    sound.blast(war.explosive_mass_kg, Math.hypot(pt[0] - G.camPos[0], pt[2] - G.camPos[2]),{eventId:pt,position:pt,time:G.time,shellKind:war.kind});
     splashNear(pt, war, owner === (G.online ? net.id : ME));
   }
 
@@ -2930,6 +2959,7 @@ export function start(data, saved = {}) {
     const b = G.veh.body;
     const shot = { shell: war, origin: b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]), dir: b.localDir(dir), speed_ms: speed, distance_m: 500, seed: (rng.nextF32() * 4294967295) >>> 0, turret_yaw: G.T[0].yaw };
     const rep = G.combat.shoot(G.combatKey, G.cstate, shot);
+    sound.resolvedContact?.(rep,war,b,{position:pt,time:G.time});
     G.cstate = rep.state;
     G.caps = rep.caps;
     hud.toast(`被${def.name}擊中：${rep.title}`, 3.5);
@@ -3004,7 +3034,7 @@ export function start(data, saved = {}) {
         return;
       }
       const mz = gunnery.muzzleWorld(ps, launcherMount(g, mount), { yaw: enemyYaws(e)[ti] || 0, pitch });
-      const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0);
+      const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0,null,{weaponId:g.def.id,instance:g.damageKey,time:G.time});
       if (id == null) return;
       e.mslIds.push(id);
       fireLauncherRound(g, L, gi);
@@ -3040,7 +3070,7 @@ export function start(data, saved = {}) {
       net.send(msg);
       return true;
     } else {
-      const id = G.missiles.launch(mdef.id, ME, 0, mz.pos, mz.dir, (rng.nextF32() * 4294967295) >>> 0);
+      const id = G.missiles.launch(mdef.id, ME, 0, mz.pos, mz.dir, (rng.nextF32() * 4294967295) >>> 0,null,{weaponId:g.def.id,instance:g.damageKey,time:G.time});
       if (id == null) return false;
       if (mdef.guidance !== 'none') G.guided.push({ id, ti, gi, fresh: true });
     }
@@ -3804,7 +3834,7 @@ export function start(data, saved = {}) {
       G.veh.impulse(mz.dir.map(v => -v * momentum), G.veh.worldPoint(local.trunnion));
       if (g.def.caliber_mm >= 20) fx.autocannonBlast(mz.pos, mz.dir, g.def.caliber_mm, impactColor([mz.pos[0], gy, mz.pos[2]]), gy);
       else fx.mgFlash(mz.pos, mz.dir, g.def.caliber_mm);
-      sound.mg(g.def.caliber_mm);
+      sound.mg(g.def.caliber_mm, { kind:'weapon', owner:g, weaponId:g.def.id, emitterId:`player/${g.damageKey}`, eventId:shot.seq??(g.audioFired=(g.audioFired||0)+1), seq:shot.seq, accepted:!G.online, position:mz.pos, direction:mz.dir, velocity:G.veh.body.v, time:G.time });
       g.belt = Math.max(0, g.belt - 1);
       rt.guns[gi].recoilT = 0;
       rt.guns[gi].smoke = Math.min(0.12, rt.guns[gi].smoke + 0.025);
@@ -3816,7 +3846,7 @@ export function start(data, saved = {}) {
       return true;
     }
     fx.muzzleBlast(mz.pos, mz.dir, g.def.caliber_mm, mz.pos[1] - gy < 3.2 ? impactColor([mz.pos[0], gy, mz.pos[2]]) : null, gy);
-    sound.shot(g.def.caliber_mm);
+    sound.shot(g.def.caliber_mm, { owner:g, weaponId:g.def.id, emitterId:`player/${g.damageKey}`, eventId:shot.seq??(g.audioFired=(g.audioFired||0)+1), seq:shot.seq, accepted:!G.online, position:mz.pos, direction:mz.dir, velocity:G.veh.body.v, time:G.time });
     rt.guns[gi].recoilT = 0; // the barrel runs back, then the recuperator brings it home
     (G.firedAt || (G.firedAt = []))[ti] = performance.now() / 1000;
     rt.guns[gi].smoke = 1.6; // seconds the muzzle keeps smoking
@@ -3906,7 +3936,10 @@ export function start(data, saved = {}) {
       const damage = weaponDamage(G.caps, e.m.damageKey);
       const mz = layMg(i, dt);
       const firing = enabled && damage.can_fire && machineGunTrigger(G.weaponControl, i, G.fireHeld, G.mgHeld);
-      const n = mgSim.stepMg(e.m.def, e.st, firing && e.bearing, dt, weaponReloadRate(G.caps, e.m.damageKey));
+      const beforeReload=e.st.reload;
+      const offsets=e.audioOffsets||(e.audioOffsets=[]);offsets.length=0;
+      const n = mgSim.stepMg(e.m.def, e.st, firing && e.bearing, dt, weaponReloadRate(G.caps, e.m.damageKey), offset=>offsets.push(offset));
+      sound.mgLoading?.(e.m,e.st,beforeReload);
       for (let k = 0; k < n; k++) {
         const dir = gunnery.disperse(mz.dir, e.m.def.dispersion_mrad * damage.dispersion_mult, rng);
         const bullet = { s: ballistics.newShot(mz.pos, dir, e.m.bullet), def: e.m.def, instance: e.m.damageKey, age: 0, travelled: 0, tracer: mgSim.isTracer(e.m.def, e.st) };
@@ -3917,7 +3950,7 @@ export function start(data, saved = {}) {
         }
         G.bullets.push(bullet);
         fx.mgFlash(mz.pos, mz.dir, e.m.def.caliber_mm);
-        sound.mg(e.m.def.caliber_mm);
+        sound.mg(e.m.def.caliber_mm,{weaponId:e.m.def.id,emitterId:`player/${e.m.damageKey}`,eventId:bullet.seq??e.st.fired-n+k+1,seq:bullet.seq,accepted:!G.online,position:mz.pos,direction:mz.dir,velocity:G.veh.body.v,time:G.time+offsets[k]});
         G.cam.shake = Math.min(0.35, G.cam.shake + (e.m.def.caliber_mm > 10 ? 0.06 : 0.025));
       }
     }
@@ -3935,25 +3968,27 @@ export function start(data, saved = {}) {
         ballistics.stepShot(b.s, h);
         b.age += h;
         const p1 = b.s.pos;
+        sound.projectileSegment?.({id:b,time:G.time,p0,p1,velocity:b.s.vel,caliber:b.def.caliber_mm});
         b.travelled += Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
         const heavy = b.def.caliber_mm > 10;
         const hit = hitTargets(rangeTargets(), p0, p1);
-        let eb = hitEnemy(p0, p1);
+        let eb = hitEnemy(p0, p1, b.from);
         const bb = buildingHit(p0, p1);
         if (bb && eb && bb.t < eb.hit.t) eb = null;
         if (bb && !eb) {
           fx.bulletGround(bb.point, MASONRY_DUST, heavy);
+          sound.contact?.({eventId:b,position:bb.point,material:'earth_gravel',debris:'earth_debris',bursts:[],time:G.time});
           done = true;
         } else if (eb) {
           fx.bulletBoard(eb.hit.point, heavy);
           const e = eb.e;
           const friend = e.remote && G.online && e.team === G.online.team;
           // bullets go through the same armour, module and crew model as shells
-          if (e.combat && e.alive && !friend) {
+          if (e.combat && e.alive && !friend && b.from == null) {
             const sp = Math.hypot(b.s.vel[0], b.s.vel[1], b.s.vel[2]) || 1;
             const dir = [b.s.vel[0] / sp, b.s.vel[1] / sp, b.s.vel[2] / sp];
             if (!G.bulletShells.has(b.def.id)) G.bulletShells.set(b.def.id, bulletShell(b.def));
-            const rep = combatHit(e, p0, dir, G.bulletShells.get(b.def.id), sp, b.travelled, (rng.nextF32() * 4294967295) >>> 0);
+            const rep = combatHit(e, p0, dir, G.bulletShells.get(b.def.id), sp, b.travelled, (rng.nextF32() * 4294967295) >>> 0, report=>{if(!(e.remote&&G.online))sound.resolvedContact?.(report,G.bulletShells.get(b.def.id),e.veh.body,{position:eb.hit.point,time:G.time});});
             if (e.remote && G.online) net.send({ t: 'mg_hit', seq: b.seq, instance: b.instance, target: e.netId, gun: b.def.id, shot: wireShot(rep.shot) });
             if (rep.modules.length || rep.crew.length || rep.caps.destroyed) {
               onCombatHit(e, rep, G.bulletShells.get(b.def.id), b.travelled, true);
@@ -3962,19 +3997,24 @@ export function start(data, saved = {}) {
           }
           done = true;
         } else if (hit) {
-          hit.target.mgHits = (hit.target.mgHits || 0) + 1;
-          G.mgHits++;
-          G.lastMgHit = { range: hit.target.range, dx: hit.point[0] - hit.target.x, dy: hit.point[1] - hit.target.y, tof: b.age };
+          if (b.from == null) {
+            hit.target.mgHits = (hit.target.mgHits || 0) + 1;
+            G.mgHits++;
+            G.lastMgHit = { range: hit.target.range, dx: hit.point[0] - hit.target.x, dy: hit.point[1] - hit.target.y, tof: b.age };
+            hud.hitMarker('命中靶板', 'nopen');
+          }
           fx.bulletBoard(hit.point, heavy);
-          hud.hitMarker('命中靶板', 'nopen');
+          sound.contact?.({eventId:b,position:hit.point,material:'earth_gravel',bursts:[],time:G.time});
           done = true;
         } else if (groundHit(p0, p1, surfaceAt)) {
           const pt = groundHit(p0, p1, surfaceAt);
           fx.bulletGround(pt, impactColor(pt), heavy);
+          sound.contact?.({eventId:b,position:pt,material:'earth_gravel',debris:'earth_debris',bursts:[],time:G.time});
           done = true;
         }
       }
       if (done || b.age > 3.2) {
+        sound.removeProjectile?.(b);
         G.bullets.splice(i, 1);
         continue;
       }
@@ -4001,6 +4041,7 @@ export function start(data, saved = {}) {
         ballistics.stepShot(sh.s, h);
         sh.age += h;
         const p1 = sh.s.pos;
+        sound.projectileSegment?.({id:sh,time:G.time,p0,p1,velocity:sh.s.vel,caliber:sh.shell.caliber_mm});
         sh.travelled += Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
         const hit = sh.from == null ? hitTargets(rangeTargets(), p0, p1) : null;
         const speed = Math.hypot(sh.s.vel[0], sh.s.vel[1], sh.s.vel[2]);
@@ -4012,7 +4053,7 @@ export function start(data, saved = {}) {
         if (bh && !eh && !me) {
           // a house, bunker or wall takes it: masonry dust (and the burst of a high-explosive round)
           fx.shellGround(bh.point, MASONRY_DUST, sh.shell);
-          sound.impact(Math.hypot(bh.point[0] - G.s.x, bh.point[2] - G.s.z));
+          sound.impact(Math.hypot(bh.point[0] - G.s.x, bh.point[2] - G.s.z),false,{eventId:sh,position:bh.point,material:'earth_gravel',bursts:sh.shell.explosive_mass_kg>0?[{explosive_kg:sh.shell.explosive_mass_kg}]:[],time:G.time,shellKind:sh.shell.kind});
           if (sh.from == null) splashNear(bh.point, sh.shell);
           done = true;
         } else if (sh.from != null && (eh || me)) {
@@ -4028,14 +4069,14 @@ export function start(data, saved = {}) {
           const wasAlive = e.alive;
           const friend = e.remote && G.online && e.team === G.online.team;
           const who = e.remote ? `${e.player}（${e.name}）` : e.name;
-          sound.impact(Math.hypot(eh.hit.point[0] - G.s.x, eh.hit.point[2] - G.s.z), true);
+          if (!sound.fullEnabled) sound.impact(Math.hypot(eh.hit.point[0] - G.s.x, eh.hit.point[2] - G.s.z), true);
           if (friend) {
             fx.armorImpact(eh.hit.point, false);
             hud.toast(`友軍 ${who}：不計傷害`, 2);
           } else if (e.combat && wasAlive) {
             // armour, modules and crew: the combat model (the server resolves it again online)
             const seed = shotSeed(sh);
-            const rep = combatHit(e, p0, dir, sh.shell, speed, dist, seed);
+            const rep = combatHit(e, p0, dir, sh.shell, speed, dist, seed, report=>{if(!(e.remote&&G.online))sound.resolvedContact?.(report,sh.shell,e.veh.body,{position:eh.hit.point,time:G.time});});
             if (e.remote && sh.seq && G.online) net.send({ t: 'hit', seq: sh.seq, target: e.netId, result: rep.outcome, plate: rep.plate ?? null, shot: wireShot(rep.shot) });
             // what the eye sees depends on the round and what it did
             const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
@@ -4067,7 +4108,7 @@ export function start(data, saved = {}) {
           const dy = hit.point[1] - tg.y;
           fx.boardImpact(hit.point);
           hud.hitMarker('命中靶板', 'nopen');
-          sound.impact(Math.hypot(hit.point[0] - G.s.x, hit.point[2] - G.s.z), true);
+          sound.impact(Math.hypot(hit.point[0] - G.s.x, hit.point[2] - G.s.z), true,{eventId:sh,position:hit.point,material:'earth_gravel',bursts:[],time:G.time});
           const dist = Math.hypot(hit.point[0] - sh.origin[0], hit.point[2] - sh.origin[2]);
           G.lastHit = { type: 'target', range: tg.range, dx, dy, tof: sh.age, speed, dist, pen: penAt(sh.shell, dist), caliber: sh.shell.caliber_mm };
           const side = Math.abs(dx) < 0.05 ? '左右正中' : `偏${dx > 0 ? '右' : '左'} ${Math.abs(dx).toFixed(2)} m`;
@@ -4078,7 +4119,7 @@ export function start(data, saved = {}) {
           const pt = groundHit(p0, p1, surfaceAt);
           fx.shellGround(pt, impactColor(pt), sh.shell);
           const dist = Math.hypot(pt[0] - sh.origin[0], pt[2] - sh.origin[2]);
-          sound.impact(Math.hypot(pt[0] - G.s.x, pt[2] - G.s.z));
+          sound.impact(Math.hypot(pt[0] - G.s.x, pt[2] - G.s.z),false,{eventId:sh,position:pt,material:'earth_gravel',debris:'earth_debris',shellKind:sh.shell.kind,bursts:sh.shell.explosive_mass_kg>0?[{explosive_kg:sh.shell.explosive_mass_kg}]:[],time:G.time});
           if (sh.from == null) {
             splashNear(pt, sh.shell);
             G.lastHit = { type: 'ground', dist, tof: sh.age, speed, point: pt };
@@ -4088,6 +4129,7 @@ export function start(data, saved = {}) {
         }
       }
       if (done || sh.age > 15) {
+        sound.removeProjectile?.(sh);
         G.shots.splice(i, 1);
         continue;
       }
@@ -4410,7 +4452,7 @@ export function start(data, saved = {}) {
           refillLauncher(g);
           if (g.def.missile) G.model.payload(ti, gi, g.launcher.ready);
           const completionOwned = sound.reloadReady(g, L, gi);
-          if (!g.def.autocannon && !completionOwned) sound.click();
+          if (!g.def.autocannon && !completionOwned) sound.click(g.def.caliber_mm);
         }
         // a rotary gun's barrels spin up while its trigger is held and run down after
         t.guns.forEach((g, gi) => {
@@ -4420,6 +4462,10 @@ export function start(data, saved = {}) {
           const held = (G.fireHeld && gunTrigger(G.weaponControl, ti, gi, g.def, false, false, apsTi)) ||
             (G.mgHeld && gunTrigger(G.weaponControl, ti, gi, g.def, true, false, apsTi));
           g.spin = clamp(g.spin + (held ? SIM_DT : -2 * SIM_DT) / a.spin_up_s, 0, 1);
+          if(typeof sound!=='undefined'&&sound.fullEnabled===true&&!(ti===apsTi&&apsAutomatic())) {
+            const mz=gunnery.muzzleWorld(pose(),mountOf(t,g),{yaw:G.T[ti].yaw,pitch:G.T[ti].guns[gi].pitch});
+            sound.rotaryState?.({weaponId:g.def.id,emitterId:`player/${g.damageKey}`,spin:g.spin,firing:held&&!g.beltChange&&roundsLeft(g)>0&&weaponDamage(G.caps,g.damageKey).can_fire,position:mz.pos,direction:mz.dir,time:G.time});
+          }
         });
       });
       G.acc -= SIM_DT;
@@ -4606,6 +4652,9 @@ export function start(data, saved = {}) {
     const viewProj = mul(proj, la.view);
     const tanY = Math.tan(fovY / 2);
     const cam = { pos: camPos, viewProj, forward: la.forward, right: la.right, up: la.up, tanX: tanY * aspect, tanY, near: 0.3, far: 9000 };
+    const previousAudioCamera=G.audioCamera;
+    sound.setListener?.({position:camPos,forward:la.forward,up:la.up,velocity:previousAudioCamera&&dt>0?camPos.map((v,i)=>(v-previousAudioCamera[i])/dt):[0,0,0],time:G.time});
+    G.audioCamera=camPos.slice();
     G.lastCam = cam;
     if (G.protect && G.veh) {
       const yaw0 = G.T[0] ? G.T[0].yaw : 0;
@@ -4728,7 +4777,8 @@ export function start(data, saved = {}) {
         if (fell) {
           const k = Math.max(0, 1 - 0.12 * fell);
           b.v = [b.v[0] * k, b.v[1], b.v[2] * k];
-          sound.impact(4, false);
+          sound.contact?.({debris:'wood_collision',bursts:[],position:b.worldPoint([0,0,0]),eventId:{},time:G.time});
+          if(!sound.fullEnabled)sound.impact(4, false);
           G.treesDown = (G.treesDown || 0) + fell;
         }
       }
@@ -4877,6 +4927,12 @@ export function start(data, saved = {}) {
     }
     document.body.dataset.view = inSight ? 'sight' : 'third';
     sound.drive(clamp((G.rpmShown - idle) / (G.params.engine.max_rpm - idle), 0, 1), load, G.s.u);
+    sound.vehicleState?.({emitterId:'player',vehicleId:G.bundle?.engine?.audio_source_vehicle||G.id,engineKind:G.bundle?.engine?.audio_kind,running:G.mode==='battle'&&!G.caps?.destroyed&&G.caps?.engine_power!==0&&!G.flooded&&!G.online?.dead,rpm:G.info.rpm||idle,idleRpm:idle,maxRpm:G.params.engine.max_rpm,load,position:G.veh.body.origin(),velocity:G.veh.body.v,speed:G.s.u,track:[G.info.trackSpeedL,G.info.trackSpeedR],wheeled:G.veh.wheeled,surface:terrainId,time:G.time});
+    for(const e of G.enemies||[]) {
+      const engine=e.loadout?.engine?.engine, state=e.buf?.at(-1)?.s;
+      if(!engine)continue;
+      sound.vehicleState?.({emitterId:`enemy:${e.netId??e.id}`,vehicleId:e.id,running:e.alive&&e.caps?.engine_power!==0,rpm:state?.rpm||engine.idle_rpm,idleRpm:engine.idle_rpm,maxRpm:engine.max_rpm,load:0,position:e.veh.body.origin(),velocity:state?.v||e.veh.body.v,speed:Math.hypot(...(state?.v||[0,0,0])),track:state?.track||[0,0],wheeled:e.veh.wheeled,surface:terrainAt(e.x,e.z),time:G.time});
+    }
   }
 
   // --------------------------------------------------------------------- boot
@@ -4895,6 +4951,7 @@ export function start(data, saved = {}) {
   const renderScale = new RenderScale();
   let last = performance.now();
   function frame(now) {
+    sound.setFullAudible?.((G.mode==='battle'||G.mode==='test')&&!G.paused&&!document.hidden&&!G.thumbShot);
     sound.setReloadAudible(G.mode === 'battle' && !G.paused && !document.hidden && !G.thumbShot && !G.caps?.destroyed && !G.online?.dead);
     if (G.mode !== 'battle' || G.caps?.destroyed || G.online?.dead) sound.cancelReloads();
     if (G.paused) hud.hideHitMarker();
