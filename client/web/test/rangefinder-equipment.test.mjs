@@ -21,11 +21,11 @@ const resolve=(s,id)=>{assert.equal(typeof api.resolveRangefinder,'function');re
 const spec=(sightSource,rangefinderKind)=>({...newTurretSpec(),...(sightSource?{sightSource}:{}),...(rangefinderKind?{rangefinderKind}:{}),guns:[{weapon:'xp_kda35'}]});
 const load=b=>makeLoadout('test',b,data.projectiles,data.machineGuns);
 
-test('all 43 playable vehicles and their extra sights use equipment evidence, never inferred lasers',()=>{
- assert.equal(ORDER.length,43);
+test('all 44 playable vehicles and their extra sights use equipment evidence, never inferred lasers',()=>{
+ assert.equal(ORDER.length,44);
  for(const id of ORDER){
   const t=load(data.vehicles[id]).turrets;
-  assert.equal(t[0].rangefinder.kind,id==='de_panther_f'?'stereoscopic':'manual',id);
+  assert.equal(t[0].rangefinder.kind,id==='de_panther_f'?'stereoscopic':id==='su_t72a'?'laser':'manual',id);
   for(const extra of t.slice(1))assert.equal(extra.rangefinder.kind,'manual',`${id}:${extra.id}`);
  }
  const p=resolve(data.vehicles.de_panther_f.weapons.sight,'de_panther_f');
@@ -70,7 +70,7 @@ test('workshop inherited sight identity survives different base and gun donors, 
 test('every sight donor is classified identically after workshop and folder roundtrips',()=>{
  for(const id of ORDER){
   const b={base:'de_hetzer',keepStock:false,turrets:[spec(id)]}, built=buildToBundle(b,data);
-  const expected=id==='de_panther_f'?'stereoscopic':'manual';
+  const expected=id==='de_panther_f'?'stereoscopic':id==='su_t72a'?'laser':'manual';
   assert.equal(load(built.bundle).turrets[0].rangefinder.kind,expected,id);
   const {files}=exportFolder(b,data,data.vehicles.de_hetzer,'rf_audit','audit',{includeModel:false});
   assert.equal(files['weapons.json'].sight.rangefinder.kind,expected,id);

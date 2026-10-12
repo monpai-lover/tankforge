@@ -1,0 +1,121 @@
+{
+  "main_gun": {
+    "id": "2a46_1_125",
+    "caliber_mm": 125,
+    "barrel_length_mm": 6000,
+    "recoil_mm": 310,
+    "rounds_per_min": 7.5,
+    "reload_s": 8,
+    "traverse_deg_s": 18,
+    "elevate_deg_s": 6,
+    "max_depression_deg": 6,
+    "max_elevation_deg": 13,
+    "dispersion_mrad": 0.7,
+    "mass_kg": 2500,
+    "ammo": [
+      "apfsds_125_3bm22",
+      "heatfs_125_3bk14",
+      "he_125_3of26"
+    ],
+    "ammo_count": [
+      8,
+      6,
+      8
+    ]
+  },
+  "mount_m": [
+    0,
+    1.86,
+    1.15
+  ],
+  "muzzle_offset_m": 4.95,
+  "rack_m": [
+    0,
+    0.78,
+    0.18
+  ],
+  "loaders_m": [],
+  "stabilizer": "two_plane",
+  "mechanized_loading": {
+    "mechanism": "az_t72",
+    "gun_id": "2a46_1_125",
+    "ammo": [
+      "apfsds_125_3bm22",
+      "heatfs_125_3bk14",
+      "he_125_3of26"
+    ],
+    "capacity": 22,
+    "cycle_s": 8,
+    "modules": [
+      "az_drive",
+      "az_ram"
+    ],
+    "stages": [
+      {
+        "stage": "select_lift",
+        "at": 0
+      },
+      {
+        "stage": "projectile_ram",
+        "at": 0.32
+      },
+      {
+        "stage": "charge_ram",
+        "at": 0.61
+      }
+    ]
+  },
+  "damage": {
+    "critical": [
+      "breech",
+      "gun_barrel"
+    ],
+    "traverse": [
+      "turret_drive"
+    ],
+    "elevation": [
+      "elevation_drive"
+    ],
+    "ammo_racks": [
+      "az_carousel"
+    ]
+  },
+  "sight": {
+    "name": "TPD-K1",
+    "levels": [
+      {
+        "magnification": 8,
+        "fov_deg": 9
+      }
+    ],
+    "rangefinder": {
+      "kind": "laser",
+      "time_s": 1,
+      "error_pct": 0.2,
+      "max_range_m": 4000
+    }
+  },
+  "secondary": [
+    {
+      "id": "coax_pkt",
+      "weapon": "pkt",
+      "mount": "coax",
+      "position_m": [
+        0.27,
+        1.86,
+        1.65
+      ]
+    },
+    {
+      "id": "aa_nsvt",
+      "weapon": "nsvt",
+      "mount": "pintle",
+      "position_m": [
+        0.68,
+        2.4,
+        -0.1
+      ],
+      "post_m": 0.31
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "explosive_type": "a_ix_2",
+  "penetrator_material": "steel",
+  "drag_coefficient": 0.3,
+  "normalization_deg": 0,
+  "shatter_angle_deg": 90,
+  "fuse_delay_s": 0,
+  "fuse_sensitivity_mm": 0,
+  "id": "he_125_3of26",
+  "name": "125 mm 3OF-26 (HE-FRAG)",
+  "kind": "he",
+  "caliber_mm": 125,
+  "mass_kg": 23.2,
+  "muzzle_velocity_ms": 850,
+  "explosive_mass_kg": 3.34,
+  "length_mm": 675,
+  "penetration_curve": [
+    {
+      "distance_m": 0,
+      "pen_mm": 35
+    },
+    {
+      "distance_m": 3000,
+      "pen_mm": 35
+    }
+  ],
+  "ricochet_angle_deg": 85,
+  "provenance": {
+    "document": "docs/t72a-autoloader-research-2026-10-12.json",
+    "calibration": "Nominal ammunition reconstruction; penetration/drag/fuse/ricochet are engineering estimates, not historical firing-test certification."
+  }
+}

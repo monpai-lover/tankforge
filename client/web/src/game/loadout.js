@@ -12,6 +12,7 @@ import { workshopImportedModel, exportWorkshopModel } from './workshopImported.j
 import { workshopTurretSeat } from './turretSeat.js';
 import { resolveRangefinder, equipmentSight } from './rangefinderEquipment.js';
 import { effectiveReloadSeconds } from './gameplayPerformance.js';
+import { fittedMechanizedLoading } from '../sim/mechanizedLoading.js';
 export { DEFAULT_RANGEFINDER } from './rangefinderEquipment.js';
 
 export const SIGHT_RANGES = Array.from({ length: 30 }, (_, i) => (i + 1) * 100);
@@ -34,7 +35,8 @@ const DEFAULT_ROUNDS = 40;
  * loader takes next; `shell` and `table` follow the round in the breech, or the next one while
  * the gun is empty.
  */
-function gunEntry(def, shells, trunnion, muzzleOffset, rack) {
+function gunEntry(def, shells, trunnion, muzzleOffset, rack, mount = null, modules = null) {
+  const mechanizedLoading = fittedMechanizedLoading(mount, def, modules);
   const ammo = shells.map((shell, i) => {
     const n = def.ammo_count?.[i] ?? DEFAULT_ROUNDS;
     // slow rounds (rockets) are lobbed: their table may use the launcher's elevation, up to 45 deg
@@ -46,6 +48,9 @@ function gunEntry(def, shells, trunnion, muzzleOffset, rack) {
   const gun = {
     def,
     ammo,
+    mechanizedLoading,
+    loadingOwner: mechanizedLoading ? 'mechanized' : def.autocannon ? 'autocannon' : def.missile ? 'launcher' : 'manual',
+    ...(mechanizedLoading && {capacity:mechanizedLoading.capacity}),
     // an automatic gun: rounds left in the belt (or magazine) on the gun, how far the barrels
     // have spun up (rotary guns), whether the next "reload" is a belt change
     belt: def.autocannon ? def.autocannon.belt_rounds : 0,
@@ -175,6 +180,7 @@ function turretEntry(id, pivot, ring, size, traverse, facingDeg, limitDeg, sight
 /** Seconds for `loaderIdx` to load one round into gun `g` of turret `t`. */
 export function reloadTime(turret, gunIdx, loaderIdx, mode = 'historical') {
   const g = turret.guns[gunIdx];
+  if (g.mechanizedLoading) return effectiveReloadSeconds(g.mechanizedLoading.cycle_s, mode);
   // an automatic gun cycles itself until the belt is out; then the belt is changed
   const auto = g.def.autocannon;
   if (auto) {
@@ -216,8 +222,8 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
   };
   const partsFor = (idx) => bundle.visual.parts.some((p) => (p.mount === 'turret' || p.mount === 'gun') && (p.turret || 0) === idx);
 
-  const mainGuns = [gunEntry(w.main_gun, shellsOf(w.main_gun), w.mount_m, w.muzzle_offset_m ?? w.main_gun.barrel_length_mm / 1000, w.rack_m)];
-  for (const g of w.extra_guns || []) mainGuns.push(gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m));
+  const mainGuns = [gunEntry(w.main_gun, shellsOf(w.main_gun), w.mount_m, w.muzzle_offset_m ?? w.main_gun.barrel_length_mm / 1000, w.rack_m, w, bundle.modules)];
+  for (const g of w.extra_guns || []) mainGuns.push(gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m, g, bundle.modules));
   const turrets = [
     turretEntry('main', v.turret.position_m, v.turret.ring_diameter_m, v.turret.size_m, w.main_gun.traverse_deg_s, w.facing_deg, w.yaw_limit_deg, w.sight, w.loaders_m, mainGuns, !partsFor(0), v.turret.open_top, w.stabilizer, null, w.depression_by_bearing_deg, v.id),
   ];
@@ -228,10 +234,10 @@ export function makeLoadout(id, bundle, projectiles, machineGuns = {}) {
   turrets[0].foldYawStages = w.fold_yaw_limit_stages;
   if (bundle.design?.depression_by_yaw?.length) turrets[0].depByYaw = bundle.design.depression_by_yaw;
   (w.extra_turrets || []).forEach((t, i) => {
-    const guns = t.guns.map((g) => gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m));
+    const guns = t.guns.map((g) => gunEntry(g.gun, shellsOf(g.gun), g.mount_m, g.muzzle_offset_m ?? g.gun.barrel_length_mm / 1000, g.rack_m, g, bundle.modules));
     turrets.push(turretEntry(t.id, t.position_m, t.ring_diameter_m, t.size_m, t.traverse_deg_s, t.facing_deg, t.yaw_limit_deg, t.sight, t.loaders_m, guns, !partsFor(i + 1), t.open_top, t.stabilizer, t.parent, t.depression_by_bearing_deg, v.id));
   });
-  turrets.forEach((t, ti) => t.guns.forEach((g, gi) => { g.damageKey = `gun:${ti}:${gi}`; g.noDedicatedLoader = !!g.rack && t.loaders.length === 0; }));
+  turrets.forEach((t, ti) => t.guns.forEach((g, gi) => { g.damageKey = `gun:${ti}:${gi}`; g.noDedicatedLoader = g.loadingOwner === 'manual' && !!g.rack && t.loaders.length === 0; }));
   // machine guns: coaxial ones follow the main gun, hull and roof mounts are aimed by hand
   const mgs = [];
   for (const sec of w.secondary || []) {
@@ -407,8 +413,9 @@ function layoutTurret(spec, hull, idx, data) {
       ...(d.sourceVehicle ? { sourceVehicle: d.sourceVehicle } : {}),
       mount_m: [r3(pivot[0] + off), r3(pivot[1] + th * 0.5), r3(pivot[2] + tl / 2 - 0.12)],
       muzzle_offset_m: d.muzzleOffset ?? r3((d.gun.barrel_length_mm / 1000) * 0.86),
-      // Retain a transplanted gun's published loading cycle. Designed guns use crew layout.
-      rack_m: d.sourceVehicle ? null : rack,
+      // A gun-only transplant excludes the fitted AZ. It needs ordinary manual rack work.
+      // Other source weapons retain their existing published cycle contract.
+      rack_m: d.sourceVehicle && !data.vehicles[d.sourceVehicle].weapons.mechanized_loading ? null : rack,
     };
   });
   const sourceSight = spec.sightSource && data.vehicles[spec.sightSource]?.weapons.sight;

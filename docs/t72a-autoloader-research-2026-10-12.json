@@ -1,0 +1,70 @@
+{
+  "vehicle": "su_t72a",
+  "variant": "T-72A obr 1979",
+  "scope": "Public textual factual research and first-party procedural authoring; no vehicle/source art copied",
+  "sourceFactsReceipt": {
+    "path": "C:/Users/24908/Documents/ChatGPT/tankforge/target/t72a-autoloader-root-source-facts-20261012.json",
+    "owner": "Root; copied assertions independently checked against the two public pages"
+  },
+  "sources": [
+    {
+      "id": "weaponsystems_t72a",
+      "url": "https://weaponsystems.net/system/1408-T-72A",
+      "variant": "T-72A obr 1979",
+      "checked": "2026-10-12",
+      "facts": {
+        "year": 1979, "crew": ["commander", "driver", "gunner"], "massKg": 41500,
+        "hullLengthM": 6.86, "gunForwardLengthM": 9.53, "widthOverSkirtsM": 3.6,
+        "roofHeightM": 2.19, "mainGun": "125 mm 2A46-1", "automaticSets": 22,
+        "reportedTotalSets": 44, "supportedFamilies": ["APFSDS", "HEAT", "HE-FRAG"],
+        "ATGM": false, "depressionDeg": 6, "elevationDeg": 13, "reportedRpm": [7, 8],
+        "roadWheelsPerSide": 6, "idler": "front", "sprocket": "rear", "trackWidthM": 0.58,
+        "contactLengthM": 4.27, "trackTreadM": 2.79, "suspension": "torsion bar",
+        "engine": "V-46-6", "horsepower": 780, "ratedRpm": 2000,
+        "torqueNmAt1400Rpm": 3089, "forwardGears": 7, "forwardKmh": 60,
+        "reverseKmh": 5, "groundClearanceM": 0.4, "rangefinder": "TPD-K1 laser",
+        "secondary": ["PKT 7.62 mm", "NSVT 12.7 mm"]
+      }
+    },
+    {
+      "id": "victorymuseum_t72",
+      "url": "https://victorymuseum.ru/encyclopedia/technic/bronetankovaya-tekhnika/osnovnoy-boevoy-tank-t-72-sssr-/",
+      "variant": "T-72 family",
+      "checked": "2026-10-12",
+      "facts": "Circular automatic conveyor carries 22 separate projectile/propellant sets; 22 additional nonmechanized reserve sets. Family evidence corroborates mechanism and capacity, not all A-variant calibration."
+    },
+    {
+      "id": "gichd_ukraine_third",
+      "url": "https://www.gichd.org/fileadmin/user_upload/Explosive_Ordnance_Guide_for_Ukraine__GICHD___Third_Edition.pdf",
+      "sha256": "6da0e1dc31893d3c59343133b2bbc3c95e0ed25527b36b5ce1388f2948f04ce3",
+      "checked": "2026-10-12",
+      "facts": {
+        "page77_OF26": {"projectileKg":23.2,"explosiveKg":3.34,"explosive":"A-IX-2","lengthMm":675,"boreMm":125,"muzzleVelocityMs":850,"construction":"projectile plus separate 4Zh40/4Zh52 charge"},
+        "page80_BK14": {"projectileKg":19.02,"explosiveKg":1.85,"explosive":"OKFOL","lengthMm":677,"boreMm":125,"construction":"single HEAT warhead plus separate 4Zh40/4Zh52 charge"}
+      },
+      "limits": "Guide identifies rounds found in Ukraine, not a measured 1979 tank ammunition mix or a complete exterior ballistics calibration. The PDF remains in ignored target research storage."
+    }
+  ],
+  "fieldProvenance": {
+    "vehicle.hull.size_m[0,2]": "Published width over skirts and hull length. Hull collision width uses the over-skirt envelope; closed hull visual body is narrower.",
+    "vehicle.hull.size_m[1],turret,center_of_mass": "Engineering reconstruction of hull/turret split, center of mass and contours; ring 2.16 m is a nominal estimate here.",
+    "visual.parts": "First-party primitive/loft construction from textual proportions. Six 750 mm road wheels, station spacing, rollers, cast turret sections, hatch/optics/light placements and gun sleeves are estimated, not traced source measurements.",
+    "weapons.main_gun.caliber_mm,id,elevation": "Variant identity and limits from Weaponsystems.",
+    "weapons.main_gun.barrel_length_mm,recoil_mm,mass_kg,traverse_deg_s,elevate_deg_s,dispersion_mrad": "Engineering estimates for runtime movement and geometry.",
+    "weapons.mechanized_loading.capacity": "22 total mechanized sets including the initial chambered set, preserving the existing stock accounting convention; no second carousel quantity counter.",
+    "weapons.main_gun.ammo_count": "Authored deployment mix 8 APFSDS / 6 HEAT / 8 HE-FRAG, not a historical prescribed load.",
+    "weapons.mechanized_loading.cycle_s": "8 s is an authored base choice within reported 7-8 rpm. Carousel selection distance, service condition and loading elevation are not explicitly simulated.",
+    "weapons.mechanized_loading.stages": "select_lift 0, projectile_ram .32, charge_ram .61 are provisional consumed-work presentation milestones. Separate two-piece handling is documented; exact stage cadence is not.",
+    "weapons.sight": "TPD-K1 laser identity documented; magnification/FOV, error and range limits remain estimates. The existing laser owner supplies its gameplay measurement timing.",
+    "engine": "780 hp/2000 rpm and 3089 Nm/1400 rpm documented; other curve points, weight, ratios, final drive, shifting and suspension constants estimated. Positive min_turn_radius_m=1.51 is a conservative half-gauge runtime estimate to avoid granting zero-radius counter-rotation. Existing JS/Rust continuous track-difference and creeping turn owner does not reproduce the requested one-moving/one-stopped planetary pivot. The source table word Pivot does not establish neutral steering. No claim that steering or top speed is fully historically calibrated.",
+    "armor": "Scalar RHA adapter only: 200 mm hull upper, 80 mm lower/sides, 45 rear, 30 roofs, 20 floor; 280 mm turret front,120 sides,65 rear,200 mantlet are explicit gameplay engineering estimates. Real welded hull/cast laminate turret, obliquity, layer equivalence and exact surface geometry are not reproduced. No later applique or ERA.",
+    "crew,modules": "Correct three-crew/no-loader roles; sphere/box positions, health and repair values estimated. AZ drive/ram use existing horizontal/vertical drive module kinds solely as named physical-damage adapters; explicit weapon laying refs exclude them from traverse/elevation.",
+    "projectiles.apfsds_125_3bm22": "Nominal compatible 3BM-22 reconstruction: 44 mm flight body,4.83 kg,1760 m/s,453 mm length are currently unverified engineering estimates. Homogenized steel ignores its mixed tip composition. Penetration420/385/350/315 mm at0/1/2/3 km,drag.3,ricochet78 and no shatter are estimates. No modern-round or Panther identity reused.",
+    "projectiles.heatfs_125_3bk14": "GICHD sourced mass19.02 kg,explosive1.85 kg OKFOL,length677 mm; velocity905 m/s and flat450 mm penetration,drag.3,ricochet80,instant impact fuse are estimates.",
+    "projectiles.he_125_3of26": "GICHD sourced mass23.2 kg,explosive3.34 kg A-IX-2,length675 mm,velocity850 m/s; flat35 mm penetration,drag.3,ricochet85 and instant impact fuse are engineering adapters.",
+    "machine_guns.pkt,nsvt": "New documented PKT/NSVT identities. Compatible cartridge ballistics, heat and reload estimates reuse SGMT/DShK catalog metrics; cyclic800/700 rpm are estimates. Rendered geometry is generic first-party geometry and damage_geometry is measured from that exact renderer, not authentic weapon art.",
+    "audio": "User-adopted generic drive,ram,lock textures interpreted for AZ; normal pitch, ram twice, actual-ready lock. No authentic AZ recording claim. Audio owner remains a separate Root integration step."
+  },
+  "authorityBoundary": "Existing g.ammo/OnlineAmmo/C2AmmoLedger exclusively owns quantity and scope. Mechanism owns reload work/readiness/cycle. Existing server has no conventional cannon reload clock; this implementation does not claim new server cadence authority.",
+  "unimplemented": ["one-moving/one-stopped planetary pivot steering","nonmechanized reserve transfer","carousel selection-distance variation","gun loading-elevation interlock","detailed composite armor layers","verified suspension/gear ratios","historical firing-table calibration","game browser visual acceptance"]
+}

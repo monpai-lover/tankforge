@@ -1,0 +1,65 @@
+{
+  "id": "su_t72a",
+  "name": "T-72A (1979)",
+  "schema_version": 1,
+  "model": "procedural",
+  "meta": {
+    "nation": "ussr",
+    "class": "medium",
+    "year": 1979,
+    "outline": "dimensions",
+    "based_on": "T-72A obr 1979, 2A46-1 and fitted AZ carousel",
+    "notes": "First-party procedural reconstruction. 22 mechanized projectile/charge sets including chambered round; the 22 nonmechanized reserve sets of the reported 44 are not carried in this implementation. Dimensions, crew and engine follow public references; contours, interior, simplified armor, drivetrain and ballistics estimates are documented in docs/t72a-autoloader-research-2026-10-12.json. No ERA or ATGM."
+  },
+  "files": {
+    "armor": "armor.json",
+    "weapons": "weapons.json",
+    "engine": "engine.json",
+    "crew": "crew.json",
+    "modules": "modules.json",
+    "visual": "visual.json"
+  },
+  "hull": {
+    "size_m": [
+      3.6,
+      1.5,
+      6.86
+    ],
+    "mass_kg": 41500,
+    "center_of_mass": [
+      0,
+      0.95,
+      -0.08
+    ]
+  },
+  "turret": {
+    "size_m": [
+      2.82,
+      0.59,
+      3
+    ],
+    "ring_diameter_m": 2.16,
+    "position_m": [
+      0,
+      1.5,
+      0.18
+    ]
+  },
+  "physics": {
+    "track_width_m": 0.58,
+    "track_length_m": 4.27,
+    "suspension": {
+      "kind": "torsion_bar",
+      "travel_m": 0.23,
+      "stiffness": 330000,
+      "damping": 25000
+    },
+    "rolling_resistance": 0.04,
+    "sprocket_radius_m": 0.32,
+    "drivetrain_efficiency": 0.84,
+    "max_brake_decel_ms2": 6,
+    "max_turn_rate_deg_s": 32,
+    "max_reverse_speed_ms": 1.3888888888888888,
+    "min_turn_radius_m": 1.51
+  }
+}

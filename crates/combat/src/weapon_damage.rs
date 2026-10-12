@@ -31,6 +31,10 @@ pub struct WeaponBinding {
     pub traverse: Vec<usize>,
     pub elevation: Vec<usize>,
     pub binding_error: Option<String>,
+    #[serde(default)]
+    pub mechanized:bool,
+    #[serde(default)]
+    pub mechanism_parts:Vec<usize>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize, Deserialize)]
@@ -41,6 +45,10 @@ pub struct WeaponCaps {
     pub traverse_mult: f32,
     pub elevate_mult: f32,
     pub reason: Option<String>,
+    #[serde(default,skip_serializing_if="std::ops::Not::not")]
+    pub mechanized:bool,
+    #[serde(default,skip_serializing_if="Option::is_none")]
+    pub mechanism_available:Option<bool>,
 }
 
 pub(crate) fn vec3(v: &Value) -> Option<Vec3> {
@@ -490,6 +498,8 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
             traverse: vec![],
             elevation: vec![],
             binding_error: None,
+            mechanized:false,
+            mechanism_parts:vec![],
         };
         let result = (|| -> Result<(), String> {
             let p = vec3(&mount["mount_m"]).ok_or("missing/invalid mount_m")?;
@@ -576,6 +586,16 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
             }
             validate_critical(&def.modules, kind, &b.critical, aps_gun)?;
             validate_critical_ownership(def, &b, group(&mount, &gun))?;
+            if !mount["mechanized_loading"].is_null() {
+                let recipe:tg_weapon::loading::MechanizedLoadingDef=serde_json::from_value(mount["mechanized_loading"].clone()).map_err(|_|"invalid fitted mechanism")?;
+                let typed:tg_weapon::GunDef=serde_json::from_value(gun.clone()).map_err(|_|"invalid fitted gun")?;
+                if !recipe.valid_for(&typed) {return Err("incompatible fitted mechanized carousel".into());}
+                b.mechanism_parts=refs(def,&serde_json::json!(recipe.modules),None)?.ok_or("missing mechanism modules")?;
+                if b.mechanism_parts.iter().any(|&i|!matches!(def.modules[i].kind,ModuleKind::HorizontalDrive|ModuleKind::VerticalDrive)) {
+                    return Err("wrong-kind mechanism module".into());
+                }
+                b.mechanized=true;
+            }
             b.dispersion_parts = if kind == WeaponKind::Missile {
                 vec![]
             } else {
@@ -606,7 +626,7 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
     let mut owners: BTreeMap<usize, Vec<String>> = BTreeMap::new();
     for (key, b) in &bindings {
         if b.binding_error.is_none() {
-            for &i in &b.critical {
+            for &i in b.critical.iter().chain(&b.mechanism_parts) {
                 owners.entry(i).or_default().push(key.clone());
             }
         }
@@ -675,7 +695,7 @@ pub(crate) fn capabilities(
                     ))
                 })
                 .fold(1.0, f32::max);
-            let feed = b
+            let rack_feed = b
                 .ammo_racks
                 .iter()
                 .copied()
@@ -688,15 +708,23 @@ pub(crate) fn capabilities(
                     ))
                 })
                 .fold(1.0, f32::max);
+            let mechanism_available=b.mechanized.then(||b.mechanism_parts.iter().all(|&i| {
+                let m=&t.def.modules[i];module_state::health_ratio(st.modules.get(i).copied().unwrap_or(m.max_health),m.max_health)>0.0
+            }));
+            let mechanism_feed=b.mechanism_parts.iter().map(|&i|{
+                let m=&t.def.modules[i];module_state::ammo_reload_multiplier(module_state::health_ratio(st.modules.get(i).copied().unwrap_or(m.max_health),m.max_health))
+            }).fold(1.0,f32::max);
             (
                 key.clone(),
                 WeaponCaps {
                     can_fire: reason.is_none(),
                     reason,
                     dispersion_mult,
-                    reload_mult: feed * if loader { 1.0 } else { 1.6 },
+                    reload_mult: rack_feed.max(mechanism_feed) * if loader || b.mechanized { 1.0 } else { 1.6 },
                     traverse_mult: factor(t, st, &b.traverse, module_state::traverse_factor),
                     elevate_mult: factor(t, st, &b.elevation, module_state::elevation_factor),
+                    mechanized:b.mechanized,
+                    mechanism_available,
                 },
             )
         })

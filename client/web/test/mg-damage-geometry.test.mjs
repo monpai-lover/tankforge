@@ -14,10 +14,10 @@ const catalog = JSON.parse(catalogText);
 const models = JSON.parse(fs.readFileSync(modelsPath, 'utf8'));
 const tuning = c => c.map(({damage_geometry, ...entry}) => entry);
 
-test('all ten MG measurements and stockless MG34 match actual rendered assets', () => {
+test('all twelve MG measurements and stockless MG34 match actual rendered assets', () => {
   assert.ok(tool, 'the reproducible MG measurement tool must be committed');
   const measured = tool.measureCatalog(catalog, models);
-  assert.equal(measured.length, 10);
+  assert.equal(measured.length, 12);
   assert.deepEqual(measured.map(m => m.damage_geometry), catalog.map(m => m.damage_geometry));
   assert.deepEqual(tuning(measured), tuning(catalog), 'measurement preserves every original tuning value');
   const remote = measured.find(m => m.id === 'mg34').damage_geometry.variants.mg34_remote;
@@ -42,7 +42,7 @@ test('measurement CLI checks from an unrelated working directory without writes'
   assert.ok(tool);
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'tankforge-mg-check-'));
   const output = execFileSync(process.execPath, [fileURLToPath(new URL('../tools/measure-mg-damage.mjs', import.meta.url))], {cwd: tmp, encoding: 'utf8'});
-  assert.match(output, /10 MG/);
+  assert.match(output, /12 MG/);
   assert.equal(fs.readFileSync(catalogPath, 'utf8'), catalogText);
 });
 

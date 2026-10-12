@@ -21,7 +21,7 @@ import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { rangeVehicleTargets } from './game/rangeVehicles.js';
 import { RangeTargetRevival, captureRangeTargetRestPose, reviveRangeTarget } from './game/rangeTargetRevival.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
-import { weaponDamage, weaponReloadRate, weaponReloadMult, moduleDamageLabels } from './game/weaponDamage.js';
+import { weaponDamage, weaponReloadRate, mountedReloadRate, mountedReloadMult, moduleDamageLabels } from './game/weaponDamage.js';
 import { HitCam } from './game/hitcam.js';
 import { showHit } from './game/hitFeedback.js';
 import { designReplayReport } from './game/projectileReplay.js';
@@ -661,7 +661,7 @@ export function start(data, saved = {}) {
   /** Reload seconds shown to the player for gun gi of turret ti (first loader). */
   function reloadShown(ti, gi) {
     const t = G.loadout.turrets[ti];
-    return reloadTime(t, gi, 0, G.gameplayMode) * (t.guns[gi].rack && t.loaders.length === 0 ? 1.6 : 1);
+    return reloadTime(t, gi, 0, G.gameplayMode) * (t.guns[gi].noDedicatedLoader ? 1.6 : 1);
   }
 
   function select(id, keepPose = false, initialAmmo = null) {
@@ -698,7 +698,7 @@ export function start(data, saved = {}) {
         bearing: true,
         yawErr: 0,
         guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, recoil: 0, recoilT: -1, smoke: 0 })),
-        loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)),
+        loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack), t.guns.map(g => g.mechanizedLoading)),
       };
     });
     G.loadout.turrets.forEach((t, ti) => {
@@ -2460,7 +2460,7 @@ export function start(data, saved = {}) {
       if (e.remote || e.rangeTarget) return;
       e.ammoPlan = captureAmmoPlan(e.loadout);
       e.resupply = newResupplyState();
-      e.ammoLoading = e.loadout.turrets.map(t => loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)));
+      e.ammoLoading = e.loadout.turrets.map(t => loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack), t.guns.map(g => g.mechanizedLoading)));
       e.loadout.turrets.forEach((t, ti) => t.guns.forEach((g, gi) => { if (nextAmmo(g) < 0) e.ammoLoading[ti].state[gi] = 'empty'; }));
       const aps = e.loadout.weapons?.aps;
       e.apsDesired = true;
@@ -4382,7 +4382,7 @@ export function start(data, saved = {}) {
       stepMachineGuns(SIM_DT);
       G.loadout.turrets.forEach((t, ti) => {
         t.guns.forEach((g) => tickLauncher(g, SIM_DT));
-        const done = loading.tick(G.T[ti].loading, SIM_DT, (gi, li) => reloadTime(t, gi, li, G.gameplayMode), gi => weaponReloadRate(G.caps, t.guns[gi].damageKey, t.guns[gi].noDedicatedLoader));
+        const done = loading.tick(G.T[ti].loading, SIM_DT, (gi, li) => reloadTime(t, gi, li, G.gameplayMode), gi => mountedReloadRate(G.caps, t.guns[gi], G.bundle, G.cstate));
         for (const gi of done) {
           const g = t.guns[gi];
           refillBelt(g);
@@ -4732,14 +4732,14 @@ export function start(data, saved = {}) {
     const states = [];
     G.loadout.turrets.forEach((t, ti) => {
       t.guns.forEach((g, gi) => {
-        const pr = loading.progress(G.T[ti].loading, gi, weaponReloadMult(G.caps, g.damageKey, g.noDedicatedLoader));
+        const pr = loading.progress(G.T[ti].loading, gi, mountedReloadMult(G.caps, g, G.bundle, G.cstate));
         states.push({ ...pr, bearing: G.T[ti].bearing, sighting: G.weaponControl.kind === 'gun' && ti === G.weaponControl.ti && gi === G.weaponControl.gi });
       });
     });
     if (G.thumbShot) return;
     hud.weaponControl(weaponControlLabel(G.loadout, G.weaponControl), weaponControlKey(G.weaponControl));
     hud.guns(states);
-    hud.ammo(sg, loading.progress(srt.loading, G.sightG, weaponReloadMult(G.caps, sg.damageKey, sg.noDedicatedLoader)));
+    hud.ammo(sg, loading.progress(srt.loading, G.sightG, mountedReloadMult(G.caps, sg, G.bundle, G.cstate)));
     const dv = G.mode === 'battle' && G.cstate ? damageView() : { items: [], shape: G.statusShape };
     hud.damageLine(dv.items);
     if (dv.shape) {
@@ -4809,7 +4809,7 @@ export function start(data, saved = {}) {
         return { ok: pr[2] > 0, x: (pr[0] * 0.5 + 0.5) * cw, y: (1 - (pr[1] * 0.5 + 0.5)) * ch };
       }, G.veh, ch / 900);
     }
-    const sp = selectedMg ? { remaining: selectedMg.st.reload * weaponDamage(G.caps, selectedMg.m.damageKey).reload_mult, waiting: false, empty: false } : loading.progress(srt.loading, G.sightG, weaponReloadMult(G.caps, sg.damageKey, sg.noDedicatedLoader));
+    const sp = selectedMg ? { remaining: selectedMg.st.reload * weaponDamage(G.caps, selectedMg.m.damageKey).reload_mult, waiting: false, empty: false } : loading.progress(srt.loading, G.sightG, mountedReloadMult(G.caps, sg, G.bundle, G.cstate));
     if (scope) {
       hud.drawSight(scope.radius, scope.pxPerRad, {
         name: selectedMg ? selectedMg.m.def.name || selectedMg.m.weapon : st.sight.name,
@@ -4832,7 +4832,7 @@ export function start(data, saved = {}) {
     // the main gun's reload: a ring round the aim mark (round the middle of the sight)
     if (G.mode === 'battle' && !orbit && !testing && !G.thumbShot && G.sightM < 0) {
       const g0 = G.loadout.turrets[0].guns[0];
-      const pr = loading.progress(G.T[0].loading, 0, weaponReloadMult(G.caps, g0.damageKey, g0.noDedicatedLoader));
+      const pr = loading.progress(G.T[0].loading, 0, mountedReloadMult(G.caps, g0, G.bundle, G.cstate));
       if (!g0.def.autocannon && !g0.def.missile) {
         if (inSight) hud.drawReloadRing(cw / 2, ch / 2, { ...pr, empty: pr.empty }, 34);
         else hud.drawReloadRing(gunPx ? gunPx[0] : cw / 2, gunPx ? gunPx[1] : ch / 2, pr, 24);

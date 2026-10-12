@@ -562,5 +562,111 @@
     ]
    }
   }
+ },
+ {
+  "id": "pkt",
+  "name": "PKT (7.62 mm)",
+  "caliber_mm": 7.62,
+  "rate_rpm": 800,
+  "muzzle_velocity_ms": 800,
+  "bullet_mass_g": 11.8,
+  "drag_coefficient": 0.31,
+  "belt_rounds": 250,
+  "reload_s": 7,
+  "dispersion_mrad": 1.6,
+  "tracer_every": 3,
+  "pen_mm_100m": 9,
+  "heat_rounds": 500,
+  "cool_s": 110,
+  "tracer_rgb": [
+   0.45,
+   1,
+   0.5
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    0.8423999999999999
+   ],
+   "receiver": {
+    "center": [
+     -0.058738,
+     0.0116,
+     -0.0798
+    ],
+    "half_extents": [
+     0.096062,
+     0.0816,
+     0.2298
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.06,
+     0.4962
+    ],
+    "half_extents": [
+     0.020467,
+     0.02152,
+     0.3462
+    ]
+   }
+  }
+ },
+ {
+  "id": "nsvt",
+  "name": "NSVT (12.7 mm)",
+  "caliber_mm": 12.7,
+  "rate_rpm": 700,
+  "muzzle_velocity_ms": 850,
+  "bullet_mass_g": 48.3,
+  "drag_coefficient": 0.3,
+  "belt_rounds": 50,
+  "reload_s": 9,
+  "dispersion_mrad": 1.4,
+  "tracer_every": 2,
+  "pen_mm_100m": 20,
+  "heat_rounds": 120,
+  "cool_s": 120,
+  "tracer_rgb": [
+   0.45,
+   1,
+   0.5
+  ],
+  "damage_geometry": {
+   "source": "client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI",
+   "muzzle": [
+    0,
+    0.06,
+    1.17
+   ],
+   "receiver": {
+    "center": [
+     -0.083938,
+     0.015,
+     -0.14
+    ],
+    "half_extents": [
+     0.131062,
+     0.095,
+     0.29
+    ]
+   },
+   "barrel": {
+    "center": [
+     0,
+     0.0525,
+     0.66
+    ],
+    "half_extents": [
+     0.045,
+     0.0575,
+     0.51
+    ]
+   }
+  }
  }
 ]

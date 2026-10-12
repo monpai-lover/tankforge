@@ -32,9 +32,9 @@ export function regularWeaponHud(source, G, hud, loading, damage, selection) {
   const mgStart = source.indexOf('    hud.mgs(G.MG.map(', end);
   const mgEnd = source.indexOf('\n', mgStart);
   assert.ok(start >= 0 && end > start && mgStart > end, 'actual regular HUD adapters');
-  new Function('G', 'hud', 'loading', 'weaponReloadMult', 'weaponDamage', ...Object.keys(selection),
+  new Function('G', 'hud', 'loading', 'mountedReloadMult', 'weaponDamage', ...Object.keys(selection),
     source.slice(start, end) + source.slice(mgStart, mgEnd))(
-    G, hud, loading, damage.weaponReloadMult, damage.weaponDamage, ...Object.values(selection));
+    G, hud, loading, damage.mountedReloadMult, damage.weaponDamage, ...Object.values(selection));
 }
 
 export function weaponHud(document, onToast = () => {}) {

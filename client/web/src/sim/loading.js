@@ -8,11 +8,11 @@
  * loaderCount: manual loaders (0 = the gunner loads, slower).
  * independentGuns: optional per-gun flags for source weapon cycles outside the manual queue.
  */
-export function newLoading(gunCount, loaderCount, independentGuns = []) {
-  const independent = Array.from({ length: gunCount }, (_, gi) => !!independentGuns[gi]);
+export function newLoading(gunCount, loaderCount, independentGuns = [], mechanizedGuns = []) {
+  const independent = Array.from({ length: gunCount }, (_, gi) => !!independentGuns[gi] || !!mechanizedGuns[gi]);
   const sharedCount = gunCount > 0 && independent.every(Boolean) ? 0 : Math.max(1, loaderCount);
   const loaders = Array.from({ length: sharedCount }, () => ({ gun: -1, remaining: 0, total: 0 }));
-  independent.forEach((on, gi) => { if (on) loaders.push({ gun: -1, remaining: 0, total: 0, onlyGun: gi }); });
+  independent.forEach((on, gi) => { if (on) loaders.push({ gun: -1, remaining: 0, total: 0, onlyGun: gi, mechanism:mechanizedGuns[gi] || null, stageIndex:0, cycle:0 }); });
   return {
     loaders,
     independentGuns: independent,
@@ -45,7 +45,8 @@ export function progress(L, gun, reloadMult = 1) {
  * rate(gun, loaderIdx) optionally scales reload work, including current and shared cycles.
  * Returns the list of guns that became ready during this step.
  */
-export function tick(L, dt, reloadTime, rate = () => 1) {
+const NO_STAGE = () => {};
+export function tick(L, dt, reloadTime, rate = () => 1, onStage = NO_STAGE) {
   L.clock += dt;
   const done = [];
   for (let i = 0; i < L.loaders.length; i++) {
@@ -63,13 +64,17 @@ export function tick(L, dt, reloadTime, rate = () => 1) {
         l.gun = pick;
         l.total = reloadTime(pick, i) * (l.onlyGun === undefined && L.noDedicatedLoader ? 1.6 : 1);
         l.remaining = l.total;
+        l.cycle = L.waitedSince[pick];
+        l.stageIndex = 0;
         L.state[pick] = 'loading';
       }
       const speed = rate(l.gun, i);
       if (!(speed > 0)) break;
+      if (l.mechanism && l.stageIndex === 0) emitStages(l, 0, onStage);
       const used = Math.min(budget * speed, l.remaining);
       l.remaining -= used;
       budget -= used / speed;
+      if (l.mechanism) emitStages(l, 1-l.remaining/l.total, onStage);
       if (l.remaining <= 1e-9) {
         L.state[l.gun] = 'ready';
         done.push(l.gun);
@@ -79,4 +84,12 @@ export function tick(L, dt, reloadTime, rate = () => 1) {
     }
   }
   return done;
+}
+
+function emitStages(worker, workFraction, onStage) {
+  const {mechanism:m}=worker;
+  while (worker.stageIndex < m.stages.length && m.stages[worker.stageIndex].at <= workFraction+1e-9) {
+    const s=m.stages[worker.stageIndex++];
+    onStage({gun:worker.gun,stage:s.stage,owner:'mechanized',mechanism:m.mechanism,cycle:worker.cycle,workFraction:s.at});
+  }
 }

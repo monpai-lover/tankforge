@@ -7,7 +7,7 @@ export const DATA_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), 
 // Garage order: by nation, then by year of service.
 export const ORDER = [
   'de_pz3_j', 'de_pz4_h', 'de_tiger_e', 'de_panther_g', 'de_panther_f', 'de_sdkfz234_2',
-  'su_t34_1940', 'su_t34_85', 'su_is2', 'su_t10m', 'su_t10m_oplot23', 'su_bmpt34', 'su_t54',
+  'su_t34_1940', 'su_t34_85', 'su_is2', 'su_t10m', 'su_t10m_oplot23', 'su_bmpt34', 'su_t54', 'su_t72a',
   'us_m8', 'us_m10', 'us_m4a2', 'us_m4a3_75w', 'us_m4a1_76w', 'us_m4a3_76w_hvss', 'us_m56', 'us_m901_itv',
   'uk_cromwell_iv',
   'xp_kda35',

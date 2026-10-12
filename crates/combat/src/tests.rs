@@ -373,6 +373,22 @@ fn weapon_bindings_shared_drives_and_partial_damage_use_instance_curves() {
 }
 
 #[test]
+fn t72a_fitted_mechanical_caps_do_not_require_a_human_loader_and_follow_named_damage() {
+    let t=weapon_target("su_t72a"); let mut st=t.fresh_state();
+    let c=weapon_caps_json(&t,&st);
+    assert_eq!(c["gun:0:0"]["mechanized"],true);
+    assert_eq!(c["gun:0:0"]["reload_mult"],1.0);
+    assert_eq!(c["gun:0:0"]["mechanism_available"],true);
+    let i=t.def.modules.iter().position(|m|m.id=="az_drive").unwrap();
+    st.modules[i]=t.def.modules[i].max_health*0.25;
+    assert_eq!(weapon_caps_json(&t,&st)["gun:0:0"]["reload_mult"],1.25);
+    st.modules[i]=0.0;
+    assert_eq!(weapon_caps_json(&t,&st)["gun:0:0"]["mechanism_available"],false);
+    // A chambered round may still fire; the failed drive blocks subsequent loading work.
+    assert_eq!(weapon_caps_json(&t,&st)["gun:0:0"]["can_fire"],true);
+}
+
+#[test]
 fn weapon_bindings_common_restrictions_and_legacy_defaults() {
     let t = weapon_target("su_t10m");
     for mode in 0..3 {
@@ -406,7 +422,7 @@ fn weapon_bindings_every_fleet_and_workshop_mount_is_usable() {
             counts.2 += map.keys().filter(|k| k.starts_with("mg:")).count();
         } else { assert_eq!(map.keys().filter(|k| k.starts_with("gun:")).count(), 6); }
     }
-    assert_eq!(counts, (43, 49, 45));
+    assert_eq!(counts, (44, 50, 47));
 }
 
 #[test]

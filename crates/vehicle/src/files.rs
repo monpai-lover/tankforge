@@ -228,6 +228,8 @@ pub struct SightDef {
 pub struct GunMount {
     pub gun: GunDef,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mechanized_loading:Option<tg_weapon::loading::MechanizedLoadingDef>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weapon_group: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub damage: Option<tg_weapon::WeaponDamageRefs>,
@@ -305,6 +307,8 @@ pub struct FoldYawLimitStage {
 #[serde(deny_unknown_fields)]
 pub struct WeaponsFile {
     pub main_gun: GunDef,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mechanized_loading:Option<tg_weapon::loading::MechanizedLoadingDef>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub weapon_group: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

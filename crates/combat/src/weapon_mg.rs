@@ -47,6 +47,8 @@ pub(crate) fn register(def: &mut TargetDef, out: &mut BTreeMap<String, WeaponBin
             traverse: vec![],
             elevation: vec![],
             binding_error: None,
+            mechanized:false,
+            mechanism_parts:vec![],
         };
         let result = (|| -> Result<(), String> {
             if !["hull", "pintle", "coax"].contains(&mount) {

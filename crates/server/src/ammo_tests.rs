@@ -42,6 +42,55 @@ fn connected(l: &mut Lobby) -> u32 {
     );
     id
 }
+
+#[test]
+fn t72a_actual_c2_catalog_consumption_and_five_second_supply_keep_one_22_set_stock_owner() {
+    let mut scenarios=serde_json::Map::new();
+    for mode in ["historical","casual"] {
+        let mut l=real_lobby();let id=connected(&mut l);
+        let catalog=AmmoCatalog::from_target(&l.targets["su_t72a"],None).unwrap();
+        assert_eq!(catalog.guns["gun:0:0"].capacity,Some(22));
+        assert_eq!(catalog.guns["gun:0:0"].defaults,vec![8,6,8]);
+        assert!(catalog.validate_mix(Some(&mix(json!({"gun:0:0":[22,22,0]})))).is_err());
+        send(&mut l,id,json!({"t":"create","name":"AZ","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0);
+        let room=l.players[&id].room.unwrap();send(&mut l,id,json!({"t":"start"}),0.0);
+        let mut phases=serde_json::Map::new();
+        record(&mut phases,"deploy",send(&mut l,id,json!({"t":"deploy","vehicle":"su_t72a","ammo_mix":{"gun:0:0":[1,0,0]}}),0.0));
+        capture(&mut l,id,room);
+        let state=l.players[&id].combat.as_ref().unwrap();
+        let caps=serde_json::to_value(tg_combat::caps(&l.targets["su_t72a"],state)).unwrap();
+        assert_eq!(caps["weapons"]["gun:0:0"]["mechanized"],true);
+        assert_eq!(caps["weapons"]["gun:0:0"]["reload_mult"],1.0);
+        let scope=l.ammo_scope(id);let shell="apfsds_125_3bm22";
+        record(&mut phases,"first",fire(&mut l,id,41,"gun:0:0",shell,0.0));
+        assert_eq!(l.players[&id].ammo.as_ref().unwrap().counts["gun:0:0"],vec![0,0,0]);
+        let after=l.players[&id].ammo.clone();fire(&mut l,id,41,"gun:0:0",shell,0.1);
+        assert_eq!(l.players[&id].ammo,after,"retry must not charge the carousel twice");
+        let denied=fire(&mut l,id,42,"gun:0:0",shell,0.2);
+        assert_eq!(message(&denied,id,"fire_rejected")["reason"],"no_ammo");
+        record(&mut phases,"empty_reject",denied);
+        l.tick_at(0.2);
+        for i in 1..=19 {supply_tick(&mut l,id,0.2+i as f64*0.25);}
+        assert_eq!(l.players[&id].ammo.as_ref().unwrap().counts["gun:0:0"],vec![0,0,0]);
+        record(&mut phases,"at_5",broadcast_out(supply_tick(&mut l,id,5.2)));
+        assert_eq!(l.players[&id].ammo.as_ref().unwrap().counts["gun:0:0"],vec![1,0,0]);
+        assert_eq!(l.ammo_scope(id),scope);
+        let refill=phases["at_5"].as_array().unwrap().iter().find(|e|e[0]==id && e[1]["t"]=="ammo").unwrap();
+        assert_eq!(refill[1]["refilled"],true);
+        scenarios.insert(mode.into(),json!({"owner":id,"mode":mode,"scope":scope,"caps":caps,"phases":phases}));
+    }
+    if let Ok(file)=std::env::var("TG_T72A_RECEIPT") {
+        let mut sources=source_tags();
+        for path in ["crates/weapon/src/loading.rs","crates/vehicle/src/files.rs","crates/vehicle/src/validate.rs",
+            "data/vehicles/su_t72a/vehicle.json","data/vehicles/su_t72a/weapons.json","data/vehicles/su_t72a/engine.json",
+            "data/vehicles/su_t72a/crew.json","data/vehicles/su_t72a/modules.json","data/vehicles/su_t72a/armor.json",
+            "data/vehicles/su_t72a/visual.json","data/projectiles/apfsds_125_3bm22.json","data/projectiles/heatfs_125_3bk14.json",
+            "data/projectiles/he_125_3of26.json","data/machine_guns.json"] {
+            sources[path]=Value::String(std::fs::read_to_string(std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..").join(path)).unwrap());
+        }
+        std::fs::write(file,serde_json::to_vec(&json!({"sources":sources,"scenarios":scenarios,"authority_boundary":"C2 quantity/scope only; conventional cannon cycle remains existing client owner"})).unwrap()).unwrap();
+    }
+}
 fn sortie(l: &mut Lobby, vehicle: &str, selected: Value) -> (u32, u32, Out) {
     let id = connected(l);
     send(

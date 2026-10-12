@@ -157,10 +157,10 @@ test('actual T34 1940 loses its combined commander/gunner until a real seat swap
   assert.ok(recovered.state.roles.includes('gunner'));
 });
 
-test('all43 live bundles prepare normalized MG anatomy once and preserve original module indices', () => {
+test('all44 live bundles prepare normalized MG anatomy once and preserve original module indices', () => {
   const c = combat();
   assert.equal(typeof c.prepare, 'function');
-  assert.equal(Object.keys(data.vehicles).length, 43);
+  assert.equal(Object.keys(data.vehicles).length, 44);
   for (const [id, b] of Object.entries(data.vehicles)) {
     const before = JSON.stringify(b), n = c.prepare(id, b), r = c.fresh(id, n);
     assert.equal(n.modules.length, r.state.modules.length, id);
@@ -171,10 +171,10 @@ test('all43 live bundles prepare normalized MG anatomy once and preserve origina
     for (const [ti, t] of lo.turrets.entries()) for (const [gi, g] of t.guns.entries()) {
       assert.equal(g.damageKey, `gun:${ti}:${gi}`);
       assert.equal(r.caps.weapons[g.damageKey].can_fire, true, `${id}/${g.damageKey}`);
-      const L = loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack));
+      const L = loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack), t.guns.map(g => g.mechanizedLoading));
       loading.fired(L, gi);
-      const original = loadout.reloadTime(t, gi, 0) * (g.rack && t.loaders.length === 0 ? 1.6 : 1);
-      loading.tick(L, .00001, (gun, loader) => loadout.reloadTime(t, gun, loader), gun => helper.weaponReloadRate(r.caps, t.guns[gun].damageKey));
+      const original = loadout.reloadTime(t, gi, 0) * (g.noDedicatedLoader ? 1.6 : 1);
+      loading.tick(L, .00001, (gun, loader) => loadout.reloadTime(t, gun, loader), gun => helper.mountedReloadRate(r.caps, t.guns[gun], n, r.state));
       assert.ok(Math.abs(loading.progress(L, gi).total - original) < 1e-8, `${id}/${g.damageKey} healthy cycle preserved`);
     }
     for (const m of lo.machineGuns) {
@@ -358,9 +358,9 @@ test('actual ammo synchronization clears empty damaged-rack penalties from ongoi
   loading.fired(L, 0);
   const tickLine = source.split('\n').find(line => line.includes('const done = loading.tick(G.T[ti].loading, SIM_DT'));
   assert.ok(tickLine, 'real main loading entry is required');
-  const tick = new Function('G', 'loading', 'reloadTime', 'weaponReloadRate', 't', 'ti', 'SIM_DT', tickLine + '\nreturn done;');
+  const tick = new Function('G', 'loading', 'reloadTime', 'mountedReloadRate', 't', 'ti', 'SIM_DT', tickLine + '\nreturn done;');
   const before = loadout.reloadTime(t, 0, 0);
-  tick(G, loading, loadout.reloadTime, helper.weaponReloadRate, t, 0, 1);
+  tick(G, loading, loadout.reloadTime, helper.mountedReloadRate, t, 0, 1);
   assert.ok(Math.abs(loading.progress(L, 0).remaining - (before - .8)) < 1e-8, 'the occupied damaged rack slows the ongoing cycle');
   const app = live(['carriedRounds', 'syncRacks'], {G, emptyRacks, roundsLeft: loadout.roundsLeft, applyXray() {}});
   g.ammo[0].count = 42;
@@ -370,10 +370,10 @@ test('actual ammo synchronization clears empty damaged-rack penalties from ongoi
   const hudLine = source.split('\n').find(line => line.includes('hud.ammo(sg, loading.progress(srt.loading, G.sightG'));
   assert.ok(hudLine, 'real main ammo HUD entry is required');
   let shown;
-  new Function('G', 'loading', 'weaponReloadMult', 'hud', 'sg', 'srt', hudLine)(G, loading, helper.weaponReloadMult, {ammo: (_, p) => {shown = p;}}, g, G.T[0]);
+  new Function('G', 'loading', 'mountedReloadMult', 'hud', 'sg', 'srt', hudLine)(G, loading, helper.mountedReloadMult, {ammo: (_, p) => {shown = p;}}, g, G.T[0]);
   assert.equal(shown.remaining, loading.progress(L, 0).remaining, 'HUD immediately reports the recovered real remaining seconds');
   const remaining = loading.progress(L, 0).remaining;
-  tick(G, loading, loadout.reloadTime, helper.weaponReloadRate, t, 0, 1);
+  tick(G, loading, loadout.reloadTime, helper.mountedReloadRate, t, 0, 1);
   assert.ok(Math.abs(loading.progress(L, 0).remaining - (remaining - 1)) < 1e-8, 'the current reload resumes healthy work without another damage advance');
 });
 

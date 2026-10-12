@@ -46,7 +46,7 @@ test('Hetzer final drives and inner wheel axles have closed castings instead of 
 });
 
 test('every procedural tracked chassis has sealed mounted gear and continuous connectors to both sides',()=>{
-  assert.equal(procedural.length,23);
+  assert.equal(procedural.length,24);
   for(const id of procedural) {
     const {M}=rig(id),casting=M.running.children.find(n=>n.name==='gear_mounts'),links=segments(M);
     assert.ok(casting?.mesh,`${id}: hull-side mounts`);

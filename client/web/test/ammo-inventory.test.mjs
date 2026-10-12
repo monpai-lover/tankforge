@@ -26,8 +26,8 @@ test('saved short and zero lives start with belts bounded by chosen stock',()=>{
   assert.equal(JSON.stringify(data.vehicles),before);
 });
 
-test('all 43 stock loadouts capture immutable selected targets without source mutation',()=>{
-  requireApi(); const before=JSON.stringify(data.vehicles); assert.equal(data.order.length,43);
+test('all 44 stock loadouts capture immutable selected targets without source mutation',()=>{
+  requireApi(); const before=JSON.stringify(data.vehicles); assert.equal(data.order.length,44);
   for(const id of data.order){const {lo,L}=setup(id);const plan=api.captureAmmoPlan(lo);assert.ok(Object.isFrozen(plan));
     for(const [key,p]of Object.entries(plan)){assert.ok(Object.isFrozen(p)&&Object.isFrozen(p.ammo)&&Object.isFrozen(p.targets));const [,ti,gi]=key.split(':').map(Number);assert.deepEqual(p.targets,lo.turrets[ti].guns[gi].ammo.map(a=>a.max));assert.deepEqual(p.ammo,lo.turrets[ti].guns[gi].ammo.map(a=>a.shell.id));}
     assert.equal(api.needsAmmo(lo,plan),false);assert.deepEqual(api.refillAmmo(lo,plan,L),[]);

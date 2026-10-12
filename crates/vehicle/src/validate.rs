@@ -188,6 +188,14 @@ impl Volume {
     }
 }
 
+fn check_mechanized(r:&mut Report,path:&str,m:Option<&tg_weapon::loading::MechanizedLoadingDef>,g:&GunDef,modules:&[tg_damage::Module]) {
+    let Some(m)=m else {return};
+    if !m.valid_for(g) || m.modules.iter().any(|id|{
+        let matches:Vec<_>=modules.iter().filter(|module|module.id==*id).collect();
+        matches.len()!=1 || !matches!(matches[0].kind,ModuleKind::HorizontalDrive|ModuleKind::VerticalDrive)
+    }) {r.err("W014",path,"invalid or incompatible fitted mechanized carousel / physical mechanism modules");}
+}
+
 fn check_gun(r: &mut Report, path: &str, g: &GunDef, mount: [f32; 3], muzzle_offset: f32, vol: &Volume, shells: &HashMap<String, ProjectileDef>) {
     if g.caliber_mm <= 0.0 || g.reload_s <= 0.0 || g.traverse_deg_s <= 0.0 || g.elevate_deg_s <= 0.0 || g.rounds_per_min <= 0.0 {
         r.err("W003", path, "caliber, reload, rates must be > 0");
@@ -489,7 +497,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
     // a small gun (50 mm and under) was loaded by the commander or the gunner: no loader is needed
     let small_gun = v.weapons.main_gun.caliber_mm <= 50.0;
     for (role, name) in [(CrewRole::Commander, "commander"), (CrewRole::Gunner, "gunner"), (CrewRole::Loader, "loader"), (CrewRole::Driver, "driver")] {
-        if role == CrewRole::Loader && small_gun {
+        if role == CrewRole::Loader && (small_gun || v.weapons.mechanized_loading.is_some()) {
             continue;
         }
         if !v.crew.iter().any(|c| c.role == role || c.also.contains(&role)) {
@@ -499,6 +507,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
 
     // ---- weapons: primary turret, then extra guns and extra turrets under the same rules
     let w = &v.weapons;
+    check_mechanized(&mut r,"weapons.json",w.mechanized_loading.as_ref(),&w.main_gun,&v.modules);
     check_gun(&mut r, "weapons.json:main_gun", &w.main_gun, w.mount_m, w.muzzle_offset(), &vol, shells);
     if let Some(sight) = &w.sight {
         check_sight(&mut r, "weapons.json:sight", sight);
@@ -512,6 +521,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
     for (i, gm) in w.extra_guns.iter().enumerate() {
         let path = format!("weapons.json:extra_guns[{}]", i);
         check_gun(&mut r, &path, &gm.gun, gm.mount_m, gm.muzzle_offset(), &vol, shells);
+        check_mechanized(&mut r,&path,gm.mechanized_loading.as_ref(),&gm.gun,&v.modules);
         check_stations(&mut r, &path, &[], gm.rack_m, &vol);
     }
     let mut turret_ids = HashSet::new();
@@ -541,6 +551,7 @@ pub fn validate_vehicle(v: &LoadedVehicle, mats: &MaterialDb, shells: &HashMap<S
         for (j, gm) in t.guns.iter().enumerate() {
             let gp = format!("{}.guns[{}]", path, j);
             check_gun(&mut r, &gp, &gm.gun, gm.mount_m, gm.muzzle_offset(), &vol, shells);
+            check_mechanized(&mut r,&gp,gm.mechanized_loading.as_ref(),&gm.gun,&v.modules);
             check_stations(&mut r, &gp, &[], gm.rack_m, &vol);
         }
     }

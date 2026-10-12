@@ -1,0 +1,40 @@
+{
+  "explosive_type": "none",
+  "penetrator_material": "steel",
+  "drag_coefficient": 0.3,
+  "normalization_deg": 0,
+  "shatter_angle_deg": 90,
+  "fuse_delay_s": 0,
+  "fuse_sensitivity_mm": 0,
+  "id": "apfsds_125_3bm22",
+  "name": "125 mm 3BM-22 (APFSDS)",
+  "kind": "apfsds",
+  "caliber_mm": 44,
+  "mass_kg": 4.83,
+  "muzzle_velocity_ms": 1760,
+  "explosive_mass_kg": 0,
+  "length_mm": 453,
+  "penetration_curve": [
+    {
+      "distance_m": 0,
+      "pen_mm": 420
+    },
+    {
+      "distance_m": 1000,
+      "pen_mm": 385
+    },
+    {
+      "distance_m": 2000,
+      "pen_mm": 350
+    },
+    {
+      "distance_m": 3000,
+      "pen_mm": 315
+    }
+  ],
+  "ricochet_angle_deg": 78,
+  "provenance": {
+    "document": "docs/t72a-autoloader-research-2026-10-12.json",
+    "calibration": "Nominal ammunition reconstruction; penetration/drag/fuse/ricochet are engineering estimates, not historical firing-test certification."
+  }
+}

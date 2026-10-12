@@ -100,7 +100,7 @@ export function exposedCrewWitnesses(id, bundle = data.vehicles[id], phases = 16
 
 if(!process.env.TF_CREW_AUDIT_ONLY)test('actual visible crew stay inside the outside hull envelope through idle/reload and legal traverse',()=>{
   const ids=data.order.filter(id=>!data.vehicles[id].model),bad=[];
-  assert.equal(ids.length,27);
+  assert.equal(ids.length,28);
   for(const id of ids) {
     if(!data.vehicles[id].vehicle.turret.open_top)continue;
     bad.push(...exposedCrewWitnesses(id));

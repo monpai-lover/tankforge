@@ -1,0 +1,32 @@
+{
+  "explosive_type": "okfol",
+  "penetrator_material": "steel",
+  "drag_coefficient": 0.3,
+  "normalization_deg": 0,
+  "shatter_angle_deg": 90,
+  "fuse_delay_s": 0,
+  "fuse_sensitivity_mm": 0,
+  "id": "heatfs_125_3bk14",
+  "name": "125 mm 3BK-14 (HEAT-FS)",
+  "kind": "heat_fs",
+  "caliber_mm": 125,
+  "mass_kg": 19.02,
+  "muzzle_velocity_ms": 905,
+  "explosive_mass_kg": 1.85,
+  "length_mm": 677,
+  "penetration_curve": [
+    {
+      "distance_m": 0,
+      "pen_mm": 450
+    },
+    {
+      "distance_m": 3000,
+      "pen_mm": 450
+    }
+  ],
+  "ricochet_angle_deg": 80,
+  "provenance": {
+    "document": "docs/t72a-autoloader-research-2026-10-12.json",
+    "calibration": "Nominal ammunition reconstruction; penetration/drag/fuse/ricochet are engineering estimates, not historical firing-test certification."
+  }
+}

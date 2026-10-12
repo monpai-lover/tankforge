@@ -1,0 +1,222 @@
+[
+  {
+    "id": "engine",
+    "kind": "engine",
+    "center": {
+      "x": 0,
+      "y": 0.98,
+      "z": -2.15
+    },
+    "half_extents": {
+      "x": 0.82,
+      "y": 0.36,
+      "z": 0.46
+    },
+    "max_health": 150,
+    "health": 150
+  },
+  {
+    "id": "transmission",
+    "kind": "transmission",
+    "center": {
+      "x": 0,
+      "y": 0.86,
+      "z": -2.95
+    },
+    "half_extents": {
+      "x": 0.72,
+      "y": 0.28,
+      "z": 0.3
+    },
+    "max_health": 120,
+    "health": 120
+  },
+  {
+    "id": "fuel_tank",
+    "kind": "fuel_tank",
+    "center": {
+      "x": 0.7,
+      "y": 0.93,
+      "z": 1.75
+    },
+    "half_extents": {
+      "x": 0.34,
+      "y": 0.28,
+      "z": 0.56
+    },
+    "max_health": 50,
+    "health": 50
+  },
+  {
+    "id": "az_carousel",
+    "kind": "ammo_rack",
+    "center": {
+      "x": 0,
+      "y": 0.73,
+      "z": 0.18
+    },
+    "half_extents": {
+      "x": 1.01,
+      "y": 0.2,
+      "z": 1.01
+    },
+    "max_health": 100,
+    "health": 100,
+    "rounds": 22,
+    "weapon_group": "gun:0:0"
+  },
+  {
+    "id": "az_drive",
+    "kind": "horizontal_drive",
+    "center": {
+      "x": 0.85,
+      "y": 1.11,
+      "z": -0.52
+    },
+    "half_extents": {
+      "x": 0.16,
+      "y": 0.15,
+      "z": 0.23
+    },
+    "max_health": 70,
+    "health": 70,
+    "weapon_group": "mechanism:az_t72"
+  },
+  {
+    "id": "az_ram",
+    "kind": "vertical_drive",
+    "center": {
+      "x": 0,
+      "y": 1.35,
+      "z": -0.3
+    },
+    "half_extents": {
+      "x": 0.18,
+      "y": 0.16,
+      "z": 0.42
+    },
+    "max_health": 70,
+    "health": 70,
+    "weapon_group": "mechanism:az_t72"
+  },
+  {
+    "id": "breech",
+    "kind": "gun_breech",
+    "center": {
+      "x": 0,
+      "y": 1.86,
+      "z": 0.62
+    },
+    "half_extents": {
+      "x": 0.24,
+      "y": 0.23,
+      "z": 0.43
+    },
+    "max_health": 110,
+    "health": 110,
+    "weapon_group": "gun:0:0",
+    "turret_index": 0
+  },
+  {
+    "id": "gun_barrel",
+    "kind": "gun_barrel",
+    "center": {
+      "x": 0,
+      "y": 1.86,
+      "z": 3.97
+    },
+    "half_extents": {
+      "x": 0.08,
+      "y": 0.08,
+      "z": 2.13
+    },
+    "max_health": 140,
+    "health": 140,
+    "weapon_group": "gun:0:0",
+    "turret_index": 0
+  },
+  {
+    "id": "turret_drive",
+    "kind": "turret_drive",
+    "center": {
+      "x": -0.82,
+      "y": 1.47,
+      "z": 0.2
+    },
+    "half_extents": {
+      "x": 0.13,
+      "y": 0.12,
+      "z": 0.18
+    },
+    "max_health": 70,
+    "health": 70,
+    "weapon_group": "turret:0",
+    "turret_index": 0
+  },
+  {
+    "id": "elevation_drive",
+    "kind": "vertical_drive",
+    "center": {
+      "x": 0.39,
+      "y": 1.76,
+      "z": 0.88
+    },
+    "half_extents": {
+      "x": 0.11,
+      "y": 0.14,
+      "z": 0.18
+    },
+    "max_health": 70,
+    "health": 70,
+    "weapon_group": "gun:0:0",
+    "turret_index": 0
+  },
+  {
+    "id": "radio",
+    "kind": "radio",
+    "center": {
+      "x": 0.85,
+      "y": 1.65,
+      "z": -0.42
+    },
+    "half_extents": {
+      "x": 0.12,
+      "y": 0.15,
+      "z": 0.2
+    },
+    "max_health": 40,
+    "health": 40
+  },
+  {
+    "id": "track_l",
+    "kind": "track",
+    "center": {
+      "x": -1.395,
+      "y": 0.48,
+      "z": 0
+    },
+    "half_extents": {
+      "x": 0.29,
+      "y": 0.48,
+      "z": 3.1
+    },
+    "max_health": 120,
+    "health": 120
+  },
+  {
+    "id": "track_r",
+    "kind": "track",
+    "center": {
+      "x": 1.395,
+      "y": 0.48,
+      "z": 0
+    },
+    "half_extents": {
+      "x": 0.29,
+      "y": 0.48,
+      "z": 3.1
+    },
+    "max_health": 120,
+    "health": 120
+  }
+]

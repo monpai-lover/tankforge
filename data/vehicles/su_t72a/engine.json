@@ -1,0 +1,45 @@
+{
+  "engine": {
+    "horsepower": 780,
+    "max_rpm": 2000,
+    "idle_rpm": 600,
+    "weight_kg": 1100,
+    "torque_curve": [
+      [
+        600,
+        2300
+      ],
+      [
+        1000,
+        2900
+      ],
+      [
+        1400,
+        3089
+      ],
+      [
+        1800,
+        2900
+      ],
+      [
+        2000,
+        2778
+      ]
+    ]
+  },
+  "transmission": {
+    "forward_gears": 7,
+    "reverse_gears": 1,
+    "gear_ratios": [
+      8.713,
+      4.4,
+      3.1,
+      2.25,
+      1.65,
+      1.18,
+      0.9
+    ],
+    "final_drive_ratio": 4.02,
+    "shift_time_s": 0.45
+  }
+}
