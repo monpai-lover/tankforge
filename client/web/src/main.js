@@ -19,6 +19,7 @@ import { VehicleActions, VehicleActionIndicator } from './game/vehicleActions.js
 import { rangefinderForWeapon } from './game/rangefinderEquipment.js';
 import { Enemy, RESULT_LABEL, useCombat, combatHit } from './game/enemies.js';
 import { rangeVehicleTargets } from './game/rangeVehicles.js';
+import { RangeTargetRevival, captureRangeTargetRestPose, reviveRangeTarget } from './game/rangeTargetRevival.js';
 import { Combat, bulletShell, EVENT_NAME, CREW_NAME, arr3, emptyRacks, launcherCanFire } from './game/combat.js';
 import { weaponDamage, weaponReloadRate, weaponReloadMult, moduleDamageLabels } from './game/weaponDamage.js';
 import { HitCam } from './game/hitcam.js';
@@ -1577,7 +1578,9 @@ export function start(data, saved = {}) {
 
   // ---- stock range targets and enemy vehicles at a map's red start points
   const ENEMY_POOL = ['su_t34_85', 'us_m901_itv', 'de_pz4_h', 'su_t10m', 'us_m4a3_75w', 'de_panther_g', 'su_is2', 'uk_cromwell_iv'];
+  const rangeTargetRevival = new RangeTargetRevival();
   function clearEnemies() {
+    rangeTargetRevival.reset();
     hitcam.hide();
     for (const e of G.enemies || []) {
       scene.children = scene.children.filter((c) => c !== e.model.root);
@@ -1607,8 +1610,17 @@ export function start(data, saved = {}) {
       if (e.rangeTarget) e.rangeM = sp.rangeM;
       e.combatKey = key;
       if (G.combat) useCombat(e, G.combat, e.combatKey);
+      if (e.rangeTarget) e.rangeRestPose = captureRangeTargetRestPose(e);
       G.enemies.push(e);
     });
+  }
+
+  function updateRangeTargetRevival(dt) {
+    if (G.mode !== 'battle' || G.mapId !== 'range' || G.map || G.online) return;
+    rangeTargetRevival.step(dt, G.enemies, reviveRangeEnemy);
+  }
+  function reviveRangeEnemy(e) {
+    return reviveRangeTarget(e, G.combat);
   }
 
   /** Stock training targets show their range; online players retain their visibility rules. */
@@ -4630,6 +4642,7 @@ export function start(data, saved = {}) {
     // ---- projectiles and effects
     updateShots(dt);
     updateBullets(dt);
+    updateRangeTargetRevival(dt);
     if (G.missiles) G.missiles.draw(dt, camPos);
     if (testing) testRange.step(dt);
     const speed = Math.abs(G.s.u);

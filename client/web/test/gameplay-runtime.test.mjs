@@ -22,6 +22,7 @@ import { OnlineLaunches } from '../src/game/onlineLaunch.js';
 import { buildTank } from '../src/gfx/tankmodel.js';
 import { Combat, launcherCanFire, bulletShell } from '../src/game/combat.js';
 import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
+import { captureRangeTargetRestPose } from '../src/game/rangeTargetRevival.js';
 import { hitTargets, groundHit } from '../src/game/world.js';
 import * as performanceApi from '../src/game/gameplayPerformance.js';
 import * as phys from '../src/sim/physics.js';
@@ -203,7 +204,7 @@ test('actual enemy/remote selection and APS registration use locked mode descrip
     const G = { id: 'su_t34_85', gameplayMode: 'casual', mode: 'battle', s: {}, enemies: [] };
     const deps = { G, stabilizerDrives, data, ENEMY_POOL: ['su_t10m'], clearEnemies() { G.enemies = []; }, rangeVehicleTargets: () => [{ id: 'su_t10m', x: 0, z: 0, heading: 0 }],
       ...loadout, ...performanceApi, buildTank, renderer: { mesh: vertices => ({ vertices }), instancedMesh: vertices => ({ vertices }), setInstances() {}, freeMesh() {} },
-      scene: { add() {} }, Enemy, terrain: ground(() => 0), onlineSpawn: () => ({ x: 0, z: 0, heading: 0 }), useCombat };
+      scene: { add() {} }, Enemy, terrain: ground(() => 0), onlineSpawn: () => ({ x: 0, z: 0, heading: 0 }), useCombat, captureRangeTargetRestPose };
     new Function(...Object.keys(deps), `${functionSource(name)}\n${name === 'spawnEnemies' ? 'spawnEnemies()' : "addRemote({ id: 9, vehicle: 'su_t10m', team: 'red', name: 'other' })"};`)(...Object.values(deps));
     close(G.enemies[0].loadout.weapons.aps.rate_rpm / data.vehicles.su_t10m.weapons.aps.rate_rpm, 1.2, `${name} APS`);
     close(G.enemies[0].veh.tm.p.power / phys.makeParams(data.vehicles.su_t10m.vehicle, data.vehicles.su_t10m.engine).power, 1.25 * 1.15, `${name} VehicleSim`);

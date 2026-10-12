@@ -10,6 +10,7 @@ import * as resupply from '../src/game/ammoResupply.js';
 import * as loading from '../src/sim/loading.js';
 import { makeLoadout, generatedTurretParts, nextAmmo, roundsLeft } from '../src/game/loadout.js';
 import { Enemy, useCombat, combatHit } from '../src/game/enemies.js';
+import { RangeTargetRevival, captureRangeTargetRestPose } from '../src/game/rangeTargetRevival.js';
 import { Terrain } from '../src/game/terrain.js';
 import { groundRay, hitTargets, humpLift, COURSE, FIELD } from '../src/game/world.js';
 import { loadCoreSync } from '../src/design/core.js';
@@ -74,7 +75,7 @@ test('actual range models settle, have clear firing lanes and independent combat
   const renderer={mesh:d=>({data:d,count:d.length/STRIDE}),instancedMesh:(d,capacity)=>({data:d,count:d.length/STRIDE,capacity}),setInstances(){},freeMesh(){freed++;},texture(){return {};},freeTexture(){}};
   const scene={children:[],add(root){this.children.push(root);}};
   const G={map:null,gameplayMode:'historical',id:'xp_bmp_k64',enemies:[],combat:null};
-  const deps={G,data,renderer,scene,terrain,makeLoadout,deriveLoadoutPerformance,buildTank,generatedTurretParts,Enemy,useCombat,rangeVehicleTargets:()=>rows,ENEMY_POOL:['su_t54'],hitcam:{hide(){}}};
+  const deps={G,data,renderer,scene,terrain,makeLoadout,deriveLoadoutPerformance,buildTank,generatedTurretParts,Enemy,useCombat,rangeTargetRevival:new RangeTargetRevival(),captureRangeTargetRestPose,rangeVehicleTargets:()=>rows,ENEMY_POOL:['su_t54'],hitcam:{hide(){}}};
   const app=live(['clearEnemies','spawnEnemies','hitEnemy','bindCombatReady'],deps);
   app.spawnEnemies();
   assert.equal(G.enemies.length,8);

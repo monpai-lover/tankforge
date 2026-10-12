@@ -130,6 +130,7 @@ export class Combat {
     this.catalogStamps = new Map();
     this.foldPose = new Map();
     this.appliedFold = new Map();
+    this.registrations = new Map();
   }
 
   get ready() {
@@ -149,7 +150,9 @@ export class Combat {
     this.bundles.set(id, bundle);
     if (!this.foldPose.has(id)) this.foldPose.set(id, 0);
     const fold = this.foldPose.get(id);
-    const description = this.core.combatTarget(targetDef(id, bundle, fold, catalog));
+    const definition = targetDef(id, bundle, fold, catalog);
+    const description = this.core.combatTarget(definition);
+    this.registrations.set(id, structuredClone(definition));
     const normalized = { ...bundle, modules: description.modules_def || bundle.modules || [], binding_errors: description.binding_errors || [] };
     this.descriptions.set(id, normalized);
     this.sources.set(normalized, bundle);
@@ -176,8 +179,36 @@ export class Combat {
   }
 
   /** Returns a separate fresh state for this actor; its definition is cached by source identity. */
-  fresh(id, bundle) {
+  fresh(id, bundle, restFold = undefined) {
     if (!this.core) return null;
+    if (restFold !== undefined) {
+      // A life reset can only restore an existing actor's original source. Preserve the exact
+      // registered definition as well as cache absence/value if fresh state creation fails.
+      const definition = this.registrations.get(id);
+      if (!definition || (this.sources.get(bundle) || bundle) !== this.bundles.get(id)) return null;
+      const previous = ['bundles', 'descriptions', 'catalogStamps', 'foldPose', 'appliedFold', 'registrations']
+        .map(name => ({map:this[name],present:this[name].has(id),value:this[name].get(id)}));
+      const description = this.descriptions.get(id);
+      let failure;
+      try {
+        this.prepare(id, bundle);
+        this.setFold(id, restFold);
+        this._applyFold(id);
+        const fresh = this.core.combatNew(id);
+        if (fresh) return fresh;
+      } catch (error) { failure = error; }
+      const candidate = this.descriptions.get(id);
+      try { this.core.combatTarget(definition); }
+      finally {
+        if (candidate !== description && candidate) this.sources.delete(candidate);
+        for (const {map,present,value} of previous) {
+          if (present) map.set(id, value);
+          else map.delete(id);
+        }
+      }
+      if (failure) throw failure;
+      return null;
+    }
     this.prepare(id, bundle);
     this._applyFold(id);
     return this.core.combatNew(id);
@@ -193,7 +224,9 @@ export class Combat {
     if (this.appliedFold.get(id) === fold) return;
     const bundle = this.bundles.get(id);
     if (!bundle) return;
-    this.core.combatTarget(targetDef(id, bundle, fold, this._catalog()));
+    const definition = targetDef(id, bundle, fold, this._catalog());
+    this.core.combatTarget(definition);
+    this.registrations.set(id, structuredClone(definition));
     this.appliedFold.set(id, fold);
   }
 
