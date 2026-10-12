@@ -36,4 +36,6 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\audio\elevenlabs
 
 後續製作工具應在本機解密並直接送出 API 請求，僅把音訊與無密鑰的製作紀錄存入專案。現有音效槽位在 `client/web/src/game/audio.js`，音訊檔放入 `client/web/assets/sfx/` 後由建置工具嵌入遊戲。
 
+候選音效的離線生成工具、11 槽提示及首批 2 秒試作範圍見 [離線音效製作](elevenlabs-sfx-generation.md)。該工具預設 dry-run，不會讀取密鑰或連網；生成需明確選擇批次和 `-Generate`。
+
 官方參考：[API authentication](https://elevenlabs.io/docs/api-reference/authentication)、[API keys](https://elevenlabs.io/docs/overview/administration/workspaces/api-keys)、[唯讀帳戶驗證](https://elevenlabs.io/docs/api-reference/user/subscription/get)、[Sound Effects](https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert)。

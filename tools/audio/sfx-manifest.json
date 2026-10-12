@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "provider": "ElevenLabs",
+  "modelId": "eleven_text_to_sound_v2",
+  "outputFormat": "mp3_44100_128",
+  "promptInfluence": 0.3,
+  "slots": [
+    {
+      "id": "engine_loop", "durationSeconds": 6, "loop": true,
+      "takes": [{ "number": 1, "prompt": "A steady diesel engine of a tracked armored vehicle running at medium RPM under gentle load. Close mechanical recording: deep pulsing low-frequency motor rumble with restrained midrange engine vibration. Constant speed throughout, seamless continuous loop, no start or stop, no acceleration, no track clatter, no voices, no music, no battle ambience. Dry isolated game sound effect." }],
+      "acceptance": "Stable pitch and load; no startup, gearshift or obvious loop seam. Leave room for cannon transients."
+    },
+    {
+      "id": "track_loop", "durationSeconds": 6, "loop": true,
+      "takes": [{ "number": 1, "prompt": "Steel caterpillar tracks of a heavy armored vehicle rolling steadily over compact dirt at a moderate constant speed. Close dry mechanical sound: rhythmic low rolling rumble and evenly repeated metal tread clacks, restrained grit. Seamless continuous loop, constant pace, no start or stop, no engine, no squealing, no large impacts, no voices, no music, no battle ambience. Isolated game sound effect." }],
+      "acceptance": "Rhythmic continuous track bed without a prominent bump at each loop; no engine duplication."
+    },
+    {
+      "id": "shot_light", "durationSeconds": 2, "loop": false,
+      "takes": [{ "number": 1, "prompt": "One single 45 mm tank cannon firing, heard close beside the gun outdoors. Immediate sharp compact muzzle crack, short punchy low-frequency thump, brief mechanical recoil clack and a fast natural decay. Exactly one shot, onset at the beginning, no long echo, no shell impact, no reload sequence, no voices, no music, no ambience. Dry isolated game sound effect." }],
+      "acceptance": "One prompt attack; short decay; clearly lighter than the medium cannon. Trim lead-in before runtime use."
+    },
+    {
+      "id": "shot_medium", "durationSeconds": 2, "loop": false,
+      "takes": [{ "number": 1, "prompt": "One single 88 mm tank cannon firing, heard close beside the gun outdoors. Immediate hard muzzle crack with a solid chesty low-frequency blast, a subtle short metal recoil clack, then a compact natural decay. Exactly one shot, onset at the beginning, no long echo, no shell impact, no reload sequence, no voices, no music, no ambience. Dry isolated game sound effect." }],
+      "acceptance": "One clear report, decisive attack and compact bass tail. Pilot take: inspect before requesting the remaining slots."
+    },
+    {
+      "id": "shot_heavy", "durationSeconds": 3, "loop": false,
+      "takes": [{ "number": 1, "prompt": "One single 152 mm heavy tank cannon firing, heard close beside the gun outdoors. Immediate powerful muzzle crack, very deep weighty bass concussion, brief heavy recoil mechanism clunk, then a controlled rumbling decay. Exactly one shot, onset at the beginning, no prolonged cinematic boom, no long echo, no shell impact, no voices, no music, no ambience. Dry isolated game sound effect." }],
+      "acceptance": "Heavier bass and tail than medium; no layered second shot, clipping or cinematic wash."
+    },
+    {
+      "id": "mg_light", "durationSeconds": 0.5, "loop": false,
+      "takes": [{ "number": 1, "prompt": "Exactly one individual 7.62 mm mounted machine-gun round firing. Immediate crisp dry gunshot crack with a tiny metal action snap and a very short tail. One single shot only, no automatic burst, no second round, no echo, no voices, no music, no background ambience. Isolated game sound effect for rapid repetition." }],
+      "acceptance": "One round only; very short tail. Runtime repeats this slot for each machine-gun report."
+    },
+    {
+      "id": "mg_heavy", "durationSeconds": 0.5, "loop": false,
+      "takes": [{ "number": 1, "prompt": "Exactly one individual 12.7 mm heavy mounted machine-gun round firing. Immediate dry sharp crack with a punchy low thump, tiny mechanical action clack and very short decay. One single shot only, no automatic burst, no second round, no echo, no voices, no music, no background ambience. Isolated game sound effect for rapid repetition." }],
+      "acceptance": "One round only with more weight than light MG; must stay clear when rapidly repeated."
+    },
+    {
+      "id": "impact_ground", "durationSeconds": 1.5, "loop": false,
+      "takes": [{ "number": 1, "prompt": "One tank projectile striking packed earth nearby. Immediate dense dry thud and compact burst of dirt and small gravel scattering, with a short gritty settling tail. Exactly one impact, onset at the beginning, no cannon report, no metallic ringing, no giant explosion, no voices, no music, no background ambience. Isolated game sound effect." }],
+      "acceptance": "Distinct earth/debris texture; no extra launch report or explosion overpowering hit feedback."
+    },
+    {
+      "id": "impact_metal", "durationSeconds": 1.5, "loop": false,
+      "takes": [{ "number": 1, "prompt": "One tank projectile hitting a thick steel armor plate nearby. Immediate hard metallic clang and low solid impact thump, a short rough steel vibration and tiny debris tick, then quick decay. Exactly one impact, onset at the beginning, no cannon firing sound, no bouncing sequence, no long ringing, no voices, no music, no background ambience. Dry isolated game sound effect." }],
+      "acceptance": "Solid armor hit with short steel resonance; no multiple contacts or long bell-like ring."
+    },
+    {
+      "id": "reload_done", "durationSeconds": 0.5, "loop": false,
+      "takes": [{ "number": 1, "prompt": "A single short tank cannon breech latch snapping shut and locking ready. Close dry mechanical steel clack with a small final latch click, tight and reassuring, one compact event at the beginning. No full reload sequence, no shell falling, no voices, no beep, no music, no background ambience. Isolated game feedback sound effect." }],
+      "acceptance": "Compact mechanical ready click, no full reload animation soundtrack."
+    },
+    {
+      "id": "rangefinder", "durationSeconds": 0.5, "loop": false,
+      "takes": [{ "number": 1, "prompt": "One short clean electronic rangefinder confirmation ping. A precise restrained high tone with an immediate attack and very brief smooth decay, one single compact beep at the beginning. No alarm pattern, no voice, no static, no echo, no music, no background ambience. Isolated interface sound effect." }],
+      "acceptance": "One concise readable confirmation ping that does not sound like an alarm."
+    }
+  ]
+}

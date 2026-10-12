@@ -26,3 +26,6 @@ Thumbs.db
 .idea/
 .vscode/
 *.log
+
+# Unreviewed provider audio takes and request receipts (offline authoring only)
+/artifacts/audio/elevenlabs/
