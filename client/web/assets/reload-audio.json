@@ -1,0 +1,194 @@
+{
+  "schemaVersion": 1,
+  "bankId": "regional-reloads-v1",
+  "reviewState": "reviewed",
+  "approval": {
+    "source": "human",
+    "statement": "裝填聲合適",
+    "scope": "nine-regional-manual-stages",
+    "date": "2026-10-12",
+    "interpretation": "Accepted German, Soviet and US grab/load/lock manual prototypes; not an authentic-recording claim or approval of automatic/weapon/engine candidates"
+  },
+  "cues": [
+    {
+      "id": "de_manual_grab",
+      "file": "client/web/assets/reload-audio/de_manual_grab.wav",
+      "sha256": "c99ba251d8e63e1f857f6c5ddfc7f8f1f1438ec797a18a0fe5b579f89ef8c885",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "2b6c9bf4f2b2ef208851275870cc89e0480c073754f42c032b0f559fde4b5b3d",
+        "decodeReceiptSha256": "c39549c02ac8fd1e9f33cf7f3e68ac52e46656d6942c4600c9b70e147d7a9489",
+        "providerReceiptSha256": "36853e287a04dc5fe788032224392d62386e082249f5ac4e7b66f613cd245d4f",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 38808,
+        "durationSeconds": 0.88,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "de_manual_load",
+      "file": "client/web/assets/reload-audio/de_manual_load.wav",
+      "sha256": "893561d635773924fb1767575aad159405676de0acd2f1a485414509b1bb6d28",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "9fc458e77a40eca0173d172dcece49918ea1637f90c8172d2e0e0860e62b7ca2",
+        "decodeReceiptSha256": "e08337242af98a9917d74e2dd710d07baf27a288bda9300de745a974691e1425",
+        "providerReceiptSha256": "aa5e0a5b4b8110d341f047ac47cac11fb641b832688645c40ddb705da1f4d199",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 59976,
+        "durationSeconds": 1.36,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "de_manual_lock",
+      "file": "client/web/assets/reload-audio/de_manual_lock.wav",
+      "sha256": "24d72ebd92733f59cd8ac2d1cd7c40f7b539acd9e64d55b32374d34898234189",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "7c46a4e8fd7bcf367f9cba30cf7c0ccf6ffb5f096d6531e6564ef6ce253c28d2",
+        "decodeReceiptSha256": "257fb0117a5c209a8be8c73d1a2c7ed9453a25b24f920fec74f3691607e3c46f",
+        "providerReceiptSha256": "3f9b7a7a454fb56d284e2aa67dd630c6488219263619b0e1ab48344d2f2f48fc",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 29999,
+        "durationSeconds": 0.6802494331065759,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "su_manual_grab",
+      "file": "client/web/assets/reload-audio/su_manual_grab.wav",
+      "sha256": "207e088e7d6269cbe94c1877d2e892183448e585e230266985d4800a9b0b90f6",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "bb2d8134f71e85842d6948e957430091bd415c630debea55b546648d5cacc189",
+        "decodeReceiptSha256": "d396c31362f3a7a1b219fd655f2fdd04125c6bce98a49448bda82d129117e690",
+        "providerReceiptSha256": "e1390b3855103283a4f8b47b6fdbcc72411e153d4577c576f492356516e31a7d",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 38808,
+        "durationSeconds": 0.88,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "su_manual_load",
+      "file": "client/web/assets/reload-audio/su_manual_load.wav",
+      "sha256": "590d37febc429690733359389462ca8fc7ba80677918a3e517ae35314b5c397d",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "d9422dc588b3f0bd63442eaa372d9e98a47332dc059138f3146221152f373a8c",
+        "decodeReceiptSha256": "5cab62ff0625edb2273ef055fa594e6fa945506e509d261a935bbc49bd026fde",
+        "providerReceiptSha256": "7bebba9b6194bedcc99f822a412ec194b5a3febf2f06c0d285df8f7461f2ea50",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 59976,
+        "durationSeconds": 1.36,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "su_manual_lock",
+      "file": "client/web/assets/reload-audio/su_manual_lock.wav",
+      "sha256": "bdef2b530a32d63cd39423bb282896c6cf95057848fd3301603a40f0c4c77b3f",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "5aaa1aa9306d5c07e9c043568d3cdd00a9e260ddd9833ceed3a6a96ea6fc6492",
+        "decodeReceiptSha256": "78755cba479a843ad90d46ba0dee470c544149aa0a813b6999322d0383c98fe8",
+        "providerReceiptSha256": "579a778e5ed7efa62f9e6032779e1519f7c8c96b17840b8d61b45d9c2189ce6a",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 29999,
+        "durationSeconds": 0.6802494331065759,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "us_manual_grab",
+      "file": "client/web/assets/reload-audio/us_manual_grab.wav",
+      "sha256": "a88cf4f03f324f5aabb2be50c8a5986d4c1b314f56f2cb8b9148c8ae561a7afa",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "ece3c6faeafee526ddfa88f1e8677bdee76b6f08e1ec074e3006c862418eda2e",
+        "decodeReceiptSha256": "c3149fe94ead39c07b6405cc452c65a11c7a3142e7b7cc7b827665bd8b3eea0a",
+        "providerReceiptSha256": "8591d0293841516ba8e34e8fad96d0eeb9d3a5bc6bfef23c7595a19379c3499c",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 38808,
+        "durationSeconds": 0.88,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "us_manual_load",
+      "file": "client/web/assets/reload-audio/us_manual_load.wav",
+      "sha256": "07b8a8230074afe053775245652bbe7e624512d1ee44d686767e7b10f2431a09",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "2dbb981179da34272b7f37f281c2e75f6d42700ea468d1a6ac886b67424aa91b",
+        "decodeReceiptSha256": "edd31801095cb94e5cad51a1c4e0a31bbf998e6e546e8322f4249831c5e63543",
+        "providerReceiptSha256": "946057ce2eca42131d46d8ee3fde5c3c8c4482a60c3e2397b4144fa1abf765ec",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 59976,
+        "durationSeconds": 1.36,
+        "fullScaleSamples": 0
+      }
+    },
+    {
+      "id": "us_manual_lock",
+      "file": "client/web/assets/reload-audio/us_manual_lock.wav",
+      "sha256": "5c02ab8acdb9211b4b54fcb6abd7f06a42734efd69a8c1129ab2d48c8b1f799f",
+      "subjectiveAudition": "PASS",
+      "readyForGame": true,
+      "source": {
+        "rawSha256": "97163c254190edde281af475f7a24190ae8852de533e1113db483bd21a1cb688",
+        "decodeReceiptSha256": "6c82880ab814402a5ba0ce64ba04bb93d335d1aac1b2dceefd07bf4a2787c21c",
+        "providerReceiptSha256": "048d7df309f83582f2f4e340b82d4d3e89aa5fee84a8162db5dc2b33afb46f8e",
+        "selectionProofSha256": "64f753d705a60f5237139cc9570f1c3682211f64aac13df45344e1eb2d879260"
+      },
+      "pcm": {
+        "sampleRate": 44100,
+        "channels": 1,
+        "frames": 29999,
+        "durationSeconds": 0.6802494331065759,
+        "fullScaleSamples": 0
+      }
+    }
+  ]
+}

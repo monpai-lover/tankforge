@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { newLoading } from '../src/sim/loading.js';
+import { Sound } from '../src/game/audio.js';
 const module = await import('../src/game/onlineFire.js').catch(() => null);
 function fixture() {
   assert.ok(module?.OnlineFires, 'the predicted cannon refund owner must be available');
@@ -8,7 +9,7 @@ function fixture() {
   const gun = { ammo: [{count: 0,max: 2}, {count: 2,max: 2}], loaded: -1, selected: 0 };
   const loading = newLoading(1,1); loading.state[0] = 'empty';
   const session = {}; const shot = {seq: 1};
-  const request = {seq:1, gun, ammo:gun.ammo[0], loading, gi:0, ti:0, session, shot};
+  const request = {seq:1, gun, ammo:gun.ammo[0], loading, reloadCycle: loading.clock, gi:0, ti:0, session, shot};
   fires.begin(request,0);
   return {fires,gun,loading,session,shot};
 }
@@ -54,12 +55,12 @@ test('live protocol reply handlers remove only the rejected projectile and notif
   const {fires,gun,loading,session,shot} = fixture();
   // Replies use real receipt time, unlike the synthetic zero-time owner tests above.
   fires.pending[0].at=performance.now()/1000;
-  const net = new NetClient(); const notices=[];
+  const net = new NetClient(); const notices=[]; const sound = new Sound();
   const otherShot={seq:2}; const G={online:session,loadout:{turrets:[{guns:[gun]}]},shots:[shot,otherShot]};
   const a=main.indexOf('  const currentFireGun =');
   const b=main.indexOf('  G.pendingLaunch =',a);
   assert.ok(a>=0&&b>a,'main must wire both authoritative cannon replies');
-  new Function('net','onlineFires','onlineAmmo','G','hud',main.slice(a,b))(net,fires,{scope:()=>({battle:7,life:2})},G,{toast:msg=>notices.push(msg)});
+  new Function('net','onlineFires','onlineAmmo','G','hud','sound',main.slice(a,b))(net,fires,{scope:()=>({battle:7,life:2})},G,{toast:msg=>notices.push(msg)},sound);
   net._receive({t:'fire_rejected',seq:1,ammo_scope:{battle:7,life:2},reason:'weapon_disabled'});
   assert.equal(gun.ammo[0].count,0,'live rejection leaves count adoption to the authoritative inventory');assert.deepEqual(G.shots,[otherShot]);assert.equal(notices.length,1);
   net._receive({t:'fire_rejected',seq:1,ammo_scope:{battle:7,life:2}});assert.equal(notices.length,1);assert.equal(gun.ammo[0].count,0);

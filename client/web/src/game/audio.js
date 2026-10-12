@@ -2,6 +2,8 @@
 // track rumble tied to speed, gun report, impact and reload click.
 // Sample slots. Put an audio file with one of these names (.ogg / .mp3 / .wav) in
 // client/web/assets/sfx/ and rebuild: it is embedded in the page and replaces the synthesised sound.
+import { ReloadAudio, reloadProfile, observeReloadWork, observeReloadReady } from './audioReload.js';
+
 export const SFX_SLOTS = ['engine_loop', 'track_loop', 'shot_light', 'shot_medium', 'shot_heavy', 'mg_light', 'mg_heavy', 'impact_ground', 'impact_metal', 'reload_done', 'rangefinder'];
 
 export class Sound {
@@ -12,6 +14,141 @@ export class Sound {
     this.lastMg = 0;
     this.pending = {};
     this.samples = {};
+    this.reloadSamples = {};
+    this.reloadUrls = {};
+    this.reloadWanted = new Set();
+    this.reloadDecoded = new Set();
+    this.reloadVoices = new Set();
+    this.reloadAudio = new ReloadAudio((cue) => this._playReloadCue(cue));
+    this.reloadEnabled = false;
+    this.reloadAudible = true;
+    this.reloadDecodeEpoch = 0;
+    this.reloadBytes = 0;
+  }
+
+  /** Build-verified reviewed selections only; raw/candidate banks remain silent. */
+  loadReloadBank(bank) {
+    this.cancelReloads();
+    this.reloadDecodeEpoch++;
+    this.reloadSamples = {};
+    this.reloadUrls = {};
+    this.reloadWanted.clear();
+    this.reloadDecoded.clear();
+    this.reloadBytes = 0;
+    this.reloadEnabled = bank?.schemaVersion === 1 && bank.reviewState === 'reviewed' && !!bank.cues;
+    if (!this.reloadEnabled) return false;
+    for (const [id, cue] of Object.entries(bank.cues)) {
+      if (/^(de|su|us)_manual_(grab|load|lock)$/.test(id) && typeof cue.url === 'string') this.reloadUrls[id] = cue.url;
+    }
+    return true;
+  }
+
+  /** Pin only this loadout's compatible styles, never the entire detailed bank. */
+  prepareReloadBank(loadout) {
+    if (!this.reloadEnabled) return;
+    for (const t of loadout.turrets) for (const gun of t.guns) for (const a of gun.ammo) {
+      const p = reloadProfile(gun.def, a.shell);
+      if (p) for (const stage of ['grab', 'load', 'lock']) {
+        const id = `${p.style}_manual_${stage}`;
+        if (this.reloadUrls[id] && !this.reloadDecoded.has(id)) this.reloadWanted.add(id);
+      }
+    }
+    this._decodeReloadPending();
+  }
+
+  async _decodeReloadPending() {
+    if (!this.ctx || this.reloadDecodeRunning || !this.reloadWanted.size) return;
+    this.reloadDecodeRunning = true;
+    const epoch = this.reloadDecodeEpoch;
+    const ctx = this.ctx;
+    const worker = async () => {
+      while (epoch === this.reloadDecodeEpoch && this.reloadWanted.size) {
+        const id = this.reloadWanted.values().next().value;
+        this.reloadWanted.delete(id);
+        this.reloadDecoded.add(id);
+        try {
+          const data = await (await fetch(this.reloadUrls[id])).arrayBuffer();
+          const buffer = await ctx.decodeAudioData(data);
+          const bytes = buffer.length * buffer.numberOfChannels * 4;
+          if (epoch === this.reloadDecodeEpoch && Number.isFinite(bytes) && bytes > 0 && this.reloadBytes + bytes <= 32 * 1024 * 1024) {
+            this.reloadSamples[id] = buffer;
+            this.reloadBytes += bytes;
+          }
+        } catch { /* A missing/undecodable selected cue is silent, never synthesized. */ }
+      }
+    };
+    await Promise.all([worker(), worker()]);
+    this.reloadDecodeRunning = false;
+    if (epoch !== this.reloadDecodeEpoch) this._decodeReloadPending();
+  }
+
+  _playReloadCue(id) {
+    const buffer = this.reloadSamples[id];
+    if (!this.ctx || !this.master || !buffer || !this.reloadAudible || this.muted || this.ctx.state === 'suspended' || this.reloadVoices.size >= 8) return null;
+    let source = null, gain = null, voice = null, ended = false;
+    const finish = () => {
+      if (ended) return;
+      ended = true;
+      // Release admission and references before independently attempting node cleanup.
+      const oldSource = source, oldGain = gain;
+      this.reloadVoices.delete(voice);
+      source = gain = voice = null;
+      try { if (oldGain) oldGain.gain.value = 0; } catch { /* Continue teardown. */ }
+      try { if (oldSource) oldSource.onended = null; } catch { /* Continue teardown. */ }
+      try { oldSource?.disconnect(); } catch { /* Continue with the other node. */ }
+      try { oldGain?.disconnect(); } catch { /* Admission is already released. */ }
+    };
+    const stop = () => {
+      if (ended) return;
+      try { source?.stop(); } catch { /* Partial setup, ended or unavailable node. */ }
+      finally { finish(); }
+    };
+    try {
+      source = this.ctx.createBufferSource();
+      gain = this.ctx.createGain();
+      source.buffer = buffer;
+      source.loop = false;
+      source.playbackRate.value = 1;
+      gain.gain.value = .8;
+      source.connect(gain);
+      gain.connect(this.master);
+      voice = { stop };
+      source.onended = finish;
+      this.reloadVoices.add(voice);
+      source.start();
+      return ended ? null : voice;
+    } catch {
+      stop();
+      return null; // Presentation failure must not abort actual loading work.
+    }
+  }
+
+  reloadWork(gun, L, gi, rate) {
+    return this.reloadEnabled && observeReloadWork(this.reloadAudio, gun, L, gi, rate);
+  }
+
+  reloadReady(gun, L, gi) {
+    if (!this.reloadEnabled) return false;
+    // Completion policy belongs to this installed weapon/round, even if its job
+    // was blocked, budget-limited or inaudible. Playback still requires actual ready.
+    const round = gun.ammo[gun.loaded >= 0 ? gun.loaded : gun.selected];
+    const owned = !!reloadProfile(gun.def, round?.shell);
+    observeReloadReady(this.reloadAudio, gun, L, gi);
+    return owned;
+  }
+
+  cancelReload(gun, blockCycle = false, cycle) { this.reloadAudio.cancel(gun, { blockCycle, cycle }); }
+  setReloadAudible(on) {
+    this.reloadAudible = !!on;
+    if (!on) this.suspendReloads();
+  }
+  suspendReloads() {
+    this.reloadAudio.suspend();
+    for (const voice of this.reloadVoices) voice.stop();
+  }
+  cancelReloads() {
+    this.reloadAudio.cancelAll();
+    for (const voice of this.reloadVoices) voice.stop();
   }
 
   /** urls: {slot: data-URL or URL}. Decoded when the audio context exists. */
@@ -114,6 +251,7 @@ export class Sound {
     this.trackGain.connect(this.master);
     src.start();
     this._decodePending();
+    this._decodeReloadPending();
   }
 
   toggleMute() {

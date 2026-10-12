@@ -1,6 +1,7 @@
 import { Missiles } from '../src/game/missiles.js';
 import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
+import { Sound } from '../src/game/audio.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as gunnery from '../src/sim/gunnery.js';
@@ -78,7 +79,7 @@ function controls(id, mode = 'historical') {
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     onlineFires: new OnlineFires(), onlineAmmo, net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
-    sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
+    sound: Object.assign(new Sound(), { tone() {}, apsGun() {}, mg() {}, shot() {} }), fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
     launcherMount: loadout.launcherMount, reloadTime: loadout.reloadTime,
@@ -102,7 +103,7 @@ function selectionRuntime(id, mode, build = loadout.PRESETS.hexa.build) {
   const G = { mode: 'garage', gameplayMode: mode, s: phys.newState(), pending: [], cam: {}, build: structuredClone(build) };
   const hud = new Proxy({}, { get: () => () => {} });
   const scene = { children: [], add(root) { this.children.push(root); } };
-  const deps = { G, stabilizerDrives, data, LANG_INDEX: 0, isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }),
+  const deps = { G, sound: new Sound(), stabilizerDrives, data, LANG_INDEX: 0, isDesign: () => false, bundleFor: id => ({ bundle: data.vehicles[id], projectiles: data.projectiles }),
     onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), scene, store: { set() {} }, STORE_VEHICLE: 'unused', ...selection, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, applyAmmo, AMMO_CFG: {}, loading, mgSim, gunnery,
     renderer, buildTank, VehicleSim, terrain, Exhaust: class {}, fx: {}, exhaustOf() {}, applyXray() {}, rebuildInterior() {}, combatInit() {},
     resetPose() { G.veh.place(0, 0, 0); G.veh.compat(G.s); },
@@ -167,7 +168,7 @@ function loadStep(r, dt) {
   const start = source.indexOf('      G.loadout.turrets.forEach((t, ti) => {\n        t.guns.forEach((g) => tickLauncher');
   const end = source.indexOf('\n      G.acc -= SIM_DT;', start);
   assert.ok(start >= 0 && end > start, 'actual main loader/spin loop');
-  const deps = { G: r.G, SIM_DT: dt, ...loadout, loading, ...damageApi, sound: { click() {} }, clamp };
+  const deps = { G: r.G, SIM_DT: dt, ...loadout, loading, ...damageApi, sound: new Sound(), clamp };
   new Function(...Object.keys(deps), source.slice(start, end))(...Object.values(deps));
 }
 test('actual manual reload emits at final layout time/fire, consumes real ammo and respects loader damage', () => {
@@ -222,7 +223,7 @@ test('actual start, garage choice, locked reselect/respawn and leave restore eff
   Object.assign(G, { thumbs: [], mapId: 'range', maps: new Map(), enemies: [], keys: new Set() });
   const elements = new Map(), document = { body: { dataset: {} }, getElementById(id) { if (!elements.has(id)) elements.set(id, {}); return elements.get(id); } };
   const hud = new Proxy({}, { get: () => () => {} });
-  const deps = { G, stabilizerDrives, gameplay, GAMEPLAY_RULES_VERSION, GAMEPLAY_UPDATE_NEEDED, data, document, hud, sound: {}, canvas: {},
+  const deps = { G, stabilizerDrives, gameplay, GAMEPLAY_RULES_VERSION, GAMEPLAY_UPDATE_NEEDED, data, document, hud, sound: new Sound(), canvas: {},
     select: () => G.selectAgain(), isDesign: () => false, testRange: { exit() {} }, setProtect() {}, setWorkshop() {}, setXray() {}, thumbStep() {},
     useWorld() {}, spawnEnemies() {}, spawnRemotes() {}, resetPose() {}, missileBattleStart() {}, updateNetHud() {},
     mapName: () => 'range', deploy: { close() {} }, cqBar: {}, cqMsg: {}, clearEnemies() { G.enemies = []; }, hitcam: { hide() {} }, measureInsets() {}, net: { send() {} },onlineAmmo:new OnlineAmmo() };

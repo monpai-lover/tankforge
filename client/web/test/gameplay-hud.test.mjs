@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { Sound } from '../src/game/audio.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import { Hud } from '../src/game/hud.js';
@@ -64,7 +65,7 @@ test('mode transition clears cached enemy map and name markers immediately', () 
   const c = canvas(188), overlay = canvas(1280), h = { map: c.map, mapCtx: c.ctx, ctx: overlay.ctx, overlay: { width: 1280, height: 800 }, hideHitMarker() {}, drawNameTags(tags) { assert.deepEqual(tags, []); } };
   h.resetGameplayMarkers = Hud.prototype.resetGameplayMarkers ?? (() => {});
   const G = { mapTick: 2, enemies: [{ seen: true }], ranging: {} };
-  const deps = { G, hud: h, document: { body: { dataset: {} } }, sound: {} };
+  const deps = { G, hud: h, document: { body: { dataset: {} } }, sound: new Sound() };
   new Function(...Object.keys(deps), `${fn('setMode')}\nsetMode('battle');`)(...Object.values(deps));
   assert.equal(G.mapTick, 0);
   assert.equal(G.enemies[0].seen, null);

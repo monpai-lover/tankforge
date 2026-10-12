@@ -1,5 +1,6 @@
 import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
+import { Sound } from '../src/game/audio.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as gunnery from '../src/sim/gunnery.js';
@@ -88,7 +89,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi,
     ...selection, ...loadout, ...optics, rng: { nextF32: () => .5 },
     onlineFires: new OnlineFires(), onlineAmmo, onlineLaunches: new OnlineLaunches(), net: { open: true, send: m => sent.push(m) }, hud,
-    sound: { tone: name => tones.push(name), apsGun: (...args) => apsSounds.push(args), mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
+    sound: Object.assign(new Sound(), { tone: name => tones.push(name), apsGun: (...args) => apsSounds.push(args), mg() {}, shot() {} }), fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
     launcherMount: loadout.launcherMount, reloadTime: loadout.reloadTime,

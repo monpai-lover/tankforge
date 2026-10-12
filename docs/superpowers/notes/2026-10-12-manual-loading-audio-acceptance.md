@@ -1,0 +1,13 @@
+# Manual loading audio acceptance
+
+Root accepted the nine German/Soviet/US grab, load and lock selections and their local loading runtime on 2026-10-12 after fresh SPEC and QUALITY PASS. This is local source acceptance; public integration and the separate T-72A automatic sounds follow independently.
+
+Frozen candidate: `target/loading-stage-runtime-r3-freeze-20261012.json`, SHA256 `793b6e68353836ceac2cd978185d5279bebb1b3a5e10647cdd1fd8f06da50860`, source identity `7c4ba035afd458acd5ea7615a4b154194febe62dfee69679540df2d53c45d969`. All 26 source and 47 artifact pins matched Root's independent check. Nine selected WAVs retain exact provenance and the human adoption “裝填聲合適”; actual total duration is 8.760748299319728 seconds.
+
+Actual loader assignment and consumed work trigger handling. Lock requires post-refill ready state and a loaded positive-count compatible round. Completion ownership is per installed gun/round, independent of audibility, decoded buffer, job admission or voice capacity. Owned missing cues remain silent; other unbound guns retain their own completion click. Work, rejection, pause, visibility, replacement and session exit cancel the appropriate bounded voices.
+
+The two rejected candidates are preserved. R1's completion suppression/fallback errors were corrected. R2's partial WebAudio setup/start/teardown errors were corrected: failures return silence, actual work continues, and admissions/references are released before independently guarded cleanup. Root reproduced the original eight R2 failures, then freshly ran 56 production regressions against R3 with no failures or skips. SPEC and QUALITY each independently ran 61 focused and 10 applicable old boundary checks; QUALITY also ran nine independent controls. The author recorded 239 scoped checks with no failures, preserving all 221 prior case names.
+
+Five APS checks were explicitly outside the isolated audio-tree gate because the native fixture is absent; the same five ENOENT cases were reproduced on unchanged baseline. The joined vehicle/audio gate must run unfiltered with its matched native receipts. This document does not claim a full native/web gate for this isolated slice.
+
+All 122 R1/R2 archived entries, earlier named pages, fifteen authoring files, eleven legacy slots and the existing WASM remain intact. The new review page is `client/web/dist/tankforge-loading-stages-r3-20261012.html`, SHA256 `81d51fac9bc79ff31fa04fa7b43df5956d4d71f88ebd7bc61e69c4efcf3c1445`. No new provider requests, credential reads or game browser playback occurred. Automatic loading, gun/engine candidates, spatial flight/impact/explosion audio and actual listening in the game remain separate work.

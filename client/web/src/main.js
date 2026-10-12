@@ -190,6 +190,7 @@ export function start(data, saved = {}) {
   const fx = new Effects();
   const sound = new Sound();
   sound.loadSamples(data.sfx);
+  sound.loadReloadBank(data.reloadAudio);
   const world = buildWorld(renderer);
   const terrain = new Terrain(data.terrains, humpLift);
   const groundAt = (x, z) => terrain.height(x, z);
@@ -666,6 +667,7 @@ export function start(data, saved = {}) {
 
   function select(id, keepPose = false, initialAmmo = null) {
     if (id !== 'custom' && !data.vehicles[id] && !(isDesign(id) && G.core && G.designs.has(id))) return;
+    sound.cancelReloads();
     onlineFires.clear();
     onlineLaunches.clear();
     onlineAmmo.clear();
@@ -684,6 +686,7 @@ export function start(data, saved = {}) {
     G.id = id;
     store.set(STORE_VEHICLE, id);
     G.loadout = deriveLoadoutPerformance(makeLoadout(id, bundle, projectiles, data.machineGuns), G.gameplayMode);
+    sound.prepareReloadBank(G.loadout);
     // the rounds chosen on the deploy screen (the racks' default mix until one is chosen)
     if (data.vehicles[id]) applyAmmo(G.loadout, AMMO_CFG);
     if (initialAmmo) {onlineAmmo.begin({t:'ammo',...initialAmmo},G.loadout);G.resupplyProgress=initialAmmo.resupply_progress;}
@@ -1316,6 +1319,7 @@ export function start(data, saved = {}) {
   }
 
   function setMode(mode) {
+    sound.cancelReloads();
     G.ranging = null;
     hud.hideHitMarker();
     G.mapTick = 0;
@@ -1511,6 +1515,7 @@ export function start(data, saved = {}) {
     g.selected = i;
     if (again && g.loaded >= 0 && g.loaded !== i && rt.loading.state[G.sightG] === 'ready') {
       // Total aboard already includes the breech round; only its location changes.
+      sound.cancelReload(g);
       g.loaded = -1;
       loading.fired(rt.loading, G.sightG);
       hud.toast(`退彈，改裝 ${a.shell.name}`, 1.5);
@@ -1899,6 +1904,7 @@ export function start(data, saved = {}) {
   function markDead(m, force = false) {
     const o = G.online;
     if (!o || (o.dead&&!force)) return;
+    sound.cancelReloads();
     o.dead = true;
     G.resupplyProgress=0;cqMsg.textContent='';
     vehicleActions.cancel();
@@ -2144,6 +2150,7 @@ export function start(data, saved = {}) {
     const scope=currentAmmoScope(m);if(!scope)return;
     const p = onlineFires.reject(m.seq, currentFireGun(m.seq), G.online, performance.now() / 1000, {refund:false,scope});
     if (!p) return;
+    sound.cancelReload(p.gun, true, p.reloadCycle);
     const i = G.shots.indexOf(p.shot);
     if (i >= 0) G.shots.splice(i, 1);
     hud.toast('炮彈未射出，彈藥以伺服器庫存為準。', 2.5);
@@ -3491,6 +3498,7 @@ export function start(data, saved = {}) {
   });
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
+      sound.setReloadAudible(false);
       vehicleActions.cancel();
       G.ranging = null;
       vehicleActionIndicator.update(null);
@@ -3779,11 +3787,12 @@ export function start(data, saved = {}) {
     if (G.online) {
       // the others see the shot; a hit only counts on the server if it names this one
       shot.seq = ++G.online.seq;
-      onlineFires.begin({ seq: shot.seq, scope:onlineAmmo.scope(), gun: g, ammo: g.ammo[g.loaded], loading: rt.loading, ti, gi, session: G.online, shot }, performance.now() / 1000);
+      onlineFires.begin({ seq: shot.seq, scope:onlineAmmo.scope(), gun: g, ammo: g.ammo[g.loaded], loading: rt.loading, reloadCycle: rt.loading.clock, ti, gi, session: G.online, shot }, performance.now() / 1000);
       onlineAmmo.predictCannon(shot.seq,g.damageKey,ammoId);
       net.send({ t: 'fire', seq: shot.seq, ammo_scope:onlineAmmo.scope(), instance: g.damageKey, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: ammoId });
     }
     G.shots.push(shot);
+    sound.cancelReload(g);
     loading.fired(rt.loading, gi);
     const gy = surfaceAt(mz.pos[0], mz.pos[2]);
     const auto = g.def.autocannon;
@@ -4382,7 +4391,13 @@ export function start(data, saved = {}) {
       stepMachineGuns(SIM_DT);
       G.loadout.turrets.forEach((t, ti) => {
         t.guns.forEach((g) => tickLauncher(g, SIM_DT));
-        const done = loading.tick(G.T[ti].loading, SIM_DT, (gi, li) => reloadTime(t, gi, li, G.gameplayMode), gi => mountedReloadRate(G.caps, t.guns[gi], G.bundle, G.cstate));
+        const L = G.T[ti].loading;
+        const audioActive = G.mode === 'battle' && !G.caps?.destroyed && !G.online?.dead;
+        const done = loading.tick(L, SIM_DT, (gi, li) => reloadTime(t, gi, li, G.gameplayMode), gi => {
+          const rate = mountedReloadRate(G.caps, t.guns[gi], G.bundle, G.cstate);
+          if (audioActive) sound.reloadWork(t.guns[gi], L, gi, rate);
+          return rate;
+        });
         for (const gi of done) {
           const g = t.guns[gi];
           refillBelt(g);
@@ -4392,8 +4407,9 @@ export function start(data, saved = {}) {
           syncGunShell(g);
           refillLauncher(g);
           if (g.def.missile) G.model.payload(ti, gi, g.launcher.ready);
+          const completionOwned = sound.reloadReady(g, L, gi);
+          if (!g.def.autocannon && !completionOwned) sound.click();
         }
-        if (done.length && !t.guns[done[0]].def.autocannon) sound.click();
         // a rotary gun's barrels spin up while its trigger is held and run down after
         t.guns.forEach((g, gi) => {
           const a = g.def.autocannon;
@@ -4877,6 +4893,8 @@ export function start(data, saved = {}) {
   const renderScale = new RenderScale();
   let last = performance.now();
   function frame(now) {
+    sound.setReloadAudible(G.mode === 'battle' && !G.paused && !document.hidden && !G.thumbShot && !G.caps?.destroyed && !G.online?.dead);
+    if (G.mode !== 'battle' || G.caps?.destroyed || G.online?.dead) sound.cancelReloads();
     if (G.paused) hud.hideHitMarker();
     const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
     last = now;

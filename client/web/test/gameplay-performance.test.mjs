@@ -1,5 +1,6 @@
 import * as selection from '../src/game/weaponselection.js';
 import test from 'node:test';
+import { Sound } from '../src/game/audio.js';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import * as gunnery from '../src/sim/gunnery.js';
@@ -45,7 +46,7 @@ function automaticControls(lo, ti) {
   const deps = { G, RECOIL_ROCK: 1, ...selection, weaponDamage, gunnery, ballistics, loading, syncGunShell, nextAmmo,
     pose: () => ({ pos: [0, 0, 0], heading: 0 }),
     mountOf: (t, g) => ({ pivot: t.pivot, trunnion: g.trunnion, muzzleOffset: g.muzzleOffset }), hullTilt: () => 0,
-    rng: { nextF32: () => .5 }, surfaceAt: () => 0, fx: { mgFlash() {}, autocannonBlast() {} }, sound: { mg() {} } };
+    rng: { nextF32: () => .5 }, surfaceAt: () => 0, fx: { mgFlash() {}, autocannonBlast() {} }, sound: Object.assign(new Sound(), { mg() {} }) };
   const fire = new Function(...Object.keys(deps), `${body}\nreturn fireGun;`)(...Object.values(deps));
   const spinStart = source.indexOf("        // a rotary gun's barrels spin up");
   const spinEnd = source.indexOf('\n        });', spinStart);
