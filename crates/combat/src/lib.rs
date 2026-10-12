@@ -31,6 +31,7 @@ use tg_shared::{rotate_yaw, Rng, Vec3};
 use tg_weapon::{ProjectileDef, ProjectileKind};
 use tg_penetration::impact::{self, ImpactState, FragmentProvenance, ImpactEvent, EnergyBudget};
 mod impact_report;
+pub mod geometry;
 pub mod weapon_damage;
 mod weapon_mg;
 

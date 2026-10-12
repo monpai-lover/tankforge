@@ -31,11 +31,13 @@ export class DesignCore {
   call(req) {
     const ex = this.instance.exports;
     const bytes = enc.encode(JSON.stringify(req));
+    if (req.op?.startsWith('combat_geometry_') && bytes.length > 128 * 1024 * 1024) throw new Error('geometry diagnostic request byte limit');
     const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const ptr = ex.tg_alloc(bytes.length);
     new Uint8Array(ex.memory.buffer, ptr, bytes.length).set(bytes);
-    const out = ex.tg_call(ptr, bytes.length);
-    ex.tg_free(ptr, bytes.length);
+    let out;
+    try { out = ex.tg_call(ptr, bytes.length); }
+    finally { ex.tg_free(ptr, bytes.length); }
     const view = new DataView(ex.memory.buffer);
     const n = view.getUint32(out, true);
     const text = dec.decode(new Uint8Array(ex.memory.buffer, out + 4, n));
@@ -98,6 +100,21 @@ export class DesignCore {
   }
   combatExtinguish(key, state) {
     return this.call({ op: 'combat_extinguish', key, state });
+  }
+  // X1 opt-in diagnostics only. Active combat does not consume these pending surfaces.
+  combatGeometryInstall(payload, expectedHash) {
+    if (!(payload instanceof Uint8Array) || payload.byteLength > 32 * 1024 * 1024) throw new Error('geometry diagnostic binary payload byte limit');
+    return this.call({ op: 'combat_geometry_install', diagnostic: true, payload: Array.from(payload), expectedHash });
+  }
+  combatGeometryRegister(manifest, expectedHash, meshHandles) {
+    if (typeof manifest !== 'string' || enc.encode(manifest).byteLength > 4 * 1024 * 1024 || !Array.isArray(meshHandles) || meshHandles.length > 4096) throw new Error('geometry diagnostic manifest/handle limit');
+    return this.call({ op: 'combat_geometry_register', diagnostic: true, manifest, expectedHash, meshHandles });
+  }
+  combatGeometryTrace(handle, a, b, context, capacity = 4096) {
+    return this.call({ op: 'combat_geometry_trace', diagnostic: true, handle, a, b, context, capacity });
+  }
+  combatGeometryRelease(handle) {
+    return this.call({ op: 'combat_geometry_release', diagnostic: true, handle });
   }
 }
 

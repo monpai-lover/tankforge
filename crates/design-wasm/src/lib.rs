@@ -37,6 +37,7 @@ use tg_design::trace::{probe, protection_map, shoot, ProtectRequest, ShotRequest
 use tg_design::v3::V3;
 use tg_design::layout::{BoxKind, PlacedBox};
 use tg_design::{accept_submission, evaluate_with, Body, Catalog, Db, VehicleDesign};
+mod geometry_diagnostic;
 
 #[derive(serde::Deserialize)]
 struct FitBox {
@@ -55,6 +56,7 @@ struct State {
     targets: HashMap<String, Target>,
     /// Missiles, rockets and active protection in an offline battle (crates/missile).
     missiles: tg_missile::World,
+    geometry: geometry_diagnostic::Diagnostics,
 }
 
 thread_local! {
@@ -96,7 +98,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
         let materials = field(req, "materials")?;
         let catalog: Catalog = field(req, "catalog")?;
         let terrains = field(req, "terrains")?;
-        STATE.with(|s| *s.borrow_mut() = Some(State { db: Db::new(materials, catalog, terrains, vec![]), design: None, target: TargetState::default(), targets: HashMap::new(), missiles: tg_missile::World::new(Vec::new()) }));
+        STATE.with(|s| *s.borrow_mut() = Some(State { db: Db::new(materials, catalog, terrains, vec![]), design: None, target: TargetState::default(), targets: HashMap::new(), missiles: tg_missile::World::new(Vec::new()), geometry: geometry_diagnostic::Diagnostics::default() }));
         return Ok(json!({}));
     }
     STATE.with(|s| {
@@ -249,6 +251,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 st.targets.insert(id, t);
                 Ok(out)
             }
+            op if op.starts_with("combat_geometry_") => st.geometry.call(op,req),
             op if op.starts_with("combat_") => {
                 let key: String = field(req, "key")?;
                 let t = st.targets.get(&key).ok_or_else(|| format!("no combat target '{}'", key))?;
@@ -297,6 +300,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
 
 /// Same as the C entry point, for native tests.
 pub fn call_json(text: &str) -> String {
+    if text.len()>128*1024*1024{return json!({"ok":false,"error":"request byte limit"}).to_string();}
     let resp = match serde_json::from_str::<Value>(text) {
         Ok(req) => match handle(&req) {
             Ok(v) => json!({"ok": true, "result": v}),
