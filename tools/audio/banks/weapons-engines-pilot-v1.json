@@ -1,0 +1,287 @@
+{
+  "schemaVersion": 2,
+  "bankId": "weapons-engines-pilot-v1",
+  "provider": "ElevenLabs",
+  "modelId": "eleven_text_to_sound_v2",
+  "outputFormat": "mp3_44100_128",
+  "modelVerifiedOn": "2026-10-12",
+  "modelReference": "https://elevenlabs.io/docs/api-reference/text-to-sound-effects/convert",
+  "basedOnCommit": "4800a3c9149d6f7071430b369a71a70c6928b7dd",
+  "authoringStatus": "Prototype catalog; pending Root review and actual generation; no runtime installation",
+  "cues": [
+    {
+      "id": "report_kwk36_88",
+      "kind": "weapon_report",
+      "durationSeconds": 2,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "gun:kwk36_88_l56"
+      ],
+      "sourceEvidence": "Representative identity kwk36_88_l56 and caliber 88 mm: data/vehicles/de_tiger_e/weapons.json, main_gun.id/caliber_mm, lines3–4. Isolated report prototype; interpreted game sound, no authentic recording or detailed operating-mechanism claim.",
+      "sourceReferences": [
+        {
+          "path": "data/vehicles/de_tiger_e/weapons.json",
+          "jsonPointer": "/main_gun/id",
+          "expectedValue": "kwk36_88_l56",
+          "line": 3
+        },
+        {
+          "path": "data/vehicles/de_tiger_e/weapons.json",
+          "jsonPointer": "/main_gun/caliber_mm",
+          "expectedValue": 88,
+          "line": 4
+        }
+      ],
+      "prompt": "Gunshot sound effect: one isolated 88 mm KwK36 tank cannon shot at an outdoor range, recorded close beside the vehicle. Immediate heavy crack and compact pressure punch, followed by a short natural report tail. Interpreted game sound, no burst, debris, incoming whistle, engine, music or voices."
+    },
+    {
+      "id": "report_zis_s53_85",
+      "kind": "weapon_report",
+      "durationSeconds": 2,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "gun:zis_s_53_85"
+      ],
+      "sourceEvidence": "Representative identity zis_s_53_85 and caliber 85 mm: data/vehicles/su_t34_85/weapons.json, main_gun.id/caliber_mm, lines3–4. Isolated report prototype; interpreted game sound, no authentic recording or detailed operating-mechanism claim.",
+      "sourceReferences": [
+        {
+          "path": "data/vehicles/su_t34_85/weapons.json",
+          "jsonPointer": "/main_gun/id",
+          "expectedValue": "zis_s_53_85",
+          "line": 3
+        },
+        {
+          "path": "data/vehicles/su_t34_85/weapons.json",
+          "jsonPointer": "/main_gun/caliber_mm",
+          "expectedValue": 85,
+          "line": 4
+        }
+      ],
+      "prompt": "Gunshot sound effect: one isolated 85 mm ZiS-S-53 tank cannon shot at an outdoor range, recorded close beside the vehicle. Immediate sharp weighty crack and compact pressure body with a short natural report tail. Interpreted game sound, no burst, debris, incoming whistle, engine, music or voices."
+    },
+    {
+      "id": "report_m3_75",
+      "kind": "weapon_report",
+      "durationSeconds": 2,
+      "loop": false,
+      "promptInfluence": 0.6,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "gun:m3_75"
+      ],
+      "sourceEvidence": "Representative identity m3_75 and caliber 75 mm: data/vehicles/us_m4a2/weapons.json, main_gun.id/caliber_mm, lines3–4. Isolated report prototype; interpreted game sound, no authentic recording or detailed operating-mechanism claim.",
+      "sourceReferences": [
+        {
+          "path": "data/vehicles/us_m4a2/weapons.json",
+          "jsonPointer": "/main_gun/id",
+          "expectedValue": "m3_75",
+          "line": 3
+        },
+        {
+          "path": "data/vehicles/us_m4a2/weapons.json",
+          "jsonPointer": "/main_gun/caliber_mm",
+          "expectedValue": 75,
+          "line": 4
+        }
+      ],
+      "prompt": "Gunshot sound effect: one isolated 75 mm M3 tank cannon shot at an outdoor range, recorded close beside the vehicle. Immediate firm crack, compact pressure punch and short dry natural report tail. Interpreted game sound, no burst, debris, incoming whistle, engine, music or voices."
+    },
+    {
+      "id": "report_mg42_single",
+      "kind": "weapon_report",
+      "durationSeconds": 1.2,
+      "loop": false,
+      "promptInfluence": 0.75,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "mg:mg42"
+      ],
+      "sourceEvidence": "data/machine_guns.json, object id mg42: MG42, 7.92 mm, 1200 RPM, lines461–464. One-round report prototype; runtime owns cadence. No authentic recording or detailed operating-mechanism claim.",
+      "sourceReferences": [
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/id",
+          "expectedValue": "mg42",
+          "line": 461,
+          "selectorId": "mg42"
+        },
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/name",
+          "expectedValue": "MG 42 (7.92 mm)",
+          "line": 462,
+          "selectorId": "mg42"
+        },
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/caliber_mm",
+          "expectedValue": 7.92,
+          "line": 463,
+          "selectorId": "mg42"
+        },
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/rate_rpm",
+          "expectedValue": 1200,
+          "line": 464,
+          "selectorId": "mg42"
+        }
+      ],
+      "prompt": "Gunshot sound effect: one isolated MG42 7.92 mm round at an outdoor range, recorded close beside it. Instant sharp crack, compact punch and short dry mechanical snap. No burst, explosion, rumble swell, debris, engine, music or voices. One round only; runtime owns cadence."
+    },
+    {
+      "id": "report_m2hb_single",
+      "kind": "weapon_report",
+      "durationSeconds": 1.2,
+      "loop": false,
+      "promptInfluence": 0.75,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "mg:m2hb"
+      ],
+      "sourceEvidence": "data/machine_guns.json, object id m2hb: M2HB(.50), 12.7 mm, 520 RPM, lines355–358. One-round report prototype; runtime owns cadence. No authentic recording or detailed operating-mechanism claim.",
+      "sourceReferences": [
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/id",
+          "expectedValue": "m2hb",
+          "line": 355,
+          "selectorId": "m2hb"
+        },
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/name",
+          "expectedValue": "M2HB (.50)",
+          "line": 356,
+          "selectorId": "m2hb"
+        },
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/caliber_mm",
+          "expectedValue": 12.7,
+          "line": 357,
+          "selectorId": "m2hb"
+        },
+        {
+          "path": "data/machine_guns.json",
+          "jsonPointer": "/rate_rpm",
+          "expectedValue": 520,
+          "line": 358,
+          "selectorId": "m2hb"
+        }
+      ],
+      "prompt": "Gunshot sound effect: one isolated M2HB .50 caliber round at an outdoor range, recorded close beside it. Instant sharp forceful crack, weighty compact punch and short dry report tail. No burst, explosion, rumble swell, debris, engine, music or voices. One round only; runtime owns cadence."
+    },
+    {
+      "id": "engine_petrol_heavy_idle",
+      "kind": "engine_loop",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "engine:E03"
+      ],
+      "sourceEvidence": "Authored E03 generic heavy petrol family; representative de_tiger_e: engine.horsepower=690, idle_rpm=800, max_rpm=3000 (data/vehicles/de_tiger_e/engine.json:3–5); exhaust.fuel=petrol (data/vehicles/de_tiger_e/visual.json:2111). Generic idle prototype; exact engine model/cylinder layout absent from these sources, no authentic recording claim.",
+      "prompt": "Seamless loop of a large petrol armored-vehicle engine idling at steady low RPM, close to the engine deck outside: restrained deep motor pulse and weighty mechanical vibration, continuous at an even level. No revving, no start or stop, no track noise, no music, no voices.",
+      "sourceReferences": [
+        {
+          "path": "data/vehicles/de_tiger_e/engine.json",
+          "jsonPointer": "/engine/horsepower",
+          "expectedValue": 690,
+          "line": 3
+        },
+        {
+          "path": "data/vehicles/de_tiger_e/engine.json",
+          "jsonPointer": "/engine/idle_rpm",
+          "expectedValue": 800,
+          "line": 5
+        },
+        {
+          "path": "data/vehicles/de_tiger_e/engine.json",
+          "jsonPointer": "/engine/max_rpm",
+          "expectedValue": 3000,
+          "line": 4
+        },
+        {
+          "path": "data/vehicles/de_tiger_e/visual.json",
+          "jsonPointer": "/exhaust/fuel",
+          "expectedValue": "petrol",
+          "line": 2111
+        }
+      ]
+    },
+    {
+      "id": "engine_diesel_heavy_idle",
+      "kind": "engine_loop",
+      "durationSeconds": 4,
+      "loop": true,
+      "promptInfluence": 0.4,
+      "takes": [
+        1
+      ],
+      "generationReady": true,
+      "demoOnly": true,
+      "bindings": [
+        "engine:E09"
+      ],
+      "sourceEvidence": "Authored E09 generic heavy diesel family; representative su_t10m: engine.horsepower=750, idle_rpm=600, max_rpm=2100 (data/vehicles/su_t10m/engine.json:3–5); exhaust.fuel=diesel (data/vehicles/su_t10m/visual.json:4074). Generic idle prototype; exact engine model/cylinder layout absent from these sources, no authentic recording claim.",
+      "prompt": "Seamless loop of a large diesel armored-vehicle engine idling at steady low RPM, close to the engine deck outside: deep regular diesel pulse and restrained mechanical knock, continuous at an even level. No revving, no start or stop, no track noise, no music, no voices.",
+      "sourceReferences": [
+        {
+          "path": "data/vehicles/su_t10m/engine.json",
+          "jsonPointer": "/engine/horsepower",
+          "expectedValue": 750,
+          "line": 3
+        },
+        {
+          "path": "data/vehicles/su_t10m/engine.json",
+          "jsonPointer": "/engine/idle_rpm",
+          "expectedValue": 600,
+          "line": 5
+        },
+        {
+          "path": "data/vehicles/su_t10m/engine.json",
+          "jsonPointer": "/engine/max_rpm",
+          "expectedValue": 2100,
+          "line": 4
+        },
+        {
+          "path": "data/vehicles/su_t10m/visual.json",
+          "jsonPointer": "/exhaust/fuel",
+          "expectedValue": "diesel",
+          "line": 4074
+        }
+      ]
+    }
+  ],
+  "recipes": []
+}
