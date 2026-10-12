@@ -2,7 +2,7 @@
 // track rumble tied to speed, gun report, impact and reload click.
 // Sample slots. Put an audio file with one of these names (.ogg / .mp3 / .wav) in
 // client/web/assets/sfx/ and rebuild: it is embedded in the page and replaces the synthesised sound.
-import { ReloadAudio, reloadProfile, observeReloadWork, observeReloadReady } from './audioReload.js';
+import { ReloadAudio, reloadProfile, observeReloadWork, observeReloadStage, observeReloadReady } from './audioReload.js';
 
 export const SFX_SLOTS = ['engine_loop', 'track_loop', 'shot_light', 'shot_medium', 'shot_heavy', 'mg_light', 'mg_heavy', 'impact_ground', 'impact_metal', 'reload_done', 'rangefinder'];
 
@@ -28,17 +28,19 @@ export class Sound {
 
   /** Build-verified reviewed selections only; raw/candidate banks remain silent. */
   loadReloadBank(bank) {
-    this.cancelReloads();
+    this.cancelReloads({ retainBlocked: true });
     this.reloadDecodeEpoch++;
     this.reloadSamples = {};
     this.reloadUrls = {};
     this.reloadWanted.clear();
     this.reloadDecoded.clear();
     this.reloadBytes = 0;
-    this.reloadEnabled = bank?.schemaVersion === 1 && bank.reviewState === 'reviewed' && !!bank.cues;
+    const manual = bank?.reviewState === 'reviewed';
+    const automatic = bank?.automaticAdoption?.source === 'human-direct-instruction' && bank.automaticAdoption.scope === 'three-fitted-az-t72-stages' && bank.automaticAdoption.mechanism === 'az_t72';
+    this.reloadEnabled = bank?.schemaVersion === 1 && (manual || automatic) && !!bank.cues;
     if (!this.reloadEnabled) return false;
     for (const [id, cue] of Object.entries(bank.cues)) {
-      if (/^(de|su|us)_manual_(grab|load|lock)$/.test(id) && typeof cue.url === 'string') this.reloadUrls[id] = cue.url;
+      if ((manual && /^(de|su|us)_manual_(grab|load|lock)$/.test(id) || automatic && /^az_t72_(drive|ram|lock)$/.test(id)) && typeof cue.url === 'string') this.reloadUrls[id] = cue.url;
     }
     return true;
   }
@@ -47,9 +49,9 @@ export class Sound {
   prepareReloadBank(loadout) {
     if (!this.reloadEnabled) return;
     for (const t of loadout.turrets) for (const gun of t.guns) for (const a of gun.ammo) {
-      const p = reloadProfile(gun.def, a.shell);
-      if (p) for (const stage of ['grab', 'load', 'lock']) {
-        const id = `${p.style}_manual_${stage}`;
+      const p = reloadProfile(gun.def, a.shell, gun.mechanizedLoading);
+      if (p) for (const stage of p.staged ? ['drive', 'ram', 'lock'] : ['grab', 'load', 'lock']) {
+        const id = p.staged ? `az_t72_${stage}` : `${p.style}_manual_${stage}`;
         if (this.reloadUrls[id] && !this.reloadDecoded.has(id)) this.reloadWanted.add(id);
       }
     }
@@ -127,12 +129,16 @@ export class Sound {
     return this.reloadEnabled && observeReloadWork(this.reloadAudio, gun, L, gi, rate);
   }
 
+  reloadStage(gun, L, gi, event) {
+    return this.reloadEnabled && observeReloadStage(this.reloadAudio, gun, L, gi, event);
+  }
+
   reloadReady(gun, L, gi) {
     if (!this.reloadEnabled) return false;
     // Completion policy belongs to this installed weapon/round, even if its job
     // was blocked, budget-limited or inaudible. Playback still requires actual ready.
     const round = gun.ammo[gun.loaded >= 0 ? gun.loaded : gun.selected];
-    const owned = !!reloadProfile(gun.def, round?.shell);
+    const owned = !!reloadProfile(gun.def, round?.shell, gun.mechanizedLoading);
     observeReloadReady(this.reloadAudio, gun, L, gi);
     return owned;
   }
@@ -146,8 +152,8 @@ export class Sound {
     this.reloadAudio.suspend();
     for (const voice of this.reloadVoices) voice.stop();
   }
-  cancelReloads() {
-    this.reloadAudio.cancelAll();
+  cancelReloads(options) {
+    this.reloadAudio.cancelAll(options);
     for (const voice of this.reloadVoices) voice.stop();
   }
 

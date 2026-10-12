@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { Sound } from '../src/game/audio.js';
+import { mountedReloadRate } from '../src/game/weaponDamage.js';
 import * as loading from '../src/sim/loading.js';
 import * as loadout from '../src/game/loadout.js';
 import { loadData } from '../tools/load-data.mjs';
@@ -36,7 +37,7 @@ function fixture({ mixed = false, reverse = false, audible = true, mode = 'battl
   sound.setReloadAudible(audible);
   let clicks = 0;
   sound.click = () => clicks++;
-  const deps = { G, SIM_DT: 1 / 60, ...loadout, loading, sound, weaponReloadRate: () => 1,
+  const deps = { G, SIM_DT: 1 / 60, ...loadout, loading, sound, mountedReloadRate,
     clamp: (x, lo, hi) => Math.max(lo, Math.min(hi, x)), gunTrigger() { throw new Error('manual fixture has no rotary trigger'); } };
   const tick = () => new Function(...Object.keys(deps), source.slice(start, end))(...Object.values(deps));
   const finish = () => { for (let i = 0; i < 1000 && G.T[0].loading.state.some(s => s === 'waiting' || s === 'loading'); i++) tick(); };

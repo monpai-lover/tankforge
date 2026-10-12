@@ -9,6 +9,7 @@ import { Missiles } from '../src/game/missiles.js';
 import * as ballistics from '../src/sim/ballistics.js';
 import { Node } from '../src/gfx/math.js';
 import { RigidBody } from '../src/sim/tank/body.js';
+import { Sound } from '../src/game/audio.js';
 
 const feedback = await import('../src/game/hitFeedback.js').catch(() => null);
 const main = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -45,7 +46,7 @@ function combatFixture({ route = 'enemy', rep = report(), online = false, friend
     hitSelf: () => route === 'self' ? point : null,
     buildingHit: () => route === 'building' ? { point, t: .1 } : null,
     groundHit: () => route === 'ground' ? point : null, surfaceAt: () => 0, impactColor: () => [],
-    fx: new Proxy({}, { get: () => () => {} }), sound: { impact() {}, blast() {} }, rng: { nextF32: () => .5 },
+    fx: new Proxy({}, { get: () => () => {} }), sound: Object.assign(new Sound(), { impact() {}, blast() {} }), rng: { nextF32: () => .5 },
     onCombatHit: (...args) => xray.push(args), shotSeed: () => 1, wireShot: s => s, splashNear() {},
     net: { send: m => sent.push(m) }, hud: { hitMarker: (...args) => markers.push(args), toast() {}, hideToast() {} } };
   return { env, G, e, markers, xray, sent, board, rep };
@@ -204,13 +205,14 @@ test('HUD preserves a kill over continuous ordinary hits, expires it, and clears
   hud.tick(.5);
   hud.hitMarker('未擊穿', 'nopen'); assert.equal(hud.el.hitMarker.dataset.kind, 'nopen');
   const G = { mode: 'battle' };
-  closure('setMode', '  function gameplayLabel(', { G, hud, sound: {}, document })( 'garage');
+  const sound = new Sound();
+  closure('setMode', '  function gameplayLabel(', { G, hud, sound, document })( 'garage');
   assert.equal(hud.el.hitMarker.classList.contains('show'), false);
   hud.tick(0); assert.equal(hud.el.hitMarker.classList.contains('show'), false);
   hud.hitMarker('擊穿', 'pen');
   const start = main.indexOf('    pause(p = true) {');
   const end = main.indexOf('    /** Advances the game', start);
-  const control = new Function('G', 'hud', `return {${main.slice(start, end)}};`)(G, hud);
+  const control = new Function('G', 'hud', 'sound', `return {${main.slice(start, end)}};`)(G, hud, sound);
   control.pause(true); control.pause(false);
   assert.equal(hud.el.hitMarker.classList.contains('show'), false);
 });

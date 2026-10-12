@@ -5,6 +5,7 @@ import {loadData} from '../tools/load-data.mjs';
 import {loadCoreSync} from '../src/design/core.js';
 import {Combat} from '../src/game/combat.js';
 import {ammoKeyIndex} from '../src/game/weaponselection.js';
+import {Sound} from '../src/game/audio.js';
 const path=new URL('../src/game/vehicleActions.js',import.meta.url);
 const api=fs.existsSync(path)?await import(path):{};
 const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replaceAll('\r\n','\n');
@@ -51,7 +52,7 @@ function inputRig(online=false) {
  const vehicleActions=controller(),events={},calls=[],hud={toast:(...a)=>calls.push(['toast',...a])};let now=0;
  const G={mode:'battle',thumbs:[],paused:false,workshop:false,caps:{destroyed:false},cstate:{},online:online?{dead:false,diedAt:0}:null,s:{u:0},keys:new Set(),loadout:{turrets:[]},cam:{},xray:false};
  const document={hidden:false,activeElement:{tagName:'CANVAS'},body:{},addEventListener:(key,callback)=>events[key]=callback};
- const deps={G,vehicleActions,vehicleActionIndicator:{update(){}},hud,document,deploy:{visible:false},chatIn:{hidden:true},net:{open:true,room:null,send:m=>{calls.push(['send',m]);return true;}},performance:{now:()=>now*1000},KEYMAP:{},ammoKeyIndex,HTMLButtonElement:class{},setFreeLook(){},setXray(){},startRanging:()=>calls.push(['range']),repairVehicle:()=>calls.push(['repair']),abandonVehicle:()=>calls.push(['abandon']),trigger:()=>calls.push(['rocket']),resetVehicle:()=>calls.push(['reset'])};
+ const deps={G,sound:new Sound(),vehicleActions,vehicleActionIndicator:{update(){}},hud,document,deploy:{visible:false},chatIn:{hidden:true},net:{open:true,room:null,send:m=>{calls.push(['send',m]);return true;}},performance:{now:()=>now*1000},KEYMAP:{},ammoKeyIndex,HTMLButtonElement:class{},setFreeLook(){},setXray(){},startRanging:()=>calls.push(['range']),repairVehicle:()=>calls.push(['repair']),abandonVehicle:()=>calls.push(['abandon']),trigger:()=>calls.push(['rocket']),resetVehicle:()=>calls.push(['reset'])};
  const actionFunctions=['vehicleActionAllowed','performVehicleAction'].map(fn).join('\n');
  const keySource=source.slice(source.indexOf("  window.addEventListener('keydown'"),source.indexOf("  document.getElementById('help-toggle')"));
  const win={addEventListener:(key,callback)=>events[key]=callback};

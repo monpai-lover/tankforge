@@ -1,4 +1,5 @@
 import { OnlineAmmo } from '../src/game/onlineAmmo.js';
+import { Sound } from '../src/game/audio.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -44,7 +45,7 @@ function runtime(id = 'su_bmpt34', cfg = {}) {
   const gameplay = new GameplaySession({ get: () => JSON.stringify({ mode: 'historical', version: 1 }), set() {} });
   gameplay.beginBattle();
   let respawns = 0;
-  const deps = { G, data, ...selection, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, loading, gunnery, mgSim, applyAmmo, AMMO_CFG: cfg,
+  const deps = { G, sound: new Sound(), data, ...selection, ...loadout, ...performanceApi, ...inventory, ...resupply, phys, loading, gunnery, mgSim, applyAmmo, AMMO_CFG: cfg,
     onlineFires, onlineLaunches, onlineAmmo:new OnlineAmmo(), renderer, scene, buildTank, VehicleSim, terrain: ground(() => 0), ME: 1,
     isDesign: () => false, store: { set() {} }, STORE_VEHICLE: 'unused', LANG_INDEX: 0,
     Exhaust: class {}, fx: {}, exhaustOf() {}, rebuildInterior() {}, applyXray() {}, combatInit() {},
@@ -72,7 +73,7 @@ function runtime(id = 'su_bmpt34', cfg = {}) {
   assert.ok(keyMapSource, 'actual movement key map');
   const KEYMAP = new Function(`${keyMapSource}\nreturn KEYMAP;`)();
   const keyDeps = { ...deps, ...live, HTMLButtonElement: class {}, KEYMAP, ammoKeyIndex,
-    sound: { start() {} }, lockSoon() {}, trigger: (...args) => triggers.push(args) };
+    sound: Object.assign(deps.sound, { start() {} }), lockSoon() {}, trigger: (...args) => triggers.push(args) };
   const keydown = new Function(...Object.keys(keyDeps), `let handler; const window = {addEventListener(type, fn) {handler = fn;}};\n${source.slice(keyStart, keyEnd + 6)}\nreturn handler;`)(...Object.values(keyDeps));
   const key = code => keydown({code, target: {tagName:'CANVAS'}, repeat:false, preventDefault() {}});
   return { G, live, key, triggers, missileResets, apsAdds, onlineFires, onlineLaunches, respawns: () => respawns };

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": 1,
+  "bankId": "az-t72-v1",
+  "selectionState": "user-directed",
+  "adoption": {
+    "source": "human-direct-instruction",
+    "statement": "自动装弹的 也用上 找个现实里用自动装弹的车",
+    "scope": "three-fitted-az-t72-stages",
+    "vehicle": "T-72A",
+    "mechanism": "az_t72",
+    "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording",
+    "subjectiveAudition": "NOT RUN"
+  },
+  "cues": [
+    {
+      "id": "az_t72_drive",
+      "file": "client/web/assets/az-t72-audio/az_t72_drive.wav",
+      "sha256": "d3cdf180e385d74c6706e525bd400e3144b37c1d5eb949f63afc7840119765b4",
+      "readyForGame": true,
+      "subjectiveAudition": "NOT RUN",
+      "source": {
+        "id": "autoloader_demo_drive",
+        "selectionProof": "target/az-t72-audio-selection-proof-20261012.json",
+        "selectionProofSha256": "587df1ec90ea5cab54abe50a48704e36e58054152fc4a496ac1b6cac509fc8df",
+        "rawSha256": "367c93f1c8673d043daa8f240e4c8d6440ee47c734802792fdc51a0b18121dd0",
+        "decodeReceiptSha256": "113111d27e99e8fdf8d0882c69d3a651216091e6ccff3baafe7dc4fab6cea106",
+        "providerReceiptSha256": "013470f4e5d37f3c175df3cdbccc3004be423e5d311ccf61742661758b810bd5"
+      },
+      "durationSeconds": 1.5,
+      "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording"
+    },
+    {
+      "id": "az_t72_ram",
+      "file": "client/web/assets/az-t72-audio/az_t72_ram.wav",
+      "sha256": "71056173c634ce8bb3dd0d337fa1e9ceb3414bd687a3301f760ea395024f26ef",
+      "readyForGame": true,
+      "subjectiveAudition": "NOT RUN",
+      "source": {
+        "id": "autoloader_demo_ram",
+        "selectionProof": "target/az-t72-audio-selection-proof-20261012.json",
+        "selectionProofSha256": "587df1ec90ea5cab54abe50a48704e36e58054152fc4a496ac1b6cac509fc8df",
+        "rawSha256": "23a30b01868dc7775ee4550d2531e62b08c0f86431e8f37841c236829dd082e7",
+        "decodeReceiptSha256": "e5ddd7196d27e65e9b075a5f4b427a9b4dd93f94915dc6f75eae389454ef18cd",
+        "providerReceiptSha256": "732af2f65e1b39087a2b5abfa5212e863c77a64e58fc5ec476525c494d503af1"
+      },
+      "durationSeconds": 2,
+      "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording"
+    },
+    {
+      "id": "az_t72_lock",
+      "file": "client/web/assets/az-t72-audio/az_t72_lock.wav",
+      "sha256": "3c7a04ccca48b0a9e3d083cec443abe17110566cfcac18098e8d07133745b21c",
+      "readyForGame": true,
+      "subjectiveAudition": "NOT RUN",
+      "source": {
+        "id": "autoloader_demo_lock",
+        "selectionProof": "target/az-t72-audio-selection-proof-20261012.json",
+        "selectionProofSha256": "587df1ec90ea5cab54abe50a48704e36e58054152fc4a496ac1b6cac509fc8df",
+        "rawSha256": "55656ebe1d066ff641c7c157d0ed7764bf5f367808978ff5061f27a677b7c314",
+        "decodeReceiptSha256": "b113cb439183032fcbf613c7e6c04931ab46a08b675a44cb265af8ef5de8ee16",
+        "providerReceiptSha256": "4bcdd3c7ec46a24704c43b1d9d5c8442a4930f06d086edb9a128c0158da3a4e9"
+      },
+      "durationSeconds": 1,
+      "provenance": "Generic automatic test-rig interpretation, not an authentic AZ recording"
+    }
+  ]
+}

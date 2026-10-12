@@ -4397,6 +4397,8 @@ export function start(data, saved = {}) {
           const rate = mountedReloadRate(G.caps, t.guns[gi], G.bundle, G.cstate);
           if (audioActive) sound.reloadWork(t.guns[gi], L, gi, rate);
           return rate;
+        }, event => {
+          if (audioActive) sound.reloadStage(t.guns[event.gun], L, event.gun, event);
         });
         for (const gi of done) {
           const g = t.guns[gi];

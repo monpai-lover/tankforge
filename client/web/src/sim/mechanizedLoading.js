@@ -22,7 +22,10 @@ export function fittedMechanizedLoading(mount, gun, modules = null) {
     if (s.stage!==STAGES[i] || !Number.isFinite(s.at) || s.at<0 || s.at>=1
       || (i===0 ? s.at!==0 : s.at<=d.stages[i-1].at)) fail();
   });
-  if (modules && d.modules.some(id=>modules.filter(m=>m.id===id).length!==1)) fail();
+  if (modules && d.modules.some(id=>{
+    const matches=modules.filter(m=>m.id===id);
+    return matches.length!==1 || !['horizontal_drive','vertical_drive'].includes(matches[0].kind);
+  })) fail();
   return Object.freeze({...d,ammo:Object.freeze(d.ammo.slice()),modules:Object.freeze(d.modules.slice()),
     stages:Object.freeze(d.stages.map(s=>Object.freeze({...s})))});
 }

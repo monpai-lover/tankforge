@@ -1,4 +1,5 @@
 import * as selection from '../src/game/weaponselection.js';
+import { Sound } from '../src/game/audio.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -42,7 +43,7 @@ function runtime(id='su_bmpt34',cfg={}){
   const deps={G,data,ME:1,DEG:Math.PI/180,RECOIL_ROCK:1,...selection,...loadout,...inventory,...policy,...damage,loading,gunnery,ballistics,hullTilt,captureMessage,
     sightGun:()=>G.loadout.turrets[G.sightT].guns[G.sightG],pose:()=>({pos:[0,0,0],heading:0}),
     mountOf:(t,g)=>({pivot:t.pivot,trunnion:g.trunnion,muzzleOffset:g.muzzleOffset}),
-    hud:{toast:(...a)=>toasts.push(a),aps(){}},sound:{shot(){},mg(){},click(){},tone(){},apsGun(){}},fx:{muzzleBlast(){},autocannonBlast(){},mgFlash(){}},
+    hud:{toast:(...a)=>toasts.push(a),aps(){}},sound:Object.assign(new Sound(),{shot(){},mg(){},click(){},tone(){},apsGun(){}}),fx:{muzzleBlast(){},autocannonBlast(){},mgFlash(){}},
     moduleOk:()=>true,rng:{nextF32:()=>.5},surfaceAt:()=>0,impactColor:()=>[0,0,0],
     net:{open:true,send(){}},onlineFires:{begin(){}},launcherCanFire,
     cqBar,cqMsg,announcePoint(){},toGarage(){G.mode='garage';},syncRacks(){racks.push(loadout.roundsLeft(G.loadout.turrets[0].guns[0]));sync();},enemyOwner:i=>100+i,

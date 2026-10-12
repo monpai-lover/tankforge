@@ -1,4 +1,5 @@
 import { Missiles } from '../src/game/missiles.js';
+import { Sound } from '../src/game/audio.js';
 import stabilizerDrives from '../../../config/stabilizer-drives.json' with { type: 'json' };
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -87,7 +88,7 @@ function controls(id, mode = 'historical', rng = { nextF32: () => .5 }) {
     foldDepression, foldYawLimit, launcherCanFire, ...damageApi, ...performanceApi,
     ...selection, ...loadout, ...optics, rng,
     onlineFires: new OnlineFires(), onlineAmmo, net: { open: true, send: m => sent.push(m) }, hud: { buildAmmo() {}, toast() {}, aps() {} },
-    sound: { tone() {}, apsGun() {}, mg() {}, shot() {} }, fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
+    sound: Object.assign(new Sound(), { tone() {}, apsGun() {}, mg() {}, shot() {} }), fx: { mgFlash() {}, autocannonBlast() {}, muzzleBlast() {}, bulletBoard() {}, bulletGround() {}, beam() {} },
     hitTargets, groundHit, combatHit, bulletShell, rangeTargets: () => [], buildingHit: () => null, onCombatHit() {}, rnd: k => v => Math.round(v * k) / k,
     surfaceAt: () => 0, impactColor: () => [0, 0, 0], selectAmmo() {},
     launcherMount: loadout.launcherMount, reloadTime: loadout.reloadTime,
@@ -211,7 +212,7 @@ test('decoded shared housing excludes old barrels; actual build has six open 23 
 function loadStep(r,dt) {
   const a=source.indexOf('      G.loadout.turrets.forEach((t, ti) => {\n        t.guns.forEach((g) => tickLauncher');
   const b=source.indexOf('\n      G.acc -= SIM_DT;',a);
-  const deps={...selection,G:r.G,SIM_DT:dt,...loadout,loading,...damageApi,sound:{click(){}},clamp};
+  const deps={...selection,G:r.G,SIM_DT:dt,...loadout,loading,...damageApi,sound:Object.assign(new Sound(),{click(){}}),clamp};
   new Function(...Object.keys(deps),source.slice(a,b))(...Object.values(deps));
 }
 

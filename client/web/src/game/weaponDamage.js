@@ -62,7 +62,7 @@ export function moduleDamageLabels(loadout, modules) {
   const guns = loadout.turrets.flatMap((t, ti) => t.guns.map((g, gi) => ({ g, ti, mount: ti === 0 ? gi === 0 ? loadout.weapons : loadout.weapons.extra_guns?.[gi - 1] : loadout.weapons.extra_turrets?.[ti - 1]?.guns[gi] })));
   return new Map(modules.map(m => {
     const mechanism=guns.find(({g})=>g.mechanizedLoading?.modules.includes(m.id));
-    if(mechanism) return [m.id,`${mechanism.g.mechanizedLoading.mechanism} 自動裝彈機構`];
+    if(mechanism) return [m.id,'AZ 自動裝彈機構'];
     const kind = MODULE_NAME[m.kind] || m.kind;
     if (['aps_gun', 'aps_radar'].includes(m.kind)) return [m.id, `${loadout.weapons.aps?.name || '主動防護'} ${kind}`];
     if (m.kind === 'machine_gun') {

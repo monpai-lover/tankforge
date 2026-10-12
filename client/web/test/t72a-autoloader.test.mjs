@@ -17,6 +17,7 @@ import { VehicleSim } from '../src/game/vehicle.js';
 import { ground } from './tankrig.mjs';
 import { OnlineAmmo } from '../src/game/onlineAmmo.js';
 import { OnlineFires } from '../src/game/onlineFire.js';
+import { Sound } from '../src/game/audio.js';
 
 const data = loadData(), ID = 'su_t72a';
 const source = fs.readFileSync(new URL('../src/main.js', import.meta.url), 'utf8').replaceAll('\r\n', '\n');
@@ -49,7 +50,7 @@ function fireOwner(r) {
   const deps = { G, data, ...loadout, ...selection, ...damageApi, loading, gunnery, ballistics,
     hullTilt:()=>0, pose:()=>({pos:[0,0,0],heading:0}), mountOf:(t,g)=>({pivot:t.pivot,trunnion:g.trunnion,muzzleOffset:g.muzzleOffset}),
     rng:{nextF32:()=>.5}, surfaceAt:()=>0, impactColor:()=>[0,0,0], RECOIL_ROCK:1,
-    fx:{muzzleBlast(){}}, sound:{shot(){}}, net:{open:false} };
+    fx:{muzzleBlast(){}}, sound:Object.assign(new Sound(),{shot(){}}), net:{open:false} };
   const fire = new Function(...Object.keys(deps), `${body}\nreturn fireGun;`)(...Object.values(deps));
   return { fire, G, model, veh };
 }
@@ -160,12 +161,12 @@ test('named fitted machinery health freezes mechanical work independently of hum
 
 test('actual frame loading and HUD use the fitted owner with real stock state and gun selection remains mounted', () => {
   const r=stock(),events=[];
-  const start=source.indexOf('        const done = loading.tick(G.T[ti].loading, SIM_DT,');
+  const start=source.indexOf('        const L = G.T[ti].loading;',source.indexOf('      stepMachineGuns(SIM_DT);'));
   const end=source.indexOf('        // a rotary gun',start);
   assert.ok(start>=0&&end>start,'actual frame reload owner exists');
   const state={modules:r.b.modules.map(m=>m.max_health)};
-  const G={loadout:r.lo,gameplayMode:'historical',bundle:r.b,cstate:state,caps:{loader:false,weapons:{'gun:0:0':{can_fire:true,reload_mult:1.6}}},T:[{loading:r.L}]};
-  const deps={G,t:r.t,ti:0,SIM_DT:1/60,loading,...loadout,...damageApi,sound:{click:()=>events.push('ready')}};
+  const G={loadout:r.lo,mode:'battle',gameplayMode:'historical',bundle:r.b,cstate:state,caps:{loader:false,weapons:{'gun:0:0':{can_fire:true,reload_mult:1.6}}},T:[{loading:r.L}]};
+  const deps={G,t:r.t,ti:0,SIM_DT:1/60,loading,...loadout,...damageApi,sound:Object.assign(new Sound(),{click:()=>events.push('ready')})};
   const frame=new Function(...Object.keys(deps),source.slice(start,end));
   r.g.loaded=-1; loading.fired(r.L,0);
   for(let i=0;i<479;i++) frame(...Object.values(deps));

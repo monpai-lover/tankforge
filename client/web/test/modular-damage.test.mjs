@@ -1,5 +1,6 @@
 import { OnlineAmmo } from '../src/game/onlineAmmo.js';
 import { OnlineLaunches } from '../src/game/onlineLaunch.js';
+import { Sound } from '../src/game/audio.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -356,9 +357,12 @@ test('actual ammo synchronization clears empty damaged-rack penalties from ongoi
   const L = loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack));
   const G = {bundle: b, combat: c, combatKey: 'racks:reload', loadout: lo, mode: 'battle', cstate: damaged.state, caps: damaged.caps, carried: 43, T: [{loading: L}], sightG: 0};
   loading.fired(L, 0);
-  const tickLine = source.split('\n').find(line => line.includes('const done = loading.tick(G.T[ti].loading, SIM_DT'));
-  assert.ok(tickLine, 'real main loading entry is required');
-  const tick = new Function('G', 'loading', 'reloadTime', 'mountedReloadRate', 't', 'ti', 'SIM_DT', tickLine + '\nreturn done;');
+  const tickStart = source.indexOf('        const L = G.T[ti].loading;', source.indexOf('      stepMachineGuns(SIM_DT);'));
+  const tickEnd = source.indexOf('        for (const gi of done)', tickStart);
+  assert.ok(tickStart >= 0 && tickEnd > tickStart, 'real main loading entry is required');
+  const tickBody = source.slice(tickStart, tickEnd) + '\nreturn done;';
+  const sound = new Sound();
+  const tick = (G, loading, reloadTime, mountedReloadRate, t, ti, SIM_DT) => new Function('G', 'loading', 'reloadTime', 'mountedReloadRate', 't', 'ti', 'SIM_DT', 'sound', tickBody)(G, loading, reloadTime, mountedReloadRate, t, ti, SIM_DT, sound);
   const before = loadout.reloadTime(t, 0, 0);
   tick(G, loading, loadout.reloadTime, helper.mountedReloadRate, t, 0, 1);
   assert.ok(Math.abs(loading.progress(L, 0).remaining - (before - .8)) < 1e-8, 'the occupied damaged rack slows the ongoing cycle');
@@ -383,7 +387,7 @@ test('live select registers before actual stock/workshop models, interior and st
   const renderer = {mesh: vertices => ({vertices}), instancedMesh: vertices => ({vertices}), setInstances() {}, freeMesh() {}, freeTexture() {}};
   const G = {mode: 'battle', gameplayMode: 'historical', combat: c, model: null, s: phys.newState(), veh: {}, cam: {yaw: 0}, pending: [], designs: new Map()};
   const scene = {children: [], add(n) {this.children.push(n);}}, order = [];
-  const deps = {G, onlineFires, onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, scene, VehicleSim, phys, loading, mgSim, gunnery, ...selection, ...loadout, ...helper, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
+  const deps = {G, sound: new Sound(), onlineFires, onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, scene, VehicleSim, phys, loading, mgSim, gunnery, ...selection, ...loadout, ...helper, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
     buildTank(r, lo, parts) { assert.ok(c.describe(G.combatKey), 'registration exists before real model construction'); order.push('model'); return buildTank(r, lo, parts); },
     buildInterior(...args) {order.push('interior'); return buildInterior(...args);},
     isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
@@ -442,7 +446,7 @@ test('actual garage protection shots use the current actor fold and restore rais
   protection.dist = 100;
   const plate = original.armor.find(p => p.hinge), n = Object.values(plate.normal), p = Object.values(plate.center);
   const ray = {o: p.map((v, i) => v + n[i] * 3), d: n.map(v => -v / Math.hypot(...n))};
-  const replays = [], deps = {G, onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...selection, ...loadout, ...helper, ...folding, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
+  const replays = [], deps = {G, sound: new Sound(), onlineFires: new OnlineFires(), onlineLaunches:new OnlineLaunches(), onlineAmmo:new OnlineAmmo(), data, renderer, terrain, protection, scene: {children: [], add(n) {this.children.push(n);}}, VehicleSim, phys, loading, mgSim, gunnery, ...selection, ...loadout, ...helper, ...folding, deriveLoadoutPerformance, deriveVehicleParams, captureAmmoPlan, newResupplyState,
     buildTank, buildInterior, isDesign: () => false, store: {set() {}}, STORE_VEHICLE: 'vehicle', LANG_INDEX: 0, AMMO_CFG: {}, applyAmmo() {}, Exhaust: class {}, fx: {}, exhaustOf: () => ({}), applyXray() {}, syncRacks() {},
     clamp: (v, a, b) => Math.max(a, Math.min(b, v)), DEG: Math.PI / 180,
     mods: {choose() {}, cardOf: id => id, slots: () => []}, hud: new Proxy({}, {get: () => () => {}}),
