@@ -240,6 +240,21 @@ export function sprocketPhase(loop, pins, count, sprocket, teeth) {
   return ((a % step) + step) % step;
 }
 
+/** Preserve shaft winding while retaining the current link's tooth alignment. */
+export function liftSprocketPhase(phase, teeth, travel, pitch, state) {
+  const step = TAU / teeth;
+  if (!state.initialized) {
+    state.initialized = true;
+    state.angle = phase;
+    state.travel = travel;
+    return phase;
+  }
+  const predicted = state.angle + (travel - state.travel) * step / pitch;
+  state.angle = phase + Math.round((predicted - phase) / step) * step;
+  state.travel = travel;
+  return state.angle;
+}
+
 // ------------------------------------------------------------------------- geometry
 
 /** Sets the two free vertex values the running-gear shader reads: wear (0..1) and mud affinity (0..1). */

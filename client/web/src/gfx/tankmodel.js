@@ -9,7 +9,7 @@
 //                                                                      └─ barrel (recoil slide)
 import { GeoBuilder, hexToLinear, partMatrix } from './geo.js';
 import { Node, translation, mul, rotX } from './math.js';
-import { stationsOf, buildLoop, fitLoop, placeLinks, sprocketPhase, linkGeometry, sprocketGeometry, wheelGeometry } from './track.js';
+import { stationsOf, buildLoop, fitLoop, placeLinks, sprocketPhase, liftSprocketPhase, linkGeometry, sprocketGeometry, wheelGeometry } from './track.js';
 import { partMesh, imageTexture } from './imported.js';
 import { pintleGun } from './mgmodel.js';
 import { buildGearSupports } from './gearSupports.js';
@@ -363,7 +363,12 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     (rg.rollers || []).forEach((rl, k) => {
       addWheel('return_roller', rl, shared(`r${rl.r}_${rl.w}`, () => wheelGeometry(rl.r, rl.w, 'rubber_dish', mats)), 0, k);
     });
-    sides.push({ side, sprocket, idler, idlerPhaseLoop: { front: staticLoop.front, rear: staticLoop.rear, sprocketFront: !staticLoop.sprocketFront } });
+    sides.push({
+      side, sprocket, idler,
+      sprocketPhaseState: { initialized: false, angle: 0, travel: 0 },
+      idlerPhaseState: { initialized: false, angle: 0, travel: 0 },
+      idlerPhaseLoop: { front: staticLoop.front, rear: staticLoop.rear, sprocketFront: !staticLoop.sprocketFront },
+    });
   }
   const matrices = new Float32Array(linkCount * 2 * 16);
   const pins = new Float32Array((linkCount + 1) * 2);
@@ -388,12 +393,15 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       const loop = lod >= 2 ? staticLoop : fitLoop(rg, stations, lifts, lod === 0 && dyn.ground ? dyn.ground[side] : null, staticLoop.length, dyn.slack ? dyn.slack[side] : 1);
       // the ground run stands still on the ground, so seen from the hull it runs backwards
       o = placeLinks(loop, linkCount, -dyn.travel[side], side * rg.track_x, matrices, o, pins);
-      sd.sprocket.node.pitch = sprocketPhase(loop, pins, linkCount, rg.sprocket, teeth);
+      const phasePitch = loop.length / linkCount;
+      const rawSprocketPhase = sprocketPhase(loop, pins, linkCount, rg.sprocket, teeth);
+      sd.sprocket.node.pitch = liftSprocketPhase(rawSprocketPhase, teeth, dyn.travel[side], phasePitch, sd.sprocketPhaseState);
       if (idlerTeeth && !sd.idler.node.imported) {
         sd.idlerPhaseLoop.front = loop.front;
         sd.idlerPhaseLoop.rear = loop.rear;
         sd.idlerPhaseLoop.sprocketFront = !loop.sprocketFront;
-        sd.idler.node.pitch = sprocketPhase(sd.idlerPhaseLoop, pins, linkCount, rg.idler, idlerTeeth);
+        const rawIdlerPhase = sprocketPhase(sd.idlerPhaseLoop, pins, linkCount, rg.idler, idlerTeeth);
+        sd.idler.node.pitch = liftSprocketPhase(rawIdlerPhase, idlerTeeth, dyn.travel[side], phasePitch, sd.idlerPhaseState);
       }
       sd.length = loop.length;
       sd.idlerShift = loop.idlerShift || 0;
