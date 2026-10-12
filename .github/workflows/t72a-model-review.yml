@@ -1,0 +1,49 @@
+name: T-72A isolated model review
+
+on:
+  push:
+    branches: [model/t72a-obr1979-refine-20261013]
+    paths:
+      - .github/workflows/t72a-model-review.yml
+      - data/vehicles/su_t72a/visual.json
+      - client/web/src/gfx/t72a*.js
+      - client/web/src/gfx/tankmodel.js
+      - client/web/test/*t72a*
+      - tools/*t72a*
+
+permissions:
+  contents: read
+
+concurrency:
+  group: t72a-isolated-model-review
+  cancel-in-progress: false
+
+jobs:
+  geometry-review:
+    if: github.ref == 'refs/heads/model/t72a-obr1979-refine-20261013'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          clean: false
+      - name: Record exact review source (tracked files only; no credentials)
+        run: |
+          mkdir -p review-artifacts
+          git rev-parse HEAD > review-artifacts/source-sha.txt
+          git archive --format=tar HEAD | gzip > review-artifacts/source.tar.gz
+          node --version > review-artifacts/node-version.txt
+      - name: Existing Node regression assertions
+        working-directory: client/web
+        run: |
+          set -o pipefail
+          node --test --test-reporter=tap test/*.test.mjs 2>&1 | tee ../../review-artifacts/node-tests.tap
+      - name: Preserve review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: t72a-model-review-${{ github.sha }}
+          path: review-artifacts/
+          retention-days: 7
+          if-no-files-found: error
