@@ -29,6 +29,7 @@ import { Missiles } from './game/missiles.js';
 import { OnlineLaunches } from './game/onlineLaunch.js';
 import { OnlineFires } from './game/onlineFire.js';
 import { OnlineAmmo } from './game/onlineAmmo.js';
+import { LocalReplayAdmission } from './game/localReplayAdmission.js';
 import { Mods } from './game/mods.js';
 import { Exhaust, exhaustOf } from './game/exhaust.js';
 import { LANG, LANG_INDEX, setLang } from './i18n.js';
@@ -149,6 +150,7 @@ const store = {
 
 export function start(data, saved = {}) {
   const gameplay = new GameplaySession(store);
+  const localReplay = new LocalReplayAdmission();
   setShellSheet(data.images?.shell_icons);
   setCrewModel(data.crewModel);
   setMgModels(data.mgModels);
@@ -294,7 +296,7 @@ export function start(data, saved = {}) {
     storedBuild = null;
   }
 
-  const G = {
+  const G = { localReplay, bindReplay:bindLocalReplay,
     id: null,
     loadout: null,
     params: null,
@@ -776,6 +778,8 @@ export function start(data, saved = {}) {
     measureInsets();
     if (net.inRoom && !G.online) lobby.sendVehicle();
     lobby.render();
+    if(G.mode==='battle'&&!G.online&&G.localReplay?.actor(1)){G.localReplay?.replace(1,G.combatKey);G.bindReplay?.();}
+    return true;
   }
 
   /** Refresh normalized damage nodes while retaining the vehicle model and its live mounts. */
@@ -793,6 +797,7 @@ export function start(data, saved = {}) {
 
   /** WASM may arrive during a sortie: bind all existing actors without selecting/resetting them. */
   function bindCombatReady() {
+    G.bindReplay?.();
     if (G.sourceBundle && G.loadout) {
       G.combat.setFold(G.combatKey, G.fold?.pose || 0);
       G.bundle = G.combat.prepare(G.combatKey, G.sourceBundle);
@@ -811,6 +816,7 @@ export function start(data, saved = {}) {
       G.missiles.core=G.combat.core;
       if (G.mode==='battle' && G.veh) missileBattleStart(!!(G.online && onlineAmmo.scope()));
     }
+    G.bindReplay?.();
   }
 
   // vectors in the data files are {x, y, z}; some generated ones are [x, y, z]
@@ -1264,6 +1270,7 @@ export function start(data, saved = {}) {
       return;
     }
     resetPose();
+    G.localReplay?.replace(1,G.combatKey);G.bindReplay?.();
   }
 
   // ----------------------------------------------------------- garage / battle
@@ -1406,6 +1413,10 @@ export function start(data, saved = {}) {
     hud.freeLook(false);
     resetPose(preserveLife);
     missileBattleStart(preserveLife);
+    if (!G.online) {
+      G.localReplay?.begin([{entity:1,key:G.combatKey},...(G.enemies||[]).map((e,i)=>({entity:100+i,key:e.combatKey}))]);
+      G.bindReplay?.();
+    } else {G.localReplay?.retire();G.bindReplay?.();}
     if (G.online) hud.toast(`聯機戰鬥：${mapName(G.mapId)}　你在${G.online.team === 'blue' ? '藍方' : '紅方'}　F 長按修復，J 長按棄車，R 重生，Enter 聊天`, 6);
     else if (G.conquest) hud.toast(`${G.loadout.name} 出擊：${G.map.name}・佔領模式　佔領 ${G.conquest.points.map((p) => p.id).join('／')} 點讓敵方兵力歸零，Tab 回車庫`, 6);
     else hud.toast(G.map ? `${G.loadout.name} 出擊：${G.map.name}　藍方出發點 ${spawnLabel()}，Tab 回車庫` : `${G.loadout.name} 出擊　100–2000 m 靶車：近處薄裝甲，遠處先進裝甲，Tab 回車庫`, 5);
@@ -1423,6 +1434,7 @@ export function start(data, saved = {}) {
   }
 
   function toGarage() {
+    G.localReplay?.retire();
     if (G.resupply) G.resupply.elapsed = 0;
     for (const e of G.enemies || []) if (e.resupply) e.resupply.elapsed = 0;
     if (G.mode === 'test') testRange.exit();
@@ -1435,6 +1447,7 @@ export function start(data, saved = {}) {
       G.online = null;
       net.send({ t: 'leave' });
     }
+    G.bindReplay?.();
     deploy.close();
     G.conquest = null;
     G.cqEndAt = 0;
@@ -1609,6 +1622,7 @@ export function start(data, saved = {}) {
       e.rangeTarget = !G.map;
       if (e.rangeTarget) e.rangeM = sp.rangeM;
       e.combatKey = key;
+      e.replayEntity=100+i;
       if (G.combat) useCombat(e, G.combat, e.combatKey);
       if (e.rangeTarget) e.rangeRestPose = captureRangeTargetRestPose(e);
       G.enemies.push(e);
@@ -1620,7 +1634,9 @@ export function start(data, saved = {}) {
     rangeTargetRevival.step(dt, G.enemies, reviveRangeEnemy);
   }
   function reviveRangeEnemy(e) {
-    return reviveRangeTarget(e, G.combat);
+    const ok=reviveRangeTarget(e,G.combat);
+    if(ok){G.localReplay?.replace(e.replayEntity,e.combatKey);G.bindReplay?.();}
+    return ok;
   }
 
   /** Stock training targets show their range; online players retain their visibility rules. */
@@ -1900,6 +1916,7 @@ export function start(data, saved = {}) {
     const o = G.online;
     if (!o || (o.dead&&!force)) return;
     o.dead = true;
+    o.hp = 0;
     G.resupplyProgress=0;cqMsg.textContent='';
     vehicleActions.cancel();
     o.diedAt = performance.now();
@@ -1910,7 +1927,7 @@ export function start(data, saved = {}) {
     // a deploy room: the deploy screen comes up after a moment (the hit camera first)
     o.deployAt = net.room?.deploy ? performance.now() + 3000 : Infinity;
     const how = net.room?.deploy ? '稍後選擇下一台車（R 立即開啟）' : `${RESPAWN_DELAY} 秒後按 R 重生`;
-    hud.toast(m && m.result !== 'scuttle' ? `被 ${playerName(m.from)} 擊毀　${how}` : `已棄車　${how}`, 6);
+    hud.toast(m?.result==='scuttle'?`已棄車　${how}`:m?`被 ${playerName(m.from)} 擊毀　${how}`:`載具已被擊毀　${how}`, 6);
     updateNetHud(true);
   }
 
@@ -2118,6 +2135,29 @@ export function start(data, saved = {}) {
   const onlineLaunches = new OnlineLaunches();
   const onlineFires = new OnlineFires();
   const onlineAmmo = new OnlineAmmo();
+  net.replayActorProvider=()=>G.online?replayActorFor(net.id):null;
+  net.on('replay_evidence',e=>{if(!G.replayEvidence?.deaths.length||e.deaths.length)G.replayEvidence=e;});
+  net.on('replay_commit',c=>{G.replayCommit=c;});
+  net.on('replay_checkpoint',c=>{G.replayCheckpoint=c;});
+
+  /** One selection point projects online C2 scope or the sole local admission owner. */
+  function replayActorFor(entity) {
+    if(G.online){const scope=onlineAmmo.scope();return scope&&entity===net.id?{...scope,entity}:null;}
+    return G.localReplay?.actor(entity)||null;
+  }
+  function localReplayPose(key) {
+    const e=(G.enemies||[]).find(e=>e.combatKey===key),p=key===G.combatKey?G:e;
+    const b=p?.veh?.body;if(!b)return null;
+    return {trust:'legacy_receipt_pose',hull_origin:b.origin().slice(),ex:b.ex.slice(),ey:b.ey.slice(),ez:b.ez.slice(),
+      joints:p===G?G.T.map(t=>({yaw:t.yaw,guns:t.guns.map(g=>({pitch:g.pitch}))})):e.gunPitch.map((pitch,i)=>({yaw:e.turretYaws?.[i]??e.turretYaw,pitch})),running_gear:[],payload:[],variants:[]};
+  }
+  function bindLocalReplay() {
+    const actor=replayActorFor(G.online?net.id:1),key=actor?`${G.online?'online':'offline'}:${actor.battle}:${actor.entity}:${actor.life}`:null;
+    if(G.replayActorGuard!==key){G.replayActorGuard=key;G.replayEvidence=null;G.replayCommit=null;G.replayCheckpoint=null;}
+    if(G.combat)G.combat.setReplayAdmission(G.online?null:localReplay,localReplayPose,()=>G.time||0);
+    if(G.missiles){G.missiles.replayAdmission=G.online?null:localReplay;G.missiles.replayTime=()=>G.time||0;}
+    if(!G.online){localReplay.bindState(G.combatKey,G.cstate);for(const e of G.enemies||[])localReplay.bindState(e.combatKey,e.cstate);}
+  }
   const currentFireGun = seq => {
     const p = onlineFires.pending.find(p => p.seq === seq);
     return p && G.loadout.turrets[p.ti]?.guns[p.gi];
@@ -2202,12 +2242,13 @@ export function start(data, saved = {}) {
       }
     }
     if (m.target === net.id) {
-      o.hp = m.hp;
-      if (rep) {
-        G.cstate = rep.state;
-        G.caps = rep.caps;
+      if(m._replayApplyState!==false){
+        o.hp = m.hp;
+        if(m.owner_commit){G.cstate=m.owner_commit.record.state_after;G.caps=m.owner_commit.caps_after;}
+        else if(rep){G.cstate=rep.state;G.caps=rep.caps;}
       }
       if (m.killed) markDead(m);
+      else if(m._replayApplyState===false)return;
       else if (rep && (rep.modules.length || rep.crew.length)) {
         hud.toast(`被 ${playerName(m.from)} 擊中：${rep.title}`, 3);
         G.cam.shake = 1.4;
@@ -2226,6 +2267,7 @@ export function start(data, saved = {}) {
   net.on('status', (m) => {
     if (!G.online) return;
     if (m.id === net.id) {
+      if(m._replayApplyState===false)return;
       if(m.ammo_scope!==undefined||m.ammo_revision!==undefined) {
         const scope=onlineAmmo.scope(),last=G.online.ammoRackStatus;
         if(!scope||scope.battle!==m.ammo_scope?.battle||scope.life!==m.ammo_scope?.life)return;
@@ -2243,6 +2285,7 @@ export function start(data, saved = {}) {
       }
       G.cstate = m.state;
       G.caps = m.caps;
+      if(G.cstate.destroyed)markDead(null);
       syncRacks();
       for (const ev of m.events) {
         if (ev.startsWith('seat:')) hud.toast(`${CREW_NAME[ev.slice(5)] || ev.slice(5)}的位置已有人接替`, 2.5);
@@ -2380,6 +2423,7 @@ export function start(data, saved = {}) {
 
   /** A seed every client and the server derive the same way for the same shot. */
   function shotSeed(sh) {
+    if(sh.replayDischarge)return sh.replayDischarge.seed;
     if (G.online && sh.seq) return ((net.id * 1000003 + sh.seq * 7919) >>> 0) || 1;
     return ((rng.nextF32() * 4294967295) >>> 0) || 1;
   }
@@ -2863,6 +2907,7 @@ export function start(data, saved = {}) {
       const speed = Math.hypot(sg.vel[0], sg.vel[1], sg.vel[2]) || 1;
       const dir = [sg.vel[0] / speed, sg.vel[1] / speed, sg.vel[2] / speed];
       let best = null;
+      if(sg.contact){const e=G.enemies.find(e=>e.replayEntity===sg.contact.actor);if(sg.contact.actor===ME)best={t:1,kind:'self',point:sg.contact.point};else if(e)best={t:1,kind:'enemy',e,point:sg.contact.point};}
       const bh = buildingHit(p0, p1);
       if (bh) best = { t: bh.t, kind: 'building', point: bh.point };
       (G.enemies || []).forEach((e, i) => {
@@ -2878,8 +2923,9 @@ export function start(data, saved = {}) {
         }
       }
       if (!best) continue;
-      G.missiles.end(sg.id);
-      const dist = sg.owner === ME ? Math.hypot(best.point[0] - G.s.x, best.point[2] - G.s.z) : 500;
+      // Keep the exact admitted source alive through the synchronous damage transaction.
+      try {
+      const dist = sg.distance??Math.hypot(...best.point.map((v,i)=>v-p0[i]));
       if (best.kind === 'building') {
         fx.shellGround(best.point, MASONRY_DUST, war);
         sound.blast(war.explosive_mass_kg || 1, Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]));
@@ -2890,7 +2936,8 @@ export function start(data, saved = {}) {
           fx.shellArmor(best.point, dir, null, war, 'stopped');
           continue;
         }
-        const rep = combatHit(e, p0, dir, war, speed, dist, seed());
+        const rep = combatHit(e,p0,dir,war,speed,dist,sg.source?.seed??seed(),sg.source,sg.time_s);
+        if(!rep)continue;
         const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
         fx.shellArmor(best.point, dir, nrm, war, rep.outcome);
         sound.impact(Math.hypot(best.point[0] - G.camPos[0], best.point[2] - G.camPos[2]), true);
@@ -2899,8 +2946,9 @@ export function start(data, saved = {}) {
           if (!(e.remote && G.online)) showHit(hud, rep);
         }
       } else {
-        selfMissileHit(p0, dir, war, speed, def);
+        selfMissileHit(p0,dir,war,speed,def,sg.source,dist,sg.time_s);
       }
+      } finally { G.missiles.end(sg.id); }
     }
   }
 
@@ -2914,15 +2962,17 @@ export function start(data, saved = {}) {
   }
 
   /** An enemy missile striking our own vehicle (offline): the same combat model, from its side. */
-  function selfMissileHit(p0, dir, war, speed, def) {
+  function selfMissileHit(p0,dir,war,speed,def,replayDischarge=null,distance=0,replay_time_s=undefined) {
     const pt = p0;
     fx.shellArmor(pt, dir, null, war, 'penetrated');
     G.cam.shake = 1.6;
     sound.impact(2, true);
-    if (!G.combat || !G.cstate) return;
+    if (!G.combat || !G.cstate || G.cstate.destroyed) return;
     const b = G.veh.body;
-    const shot = { shell: war, origin: b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]), dir: b.localDir(dir), speed_ms: speed, distance_m: 500, seed: (rng.nextF32() * 4294967295) >>> 0, turret_yaw: G.T[0].yaw };
-    const rep = G.combat.shoot(G.combatKey, G.cstate, shot);
+    const shot = { shell: war, origin: b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]), dir: b.localDir(dir), speed_ms: speed, distance_m:distance,seed:replayDischarge?.seed??((rng.nextF32()*4294967295)>>>0),turret_yaw:G.T[0].yaw,replayDischarge,replay_time_s };
+    const rep = G.combat.shoot(G.combatKey,G.cstate,shot);
+    if(!rep)return;
+    if(rep.replay)G.replayEvidence=rep.replay;
     G.cstate = rep.state;
     G.caps = rep.caps;
     hud.toast(`被${def.name}擊中：${rep.title}`, 3.5);
@@ -2997,7 +3047,7 @@ export function start(data, saved = {}) {
         return;
       }
       const mz = gunnery.muzzleWorld(ps, launcherMount(g, mount), { yaw: enemyYaws(e)[ti] || 0, pitch });
-      const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0);
+      const id = G.missiles.launch(mdef.id, owner, 1, mz.pos, mz.dir, ((i + 1) * 7919 + Math.floor(G.time * 1000)) >>> 0,null,{weapon_instance:g.damageKey,projectile_id:mdef.warhead});
       if (id == null) return;
       e.mslIds.push(id);
       fireLauncherRound(g, L, gi);
@@ -3033,7 +3083,7 @@ export function start(data, saved = {}) {
       net.send(msg);
       return true;
     } else {
-      const id = G.missiles.launch(mdef.id, ME, 0, mz.pos, mz.dir, (rng.nextF32() * 4294967295) >>> 0);
+      const id = G.missiles.launch(mdef.id,ME,0,mz.pos,mz.dir,(rng.nextF32()*4294967295)>>>0,null,{weapon_instance:g.damageKey,projectile_id:mdef.warhead});
       if (id == null) return false;
       if (mdef.guidance !== 'none') G.guided.push({ id, ti, gi, fresh: true });
     }
@@ -3055,6 +3105,8 @@ export function start(data, saved = {}) {
     if (!G.online && busy(G.cstate)) {
       const repairTargets = G.cstate.repair_targets || [];
       const r = G.combat.advance(G.combatKey, G.cstate, step, (rng.nextF32() * 4294967295) >>> 0);
+      if(r.replay)G.replayEvidence=r.replay;
+      if(r.replay_commit)G.replayCommit=r.replay_commit;
       G.cstate = r.state;
       G.caps = r.caps;
       for (const ev of r.events) {
@@ -3783,6 +3835,7 @@ export function start(data, saved = {}) {
       onlineAmmo.predictCannon(shot.seq,g.damageKey,ammoId);
       net.send({ t: 'fire', seq: shot.seq, ammo_scope:onlineAmmo.scope(), instance: g.damageKey, o: mz.pos.map((v) => Math.round(v * 1000) / 1000), d: dir.map((v) => Math.round(v * 1e5) / 1e5), shell: ammoId });
     }
+    if(!G.online){const seed=(rng.nextF32()*4294967295)>>>0;shot.replayDischarge=G.localReplay?.acceptDischarge(1,{weapon_instance:g.damageKey,projectile_id:ammoId,seed,time_s:G.time||0,origin:mz.pos,direction:dir});}
     G.shots.push(shot);
     loading.fired(rt.loading, gi);
     const gy = surfaceAt(mz.pos[0], mz.pos[2]);
@@ -3906,6 +3959,7 @@ export function start(data, saved = {}) {
           bullet.seq = ++G.online.seq;
           net.send({ t: 'mg_fire', seq: bullet.seq, ammo_scope:onlineAmmo.scope(), instance: bullet.instance, gun: e.m.def.id, o: mz.pos.map(v => Math.round(v * 1000) / 1000), d: dir.map(v => Math.round(v * 1e5) / 1e5) });
         }
+        if(!G.online)bullet.replayDischarge=G.localReplay?.acceptDischarge(1,{weapon_instance:bullet.instance,projectile_id:G.bulletShells.get(bullet.def.id)?.id||bullet.def.id,seed:(rng.nextF32()*4294967295)>>>0,time_s:G.time||0,origin:mz.pos,direction:dir});
         G.bullets.push(bullet);
         fx.mgFlash(mz.pos, mz.dir, e.m.def.caliber_mm);
         sound.mg(e.m.def.caliber_mm);
@@ -3944,7 +3998,8 @@ export function start(data, saved = {}) {
             const sp = Math.hypot(b.s.vel[0], b.s.vel[1], b.s.vel[2]) || 1;
             const dir = [b.s.vel[0] / sp, b.s.vel[1] / sp, b.s.vel[2] / sp];
             if (!G.bulletShells.has(b.def.id)) G.bulletShells.set(b.def.id, bulletShell(b.def));
-            const rep = combatHit(e, p0, dir, G.bulletShells.get(b.def.id), sp, b.travelled, (rng.nextF32() * 4294967295) >>> 0);
+            const rep = combatHit(e,p0,dir,G.bulletShells.get(b.def.id),sp,b.travelled,b.replayDischarge?.seed??((rng.nextF32()*4294967295)>>>0),b.replayDischarge);
+            if(!rep){done=true;break;}
             if (e.remote && G.online) net.send({ t: 'mg_hit', seq: b.seq, instance: b.instance, target: e.netId, gun: b.def.id, shot: wireShot(rep.shot) });
             if (rep.modules.length || rep.crew.length || rep.caps.destroyed) {
               onCombatHit(e, rep, G.bulletShells.get(b.def.id), b.travelled, true);
@@ -4026,7 +4081,8 @@ export function start(data, saved = {}) {
           } else if (e.combat && wasAlive) {
             // armour, modules and crew: the combat model (the server resolves it again online)
             const seed = shotSeed(sh);
-            const rep = combatHit(e, p0, dir, sh.shell, speed, dist, seed);
+            const rep = combatHit(e,p0,dir,sh.shell,speed,dist,seed,sh.replayDischarge);
+            if(!rep){done=true;break;}
             if (e.remote && sh.seq && G.online) net.send({ t: 'hit', seq: sh.seq, target: e.netId, result: rep.outcome, plate: rep.plate ?? null, shot: wireShot(rep.shot) });
             // what the eye sees depends on the round and what it did
             const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;

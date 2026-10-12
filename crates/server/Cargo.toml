@@ -12,3 +12,6 @@ tg-weapon.workspace = true
 tg-armor.workspace = true
 tg-missile.workspace = true
 tg-gameplay.workspace = true
+
+[dev-dependencies]
+sha2.workspace = true

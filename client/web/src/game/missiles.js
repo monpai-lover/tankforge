@@ -82,6 +82,9 @@ export class Missiles {
     this.aps = new Map(); // owner -> latest state
     this.camPos = [0, 0, 0];
     this.local = true;
+    this.acceptedLaunches=new Map();
+    this.terminalLaunches=new Map(); // struck sources awaiting this frame's contact delivery
+    this.retainedSegments=null;
   }
 
   get ready() {
@@ -90,6 +93,8 @@ export class Missiles {
 
   /** Clears the sky (a new battle): the terrain grid the missiles fly over and the radar sees. */
   reset(terrain = null) {
+    for(const a of [...this.acceptedLaunches.values(),...this.terminalLaunches.values()])a.lease?.release();
+    this.acceptedLaunches.clear();this.terminalLaunches.clear();this.retainedSegments=null;
     for (const v of this.nodes.values()) this._drop(v);
     this.nodes.clear();
     this.tracers.length = 0;
@@ -97,10 +102,18 @@ export class Missiles {
     if (this.core) this.core.call({ op: 'mw_reset', defs: Object.values(this.defs), terrain });
   }
 
-  launch(def, owner, team, pos, dir, seed, id = null) {
+  launch(def, owner, team, pos, dir, seed, id = null, context = null) {
     if (!this.core) return null;
     const r = this.core.call({ op: 'mw_launch', def, owner, team, pos, dir, seed: seed >>> 0, id });
-    if (r.id != null) this._launchLook(def, pos, dir);
+    if (r.id != null) {
+      this._launchLook(def,pos,dir);
+      const time_s=this.replayTime?.()??null;
+      const source=context&&this.replayAdmission&&Number.isFinite(time_s)?this.replayAdmission.acceptDischarge(owner,{...context,seed:seed>>>0,time_s,origin:pos,direction:dir,flight_trust:'missile_world_segments_legacy_contact'}):null;
+      this.acceptedLaunches.get(r.id)?.lease?.release();this.terminalLaunches.get(r.id)?.lease?.release();this.terminalLaunches.delete(r.id);
+      const lease=source?this.replayAdmission.retainProjectile(source):null;
+      this.acceptedLaunches.set(r.id,{id:r.id,owner,def,source,lease,previous:pos.slice(),distance:0,time_offset:Number.isFinite(r.time_s)?time_s-r.time_s:null});
+      if(this.acceptedLaunches.size>256){const oldest=this.acceptedLaunches.keys().next().value;this.acceptedLaunches.get(oldest).lease?.release();this.acceptedLaunches.delete(oldest);}
+    }
     return r.id;
   }
 
@@ -110,6 +123,8 @@ export class Missiles {
 
   /** The missile struck something the world does not know of (a vehicle, a building). */
   end(id) {
+    this.acceptedLaunches.get(id)?.lease?.release();this.terminalLaunches.get(id)?.lease?.release();this.terminalLaunches.delete(id);
+    this.acceptedLaunches.delete(id);
     if (this.core) this.core.call({ op: 'mw_end', id });
     const v = this.nodes.get(id);
     if (v) {
@@ -137,14 +152,46 @@ export class Missiles {
 
   /** Steps the world (offline) and draws the result. actors: see crates/missile Actor. */
   step(dt, actors) {
+    for(const a of this.terminalLaunches.values())a.lease?.release();
+    this.terminalLaunches.clear();this.retainedSegments=null;
     if (!this.core || !(dt > 0)) return { events: [], fired: [], missiles: [], aps: [] };
     const res = this.core.call({ op: 'mw_step', dt, actors });
-    this.present(res, dt);
+    this.retainedSegments=[];
+    for(const m of [...(res.missiles||[]),...(res.ended||[])]) {
+      const admitted=this.acceptedLaunches.get(m.id);if(!admitted)continue;
+      const contact=(res.events||[]).find(e=>e.type==='missile_hit'&&e.missile===m.id);
+      const p0=admitted.previous.slice(),p1=(contact?.point||m.pos).slice();
+      admitted.distance+=Math.hypot(...p1.map((v,i)=>v-p0[i]));admitted.previous=p1;if(admitted.source)admitted.source.travelled_distance_m=admitted.distance;
+      const time_s=Number.isFinite(res.time_s)&&Number.isFinite(admitted.time_offset)?res.time_s+admitted.time_offset:null;
+      const source=admitted.source;
+      if(source&&Number.isFinite(time_s)) {
+        if(!source.flight.length)source.flight.push({time_s:source.launch_time_s,position:p0.slice(),velocity_m_s:m.vel.slice()});
+        if(source.flight.length>=256){source.flight.splice(1,1);source.flight_compacted_count=(source.flight_compacted_count||0)+1;}
+        source.flight.push({time_s,position:p1.slice(),velocity_m_s:m.vel.slice()});
+        if(source.segments.length>=256){source.segments.splice(1,1);source.segment_compacted_count=(source.segment_compacted_count||0)+1;}
+        source.segments.push({start_time_s:Math.max(source.launch_time_s,time_s-dt),end_time_s:time_s,from:p0.slice(),to:p1.slice()});
+      }
+      if(!m.status||m.status==='flying'||m.status==='struck')this.retainedSegments.push({id:m.id,owner:m.owner,team:m.team,def:m.def,p0,p1,vel:m.vel.slice(),contact,source,distance:admitted.distance,time_s});
+    }
+    try { this.present(res, dt); }
+    finally {
+      for(const m of res.ended||[]){
+        const admitted=this.acceptedLaunches.get(m.id);if(!admitted)continue;
+        if(m.status==='struck'&&this.retainedSegments.some(s=>s.id===m.id&&s.contact))this.terminalLaunches.set(m.id,admitted);
+        else admitted.lease?.release();
+        this.acceptedLaunches.delete(m.id);
+      }
+      // The preserved legacy core has no terminal snapshots. Its absent missiles
+      // must still retire; no contact sweep or timestamp is invented for them.
+      const flying=new Set((res.missiles||[]).map(m=>m.id));
+      for(const[id,admitted]of this.acceptedLaunches)if(!flying.has(id)){admitted.lease?.release();this.acceptedLaunches.delete(id);}
+    }
     return res;
   }
 
   /** Where each missile moved this frame: [{id, owner, team, def, p0, p1, vel}] (for hit tests). */
   segments() {
+    if(this.local&&this.retainedSegments)return this.retainedSegments;
     const out = [];
     for (const [id, v] of this.nodes) if (v.prev && v.pos) out.push({ id, owner: v.owner, team: v.team, def: v.def.id, p0: v.prev, p1: v.pos, vel: v.vel });
     return out;

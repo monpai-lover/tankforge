@@ -16,6 +16,13 @@ function b64ToBytes(b64) {
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+function combatSeed(seed,revision){
+  const text=typeof seed==='string'?seed:typeof seed==='bigint'?seed.toString():Number.isSafeInteger(seed)&&seed>=0?String(seed):null;
+  if(text===null||!/^(0|[1-9][0-9]{0,19})$/.test(text)||BigInt(text)>18446744073709551615n)throw Error('invalid combat seed');
+  if(revision===1)return text;
+  if(BigInt(text)>BigInt(Number.MAX_SAFE_INTEGER))throw Error('legacy core cannot exactly represent combat seed');
+  return Number(text);
+}
 
 export class DesignCore {
   /** instance: a WebAssembly.Instance of tg_design_wasm. */
@@ -24,6 +31,7 @@ export class DesignCore {
     this.initData = initData;
     this.calls = 0;
     this.lastMs = 0;
+    this.combatReplayRevision=instance.exports.tg_replay_revision?.()===1?1:0;
     this.call({ op: 'init', ...initData });
   }
 
@@ -83,14 +91,14 @@ export class DesignCore {
   combatNew(key) {
     return this.call({ op: 'combat_new', key });
   }
-  combatShoot(key, state, shot) {
-    return this.call({ op: 'combat_shoot', key, state, shot });
+  combatShoot(key, state, shot, context = null) {
+    return this.call({ op: 'combat_shoot', key, state, shot:{...shot,seed:combatSeed(shot.seed,this.combatReplayRevision)}, context:this.combatReplayRevision===1?context:null });
   }
   combatSplash(key, state, at, kg, yaw, seed) {
     return this.call({ op: 'combat_splash', key, state, at, kg, yaw, seed });
   }
-  combatAdvance(key, state, dt, seed) {
-    return this.call({ op: 'combat_advance', key, state, dt, seed });
+  combatAdvance(key, state, dt, seed, context = null) {
+    return this.call({ op: 'combat_advance', key, state, dt, seed, context:this.combatReplayRevision===1?context:null });
   }
   combatRepair(key, state) {
     return this.call({ op: 'combat_repair', key, state });

@@ -36,6 +36,8 @@ export function normalizeServer(text) {
   return s;
 }
 
+import {validateReplayEvidence,validateReplayCommit,validateReplayCheckpoint,ReplayCoverage,ownReplayValue,replayValueValid} from './replayEvidence.js';
+
 export class NetClient {
   constructor() {
     this.ws = null;
@@ -55,6 +57,7 @@ export class NetClient {
     this.gameplaySupported = false;
     this.ammoSupported = false;
     this.battleProfile = null;
+    this.replayCoverage=new ReplayCoverage();
   }
 
   on(type, fn) {
@@ -232,6 +235,46 @@ export class NetClient {
   }
 
   _receive(msg) {
+    const admitted=this.replayActorProvider?.();
+    if(msg.replay!==undefined||msg.owner_commit!==undefined||msg.replay_commit!==undefined||msg.replay_checkpoint!==undefined) {
+      const validation=msg.replay!==undefined?validateReplayEvidence(msg.replay,admitted):null;
+      if((msg.replay!==undefined&&(msg.t!=='damage'||msg.target!==this.id||msg.replay.authority!=='online'||!validation.ok))
+        ||(msg.owner_commit!==undefined&&(msg.t!=='damage'||msg.target!==this.id||!validateReplayCommit(msg.owner_commit,admitted)||typeof msg.owner_commit.caps_after?.destroyed!=='boolean'||msg.owner_commit.caps_after.destroyed!==msg.owner_commit.record.state_after.destroyed))
+        ||(msg.replay_commit!==undefined&&(msg.t!=='status'||msg.id!==this.id||!validateReplayCommit(msg.replay_commit,admitted)))
+        ||(msg.replay_checkpoint!==undefined&&(msg.t!=='status'||msg.id!==this.id||!validateReplayCheckpoint(msg.replay_checkpoint,admitted)))) {
+        this._emit('replay_rejected',{reason:validation?.reason||'invalid_commit_or_checkpoint'});return false;
+      }
+      msg={...msg};for(const k of ['owner_commit','replay_commit','replay_checkpoint'])if(msg[k])msg[k]=ownReplayValue(msg[k]);
+      if(validation)msg.replay=validation.evidence;
+      const c=msg.owner_commit||msg.replay_commit;
+      if(validation&&(msg.from!==msg.replay.shooter.entity||msg.killed!==(msg.replay.deaths.length>0)||!Number.isFinite(msg.hp)||msg.hp<0||msg.hp>100||msg.report&&JSON.stringify(msg.report)!==JSON.stringify(msg.replay.report))){this._emit('replay_rejected',{reason:'inconsistent_damage_projection'});return false;}
+      if(validation&&msg.report)msg.report=msg.replay.report;
+      if(validation&&c){const d=msg.replay.deaths[0];if(c.record.commit_seq!==(d?.commit_seq??msg.replay.commit_seq)||c.record.event_id!==(d?.event_id??msg.replay.event_id)||c.death_event_id!==undefined&&c.death_event_id!==(d?.event_id??null)||c.cause_event_id!==undefined&&c.cause_event_id!==(d?.cause_event_id??null)||JSON.stringify(c.record.state_after)!==JSON.stringify(d?.state_after??msg.replay.report.state)||JSON.stringify(c.caps_after)!==JSON.stringify(d?.caps_after??msg.replay.report.caps)){this._emit('replay_rejected',{reason:'inconsistent_owner_header'});return false;}}
+      if(msg.t==='status'){
+        const st=c?.record.state_after??msg.replay_checkpoint?.state;
+        if(!st||JSON.stringify(msg.state)!==JSON.stringify(st)||typeof msg.caps?.destroyed!=='boolean'||msg.caps.destroyed!==st.destroyed||!replayValueValid(msg.caps)){this._emit('replay_rejected',{reason:'inconsistent_status_state'});return false;}
+        msg.state=st;msg.caps=ownReplayValue(msg.caps);
+      }
+      const staged=this.replayCoverage.stage();staged.admit(admitted);
+      const conflict=staged.preflight({evidence:msg.replay,checkpoint:msg.replay_checkpoint,commit:c});
+      if(conflict){this._emit('replay_rejected',{reason:conflict});return false;}
+      let presentation=null;const incoming=[];
+      if(validation){presentation=staged.evidence(msg.replay);if(!presentation){this._emit('replay_rejected',{reason:'rewritten_source_or_commit'});return false;}}
+      if(msg.replay_checkpoint){
+        for(const e of msg.replay_checkpoint.incoming){const result=staged.evidence(e);if(!result){this._emit('replay_rejected',{reason:'rewritten_checkpoint_source'});return false;}if(result.fresh||result.terminal)incoming.push(e);}
+        if(!staged.checkpoint(msg.replay_checkpoint)){this._emit('replay_rejected',{reason:'conflicting_checkpoint'});return false;}
+      }
+      if(c){const apply=staged.commit(c);if(apply===null){this._emit('replay_rejected',{reason:'conflicting_commit'});return false;}msg._replayApplyState=apply;}
+      else if(msg.replay_checkpoint){msg._replayApplyState=msg.replay_checkpoint.state_version>=staged.stateVersion;staged.stateVersion=Math.max(staged.stateVersion,msg.replay_checkpoint.state_version);}
+      this.replayCoverage.publish(staged);
+      for(const e of incoming)this._emit('replay_evidence',e);
+      if(msg.replay_checkpoint)this._emit('replay_checkpoint',msg.replay_checkpoint);
+      if(c)this._emit('replay_commit',c);
+      if(presentation){msg._replayPresentDeath=presentation.terminal;if(presentation.fresh||presentation.terminal)this._emit('replay_evidence',msg.replay);}
+      this._emit('replay_coverage',this.replayCoverage.snapshot());
+      if(this.replayCoverage.pressure)this._emit('replay_checkpoint_required',this.replayCoverage.snapshot());
+      if(msg._replayApplyState===false&&!presentation?.fresh&&!presentation?.terminal)return;
+    }else this.replayCoverage.admit(admitted);
     if (msg.t === 'welcome' && msg.ammo_protocol_version !== AMMO_PROTOCOL_VERSION) {
       this.ammoSupported=false;this.gameplaySupported=false;
       return this._rejectGameplay(AMMO_UPDATE_NEEDED);
