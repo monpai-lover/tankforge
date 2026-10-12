@@ -16,8 +16,8 @@ const expected = {
 test('one versioned JSON supplies exactly the two gameplay rules', () => {
   assert.equal(typeof api.gameplayRules, 'function');
   const config = JSON.parse(fs.readFileSync(new URL('../../../config/gameplay-modes.json', import.meta.url), 'utf8'));
-  assert.equal(api.GAMEPLAY_RULES_VERSION, 1);
-  assert.deepEqual(config, { version: 1, modes: expected });
+  assert.equal(api.GAMEPLAY_RULES_VERSION, 2);
+  assert.deepEqual(config, { version: api.GAMEPLAY_RULES_VERSION, modes: expected });
   for (const mode of Object.keys(expected)) assert.deepEqual(api.gameplayRules(mode), expected[mode]);
 });
 
@@ -42,8 +42,8 @@ test('invalid mode IDs cannot become a historical or casual room', () => {
 
 test('room rules require an exact numeric version; explicit missing values are rejected', () => {
   assert.equal(typeof api.gameplayRules, 'function');
-  assert.deepEqual(api.gameplayRules('casual', 1), expected.casual);
-  for (const version of [undefined, null, '1', 0, 2, 1.1, NaN, Infinity, true, {}]) {
+  assert.deepEqual(api.gameplayRules('casual', api.GAMEPLAY_RULES_VERSION), expected.casual);
+  for (const version of [undefined, null, '2', 0, 1, api.GAMEPLAY_RULES_VERSION + 1, 2.1, NaN, Infinity, true, {}]) {
     assert.throws(() => api.gameplayRules('casual', version), /version/i);
   }
 });

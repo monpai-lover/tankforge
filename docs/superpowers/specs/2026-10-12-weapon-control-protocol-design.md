@@ -29,6 +29,13 @@ capability boolean or changed stock ledger is introduced. A separate capability
 would duplicate the existing negotiation; legacy fallback cannot supply trusted
 pose ownership and is therefore unsuitable.
 
+Local preference serialization keeps its published schema version 1 and storage
+key, using a private preference-version owner independent of network gameplay 2.
+Previously saved historical/casual choices remain valid. Local schema 1 is never
+accepted as room/wire support. Unknown/malformed preference versions still fall
+back to the existing casual default. Independent QUALITY reproduced the prior
+shared-constant regression; changing the old saved fixture to wire2 would hide it.
+
 ## Acceptance
 
 1. Genuine protected old C2 outputs are rejected by the real current client in

@@ -1,6 +1,6 @@
 import config from '../../../../config/gameplay-modes.json' with { type: 'json' };
 
-export const GAMEPLAY_RULES_VERSION = 1;
+export const GAMEPLAY_RULES_VERSION = 2;
 const factors = ['speed', 'drive', 'steer', 'traverse', 'elevate', 'fire'];
 const exactKeys = (value, keys) => value && typeof value === 'object' && !Array.isArray(value)
   && Object.keys(value).length === keys.length && keys.every(key => Object.hasOwn(value, key));

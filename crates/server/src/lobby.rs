@@ -719,7 +719,7 @@ impl Lobby {
         }
         let old = self.players.values().find(|p| p.id != new_id && p.token == token).map(|p| p.id)?;
         let compatible = self.players.get(&new_id)?.gameplay_compatible && self.players.get(&new_id)?.ammo_compatible;
-        if self.players[&old].room.is_some() && !compatible { return None; }
+        if !compatible { return None; }
         // the placeholder from connect() goes; it never joined anything
         if self.players.get(&new_id).is_some_and(|p| p.room.is_none()) {
             self.players.remove(&new_id);
@@ -752,8 +752,7 @@ impl Lobby {
     pub fn dispatch_socket(&mut self, id: u32, msg: ClientMsg, now: f64) -> (u32, Out) {
         if let ClientMsg::Hello { name, resume: Some(token), gameplay_rules_version, ammo_protocol_version } = msg {
             let supported = compatible(&gameplay_rules_version) && crate::ammo::compatible(&ammo_protocol_version);
-            let room_seat = self.players.values().any(|p| p.id != id && p.token == token && p.room.is_some());
-            if room_seat && !supported { return (id, Self::err(id, UPDATE_NEEDED)); }
+            if !supported { return (id, Self::err(id, UPDATE_NEEDED)); }
             if let Some(p) = self.players.get_mut(&id) { p.gameplay_compatible = supported; p.ammo_compatible = supported; }
             if let Some((old, mut out)) = self.resume(id, &token, now) {
                 if let Some(room) = self.players[&old].room.filter(|r| self.rooms.get(r).is_some_and(|r| r.playing)) {
@@ -2287,7 +2286,7 @@ mod tests {
     }
     fn connect_compatible(l: &mut Lobby) -> (u32, Out) {
         let (id, out) = l.connect();
-        l.handle(id, ClientMsg::Hello { ammo_protocol_version: json!(1), name: format!("車長{id}"), resume: None, gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(id, ClientMsg::Hello { ammo_protocol_version: json!(1), name: format!("車長{id}"), resume: None, gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         (id, out)
     }
     fn respawn_fixture(l: &mut Lobby, id:u32, now:f64) {
@@ -2312,7 +2311,7 @@ mod tests {
         let mut l = lobby();
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(a, ClientMsg::Vehicle { ammo_mix: None, id: "de_tiger_e".into() }, 0.0);
@@ -2409,9 +2408,9 @@ mod tests {
         let (a, out) = connect_compatible(&mut l);
         assert!(matches!(msgs_to(&out, a)[0], ServerMsg::Welcome { .. }));
         let (b, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Hello { ammo_protocol_version: json!(1), name: "阿明\u{7}".into(), resume: None, gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Hello { ammo_protocol_version: json!(1), name: "阿明\u{7}".into(), resume: None, gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         assert_eq!(l.players[&a].name, "阿明");
-        let out = l.handle(a, ClientMsg::Create { name: "河口決戰".into(), map: "coast".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        let out = l.handle(a, ClientMsg::Create { name: "河口決戰".into(), map: "coast".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         // b, in the lobby, sees the new room
         assert!(msgs_to(&out, b).iter().any(|m| matches!(m, ServerMsg::Rooms { rooms } if rooms.len() == 1 && rooms[0].name == "河口決戰")));
@@ -2422,7 +2421,7 @@ mod tests {
         assert_ne!(d.members[0].team, d.members[1].team);
         // an unknown map, a full room, a missing room
         let (c, _) = connect_compatible(&mut l);
-        assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Create { name: "x".into(), map: "moon".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0), c)[0], ServerMsg::Error { .. }));
+        assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Create { name: "x".into(), map: "moon".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0), c)[0], ServerMsg::Error { .. }));
         assert!(matches!(msgs_to(&l.handle(c, ClientMsg::Join { room: 99 }, 0.0), c)[0], ServerMsg::Error { .. }));
         // the host leaves: b becomes host; b leaves: the room is gone
         l.handle(a, ClientMsg::Leave, 0.0);
@@ -2436,7 +2435,7 @@ mod tests {
         let mut l = lobby();
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         // only the host may start, and only with everyone's vehicle chosen
@@ -2483,7 +2482,7 @@ mod tests {
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
         let (c, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 8, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(c, ClientMsg::Join { room }, 0.0);
@@ -2545,7 +2544,7 @@ mod tests {
         let mut l = lobby().with_points(points);
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "coast".into(), max: 8, deploy: true, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "coast".into(), max: 8, deploy: true, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         // nobody has chosen a vehicle, and the host may still start: everyone to the deploy screen
@@ -2611,7 +2610,7 @@ mod tests {
         let mut l = Lobby::new(HashMap::new(), HashSet::new(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets);
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(a, ClientMsg::Vehicle { ammo_mix: None, id: "de_tiger_e".into() }, 0.0);
@@ -2730,7 +2729,7 @@ mod tests {
         let c = crate::server::load_combat(&data);
         let mut l = Lobby::new(HashMap::new(), ["su_t34_85".to_string()].into_iter().collect(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets);
         let (a, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: true, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: true, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         l.handle(a, ClientMsg::Start, 0.0);
         let cap = l.targets["su_t34_85"].def.ammo_capacity;
         assert_eq!(cap, 60, "24 + 31 + 5 rounds");
@@ -2895,7 +2894,7 @@ mod tests {
         let mut l = Lobby::new(HashMap::new(), HashSet::new(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets).with_missiles(crate::missiles::load(&data));
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
-        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        l.handle(a, ClientMsg::Create { name: "r".into(), map: "range".into(), max: 4, deploy: false, era: None, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         l.handle(b, ClientMsg::Join { room }, 0.0);
         l.handle(a, ClientMsg::Vehicle { ammo_mix: None, id: "us_m901_itv".into() }, 0.0);
@@ -3192,7 +3191,7 @@ mod tests {
         let mut l = Lobby::new(HashMap::new(), ["de_tiger_e", "su_t10m"].into_iter().map(String::from).collect(), vec!["range".into()]).with_years(years);
         let (a, _) = connect_compatible(&mut l);
         let (b, _) = connect_compatible(&mut l);
-        let out = l.handle(a, ClientMsg::Create { name: "二戰".into(), map: "range".into(), max: 4, deploy: false, era: Some([1945, 1939]), gameplay_mode: json!("historical"), gameplay_rules_version: json!(1) }, 0.0);
+        let out = l.handle(a, ClientMsg::Create { name: "二戰".into(), map: "range".into(), max: 4, deploy: false, era: Some([1945, 1939]), gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
         let room = *l.rooms.keys().next().unwrap();
         assert_eq!(l.rooms[&room].era, Some([1939, 1945]));
         assert!(out.iter().any(|(_, m)| matches!(m, ServerMsg::Rooms { rooms } if rooms[0].era == Some([1939, 1945]))));
@@ -3218,8 +3217,8 @@ mod tests {
         let m: ClientMsg = serde_json::from_str(r#"{"t":"mg_hit","target":2,"gun":"m2hb","shot":{"o":[1,2,3],"d":[0,0,1],"yaw":0.1,"speed":800,"dist":100,"seed":7}}"#).unwrap();
         assert!(matches!(m, ClientMsg::MgHit { target: 2, .. }));
         assert_eq!(shot_seed(3, 5), 3 * 1_000_003 + 5 * 7919);
-        let s = serde_json::to_string(&ServerMsg::Respawned { scope: AmmoScope { battle: 1, life: 1 }, ammo_protocol_version: 1, ammo: None, id: 4, vehicle: "us_m8".into(), spawn: 1, gameplay: RoomGameplay::parse(json!("historical"), json!(1)).unwrap() }).unwrap();
-        assert_eq!(s, r#"{"t":"respawned","id":4,"vehicle":"us_m8","spawn":1,"battle":1,"life":1,"ammo_protocol_version":1,"gameplay_mode":"historical","gameplay_rules_version":1}"#);
+        let s = serde_json::to_string(&ServerMsg::Respawned { scope: AmmoScope { battle: 1, life: 1 }, ammo_protocol_version: 1, ammo: None, id: 4, vehicle: "us_m8".into(), spawn: 1, gameplay: RoomGameplay::parse(json!("historical"), json!(GAMEPLAY_RULES_VERSION)).unwrap() }).unwrap();
+        assert_eq!(s, r#"{"t":"respawned","id":4,"vehicle":"us_m8","spawn":1,"battle":1,"life":1,"ammo_protocol_version":1,"gameplay_mode":"historical","gameplay_rules_version":2}"#);
         let m: ClientMsg = serde_json::from_str(r#"{"t":"deploy","vehicle":"us_m8"}"#).unwrap();
         assert!(matches!(m, ClientMsg::Deploy { ammo_mix: None, spawn: 0, .. }));
         let m: ClientMsg = serde_json::from_str(r#"{"t":"create","name":"a","map":"normandy","max":8,"deploy":true}"#).unwrap();

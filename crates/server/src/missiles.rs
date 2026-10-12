@@ -358,7 +358,7 @@ mod tests {
         let data=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");let c=crate::server::load_combat(&data);let md=load(&data);
         for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {
             let target=&c.targets[vehicle];let spec=&md.aps[vehicle];let state=target.fresh_state();let scope=AmmoScope{battle:1,life:1};
-            let gameplay=crate::gameplay::RoomGameplay::parse(json!(mode),json!(1)).unwrap();
+            let gameplay=crate::gameplay::RoomGameplay::parse(json!(mode),json!(tg_gameplay::GAMEPLAY_RULES_VERSION)).unwrap();
             let before=json!({"pos":[0,0,0],"ex":[1,0,0],"ez":[0,0,1],"tur":[[0,0],[0,0]],"t":0.0,"ammo_scope":scope,"aps_instance":"gun:1:0"});
             let previous=accepted_aps_pose(&before,spec,target,&state,gameplay,scope,0.0,None,None).unwrap();
             let mut observation=before.clone();observation["t"]=json!(0.001);observation["tur"][1][0]=json!(0.0002);

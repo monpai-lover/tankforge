@@ -40,14 +40,38 @@ test('preference persists, malformed saved values and unavailable storage recove
   assert.equal(bad.chooseLocal('historical'), true);
   assert.equal(bad.activeMode(), 'historical');
 });
+test('published local schema 1 preserves both choices across wire upgrades and current room admission', () => {
+  for (const mode of ['historical', 'casual']) {
+    const st = storage(), saved = JSON.stringify({mode,version:1});
+    st.values.set('tankforge.gameplay.v1',saved);
+    const s = new GameplaySession(st);
+    assert.equal(s.activeMode(),mode,'wire version must not discard a valid published preference');
+    assert.equal(st.values.get('tankforge.gameplay.v1'),saved);
+    s.beginBattle({mode:'historical',version:GAMEPLAY_RULES_VERSION});
+    assert.equal(s.activeMode(),'historical');
+    s.endBattle();
+    assert.equal(s.activeMode(),mode);
+    assert.equal(st.values.get('tankforge.gameplay.v1'),saved);
+    assert.throws(()=>s.beginBattle({mode:'historical',version:1}),/version/i,'local schema1 cannot authorize wire1');
+  }
+});
+test('local preference writes retain schema 1 and reject wire-version-shaped saved values', () => {
+  const st = storage(), s = new GameplaySession(st);
+  s.chooseLocal('historical');
+  assert.deepEqual(JSON.parse(st.values.get('tankforge.gameplay.v1')),{mode:'historical',version:1});
+  for(const version of [undefined,null,'1',GAMEPLAY_RULES_VERSION,99,true]) {
+    st.values.set('tankforge.gameplay.v1',JSON.stringify({mode:'historical',version}));
+    assert.equal(new GameplaySession(st).activeMode(),'casual','malformed/unknown preference schema remains invalid');
+  }
+});
 test('invalid local/room modes and versions reject without locking or overwriting preference', () => {
   const s = new GameplaySession(storage());
   for (const mode of [null, undefined, 'bogus', 'Casual', 0]) assert.throws(() => s.chooseLocal(mode), /mode/i);
-  for (const room of [{ mode: 'casual' }, { mode: 'historical', version: '1' }, { mode: 'historical', version: 0 }, { mode: 'bogus', version: 1 }, {}, [], 'casual']) {
+  for (const room of [{ mode: 'casual' }, { mode: 'historical', version: '2' }, { mode: 'historical', version: 0 }, { mode: 'historical', version: 1 }, { mode: 'bogus', version: GAMEPLAY_RULES_VERSION }, {}, [], 'casual']) {
     assert.throws(() => s.beginBattle(room), /profile|mode|version/i);
     assert.equal(s.activeMode(), 'casual');
     assert.equal(s.chooseLocal('casual'), true, 'invalid profile cannot leave lock behind');
   }
   s.beginBattle();
-  assert.throws(() => s.beginBattle({ mode: 'historical', version: 1 }), /locked/i);
+  assert.throws(() => s.beginBattle({ mode: 'historical', version: GAMEPLAY_RULES_VERSION }), /locked/i);
 });

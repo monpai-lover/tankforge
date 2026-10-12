@@ -15,11 +15,14 @@
 - `client/web/src/game/gameplayRules.js`: `GAMEPLAY_RULES_VERSION` only.
 - `crates/gameplay/src/lib.rs`: constant and focused config/version tests.
 - `client/web/src/game/net.js`: initial/resumed Welcome validation only.
+- `client/web/src/game/gameplaySession.js`: keep `PREFERENCE_VERSION = 1` for local save read/write, separate from room/wire2; preserve published historical/casual selections and strict malformed-save handling.
+- `crates/server/src/lobby.rs`: existing resume/dispatch compatibility guards must apply even when the old token owner has no room; independent SPEC reproduced token transfer/rotation through the prior room-only gates. Remove those gates before any placeholder/supply/token mutation.
 
 **Test files:**
 - `client/web/test/gameplay-network.test.mjs`: initial open/rejection, current Welcome and strict profile scenarios.
 - `client/web/test/gameplay-rules.test.mjs`, `gameplay-session.test.mjs`, `gameplay-runtime.test.mjs`, `live-network-rig.mjs`, `range-vehicles.test.mjs`, `oplot23-variant.test.mjs`: migrate only positive version inputs/expectations and meaningful invalid-version cases if present.
 - `crates/server/src/gameplay_tests.rs`, `ammo_tests.rs`, the test module of `lobby.rs`, and `crates/server/tests/socket.rs`: actual handlers/sockets, current positive version inputs, old 1/future/malformed negative cases, strict serialized output.
+- The test module of `crates/server/src/missiles.rs` also migrates wire version only. `range-ammo-reset.test.mjs` keeps its original positive local saved version1; changing it to2 masks the saved-preference regression.
 
 - [ ] Add meaningful REDs before changing runtime. With a valid ammo header, feed real NetClient `_open` a Welcome with numeric gameplay 1 and assert rejection, closed socket, no accepted welcome/token/admitted battle. Add actual native old-1 Hello/Create/Join/resume rejections; snapshot held token/away/life/stock before rejected resume. Preserve the existing initial-open positive case and all old assertions. Record behavioural failures rather than an import failure.
 

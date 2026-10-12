@@ -37,7 +37,7 @@ fn connected(l: &mut Lobby) -> u32 {
     send(
         l,
         id,
-        json!({"t":"hello","name":"ammo","gameplay_rules_version":1,"ammo_protocol_version":1}),
+        json!({"t":"hello","name":"ammo","gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}),
         0.0,
     );
     id
@@ -47,7 +47,7 @@ fn sortie(l: &mut Lobby, vehicle: &str, selected: Value) -> (u32, u32, Out) {
     send(
         l,
         id,
-        json!({"t":"create","name":"ammo","map":"coast","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":1}),
+        json!({"t":"create","name":"ammo","map":"coast","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
         0.0,
     );
     let room = l.players[&id].room.unwrap();
@@ -134,8 +134,8 @@ pub(super) fn actual_short_aps_receipts() -> Value {
     for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {
         let mut l=real_lobby().with_points(HashMap::from([("coast".into(),vec![CapPoint{id:"A".into(),x:0.0,z:0.0,r:45.0}])]));
         let id=connected(&mut l);let mut phases=serde_json::Map::new();
-        record(&mut phases,"welcome",send(&mut l,id,json!({"t":"hello","name":"seven","gameplay_rules_version":1,"ammo_protocol_version":1}),0.0));
-        record(&mut phases,"create",send(&mut l,id,json!({"t":"create","name":"seven","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),0.0));
+        record(&mut phases,"welcome",send(&mut l,id,json!({"t":"hello","name":"seven","gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}),0.0));
+        record(&mut phases,"create",send(&mut l,id,json!({"t":"create","name":"seven","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0));
         let room=l.players[&id].room.unwrap();record(&mut phases,"start",send(&mut l,id,json!({"t":"start"}),0.0));
         let catalog=AmmoCatalog::from_target(&l.targets[vehicle],l.mdata.aps.get(vehicle)).unwrap();let mut selected=catalog.validate_mix(None).unwrap();selected.get_mut("gun:1:0").unwrap().fill(0);selected.get_mut("gun:1:0").unwrap()[0]=7;
         record(&mut phases,"deploy",send(&mut l,id,json!({"t":"deploy","vehicle":vehicle,"ammo_mix":selected}),0.0));
@@ -246,7 +246,7 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"hello","name":"owner","gameplay_rules_version":1,"ammo_protocol_version":1}),
+            json!({"t":"hello","name":"owner","gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}),
             0.0,
         ),
     );
@@ -256,7 +256,7 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"create","name":"oplot","map":"range","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+            json!({"t":"create","name":"oplot","map":"range","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
             0.0,
         ),
     );
@@ -290,7 +290,7 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
     let token = l.players[&id].token.clone();
     l.drop_link(id, 0.0);
     let replacement = connected(&mut l);
-    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),0.0);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),0.0);
     assert_eq!(seat, id);
     record(&mut phases, "deploy_resume", out);
     record(
@@ -631,7 +631,7 @@ fn actual_bmpt(mode: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"hello","name":"owner","gameplay_rules_version":1,"ammo_protocol_version":1}),
+            json!({"t":"hello","name":"owner","gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}),
             0.0,
         ),
     );
@@ -641,7 +641,7 @@ fn actual_bmpt(mode: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"create","name":"bmpt","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+            json!({"t":"create","name":"bmpt","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
             0.0,
         ),
     );
@@ -681,7 +681,7 @@ fn actual_bmpt(mode: &str) -> Value {
     let token = l.players[&id].token.clone();
     l.drop_link(id, 0.0);
     let replacement = connected(&mut l);
-    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),0.0);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),0.0);
     assert_eq!(seat, id);
     record(&mut phases, "deploy_resume", out);
     record(
@@ -766,7 +766,7 @@ fn actual_bmpt(mode: &str) -> Value {
     let token = l.players[&id].token.clone();
     record(&mut phases, "drop", l.drop_link(id, 5.2));
     let replacement = connected(&mut l);
-    let msg=serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap();
+    let msg=serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap();
     let (seat, out) = l.dispatch_socket(replacement, msg, 5.3);
     assert_eq!(seat, id);
     record(&mut phases, "resume", out);
@@ -789,7 +789,7 @@ fn actual_bmpt(mode: &str) -> Value {
     let token = l.players[&id].token.clone();
     l.drop_link(id, 5.4);
     let replacement = connected(&mut l);
-    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),5.4);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),5.4);
     assert_eq!(seat, id);
     record(&mut phases, "dead_resume", out);
     record(
@@ -806,7 +806,7 @@ fn actual_bmpt(mode: &str) -> Value {
     let token = l.players[&id].token.clone();
     l.drop_link(id, 10.4);
     let replacement = connected(&mut l);
-    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),10.4);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),10.4);
     assert_eq!(seat, id);
     record(&mut phases, "new_life_resume", out);
     pose(&mut l, id, 10.4, 0.0, 0.0);
@@ -1035,7 +1035,7 @@ fn actual_dead_recovery(mode: &str) -> Value {
         send(
             &mut l,
             id,
-            json!({"t":"create","name":"dead recovery","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+            json!({"t":"create","name":"dead recovery","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
             0.0,
         ),
     );
@@ -1074,7 +1074,7 @@ fn actual_dead_recovery(mode: &str) -> Value {
     let token = l.players[&id].token.clone();
     l.drop_link(id, 5.2);
     let replacement = connected(&mut l);
-    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),5.3);
+    let(seat,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),5.3);
     assert_eq!(seat, id);
     record(&mut phases, "resume", out);
     assert_eq!(l.players[&id].life, 2);
@@ -1528,7 +1528,7 @@ fn ammo_resupply_empty_oplot_waits_for_trusted_source_belt_cycle() {
             send(
                 &mut l,
                 id,
-                json!({"t":"create","name":"aps","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+                json!({"t":"create","name":"aps","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
                 0.0,
             );
             let room = l.players[&id].room.unwrap();
@@ -1613,7 +1613,7 @@ fn ammo_resupply_oplot_reload_preserves_off_intent_and_damage_adjusts_remaining_
             send(
                 &mut l,
                 id,
-                json!({"t":"create","name":"aps","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),
+                json!({"t":"create","name":"aps","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
                 0.0,
             );
             let room = l.players[&id].room.unwrap();
@@ -1718,7 +1718,7 @@ fn ammo_resupply_resume_keeps_scope_counts_targets_and_proofs() {
     let token = l.players[&id].token.clone();
     l.drop_link(id, 2.0);
     let replacement = connected(&mut l);
-    let msg=serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap();
+    let msg=serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap();
     let (seat, out) = l.dispatch_socket(replacement, msg, 2.1);
     assert_eq!(seat, id);
     let p = &l.players[&id];
@@ -1752,7 +1752,7 @@ fn ammo_resupply_invalid_resume_capability_leaves_held_seat_atomic() {
     ] {
         let (replacement, _) = l.connect();
         let mut request =
-            json!({"t":"hello","name":"replacement","resume":token,"gameplay_rules_version":1});
+            json!({"t":"hello","name":"replacement","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION});
         if let Some(cap) = cap {
             request["ammo_protocol_version"] = cap;
         }
@@ -1795,7 +1795,7 @@ fn ammo_resupply_old_scope_and_wrong_capability_cannot_mutate_new_life() {
     send(
         &mut l,
         id,
-        json!({"t":"hello","name":"old","gameplay_rules_version":1,"ammo_protocol_version":0}),
+        json!({"t":"hello","name":"old","gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":0}),
         5.2,
     );
     let out = fire(&mut l, id, 100, "gun:0:0", "aphe_85_br365", 5.2);
@@ -1812,7 +1812,7 @@ fn ammo_resupply_validates_selected_mix_atomically() {
     send(
         &mut l,
         id,
-        json!({"t":"create","name":"ammo","map":"coast","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":1}),
+        json!({"t":"create","name":"ammo","map":"coast","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
         0.0,
     );
     send(&mut l, id, json!({"t":"start"}), 0.0);
@@ -1895,7 +1895,7 @@ fn ammo_resupply_join_active_non_deploy_validates_choice_before_seat_mutation() 
     send(
         &mut l,
         host,
-        json!({"t":"create","name":"battle","map":"coast","max":8,"gameplay_mode":"historical","gameplay_rules_version":1}),
+        json!({"t":"create","name":"battle","map":"coast","max":8,"gameplay_mode":"historical","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
         0.0,
     );
     send(
@@ -1938,7 +1938,7 @@ fn ammo_resupply_revision_exhaustion_blocks_world_spend_and_progress_mutation() 
     send(
         &mut l,
         id,
-        json!({"t":"create","name":"exhausted","map":"range","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":1}),
+        json!({"t":"create","name":"exhausted","map":"range","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
         0.0,
     );
     let room = l.players[&id].room.unwrap();
@@ -1998,7 +1998,7 @@ fn ammo_resupply_trusted_timer_preserves_existing_missile_and_capture_steps() {
     send(
         &mut l,
         id,
-        json!({"t":"create","name":"clock","map":"range","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":1}),
+        json!({"t":"create","name":"clock","map":"range","max":8,"deploy":true,"gameplay_mode":"historical","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),
         0.0,
     );
     let room = l.players[&id].room.unwrap();

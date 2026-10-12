@@ -42,14 +42,14 @@ fn connected(l: &mut Lobby, capability: Value) -> u32 {
     id
 }
 fn create(l: &mut Lobby, id: u32, mode: &str) -> Out {
-    send(l, id, json!({"t":"create","name":"rules","map":"range","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}), 0.0)
+    send(l, id, json!({"t":"create","name":"rules","map":"range","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}), 0.0)
 }
 fn message(out: &Out, id: u32, kind: &str) -> Value {
     out.iter().filter(|(to,_)| *to == id).map(|(_,m)| serde_json::to_value(m).unwrap()).find(|m| m["t"] == kind).unwrap_or(Value::Null)
 }
 fn profile(v: &Value, mode: &str) {
     assert_eq!(v["gameplay_mode"], mode);
-    assert_eq!(v["gameplay_rules_version"], 1);
+    assert_eq!(v["gameplay_rules_version"], GAMEPLAY_RULES_VERSION);
 }
 fn real_lobby() -> Lobby {
     let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
@@ -58,13 +58,127 @@ fn real_lobby() -> Lobby {
         .with_combat(c.targets,c.projectiles,c.bullets).with_missiles(crate::missiles::load(&data))
 }
 fn sortie(l: &mut Lobby, mode: &str, vehicle: &str) -> (u32,u32) {
-    let id = connected(l,json!(1));
+    let id = connected(l,json!(GAMEPLAY_RULES_VERSION));
     create(l,id,mode);
     let room = l.players[&id].room.unwrap();
     send(l,id,json!({"t":"start"}),0.0);
     send(l,id,json!({"t":"deploy","vehicle":vehicle}),0.0);
     send(l,id,json!({"t":"state","s":{"pos":[0,0,0]}}),0.0);
     (id,room)
+}
+
+#[test]
+fn task7_pre_g_hello_is_rejected_before_an_accepted_welcome() {
+    let mut l = Lobby::default();
+    let (id, _) = l.connect();
+    let out = send(&mut l,id,json!({"t":"hello","name":"pre-G","gameplay_rules_version":1}),0.0);
+    assert!(!message(&out,id,"error").is_null(), "pre-G numeric v1 must report update needed");
+    assert!(message(&out,id,"welcome").is_null(), "no accepted Welcome for the old ownership contract");
+    assert!(!l.players[&id].gameplay_compatible);
+    assert!(l.players[&id].room.is_none());
+}
+
+#[test]
+fn task7_pre_g_create_profile_cannot_replace_a_current_room() {
+    for mode in ["historical", "casual"] {
+        let mut l = Lobby::default();
+        let id = connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
+        create(&mut l,id,mode);
+        let room = l.players[&id].room.unwrap();
+        let before = format!("{:?}",l.rooms[&room]);
+        let out = send(&mut l,id,json!({"t":"create","name":"pre-G","map":"range","max":8,"gameplay_mode":mode,"gameplay_rules_version":1}),0.0);
+        assert!(!message(&out,id,"error").is_null(), "pre-G Create must reject before leaving the existing room");
+        assert_eq!(l.players[&id].room,Some(room));
+        assert_eq!(format!("{:?}",l.rooms[&room]),before);
+        assert_eq!(l.rooms.len(),1);
+    }
+}
+
+#[test]
+fn task7_pre_g_join_cannot_enter_a_current_room() {
+    let mut l = Lobby::default();
+    let owner = connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
+    create(&mut l,owner,"historical");
+    let room = l.players[&owner].room.unwrap();
+    let old = connected(&mut l,json!(1));
+    let out = send(&mut l,old,json!({"t":"join","room":room}),0.0);
+    assert!(!message(&out,old,"error").is_null(), "pre-G Hello cannot grant Join admission");
+    assert!(l.players[&old].room.is_none());
+    assert_eq!(l.rooms[&room].members,vec![owner]);
+}
+
+#[test]
+fn task7_pre_g_resume_cannot_steal_rotate_reset_or_grant_a_held_seat() {
+    for mode in ["historical", "casual"] {
+        let mut l = real_lobby();
+        let (old,room) = sortie(&mut l,mode,"su_t10m");
+        send(&mut l,old,json!({"t":"aps","enabled":false}),0.0);
+        let shot = send(&mut l,old,json!({"t":"fire","seq":7,"instance":"gun:1:0","shell":"api_145_b32","o":[0,2,0],"d":[0,0,1]}),0.1);
+        assert!(!message(&shot,old,"fire_accepted").is_null(),"held seat has actually spent stock");
+        let token = l.players[&old].token.clone();
+        l.drop_link(old,1.0);
+        let before = format!("{:?}",l.players[&old]);
+        let stock = l.players[&old].ammo.clone();
+        let life = l.players[&old].life;
+        let room_before = format!("{:?}",l.rooms[&room]);
+        let (placeholder, _) = l.connect();
+        let msg = serde_json::from_value(json!({"t":"hello","name":"pre-G","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap();
+        let (seat,out) = l.dispatch_socket(placeholder,msg,2.0);
+        assert_eq!(seat,placeholder,"pre-G resume must not transfer socket ownership");
+        assert!(out.iter().all(|(to,m)|*to==placeholder && matches!(m,ServerMsg::Error{..})),"no accepted Welcome, room, start, or ammunition leaks");
+        assert!(message(&out,placeholder,"error")["msg"].as_str().unwrap_or("").contains("更新"));
+        assert_eq!(l.players[&old].room,Some(room));
+        assert_eq!(l.players[&old].token,token);
+        assert_eq!(l.players[&old].away,Some(1.0));
+        assert_eq!(l.players[&old].life,life);
+        assert_eq!(l.players[&old].ammo,stock);
+        assert_eq!(format!("{:?}",l.players[&old]),before,"all held player state remains untouched");
+        assert_eq!(format!("{:?}",l.rooms[&room]),room_before);
+        assert!(l.players[&placeholder].room.is_none());
+    }
+}
+
+#[test]
+fn task7_roomless_resume_rejects_every_incompatible_capability_before_transfer() {
+    for (gameplay,ammo) in [
+        (json!(1),json!(1)), (Value::Null,json!(1)), (json!("2"),json!(1)),
+        (json!(GAMEPLAY_RULES_VERSION + 1),json!(1)), (json!(2.5),json!(1)),
+        (json!(GAMEPLAY_RULES_VERSION),json!(0)), (json!(GAMEPLAY_RULES_VERSION),Value::Null),
+    ] {
+        let mut l = Lobby::default();
+        let old = connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
+        let token = l.players[&old].token.clone();
+        let before = format!("{:?}",l.players[&old]);
+        let (placeholder,_) = l.connect();
+        let msg = serde_json::from_value(json!({"t":"hello","name":"incompatible lobby","resume":token,"gameplay_rules_version":gameplay,"ammo_protocol_version":ammo})).unwrap();
+        let (seat,out) = l.dispatch_socket(placeholder,msg,1.0);
+        assert_eq!(seat,placeholder,"no lobby token transfer before protocol admission");
+        assert!(out.iter().all(|(to,m)|*to==placeholder && matches!(m,ServerMsg::Error{..})));
+        assert!(message(&out,placeholder,"error")["msg"].as_str().unwrap_or("").contains("更新"));
+        assert_eq!(format!("{:?}",l.players[&old]),before,"original lobby token and state unchanged");
+        assert!(l.players.contains_key(&placeholder));
+        assert!(l.rooms.is_empty());
+    }
+}
+
+#[test]
+fn task7_direct_resume_requires_admission_even_without_a_room() {
+    let mut l = Lobby::default();
+    let old = connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
+    let token = l.players[&old].token.clone();
+    let before = format!("{:?}",l.players[&old]);
+    let (placeholder,_) = l.connect();
+    assert!(l.resume(placeholder,&token,1.0).is_none(),"unadmitted placeholder cannot take lobby seat");
+    assert_eq!(format!("{:?}",l.players[&old]),before);
+    assert!(l.players.contains_key(&placeholder));
+    let msg = serde_json::from_value(json!({"t":"hello","name":"current lobby","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap();
+    let (seat,out) = l.dispatch_socket(placeholder,msg,2.0);
+    assert_eq!(seat,old,"current/current lobby resume stays available");
+    assert!(!l.players.contains_key(&placeholder));
+    assert_ne!(l.players[&old].token,token);
+    assert_eq!(out.iter().filter(|(to,m)|*to==old && matches!(m,ServerMsg::Welcome{..})).count(),1);
+    assert_eq!(message(&out,old,"welcome")["gameplay_rules_version"],GAMEPLAY_RULES_VERSION);
+    assert!(l.players[&old].room.is_none());
 }
 
 #[test]
@@ -98,12 +212,12 @@ pub(super) fn actual_aps_handoffs() -> Value {
         let mut l=real_lobby();l.shells=crate::server::load_catalog(&std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data")).0;
         let (id,_)=l.connect();let mut phases=serde_json::Map::new();
         let mut record=|name:&str,out:Out| {phases.insert(name.into(),serde_json::to_value(out).unwrap());};
-        record("welcome",send(&mut l,id,json!({"t":"hello","name":"pose","gameplay_rules_version":1}),0.0));
+        record("welcome",send(&mut l,id,json!({"t":"hello","name":"pose","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0));
         record("create",create(&mut l,id,mode));let room=l.players[&id].room.unwrap();
         record("start",send(&mut l,id,json!({"t":"start"}),0.0));
         record("deploy",send(&mut l,id,json!({"t":"deploy","vehicle":vehicle}),0.0));
         record("initial_state",send(&mut l,id,json!({"t":"state","s":{"pos":[0,0,0],"t":0.01}}),0.0));
-        let enemy=connected(&mut l,json!(1));send(&mut l,enemy,json!({"t":"join","room":room}),0.0);
+        let enemy=connected(&mut l,json!(GAMEPLAY_RULES_VERSION));send(&mut l,enemy,json!({"t":"join","room":room}),0.0);
         send(&mut l,enemy,json!({"t":"deploy","vehicle":"us_m901_itv"}),0.0);send(&mut l,enemy,json!({"t":"state","s":{"pos":[0,0,600]}}),0.0);
         let launch=send(&mut l,enemy,json!({"t":"launch","seq":1,"instance":"gun:0:0","missile":"bgm71a_tow","o":[0,2.3,600],"d":[0,0,-1]}),0.0);
         let mid=message(&launch,enemy,"launched")["id"].as_u64().unwrap();record("launch",launch);
@@ -136,8 +250,8 @@ pub(super) fn actual_aps_handoffs() -> Value {
         record("carry_enable",send(&mut l,id,json!({"t":"aps","enabled":true}),now));
         assert!((l.rooms[&room].world.as_ref().unwrap().aps_of(id).unwrap().yaw-(1.6+carried_motor)).abs()<1e-8);
         now+=0.05;record("carry_snap",super::ammo_tests::broadcast_out(l.tick_at(now)));
-        let token=l.players[&id].token.clone();l.drop_link(id,now);let replacement=connected(&mut l,json!(1));
-        let (_,resume)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resumed","resume":token,"gameplay_rules_version":1,"ammo_protocol_version":1})).unwrap(),now+0.2);record("resume",resume);
+        let token=l.players[&id].token.clone();l.drop_link(id,now);let replacement=connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
+        let (_,resume)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resumed","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),now+0.2);record("resume",resume);
         let mut restarted=carried.clone();restarted["t"]=json!(0.01);
         record("restarted_state",send(&mut l,id,json!({"t":"state","s":restarted.clone()}),now+0.3));
         assert!(l.players[&id].aps_pose_valid,"authenticated transport can restart its client clock without discarding motor history");
@@ -156,14 +270,14 @@ pub(super) fn actual_aps_suspensions() -> Value {
     for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {for cause in ["stale","invalid"] {
         let mut l=super::ammo_tests::real_lobby();let (id,_)=l.connect();let mut phases=serde_json::Map::new();
         let mut record=|name:&str,out:Out| {phases.insert(name.into(),serde_json::to_value(out).unwrap());};
-        record("welcome",send(&mut l,id,json!({"t":"hello","name":"suspended","gameplay_rules_version":1}),0.0));
+        record("welcome",send(&mut l,id,json!({"t":"hello","name":"suspended","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0));
         record("create",create(&mut l,id,mode));let room=l.players[&id].room.unwrap();
         record("start",send(&mut l,id,json!({"t":"start"}),0.0));
         record("deploy",send(&mut l,id,json!({"t":"deploy","vehicle":vehicle}),0.0));
         record("initial_state",send(&mut l,id,json!({"t":"state","s":{"pos":[0,0,0],"t":0.01}}),0.01));
         record("initial_enable",send(&mut l,id,json!({"t":"aps","enabled":true}),0.01));
         record("initial_snap",super::ammo_tests::broadcast_out(l.tick_at(0.06)));
-        let enemy=connected(&mut l,json!(1));send(&mut l,enemy,json!({"t":"join","room":room}),0.06);
+        let enemy=connected(&mut l,json!(GAMEPLAY_RULES_VERSION));send(&mut l,enemy,json!({"t":"join","room":room}),0.06);
         send(&mut l,enemy,json!({"t":"deploy","vehicle":"us_m901_itv"}),0.06);
         send(&mut l,enemy,json!({"t":"state","s":{"pos":[0,0,600]}}),0.06);
         let launch=send(&mut l,enemy,json!({"t":"launch","seq":1,"instance":"gun:0:0","missile":"bgm71a_tow","o":[0,2.3,600],"d":[0,0,-1]}),0.06);
@@ -235,7 +349,7 @@ pub(super) fn actual_aps_quantization() -> Value {
     for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {
         let mut l=super::ammo_tests::real_lobby();let (id,_)=l.connect();let mut phases=serde_json::Map::new();
         let mut record=|name:&str,out:Out|{phases.insert(name.into(),serde_json::to_value(out).unwrap());};
-        record("welcome",send(&mut l,id,json!({"t":"hello","name":"rounded","gameplay_rules_version":1}),0.0));
+        record("welcome",send(&mut l,id,json!({"t":"hello","name":"rounded","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0));
         record("create",create(&mut l,id,mode));let room=l.players[&id].room.unwrap();
         record("start",send(&mut l,id,json!({"t":"start"}),0.0));record("deploy",send(&mut l,id,json!({"t":"deploy","vehicle":vehicle}),0.0));
         record("disable",send(&mut l,id,json!({"t":"aps","enabled":false}),0.0));
@@ -254,7 +368,7 @@ pub(super) fn actual_aps_quantization() -> Value {
         // Separate actual handler history: the counterfeit goes one wire quantum
         // beyond the legal source endpoint, outside even the finite motor-error bound.
         let mut rejected=super::ammo_tests::real_lobby();let (rejected_id,_)=rejected.connect();
-        phases.insert("rejected_welcome".into(),serde_json::to_value(send(&mut rejected,rejected_id,json!({"t":"hello","name":"pending","gameplay_rules_version":1}),0.0)).unwrap());
+        phases.insert("rejected_welcome".into(),serde_json::to_value(send(&mut rejected,rejected_id,json!({"t":"hello","name":"pending","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0)).unwrap());
         phases.insert("rejected_create".into(),serde_json::to_value(create(&mut rejected,rejected_id,mode)).unwrap());let rejected_room=rejected.players[&rejected_id].room.unwrap();
         phases.insert("rejected_start".into(),serde_json::to_value(send(&mut rejected,rejected_id,json!({"t":"start"}),0.0)).unwrap());
         phases.insert("rejected_deploy".into(),serde_json::to_value(send(&mut rejected,rejected_id,json!({"t":"deploy","vehicle":vehicle}),0.0)).unwrap());
@@ -356,8 +470,8 @@ pub(super) fn actual_aps_readiness() -> Value {
     for vehicle in ["su_t10m","su_t10m_oplot23"] {for mode in ["historical","casual"] {
         let mut l=super::ammo_tests::real_lobby();let (id,_)=l.connect();let mut phases=serde_json::Map::new();
         let mut record=|name:&str,out:Out|{phases.insert(name.into(),serde_json::to_value(out).unwrap());};
-        record("welcome",send(&mut l,id,json!({"t":"hello","name":"ready","gameplay_rules_version":1}),0.0));
-        record("create",send(&mut l,id,json!({"t":"create","name":"ready","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":1}),0.0));
+        record("welcome",send(&mut l,id,json!({"t":"hello","name":"ready","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0));
+        record("create",send(&mut l,id,json!({"t":"create","name":"ready","map":"coast","max":8,"deploy":true,"gameplay_mode":mode,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0));
         let room=l.players[&id].room.unwrap();record("start",send(&mut l,id,json!({"t":"start"}),0.0));
         record("deploy",send(&mut l,id,json!({"t":"deploy","vehicle":vehicle,"spawn":0}),0.0));
         let scope=l.ammo_scope(id);let state=json!({"pos":[spawn["x"],0,spawn["z"]],"ex":[rounded(heading.cos()),0,rounded(-heading.sin())],"ez":[rounded(heading.sin()),0,rounded(heading.cos())],"tur":[[0,0],[0,0]],"ammo_scope":scope,"aps_instance":"gun:1:0","t":0.01});
@@ -439,7 +553,7 @@ fn oplot23_native_automatic_bullets_use_new_ballistics_and_real_damage_gates() {
     let target=&l.targets["su_t10m_oplot23"];
     let pose=json!({"pos":[0,0,0],"tur":[[0,0],[0,0]]});
     for mode in ["historical","casual"] {
-        let gameplay=crate::gameplay::RoomGameplay::parse(json!(mode),json!(1)).unwrap();
+        let gameplay=crate::gameplay::RoomGameplay::parse(json!(mode),json!(GAMEPLAY_RULES_VERSION)).unwrap();
         let spec=l.mdata.room_aps("su_t10m_oplot23",gameplay).unwrap();
         for fault in ["healthy","main","oplot","radar","crew","repair"] {
             let mut state=target.fresh_state();
@@ -541,7 +655,7 @@ fn actual_socket_dispatch_checks_replacement_before_restoring_or_rotating_the_se
     let token=l.players[&old].token.clone();
     l.drop_link(old,1.0);
     let (placeholder,_) = l.connect();
-    for capability in [Value::Null,json!("1"),json!(0),json!(2),json!([1])] {
+    for capability in [Value::Null,json!("2"),json!(0),json!(1),json!(GAMEPLAY_RULES_VERSION + 1),json!([2])] {
         let msg=serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"replacement","resume":token,"gameplay_rules_version":capability})).unwrap();
         let (seat,out)=l.dispatch_socket(placeholder,msg,2.0);
         assert_eq!(seat,placeholder);
@@ -551,7 +665,7 @@ fn actual_socket_dispatch_checks_replacement_before_restoring_or_rotating_the_se
         assert_eq!(l.players[&old].away,Some(1.0));
         assert!(l.players[&placeholder].room.is_none());
     }
-    let msg=serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"replacement","resume":token,"gameplay_rules_version":1})).unwrap();
+    let msg=serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"replacement","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION})).unwrap();
     let (seat,out)=l.dispatch_socket(placeholder,msg,2.0);
     assert_eq!(seat,old);
     assert!(!l.players.contains_key(&placeholder));
@@ -587,7 +701,7 @@ fn casual_keeps_manual_automatic_oplot_ownership_and_independent_damage_and_ammo
     // A fresh casual world actually runs the same automatic gun while the primary is broken.
     let mut l=real_lobby();
     let (aps,room)=sortie(&mut l,"casual","su_t10m");
-    let launcher=connected(&mut l,json!(1));
+    let launcher=connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
     send(&mut l,launcher,json!({"t":"join","room":room}),0.0);
     send(&mut l,launcher,json!({"t":"deploy","vehicle":"us_m901_itv"}),0.0);
     send(&mut l,launcher,json!({"t":"state","s":{"pos":[0,0,600]}}),0.0);
@@ -636,7 +750,7 @@ fn browser_protocol_receipt_from_actual_handlers() {
     let (b,_) = l.connect();
     let mut phases=serde_json::Map::new();
     for (name,id) in [("welcome_a",a),("welcome_b",b)] {
-        phases.insert(name.into(),serde_json::to_value(send(&mut l,id,json!({"t":"hello","name":name,"gameplay_rules_version":1}),0.0)).unwrap());
+        phases.insert(name.into(),serde_json::to_value(send(&mut l,id,json!({"t":"hello","name":name,"gameplay_rules_version":GAMEPLAY_RULES_VERSION}),0.0)).unwrap());
     }
     create(&mut l,a,"historical");
     let room=l.players[&a].room.unwrap();
@@ -649,11 +763,11 @@ fn browser_protocol_receipt_from_actual_handlers() {
     let token=l.players[&a].token.clone();
     l.drop_link(a,9.0);
     let (replacement,_) = l.connect();
-    let (_,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"resumed","resume":token,"gameplay_rules_version":1})).unwrap(),10.0);
+    let (_,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","ammo_protocol_version":1,"name":"resumed","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION})).unwrap(),10.0);
     phases.insert("resume".into(),serde_json::to_value(out).unwrap());
     phases.insert("leave".into(),serde_json::to_value(send(&mut l,a,json!({"t":"leave"}),11.0)).unwrap());
     let (c,_) = l.connect();
-    phases.insert("welcome_c".into(),serde_json::to_value(send(&mut l,c,json!({"t":"hello","name":"casual","gameplay_rules_version":1}),12.0)).unwrap());
+    phases.insert("welcome_c".into(),serde_json::to_value(send(&mut l,c,json!({"t":"hello","name":"casual","gameplay_rules_version":GAMEPLAY_RULES_VERSION}),12.0)).unwrap());
     phases.insert("room_c".into(),serde_json::to_value(create(&mut l,c,"casual")).unwrap());
     phases.insert("start_c".into(),serde_json::to_value(send(&mut l,c,json!({"t":"start"}),12.0)).unwrap());
     let sources=super::ammo_tests::source_tags();
@@ -662,8 +776,8 @@ fn browser_protocol_receipt_from_actual_handlers() {
 #[test]
 fn room_rules_follow_actual_create_list_join_start_state_deploy_and_respawn() {
     let mut l = Lobby::default();
-    let a = connected(&mut l, json!(1));
-    let b = connected(&mut l, json!(1));
+    let a = connected(&mut l, json!(GAMEPLAY_RULES_VERSION));
+    let b = connected(&mut l, json!(GAMEPLAY_RULES_VERSION));
     let out = create(&mut l, a, "historical");
     let room = l.players[&a].room.unwrap();
     profile(&message(&out,a,"room")["room"], "historical");
@@ -683,15 +797,15 @@ fn room_rules_follow_actual_create_list_join_start_state_deploy_and_respawn() {
 #[test]
 fn invalid_create_rules_and_incompatible_join_never_leave_existing_room() {
     let mut l = Lobby::default();
-    let a = connected(&mut l,json!(1));
-    for (mode,version) in [(json!("bogus"),json!(1)),(json!("casual"),json!(2)),(Value::Null,json!(1)),(json!("historical"),Value::Null),(json!("casual"),json!("1"))] {
+    let a = connected(&mut l,json!(GAMEPLAY_RULES_VERSION));
+    for (mode,version) in [(json!("bogus"),json!(GAMEPLAY_RULES_VERSION)),(json!("casual"),json!(1)),(json!("casual"),json!(GAMEPLAY_RULES_VERSION + 1)),(Value::Null,json!(GAMEPLAY_RULES_VERSION)),(json!("historical"),Value::Null),(json!("casual"),json!("2"))] {
         let out = send(&mut l,a,json!({"t":"create","name":"bad","map":"range","max":4,"gameplay_mode":mode,"gameplay_rules_version":version}),0.0);
         assert!(!message(&out,a,"error").is_null(), "invalid rules must reject");
         assert!(l.players[&a].room.is_none());
     }
     create(&mut l,a,"casual");
     let room = l.players[&a].room.unwrap();
-    for capability in [Value::Null,json!(0),json!(2),json!("1"),json!([1]),json!({"version":1})] {
+    for capability in [Value::Null,json!(0),json!(1),json!(GAMEPLAY_RULES_VERSION + 1),json!("2"),json!([2]),json!({"version":2})] {
         let b = connected(&mut l,capability);
         let out = send(&mut l,b,json!({"t":"join","room":room}),0.0);
         assert!(message(&out,b,"error")["msg"].as_str().unwrap_or("").contains("更新"));

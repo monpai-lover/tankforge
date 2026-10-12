@@ -6,6 +6,7 @@ use std::io::{BufRead, BufReader, Read, Write};
 use std::net::{TcpListener, TcpStream};
 use std::path::PathBuf;
 use std::time::{Duration, Instant};
+use tg_gameplay::GAMEPLAY_RULES_VERSION;
 use tg_server::lobby::{Lobby, Shell};
 use tg_server::{server, ws};
 
@@ -79,15 +80,15 @@ fn two_players_meet_in_a_room_and_fight() {
     let port = start(None);
     let mut a = Client::connect(port);
     let mut b = Client::connect(port);
-    a.send(json!({"t": "hello", "name": "甲", "gameplay_rules_version":1,"ammo_protocol_version":1}));
-    b.send(json!({"t": "hello", "name": "乙", "gameplay_rules_version":1,"ammo_protocol_version":1}));
+    a.send(json!({"t": "hello", "name": "甲", "gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}));
+    b.send(json!({"t": "hello", "name": "乙", "gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}));
     let wa = a.expect("welcome");
     assert_eq!(wa["maps"], json!(["range", "coast"]));
     let id_a = wa["id"].as_u64().unwrap();
     let wb = b.expect("welcome");
     let id_b = wb["id"].as_u64().unwrap();
     let token_b = wb["token"].as_str().unwrap().to_string();
-    a.send(json!({"t": "create", "name": "測試房", "map": "coast", "max": 4,"gameplay_mode":"historical","gameplay_rules_version":1,"ammo_protocol_version":1}));
+    a.send(json!({"t": "create", "name": "測試房", "map": "coast", "max": 4,"gameplay_mode":"historical","gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}));
     let room = a.expect("room")["room"].clone();
     assert_eq!(room["members"][0]["name"], "甲");
     // b sees it in the list and joins
@@ -147,7 +148,7 @@ fn two_players_meet_in_a_room_and_fight() {
     b.send(json!({"t": "nonsense"}));
     b.expect("error");
     // The new socket's capability is checked before any welcome/room/seat transfer.
-    for capability in [Value::Null,json!("1"),json!(0),json!(2)] {
+    for capability in [Value::Null,json!("2"),json!(0),json!(1),json!(GAMEPLAY_RULES_VERSION + 1)] {
         let mut incompatible = Client::connect(port);
         incompatible.send(json!({"t":"hello","name":"old client","resume":token_b,"gameplay_rules_version":capability,"ammo_protocol_version":1}));
         let rejection=incompatible.next();
@@ -158,7 +159,7 @@ fn two_players_meet_in_a_room_and_fight() {
     }
     for capability in [Value::Null,json!("1"),json!(0),json!(2),json!(1.5)] {
         let mut incompatible=Client::connect(port);
-        incompatible.send(json!({"t":"hello","name":"old ammo client","resume":token_b,"gameplay_rules_version":1,"ammo_protocol_version":capability}));
+        incompatible.send(json!({"t":"hello","name":"old ammo client","resume":token_b,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":capability}));
         let rejection=incompatible.next();assert_eq!(rejection["t"],"error");assert!(rejection["msg"].as_str().unwrap().contains("更新"));
         b.send(json!({"t":"ping","at":78.0}));assert_eq!(b.expect("pong")["at"],78.0);
     }
@@ -167,7 +168,7 @@ fn two_players_meet_in_a_room_and_fight() {
     drop(b);
     std::thread::sleep(Duration::from_millis(200));
     let mut c = Client::connect(port);
-    c.send(json!({"t": "hello", "name": "乙", "resume": token_b,"gameplay_rules_version":1,"ammo_protocol_version":1}));
+    c.send(json!({"t": "hello", "name": "乙", "resume": token_b,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1}));
     let wc = c.expect("welcome");
     assert_eq!(wc["id"].as_u64(), Some(id_b));
     assert_ne!(wc["token"].as_str(), Some(token_b.as_str()));

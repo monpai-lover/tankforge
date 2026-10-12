@@ -1,6 +1,7 @@
 import { GAMEPLAY_RULES_VERSION, gameplayRules, isGameplayMode } from './gameplayRules.js';
 
 const STORE = 'tankforge.gameplay.v1';
+const PREFERENCE_VERSION = 1;
 
 /** Local choice belongs to the garage; a sortie keeps its chosen/room profile until leaving. */
 export class GameplaySession {
@@ -11,7 +12,7 @@ export class GameplaySession {
     this.room = null;
     try {
       const saved = JSON.parse(storage?.get(STORE) || 'null');
-      if (saved && isGameplayMode(saved.mode) && saved.version === GAMEPLAY_RULES_VERSION) this.local = saved.mode;
+      if (saved && isGameplayMode(saved.mode) && saved.version === PREFERENCE_VERSION) this.local = saved.mode;
     } catch { /* storage is a convenience only */ }
   }
 
@@ -19,7 +20,7 @@ export class GameplaySession {
     gameplayRules(mode);
     if (this.battle || this.room) return false;
     this.local = mode;
-    try { this.storage?.set(STORE, JSON.stringify({ mode, version: GAMEPLAY_RULES_VERSION })); }
+    try { this.storage?.set(STORE, JSON.stringify({ mode, version: PREFERENCE_VERSION })); }
     catch { /* private-window preference lasts for this visit */ }
     return true;
   }

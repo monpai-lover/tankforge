@@ -47,15 +47,41 @@ function socket() {
   globalThis.WebSocket = Socket;
   return Socket;
 }
+for (const resume of [false, true]) for (const version of [1, undefined, null, '2', 2.5, GAMEPLAY_RULES_VERSION + 1, true, [2], {version:2}]) test(`an incompatible Welcome (${JSON.stringify(version)}) rejects the actual open promise before ${resume ? 'held-seat replacement' : 'fresh admission'}`, async () => {
+  const Socket = socket(), net = new NetClient(), welcomes = [], errors = [];
+  net.id = 73; net.token = 'held-seat-token';
+  if (resume) {
+    net.gameplaySupported = true; net.ammoSupported = true;
+    net.room = { id: 9, playing: true };
+    net.battleProfile = { mode: 'historical', version: GAMEPLAY_RULES_VERSION };
+  }
+  net.on('welcome', msg => welcomes.push(msg));
+  net.on('error', msg => errors.push(msg.msg));
+  const opening = net._open('ws://fixture/ws', { t: 'hello', name: 'local', gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: netApi.AMMO_PROTOCOL_VERSION, ...(resume ? { resume: net.token } : {}) });
+  const ws = Socket.last;
+  ws.onopen();
+  ws.receive({ t: 'welcome', id: 99, name: 'legacy', token: 'legacy-replacement', gameplay_rules_version: version, ammo_protocol_version: netApi.AMMO_PROTOCOL_VERSION });
+  const result = await opening.then(welcome => ({ welcome }), error => ({ error }));
+  try {
+    assert.ok(result.error instanceof Error, 'incompatible version must reject, never resolve an accepted Welcome');
+    assert.equal(result.error.message, netApi.GAMEPLAY_UPDATE_NEEDED);
+    assert.equal(ws.readyState, 3, 'incompatible open closes its socket');
+    assert.equal(welcomes.length, 0, 'no accepted Welcome reaches main');
+    assert.ok(errors.includes(netApi.GAMEPLAY_UPDATE_NEEDED));
+    assert.equal(net.id, 73); assert.equal(net.token, 'held-seat-token');
+    assert.equal(net.gameplaySupported, false);
+    assert.equal(net.battleProfile, null);
+  } finally { net.close(); }
+});
 test('hello advertises numeric support and a resumed socket accepts its single authoritative welcome', async () => {
   const Socket = socket(), net = new NetClient();
   const connecting = net.connect('ws://fixture/ws', 'local');
   Socket.last.onopen();
-  assert.equal(Socket.last.sent[0].gameplay_rules_version, 1);
+  assert.equal(Socket.last.sent[0].gameplay_rules_version, GAMEPLAY_RULES_VERSION);
   Socket.last.receive(packet('welcome_a', receipt.a, 'welcome'));
   await connecting;
   net.close();
-  const opening = net._open('ws://fixture/ws', { t: 'hello', name: 'local', resume: 'seat', gameplay_rules_version: 1 }).catch(e => e);
+  const opening = net._open('ws://fixture/ws', { t: 'hello', name: 'local', resume: 'seat', gameplay_rules_version: GAMEPLAY_RULES_VERSION }).catch(e => e);
   Socket.last.onopen();
   Socket.last.receive(packet('resume', receipt.a, 'welcome'));
   const result = await Promise.race([opening, new Promise(r => setTimeout(() => r(null), 100))]);
@@ -63,12 +89,12 @@ test('hello advertises numeric support and a resumed socket accepts its single a
   assert.equal(result?.id, receipt.a, 'no placeholder welcome or skipped-first workaround');
 });
 test('old or invalid server support disables new room creation/start and reports update needed', () => {
-  for (const version of [undefined, null, '1', 2, 0]) {
+  for (const version of [undefined, null, '2', 1, GAMEPLAY_RULES_VERSION + 1, 0, 2.5]) {
     const net = new NetClient(), sent = [], errors = [];
     net.ws = { readyState: 1, send: x => sent.push(x) };
     net.on('error', m => errors.push(m.msg));
-    net._receive({ t: 'welcome', id: 1, gameplay_rules_version: version });
-    net.send({ t: 'create', gameplay_mode: 'casual', gameplay_rules_version: 1 });
+    net._receive({ t: 'welcome', id: 1, gameplay_rules_version: version, ammo_protocol_version: netApi.AMMO_PROTOCOL_VERSION });
+    net.send({ t: 'create', gameplay_mode: 'casual', gameplay_rules_version: GAMEPLAY_RULES_VERSION });
     net.send({ t: 'start' });
     assert.equal(sent.length, 0, `unsupported server ${version}`);
     assert.ok(errors.some(e => /更新/.test(e)));
@@ -79,7 +105,7 @@ test('room/start/deploy messages require exact room rules and cannot silently re
   net._receive(packet('welcome_a', receipt.a, 'welcome'));
   net.on('room', m => rooms.push(m)); net.on('start', m => starts.push(m)); net.on('respawned', m => deploys.push(m)); net.on('error', m => errors.push(m));
   const valid = packet('room', receipt.a, 'room');
-  for (const [mode,version] of [[undefined,1],['casual',undefined],['bogus',1],['historical','1'],['historical',2]]) {
+  for (const [mode,version] of [[undefined,GAMEPLAY_RULES_VERSION],['casual',undefined],['bogus',GAMEPLAY_RULES_VERSION],['historical','2'],['historical',1],['historical',GAMEPLAY_RULES_VERSION + 1]]) {
     net._receive({ ...valid, room: { ...valid.room, gameplay_mode: mode, gameplay_rules_version: version } });
     assert.equal(net.room,null);
   }
@@ -88,7 +114,7 @@ test('room/start/deploy messages require exact room rules and cannot silently re
   net._receive({ ...valid, room: { ...valid.room, gameplay_mode: 'casual' } });
   assert.equal(rooms.length,1, 'same room cannot change its profile');
   net._receive({ ...packet('start', receipt.a, 'start'), gameplay_mode: 'casual' });
-  net._receive({ ...packet('deploy_a', receipt.a, 'respawned'), gameplay_rules_version: 2 });
+  net._receive({ ...packet('deploy_a', receipt.a, 'respawned'), gameplay_rules_version: GAMEPLAY_RULES_VERSION + 1 });
   assert.equal(starts.length,0); assert.equal(deploys.length,0);
   net._receive(packet('start', receipt.a, 'start'));
   net._receive(packet('deploy_a', receipt.a, 'respawned'));
@@ -194,7 +220,7 @@ test('lobby selector creates strict rule fields and badges match supported rooms
   assert.match(el.innerHTML,/lb-gameplay/); assert.match(el.innerHTML,/歷史/);
   const sent=[]; net.ws={readyState:1,send:m=>sent.push(JSON.parse(m))};
   ui.click({target:{closest:()=>({dataset:{act:'create'},blur(){}})}});
-  assert.equal(sent[0].gameplay_mode,'historical'); assert.equal(sent[0].gameplay_rules_version,1);
+  assert.equal(sent[0].gameplay_mode,'historical'); assert.equal(sent[0].gameplay_rules_version,GAMEPLAY_RULES_VERSION);
   net._receive({t:'welcome',id:receipt.a}); ui.render();
   assert.match(el.innerHTML,/data-act="create"[^>]*disabled/); assert.match(el.innerHTML,/更新/);
   net.room=packet('room',receipt.a,'room').room; ui.render();
@@ -211,7 +237,7 @@ test('leaving a battle immediately restores local performance', () => {
 test('active casual reconnect fails closed for unsupported Welcome or malformed/changed Room/Start before battle early returns', () => {
   const welcome=packet('welcome_c',receipt.c,'welcome'), room=packet('room_c',receipt.c,'room'), start=packet('start_c',receipt.c,'start');
   for (const bad of [
-    {...welcome,gameplay_rules_version:undefined}, {...welcome,gameplay_rules_version:'1'}, {...welcome,gameplay_rules_version:2},
+    {...welcome,gameplay_rules_version:undefined}, {...welcome,gameplay_rules_version:'1'}, {...welcome,gameplay_rules_version:GAMEPLAY_RULES_VERSION + 1},
     {...room,room:{...room.room,gameplay_mode:'historical'}}, {...room,room:{...room.room,gameplay_rules_version:undefined}},
     {...start,gameplay_mode:'bogus'}, {...start,gameplay_rules_version:'1'}, {...start,gameplay_mode:'historical'},
   ]) {
@@ -229,14 +255,14 @@ test('active casual reconnect fails closed for unsupported Welcome or malformed/
 test('room preview validates and fixes the next battle without touching saved preference', () => {
   const st=storage(), s=new GameplaySession(st); s.chooseLocal('casual');
   const saved=st.values.get('tankforge.gameplay.v1');
-  s.setRoomProfile({mode:'historical',version:1});
+  s.setRoomProfile({mode:'historical',version:GAMEPLAY_RULES_VERSION});
   assert.equal(s.activeMode(),'historical');
   assert.equal(s.chooseLocal('casual'),false);
-  assert.throws(()=>s.beginBattle({mode:'casual',version:1}),/room|profile/i);
+  assert.throws(()=>s.beginBattle({mode:'casual',version:GAMEPLAY_RULES_VERSION}),/room|profile/i);
   assert.equal(s.battle,null);
   assert.equal(st.values.get('tankforge.gameplay.v1'),saved);
   s.beginBattle(); assert.equal(s.activeMode(),'historical');
-  assert.throws(()=>s.setRoomProfile({mode:'casual',version:1}),/locked/i);
+  assert.throws(()=>s.setRoomProfile({mode:'casual',version:GAMEPLAY_RULES_VERSION}),/locked/i);
   s.endBattle(); assert.equal(s.activeMode(),'historical');
   s.setRoomProfile(null); assert.equal(s.activeMode(),'casual');
 });
@@ -292,7 +318,7 @@ test('expired-token reconnect accepts a new seat, restores local garage and can 
     ws.receive({...packet('start',receipt.a,'start'),members:[member]});
     assert.equal(r.G.mode,'battle','stale casual profile cannot reject the new historical sortie');
     assert.equal(r.G.gameplayMode,'historical'); assert.equal(r.net.open,true);
-    assert.deepEqual(r.net.battleProfile,{mode:'historical',version:1});
+    assert.deepEqual(r.net.battleProfile,{mode:'historical',version:GAMEPLAY_RULES_VERSION});
   } finally { r.net.close(); }
 });
 test('actual valid socket reconnect preserves the current mount and spent ammunition', async () => {
@@ -322,7 +348,7 @@ test('cancelled pending online map starts restore local effective garage stats a
     const {r,finish}=pendingSortie();
     assert.equal(r.G.mode,'garage'); assert.ok(r.G.online); assert.equal(r.G.gameplayMode,'historical');
     if(cancel==='unsupported_welcome') r.net._receive({t:'welcome',id:receipt.a});
-    else if(cancel==='invalid_room') r.net._receive({t:'room',room:{...r.net.room,gameplay_rules_version:2}});
+    else if(cancel==='invalid_room') r.net._receive({t:'room',room:{...r.net.room,gameplay_rules_version:GAMEPLAY_RULES_VERSION + 1}});
     else {
       r.net._receive({t:'left_room'});
       if(cancel==='new_room') r.net._receive({t:'room',room:{...packet('room_c',receipt.c,'room').room,id:901,host:receipt.a,members:[{...packet('room',receipt.a,'room').room.members[0]}]}});

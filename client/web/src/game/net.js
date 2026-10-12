@@ -236,7 +236,10 @@ export class NetClient {
       this.ammoSupported=false;this.gameplaySupported=false;
       return this._rejectGameplay(AMMO_UPDATE_NEEDED);
     }
-    if (msg.t === 'welcome' && this.battleProfile && msg.gameplay_rules_version !== GAMEPLAY_RULES_VERSION) return this._rejectGameplay();
+    if (msg.t === 'welcome' && msg.gameplay_rules_version !== GAMEPLAY_RULES_VERSION) {
+      this.gameplaySupported = false;
+      return this._rejectGameplay();
+    }
     if (['room', 'start', 'respawned'].includes(msg.t)) {
       try {
         if (!this.gameplaySupported || !this.ammoSupported) throw new Error(GAMEPLAY_UPDATE_NEEDED);

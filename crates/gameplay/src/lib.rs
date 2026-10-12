@@ -2,7 +2,7 @@
 use serde::{Deserialize, Serialize};
 use std::sync::{LazyLock, OnceLock};
 
-pub const GAMEPLAY_RULES_VERSION: u32 = 1;
+pub const GAMEPLAY_RULES_VERSION: u32 = 2;
 const RULES_JSON: &str = include_str!("../../../config/gameplay-modes.json");
 
 pub const AMMO_PROTOCOL_VERSION: u32 = 1;
@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn exact_shared_rules_and_cached_identity() {
-        assert_eq!(GAMEPLAY_RULES_VERSION, 1);
+        assert_eq!(GAMEPLAY_RULES_VERSION, 2);
         assert_eq!(rules(GameplayMode::Casual), &GameplayRules {
             speed: 1.15, drive: 1.25, steer: 1.25, traverse: 1.30,
             elevate: 1.20, fire: 1.20, show_enemy_markers: true,
@@ -141,13 +141,13 @@ mod tests {
         }
         let json = include_str!("../../../config/gameplay-modes.json");
         assert!(parse_config(json).is_ok());
-        for value in ["0", "2", "1.1", "\"1\"", "null"] {
-            assert!(parse_config(&json.replacen("\"version\": 1", &format!("\"version\": {value}"), 1)).is_err());
+        for value in ["0", "1", "3", "2.1", "\"2\"", "null"] {
+            assert!(parse_config(&json.replacen("\"version\": 2", &format!("\"version\": {value}"), 1)).is_err());
         }
         assert!(parse_config(&json.replacen("\"casual\"", "\"garage\"", 1)).is_err());
         assert!(parse_config(&json.replacen("\"speed\": 1.15", "\"speed\": 0", 1)).is_err());
         assert!(parse_config(&json.replacen("\"speed\": 1,", "\"speed\": 1.01,", 1)).is_err());
         assert!(parse_config(&json.replacen("\"fire\": 1.20", "\"fire\": \"1.2\"", 1)).is_err());
-        assert!(parse_config(&json.replacen("\"version\": 1", "\"extra\": 0, \"version\": 1", 1)).is_err());
+        assert!(parse_config(&json.replacen("\"version\": 2", "\"extra\": 0, \"version\": 2", 1)).is_err());
     }
 }
