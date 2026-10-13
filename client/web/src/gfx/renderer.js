@@ -13,6 +13,7 @@ import { STRIDE } from './geo.js';
 import { lookAt, ortho, mul, norm, add, scale, project } from './math.js';
 import * as S from './shaders.js';
 import { TIMES, environment, I_SUN } from './atmosphere.js';
+import { ReplayGpu } from './replayDraw.js';
 
 const SHADOW_EXTENT = 24;
 const NO_HIGHLIGHT = new Float32Array([0, 0, 0, 0]);
@@ -29,26 +30,33 @@ export const QUALITY_ORDER = ['low', 'medium', 'high'];
 
 function compile(gl, type, src) {
   const s = gl.createShader(type);
-  gl.shaderSource(s, src);
-  gl.compileShader(s);
-  if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error('shader: ' + gl.getShaderInfoLog(s));
-  return s;
+  if (!s) throw Error('shader allocation failed');
+  try {
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error('shader: ' + gl.getShaderInfoLog(s));
+    return s;
+  } catch (error) { gl.deleteShader(s); throw error; }
 }
 
 function program(gl, vs, fs) {
   const p = gl.createProgram();
-  gl.attachShader(p, compile(gl, gl.VERTEX_SHADER, vs));
-  gl.attachShader(p, compile(gl, gl.FRAGMENT_SHADER, fs));
-  gl.linkProgram(p);
-  if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link: ' + gl.getProgramInfoLog(p));
-  const u = {};
-  const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
-  for (let i = 0; i < n; i++) {
-    const info = gl.getActiveUniform(p, i);
-    const name = info.name.replace(/\[0\]$/, '');
-    u[name] = gl.getUniformLocation(p, info.name);
-  }
-  return { p, u };
+  if (!p) throw Error('program allocation failed');
+  const shaders = [];
+  try {
+    for (const [type, source] of [[gl.VERTEX_SHADER, vs], [gl.FRAGMENT_SHADER, fs]]) {
+      const shader = compile(gl, type, source); shaders.push(shader); gl.attachShader(p, shader);
+    }
+    gl.linkProgram(p);
+    if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error('link: ' + gl.getProgramInfoLog(p));
+    const u = {}, n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+    for (let i = 0; i < n; i++) {
+      const info = gl.getActiveUniform(p, i), name = info.name.replace(/\[0\]$/, '');
+      u[name] = gl.getUniformLocation(p, info.name);
+    }
+    return { p, u };
+  } catch (error) { gl.deleteProgram(p); throw error; }
+  finally { for (const shader of shaders) gl.deleteShader(shader); }
 }
 
 // texture units, fixed for the whole frame
@@ -89,6 +97,8 @@ export class Renderer {
     canvas.addEventListener('webglcontextlost', (ev) => {
       ev.preventDefault();
       this.lost = true;
+      this._clearInsetTargets();
+      this._replayGpu?.dispose(); this._replayGpu = null;
       if (this.onContextLost) this.onContextLost();
     });
     canvas.addEventListener('webglcontextrestored', () => {
@@ -206,6 +216,8 @@ export class Renderer {
    */
   _restore() {
     const gl = this.gl;
+    this._clearInsetTargets();
+    this._replayGpu?.dispose(); this._replayGpu = null;
     this.lost = false;
     this.msaaBroken = false;
     this._maxSamples = undefined;
@@ -960,7 +972,7 @@ export class Renderer {
       this.drawCalls++;
     };
     this._drawLit = drawLit;
-    this._litNodes(nodes);
+    this._litNodes(nodes, cam);
 
     // ---- effects: alpha then additive, depth-tested but not depth-writing
     if (fx) {
@@ -1146,118 +1158,160 @@ export class Renderer {
     gl.bindVertexArray(null);
   }
 
-  /** Opaque nodes, then water and see-through shells blended last without writing depth. */
-  _litNodes(nodes) {
+  /** Opaque bodies first, then transparent surfaces in this camera's depth order. */
+  _litNodes(nodes, cam) {
     const gl = this.gl;
     const drawLit = this._drawLit;
-    let glass = 0;
+    const glass = this._transparentNodes || (this._transparentNodes = []);
+    const depths = this._transparentDepths || (this._transparentDepths = new Map());
+    glass.length = 0;
+    depths.clear();
+    const forward = cam?.forward || [0, 0, 1];
+    const bounds = this._meshCenters || (this._meshCenters = new WeakMap());
     for (const n of nodes) {
-      if (n.kind === 6 || n.kind === 7 || n.kind === 10) glass++;
-      else drawLit(n);
+      if (![6, 7, 10, 13, 15].includes(n.kind)) { drawLit(n); continue; }
+      let center = n.replayCenter;
+      if (!center) {
+        center = bounds.get(n.mesh);
+        if (!center) {
+          const data = n.mesh._src?.data;
+          const min = [Infinity, Infinity, Infinity], max = [-Infinity, -Infinity, -Infinity];
+          if (data) for (let i = 0; i < data.length; i += STRIDE) for (let k = 0; k < 3; k++) {
+            min[k] = Math.min(min[k], data[i + k]); max[k] = Math.max(max[k], data[i + k]);
+          }
+          center = min[0] === Infinity ? [0, 0, 0] : min.map((v, k) => (v + max[k]) * .5);
+          bounds.set(n.mesh, center);
+        }
+      }
+      const m = n.world, x = center[0], y = center[1], z = center[2];
+      depths.set(n, (m[0]*x+m[4]*y+m[8]*z+m[12])*forward[0]
+        +(m[1]*x+m[5]*y+m[9]*z+m[13])*forward[1]
+        +(m[2]*x+m[6]*y+m[10]*z+m[14])*forward[2]);
+      glass.push(n);
     }
-    if (glass) {
+    if (glass.length) {
+      glass.sort((a, b) => depths.get(b) - depths.get(a));
       gl.enable(gl.BLEND);
       gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
       gl.depthMask(false);
-      for (const n of nodes) if (n.kind === 7) drawLit(n);
-      for (const n of nodes) if (n.kind === 6 || n.kind === 10) drawLit(n);
+      for (const n of glass) drawLit(n);
       gl.depthMask(true);
       gl.disable(gl.BLEND);
     }
   }
 
-  /**
-   * A second, small view into rect = [x, y, w, h] (CSS-independent device pixels from the top
-   * left) of the finished frame: the hit camera. Call right after render(); it reuses that frame's
-   * lighting. opts: {sky: draw the sky behind (else clear to a dark backdrop), dim: 0..1,
-   * disc: 0..1 composite only the round middle of rect, that opaque (the status panel's view)}.
-   */
+  _insetSamples() {
+    const gl = this.gl;
+    if (!this.q.msaa || this.pixelSize > 1) return 0;
+    const max = Math.min(4, this.q.msaa, gl.getParameter(gl.MAX_SAMPLES));
+    const color = gl.getInternalformatParameter(gl.RENDERBUFFER, this.hdrFormat, gl.SAMPLES);
+    const depth = gl.getInternalformatParameter(gl.RENDERBUFFER, gl.DEPTH_COMPONENT24, gl.SAMPLES);
+    return Math.max(0, ...Array.from(color || []).filter(n => n <= max && Array.from(depth || []).includes(n)));
+  }
+
+  /** Create only complete targets. A rejected multisample attachment falls back to resolved depth. */
+  _insetTarget(w, h, samples) {
+    const gl = this.gl, t = {w, h, tex: null, depth: null, fbo: null, msaa: null};
+    const take = (owner, key, create) => { const handle = create(); if (!handle) throw Error('inset allocation failed'); owner[key] = handle; return handle; };
+    try {
+      take(t, 'tex', () => gl.createTexture());
+      gl.bindTexture(gl.TEXTURE_2D, t.tex);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, this.hdrFormat, w, h);
+      for (const [key, value] of [[gl.TEXTURE_MIN_FILTER, gl.LINEAR], [gl.TEXTURE_MAG_FILTER, gl.LINEAR], [gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE], [gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE]]) gl.texParameteri(gl.TEXTURE_2D, key, value);
+      take(t, 'depth', () => gl.createTexture());
+      gl.bindTexture(gl.TEXTURE_2D, t.depth);
+      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.DEPTH_COMPONENT24, w, h);
+      take(t, 'fbo', () => gl.createFramebuffer());
+      gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t.tex, 0);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, t.depth, 0);
+      if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) throw Error('inset resolved framebuffer is incomplete');
+      if (samples > 0) {
+        const m = t.msaa = {fbo: null, color: null, depth: null, samples};
+        take(m, 'fbo', () => gl.createFramebuffer());
+        gl.bindFramebuffer(gl.FRAMEBUFFER, m.fbo);
+        for (const [key, attachment, format] of [['color', gl.COLOR_ATTACHMENT0, this.hdrFormat], ['depth', gl.DEPTH_ATTACHMENT, gl.DEPTH_COMPONENT24]]) {
+          take(m, key, () => gl.createRenderbuffer());
+          gl.bindRenderbuffer(gl.RENDERBUFFER, m[key]);
+          gl.renderbufferStorageMultisample(gl.RENDERBUFFER, samples, format, w, h);
+          gl.framebufferRenderbuffer(gl.FRAMEBUFFER, attachment, gl.RENDERBUFFER, m[key]);
+        }
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) {
+          gl.deleteFramebuffer(m.fbo); gl.deleteRenderbuffer(m.color); gl.deleteRenderbuffer(m.depth);
+          t.msaa = null;
+        }
+      }
+      return t;
+    } catch (error) { this._deleteInsetTarget(t); throw error; }
+  }
+
+  _deleteInsetTarget(t) {
+    if (!t || t.deleted) return;
+    t.deleted = true;
+    const gl = this.gl;
+    if (t.msaa) { if (t.msaa.fbo) gl.deleteFramebuffer(t.msaa.fbo); if (t.msaa.color) gl.deleteRenderbuffer(t.msaa.color); if (t.msaa.depth) gl.deleteRenderbuffer(t.msaa.depth); }
+    if (t.fbo) gl.deleteFramebuffer(t.fbo);
+    if (t.tex) gl.deleteTexture(t.tex);
+    if (t.depth) gl.deleteTexture(t.depth);
+  }
+
+  _clearInsetTargets(owner = null) {
+    if (!this.insetTs) return;
+    for (const [key, t] of this.insetTs) if (owner === null || t.owner === owner) { this._deleteInsetTarget(t); this.insetTs.delete(key); }
+  }
+
+  /** One canvas, bounded owner targets, and a shared prepared replay. All caller GL state survives. */
   renderInset(nodes, cam, rect, opts = {}) {
     const gl = this.gl;
     if (!this._drawLit || this.lost) return;
-    const [x, y, w, h] = rect.map((v) => Math.max(1, Math.round(v)));
-    // one target per size: the hit camera and the status panel's view are drawn in the same frame
-    if (!this.insetTs) this.insetTs = new Map();
-    const key = `${w}x${h}`;
-    if (!this.insetTs.has(key)) {
-      if (this.insetTs.size > 4) {
-        for (const t of this.insetTs.values()) {
-          gl.deleteTexture(t.tex);
-          gl.deleteFramebuffer(t.fbo);
-          gl.deleteTexture(t.depth);
-        }
-        this.insetTs.clear();
+    const x = Math.round(rect[0]), y = Math.round(rect[1]), w = Math.max(1, Math.round(rect[2])), h = Math.max(1, Math.round(rect[3]));
+    const get = p => gl.getParameter(p);
+    const state = {read: get(gl.READ_FRAMEBUFFER_BINDING), draw: get(gl.DRAW_FRAMEBUFFER_BINDING), viewport: get(gl.VIEWPORT), scissor: get(gl.SCISSOR_BOX),
+      scissorOn: gl.isEnabled(gl.SCISSOR_TEST), depthOn: gl.isEnabled(gl.DEPTH_TEST), depthWrite: get(gl.DEPTH_WRITEMASK), depthFunc: get(gl.DEPTH_FUNC), blendOn: gl.isEnabled(gl.BLEND),
+      blend: [get(gl.BLEND_SRC_RGB), get(gl.BLEND_DST_RGB), get(gl.BLEND_SRC_ALPHA), get(gl.BLEND_DST_ALPHA)], equations: [get(gl.BLEND_EQUATION_RGB), get(gl.BLEND_EQUATION_ALPHA)],
+      program: get(gl.CURRENT_PROGRAM), vao: get(gl.VERTEX_ARRAY_BINDING), activeTexture: get(gl.ACTIVE_TEXTURE), buffer: get(gl.ARRAY_BUFFER_BINDING), renderbuffer: get(gl.RENDERBUFFER_BINDING)};
+    try {
+      const owner = ['replay-full', 'replay-corner'].includes(opts.owner) ? opts.owner : 'status', key = `${owner}:${w}x${h}`;
+      if (!this.insetTs) this.insetTs = new Map();
+      let T = this.insetTs.get(key);
+      if (!T) {
+        T = this._insetTarget(w, h, this._insetSamples()); T.owner = owner;
+        this.insetTs.set(key, T);
+        const owned = [...this.insetTs].filter(([, t]) => t.owner === owner);
+        while (owned.length > 2) { const [oldKey, old] = owned.shift(); this._deleteInsetTarget(old); this.insetTs.delete(oldKey); }
+      } else { this.insetTs.delete(key); this.insetTs.set(key, T); }
+      gl.disable(gl.SCISSOR_TEST); gl.disable(gl.BLEND); gl.blendEquation(gl.FUNC_ADD);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, T.msaa?.fbo || T.fbo);
+      gl.viewport(0, 0, w, h);
+      const bg = opts.backdrop || [0.05, 0.06, 0.07];
+      gl.clearColor(bg[0], bg[1], bg[2], 1); gl.depthMask(true); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+      if (opts.sky) {
+        gl.depthMask(false); gl.disable(gl.DEPTH_TEST); gl.useProgram(this.sky.p);
+        gl.uniform3fv(this.sky.u.uForward, cam.forward); gl.uniform3fv(this.sky.u.uRight, cam.right); gl.uniform3fv(this.sky.u.uUp, cam.up); gl.uniform2f(this.sky.u.uTan, cam.tanX, cam.tanY); this._fullscreen();
       }
-      const t = this._target(w, h, this.hdrFormat, gl.LINEAR);
-      const depth = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, depth);
-      gl.texStorage2D(gl.TEXTURE_2D, 1, gl.DEPTH_COMPONENT24, w, h);
-      gl.bindFramebuffer(gl.FRAMEBUFFER, t.fbo);
-      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.TEXTURE_2D, depth, 0);
-      this.insetTs.set(key, { ...t, depth, w, h });
+      gl.enable(gl.DEPTH_TEST); gl.depthFunc(gl.LEQUAL); gl.depthMask(true);
+      const L = this.lit; gl.useProgram(L.p); gl.uniformMatrix4fv(L.u.uViewProj, false, cam.viewProj); gl.uniform3fv(L.u.uCamPos, cam.pos);
+      this._bind(U_SHADOW, this.shadowTex); gl.activeTexture(gl.TEXTURE0 + U_TEX); this._litNodes(nodes, cam);
+      if (opts.replayDraw) {
+        if (!this._replayGpu) this._replayGpu = new ReplayGpu(gl, (vs, fs) => program(gl, vs, fs));
+        this._replayGpu.upload(opts.replayDraw); this._replayGpu.draw(cam.viewProj, [w, h], opts.replayDraw,cam.forward);
+      }
+      if (T.msaa) {
+        gl.bindFramebuffer(gl.READ_FRAMEBUFFER, T.msaa.fbo); gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, T.fbo);
+        gl.blitFramebuffer(0, 0, w, h, 0, 0, w, h, gl.COLOR_BUFFER_BIT, gl.NEAREST);
+      }
+      gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, state.draw); gl.viewport(x, this.canvas.height - y - h, w, h);
+      gl.disable(gl.DEPTH_TEST); gl.depthMask(false); gl.disable(gl.BLEND);
+      const P = this.insetProg; gl.useProgram(P.p); this._bind(U_SCENE, T.tex);
+      gl.uniform1i(P.u.uScene, U_SCENE); gl.uniform1f(P.u.uExposure, this.env.exposure * this.exposureBias); gl.uniform1f(P.u.uDim, opts.dim || 0); gl.uniform1f(P.u.uDisc, opts.disc || 0);
+      if (opts.disc) { gl.enable(gl.BLEND); gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE); }
+      this._fullscreen(); this._bind(U_SCENE, null);
+    } finally {
+      gl.bindFramebuffer(gl.READ_FRAMEBUFFER, state.read); gl.bindFramebuffer(gl.DRAW_FRAMEBUFFER, state.draw); gl.viewport(...state.viewport); gl.scissor(...state.scissor);
+      for (const [cap, on] of [[gl.SCISSOR_TEST, state.scissorOn], [gl.DEPTH_TEST, state.depthOn], [gl.BLEND, state.blendOn]]) if (on) gl.enable(cap); else gl.disable(cap);
+      gl.depthMask(state.depthWrite); gl.depthFunc(state.depthFunc); gl.blendFuncSeparate(...state.blend); gl.blendEquationSeparate(...state.equations);
+      gl.useProgram(state.program); gl.bindVertexArray(state.vao); gl.bindBuffer(gl.ARRAY_BUFFER, state.buffer); gl.bindRenderbuffer(gl.RENDERBUFFER, state.renderbuffer); gl.activeTexture(state.activeTexture);
     }
-    const T = this.insetTs.get(key);
-    const e = this.env;
-    const chk = (where) => {
-      if (!this.debugGL) return;
-      const err = gl.getError();
-      if (err) console.warn('inset GL error', err, where, gl.checkFramebufferStatus(gl.FRAMEBUFFER));
-    };
-    chk('setup');
-    gl.bindFramebuffer(gl.FRAMEBUFFER, T.fbo);
-    gl.viewport(0, 0, w, h);
-    const bg = opts.backdrop || [0.05, 0.06, 0.07];
-    gl.clearColor(bg[0], bg[1], bg[2], 1);
-    // the frame's last passes leave depth writes off: a clear would not reach the depth buffer
-    gl.depthMask(true);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    if (opts.sky) {
-      gl.depthMask(false);
-      gl.disable(gl.DEPTH_TEST);
-      gl.useProgram(this.sky.p);
-      gl.uniform3fv(this.sky.u.uForward, cam.forward);
-      gl.uniform3fv(this.sky.u.uRight, cam.right);
-      gl.uniform3fv(this.sky.u.uUp, cam.up);
-      gl.uniform2f(this.sky.u.uTan, cam.tanX, cam.tanY);
-      this._fullscreen();
-    }
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthMask(true);
-    const L = this.lit;
-    gl.useProgram(L.p);
-    gl.uniformMatrix4fv(L.u.uViewProj, false, cam.viewProj);
-    gl.uniform3fv(L.u.uCamPos, cam.pos);
-    // the frame's post passes bound their own textures on the low units: the shadow map back
-    this._bind(U_SHADOW, this.shadowTex);
-    gl.activeTexture(gl.TEXTURE0 + U_TEX);
-    chk('before lit');
-    this._litNodes(nodes);
-    chk('lit');
-    // into the frame, through the tone curve
-    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-    gl.viewport(x, this.canvas.height - y - h, w, h);
-    gl.disable(gl.DEPTH_TEST);
-    gl.depthMask(false);
-    const P = this.insetProg;
-    gl.useProgram(P.p);
-    this._bind(U_SCENE, T.tex);
-    gl.uniform1i(P.u.uScene, U_SCENE);
-    gl.uniform1f(P.u.uExposure, e.exposure * this.exposureBias);
-    gl.uniform1f(P.u.uDim, opts.dim || 0);
-    gl.uniform1f(P.u.uDisc, opts.disc || 0);
-    if (opts.disc) {
-      gl.enable(gl.BLEND);
-      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ZERO, gl.ONE);
-    }
-    this._fullscreen();
-    gl.disable(gl.BLEND);
-    chk('composite');
-    this._bind(U_SCENE, null);
-    gl.viewport(0, 0, this.canvas.width, this.canvas.height);
-    gl.activeTexture(gl.TEXTURE0);
-    gl.enable(gl.DEPTH_TEST);
-    gl.depthMask(true);
-    gl.bindVertexArray(null);
   }
 
   _draw(prog, n) {

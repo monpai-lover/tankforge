@@ -152,7 +152,7 @@ test('approach and xray are invariant under live movement, toss, joints, instanc
   f.launcher.loaded = -1; f.launcher.ammo[0].count = 0; f.launcher.launcher.ready = 0;
   for (const n of f.inner.nodes) { n.visible = true; n.pos[0] += 40; n.highlight = [0, 1, 0, 1]; }
   const matrices = f.track.mesh._src.matrices.slice(); matrices[12] = 91; f.renderer.setInstances(f.track.mesh, matrices, 1); f.root.update();
-  assert.deepEqual(sample(.45), approach); assert.ok(f.renderer.last.includes(background)); assert.ok(!f.renderer.last.some(n => n !== background && nodes.includes(n)));
+  assert.deepEqual(sample(.45), approach); assert.ok(!f.renderer.last.includes(background)); assert.ok(!f.renderer.last.some(n => nodes.includes(n)), 'V3 views contain only the detached target');
   assert.deepEqual(sample(2.8), xray); assert.equal(f.liveUpdates, 0, 'replay must never call the live launcher closure');
   let roundVisible; f.renderer.renderInset = list => { roundVisible = list.some(n => n === inner.byModule.get('rack')[0]); };
   sample(2.8); assert.equal(roundVisible, true, 'loaded impact-time round stays visible after live firing');
@@ -160,10 +160,11 @@ test('approach and xray are invariant under live movement, toss, joints, instanc
   f.hc.hide();
 });
 
-test('suppressed MG and invalid reports allocate nothing and do not resolve interiors', () => {
+test('same-target MG appends without snapshot allocations and invalid native evidence resolves no interior', () => {
   const f = simple(); f.show(); const cur = f.hc.cur, size = f.renderer._live.size, calls = f.innerCalls;
-  f.hc.show(f.target, f.rep, {}, 100, true); f.hc.show(f.target, null, {}, 100);
-  assert.equal(f.hc.cur, cur); assert.equal(f.renderer._live.size, size); assert.equal(f.innerCalls, calls);
+  assert.equal(f.hc.show(f.target, {...f.rep}, {kind:'mg',caliber_mm:12.7}, 100, true,'','offensive'),true);
+  f.hc.show(f.target, null, {}, 100);f.hc.show(f.target,{...f.rep,replay:{authority:'offline',revision:0}}, {},100);
+  assert.ok(f.hc.cur===cur); assert.equal(f.renderer._live.size, size); assert.equal(f.innerCalls, calls);
   f.hc.hide();
 });
 
@@ -202,7 +203,9 @@ test('failed lazy interior and instance upload preserve old replay without chang
   f.renderer.setInstances = () => { throw new Error('instances failed'); }; f.show(); f.renderer.setInstances = upload;
   assert.equal(f.hc.cur, previous); assert.deepEqual(source(), before); assert.deepEqual(f.renderer._live, live);
   f.hc.cur.t = 2.8; f.renderer.renderInset = () => { throw new Error('inset failed'); };
-  assert.throws(() => f.hc.render3d(frame([])), /inset failed/); assert.deepEqual(source(), before);
+  assert.doesNotThrow(() => f.hc.render3d(frame([]))); assert.equal(f.hc.active,false); assert.deepEqual(source(), before);
+  assert.equal(f.renderer._meshLeases.get(f.hull.mesh)?.count||0,0,'renderer failure releases the detached static lease');
+  assert.ok(!f.renderer._live.has(previous.target.model.body.children.find(n=>n.name==='tracks').mesh),'renderer failure frees the private instance owner');
   f.hc.hide();
 });
 
@@ -284,12 +287,12 @@ test('compact capture resolves parent-relative command joints and launcher state
   f.hc.hide();
 });
 
-test('first replay projectile construction releases both partial static uploads and the new snapshot', () => {
+test('first shared V3 body upload failure releases partial handles and the new snapshot', () => {
   const f = simple(); f.target.interior();
   const live = new Set(f.renderer._live), created = f.renderer.created.length;
   const upload = f.renderer.gl.bufferData; let projectileUploads = 0;
   f.renderer.gl.bufferData = function(type, data, usage) {
-    if (ArrayBuffer.isView(data) && data.length > 13 && ++projectileUploads === 2) throw new Error('second explanatory mesh upload failed');
+    if (ArrayBuffer.isView(data) && data.length > 13 && ++projectileUploads === 1) throw new Error('shared V3 body upload failed');
     return upload.call(this, type, data, usage);
   };
   f.show(); assert.equal(f.hc.active, false); assert.equal(f.hc.projectile, null);

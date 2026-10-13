@@ -5,12 +5,13 @@ const impactPoses = new WeakMap();
 const copy = value => ArrayBuffer.isView(value) ? value.slice() : Array.isArray(value) ? value.map(copy) : value && typeof value === 'object' ? Object.fromEntries(Object.entries(value).map(([k, v]) => [k, copy(v)])) : value;
 const localPose = n => ({ pos: n.pos.slice(), yaw: n.yaw, pitch: n.pitch, roll: n.roll, local: n.local && n.local.slice() });
 const launcherState = gun => ({ loaded: gun.loaded, count: gun.ammo?.[gun.loaded]?.count || 0, nextTube: gun.launcher?.nextTube || 0, ready: gun.launcher?.ready || 0 });
+const runningInstances=model=>{const saved=new Map(),walk=n=>{if(!n)return;const m=n.mesh;if(m?.instanced&&!saved.has(m))saved.set(m,{matrices:m._src.matrices?.slice()||new Float32Array(0),count:m.instances});for(const c of n.children)walk(c);};walk(model.running);return saved;};
 
 function bodyFrame(body) {
   return { origin: body.worldPoint([0, 0, 0]).slice(), ex: body.worldDir([1, 0, 0]).slice(), ey: body.worldDir([0, 1, 0]).slice(), ez: body.worldDir([0, 0, 1]).slice() };
 }
 
-/** Small pre-core capture: known articulation only; no graph traversal, interior, or GPU work. */
+/** Pre-core capture of known articulation and the running subtree; no interior or GPU work. */
 export function captureImpactPose(e) {
   const joints = new Map(), launchers = new Map();
   (e.model.turrets || []).forEach((t, i) => {
@@ -25,11 +26,41 @@ export function captureImpactPose(e) {
     }
     for (const gun of e.loadout?.turrets[i]?.guns || []) launchers.set(gun, launcherState(gun));
   });
-  return { frame: bodyFrame(e.veh.body), joints, launchers, fold: e.fold || 0 };
+  return { frame: bodyFrame(e.veh.body), joints, launchers, instances:runningInstances(e.model), fold: e.fold || 0 };
 }
 
 export function rememberImpactPose(report, pose) {
   impactPoses.set(report, pose);
+}
+
+/** Player state has independent guns/recoil, unlike the Enemy gunPitch adapter. */
+export function capturePlayerImpactPose(G){
+  const joints=new Map(),launchers=new Map();
+  for(const[ti,t]of (G.model.turrets||[]).entries()){
+    const rt=G.T[ti],parent=G.loadout.turrets[ti]?.parent;
+    joints.set(t.node,{...localPose(t.node),yaw:(rt?.yaw??t.node.yaw)-(parent!=null?(G.T[parent]?.yaw||0):0)});
+    for(const[gi,g]of t.guns.entries()){
+      const gs=rt?.guns?.[gi];joints.set(g.node,{...localPose(g.node),pitch:-(gs?.pitch??-g.node.pitch)});
+      if(g.barrel)joints.set(g.barrel,{...localPose(g.barrel),pos:[0,0,-(gs?.recoil??-g.barrel.pos[2])],roll:gs?.roll??g.barrel.roll});
+      for(const n of g.rounds||[])if(n)joints.set(n,localPose(n));
+    }
+    for(const g of G.loadout.turrets[ti]?.guns||[])launchers.set(g,launcherState(g));
+  }
+  for(const pm of G.model.mgs||[]){const mg=G.MG?.[pm.index];if(mg)joints.set(pm.node,{...localPose(pm.node),yaw:mg.aim.yaw-(mg.m.anchor==='hull'?0:G.T[0]?.yaw||0),pitch:-mg.aim.pitch});}
+  for(const w of G.model.wheels||[])if(w.node)joints.set(w.node,localPose(w.node));
+  return {frame:bodyFrame(G.veh.body),joints,launchers,instances:runningInstances(G.model),fold:G.fold||0};
+}
+
+function recordedPose(target,accepted){
+  const frame={origin:accepted.hull_origin.slice(),ex:accepted.ex.slice(),ey:accepted.ey.slice(),ez:accepted.ez.slice()},joints=new Map(),launchers=new Map();
+  for(const[ti,t]of (target.model.turrets||[]).entries()){
+    const saved=accepted.joints?.[ti],parent=target.loadout?.turrets[ti]?.parent;
+    // Missing accepted joints remain unknown/rest; never read a later dead/tossed joint.
+    const yaw=Number.isFinite(saved?.yaw)?saved.yaw:0,parentYaw=parent!=null?accepted.joints?.[parent]?.yaw||0:0;
+    joints.set(t.node,{pos:target.loadout?.turrets[ti]?.pivot?.slice()||t.node.pos.slice(),yaw:yaw-parentYaw,pitch:0,roll:0,local:null});
+    for(const[gi,g]of t.guns.entries()){const gs=saved?.guns?.[gi];joints.set(g.node,{...localPose(g.node),pitch:-(gs?.pitch??saved?.pitch??0),yaw:0,roll:0});if(g.barrel)joints.set(g.barrel,{...localPose(g.barrel),pos:[0,0,-(gs?.recoil||0)],roll:gs?.roll||0});}
+  }
+  return {frame,joints,launchers,fold:accepted.variants?.find(v=>v.kind==='fold')?.value??0,trust:accepted.trust,unknownJoints:!accepted.joints?.length};
 }
 
 function frameMatrix(f) {
@@ -41,10 +72,15 @@ function frozenBody(f) {
   const worldDir = p => [0, 1, 2].map(k => f.ex[k] * p[0] + f.ey[k] * p[1] + f.ez[k] * p[2]);
   return { worldDir, worldPoint(p) { return worldDir(p).map((v, k) => v + f.origin[k]); } };
 }
+function hullBounds(frame,size){
+  const body=frozenBody(frame),min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];
+  for(const x of [-size[0]/2,size[0]/2])for(const y of [0,size[1]])for(const z of [-size[2]/2,size[2]/2]){const p=body.worldPoint([x,y,z]);for(let k=0;k<3;k++){min[k]=Math.min(min[k],p[k]);max[k]=Math.max(max[k],p[k]);}}
+  return {min,max};
+}
 
 /** Owns a detached graph and its GPU leases. Construction is transactional. */
-export function snapshotReplayTarget(renderer, target, report) {
-  const pose = impactPoses.get(report);
+export function snapshotReplayTarget(renderer, target, report, accepted = null) {
+  const pose = impactPoses.get(report)||target.savedImpactPose||(accepted?recordedPose(target,accepted):null);
   const frame = pose?.frame || bodyFrame(target.body);
   const sources = new Set(), nodeMap = new Map(), meshes = new Map();
   const retained = [], owned = [];
@@ -65,8 +101,8 @@ export function snapshotReplayTarget(renderer, target, report) {
       if (source.instanced) {
         mesh = renderer.instancedMesh(source._src.data, source.maxInstances);
         owned.push(mesh);
-        const matrices = source._src.matrices?.slice() || new Float32Array(0);
-        renderer.setInstances(mesh, matrices, source.instances);
+        const captured=pose?.instances?.get(source),matrices=captured?.matrices?.slice()||source._src.matrices?.slice()||new Float32Array(0);
+        renderer.setInstances(mesh, matrices, captured?.count??source.instances);
       } else if (renderer.retainMesh) {
         renderer.retainMesh(mesh);
         retained.push(mesh);
@@ -112,8 +148,22 @@ export function snapshotReplayTarget(renderer, target, report) {
     } : null;
     const model = { root, body: bodyNode, shellNodes: (target.model.shellNodes || []).map(remap),
       turrets: (target.model.turrets || []).map(t => ({node: remap(t.node), guns: t.guns.map(g => ({node: remap(g.node), barrel: remap(g.barrel), rounds: (g.rounds || []).map(remap)}))})) };
+    const tag=(n,role)=>{if(!n)return;n.replayRole=role;for(const c of n.children)tag(c,role);};
+    tag(root,'retained');for(const n of model.shellNodes)if(n)n.replayRole='armor';
+    tag(remap(target.model.running),'mechanical');for(const w of target.model.wheels||[])tag(remap(w.node),'mechanical');
+    for(const t of model.turrets)for(const g of t.guns)tag(g.barrel,'barrel');
+    if(inner){for(const n of interior.nodes)tag(n,'furnishing');for(const[id,ns]of interior.byModule){const def=target.modules?.find(m=>m.id===id),role=def?.kind==='gun_breech'?'breech':'mechanical';for(const n of ns){tag(n,role);n.replayModuleId=id;}}
+      for(const[i,n]of interior.byCrew.entries())if(n){tag(n,'crew');n.replayCrewIndex=i;}}
+    const size=[target.width||3,target.height||3,target.length||6];let appliedPose=-1;
     root.update();
-    return { model, body: frozenBody(frame), armor: copy(target.armor || []), pivot: copy(target.pivot), crewRoles: copy(target.crewRoles || []), moduleLabels: new Map(target.moduleLabels || []), length: target.length, name: target.name, fold: pose?.fold, interior: () => interior, sources, dispose };
+    const result={ model, body: frozenBody(frame), hullBounds:hullBounds(frame,size), armor: copy(target.armor || []), pivot: copy(target.pivot), crewRoles: copy(target.crewRoles || []), moduleLabels: new Map(target.moduleLabels || []), length: target.length, name: target.name, fold: pose?.fold, poseTrust:pose?.trust||'private_impact_pose', unknownJoints:pose?.unknownJoints||false, interior: () => interior, sources, dispose,
+      applyAcceptedPose(accepted,version){
+        if(disposed||!accepted||!Number.isFinite(version)||version<=appliedPose)return false;
+        const next=recordedPose({model,loadout:target.loadout},accepted);
+        bodyNode.local=frameMatrix(next.frame);for(const[n,p]of next.joints)Object.assign(n,copy(p));
+        root.update();result.body=frozenBody(next.frame);result.hullBounds=hullBounds(next.frame,size);result.poseTrust=next.trust;result.unknownJoints=next.unknownJoints;appliedPose=version;return true;
+      }};
+    return result;
   } catch (error) {
     dispose();
     throw error;

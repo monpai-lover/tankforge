@@ -3,6 +3,7 @@
 // Component only: no authority, health, life or playback-session owner lives here.
 const mix = (a,b,t) => a+(b-a)*t;
 const freezeKnots = knots => Object.freeze(knots.map(p=>Object.freeze(p.slice())));
+const clockStates=new WeakMap();
 export const directorKnots = freezeKnots([[0,0],[1.00,1.15],[1.8,1.65],[2.35,1.83],[3.6,2.48],[5.2,3.4],[7.0,4.8],[9.6,7.4]]);
 
 function validTime(time) { return Number.isFinite(time) && Math.abs(time) <= Number.MAX_SAFE_INTEGER; }
@@ -27,32 +28,39 @@ export function transfer(knots, x, reverse=false) {
 }
 
 /** Append-only film→physical map. Published knot snapshots are deeply immutable. */
-export function createReplayClock(knots=directorKnots) {
+export function createReplayClock(knots=directorKnots,{maxKnots=256,reservedKnots=32}={},saved=null) {
   checkKnots(knots);
   if(knots[0][0]!==0)throw new RangeError('replay knots must start at film zero');
-  let retained=freezeKnots(knots), played=0;
-  const protectedTails=[];
+  if(!Number.isSafeInteger(maxKnots)||!Number.isSafeInteger(reservedKnots)||reservedKnots<0||reservedKnots>=maxKnots||maxKnots<knots.length)throw new RangeError('invalid replay clock history budget');
+  let retained=freezeKnots(knots), played=saved?.played||0;
+  const protectedTails=saved?.protectedTails.slice()||[];let anchorOverflow=saved?.anchorOverflow||0,pressure=saved?.pressure||false;
   const frozenTransfer=(time,reverse=false)=>{
     const axis=reverse?'physicalEnd':'filmEnd';
     const prefix=protectedTails.find(p=>time<=p[axis]);
     return transfer(prefix?prefix.knots:retained,time,reverse);
   };
-  return Object.freeze({
+  const clock=Object.freeze({
     get knots(){return retained;},
     markPlayed(filmS){
       if(!validTime(filmS) || filmS<0)throw new RangeError('played time must be nonnegative and finite');
       if(filmS<played)throw new RangeError('played cursor cannot rewind');
       played=filmS;
     },
-    appendPhysicalAnchors(times){
+    appendPhysicalAnchors(times,options={}){
       if(!Array.isArray(times))throw new RangeError('anchor time must be nonnegative and finite');
       for(let i=0;i<times.length;i++)if(!validTime(times[i])||times[i]<0)throw new RangeError('anchor time must be nonnegative and finite');
+      const span=options.filmSpanS;
+      if(span!==undefined&&(!validTime(span)||span<=0))throw new RangeError('future film span must be positive and finite');
       const last=retained.at(-1), boundary=Math.max(last[1],frozenTransfer(played));
       const future=[...new Set(times.filter(t=>t>boundary))].sort((a,b)=>a-b);
       if(!future.length)return 0;
       const next=retained.map(p=>p.slice());
       if(played>last[0])next.push([played,boundary]);
-      for(const time of future){const prior=next.at(-1);next.push([prior[0]+(time-prior[1]),time]);}
+      // Keep every played expression. Beyond the ordinary easing budget the existing
+      // map extrapolates monotonically; real records are still sampled at their times.
+      if(next.length+future.length>maxKnots-(options.reserve?0:reservedKnots)){anchorOverflow+=future.length;pressure=true;return 0;}
+      const physicalSpan=future.at(-1)-boundary,rate=span===undefined?1:Math.min(physicalSpan,span)/physicalSpan;
+      for(const time of future){const prior=next.at(-1);next.push([prior[0]+(time-prior[1])*rate,time]);}
       checkKnots(next);
       // Keep the precise source expression for already-played extrapolation. Inserting
       // a mathematically collinear knot can otherwise change floating-point rounding.
@@ -62,7 +70,11 @@ export function createReplayClock(knots=directorKnots) {
     },
     physicalAt(filmS){return frozenTransfer(filmS);},
     filmAt(physicalS){return frozenTransfer(physicalS,true);},
+    diagnostics(){return {knots:retained.length,protectedTails:protectedTails.length,protectedKnots:protectedTails.reduce((n,p)=>n+p.knots.length,0),anchorOverflow,pressure,maxKnots,reservedKnots,easingFallback:pressure?'retained_map_extrapolation':null};},
+    stage(){return createReplayClock(retained,{maxKnots,reservedKnots},clockStates.get(clock)());},
+    publish(staged){const state=clockStates.get(staged)?.();if(!state)throw new TypeError('invalid staged replay clock');retained=state.retained;played=state.played;protectedTails.length=0;protectedTails.push(...state.protectedTails);anchorOverflow=state.anchorOverflow;pressure=state.pressure;},
   });
+  clockStates.set(clock,()=>({retained,played,protectedTails:protectedTails.slice(),anchorOverflow,pressure}));return clock;
 }
 
 // phase_s is ONLY a canonical V3 easing coordinate. time_s is recorded physical truth.

@@ -342,7 +342,7 @@ uniform vec3 uCamPos, uSunDir, uSunColor, uSkyColor, uGroundColor, uMud;
 uniform float uScroll, uAlpha, uDirtHeight, uWet;
 uniform int uKind;            // 0 painted solid, 1 track band, 2 ground, 3 plain (interior parts), 4 textured board,
                               // 5 track link / bare running gear, 6 see-through shell (interior view), 7 water,
-                              // 8 foliage, 9 textured model (colour map in uTex), 10 hit-camera x-ray shell
+                              // 8 foliage, 9 textured model, 10 V3 armor, 13 crew, 14 retained, 15 furnishing
 uniform vec4 uHighlight;      // rgb + strength: the hit camera's damaged (yellow) / destroyed (red) parts
 uniform sampler2DShadow uShadowMap;
 uniform sampler2D uTex;
@@ -402,6 +402,34 @@ void main() {
   vec3 V = normalize(uCamPos - vWorld);
   vec3 N = normalize(vNor);
   if (dot(N, V) < 0.0) N = -N;
+  // Adapted from supplied V3 gl.js FS: pale cutaway surfaces and diagnostic crew silhouettes.
+  // The optional source wireframe pass is deliberately absent from this renderer.
+  if (uKind == 10 || uKind == 13 || uKind == 14 || uKind == 15) {
+    float nv = abs(dot(N, V));
+    float rim = pow(1.0 - nv, 3.2);
+    float fineRim = pow(1.0 - nv, 7.0);
+    float sun = max(dot(N, normalize(vec3(-0.55, 0.9, 0.4))), 0.0);
+    vec3 color = vec3(0.025, 0.045, 0.070) * (0.7 + 0.3 * sun) + vec3(0.4, 0.48, 0.54) * rim;
+    float alpha = 0.18 + fineRim * 0.65;
+    if (uKind == 10) {
+      color = vec3(0.17, 0.21, 0.25);
+      alpha = 0.011 + fineRim * 0.18;
+    } else if (uKind == 14) {
+      color = vec3(0.0015, 0.002, 0.003);
+      alpha = 1.0;
+    } else if (uKind == 13) alpha = 0.30 + fineRim * 0.88;
+    if (uHighlight.a > 0.0 && uKind != 10) {
+      if (uKind == 13) {
+        color = mix(color, vec3(0.035, 0.048, 0.07) + uHighlight.rgb * (0.045 + fineRim * 0.8), uHighlight.a);
+        alpha = mix(alpha, 0.27 + fineRim * 0.60, uHighlight.a);
+      } else {
+        color = mix(color, uHighlight.rgb * (0.61 + sun * 0.20) + vec3(0.08) * rim, uHighlight.a);
+        if (uKind != 14) alpha = mix(alpha, 0.40 + 0.27 * rim, uHighlight.a);
+      }
+    }
+    outColor = vec4(ENC(color), alpha);
+    return;
+  }
   vec3 albedo = vCol; float rough = vMR.x; float metal = vMR.y;
   float dist = length(uCamPos - vWorld);
 
@@ -664,11 +692,6 @@ void main() {
     float rim = pow(1.0 - NoV, 2.2);
     alpha = mix(0.06, 0.62, rim);
     col = mix(col * 0.6, uSkyColor * 2.2 + uSunColor * 0.03, rim * 0.6);
-  } else if (uKind == 10) {
-    // the hit camera's x-ray: a dark smoked hull, its outline picked out in light
-    float rim = pow(1.0 - NoV, 2.0);
-    alpha = mix(0.38, 0.95, rim);
-    col = mix(vec3(0.02, 0.022, 0.026) + albedo * 0.04, vec3(1.4, 1.45, 1.5), rim * 0.85);
   }
   if (uHighlight.a > 0.0) {
     // lit from within: damaged and destroyed parts glow in their colour

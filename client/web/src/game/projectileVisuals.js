@@ -1,6 +1,6 @@
 // Copyright (c) 2026 Replay Lab Contributors. V3-derived helpers are MIT licensed.
 // Full notice: docs/third-party/hit-replay-v3-LICENSE.txt (added with the clock port).
-// Pure component preparation only; no active flight/replay call sites use this module yet.
+// Physical prototypes leased by live battlefield, missile, design-range and replay owners.
 const REVISION = 'v3_display_profile_v1';
 const profiles = new WeakSet();
 const positive = n => Number.isFinite(n) && n > 0;
@@ -303,12 +303,14 @@ function assertRenderer(renderer) {
  * Consumers must call contextLost() before restore, then restoreContext() after availability.
  */
 export class ProjectileVisualPool {
-  constructor(renderer, { maxPrototypes = 64, maxLeases = 256 } = {}) {
+  constructor(renderer, { maxPrototypes = 64, maxLeases = 256, reservedPrototypes=0 } = {}) {
     assertRenderer(renderer);
     if (!Number.isSafeInteger(maxPrototypes) || maxPrototypes < 1 || !Number.isSafeInteger(maxLeases) || maxLeases < 1) throw new TypeError('projectile pool capacities must be positive integers');
     this.renderer = renderer;
     this.maxPrototypes = maxPrototypes;
     this.maxLeases = maxLeases;
+    if(!Number.isSafeInteger(reservedPrototypes)||reservedPrototypes<0||reservedPrototypes>=maxPrototypes)throw new TypeError('invalid projectile prototype reservation');
+    this.reservedPrototypes=reservedPrototypes;
     this.entries = new Map();
     this.leases = new Map();
     this.profileKeys = new WeakMap();
@@ -337,7 +339,7 @@ export class ProjectileVisualPool {
     }
   }
 
-  acquire(profile, stage = 'intact') {
+  acquire(profile, stage = 'intact', {reserve=false}={}) {
     assertProfile(profile);
     const info = stageInfo(stage);
     if (this.disposed) throw new Error('projectile pool is disposed');
@@ -349,7 +351,7 @@ export class ProjectileVisualPool {
     let entry = this.entries.get(key);
     if (!entry) {
       let victim = null;
-      if (this.entries.size >= this.maxPrototypes) {
+      if (this.entries.size >= this.maxPrototypes-(reserve?0:this.reservedPrototypes)) {
         for (const candidate of this.entries.values()) if (!candidate.leases && (!victim || candidate.lastUse < victim.lastUse)) victim = candidate;
         if (!victim) throw new RangeError('projectile pool prototype capacity reached with active leases');
       }

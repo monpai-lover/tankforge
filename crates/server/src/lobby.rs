@@ -1724,7 +1724,7 @@ impl Lobby {
         let gameplay = self.rooms[&p.room.unwrap()].gameplay;
         if p.fired.iter().filter(|f| f.small).count() >= gameplay.fire_burst(true) { return Vec::new(); }
         p.remember_sequence(seq, gameplay.sequence_capacity());
-        let replay=shot_flight::discharge(p,selected.clone(),gun.into(),seq,now,o,d);
+        let replay=shot_flight::discharge(p,selected.clone(),self.bullets[gun].id.clone(),seq,now,o,d);
         p.fired.push_back(Fired { replay, seq, at: now, shell: gun.into(), used: false, small: true, kind: WeaponKind::MachineGun, instance: selected });
         Vec::new()
     }

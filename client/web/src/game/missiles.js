@@ -3,72 +3,22 @@
 // file draws them -- the missile with its fins, the motor's flame and smoke, the tracking flare,
 // the protection gun's bursts and tracers, bullets striking the missile, air bursts and breaking
 // up -- and plays them.
-import { Node, rotX, rotY, mul, translation } from '../gfx/math.js';
-import { GeoBuilder, hexToLinear } from '../gfx/geo.js';
+import { Node, m4 } from '../gfx/math.js';
+import { ProjectileFlightOwner, poseProjectile } from './projectileFlight.js';
 
 const G = 9.80665;
-const mat = (hex, rough = 0.6, metal = 0.2) => ({ color: hexToLinear(hex), rough, metal });
 /** Colours of each missile type: body, fins and bands. */
 const LOOK = {
   bgm71a_tow: { body: '#5d6640', fins: '#3a3f2a', band: '#c9a43a', flare: [1.0, 0.95, 0.75] },
   tt250_rocket: { body: '#4b4f4c', fins: '#363a38', band: '#6e7370', flare: [1.0, 0.72, 0.35] },
 };
 
-/** A ring of points round the y axis at height y (wound the way GeoBuilder.loft wants). */
-function ring(r, y, n = 16) {
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    const a = -(i / n) * 2 * Math.PI;
-    out.push([r * Math.cos(a), y, r * Math.sin(a)]);
-  }
-  return out;
-}
-
-/**
- * The missile's body as a mesh along +z (nose forward): a lofted body from its radius profile,
- * the fins, and a band. Built along +y and turned onto +z.
- */
-function missileGeometry(def) {
-  const L = def.length_m;
-  const r = def.caliber_mm / 2000;
-  const look = LOOK[def.id] || LOOK.bgm71a_tow;
-  const body = mat(look.body, 0.55, 0.25);
-  const fins = mat(look.fins, 0.6, 0.3);
-  const band = mat(look.band, 0.5, 0.2);
-  const b = new GeoBuilder();
-  const up = rotX(Math.PI / 2); // +y onto +z
-  const h = L / 2;
-  // radius profile tail -> nose; a rocket has a blunt ogive, a missile a short rounded nose
-  const prof =
-    def.guidance === 'none'
-      ? [[-h, r * 0.78], [-h + 0.06, r * 0.92], [-h + 0.14, r], [h - 0.55, r], [h - 0.32, r * 0.93], [h - 0.16, r * 0.74], [h - 0.06, r * 0.42], [h, r * 0.08]]
-      : [[-h, r * 0.62], [-h + 0.04, r * 0.85], [-h + 0.08, r], [h - 0.22, r], [h - 0.12, r * 0.88], [h - 0.05, r * 0.6], [h, r * 0.2]];
-  b.loft(up, false, prof.map(([y, rr]) => ring(rr, y, 18)), body, 32, [true, true]);
-  // a band round the body behind the warhead
-  const by = h - L * 0.38;
-  b.loft(up, false, [ring(r * 1.012, by - 0.03, 18), ring(r * 1.012, by + 0.03, 18)], band, 10, [false, false]);
-  // fins: four at the tail, and for a wire-guided missile four wings amidships
-  const span = Math.max(def.span_m / 2, r * 1.4);
-  const finSet = (y, chord, outer, t) => {
-    for (let k = 0; k < 4; k++) {
-      const a = (k * Math.PI) / 2 + Math.PI / 4;
-      const mid = (r + outer) / 2;
-      // radial: the fin's span (box x) along (cos a, 0, sin a) of the body frame
-      const m = mul(up, mul(translation(Math.cos(a) * mid, y, Math.sin(a) * mid), rotY(-a)));
-      b.box(m, false, [outer - r, chord, t], fins);
-    }
-  };
-  finSet(-h + 0.09, def.guidance === 'none' ? 0.34 : 0.12, span, 0.008);
-  if (def.guidance !== 'none') finSet(-h + L * 0.55, 0.14, span * 0.95, 0.006);
-  return b.build();
-}
-
 export class Missiles {
   /**
    * core: the WebAssembly core (design/core.js); defs: data.missiles; projectiles: data.projectiles
    * (the warheads); renderer, scene: where the missiles are drawn; fx, sound: effects and audio.
    */
-  constructor({ core, defs, projectiles, renderer, scene, fx, sound }) {
+  constructor({ core, defs, projectiles, renderer, scene, fx, sound, projectileFlight = null }) {
     this.core = core;
     this.defs = defs || {};
     this.projectiles = projectiles || {};
@@ -76,7 +26,8 @@ export class Missiles {
     this.scene = scene;
     this.fx = fx;
     this.sound = sound;
-    this.meshes = new Map();
+    this.projectileFlight = projectileFlight || (renderer ? new ProjectileFlightOwner(renderer, {projectiles: this.projectiles, missiles: this.defs}) : null);
+    this.bodyLeases = new Map();
     this.nodes = new Map(); // missile id -> {node, def, prev, trailAcc, t}
     this.tracers = [];
     this.aps = new Map(); // owner -> latest state
@@ -263,7 +214,7 @@ export class Missiles {
     for (const v of this.nodes.values()) {
       const look = LOOK[v.def.id] || LOOK.bgm71a_tow;
       const d = norm(v.vel);
-      const back = v.def.length_m / 2;
+      const back = v.def.length_m;
       const p = [v.pos[0] - d[0] * back, v.pos[1] - d[1] * back, v.pos[2] - d[2] * back];
       fx.spawn({ pos: p, life: 0.05, size0: v.def.guidance === 'none' ? 0.5 : 0.22, color: look.flare, alpha: 0.9, additive: true });
     }
@@ -271,37 +222,31 @@ export class Missiles {
 
   // ------------------------------------------------------------------ inside
 
-  _mesh(def) {
-    if (!this.meshes.has(def.id)) this.meshes.set(def.id, this.renderer.mesh(missileGeometry(def)));
-    return this.meshes.get(def.id);
-  }
-
   _node(def) {
-    const n = new Node('missile');
-    n.mesh = this._mesh(def);
-    n.castShadow = true;
-    this.scene.add(n);
+    if (!this.projectileFlight) return new Node('missile_unavailable');
+    const profile = this.projectileFlight.profile(this.projectiles[def.warhead], def), lease = this.projectileFlight.acquire(profile, 'intact', 'missile');
+    const n = lease.node; this.bodyLeases.set(n, lease);
+    this.scene?.add(n);
     return n;
   }
 
   _drop(v) {
-    this.scene.children = this.scene.children.filter((c) => c !== v.node);
+    this.bodyLeases.get(v.node)?.release(); this.bodyLeases.delete(v.node);
+    if(this.scene)this.scene.children = this.scene.children.filter((c) => c !== v.node);
   }
 
   _pose(v) {
     const n = v.node;
-    n.pos = v.pos.slice();
-    const sp = Math.hypot(v.vel[0], v.vel[2]);
-    n.yaw = Math.atan2(v.vel[0], v.vel[2]);
-    n.pitch = -Math.atan2(v.vel[1], sp);
-    // a wire-guided missile rolls slowly; a damaged one tumbles a little
-    n.roll = v.t * (v.def.guidance === 'none' ? 0.6 : 2.4) + (v.hits ? Math.sin(v.t * 9) * 0.3 * v.hits : 0);
+    if(!n.projectileProfile)return;
+    // The missile-world point is its recorded legacy contact anchor, now also the display nose.
+    poseProjectile(n, v.pos, v.vel, n.projectileProfile);
+    if(!n.local)n.local=m4(); n.local.set(n.world);
   }
 
   _trail(v, dt) {
     const fx = this.fx;
     const d = norm(v.vel);
-    const back = v.def.length_m / 2;
+    const back = v.def.length_m;
     const tail = [v.pos[0] - d[0] * back, v.pos[1] - d[1] * back, v.pos[2] - d[2] * back];
     const heavy = v.def.guidance === 'none';
     // the motor's flame while it burns

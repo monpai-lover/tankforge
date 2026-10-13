@@ -7,7 +7,7 @@
 import * as ballistics from '../sim/ballistics.js';
 import * as gunnery from '../sim/gunnery.js';
 import { shellIcon, shellKind, shellTypeLabel } from './shellicons.js';
-import { designReplayReport } from './projectileReplay.js';
+
 
 const DEG = Math.PI / 180;
 const clamp = (x, a, b) => Math.max(a, Math.min(b, x));
@@ -86,6 +86,7 @@ export class TestRange {
   }
 
   exit() {
+    this.env.finishReplay?.();
     this.env.root.hidden = true;
     document.body.dataset.replay = '0';
     this.replay = null;
@@ -211,7 +212,6 @@ export class TestRange {
 
   /** Muzzle at the firing point; the round is laid with the superelevation for the range to the aim point. */
   fire() {
-    if (this.replay && this.replay.t < this.replay.total) return;
     this.replay = null;
     this.card.hidden = true;
     if (this.G.xray) {
@@ -253,10 +253,6 @@ export class TestRange {
   }
 
   step(dt) {
-    if (this.replay) {
-      this._stepReplay(dt);
-      return;
-    }
     const dtSub = 1 / 400;
     const box = this.targetBox(0.5);
     for (let i = this.shots.length - 1; i >= 0; i--) {
@@ -300,6 +296,7 @@ export class TestRange {
         this.shots.splice(i, 1);
         continue;
       }
+      if(sh.shell.tracer!==true)continue;
       const v = sh.s.vel;
       const sp = lenv(v) || 1;
       const tail = Math.min(sp * 0.03, sh.travelled);
@@ -370,137 +367,13 @@ export class TestRange {
 
   startReplay() {
     if (!this.last) return;
-    // the hit camera in the corner, as in battle (the card keeps the layer by layer table)
-    if (this.env.hitcam) {
-      this.env.hitcam(this.last);
-      this.showCard(1);
-      return;
-    }
-    const { resp } = this.last;
-    const pose = this.env.pose();
-    const W = (p) => gunnery.toWorldPoint(pose, V(p));
-    const ev = resp.event;
-    const tl = resp.timeline;
-    const total = tl.reduce((s, k) => Math.max(s, k.start_s + k.duration_s), 0);
-    const adapted = designReplayReport(this.last);
-    const path = adapted.flight_path.map((p) => ({ p: W(p) }));
-    const impact = W(ev.impact_position);
-    const dir = gunnery.toWorldDir(pose, adapted.shot.dir);
-    const layers = resp.layers.map((l) => ({ a: W(l.crossing.entry), b: W(l.crossing.exit), outcome: l.outcome, l }));
-    const frags = ev.fragments.map((f) => ({ a: W(f.origin), b: W(f.end), hit: f.hit, pen: f.is_penetrator, damage: f.damage }));
-    // camera beside the shot line, looking at the impact
-    const side = norm3(cross3(dir, [0, 1, 0]));
-    this.replay = {
-      resp,
-      t: 0,
-      total: total + 0.6,
-      tl,
-      path,
-      impact,
-      dir,
-      side: lenv(side) > 0.1 ? side : [1, 0, 0],
-      layers,
-      frags,
-      interior: resp.interior_point ? W(resp.interior_point) : null,
-      stopped: resp.stopped_point ? W(resp.stopped_point) : null,
-      ricochet: resp.ricochet_dir ? gunnery.toWorldDir(pose, V(resp.ricochet_dir)) : null,
-      xray: false,
-    };
-    this.showCard(0);
-  }
-
-  phaseAt(t) {
-    const tl = this.replay.tl;
-    for (const k of tl) if (t < k.start_s + k.duration_s) return { ...k, k: clamp((t - k.start_s) / k.duration_s, 0, 1) };
-    const k = tl[tl.length - 1];
-    return { ...k, k: 1, after: true };
-  }
-
-  _stepReplay(dt) {
-    const R = this.replay;
-    R.t = Math.min(R.total + 3600, R.t + dt);
-    const ph = this.phaseAt(R.t);
-    const fx = this.env.fx;
-    const want = ph.phase === 'interior' || ph.phase === 'aftermath';
-    if (want !== R.xray && R.resp.event.penetration_result === 'penetrated') {
-      R.xray = want;
-      this.G.xray = want;
-      this.env.applyXray();
-    }
-    // the shell: slow motion along the last part of its path
-    if (ph.phase === 'flight') {
-      const p = this._along(R.path, ph.k);
-      const tail = sub3(p, mul(R.dir, 2.5));
-      fx.beam(tail, p, 0.06, [1, 0.6, 0.25], 1);
-      fx.spawn({ pos: p, life: 0.05, size0: 0.25, size1: 0.1, color: [1, 0.8, 0.4], alpha: 0.9, additive: true });
-    }
-    if (ph.phase === 'impact' && ph.k < 0.2 && !R.flashed) {
-      R.flashed = true;
-      fx.spawn({ pos: R.impact, life: 0.3, size0: 0.6, size1: 2.4, color: [1, 0.85, 0.5], alpha: 1, additive: true });
-    }
-    const reached = ph.phase === 'flight' ? 0 : ph.phase === 'impact' ? ph.k : 1;
-    // the path through each armour layer, coloured by what happened in it
-    if (ph.phase !== 'flight') {
-      const col = { passed: [1, 0.62, 0.2], stopped: [0.95, 0.2, 0.15], ricochet: [0.4, 0.75, 1], shattered: [0.8, 0.8, 0.8], not_reached: [0.5, 0.5, 0.5] };
-      for (const L of R.layers) {
-        const b = lerp3(L.a, L.b, clamp(reached * 1.5, 0, 1));
-        fx.beam(L.a, b, 0.045, col[L.outcome] || [1, 1, 1], 1);
-      }
-      if (R.ricochet) {
-        const p = add(R.impact, mul(R.ricochet, 6 * reached));
-        fx.beam(R.impact, p, 0.04, [0.4, 0.75, 1], 0.9);
-      }
-      if (R.stopped) fx.spawn({ pos: R.stopped, life: 0.05, size0: 0.18, size1: 0.18, color: [1, 0.35, 0.2], alpha: 0.9, additive: true });
-    }
-    // spall: fragments fly out from where the round came through
-    if ((ph.phase === 'interior' || ph.phase === 'aftermath' || ph.after) && R.frags.length) {
-      const k = ph.phase === 'interior' ? ph.k : 1;
-      for (const f of R.frags) {
-        const b = lerp3(f.a, f.b, clamp(k * 1.25, 0, 1));
-        fx.beam(f.a, b, f.pen ? 0.035 : 0.012, f.pen ? [1, 0.75, 0.3] : f.hit ? [1, 0.3, 0.2] : [1, 0.85, 0.55], f.pen ? 1 : 0.8);
-        if (f.hit && k >= 0.8) fx.spawn({ pos: f.b, life: 0.05, size0: 0.12, size1: 0.12, color: [1, 0.25, 0.15], alpha: 0.85, additive: true });
-      }
-    }
-    if (ph.phase === 'aftermath' && !R.carded) {
-      R.carded = true;
-      this.showCard(1);
-    }
-  }
-
-  _along(path, k) {
-    // the last ~40 m of the flight, so the camera at the target sees it come in
-    const end = path[path.length - 1];
-    let start = 0;
-    for (let i = path.length - 1; i >= 0; i--) {
-      if (lenv(sub3(path[i].p, end.p)) > 40) {
-        start = i;
-        break;
-      }
-    }
-    const span = path.slice(start);
-    const f = k * (span.length - 1);
-    const i = Math.min(span.length - 2, Math.floor(f));
-    if (i < 0) return end.p;
-    return lerp3(span[i].p, span[i + 1].p, f - i);
+    this.env.hitcam?.(this.last);
+    this.showCard(1);
   }
 
   /** Camera for this frame: the firing point (aiming), or the replay's view of the hit. */
   camera(dt, G) {
-    const rp = this.replay ? '1' : '0';
-    if (document.body.dataset.replay !== rp) document.body.dataset.replay = rp;
-    if (this.replay) {
-      const R = this.replay;
-      const ph = this.phaseAt(R.t);
-      const orbit = R.t * 0.12;
-      const back = mul(R.dir, -1);
-      const sideDir = norm3(add(mul(R.side, Math.cos(orbit)), mul(back, Math.sin(orbit) * 0.6)));
-      const far = ph.phase === 'flight' ? 9 : ph.phase === 'impact' ? 6.5 : 5.2;
-      const focus = R.interior && (ph.phase === 'interior' || ph.phase === 'aftermath') ? lerp3(R.impact, R.interior, 0.6) : R.impact;
-      const want = add(add(focus, mul(sideDir, far)), add(mul(back, far * 0.45), [0, 1.6, 0]));
-      R.cam = R.cam ? lerp3(R.cam, want, 1 - Math.exp(-dt * 4)) : want;
-      const fwd = norm3(sub3(focus, R.cam));
-      return { camPos: R.cam.slice(), fwd, fovY: 46 * DEG };
-    }
+    document.body.dataset.replay = '0';
     const sens = 0.0023 * (ZOOMS[this.zoom] / 42);
     G.cam.yaw = gunnery.wrapPi(G.cam.yaw + G.mdx * sens);
     G.cam.pitch = clamp(G.cam.pitch - G.mdy * sens, -0.5, 0.6);
@@ -514,26 +387,8 @@ export class TestRange {
     this.zoom = clamp(this.zoom + d, 0, ZOOMS.length - 1);
   }
 
-  /** Labels on the damaged parts during the interior phase. */
-  labels(project) {
-    const R = this.replay;
-    if (!R || !R.xray) return [];
-    const ev = R.resp.event;
-    const out = [];
-    const pose = this.env.pose();
-    const hitAt = new Map();
-    for (const f of R.frags) if (f.hit) hitAt.set(f.hit, f.b);
-    for (const m of ev.damaged_modules) {
-      const p = hitAt.get(m.id);
-      if (p) out.push({ p, text: `${PART[m.kind] || m.kind} −${m.damage.toFixed(0)}${m.destroyed ? '　擊毀' : ''}`, crew: false });
-    }
-    for (const c of ev.damaged_crew) {
-      const p = hitAt.get('crew:' + c.role);
-      if (p) out.push({ p, text: `${CREW[c.role] || c.role} −${c.damage.toFixed(0)}${c.killed ? '　陣亡' : ''}`, crew: true });
-    }
-    void pose;
-    return out.map((l) => ({ ...project(l.p), text: l.text, crew: l.crew })).filter((l) => l.ok);
-  }
+  /** Replay labels are owned by the shared V3 presentation. */
+  labels() { return []; }
 
   /** X-ray card: what the round met, layer by layer, and what it did inside. stage 0 = header only. */
   showCard(stage) {
@@ -604,6 +459,7 @@ export class TestRange {
   }
 
   endReplay() {
+    this.env.finishReplay?.();
     this.replay = null;
     this.card.hidden = true;
     if (this.G.xray) {
@@ -623,10 +479,6 @@ function norm3(a) {
   const l = lenv(a) || 1;
   return [a[0] / l, a[1] / l, a[2] / l];
 }
-function lerp3(a, b, t) {
-  return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
-}
-
 export function rayBox(o, d, lo, hi) {
   let t0 = 0;
   let t1 = Infinity;

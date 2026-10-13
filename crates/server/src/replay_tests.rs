@@ -70,6 +70,31 @@ fn replay_legacy_mg_real_crew_hits_keep_immediate_lethal_credit(){
     for (i,seat)in crew.iter().enumerate(){for n in 0..4 {if !l.players[&b].alive{break;}let p=seat.pos;let shot=WireShot{o:[p.x,p.y+2.0,p.z],d:[0.0,-1.0,0.0],yaw:0.0,speed:750.0,dist:0.0};let out=legacy_mg(&mut l,a,b,&shot,0.1+(i*4+n)as f64*0.001);if !message(&out,b,"damage").is_null(){damaged=true;assert_eq!(message(&out,b,"damage")["from"],a);assert!(message(&out,b,"damage").get("replay").is_none());assert!(message(&out,c,"damage").get("report").is_none());last=out;}}}
     assert!(damaged,"actual legacy MG rays must damage fresh real crew");assert!(!l.players[&b].alive,"genuine MG shots must cause an immediate terminal transition");assert_eq!(message(&last,b,"damage")["killed"],true);assert_eq!((l.players[&a].kills,l.players[&b].deaths),(1,1));
 }
+fn admitted_mg_receipts()->Vec<Value>{
+    let (mut l,a,b,c,room)=fixture_vehicle("de_rso_flak");
+    let mut phases=vec![phase("admission","admitted_mg",admitted(&mut l,a,b,c,room))];
+    let instance=l.targets["de_tiger_e"].weapon_bindings.iter().find(|(_,w)|w.kind==WeaponKind::MachineGun&&w.model_id=="mg34").unwrap().0.clone();
+    let crew=l.targets["de_rso_flak"].def.crew.clone();let mut seq=0u32;let mut terminal=Value::Null;
+    for seat in crew {for _ in 0..4 {
+        if !l.players[&b].alive{break;}seq+=1;let p=seat.pos;let o=[p.x,p.y+2.0,p.z];let d=[0.0,-1.0,0.0];let now=0.1+seq as f64*0.002;
+        let fired=send(&mut l,a,json!({"t":"mg_fire","seq":seq,"instance":instance,"gun":"mg34","o":o,"d":d}),now);
+        assert!(l.players[&a].fired.iter().any(|f|f.seq==seq&&f.kind==WeaponKind::MachineGun),"actual MG discharge is admitted");
+        phases.push(phase("mg_discharge","admitted_mg",fired));
+        let out=send(&mut l,a,json!({"t":"mg_hit","seq":seq,"instance":instance,"target":b,"gun":"mg34","shot":{"o":o,"d":d,"yaw":0.0,"speed":750.0,"dist":0.0}}),now+0.001);
+        let owner=message(&out,b,"damage");if !owner.is_null(){
+            let e=&owner["replay"];assert_eq!(e["projectile_id"],"bullet_mg34","catalog body uses the actual MG bullet identity");
+            assert_eq!(e["weapon_instance"],instance);assert_eq!(e["shooter"]["entity"],a);assert_eq!(e["actor"]["entity"],b);assert!((e["report"]["caliber_mm"].as_f64().unwrap()-7.92).abs()<1e-5);
+            assert!(message(&out,c,"damage").get("replay").is_none());assert!(message(&out,c,"damage").get("report").is_none());
+            if owner["killed"]==true{terminal=owner.clone();assert_eq!(e["deaths"][0]["cause_event_id"],e["event_id"]);}
+        }
+        phases.push(phase("mg_impact","admitted_mg",out));
+    }}
+    assert!(!l.players[&b].alive,"admitted real MG crew rays cause an immediate lethal transition");assert_eq!(terminal["killed"],true);assert_eq!((l.players[&a].kills,l.players[&b].deaths),(1,1));
+    let resume=resumed(&mut l,b,0.5);let status=message(&resume,b,"status");assert_eq!(status["state"]["destroyed"],true);assert_eq!(status["replay_checkpoint"]["cause_event_id"],terminal["replay"]["event_id"]);
+    phases.push(phase("mg_fatal_status","admitted_mg",resume));phases
+}
+#[test]
+fn replay_admitted_mg_lethal_uses_catalog_bullet_and_owner_death_records(){assert!(!admitted_mg_receipts().is_empty());}
 fn resumed(l:&mut Lobby,b:u32,now:f64)->Out {
     let token=l.players[&b].token.clone();l.drop_link(b,now);let (replacement,_)=l.connect();
     let (_,out)=l.dispatch_socket(replacement,serde_json::from_value(json!({"t":"hello","name":"resume","resume":token,"gameplay_rules_version":GAMEPLAY_RULES_VERSION,"ammo_protocol_version":1})).unwrap(),now+0.01);out
@@ -174,6 +199,8 @@ fn replay_source_tags()->Value {
     let mut names:Vec<String>=super::ammo_tests::source_tags().as_object().unwrap().keys().cloned().collect();
     names.extend(["crates/combat/src/replay_evidence.rs","crates/combat/src/causes.rs","crates/combat/src/impact_report.rs","crates/combat/src/geometry/mod.rs","crates/combat/src/geometry/surface.rs","crates/combat/src/geometry/ray.rs","crates/combat/src/geometry/manifest.rs","crates/combat/src/geometry/bvh.rs","crates/server/src/replay_receipts.rs","crates/server/src/shot_flight.rs","crates/server/src/replay_tests.rs","crates/ballistics/src/lib.rs","crates/penetration/src/impact.rs","crates/penetration/src/lib.rs","crates/armor/src/lib.rs","crates/damage/src/module_state.rs","crates/shared/src/lib.rs","crates/weapon/src/lib.rs","client/web/src/game/replayEvidence.js","client/web/src/game/localReplayAdmission.js","client/web/src/game/combat.js","client/web/src/design/core.js","client/web/src/game/net.js","client/web/src/main.js","client/web/src/game/missiles.js","client/web/src/game/rangeTargetRevival.js","client/web/src/game/onlineAmmo.js"].map(String::from));
     names.extend(["crates/combat/src/tests.rs","crates/missile/src/lib.rs","client/web/src/game/enemies.js","client/web/test/live-network-rig.mjs","client/web/test/replay-network.test.mjs","client/web/test/replay-local.test.mjs","client/web/test/replay-evidence.test.mjs","client/web/test/replay-core-compat.test.mjs","client/web/test/replay-atomic.test.mjs","client/web/test/replay-source-preflight.test.mjs"].map(String::from));
+    names.extend(["client/web/src/game/projectileReplay.js","client/web/src/game/projectileFlight.js","client/web/src/game/projectileVisuals.js","client/web/src/game/replayRecords.js","client/web/src/game/replaySession.js","client/web/src/game/replayClock.js","client/web/src/game/replayCamera.js","client/web/src/game/replayPose.js","client/web/src/game/victimReplay.js","client/web/src/game/hitcam.js","client/web/src/gfx/replayDraw.js","client/web/src/gfx/replayShaders.js","client/web/src/gfx/renderer.js","client/web/src/gfx/shaders.js","client/web/test/replay-v3-main.test.mjs","client/web/test/replay-v3-renderer.test.mjs","client/web/test/replay-v3-session.test.mjs","client/web/test/replay-v3-hitcam.test.mjs","client/web/test/replay-v3-recorded.test.mjs","client/web/test/replay-v3-player-pose.test.mjs","client/web/test/replay-v3-victim.test.mjs","client/web/test/replay-v3-draw.test.mjs","client/web/test/projectile-flight-v3.test.mjs","client/web/test/replay-v3-materials.test.mjs","client/web/test/projectile-replay.test.mjs","client/web/test/design-replay.test.mjs","client/web/test/replay-pose.test.mjs"].map(String::from));
+    names.extend(["client/web/src/game/testrange.js","client/web/test/replay-v3-analysis-entry.test.mjs","client/web/test/replay-v3-live-tracer.test.mjs"].map(String::from));
     for vehicle in ["de_tiger_e","us_m4a3_75w","su_bmpt34","us_m901_itv","de_pz3_j","de_rso_flak"] {for file in ["vehicle.json","armor.json","modules.json","crew.json","weapons.json","visual.json"]{let name=format!("data/vehicles/{vehicle}/{file}");if root.join(&name).exists(){names.push(name);}}}
     names.push("data/machine_guns.json".into());
     for projectile in ["apcbc_88_l56","heat_152_tow","he_420_tt250","apcr_88_pzgr40"] {names.push(format!("data/projectiles/{projectile}.json"));}
@@ -278,6 +305,7 @@ fn v3_replay_protocol_receipt_from_actual_handlers() {
     phases.extend(gap_receipts());
     phases.extend(mechanism_receipts());
     phases.extend(identity_receipts());phases.extend(retained_receipts());phases.extend(missile_receipts());
+    phases.extend(admitted_mg_receipts());
     if let Ok(path)=std::env::var("TG_REPLAY_NETWORK_RECEIPT") {
         std::fs::write(path,serde_json::to_vec_pretty(&json!({"revision":1,"actors":{"shooter":shot_flight::actor(&l.players[&a]),"victim":shot_flight::actor(&l.players[&b]),"observer":shot_flight::actor(&l.players[&c])},"phases":phases,"sources":super::ammo_tests::source_tags(),"replay_sources":replay_source_tags()})).unwrap()).unwrap();
     }
