@@ -37,6 +37,7 @@ use tg_design::trace::{probe, protection_map, shoot, ProtectRequest, ShotRequest
 use tg_design::v3::V3;
 use tg_design::layout::{BoxKind, PlacedBox};
 use tg_design::{accept_submission, evaluate_with, Body, Catalog, Db, VehicleDesign};
+mod geometry_diagnostic;
 
 #[derive(serde::Deserialize)]
 struct FitBox {
@@ -55,12 +56,17 @@ struct State {
     targets: HashMap<String, Target>,
     /// Missiles, rockets and active protection in an offline battle (crates/missile).
     missiles: tg_missile::World,
+    geometry: geometry_diagnostic::Diagnostics,
 }
 
 thread_local! {
     static STATE: RefCell<Option<State>> = const { RefCell::new(None) };
     static OUT: RefCell<Vec<u8>> = const { RefCell::new(Vec::new()) };
 }
+
+/// Explicit capability: legacy saved modules omit this export.
+#[no_mangle]
+pub extern "C" fn tg_replay_revision()->u32 {1}
 
 #[no_mangle]
 pub extern "C" fn tg_alloc(len: usize) -> *mut u8 {
@@ -96,7 +102,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
         let materials = field(req, "materials")?;
         let catalog: Catalog = field(req, "catalog")?;
         let terrains = field(req, "terrains")?;
-        STATE.with(|s| *s.borrow_mut() = Some(State { db: Db::new(materials, catalog, terrains, vec![]), design: None, target: TargetState::default(), targets: HashMap::new(), missiles: tg_missile::World::new(Vec::new()) }));
+        STATE.with(|s| *s.borrow_mut() = Some(State { db: Db::new(materials, catalog, terrains, vec![]), design: None, target: TargetState::default(), targets: HashMap::new(), missiles: tg_missile::World::new(Vec::new()), geometry: geometry_diagnostic::Diagnostics::default() }));
         return Ok(json!({}));
     }
     STATE.with(|s| {
@@ -200,7 +206,8 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 let dir: [f64; 3] = field(req, "dir")?;
                 let seed: u32 = field(req, "seed").unwrap_or(1);
                 let id: Option<u32> = field(req, "id").unwrap_or(None);
-                Ok(json!({ "id": st.missiles.launch_as(id, &def, owner, team, pos, dir, seed) }))
+                let accepted=st.missiles.launch_as(id,&def,owner,team,pos,dir,seed);
+                Ok(json!({"id":accepted,"time_s":st.missiles.t}))
             }
             "mw_guide" => {
                 let id: u32 = field(req, "id")?;
@@ -239,7 +246,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 let out = st.missiles.step(dt, &actors);
                 let missiles: Vec<Value> = st.missiles.flying().map(|m| json!({"id": m.id, "def": m.def, "owner": m.owner, "team": m.team, "pos": m.pos, "vel": m.vel, "motor": m.motor, "guided": m.guided, "hits": m.hits_taken, "g_load": m.g_load, "lateral_g": m.lateral_g, "max_g": m.max_g})).collect();
                 let aps: Vec<Value> = st.missiles.aps.iter().map(|a| json!({"owner": a.owner, "mode": a.mode, "yaw": a.yaw, "pitch": a.pitch, "spin": a.spin, "heat": a.heat, "rounds": a.rounds, "rate_rpm": a.rate_rpm, "target": a.target, "range": a.target_range, "tca": a.target_tca, "firing": a.firing, "tracks": a.tracks.iter().filter(|t| t.firm).count(), "track_pos": a.tracks.iter().filter(|t| t.firm).map(|t| t.pos).collect::<Vec<_>>(), "scan": a.scan, "kills": a.kills, "enabled": a.enabled})).collect();
-                Ok(json!({"events": out.events, "fired": out.fired, "missiles": missiles, "aps": aps}))
+                Ok(json!({"events": out.events, "fired": out.fired, "missiles": missiles, "aps": aps,"ended":st.missiles.ended,"time_s":st.missiles.t}))
             }
             "combat_target" => {
                 let def: TargetDef = field(req, "def")?;
@@ -249,6 +256,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 st.targets.insert(id, t);
                 Ok(out)
             }
+            op if op.starts_with("combat_geometry_") => st.geometry.call(op,req),
             op if op.starts_with("combat_") => {
                 let key: String = field(req, "key")?;
                 let t = st.targets.get(&key).ok_or_else(|| format!("no combat target '{}'", key))?;
@@ -260,7 +268,10 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                     }
                     "combat_shoot" => {
                         let shot: tg_combat::Shot = field(req, "shot")?;
-                        Ok(serde_json::to_value(tg_combat::shoot(t, &state()?, &shot)).unwrap_or(Value::Null))
+                        let context:Option<tg_combat::causes::DamageContext>=if req.get("context").is_some(){field(req,"context")?}else{None};
+                        if context.as_ref().is_some_and(|c|!c.valid()){return Err("invalid replay context".into());}
+                        let report=match context.as_ref(){Some(c)=>tg_combat::shoot_context(t,&state()?,&shot,c),None=>tg_combat::shoot(t,&state()?,&shot)};
+                        Ok(serde_json::to_value(report).unwrap_or(Value::Null))
                     }
                     "combat_splash" => {
                         let at: tg_shared::Vec3 = field(req, "at")?;
@@ -273,8 +284,10 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                         let mut s = state()?;
                         let dt: f32 = field(req, "dt")?;
                         let seed: u64 = field(req, "seed").unwrap_or(1);
-                        let events = tg_combat::advance(t, &mut s, dt, seed);
-                        Ok(json!({"caps": tg_combat::caps(t, &s), "events": events, "state": s}))
+                        let context:Option<tg_combat::causes::DamageContext>=if req.get("context").is_some(){field(req,"context")?}else{None};
+                        if context.as_ref().is_some_and(|c|!c.valid()){return Err("invalid replay context".into());}
+                        if let Some(c)=context {let result=tg_combat::advance_context(t,&mut s,dt,seed,&c.event_id);Ok(json!({"caps":tg_combat::caps(t,&s),"events":result.events,"state":s,"cause_transitions":result.transitions,"death_cause":result.death_cause}))}
+                        else {let events=tg_combat::advance(t,&mut s,dt,seed);Ok(json!({"caps": tg_combat::caps(t, &s), "events": events, "state": s}))}
                     }
                     "combat_ammo" => {
                         let mut s = state()?;
@@ -297,6 +310,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
 
 /// Same as the C entry point, for native tests.
 pub fn call_json(text: &str) -> String {
+    if text.len()>128*1024*1024{return json!({"ok":false,"error":"request byte limit"}).to_string();}
     let resp = match serde_json::from_str::<Value>(text) {
         Ok(req) => match handle(&req) {
             Ok(v) => json!({"ok": true, "result": v}),

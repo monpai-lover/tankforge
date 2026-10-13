@@ -45,6 +45,7 @@ pub fn engine_file(d: &VehicleDesign, cat: &Catalog, mass_kg: f64) -> Option<Eng
     let curve = torque_curve(c, hp);
     let ratios = gearing(d, cat, mass_kg, &curve, c.max_rpm, t.efficiency);
     Some(EngineFile {
+        audio_source_vehicle: None,
         engine: EngineDef { horsepower: hp as f32, max_rpm: c.max_rpm as f32, idle_rpm: c.idle_rpm as f32, weight_kg: (c.base_kg + c.kg_per_hp * hp) as f32, torque_curve: curve },
         transmission: TransmissionDef { forward_gears: ratios.len() as u32, reverse_gears: 1, gear_ratios: ratios, final_drive_ratio: FINAL_DRIVE as f32, shift_time_s: t.shift_time_s as f32 },
     })

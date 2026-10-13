@@ -8,6 +8,7 @@
     "transmission"
   ],
   "properties": {
+    "audio_source_vehicle": {"type":"string", "description":"Workshop engine donor identity for presentation audio only."},
     "engine": {
       "type": "object",
       "additionalProperties": false,

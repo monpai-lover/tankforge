@@ -12,7 +12,8 @@ version = "0.1.0"
 
 [workspace.dependencies]
 serde = { version = "1", features = ["derive"] }
-serde_json = "1"
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"
 tg-shared = { path = "crates/shared" }
 tg-armor = { path = "crates/armor" }
 tg-weapon = { path = "crates/weapon" }

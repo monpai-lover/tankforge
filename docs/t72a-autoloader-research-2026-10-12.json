@@ -66,5 +66,12 @@
     "audio": "User-adopted generic drive,ram,lock textures interpreted for AZ; normal pitch, ram twice, actual-ready lock. No authentic AZ recording claim. Audio owner remains a separate Root integration step."
   },
   "authorityBoundary": "Existing g.ammo/OnlineAmmo/C2AmmoLedger exclusively owns quantity and scope. Mechanism owns reload work/readiness/cycle. Existing server has no conventional cannon reload clock; this implementation does not claim new server cadence authority.",
-  "unimplemented": ["one-moving/one-stopped planetary pivot steering","nonmechanized reserve transfer","carousel selection-distance variation","gun loading-elevation interlock","detailed composite armor layers","verified suspension/gear ratios","historical firing-table calibration","game browser visual acceptance"]
+  "unimplemented": ["one-moving/one-stopped planetary pivot steering","nonmechanized reserve transfer","carousel selection-distance variation","gun loading-elevation interlock","detailed composite armor layers","verified suspension/gear ratios","historical firing-table calibration","game browser visual acceptance"],
+  "visualModelReview": {
+    "date": "2026-10-13",
+    "document": "docs/t72a-model-review-2026-10-13.md",
+    "geometryReceipt": "docs/t72a-model-geometry-2026-10-13.json",
+    "status": "Model review candidate; armor-plane/main integration and full acceptance pending",
+    "changes": "First-party exterior, scoped casting normals, actual apertures and measured opt-in NSVT display variant. Original gameplay data and original research estimates are not retroactively reclassified as verified."
+  }
 }

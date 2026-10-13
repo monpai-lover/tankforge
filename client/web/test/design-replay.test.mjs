@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { designReplayReport, replayTrack, replayState, sampleReplay } from '../src/game/projectileReplay.js';
+import { designReplayReport, prepareReplayEvent, samplePreparedReplay } from '../src/game/projectileReplay.js';
+const prepare=(rep,shell)=>prepareReplayEvent({authority:'analysis',event_id:'design-fixture',projectile_id:'design-round',report:rep,presentation_shell:{...shell,id:'design-round',length_mm:300},accepted_pose:{hull_origin:[0,0,0],ex:[1,0,0],ey:[0,1,0],ez:[0,0,1]},impact_time_s:1,launch_time_s:1,segments:[],deaths:[],mechanism_records:[]},{});
 
 function shot(extra = {}) {
   return { shell: { kind: 'ap', caliber_mm: 75, explosive_mass_kg: .2 }, resp: {
@@ -56,18 +57,17 @@ test('design stopped point terminates the replay inside the actual struck plate'
   last.resp.stopped_point = [0, 1, .04];
   const rep = designReplayReport(last);
   assert.deepEqual(rep.path, [[0, 1, 0], [0, 1, .04]]);
-  const state = sampleReplay(replayTrack(rep, last.shell), { name: 'hold', k: .5 }, replayState());
-  assert.deepEqual(state.shellPos, [0, 1, .04]);
+  const event=prepare(rep,last.shell),state=samplePreparedReplay(event,2);
+  assert.equal(event.flightTiming,'unknown');assert.deepEqual(state.projectile.nose,[0,1,0]);assert.equal(state.projectile.referenceOnly,true,'untimed contact body remains a static explanation');
 });
 
 test('HEAT design penetrator is a jet while the physical shell stops at the outer impact', () => {
   const last = shot(); last.shell.kind = 'heat';
   const rep = designReplayReport(last);
   assert.equal(rep.fragments[0].kind, 'jet');
-  const state = sampleReplay(replayTrack(rep, last.shell), { name: 'xray', k: .36 }, replayState());
-  assert.deepEqual(state.shellPos, [0, 1, 0]);
-  assert.equal(state.jet, true);
-  assert.ok(Math.abs(state.pos[2] - 1.5) < 1e-6);
+  const event=prepare(rep,last.shell),state=samplePreparedReplay(event,2);
+  assert.deepEqual(state.projectile.nose,[0,1,0]);assert.equal(state.projectile.referenceOnly,true);
+  assert.equal(state.traces.length,0,'untimed legacy jet does not acquire invented travel');assert.equal(state.staticTraces[0].kind,2);assert.deepEqual(state.staticTraces[0].to,[0,1,3]);
 });
 
 test('design replay carries reported health and previously lost crew instead of fabricating full health', () => {

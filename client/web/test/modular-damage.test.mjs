@@ -488,7 +488,8 @@ test('live driver input passes actual engine/transmission output without lowerin
     fresh.state.modules[i] = b.modules[i].max_health * .25;
   }
   const G = {mode: 'battle', caps: c.advance('drive:caps', fresh.state, 0, 0).caps};
-  const start = source.indexOf("    const caps = G.mode === 'battle' ? G.caps : null;"), end = source.indexOf("    if (G.veh) G.veh.t.broken", start);
+  const start = source.indexOf("    const caps = G.mode === 'battle' ? G.caps : null;"), end = source.indexOf("    if (G.veh) G.veh.setDamageCaps", start);
+  assert.ok(start >= 0 && end > start, 'extract only the real driver capability gate');
   const inputGate = new Function('G', 'input', source.slice(start, end));
   const input = {throttle: 1, steer: 1, brake: 0}; inputGate(G, input);
   assert.equal(input.throttle, 1); assert.equal(input.steer, 1);

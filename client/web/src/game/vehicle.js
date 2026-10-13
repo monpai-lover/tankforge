@@ -26,6 +26,7 @@ export function gearFromModel(model) {
 export class VehicleSim {
   /** bundle: vehicle files; model: the drawn tank (running gear geometry, hull floor). */
   constructor(bundle, model, terrain, mode = 'historical') {
+    this.model = model;
     this.terrain = terrain;
     // an armoured car (physics.drive "wheeled") runs on tyres, everything else on tracks
     this.wheeled = bundle.vehicle.physics?.drive === 'wheeled' && model.runningGear?.kind === 'wheels';
@@ -39,12 +40,39 @@ export class VehicleSim {
     this.rut = 1;
     this.sinkage = 0;
     this.pressAcc = 0;
+    this.brokenTracks = null;
   }
 
   place(x, z, heading) {
     if (this.wheeled) placeWheeled(this.tm, this.t, this.terrain, x, z, heading);
     else placeTank(this.tm, this.t, this.terrain, x, z, heading);
+    this.t.broken = null;
+    this.brokenTracks = null;
+    if (this.model?.openTrackPins) this.model.updateRunningGear({
+      lod: 1, lifts: this.wheelLifts(), travel: this.t.travel,
+      ground: { 1: this.groundUnder(1), [-1]: this.groundUnder(-1) }, openBelts: null,
+    });
   }
+
+  /** Keep the combat capability result as the shared mechanical and presentation state. */
+  setDamageCaps(caps) {
+    const right = caps?.track_right === false;
+    const left = caps?.track_left === false;
+    const wantBroken = right || left;
+    if (!wantBroken) {
+      this.t.broken = null;
+      this.brokenTracks = null;
+    } else {
+      if (!this.t.broken || this.t.broken[1] !== right || this.t.broken[-1] !== left) {
+        this.t.broken = { 1: right, [-1]: left };
+      }
+      this.brokenTracks = this.wheeled ? null : this.t.broken;
+    }
+    return this.brokenTracks;
+  }
+
+  /** Side flags consumed by the track model; null means both loops remain closed. */
+  runningGearPose() { return this.brokenTracks; }
 
   get body() {
     return this.t.body;

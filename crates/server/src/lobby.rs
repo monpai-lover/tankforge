@@ -39,6 +39,15 @@ mod gameplay_tests;
 #[path = "ammo_tests.rs"]
 mod ammo_tests;
 
+#[cfg(test)]
+#[path = "replay_tests.rs"]
+mod replay_tests;
+
+#[path = "replay_receipts.rs"]
+mod replay_receipts;
+#[path = "shot_flight.rs"]
+mod shot_flight;
+
 pub const MAX_ROOMS: usize = 64;
 pub const MAX_NAME: usize = 24;
 /// How long after (re)spawning a vehicle may be anywhere.
@@ -345,9 +354,13 @@ pub enum ServerMsg {
         /// The combat model's report (what was met, broken and killed, and the state after).
         #[serde(skip_serializing_if = "Option::is_none")]
         report: Option<Value>,
+        #[serde(skip_serializing_if="Option::is_none")] replay:Option<Value>,
+        #[serde(skip_serializing_if="Option::is_none")] replay_unavailable:Option<String>,
+        #[serde(skip_serializing_if="Option::is_none")] hit_feedback:Option<Value>,
+        #[serde(skip_serializing_if="Option::is_none")] owner_commit:Option<Value>,
     },
     /// A vehicle's damage changed without a hit: fire, a crew member taking another seat, repairs.
-    Status { id: u32, state: Value, caps: Value, events: Vec<String>, #[serde(skip_serializing_if = "Option::is_none")] ammo_scope: Option<AmmoScope>, #[serde(skip_serializing_if = "Option::is_none")] ammo_revision: Option<u64> },
+    Status { id: u32, state: Value, caps: Value, events: Vec<String>, #[serde(skip_serializing_if = "Option::is_none")] ammo_scope: Option<AmmoScope>, #[serde(skip_serializing_if = "Option::is_none")] ammo_revision: Option<u64>, #[serde(skip_serializing_if="Option::is_none")] replay_commit:Option<Value>, #[serde(skip_serializing_if="Option::is_none")] replay_checkpoint:Option<Value> },
     /// Back on the field: with which vehicle, at which of the team's spawn points.
     Respawned { id: u32, vehicle: String, spawn: u32, #[serde(flatten)] scope: AmmoScope, ammo_protocol_version: u32, #[serde(skip_serializing_if = "Option::is_none")] ammo: Option<AmmoFrame>, #[serde(flatten)] gameplay: RoomGameplay },
     /// Conquest, four times a second: the points and both sides' tickets [blue, red].
@@ -378,6 +391,7 @@ struct DischargeReceipt { at: f64, fingerprint: String, message: ServerMsg }
 
 #[derive(Clone, Debug)]
 struct Fired {
+    replay:tg_combat::replay_evidence::ReplayDischarge,
     seq: u32,
     at: f64,
     shell: String,
@@ -390,6 +404,10 @@ struct Fired {
 
 #[derive(Clone, Debug)]
 pub struct Player {
+    replay:replay_receipts::ReplayHistory,
+    replay_discharge_serial:u64,
+    replay_ammo_total:Option<u32>,
+    pending_replay_status:Option<ServerMsg>,
     gameplay_compatible: bool,
     ammo_compatible: bool,
     life: u64,
@@ -455,6 +473,7 @@ pub struct Player {
 
 impl Player {
     fn reset_shots(&mut self) {
+        self.replay=Default::default();self.replay_discharge_serial=0;self.replay_ammo_total=None;self.pending_replay_status=None;
         self.fired.clear();
         self.launch_receipts.clear();
         self.sequences.clear();
@@ -514,6 +533,8 @@ pub struct Room {
 
 #[derive(Default)]
 pub struct Lobby {
+    replay_event_serial:u64,
+    missile_discharges:HashMap<(u32,u32),tg_combat::replay_evidence::ReplayDischarge>,
     pub players: BTreeMap<u32, Player>,
     pub rooms: BTreeMap<u32, Room>,
     next_player: u32,
@@ -589,6 +610,7 @@ fn trail_at(trail: &VecDeque<(f64, [f64; 3])>, t: f64) -> Option<[f64; 3]> {
     if t < first.0 - 0.05 {
         return None;
     }
+    if trail.len()==1||t<=first.0 {return Some(first.1);}
     if t >= last.0 {
         return Some(last.1);
     }
@@ -671,7 +693,7 @@ impl Lobby {
         let token = self.new_token(id);
         self.players.insert(
             id,
-            Player { deployment_spawn:None, ammo_racks_dirty:false, ammo_dirty: false, ammo_compatible: false, life: 0, ammo_plan: None, ammo: None, discharge_receipts: HashMap::new(), supply_since: None, supply_progress: 0.0, aps_desired_enabled: true, accepted_aps_pose: None, aps_pose_valid: false, aps_pose_automatic_until: None, aps_pose_request_t: None, aps_pose_observed_t: None, aps_pose_needs_request: false, aps_pose_transport_reset: false, aps_pending_pose_ack: None, aps_reload_until: None, aps_reload_remaining: 0.0, aps_reload_updated_at: 0.0, gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
+            Player { replay:Default::default(), replay_discharge_serial:0, replay_ammo_total:None, pending_replay_status:None, deployment_spawn:None, ammo_racks_dirty:false, ammo_dirty: false, ammo_compatible: false, life: 0, ammo_plan: None, ammo: None, discharge_receipts: HashMap::new(), supply_since: None, supply_progress: 0.0, aps_desired_enabled: true, accepted_aps_pose: None, aps_pose_valid: false, aps_pose_automatic_until: None, aps_pose_request_t: None, aps_pose_observed_t: None, aps_pose_needs_request: false, aps_pose_transport_reset: false, aps_pending_pose_ack: None, aps_reload_until: None, aps_reload_remaining: 0.0, aps_reload_updated_at: 0.0, gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
         );
         (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION }), (id, self.room_list())])
     }
@@ -946,9 +968,9 @@ impl Lobby {
         let missiles = ledger.missile_counts(catalog);
         let p = self.players.get_mut(&id).unwrap();
         p.rounds = rounds; p.missiles_left = missiles;
-        if let (Some(target), Some(state)) = (self.targets.get(&p.vehicle), p.combat.as_mut()) {
-            let before=state.rack_fill.clone();tg_combat::load_ammo(target,state,total);p.ammo_racks_dirty|=state.rack_fill!=before;
-        }
+        let changed=p.replay_ammo_total!=Some(total);p.replay_ammo_total=Some(total);let room=p.room;
+        if changed {if let Some(room)=room {let statuses=self.commit_damage(room,id,replay_receipts::Mutation::Ammo{carried:total},self.now);if let Some((_,status))=statuses.into_iter().find(|(to,m)|*to==id&&matches!(m,ServerMsg::Status{..})){let p=self.players.get_mut(&id).unwrap();p.ammo_racks_dirty=true;p.pending_replay_status=Some(status);}}}
+        let p=self.players.get_mut(&id).unwrap();
         if let Some(w) = p.room.and_then(|room| self.rooms.get_mut(&room)).and_then(|r| r.world.as_mut()) {
             if let Some(rounds) = aps_rounds { let enabled=w.aps_of(id).is_some_and(|a|a.enabled); w.set_aps_rounds(id, enabled, None, Some(rounds)); }
         }
@@ -986,18 +1008,20 @@ impl Lobby {
     }
     fn ammo_status(&self, id: u32) -> Option<(u32,ServerMsg)> {
         let p=self.players.get(&id)?;let ledger=p.ammo.as_ref()?;let state=p.combat.as_ref()?;let target=self.targets.get(&p.vehicle)?;
-        Some((id,ServerMsg::Status{id,state:serde_json::to_value(state).ok()?,caps:serde_json::to_value(tg_combat::caps(target,state)).ok()?,events:Vec::new(),ammo_scope:Some(ledger.scope),ammo_revision:Some(ledger.revision)}))
+        Some((id,ServerMsg::Status{id,state:serde_json::to_value(state).ok()?,caps:serde_json::to_value(tg_combat::caps(target,state)).ok()?,events:Vec::new(),ammo_scope:Some(ledger.scope),ammo_revision:Some(ledger.revision),replay_commit:None,replay_checkpoint:None}))
     }
     fn flush_ammo_status(&mut self, id: u32) -> Option<(u32,ServerMsg)> {
         if !self.players.get(&id)?.ammo_racks_dirty {return None;}
-        self.players.get_mut(&id)?.ammo_racks_dirty=false;
-        self.ammo_status(id)
+        let p=self.players.get_mut(&id)?;p.ammo_racks_dirty=false;
+        if let Some(mut status)=p.pending_replay_status.take(){if let ServerMsg::Status{ammo_scope,ammo_revision,replay_checkpoint,..}=&mut status{*ammo_scope=p.ammo.as_ref().map(|a|a.scope);*ammo_revision=p.ammo.as_ref().map(|a|a.revision);*replay_checkpoint=self.checkpoint(id);}Some((id,status))}
+        else{self.ammo_status(id)}
     }
+
     fn resume_status(&self, id: u32) -> Option<(u32,ServerMsg)> {
         let mut status=self.ammo_status(id)?;
         // Combat can change without an inventory revision. Scope protects the
         // incarnation; the resumed snapshot is not a versioned rack mutation.
-        if let ServerMsg::Status{ammo_revision,..}=&mut status.1 {*ammo_revision=None;}
+        if let ServerMsg::Status{ammo_revision,replay_checkpoint,..}=&mut status.1 {*ammo_revision=None;*replay_checkpoint=self.checkpoint(id);}
         Some(status)
     }
     fn respawn_messages(&mut self, id: u32, spawn: u32) -> Out {
@@ -1079,6 +1103,7 @@ impl Lobby {
             p.trail.clear();
             p.combat = fresh;
             p.reset_spawn_shots();
+            p.replay_ammo_total=p.ammo.as_ref().and_then(|a|a.finite_total().ok());
             p.last_attacker = None;
         }
         self.sync_ammo(id);
@@ -1392,7 +1417,7 @@ impl Lobby {
                         c.destroyed = true;
                     }
                     self.count_death(id);
-                    let mut out = self.to_room(room, ServerMsg::Damage { target: id, from: id, result: "scuttle".into(), plate: None, hp: 0.0, killed: true, report: None });
+                    let mut out = self.to_room(room, ServerMsg::Damage { target: id, from: id, result: "scuttle".into(), plate: None, hp: 0.0, killed: true, report: None,replay:None,replay_unavailable:Some("legacy_no_causal_source".into()),hit_feedback:None,owner_commit:None });
                     out.extend(self.room_changed(room));
                     return out;
                 }
@@ -1537,7 +1562,7 @@ impl Lobby {
             }
         }
         let shown = if killed { "kill" } else if through { "pen" } else { result };
-        let mut out = self.to_room(room, ServerMsg::Damage { target, from: id, result: shown.into(), plate, hp, killed, report: None });
+        let mut out = self.to_room(room, ServerMsg::Damage { target, from: id, result: shown.into(), plate, hp, killed, report: None,replay:None,replay_unavailable:Some("legacy_no_causal_source".into()),hit_feedback:None,owner_commit:None });
         if killed {
             out.extend(self.room_changed(room));
         }
@@ -1681,7 +1706,8 @@ impl Lobby {
         p.ammo.as_mut().unwrap().spend(&self.ammo_catalogs[&p.vehicle], &selected, shell).expect("validated one-round debit");
         p.remember_sequence(seq, self.rooms[&room].gameplay.sequence_capacity());
         let model=self.targets[&p.vehicle].weapon_bindings[&selected].model_id.clone();
-        p.fired.push_back(Fired { seq, at: now, shell: shell.into(), used: false, small, kind: WeaponKind::Cannon, instance: selected.clone() });
+        let replay=shot_flight::discharge(p,selected.clone(),shell.into(),seq,now,o,d);
+        p.fired.push_back(Fired { replay, seq, at: now, shell: shell.into(), used: false, small, kind: WeaponKind::Cannon, instance: selected.clone() });
         self.sync_ammo(id);
         let msg = ServerMsg::Fire { from: id, seq, o, d, shell: shell.into(), audio_version:1,instance:selected,weapon:model,scope:self.ammo_scope(id),at:now };
         let mut out: Out = self.to_room(room, msg).into_iter().filter(|(to,_)| *to != id).collect();
@@ -1705,7 +1731,8 @@ impl Lobby {
         let gameplay = self.rooms[&p.room.unwrap()].gameplay;
         if p.fired.iter().filter(|f| f.small).count() >= gameplay.fire_burst(true) { return Vec::new(); }
         p.remember_sequence(seq, gameplay.sequence_capacity());
-        p.fired.push_back(Fired { seq, at: now, shell: gun.into(), used: false, small: true, kind: WeaponKind::MachineGun, instance: selected });
+        let replay=shot_flight::discharge(p,selected.clone(),self.bullets[gun].id.clone(),seq,now,o,d);
+        p.fired.push_back(Fired { replay, seq, at: now, shell: gun.into(), used: false, small: true, kind: WeaponKind::MachineGun, instance: selected });
         Vec::new()
     }
 
@@ -1742,7 +1769,7 @@ impl Lobby {
                 return Vec::new();
             }
         }
-        let (shell, seed) = match (seq, &gun) {
+        let (shell, seed, discharge) = match (seq, &gun) {
             (Some(seq), g) => {
                 let kind = if g.is_some() { WeaponKind::MachineGun } else { WeaponKind::Cannon };
                 let p = self.players.get_mut(&id).expect("player");
@@ -1750,8 +1777,9 @@ impl Lobby {
                     && g.as_ref().is_none_or(|g| *g == f.shell) && (g.is_none() || instance == Some(f.instance.as_str()))) else { return Vec::new() };
                 let def = if kind == WeaponKind::MachineGun { self.bullets.get(&f.shell) } else { self.projectiles.get(&f.shell) };
                 let Some(def) = def else { return Vec::new() };
+                let discharge=f.replay.clone();
                 f.used = true;
-                (def.clone(), shot_seed(id, seq))
+                (def.clone(), shot_seed(id, seq), Some(discharge))
             }
             (None, Some(g)) => {
                 if self.own_weapon(id, instance, Some(g), None, None, WeaponKind::MachineGun).is_err() { return Vec::new(); }
@@ -1760,12 +1788,12 @@ impl Lobby {
                 if p.mg_window.1 >= self.rooms[&room].gameplay.legacy_mg_window() { return Vec::new(); }
                 let Some(def) = self.bullets.get(g) else { return Vec::new() };
                 p.mg_window.1 += 1;
-                (def.clone(), shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32))
+                (def.clone(), shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32), None)
             }
             _ => return Vec::new(),
         };
         let mg = gun.is_some();
-        self.apply_shot(id, room, target, shell, o, d.normalized(), shot.speed, shot.dist, seed, shot.yaw, mg, now)
+        self.commit_damage(room,target,replay_receipts::Mutation::Shot{attacker:id,shot:tg_combat::Shot{shell,origin:o,dir:d.normalized(),speed_ms:shot.speed,distance_m:shot.dist,seed,turret_yaw:shot.yaw},discharge,mg},now)
     }
 
     /// The shooter's one-way delay: half the median of the round trips it reported (s).
@@ -1812,66 +1840,15 @@ impl Lobby {
     /// the state kept, a kill counted, the report to the room. o, d: the line in its hull frame.
     #[allow(clippy::too_many_arguments)]
     fn apply_shot(&mut self, id: u32, room: u32, target: u32, shell: ProjectileDef, o: Vec3, d: Vec3, speed: f32, dist: f32, seed: u64, yaw: f32, mg: bool, now: f64) -> Out {
-        let vehicle = self.players[&target].vehicle.clone();
-        let Some(tgt) = self.targets.get(&vehicle) else { return Vec::new() };
-        let fold = self.players[&target].state.as_ref().map(crate::missiles::fold_of).unwrap_or(0.0);
-        let folded = if fold > 0.0 && tgt.has_hinges() { Some(tgt.folded(fold)) } else { None };
-        let tgt = folded.as_ref().unwrap_or(tgt);
-        let before = self.players[&target].combat.clone().unwrap_or_else(|| tgt.fresh_state());
-        let r = tg_combat::shoot(tgt, &before, &tg_combat::Shot { shell, origin: o, dir: d, speed_ms: speed, distance_m: dist, seed, turret_yaw: yaw });
-        if mg && r.modules.is_empty() && r.crew.is_empty() && !r.caps.destroyed {
-            if matches!(r.outcome, tg_combat::Outcome::Miss) { return Vec::new(); }
-            // Confirm a real impact to its shooter without mutating health/state or spamming the room.
-            let result = serde_json::to_value(r.outcome).ok().and_then(|v| v.as_str().map(String::from)).unwrap_or_default();
-            return vec![(id, ServerMsg::Damage { target, from: id, result, plate: r.plate.clone(),
-                hp: self.players[&target].hp, killed: false, report: serde_json::to_value(&r).ok() })];
-        }
-        let killed = r.caps.destroyed && !before.destroyed;
-        let hp = if r.caps.crew_total > 0 { FULL_HP * r.caps.crew_alive as f64 / r.caps.crew_total as f64 } else { FULL_HP };
-        {
-            let t = self.players.get_mut(&target).expect("target");
-            t.combat = Some(r.state.clone());
-            t.hp = if r.caps.destroyed { 0.0 } else { hp };
-            t.last_attacker = Some(id);
-            if killed {
-                t.alive = false;
-                t.died_at = now;
-            }
-        }
-        if killed {
-            self.count_death(target);
-            if let Some(p) = self.players.get_mut(&id) {
-                p.kills += 1;
-            }
-        }
-        let result = serde_json::to_value(r.outcome).ok().and_then(|v| v.as_str().map(String::from)).unwrap_or_default();
-        let msg = ServerMsg::Damage { target, from: id, result, plate: r.plate.clone(), hp: if killed { 0.0 } else { hp }, killed, report: serde_json::to_value(&r).ok() };
-        let mut out = self.to_room(room, msg);
-        if killed {
-            out.extend(self.room_changed(room));
-        }
-        out
+        let _=id;
+        self.commit_damage(room,target,replay_receipts::Mutation::Shot{attacker:id,shot:tg_combat::Shot{shell,origin:o,dir:d,speed_ms:speed,distance_m:dist,seed,turret_yaw:yaw},discharge:None,mg},now)
     }
 
     /// The player starts a field repair (or puts out a fire) of their own vehicle.
     fn repair(&mut self, id: u32, repair: bool) -> Out {
         let Some(p) = self.players.get(&id) else { return Vec::new() };
         let Some(room) = p.room else { return Vec::new() };
-        let Some(t) = self.targets.get(&p.vehicle) else { return Vec::new() };
-        let Some(mut st) = p.combat.clone() else { return Vec::new() };
-        if !p.alive {
-            return Vec::new();
-        }
-        let ok = if repair { tg_combat::start_repair(t, &mut st) } else { tg_combat::extinguish(&mut st) };
-        if !ok {
-            return Self::err(id, if repair { "沒有需要修理的模組" } else { "沒有起火或滅火器已用完" });
-        }
-        let caps = tg_combat::caps(t, &st);
-        if let Some(p) = self.players.get_mut(&id) {
-            p.combat = Some(st.clone());
-        }
-        let ev = if repair { "repair_started" } else { "extinguished" };
-        self.to_room(room, ServerMsg::Status { id, state: serde_json::to_value(&st).unwrap_or(Value::Null), caps: serde_json::to_value(&caps).unwrap_or(Value::Null), events: vec![ev.into()], ammo_scope:None, ammo_revision:None })
+        self.commit_damage(room,id,replay_receipts::Mutation::Repair{repair},self.now)
     }
 
     /// Time passing for the battles' damage: fire, crew changing seats, repairs. A vehicle that
@@ -1888,38 +1865,9 @@ impl Lobby {
                 if !(st.fire_s > 0.0 || st.repair_s > 0.0 || !st.swaps.is_empty()) {
                     continue;
                 }
-                let Some(t) = self.targets.get(&p.vehicle) else { continue };
-                let mut st = st.clone();
-                let was = st.destroyed;
-                let seed = shot_seed(id, (self.combat_clock * 4.0) as u32);
-                let events = tg_combat::advance(t, &mut st, dt as f32, seed);
-                let caps = tg_combat::caps(t, &st);
-                let burned_out = st.destroyed && !was;
-                let attacker = p.last_attacker;
-                if let Some(p) = self.players.get_mut(&id) {
-                    p.combat = Some(st.clone());
-                    if burned_out {
-                        p.alive = false;
-                        p.hp = 0.0;
-                        p.died_at = self.now;
-                    }
-                }
-                if burned_out {
-                    self.count_death(id);
-                }
-                out.push((members.clone(), ServerMsg::Status { id, state: serde_json::to_value(&st).unwrap_or(Value::Null), caps: serde_json::to_value(&caps).unwrap_or(Value::Null), events, ammo_scope:None, ammo_revision:None }));
-                if burned_out {
-                    let from = attacker.unwrap_or(id);
-                    if from != id {
-                        if let Some(a) = self.players.get_mut(&from) {
-                            a.kills += 1;
-                        }
-                    }
-                    out.push((members.clone(), ServerMsg::Damage { target: id, from, result: "fire".into(), plate: None, hp: 0.0, killed: true, report: None }));
-                    for (to, m) in self.room_changed(room) {
-                        out.push((vec![to], m));
-                    }
-                }
+                let seed=shot_seed(id,(self.combat_clock*4.0) as u32);
+                for (to,msg) in self.commit_damage(room,id,replay_receipts::Mutation::Advance{dt,seed},self.now) {out.push((vec![to],msg));}
+
             }
         }
         out
@@ -2101,6 +2049,8 @@ impl Lobby {
         if p.launch_receipts.len() >= self.rooms[&room].gameplay.launch_receipt_capacity() {
             if let Some(oldest) = p.launch_receipts.iter().min_by(|a,b| a.1.at.total_cmp(&b.1.at)).map(|(&seq,_)| seq) { p.launch_receipts.remove(&oldest); }
         }
+        let mut discharge=shot_flight::discharge(p,selected.clone(),ammo.into(),seq,now,o,d);discharge.flight_trust="missile_world_segments_legacy_contact".into();
+        self.missile_discharges.insert((room,mid),discharge);
         p.launch_receipts.insert(seq, LaunchReceipt { at: now, instance: selected, request_instance: instance.map(String::from), message: receipt.clone() });
         self.sync_ammo(id);
         self.to_room(room, receipt)
@@ -2134,7 +2084,20 @@ impl Lobby {
                 continue;
             }
             let before: Vec<(u32,u32)> = w.aps.iter().map(|a|(a.owner,a.rounds)).collect();
+            let missile_before:HashMap<u32,([f64;3],[f64;3])>=w.flying().map(|m|(m.id,(m.pos,m.vel))).collect();
             let res = w.step(dt, &actors);
+            // Retain real world sweep/contact endpoints before ended missiles are discarded.
+            for m in w.flying().chain(w.ended.iter()) {
+                if let (Some((from,vel)),Some(d))=(missile_before.get(&m.id),self.missile_discharges.get_mut(&(room,m.id))) {
+                    let to=res.events.iter().find_map(|e|match e {tg_missile::Event::MissileHit{missile,point,..}|tg_missile::Event::MissileGround{missile,point} if *missile==m.id=>Some(*point),_=>None}).unwrap_or(m.pos);
+                    if d.flight.is_empty(){d.flight.push(tg_combat::replay_evidence::FlightSample{time_s:(self.now-dt).max(d.launch_time_s),position:*from,velocity_m_s:*vel});}
+                    d.travelled_distance_m+=from.iter().zip(to).map(|(a,b)|(a-b).powi(2)).sum::<f64>().sqrt();
+                    if d.flight.len()>=256 {d.flight.remove(1);d.flight_compacted_count+=1;}
+                    d.flight.push(tg_combat::replay_evidence::FlightSample{time_s:self.now,position:to,velocity_m_s:m.vel});
+                    if d.segments.len()>=256 {d.segments.remove(1);d.segment_compacted_count+=1;}
+                    d.segments.push(tg_combat::replay_evidence::FlightSegment{start_time_s:(self.now-dt).max(d.launch_time_s),end_time_s:self.now,from:*from,to});
+                }
+            }
             let deltas: Vec<(u32,u32)> = before.iter().map(|&(id,rounds)| {
                 let after=w.aps_of(id).expect("APS survives a world step").rounds;
                 assert!(after<=rounds,"world step cannot create APS ammunition");(id,rounds-after)
@@ -2144,8 +2107,6 @@ impl Lobby {
                 let p=self.players.get_mut(&id).unwrap();let catalog=&self.ammo_catalogs[&p.vehicle];
                 p.ammo.as_mut().expect("spawn inventory").consume_aps(catalog,spent).expect("actual world APS delta must fit the one mounted pool");
                 if let Some(inventory)=p.ammo.as_ref().map(|ledger|ledger.frame(p.supply_progress,false)){out.push((vec![id],ServerMsg::Ammo{inventory}));}
-                let total=p.ammo.as_ref().unwrap().finite_total().unwrap();
-                if let (Some(target),Some(state))=(self.targets.get(&p.vehicle),p.combat.as_mut()){let before=state.rack_fill.clone();tg_combat::load_ammo(target,state,total);p.ammo_racks_dirty|=state.rack_fill!=before;}
                 status_updates.push(id);
                 assert_eq!(p.ammo.as_ref().unwrap().aps_rounds(catalog),w.aps_of(id).map(|a|a.rounds));
             }
@@ -2165,7 +2126,7 @@ impl Lobby {
             let ended: HashMap<u32, (u32, String)> = w.ended.iter().map(|m| (m.id, (m.owner, m.def.clone()))).collect();
             let warheads: HashMap<String, String> = self.mdata.defs.iter().map(|d| (d.id.clone(), d.warhead.clone())).collect();
             skies.insert(room, (ms, aps, ev, fired));
-            for id in status_updates {if let Some((owner,status))=self.flush_ammo_status(id){out.push((vec![owner],status));}}
+            for id in status_updates {self.sync_ammo(id);if let Some((owner,status))=self.flush_ammo_status(id){out.push((vec![owner],status));}}
             // a missile in a vehicle's box: its warhead through the combat model
             for e in res.events {
                 let tg_missile::Event::MissileHit { missile, actor, point, dir, speed } = e else { continue };
@@ -2180,12 +2141,15 @@ impl Lobby {
                 let o0 = pose.local_point([point[0] - dir[0] * 2.0, point[1] - dir[1] * 2.0, point[2] - dir[2] * 2.0]);
                 let d0 = pose.local_dir(dir);
                 let v = |a: [f64; 3]| Vec3::new(a[0] as f32, a[1] as f32, a[2] as f32);
-                let seed = shot_seed(owner, 2_000_000 + missile);
+                let discharge=self.missile_discharges.remove(&(room,missile));
+                let seed=discharge.as_ref().and_then(|d|d.seed.parse().ok()).unwrap_or_else(||shot_seed(owner,2_000_000+missile));
+                let distance=discharge.as_ref().map_or(0.0,|d|d.travelled_distance_m) as f32;
                 let now = self.now;
-                for (to, msg) in self.apply_shot(owner, room, actor, shell, v(o0), v(d0).normalized(), speed as f32, 500.0, seed, yaw as f32, false, now) {
+                for (to, msg) in self.commit_damage(room,actor,replay_receipts::Mutation::Shot{attacker:owner,shot:tg_combat::Shot{shell,origin:v(o0),dir:v(d0).normalized(),speed_ms:speed as f32,distance_m:distance,seed,turret_yaw:yaw as f32},discharge,mg:false},now) {
                     out.push((vec![to], msg));
                 }
             }
+            if let Some(w)=self.rooms.get(&room).and_then(|r|r.world.as_ref()) {let active:HashSet<u32>=w.flying().map(|m|m.id).collect();self.missile_discharges.retain(|&(r,id),_|r!=room||active.contains(&id));}
         }
         skies
     }
@@ -2806,7 +2770,7 @@ mod tests {
 
     #[test]
     fn active_combat_status_broadcasts_eventless_burn_health_and_caps() {
-        let (mut l, a, b, _) = combat_lobby();
+        let (mut l, a, _b, _) = combat_lobby();
         let t = &l.targets["de_pz3_j"];
         let engine = t.def.modules.iter().position(|m| m.kind == tg_combat::ModuleKind::Engine).unwrap();
         let mut st = t.fresh_state();
@@ -2822,15 +2786,15 @@ mod tests {
         assert!(expected_caps.drive_power < before_power);
         let expected_state = serde_json::to_value(&expected).unwrap();
         let expected_caps = serde_json::to_value(&expected_caps).unwrap();
-        let out = l.advance_combat(0.25);
+        let out:Broadcast = l.advance_combat(0.25).into_iter().filter(|(tos,_)|tos.contains(&a)).collect();
         assert_eq!(out.len(), 1, "only the burning actor broadcasts; dormant room member remains quiet");
         let (members, message) = &out[0];
-        assert!(members.contains(&a) && members.contains(&b), "the damaged player and the room both receive status");
+        assert!(members.contains(&a), "the owner receives its private authoritative status");
         let ServerMsg::Status { id, state, caps, events, .. } = message else { panic!("expected authoritative status") };
         assert_eq!(*id, a); assert!(events.is_empty());
         assert_eq!(*state, expected_state); assert_eq!(*caps, expected_caps);
         assert_eq!(serde_json::to_value(l.players[&a].combat.as_ref().unwrap()).unwrap(), expected_state);
-        let next = l.advance_combat(0.25);
+        let next:Broadcast = l.advance_combat(0.25).into_iter().filter(|(tos,_)|tos.contains(&a)).collect();
         assert_eq!(next.len(), 1);
         assert!(matches!(&next[0].1, ServerMsg::Status { id, state, events, .. }
             if *id == a && state["modules"][engine] == json!(69.0) && events.is_empty()));
@@ -2839,7 +2803,7 @@ mod tests {
     #[test]
     fn active_combat_status_broadcasts_ongoing_repair_and_swap_timers() {
         for repairing in [true, false] {
-            let (mut l, a, b, _) = combat_lobby();
+            let (mut l, a, _b, _) = combat_lobby();
             let t = &l.targets["de_pz3_j"];
             let mut st = t.fresh_state();
             if repairing {
@@ -2855,9 +2819,9 @@ mod tests {
             let timer = if repairing { st.repair_s } else { st.swaps[0].left_s };
             let p = l.players.get_mut(&a).unwrap(); p.vehicle = "de_pz3_j".into(); p.combat = Some(st);
             for step in 1..=2 {
-                let out = l.advance_combat(0.25);
+                let out:Broadcast = l.advance_combat(0.25).into_iter().filter(|(tos,_)|tos.contains(&a)).collect();
                 assert_eq!(out.len(), 1, "an active timer sends one status, without broadcasting the dormant actor");
-                assert!(out[0].0.contains(&a) && out[0].0.contains(&b));
+                assert!(out[0].0.contains(&a));
                 let ServerMsg::Status { id, state, caps, events, .. } = &out[0].1 else { panic!("expected timer status") };
                 assert_eq!(*id, a); assert!(events.is_empty());
                 let remaining = timer - step as f32 * 0.25;
@@ -2881,19 +2845,19 @@ mod tests {
         let expected_events = tg_combat::advance(t, &mut expected, 0.25, shot_seed(a, 1));
         assert!(expected_events.contains(&"destroyed".into()));
         let p = l.players.get_mut(&a).unwrap(); p.vehicle = "de_pz3_j".into(); p.combat = Some(st); p.last_attacker = Some(b);
-        let out = l.advance_combat(0.25);
+        let out:Broadcast = l.advance_combat(0.25).into_iter().filter(|(tos,_)|tos.contains(&a)).collect();
         let statuses: Vec<_> = out.iter().filter_map(|(_, m)| if let ServerMsg::Status { events, .. } = m { Some(events) } else { None }).collect();
         assert_eq!(statuses, vec![&expected_events], "named events remain exactly those produced by combat");
-        assert_eq!(out.iter().filter(|(_, m)| matches!(m, ServerMsg::Damage { target, from, killed: true, result, .. } if *target == a && *from == b && result == "fire")).count(), 1);
-        assert_eq!((l.players[&a].deaths, l.players[&b].kills, l.players[&a].alive), (1, 1, false));
+        assert_eq!(out.iter().filter(|(_, m)| matches!(m, ServerMsg::Damage { target, from, killed: true, result, .. } if *target == a && *from == a && result == "fire")).count(), 1);
+        assert_eq!((l.players[&a].deaths, l.players[&b].kills, l.players[&a].alive), (1, 0, false));
         let mut fire_out = 0;
         for _ in 0..3 {
-            let out = l.advance_combat(0.25);
+            let out:Broadcast = l.advance_combat(0.25).into_iter().filter(|(tos,_)|tos.contains(&a)).collect();
             assert!(!out.iter().any(|(_, m)| matches!(m, ServerMsg::Damage { killed: true, .. })));
             for (_, m) in out { if let ServerMsg::Status { events, .. } = m { fire_out += events.iter().filter(|e| *e == "fire_out").count(); } }
         }
         assert_eq!(fire_out, 1);
-        assert_eq!((l.players[&a].deaths, l.players[&b].kills), (1, 1));
+        assert_eq!((l.players[&a].deaths, l.players[&b].kills), (1, 0));
         assert!(l.advance_combat(0.25).is_empty(), "finished fire and dormant vehicles stop broadcasting");
     }
 

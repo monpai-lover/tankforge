@@ -558,6 +558,9 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
         json!({"t":"missile_end","id":incoming.0}),
         grant + 3.5,
     );
+    // The real accepted missile may damage the loader/ammunition and slow belt work.
+    // Retain the source-duration assertion above; readiness follows the current owner deadline.
+    let until=l.players[&id].aps_reload_until.unwrap_or(until);
     record(
         &mut phases,
         "before_ready",
@@ -581,7 +584,8 @@ fn actual_oplot(mode: &str, vehicle: &str) -> Value {
             .unwrap()
             .aps_of(id)
             .unwrap()
-            .enabled
+            .enabled,
+        "readiness must follow actual damage-adjusted belt work: remaining={}, deadline={:?}",l.players[&id].aps_reload_remaining,l.players[&id].aps_reload_until
     );
     // A new enemy life supplies a fresh real missile without inventing launcher stock.
     send(&mut l, enemy, json!({"t":"respawn"}), until);

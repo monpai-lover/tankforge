@@ -9,6 +9,7 @@ import * as gunnery from '../src/sim/gunnery.js';
 import * as ballistics from '../src/sim/ballistics.js';
 import { RigidBody } from '../src/sim/tank/body.js';
 import { Missiles } from '../src/game/missiles.js';
+import { bulletShell } from '../src/game/combat.js';
 import { loadData } from '../tools/load-data.mjs';
 import { weaponDamage, weaponReloadRate } from '../src/game/weaponDamage.js';
 
@@ -46,8 +47,8 @@ test('simultaneous physical MGs retain independent identity and cadence', () => 
 test('actual main MG step forwards each physical round and mounted identity', () => {
   const source=fs.readFileSync(new URL('../src/main.js',import.meta.url),'utf8').replaceAll('\r\n','\n');
   const begin=source.indexOf('  function stepMachineGuns('), end=source.indexOf('\n  }',begin)+4;
-  const data=loadData(), r=fixture(), m={def:data.machineGuns.mg34,damageKey:'mg:roof'}, G={time:1,mode:'battle',workshop:false,caps:null,online:null,weaponControl:{kind:'all'},fireHeld:false,mgHeld:true,MG:[{m,st:mgSim.newMg(m.def),bearing:true}],bullets:[],cam:{shake:0},veh:{body:{v:[0,0,0]}}};
-  const deps={G,mgSim,layMg:()=>({pos:[0,0,0],dir:[0,0,1]}),weaponDamage:()=>({can_fire:true,dispersion_mult:1}),machineGunTrigger:()=>true,weaponReloadRate:()=>1,gunnery:{disperse:d=>d},ballistics:{newShot:()=>({})},rng:{},fx:{mgFlash(){}},sound:r.sound,net:{send(){}},onlineAmmo:{scope:()=>null}};
+  const data=loadData(), r=fixture(), m={def:data.machineGuns.mg34,damageKey:'mg:roof'}, G={time:1,mode:'battle',workshop:false,caps:null,online:null,weaponControl:{kind:'all'},fireHeld:false,mgHeld:true,MG:[{m,st:mgSim.newMg(m.def),bearing:true}],bullets:[],bulletShells:new Map(),cam:{shake:0},veh:{body:{v:[0,0,0]}}};
+  const deps={G,mgSim,bulletShell,layMg:()=>({pos:[0,0,0],dir:[0,0,1]}),weaponDamage:()=>({can_fire:true,dispersion_mult:1}),machineGunTrigger:()=>true,weaponReloadRate:()=>1,gunnery:{disperse:d=>d},ballistics:{newShot:()=>({})},rng:{},fx:{mgFlash(){}},sound:r.sound,net:{send(){}},onlineAmmo:{scope:()=>null}};
   const step=new Function(...Object.keys(deps),source.slice(begin,end)+';return stepMachineGuns;')(...Object.values(deps));
   step(.2);
   assert.equal(G.bullets.length,3);
@@ -142,7 +143,7 @@ test('real workshop packing retains transplanted weapon and inherited engine sou
   assert.equal(lo.engine.audio_source_vehicle,'de_hetzer');
 });
 test('actual missile-world fired list authorizes rotary audio and duplicate ordinals cannot restart it',()=>{
-  const r=fixture(),ms=new Missiles({sound:r.sound,defs:{},projectiles:{},renderer:{},scene:{},fx:{mgFlash(){},spawn(){}}});ms.setAudioMount(1,'rotary','gun:1:0',[0,0,0]);
+  const r=fixture(),ms=new Missiles({sound:r.sound,defs:{},projectiles:{},renderer:{mesh:data=>({data}),freeMesh(){}},scene:{},fx:{mgFlash(){},spawn(){}}});ms.setAudioMount(1,'rotary','gun:1:0',[0,0,0]);
   ms.present({aps:[{owner:1,spin:1,firing:true}],fired:[],missiles:[],events:[]},1/60);assert.equal(r.starts.filter(s=>s.id==='rotary').length,0);
   const event={aps:1,pos:[0,0,0],vel:[0,0,1000],tracer:false,ordinal:7,at:1};
   ms.present({aps:[{owner:1,spin:1,firing:true}],fired:[event,event],missiles:[],events:[]},1/60);assert.equal(r.starts.filter(s=>s.id==='rotary').length,1);

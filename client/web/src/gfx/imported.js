@@ -140,6 +140,12 @@ export function partMesh(renderer, key, part, origin) {
   const meshes = c.meshes.get(part);
   const originKey = origin.join(',');
   // the material's own roughness and metalness when the model gives them (older imports: paint)
-  if (!meshes.has(originKey)) meshes.set(originKey, renderer.mesh(partVertices(part, origin, { color: [1, 1, 1], rough: part.rough ?? 0.72, metal: part.metal ?? 0.18 })));
+  if (!meshes.has(originKey)) {
+    const mesh = renderer.mesh(partVertices(part, origin, { color: [1, 1, 1], rough: part.rough ?? 0.72, metal: part.metal ?? 0.18 }));
+    // Trusted CPU exporters mint this optional sidecar before donor/filter operations.
+    // The original buffers remain shared; source identity and origin snapshots do not.
+    if (part.hitSource && mesh._src) mesh._src.hitSource = { ...part.hitSource, mount: structuredClone(part.hitSource.mount), origin: origin.slice() };
+    meshes.set(originKey, mesh);
+  }
   return meshes.get(originKey);
 }

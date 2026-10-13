@@ -9,6 +9,7 @@
     "secondary"
   ],
   "properties": {
+    "sourceVehicle": {"type":"string", "description":"Workshop weapon donor identity for presentation audio only."},
     "mechanized_loading": {"$ref":"#/$defs/mechanized_loading"},
     "weapon_group": {"$ref":"#/$defs/weapon_group"},
     "damage": {"$ref":"#/$defs/damage"},
@@ -324,6 +325,7 @@
         "mount_m"
       ],
       "properties": {
+        "sourceVehicle": {"type":"string", "description":"Workshop weapon donor identity for presentation audio only."},
         "mechanized_loading": {"$ref":"#/$defs/mechanized_loading"},
         "weapon_group": {"$ref":"#/$defs/weapon_group"},
         "damage": {"$ref":"#/$defs/damage"},

@@ -1,0 +1,7158 @@
+{
+  "schema_version": 1,
+  "vehicle": "su_t72a",
+  "variant": "T-72A early exterior interpretation; see source/date limits",
+  "basedOnRemote": "bc2588519e96194f73fb0578b95cdf03caf03568",
+  "sourceHashes": {
+    "data/vehicles/su_t72a/visual.json": "48b5bf1434f3784ece8a289c7c52d6174c24d0bad295c25ece2236badef7f7e0",
+    "client/web/src/gfx/t72aModel.js": "7f2a3a33d39e69d1a971f55a27d898fc7241abb3dbbc6d795a3d10e34eff187e",
+    "client/web/src/gfx/tankmodel.js": "c7fd9cf75fcbfebdf7c537a6bd95c820a2c68acbd2ac37aff6480596f6625742",
+    "client/web/src/gfx/mgmodel.js": "36a4485d62f2d09b2b47db54b8d1b2c91080fbe2017b784a6245a5a853103f52",
+    "client/web/src/collision/meshHitbox.js": "1545e0d8d3506410cd9949784c343a609324df6b398282f445a24fc934cdfed1",
+    "data/machine_guns.json": "636bb9a3d894ac7213313d85f7cfdd75b5519151a3a7a3d8f77c5758544ba000"
+  },
+  "protectedData": [
+    {
+      "file": "vehicle.json",
+      "expected": "50ef9d6d145602dbea068dbdf4b8b5eb688087d97c473986d275a722385f9c1e",
+      "actual": "50ef9d6d145602dbea068dbdf4b8b5eb688087d97c473986d275a722385f9c1e",
+      "unchanged": true
+    },
+    {
+      "file": "weapons.json",
+      "expected": "0a5260bf39c92b2fc81fd7abc322732100393816ccb6d1916810abd3def6582c",
+      "actual": "0a5260bf39c92b2fc81fd7abc322732100393816ccb6d1916810abd3def6582c",
+      "unchanged": true
+    },
+    {
+      "file": "engine.json",
+      "expected": "ef40d6d2c255e114ac082f91cbbb839e4abb9bee90125ff15d1739e919f4adad",
+      "actual": "ef40d6d2c255e114ac082f91cbbb839e4abb9bee90125ff15d1739e919f4adad",
+      "unchanged": true
+    },
+    {
+      "file": "armor.json",
+      "expected": "b77c08e5d2010bf813d11d00917cd61a631542756e3344032432522e7bed0294",
+      "actual": "b77c08e5d2010bf813d11d00917cd61a631542756e3344032432522e7bed0294",
+      "unchanged": true
+    },
+    {
+      "file": "crew.json",
+      "expected": "78c56bc523009bcfb2a00b27fe5edead19eccdd8b8329a30109751553e48e21e",
+      "actual": "78c56bc523009bcfb2a00b27fe5edead19eccdd8b8329a30109751553e48e21e",
+      "unchanged": true
+    },
+    {
+      "file": "modules.json",
+      "expected": "23a06d5f58679bbab16a71d31905a55ca4a3aa45cbd16dd30a9b5cbca6772162",
+      "actual": "23a06d5f58679bbab16a71d31905a55ca4a3aa45cbd16dd30a9b5cbca6772162",
+      "unchanged": true
+    }
+  ],
+  "coordinateFrame": "+Z forward, +X right, +Y up; metres; same pivots and instance IDs as baseline",
+  "runtimePartMappingErrorM": 2.0980834936068504e-7,
+  "modelTriangles": 21168,
+  "bindings": [
+    {
+      "name": "t72a_welded_hull",
+      "sourceId": "visual#0",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.14,
+        0.4,
+        -3.43
+      ],
+      "hi": [
+        1.14,
+        1.5,
+        3.43
+      ],
+      "triangles": 20,
+      "role": "hull",
+      "topology": {
+        "triangles": 20,
+        "weldedVertices": 12,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_sponson_l",
+      "sourceId": "visual#1",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.565,
+        0.97,
+        -3.22
+      ],
+      "hi": [
+        -1.105,
+        1.495,
+        2.78
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_sponson_r",
+      "sourceId": "visual#2",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.105,
+        0.97,
+        -3.22
+      ],
+      "hi": [
+        1.565,
+        1.495,
+        2.78
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender",
+      "sourceId": "visual#3",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.775,
+        1.2105,
+        -3.21
+      ],
+      "hi": [
+        1.775,
+        1.2555,
+        2.91
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 16,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_front_fender_l",
+      "sourceId": "visual#4",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.78,
+        0.89,
+        2.77
+      ],
+      "hi": [
+        -1.1,
+        1.235,
+        3.45
+      ],
+      "triangles": 20,
+      "role": "hull",
+      "topology": {
+        "triangles": 20,
+        "weldedVertices": 12,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_l_0",
+      "sourceId": "visual#5",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.798,
+        0.732,
+        1.685
+      ],
+      "hi": [
+        -1.766,
+        1.212,
+        2.795
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_l_1",
+      "sourceId": "visual#6",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.798,
+        0.732,
+        0.545
+      ],
+      "hi": [
+        -1.766,
+        1.212,
+        1.655
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_l_2",
+      "sourceId": "visual#7",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.798,
+        0.732,
+        -0.595
+      ],
+      "hi": [
+        -1.766,
+        1.212,
+        0.515
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_l_3",
+      "sourceId": "visual#8",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.798,
+        0.732,
+        -1.735
+      ],
+      "hi": [
+        -1.766,
+        1.212,
+        -0.625
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_l_4",
+      "sourceId": "visual#9",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.798,
+        0.732,
+        -2.875
+      ],
+      "hi": [
+        -1.766,
+        1.212,
+        -1.765
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_skirt_rail_l",
+      "sourceId": "visual#10",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.784,
+        1.194,
+        -2.93
+      ],
+      "hi": [
+        -1.736,
+        1.266,
+        2.79
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_l_0",
+      "sourceId": "visual#11",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.73,
+        1.252,
+        0.88
+      ],
+      "hi": [
+        -1.24,
+        1.492,
+        1.98
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_lid_l_0",
+      "sourceId": "visual#12",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.7375,
+        1.484,
+        0.872
+      ],
+      "hi": [
+        -1.2325,
+        1.506,
+        1.988
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_l_1",
+      "sourceId": "visual#13",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.73,
+        1.252,
+        -0.525
+      ],
+      "hi": [
+        -1.24,
+        1.492,
+        0.845
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_lid_l_1",
+      "sourceId": "visual#14",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.7375,
+        1.484,
+        -0.533
+      ],
+      "hi": [
+        -1.2325,
+        1.506,
+        0.853
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_l_2",
+      "sourceId": "visual#15",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.73,
+        1.252,
+        -1.84
+      ],
+      "hi": [
+        -1.24,
+        1.492,
+        -0.6
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_lid_l_2",
+      "sourceId": "visual#16",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.7375,
+        1.484,
+        -1.848
+      ],
+      "hi": [
+        -1.2325,
+        1.506,
+        -0.592
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_front_fender_r",
+      "sourceId": "visual#17",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.1,
+        0.89,
+        2.77
+      ],
+      "hi": [
+        1.78,
+        1.235,
+        3.45
+      ],
+      "triangles": 20,
+      "role": "hull",
+      "topology": {
+        "triangles": 20,
+        "weldedVertices": 12,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_r_0",
+      "sourceId": "visual#18",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.766,
+        0.732,
+        1.685
+      ],
+      "hi": [
+        1.798,
+        1.212,
+        2.795
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_r_1",
+      "sourceId": "visual#19",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.766,
+        0.732,
+        0.545
+      ],
+      "hi": [
+        1.798,
+        1.212,
+        1.655
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_r_2",
+      "sourceId": "visual#20",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.766,
+        0.732,
+        -0.595
+      ],
+      "hi": [
+        1.798,
+        1.212,
+        0.515
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_r_3",
+      "sourceId": "visual#21",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.766,
+        0.732,
+        -1.735
+      ],
+      "hi": [
+        1.798,
+        1.212,
+        -0.625
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rubber_skirt_r_4",
+      "sourceId": "visual#22",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.766,
+        0.732,
+        -2.875
+      ],
+      "hi": [
+        1.798,
+        1.212,
+        -1.765
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_skirt_rail_r",
+      "sourceId": "visual#23",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.736,
+        1.194,
+        -2.93
+      ],
+      "hi": [
+        1.784,
+        1.266,
+        2.79
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_r_0",
+      "sourceId": "visual#24",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.24,
+        1.252,
+        0.88
+      ],
+      "hi": [
+        1.73,
+        1.492,
+        1.98
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_lid_r_0",
+      "sourceId": "visual#25",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.2325,
+        1.484,
+        0.872
+      ],
+      "hi": [
+        1.7375,
+        1.506,
+        1.988
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_r_1",
+      "sourceId": "visual#26",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.24,
+        1.252,
+        -0.525
+      ],
+      "hi": [
+        1.73,
+        1.492,
+        0.845
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_lid_r_1",
+      "sourceId": "visual#27",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.2325,
+        1.484,
+        -0.533
+      ],
+      "hi": [
+        1.7375,
+        1.506,
+        0.853
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_r_2",
+      "sourceId": "visual#28",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.24,
+        1.252,
+        -1.84
+      ],
+      "hi": [
+        1.73,
+        1.492,
+        -0.6
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_fender_stowage_lid_r_2",
+      "sourceId": "visual#29",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.2325,
+        1.484,
+        -1.848
+      ],
+      "hi": [
+        1.7375,
+        1.506,
+        -0.592
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_grille",
+      "sourceId": "visual#30",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.92,
+        1.4405,
+        -3.09
+      ],
+      "hi": [
+        0.92,
+        1.4635,
+        -2.01
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_0",
+      "sourceId": "visual#31",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.1185
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.0415
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_1",
+      "sourceId": "visual#32",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.2615
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.1845
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_2",
+      "sourceId": "visual#33",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.4045
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.3275
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_3",
+      "sourceId": "visual#34",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.5475
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.4705
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_4",
+      "sourceId": "visual#35",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.6905
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.6135
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_5",
+      "sourceId": "visual#36",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.8335
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.7565
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_louvre_6",
+      "sourceId": "visual#37",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.855,
+        1.4645,
+        -2.9765
+      ],
+      "hi": [
+        0.855,
+        1.5015,
+        -2.8995
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_access_cover",
+      "sourceId": "visual#38",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.75,
+        1.4145,
+        -3.31
+      ],
+      "hi": [
+        0.75,
+        1.4495,
+        -2.93
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_driver_hatch_pad",
+      "sourceId": "visual#39",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.325,
+        1.245,
+        1.48
+      ],
+      "hi": [
+        0.325,
+        1.5,
+        2.33
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_driver_hatch",
+      "sourceId": "visual#40",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.285,
+        1.381917,
+        1.694742
+      ],
+      "hi": [
+        0.285,
+        1.518083,
+        2.275258
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_driver_periscope",
+      "sourceId": "visual#41",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.125,
+        1.392798,
+        2.144775
+      ],
+      "hi": [
+        0.125,
+        1.483202,
+        2.255225
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_driver_glass",
+      "sourceId": "visual#42",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.095,
+        1.436635,
+        2.238405
+      ],
+      "hi": [
+        0.095,
+        1.473365,
+        2.257595
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_turret_ring",
+      "sourceId": "visual#43",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.08,
+        1.455,
+        -0.9
+      ],
+      "hi": [
+        1.08,
+        1.51,
+        1.26
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_cast_turret",
+      "sourceId": "visual#44",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -1.385,
+        1.505,
+        -1.25
+      ],
+      "hi": [
+        1.385,
+        2.11,
+        1.551082
+      ],
+      "triangles": 1492,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 1492,
+        "weldedVertices": 746,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_mantlet_fixed_canvas",
+      "sourceId": "visual#45",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.377777,
+        1.5428,
+        1.026
+      ],
+      "hi": [
+        0.377777,
+        2.1044,
+        1.544833
+      ],
+      "triangles": 144,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 144,
+        "weldedVertices": 72,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_coaming",
+      "sourceId": "visual#46",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.358,
+        2.01,
+        -0.472
+      ],
+      "hi": [
+        1.002,
+        2.155,
+        0.172
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_hatch",
+      "sourceId": "visual#47",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.378,
+        2.155,
+        -0.452
+      ],
+      "hi": [
+        0.982,
+        2.197,
+        0.152
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_gunner_coaming",
+      "sourceId": "visual#48",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.94,
+        2.033,
+        -0.49
+      ],
+      "hi": [
+        -0.3,
+        2.13,
+        0.15
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_gunner_hatch",
+      "sourceId": "visual#49",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.92,
+        2.13,
+        -0.47
+      ],
+      "hi": [
+        -0.32,
+        2.175,
+        0.13
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_hinge",
+      "sourceId": "visual#50",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.59,
+        2.158,
+        0.085
+      ],
+      "hi": [
+        0.77,
+        2.222,
+        0.149
+      ],
+      "triangles": 64,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 64,
+        "weldedVertices": 34,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_handle",
+      "sourceId": "visual#51",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.615,
+        2.2085,
+        -0.2635
+      ],
+      "hi": [
+        0.745,
+        2.2335,
+        -0.2365
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_handle_foot_-0.052",
+      "sourceId": "visual#52",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.617,
+        2.1755,
+        -0.2635
+      ],
+      "hi": [
+        0.639,
+        2.2225,
+        -0.2365
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_handle_foot_0.052",
+      "sourceId": "visual#53",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.721,
+        2.1755,
+        -0.2635
+      ],
+      "hi": [
+        0.743,
+        2.2225,
+        -0.2365
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_gunner_hinge",
+      "sourceId": "visual#54",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.71,
+        2.138,
+        0.065
+      ],
+      "hi": [
+        -0.53,
+        2.202,
+        0.129
+      ],
+      "triangles": 64,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 64,
+        "weldedVertices": 34,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_gunner_handle",
+      "sourceId": "visual#55",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.685,
+        2.1885,
+        -0.2835
+      ],
+      "hi": [
+        -0.555,
+        2.2135,
+        -0.2565
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_gunner_handle_foot_-0.052",
+      "sourceId": "visual#56",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.683,
+        2.1555,
+        -0.2835
+      ],
+      "hi": [
+        -0.661,
+        2.2025,
+        -0.2565
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_gunner_handle_foot_0.052",
+      "sourceId": "visual#57",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.579,
+        2.1555,
+        -0.2835
+      ],
+      "hi": [
+        -0.557,
+        2.2025,
+        -0.2565
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tpd_k1_head",
+      "sourceId": "visual#58",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.65,
+        2.07,
+        0.54
+      ],
+      "hi": [
+        -0.37,
+        2.24,
+        0.88
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tpd_k1_glass",
+      "sourceId": "visual#59",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.5985,
+        2.1375,
+        0.88
+      ],
+      "hi": [
+        -0.4215,
+        2.2065,
+        0.892
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tpd_k1_hood",
+      "sourceId": "visual#60",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.6625,
+        2.2345,
+        0.7625
+      ],
+      "hi": [
+        -0.3575,
+        2.2575,
+        0.8975
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_view_head",
+      "sourceId": "visual#61",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.6,
+        2.15,
+        0.008
+      ],
+      "hi": [
+        0.76,
+        2.28,
+        0.148
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_commander_view_glass",
+      "sourceId": "visual#62",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.623,
+        2.2155,
+        0.1475
+      ],
+      "hi": [
+        0.737,
+        2.2725,
+        0.1605
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_ir_bracket",
+      "sourceId": "visual#63",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.6825,
+        1.756,
+        1.226
+      ],
+      "hi": [
+        0.7975,
+        1.976,
+        1.546
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_ir_searchlight",
+      "sourceId": "visual#64",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.56,
+        1.807,
+        1.415
+      ],
+      "hi": [
+        0.92,
+        2.167,
+        1.585
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_ir_lens",
+      "sourceId": "visual#65",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.585,
+        1.832,
+        1.585
+      ],
+      "hi": [
+        0.895,
+        2.142,
+        1.593
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_ir_rim",
+      "sourceId": "visual#66",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.556,
+        1.803,
+        1.577
+      ],
+      "hi": [
+        0.924,
+        2.171,
+        1.591
+      ],
+      "triangles": 256,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_mantlet",
+      "sourceId": "visual#67",
+      "mount": "gun",
+      "recoil": false,
+      "node": "gun_mount",
+      "lo": [
+        -0.33,
+        1.63,
+        1.12
+      ],
+      "hi": [
+        0.33,
+        2.09,
+        1.72
+      ],
+      "triangles": 512,
+      "role": "gun_mount",
+      "topology": {
+        "triangles": 512,
+        "weldedVertices": 256,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_recoil_sleeve",
+      "sourceId": "visual#68",
+      "mount": "gun",
+      "recoil": false,
+      "node": "gun_mount",
+      "lo": [
+        -0.152,
+        1.708,
+        1.62
+      ],
+      "hi": [
+        0.152,
+        2.012,
+        2.08
+      ],
+      "triangles": 384,
+      "role": "gun_mount",
+      "topology": {
+        "triangles": 384,
+        "weldedVertices": 192,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_barrel",
+      "sourceId": "visual#69",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.086,
+        1.774,
+        1.45
+      ],
+      "hi": [
+        0.086,
+        1.946,
+        6.1
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_cover",
+      "sourceId": "visual#70",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.111,
+        1.749,
+        2.035
+      ],
+      "hi": [
+        0.111,
+        1.971,
+        4.16
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_bore_evacuator",
+      "sourceId": "visual#71",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.154,
+        1.706,
+        4.18
+      ],
+      "hi": [
+        0.154,
+        2.014,
+        4.64
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_evacuator_rear_taper",
+      "sourceId": "visual#72",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.154,
+        1.706,
+        4.15
+      ],
+      "hi": [
+        0.154,
+        2.014,
+        4.22
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_evacuator_front_taper",
+      "sourceId": "visual#73",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.154,
+        1.706,
+        4.61
+      ],
+      "hi": [
+        0.154,
+        2.014,
+        4.695
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_forward",
+      "sourceId": "visual#74",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.105,
+        1.755,
+        4.665
+      ],
+      "hi": [
+        0.105,
+        1.965,
+        5.73
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_0",
+      "sourceId": "visual#75",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.116,
+        1.744,
+        2.136
+      ],
+      "hi": [
+        0.116,
+        1.976,
+        2.164
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_1",
+      "sourceId": "visual#76",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.116,
+        1.744,
+        3.116
+      ],
+      "hi": [
+        0.116,
+        1.976,
+        3.144
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_2",
+      "sourceId": "visual#77",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.116,
+        1.744,
+        3.946
+      ],
+      "hi": [
+        0.116,
+        1.976,
+        3.974
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_3",
+      "sourceId": "visual#78",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.111,
+        1.749,
+        4.766
+      ],
+      "hi": [
+        0.111,
+        1.971,
+        4.794
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_4",
+      "sourceId": "visual#79",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.111,
+        1.749,
+        5.586
+      ],
+      "hi": [
+        0.111,
+        1.971,
+        5.614
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_muzzle_collar",
+      "sourceId": "visual#80",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.094,
+        1.766,
+        5.985
+      ],
+      "hi": [
+        0.094,
+        1.954,
+        6.1
+      ],
+      "triangles": 256,
+      "role": "barrel",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_pkt_port",
+      "sourceId": "visual#81",
+      "mount": "gun",
+      "recoil": false,
+      "node": "gun_mount",
+      "lo": [
+        0.223,
+        1.813,
+        1.25
+      ],
+      "hi": [
+        0.317,
+        1.907,
+        1.565
+      ],
+      "triangles": 256,
+      "role": "gun_mount",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_pkt_barrel",
+      "sourceId": "visual#82",
+      "mount": "gun",
+      "recoil": false,
+      "node": "gun_mount",
+      "lo": [
+        0.252,
+        1.842,
+        1.385
+      ],
+      "hi": [
+        0.288,
+        1.878,
+        1.65
+      ],
+      "triangles": 256,
+      "role": "gun_mount",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_antenna_base",
+      "sourceId": "visual#83",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.725,
+        1.973,
+        -0.585
+      ],
+      "hi": [
+        0.835,
+        2.153,
+        -0.475
+      ],
+      "triangles": 128,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_antenna",
+      "sourceId": "visual#84",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.774,
+        2.143,
+        -0.536
+      ],
+      "hi": [
+        0.786,
+        3.093,
+        -0.524
+      ],
+      "triangles": 32,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 32,
+        "weldedVertices": 18,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_ejection_hatch",
+      "sourceId": "visual#85",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.145,
+        1.896092,
+        -1.039595
+      ],
+      "hi": [
+        0.145,
+        2.065908,
+        -0.904405
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fuel_drum_l",
+      "sourceId": "visual#86",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.11,
+        0.705,
+        -3.91
+      ],
+      "hi": [
+        -0.04,
+        1.255,
+        -3.36
+      ],
+      "triangles": 128,
+      "role": "hull",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_support_l_-1",
+      "sourceId": "visual#87",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.956,
+        0.6315,
+        -3.76
+      ],
+      "hi": [
+        -0.874,
+        0.7365,
+        -3.12
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_saddle_l_-1",
+      "sourceId": "visual#88",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.96,
+        0.6475,
+        -3.755
+      ],
+      "hi": [
+        -0.87,
+        0.8025,
+        -3.515
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_band_l_-1",
+      "sourceId": "visual#89",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.938,
+        0.699,
+        -3.916
+      ],
+      "hi": [
+        -0.892,
+        1.261,
+        -3.354
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_support_l_1",
+      "sourceId": "visual#90",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.276,
+        0.6315,
+        -3.76
+      ],
+      "hi": [
+        -0.194,
+        0.7365,
+        -3.12
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_saddle_l_1",
+      "sourceId": "visual#91",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.28,
+        0.6475,
+        -3.755
+      ],
+      "hi": [
+        -0.19,
+        0.8025,
+        -3.515
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_band_l_1",
+      "sourceId": "visual#92",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.258,
+        0.699,
+        -3.916
+      ],
+      "hi": [
+        -0.212,
+        1.261,
+        -3.354
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fuel_drum_r",
+      "sourceId": "visual#93",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.04,
+        0.705,
+        -3.91
+      ],
+      "hi": [
+        1.11,
+        1.255,
+        -3.36
+      ],
+      "triangles": 128,
+      "role": "hull",
+      "topology": {
+        "triangles": 128,
+        "weldedVertices": 66,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_support_r_-1",
+      "sourceId": "visual#94",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.194,
+        0.6315,
+        -3.76
+      ],
+      "hi": [
+        0.276,
+        0.7365,
+        -3.12
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_saddle_r_-1",
+      "sourceId": "visual#95",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.19,
+        0.6475,
+        -3.755
+      ],
+      "hi": [
+        0.28,
+        0.8025,
+        -3.515
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_band_r_-1",
+      "sourceId": "visual#96",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.212,
+        0.699,
+        -3.916
+      ],
+      "hi": [
+        0.258,
+        1.261,
+        -3.354
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_support_r_1",
+      "sourceId": "visual#97",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.874,
+        0.6315,
+        -3.76
+      ],
+      "hi": [
+        0.956,
+        0.7365,
+        -3.12
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_saddle_r_1",
+      "sourceId": "visual#98",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.87,
+        0.6475,
+        -3.755
+      ],
+      "hi": [
+        0.96,
+        0.8025,
+        -3.515
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_band_r_1",
+      "sourceId": "visual#99",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.892,
+        0.699,
+        -3.916
+      ],
+      "hi": [
+        0.938,
+        1.261,
+        -3.354
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_foot_l",
+      "sourceId": "visual#100",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.005,
+        1.14,
+        2.55
+      ],
+      "hi": [
+        -0.815,
+        1.3,
+        2.71
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_headlamp_l",
+      "sourceId": "visual#101",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.003,
+        1.232,
+        2.63
+      ],
+      "hi": [
+        -0.817,
+        1.418,
+        2.75
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_headlamp_lens_l",
+      "sourceId": "visual#102",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.992,
+        1.243,
+        2.75
+      ],
+      "hi": [
+        -0.828,
+        1.407,
+        2.758
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_headlamp_rim_l",
+      "sourceId": "visual#103",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.006,
+        1.229,
+        2.747
+      ],
+      "hi": [
+        -0.814,
+        1.421,
+        2.763
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_guard_l",
+      "sourceId": "visual#104",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.063,
+        1.18,
+        2.807
+      ],
+      "hi": [
+        -0.757,
+        1.4875,
+        2.833
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_guard_stay_l_-0.14",
+      "sourceId": "visual#105",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.063,
+        1.187138,
+        2.478109
+      ],
+      "hi": [
+        -1.037,
+        1.262862,
+        2.821891
+      ],
+      "triangles": 32,
+      "role": "hull",
+      "topology": {
+        "triangles": 32,
+        "weldedVertices": 18,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_guard_stay_l_0.14",
+      "sourceId": "visual#106",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.783,
+        1.187138,
+        2.478109
+      ],
+      "hi": [
+        -0.757,
+        1.262862,
+        2.821891
+      ],
+      "triangles": 32,
+      "role": "hull",
+      "topology": {
+        "triangles": 32,
+        "weldedVertices": 18,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_pad_front_l",
+      "sourceId": "visual#107",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.995,
+        0.673,
+        3.2
+      ],
+      "hi": [
+        -0.845,
+        0.803,
+        3.36
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_eye_front_l",
+      "sourceId": "visual#108",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.948,
+        0.646,
+        3.263
+      ],
+      "hi": [
+        -0.892,
+        0.83,
+        3.447
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_pad_rear_l",
+      "sourceId": "visual#109",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.995,
+        0.425,
+        -3.505
+      ],
+      "hi": [
+        -0.845,
+        0.555,
+        -3.345
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_eye_rear_l",
+      "sourceId": "visual#110",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.948,
+        0.398,
+        -3.582
+      ],
+      "hi": [
+        -0.892,
+        0.582,
+        -3.398
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_latch_l_0",
+      "sourceId": "visual#111",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.752,
+        1.4,
+        1.3975
+      ],
+      "hi": [
+        -1.728,
+        1.49,
+        1.4625
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_hinge_l_0",
+      "sourceId": "visual#112",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.575,
+        1.4955,
+        1.779
+      ],
+      "hi": [
+        -1.385,
+        1.5205,
+        1.821
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_latch_l_1",
+      "sourceId": "visual#113",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.752,
+        1.4,
+        0.1275
+      ],
+      "hi": [
+        -1.728,
+        1.49,
+        0.1925
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_hinge_l_1",
+      "sourceId": "visual#114",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.575,
+        1.4955,
+        0.509
+      ],
+      "hi": [
+        -1.385,
+        1.5205,
+        0.551
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_latch_l_2",
+      "sourceId": "visual#115",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.752,
+        1.4,
+        -1.2525
+      ],
+      "hi": [
+        -1.728,
+        1.49,
+        -1.1875
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_hinge_l_2",
+      "sourceId": "visual#116",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.575,
+        1.4955,
+        -0.871
+      ],
+      "hi": [
+        -1.385,
+        1.5205,
+        -0.829
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_end_roll_l_-1",
+      "sourceId": "visual#117",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.084,
+        0.698,
+        -3.917
+      ],
+      "hi": [
+        -1.06,
+        1.262,
+        -3.353
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_end_roll_l_1",
+      "sourceId": "visual#118",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.09,
+        0.698,
+        -3.917
+      ],
+      "hi": [
+        -0.066,
+        1.262,
+        -3.353
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_fill_cap_l",
+      "sourceId": "visual#119",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.618,
+        1.2475,
+        -3.678
+      ],
+      "hi": [
+        -0.532,
+        1.2725,
+        -3.592
+      ],
+      "triangles": 48,
+      "role": "hull",
+      "topology": {
+        "triangles": 48,
+        "weldedVertices": 26,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_mudguard_hinge_l",
+      "sourceId": "visual#120",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.72,
+        1.22,
+        3.129
+      ],
+      "hi": [
+        -1.17,
+        1.262,
+        3.171
+      ],
+      "triangles": 48,
+      "role": "hull",
+      "topology": {
+        "triangles": 48,
+        "weldedVertices": 26,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_skirt_end_strap_l_2.72",
+      "sourceId": "visual#121",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.822,
+        1.072,
+        2.69
+      ],
+      "hi": [
+        -1.778,
+        1.242,
+        2.75
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_skirt_end_strap_l_-2.8",
+      "sourceId": "visual#122",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -1.822,
+        1.072,
+        -2.83
+      ],
+      "hi": [
+        -1.778,
+        1.242,
+        -2.77
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_foot_r",
+      "sourceId": "visual#123",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.815,
+        1.14,
+        2.55
+      ],
+      "hi": [
+        1.005,
+        1.3,
+        2.71
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_headlamp_r",
+      "sourceId": "visual#124",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.817,
+        1.232,
+        2.63
+      ],
+      "hi": [
+        1.003,
+        1.418,
+        2.75
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_headlamp_lens_r",
+      "sourceId": "visual#125",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.828,
+        1.243,
+        2.75
+      ],
+      "hi": [
+        0.992,
+        1.407,
+        2.758
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_headlamp_rim_r",
+      "sourceId": "visual#126",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.814,
+        1.229,
+        2.747
+      ],
+      "hi": [
+        1.006,
+        1.421,
+        2.763
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_guard_r",
+      "sourceId": "visual#127",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.757,
+        1.18,
+        2.807
+      ],
+      "hi": [
+        1.063,
+        1.4875,
+        2.833
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_guard_stay_r_-0.14",
+      "sourceId": "visual#128",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.757,
+        1.187138,
+        2.478109
+      ],
+      "hi": [
+        0.783,
+        1.262862,
+        2.821891
+      ],
+      "triangles": 32,
+      "role": "hull",
+      "topology": {
+        "triangles": 32,
+        "weldedVertices": 18,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_lamp_guard_stay_r_0.14",
+      "sourceId": "visual#129",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.037,
+        1.187138,
+        2.478109
+      ],
+      "hi": [
+        1.063,
+        1.262862,
+        2.821891
+      ],
+      "triangles": 32,
+      "role": "hull",
+      "topology": {
+        "triangles": 32,
+        "weldedVertices": 18,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_pad_front_r",
+      "sourceId": "visual#130",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.845,
+        0.673,
+        3.2
+      ],
+      "hi": [
+        0.995,
+        0.803,
+        3.36
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_eye_front_r",
+      "sourceId": "visual#131",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.892,
+        0.646,
+        3.263
+      ],
+      "hi": [
+        0.948,
+        0.83,
+        3.447
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_pad_rear_r",
+      "sourceId": "visual#132",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.845,
+        0.425,
+        -3.505
+      ],
+      "hi": [
+        0.995,
+        0.555,
+        -3.345
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_tow_eye_rear_r",
+      "sourceId": "visual#133",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.892,
+        0.398,
+        -3.582
+      ],
+      "hi": [
+        0.948,
+        0.582,
+        -3.398
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_latch_r_0",
+      "sourceId": "visual#134",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.728,
+        1.4,
+        1.3975
+      ],
+      "hi": [
+        1.752,
+        1.49,
+        1.4625
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_hinge_r_0",
+      "sourceId": "visual#135",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.385,
+        1.4955,
+        1.779
+      ],
+      "hi": [
+        1.575,
+        1.5205,
+        1.821
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_latch_r_1",
+      "sourceId": "visual#136",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.728,
+        1.4,
+        0.1275
+      ],
+      "hi": [
+        1.752,
+        1.49,
+        0.1925
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_hinge_r_1",
+      "sourceId": "visual#137",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.385,
+        1.4955,
+        0.509
+      ],
+      "hi": [
+        1.575,
+        1.5205,
+        0.551
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_latch_r_2",
+      "sourceId": "visual#138",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.728,
+        1.4,
+        -1.2525
+      ],
+      "hi": [
+        1.752,
+        1.49,
+        -1.1875
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_stowage_hinge_r_2",
+      "sourceId": "visual#139",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.385,
+        1.4955,
+        -0.871
+      ],
+      "hi": [
+        1.575,
+        1.5205,
+        -0.829
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_end_roll_r_-1",
+      "sourceId": "visual#140",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.066,
+        0.698,
+        -3.917
+      ],
+      "hi": [
+        0.09,
+        1.262,
+        -3.353
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_end_roll_r_1",
+      "sourceId": "visual#141",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.06,
+        0.698,
+        -3.917
+      ],
+      "hi": [
+        1.084,
+        1.262,
+        -3.353
+      ],
+      "triangles": 256,
+      "role": "hull",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_drum_fill_cap_r",
+      "sourceId": "visual#142",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.532,
+        1.2475,
+        -3.678
+      ],
+      "hi": [
+        0.618,
+        1.2725,
+        -3.592
+      ],
+      "triangles": 48,
+      "role": "hull",
+      "topology": {
+        "triangles": 48,
+        "weldedVertices": 26,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_mudguard_hinge_r",
+      "sourceId": "visual#143",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.17,
+        1.22,
+        3.129
+      ],
+      "hi": [
+        1.72,
+        1.262,
+        3.171
+      ],
+      "triangles": 48,
+      "role": "hull",
+      "topology": {
+        "triangles": 48,
+        "weldedVertices": 26,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_skirt_end_strap_r_2.72",
+      "sourceId": "visual#144",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.778,
+        1.072,
+        2.69
+      ],
+      "hi": [
+        1.822,
+        1.242,
+        2.75
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_skirt_end_strap_r_-2.8",
+      "sourceId": "visual#145",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        1.778,
+        1.072,
+        -2.83
+      ],
+      "hi": [
+        1.822,
+        1.242,
+        -2.77
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fan_cover",
+      "sourceId": "visual#146",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.3,
+        0.65,
+        -3.4625
+      ],
+      "hi": [
+        0.3,
+        1.25,
+        -3.4275
+      ],
+      "triangles": 96,
+      "role": "hull",
+      "topology": {
+        "triangles": 96,
+        "weldedVertices": 50,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fan_bolt_0",
+      "sourceId": "visual#147",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.23454,
+        1.013271,
+        -3.479
+      ],
+      "hi": [
+        0.265716,
+        1.049271,
+        -3.461
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fan_bolt_1",
+      "sourceId": "visual#148",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.015588,
+        1.195,
+        -3.479
+      ],
+      "hi": [
+        0.015588,
+        1.231,
+        -3.461
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fan_bolt_2",
+      "sourceId": "visual#149",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.265716,
+        1.013271,
+        -3.479
+      ],
+      "hi": [
+        -0.23454,
+        1.049271,
+        -3.461
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fan_bolt_3",
+      "sourceId": "visual#150",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.170176,
+        0.719229,
+        -3.479
+      ],
+      "hi": [
+        -0.139,
+        0.755229,
+        -3.461
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_fan_bolt_4",
+      "sourceId": "visual#151",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.139,
+        0.719229,
+        -3.479
+      ],
+      "hi": [
+        0.170176,
+        0.755229,
+        -3.461
+      ],
+      "triangles": 24,
+      "role": "hull",
+      "topology": {
+        "triangles": 24,
+        "weldedVertices": 14,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_grille_brace_-0.62",
+      "sourceId": "visual#152",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.633,
+        1.5,
+        -3.0775
+      ],
+      "hi": [
+        -0.607,
+        1.518,
+        -2.0425
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_engine_grille_brace_0.62",
+      "sourceId": "visual#153",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.607,
+        1.5,
+        -3.0775
+      ],
+      "hi": [
+        0.633,
+        1.518,
+        -2.0425
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_access_catch_-0.53",
+      "sourceId": "visual#154",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        -0.565,
+        1.4485,
+        -3.1
+      ],
+      "hi": [
+        -0.495,
+        1.4835,
+        -3
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_rear_access_catch_0.53",
+      "sourceId": "visual#155",
+      "mount": "hull",
+      "recoil": false,
+      "node": "hull",
+      "lo": [
+        0.495,
+        1.4485,
+        -3.1
+      ],
+      "hi": [
+        0.565,
+        1.4835,
+        -3
+      ],
+      "triangles": 12,
+      "role": "hull",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_turret_lift_base_l",
+      "sourceId": "visual#156",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -1,
+        2.024,
+        0.465
+      ],
+      "hi": [
+        -0.9,
+        2.084,
+        0.595
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_turret_lift_eye_l",
+      "sourceId": "visual#157",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        -0.969,
+        2.046,
+        0.464
+      ],
+      "hi": [
+        -0.931,
+        2.178,
+        0.596
+      ],
+      "triangles": 256,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_turret_lift_base_r",
+      "sourceId": "visual#158",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.9,
+        2.024,
+        0.465
+      ],
+      "hi": [
+        1,
+        2.084,
+        0.595
+      ],
+      "triangles": 12,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_turret_lift_eye_r",
+      "sourceId": "visual#159",
+      "mount": "turret",
+      "recoil": false,
+      "node": "turret_shell",
+      "lo": [
+        0.931,
+        2.046,
+        0.464
+      ],
+      "hi": [
+        0.969,
+        2.178,
+        0.596
+      ],
+      "triangles": 256,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 256,
+        "weldedVertices": 128,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_latch_0",
+      "sourceId": "visual#160",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.018,
+        1.967,
+        2.1225
+      ],
+      "hi": [
+        0.018,
+        1.985,
+        2.1775
+      ],
+      "triangles": 12,
+      "role": "barrel",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_latch_1",
+      "sourceId": "visual#161",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.018,
+        1.967,
+        3.1025
+      ],
+      "hi": [
+        0.018,
+        1.985,
+        3.1575
+      ],
+      "triangles": 12,
+      "role": "barrel",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_latch_2",
+      "sourceId": "visual#162",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.018,
+        1.967,
+        3.9325
+      ],
+      "hi": [
+        0.018,
+        1.985,
+        3.9875
+      ],
+      "triangles": 12,
+      "role": "barrel",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_latch_3",
+      "sourceId": "visual#163",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.018,
+        1.962,
+        4.7525
+      ],
+      "hi": [
+        0.018,
+        1.98,
+        4.8075
+      ],
+      "triangles": 12,
+      "role": "barrel",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "t72a_thermal_clamp_latch_4",
+      "sourceId": "visual#164",
+      "mount": "gun",
+      "recoil": true,
+      "node": "barrel",
+      "lo": [
+        -0.018,
+        1.962,
+        5.5725
+      ],
+      "hi": [
+        0.018,
+        1.98,
+        5.6275
+      ],
+      "triangles": 12,
+      "role": "barrel",
+      "topology": {
+        "triangles": 12,
+        "weldedVertices": 8,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "mg1:post",
+      "sourceId": "mg1:post",
+      "mount": "turret",
+      "recoil": false,
+      "node": "mg_post",
+      "lo": [
+        0.61,
+        2.09,
+        -0.17
+      ],
+      "hi": [
+        0.75,
+        2.4,
+        -0.03
+      ],
+      "triangles": 88,
+      "role": "turret_shell",
+      "topology": {
+        "triangles": 88,
+        "weldedVertices": 47,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    },
+    {
+      "name": "mg1:gun",
+      "sourceId": "mg1:gun",
+      "mount": "turret",
+      "recoil": false,
+      "node": "mg_gun",
+      "lo": [
+        0.478,
+        2.327,
+        -0.587
+      ],
+      "hi": [
+        0.76,
+        2.5485,
+        1.07
+      ],
+      "triangles": 864,
+      "role": "machine_gun",
+      "topology": {
+        "triangles": 864,
+        "weldedVertices": 464,
+        "degenerate": 0,
+        "boundaryEdges": 0,
+        "nonManifoldEdges": 0,
+        "boundaryExamples": []
+      }
+    }
+  ],
+  "poseSampling": {
+    "yawStepDeg": 15,
+    "pitchDeg": [
+      -6,
+      0,
+      13
+    ],
+    "recoilFraction": [
+      0,
+      1
+    ],
+    "count": 144,
+    "poses": [
+      {
+        "yaw": 0,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          1.15
+        ],
+        "muzzle": [
+          0,
+          1.342584,
+          6.072884
+        ]
+      },
+      {
+        "yaw": 0,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          1.15
+        ],
+        "muzzle": [
+          0,
+          1.374988,
+          5.764582
+        ]
+      },
+      {
+        "yaw": 0,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          1.15
+        ],
+        "muzzle": [
+          0,
+          1.86,
+          6.1
+        ]
+      },
+      {
+        "yaw": 0,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          1.15
+        ],
+        "muzzle": [
+          0,
+          1.86,
+          5.79
+        ]
+      },
+      {
+        "yaw": 0,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          1.15
+        ],
+        "muzzle": [
+          0,
+          2.973508,
+          5.973132
+        ]
+      },
+      {
+        "yaw": 0,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          1.15
+        ],
+        "muzzle": [
+          0,
+          2.903773,
+          5.671077
+        ]
+      },
+      {
+        "yaw": 15,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          1.52519,
+          1.342584,
+          5.872088
+        ]
+      },
+      {
+        "yaw": 15,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          1.445396,
+          1.374988,
+          5.574292
+        ]
+      },
+      {
+        "yaw": 15,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          1.532209,
+          1.86,
+          5.898281
+        ]
+      },
+      {
+        "yaw": 15,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          1.451975,
+          1.86,
+          5.598844
+        ]
+      },
+      {
+        "yaw": 15,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          1.499373,
+          2.973508,
+          5.775736
+        ]
+      },
+      {
+        "yaw": 15,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          1.421195,
+          2.903773,
+          5.483973
+        ]
+      },
+      {
+        "yaw": 30,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          2.946442,
+          1.342584,
+          5.283387
+        ]
+      },
+      {
+        "yaw": 30,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          2.792291,
+          1.374988,
+          5.01639
+        ]
+      },
+      {
+        "yaw": 30,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          2.96,
+          1.86,
+          5.30687
+        ]
+      },
+      {
+        "yaw": 30,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          2.805,
+          1.86,
+          5.038403
+        ]
+      },
+      {
+        "yaw": 30,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          2.896566,
+          2.973508,
+          5.196999
+        ]
+      },
+      {
+        "yaw": 30,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          2.745539,
+          2.903773,
+          4.935412
+        ]
+      },
+      {
+        "yaw": 45,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          4.166898,
+          1.342584,
+          4.346898
+        ]
+      },
+      {
+        "yaw": 45,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          3.948896,
+          1.374988,
+          4.128896
+        ]
+      },
+      {
+        "yaw": 45,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          4.186072,
+          1.86,
+          4.366072
+        ]
+      },
+      {
+        "yaw": 45,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          3.966869,
+          1.86,
+          4.146869
+        ]
+      },
+      {
+        "yaw": 45,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          4.096363,
+          2.973508,
+          4.276363
+        ]
+      },
+      {
+        "yaw": 45,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          3.882778,
+          2.903773,
+          4.062778
+        ]
+      },
+      {
+        "yaw": 60,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          5.103387,
+          1.342584,
+          3.126442
+        ]
+      },
+      {
+        "yaw": 60,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          4.83639,
+          1.374988,
+          2.972291
+        ]
+      },
+      {
+        "yaw": 60,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          5.12687,
+          1.86,
+          3.14
+        ]
+      },
+      {
+        "yaw": 60,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          4.858403,
+          1.86,
+          2.985
+        ]
+      },
+      {
+        "yaw": 60,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          5.016999,
+          2.973508,
+          3.076566
+        ]
+      },
+      {
+        "yaw": 60,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          4.755412,
+          2.903773,
+          2.925539
+        ]
+      },
+      {
+        "yaw": 75,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          5.692088,
+          1.342584,
+          1.70519
+        ]
+      },
+      {
+        "yaw": 75,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          5.394292,
+          1.374988,
+          1.625396
+        ]
+      },
+      {
+        "yaw": 75,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          5.718281,
+          1.86,
+          1.712209
+        ]
+      },
+      {
+        "yaw": 75,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          5.418844,
+          1.86,
+          1.631975
+        ]
+      },
+      {
+        "yaw": 75,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          5.595736,
+          2.973508,
+          1.679373
+        ]
+      },
+      {
+        "yaw": 75,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          5.303973,
+          2.903773,
+          1.601195
+        ]
+      },
+      {
+        "yaw": 90,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          5.892884,
+          1.342584,
+          0.18
+        ]
+      },
+      {
+        "yaw": 90,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          5.584582,
+          1.374988,
+          0.18
+        ]
+      },
+      {
+        "yaw": 90,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          5.92,
+          1.86,
+          0.18
+        ]
+      },
+      {
+        "yaw": 90,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          5.61,
+          1.86,
+          0.18
+        ]
+      },
+      {
+        "yaw": 90,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          5.793132,
+          2.973508,
+          0.18
+        ]
+      },
+      {
+        "yaw": 90,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          5.491077,
+          2.903773,
+          0.18
+        ]
+      },
+      {
+        "yaw": 105,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          5.692088,
+          1.342584,
+          -1.34519
+        ]
+      },
+      {
+        "yaw": 105,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          5.394292,
+          1.374988,
+          -1.265396
+        ]
+      },
+      {
+        "yaw": 105,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          5.718281,
+          1.86,
+          -1.352209
+        ]
+      },
+      {
+        "yaw": 105,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          5.418844,
+          1.86,
+          -1.271975
+        ]
+      },
+      {
+        "yaw": 105,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          5.595736,
+          2.973508,
+          -1.319373
+        ]
+      },
+      {
+        "yaw": 105,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          5.303973,
+          2.903773,
+          -1.241195
+        ]
+      },
+      {
+        "yaw": 120,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          5.103387,
+          1.342584,
+          -2.766442
+        ]
+      },
+      {
+        "yaw": 120,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          4.83639,
+          1.374988,
+          -2.612291
+        ]
+      },
+      {
+        "yaw": 120,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          5.12687,
+          1.86,
+          -2.78
+        ]
+      },
+      {
+        "yaw": 120,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          4.858403,
+          1.86,
+          -2.625
+        ]
+      },
+      {
+        "yaw": 120,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          5.016999,
+          2.973508,
+          -2.716566
+        ]
+      },
+      {
+        "yaw": 120,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          4.755412,
+          2.903773,
+          -2.565539
+        ]
+      },
+      {
+        "yaw": 135,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          4.166898,
+          1.342584,
+          -3.986898
+        ]
+      },
+      {
+        "yaw": 135,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          3.948896,
+          1.374988,
+          -3.768896
+        ]
+      },
+      {
+        "yaw": 135,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          4.186072,
+          1.86,
+          -4.006072
+        ]
+      },
+      {
+        "yaw": 135,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          3.966869,
+          1.86,
+          -3.786869
+        ]
+      },
+      {
+        "yaw": 135,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          4.096363,
+          2.973508,
+          -3.916363
+        ]
+      },
+      {
+        "yaw": 135,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          3.882778,
+          2.903773,
+          -3.702778
+        ]
+      },
+      {
+        "yaw": 150,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          2.946442,
+          1.342584,
+          -4.923387
+        ]
+      },
+      {
+        "yaw": 150,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          2.792291,
+          1.374988,
+          -4.65639
+        ]
+      },
+      {
+        "yaw": 150,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          2.96,
+          1.86,
+          -4.94687
+        ]
+      },
+      {
+        "yaw": 150,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          2.805,
+          1.86,
+          -4.678402
+        ]
+      },
+      {
+        "yaw": 150,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          2.896566,
+          2.973508,
+          -4.836999
+        ]
+      },
+      {
+        "yaw": 150,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          2.745539,
+          2.903773,
+          -4.575412
+        ]
+      },
+      {
+        "yaw": 165,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          1.52519,
+          1.342584,
+          -5.512088
+        ]
+      },
+      {
+        "yaw": 165,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          1.445396,
+          1.374988,
+          -5.214292
+        ]
+      },
+      {
+        "yaw": 165,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          1.532209,
+          1.86,
+          -5.538281
+        ]
+      },
+      {
+        "yaw": 165,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          1.451975,
+          1.86,
+          -5.238844
+        ]
+      },
+      {
+        "yaw": 165,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          1.499373,
+          2.973508,
+          -5.415736
+        ]
+      },
+      {
+        "yaw": 165,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          1.421195,
+          2.903773,
+          -5.123973
+        ]
+      },
+      {
+        "yaw": 180,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          -0.79
+        ],
+        "muzzle": [
+          0,
+          1.342584,
+          -5.712884
+        ]
+      },
+      {
+        "yaw": 180,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          -0.79
+        ],
+        "muzzle": [
+          0,
+          1.374988,
+          -5.404582
+        ]
+      },
+      {
+        "yaw": 180,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          -0.79
+        ],
+        "muzzle": [
+          0,
+          1.86,
+          -5.74
+        ]
+      },
+      {
+        "yaw": 180,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          -0.79
+        ],
+        "muzzle": [
+          0,
+          1.86,
+          -5.43
+        ]
+      },
+      {
+        "yaw": 180,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          -0.79
+        ],
+        "muzzle": [
+          0,
+          2.973508,
+          -5.613132
+        ]
+      },
+      {
+        "yaw": 180,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          0,
+          1.86,
+          -0.79
+        ],
+        "muzzle": [
+          0,
+          2.903773,
+          -5.311077
+        ]
+      },
+      {
+        "yaw": 195,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          -1.52519,
+          1.342584,
+          -5.512088
+        ]
+      },
+      {
+        "yaw": 195,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          -1.445396,
+          1.374988,
+          -5.214292
+        ]
+      },
+      {
+        "yaw": 195,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          -1.532209,
+          1.86,
+          -5.538281
+        ]
+      },
+      {
+        "yaw": 195,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          -1.451975,
+          1.86,
+          -5.238844
+        ]
+      },
+      {
+        "yaw": 195,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          -1.499373,
+          2.973508,
+          -5.415736
+        ]
+      },
+      {
+        "yaw": 195,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          -0.756948
+        ],
+        "muzzle": [
+          -1.421195,
+          2.903773,
+          -5.123973
+        ]
+      },
+      {
+        "yaw": 210,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          -2.946442,
+          1.342584,
+          -4.923387
+        ]
+      },
+      {
+        "yaw": 210,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          -2.792291,
+          1.374988,
+          -4.65639
+        ]
+      },
+      {
+        "yaw": 210,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          -2.96,
+          1.86,
+          -4.94687
+        ]
+      },
+      {
+        "yaw": 210,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          -2.805,
+          1.86,
+          -4.678402
+        ]
+      },
+      {
+        "yaw": 210,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          -2.896566,
+          2.973508,
+          -4.836999
+        ]
+      },
+      {
+        "yaw": 210,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          -0.660045
+        ],
+        "muzzle": [
+          -2.745539,
+          2.903773,
+          -4.575412
+        ]
+      },
+      {
+        "yaw": 225,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          -4.166898,
+          1.342584,
+          -3.986898
+        ]
+      },
+      {
+        "yaw": 225,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          -3.948896,
+          1.374988,
+          -3.768896
+        ]
+      },
+      {
+        "yaw": 225,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          -4.186072,
+          1.86,
+          -4.006072
+        ]
+      },
+      {
+        "yaw": 225,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          -3.966869,
+          1.86,
+          -3.786869
+        ]
+      },
+      {
+        "yaw": 225,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          -4.096363,
+          2.973508,
+          -3.916363
+        ]
+      },
+      {
+        "yaw": 225,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          -0.505894
+        ],
+        "muzzle": [
+          -3.882778,
+          2.903773,
+          -3.702778
+        ]
+      },
+      {
+        "yaw": 240,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          -5.103387,
+          1.342584,
+          -2.766442
+        ]
+      },
+      {
+        "yaw": 240,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          -4.83639,
+          1.374988,
+          -2.612291
+        ]
+      },
+      {
+        "yaw": 240,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          -5.12687,
+          1.86,
+          -2.78
+        ]
+      },
+      {
+        "yaw": 240,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          -4.858403,
+          1.86,
+          -2.625
+        ]
+      },
+      {
+        "yaw": 240,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          -5.016999,
+          2.973508,
+          -2.716566
+        ]
+      },
+      {
+        "yaw": 240,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          -0.305
+        ],
+        "muzzle": [
+          -4.755412,
+          2.903773,
+          -2.565539
+        ]
+      },
+      {
+        "yaw": 255,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          -5.692088,
+          1.342584,
+          -1.34519
+        ]
+      },
+      {
+        "yaw": 255,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          -5.394292,
+          1.374988,
+          -1.265396
+        ]
+      },
+      {
+        "yaw": 255,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          -5.718281,
+          1.86,
+          -1.352209
+        ]
+      },
+      {
+        "yaw": 255,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          -5.418844,
+          1.86,
+          -1.271975
+        ]
+      },
+      {
+        "yaw": 255,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          -5.595736,
+          2.973508,
+          -1.319373
+        ]
+      },
+      {
+        "yaw": 255,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          -0.071054
+        ],
+        "muzzle": [
+          -5.303973,
+          2.903773,
+          -1.241195
+        ]
+      },
+      {
+        "yaw": 270,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          -5.892884,
+          1.342584,
+          0.18
+        ]
+      },
+      {
+        "yaw": 270,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          -5.584582,
+          1.374988,
+          0.18
+        ]
+      },
+      {
+        "yaw": 270,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          -5.92,
+          1.86,
+          0.18
+        ]
+      },
+      {
+        "yaw": 270,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          -5.61,
+          1.86,
+          0.18
+        ]
+      },
+      {
+        "yaw": 270,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          -5.793132,
+          2.973508,
+          0.18
+        ]
+      },
+      {
+        "yaw": 270,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.97,
+          1.86,
+          0.18
+        ],
+        "muzzle": [
+          -5.491077,
+          2.903773,
+          0.18
+        ]
+      },
+      {
+        "yaw": 285,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          -5.692088,
+          1.342584,
+          1.70519
+        ]
+      },
+      {
+        "yaw": 285,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          -5.394292,
+          1.374988,
+          1.625396
+        ]
+      },
+      {
+        "yaw": 285,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          -5.718281,
+          1.86,
+          1.712209
+        ]
+      },
+      {
+        "yaw": 285,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          -5.418844,
+          1.86,
+          1.631975
+        ]
+      },
+      {
+        "yaw": 285,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          -5.595736,
+          2.973508,
+          1.679373
+        ]
+      },
+      {
+        "yaw": 285,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.936948,
+          1.86,
+          0.431054
+        ],
+        "muzzle": [
+          -5.303973,
+          2.903773,
+          1.601195
+        ]
+      },
+      {
+        "yaw": 300,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          -5.103387,
+          1.342584,
+          3.126442
+        ]
+      },
+      {
+        "yaw": 300,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          -4.83639,
+          1.374988,
+          2.972291
+        ]
+      },
+      {
+        "yaw": 300,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          -5.12687,
+          1.86,
+          3.14
+        ]
+      },
+      {
+        "yaw": 300,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          -4.858403,
+          1.86,
+          2.985
+        ]
+      },
+      {
+        "yaw": 300,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          -5.016999,
+          2.973508,
+          3.076566
+        ]
+      },
+      {
+        "yaw": 300,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.840045,
+          1.86,
+          0.665
+        ],
+        "muzzle": [
+          -4.755412,
+          2.903773,
+          2.925539
+        ]
+      },
+      {
+        "yaw": 315,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          -4.166898,
+          1.342584,
+          4.346898
+        ]
+      },
+      {
+        "yaw": 315,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          -3.948896,
+          1.374988,
+          4.128896
+        ]
+      },
+      {
+        "yaw": 315,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          -4.186072,
+          1.86,
+          4.366072
+        ]
+      },
+      {
+        "yaw": 315,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          -3.966869,
+          1.86,
+          4.146869
+        ]
+      },
+      {
+        "yaw": 315,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          -4.096363,
+          2.973508,
+          4.276363
+        ]
+      },
+      {
+        "yaw": 315,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.685894,
+          1.86,
+          0.865894
+        ],
+        "muzzle": [
+          -3.882778,
+          2.903773,
+          4.062778
+        ]
+      },
+      {
+        "yaw": 330,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          -2.946442,
+          1.342584,
+          5.283387
+        ]
+      },
+      {
+        "yaw": 330,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          -2.792291,
+          1.374988,
+          5.01639
+        ]
+      },
+      {
+        "yaw": 330,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          -2.96,
+          1.86,
+          5.30687
+        ]
+      },
+      {
+        "yaw": 330,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          -2.805,
+          1.86,
+          5.038403
+        ]
+      },
+      {
+        "yaw": 330,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          -2.896566,
+          2.973508,
+          5.196999
+        ]
+      },
+      {
+        "yaw": 330,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.485,
+          1.86,
+          1.020045
+        ],
+        "muzzle": [
+          -2.745539,
+          2.903773,
+          4.935412
+        ]
+      },
+      {
+        "yaw": 345,
+        "pitch": -6,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          -1.52519,
+          1.342584,
+          5.872088
+        ]
+      },
+      {
+        "yaw": 345,
+        "pitch": -6,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          -1.445396,
+          1.374988,
+          5.574292
+        ]
+      },
+      {
+        "yaw": 345,
+        "pitch": 0,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          -1.532209,
+          1.86,
+          5.898281
+        ]
+      },
+      {
+        "yaw": 345,
+        "pitch": 0,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          -1.451975,
+          1.86,
+          5.598844
+        ]
+      },
+      {
+        "yaw": 345,
+        "pitch": 13,
+        "recoil": 0,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          -1.499373,
+          2.973508,
+          5.775736
+        ]
+      },
+      {
+        "yaw": 345,
+        "pitch": 13,
+        "recoil": 1,
+        "seatContact": true,
+        "mantleContact": true,
+        "trunnion": [
+          -0.251054,
+          1.86,
+          1.116948
+        ],
+        "muzzle": [
+          -1.421195,
+          2.903773,
+          5.483973
+        ]
+      }
+    ]
+  },
+  "seatFailures": [],
+  "mantletContactFailures": [],
+  "unexpectedGunHullCrossings": [],
+  "connections": [
+    {
+      "a": "t72a_commander_coaming",
+      "b": "t72a_cast_turret",
+      "touch": true
+    },
+    {
+      "a": "t72a_commander_hatch",
+      "b": "t72a_commander_coaming",
+      "touch": true
+    },
+    {
+      "a": "t72a_gunner_coaming",
+      "b": "t72a_cast_turret",
+      "touch": true
+    },
+    {
+      "a": "t72a_gunner_hatch",
+      "b": "t72a_gunner_coaming",
+      "touch": true
+    },
+    {
+      "a": "t72a_tpd_k1_head",
+      "b": "t72a_cast_turret",
+      "touch": true
+    },
+    {
+      "a": "t72a_tpd_k1_glass",
+      "b": "t72a_tpd_k1_head",
+      "touch": true
+    },
+    {
+      "a": "t72a_antenna_base",
+      "b": "t72a_cast_turret",
+      "touch": true
+    },
+    {
+      "a": "t72a_antenna",
+      "b": "t72a_antenna_base",
+      "touch": true
+    },
+    {
+      "a": "t72a_ir_searchlight",
+      "b": "t72a_ir_bracket",
+      "touch": true
+    },
+    {
+      "a": "t72a_ir_bracket",
+      "b": "t72a_cast_turret",
+      "touch": true
+    }
+  ],
+  "opticObstructions": [],
+  "boreBlocked": [],
+  "mgPostStable": true,
+  "renderSurfaceComponent": {
+    "enabled": true,
+    "geometryVersion": "t72a-render-surface-v1",
+    "source": "Exact uploaded Float32 mesh positions and current scene/instance matrices",
+    "nativeCombatConnected": false
+  },
+  "visualToDamage": {
+    "status": "REQUIRES_MAIN_INTEGRATION; not a combat/replay release gate",
+    "runtime": "Existing Rust combat still uses armor.json planes and modules.json boxes, not visual mesh triangles.",
+    "proposedArmorGeometry": [
+      {
+        "id": "hull_glacis",
+        "center": {
+          "x": 0,
+          "y": 1.16,
+          "z": 2.5884705
+        },
+        "normal": {
+          "x": 0,
+          "y": 0.9271838545667874,
+          "z": 0.37460659341591196
+        },
+        "axis_u": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        "half_u": 1.14,
+        "half_v": 0.9076188073030715
+      },
+      {
+        "id": "hull_lower",
+        "center": {
+          "x": 0,
+          "y": 0.61,
+          "z": 3.0662694999999998
+        },
+        "normal": {
+          "x": 0,
+          "y": -0.8660254037844386,
+          "z": 0.5000000000000001
+        },
+        "axis_u": {
+          "x": 1,
+          "y": 0,
+          "z": 0
+        },
+        "half_u": 1.14,
+        "half_v": 0.41999985313122445
+      }
+    ],
+    "retainFields": [
+      "id",
+      "zone",
+      "material",
+      "thickness_mm"
+    ],
+    "furtherReview": [
+      "Native combat still uses legacy planar turret armor proxies. The opt-in JS surface component does not replace native event generation.",
+      "Barrel damage box remains the original gameplay box; measured displayed envelope is in bindings.",
+      "NSVT nsvt_t72a measured variant is applied, original default NSVT and all ballistic/health data are untouched.",
+      "PKT visible muzzle agrees with existing coax position; its internal generic damage anatomy remains an approximate legacy adapter."
+    ]
+  },
+  "limits": [
+    "Discrete poses are not continuous collision proof.",
+    "touches() uses the existing 12mm candidate tolerance; the seat has an explicit 5mm overlap.",
+    "Only closed hatches are implemented in baseline. A hatch-state animation interface was not invented.",
+    "No damaged/detached track acceptance or terrain extremes; suspension/transmission owners unchanged.",
+    "This JSON is CPU geometry evidence, not a claim that a browser frame was rendered. Browser receipt is separate."
+  ]
+}

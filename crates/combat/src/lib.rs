@@ -31,6 +31,9 @@ use tg_shared::{rotate_yaw, Rng, Vec3};
 use tg_weapon::{ProjectileDef, ProjectileKind};
 use tg_penetration::impact::{self, ImpactState, FragmentProvenance, ImpactEvent, EnergyBudget};
 mod impact_report;
+pub mod geometry;
+pub mod replay_evidence;
+pub mod causes;
 pub mod weapon_damage;
 mod weapon_mg;
 
@@ -328,6 +331,7 @@ pub struct Swap {
 /// What is left of one vehicle: module and crew health, who sits where, fire, repairs.
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]
 pub struct TargetState {
+    #[serde(default)] pub active_fire_cause: Option<causes::ActiveCause>,
     pub modules: Vec<f32>,
     pub crew: Vec<f32>,
     /// The seat each crew member is in now (the gunner's seat taken over by the loader, ...).
@@ -613,6 +617,7 @@ pub fn advance(t: &Target, st: &mut TargetState, dt: f32, seed: u64) -> Vec<Stri
         }
         if st.fire_s <= 0.0 {
             st.fire_at = None;
+            st.active_fire_cause=None;
             out.push("fire_out".into());
         }
     }
@@ -645,6 +650,16 @@ pub fn advance(t: &Target, st: &mut TargetState, dt: f32, seed: u64) -> Vec<Stri
         }
     }
     out
+}
+
+/// Actual timed core mutation, retaining the initiating mechanism even when this tick ends it.
+pub fn advance_context(t:&Target,st:&mut TargetState,dt:f32,seed:u64,event_id:&str)->causes::AdvanceResult {
+    let source=st.active_fire_cause.clone();let was=st.destroyed;
+    let events=advance(t,st,dt,seed);let mut transitions=Vec::new();
+    let death_cause=if !was&&st.destroyed {source.clone()} else {None};
+    if let Some(c)=death_cause.as_ref() {transitions.push(causes::CauseTransition::Death{death_event_id:event_id.into(),mechanism_id:c.mechanism_id.clone(),cause_event_id:c.source_event_id.clone()});}
+    if source.is_some()&&st.active_fire_cause.is_none() {transitions.push(causes::CauseTransition::Ended{mechanism_id:source.unwrap().mechanism_id});}
+    causes::AdvanceResult{events,transitions,death_cause}
 }
 
 fn repairable(k: ModuleKind) -> bool {
@@ -690,10 +705,17 @@ pub struct Shot {
     pub dir: Vec3,
     pub speed_ms: f32,
     pub distance_m: f32,
+    #[serde(deserialize_with="replay_seed")]
     pub seed: u64,
     /// Turret yaw against the hull, radians.
     #[serde(default)]
     pub turret_yaw: f32,
+}
+
+/// JSON decimal strings preserve all u64 seed bits; numeric legacy inputs remain compatible.
+fn replay_seed<'de,D:serde::Deserializer<'de>>(d:D)->Result<u64,D::Error> {
+    let v=serde_json::Value::deserialize(d)?;
+    match v {serde_json::Value::String(s) if !s.starts_with('+')=>s.parse().map_err(serde::de::Error::custom),serde_json::Value::Number(n)=>n.as_u64().ok_or_else(||serde::de::Error::custom("invalid u64 seed")),_=>Err(serde::de::Error::custom("invalid u64 seed"))}
 }
 
 #[derive(Clone, Copy, Debug, Serialize, Deserialize, PartialEq, Eq)]
@@ -772,6 +794,7 @@ pub struct CrewHit {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Report {
+    #[serde(default)] pub cause_transitions: Vec<causes::CauseTransition>,
     pub hit: bool,
     pub outcome: Outcome,
     pub shell_kind: ProjectileKind,
@@ -924,6 +947,7 @@ struct Ev {
 
 /// The work of one shot: the target, its state, and everything recorded along the way.
 struct Work<'a> {
+    context: Option<&'a causes::DamageContext>,
     t: &'a Target,
     p: Posed,
     st: TargetState,
@@ -1116,6 +1140,13 @@ impl<'a> Work<'a> {
     }
 
     fn start_fire(&mut self, at: Vec3) {
+        if let Some(context)=self.context {
+            let cause=context.cause("fire");
+            self.rep.cause_transitions.push(if self.st.active_fire_cause.is_some() {
+                causes::CauseTransition::Replaced {mechanism_id:cause.mechanism_id.clone(),source_event_id:cause.source_event_id.clone()}
+            } else {causes::CauseTransition::Started {mechanism_id:cause.mechanism_id.clone(),source_event_id:cause.source_event_id.clone()}});
+            self.st.active_fire_cause=Some(cause);
+        } else { self.st.active_fire_cause=None; }
         if self.st.fire_s <= 0.0 {
             self.rep.events.push("fire".into());
         }
@@ -1318,14 +1349,24 @@ impl<'a> Work<'a> {
 
 /// One round against the target. `st` is the target's state before; the report carries the state after.
 pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
+    shoot_internal(t,st,shot,None)
+}
+
+pub fn shoot_context(t:&Target,st:&TargetState,shot:&Shot,context:&causes::DamageContext)->Report {
+    assert!(context.valid(),"contextual combat requires a validated admitted identity");
+    shoot_internal(t,st,shot,Some(context))
+}
+fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Option<&'a causes::DamageContext>) -> Report {
     let shell = &shot.shell;
     let d = shot.dir.normalized();
     let mut w = Work {
+        context,
         t,
         p: t.posed(shot.turret_yaw),
         st: st.clone(),
         rng: Rng::new(shot.seed.max(1)),
         rep: Report {
+            cause_transitions:vec![],
             hit: false,
             outcome: Outcome::Miss,
             shell_kind: shell.kind,
@@ -2028,11 +2069,13 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
 /// An HE round landing near the vehicle (`at` in hull space): running gear, barrel, open crew.
 pub fn splash(t: &Target, st: &TargetState, at: Vec3, explosive_kg: f32, turret_yaw: f32, seed: u64) -> Report {
     let mut w = Work {
+        context:None,
         t,
         p: t.posed(turret_yaw),
         st: st.clone(),
         rng: Rng::new(seed.max(1)),
         rep: Report {
+            cause_transitions:vec![],
             hit: false,
             outcome: Outcome::Blast,
             shell_kind: ProjectileKind::He,
@@ -2111,6 +2154,7 @@ fn finish(w: &mut Work) {
     let was = w.st.destroyed;
     if !was && check_destroyed(&mut w.st) {
         w.rep.events.push("destroyed".into());
+        if let Some(c)=w.context {w.rep.cause_transitions.push(causes::CauseTransition::Death{death_event_id:c.event_id.clone(),mechanism_id:format!("{}:{}",c.event_id,if w.st.ammo_detonated {"ammo"} else {"direct"}),cause_event_id:c.event_id.clone()});}
     }
     plan_swaps(t, &mut w.st);
     w.rep.caps = caps(t, &w.st);

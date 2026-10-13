@@ -3,6 +3,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { refineT72aVisual } from './t72a_visual.mjs';
 import { measureCatalog } from '../client/web/tools/measure-mg-damage.mjs';
 const root=path.dirname(path.dirname(fileURLToPath(import.meta.url))), id='su_t72a';
 const write=(file,value)=>{fs.mkdirSync(path.dirname(file),{recursive:true});fs.writeFileSync(file,JSON.stringify(value,null,2)+'\n');};
@@ -102,14 +103,14 @@ const parts=[
   box('t72a_rear_drum_bracket',[.14,.12,.42],[.58,.6,-3.41],'hull','paint_dark',{mirror:true})
 ];
 for(let i=0;i<6;i++) parts.push(cyl('t72a_smoke_discharge_'+i,.037,.19,[-.52-i*.13,1.82,1.4-i*.075],'z','turret','paint_dark',{rot:[-15,0,0],mirror:true}));
-write(path.join(dir,'visual.json'),{
+write(path.join(dir,'visual.json'),refineT72aVisual({
   schema_version:1,palette:{paint:'#59664b',paint_dark:'#3f4b36',steel:'#686d62',rubber:'#252a24',track:'#53574c',black:'#141713'},parts,
   running_gear:{track_width:.58,track_thickness:.06,track_x:1.395,link_pitch:.137,link_style:'center_guide',track_sag:.035,
     sprocket:{z:-2.83,y:.72,r:.32,teeth:14},idler:{z:2.82,y:.79,r:.29},
     wheels:[2.02,1.21,.4,-.41,-1.22,-2.03].map(z=>({z,y:.46,r:.375,w:.35,x:0})),
     rollers:[1.65,0,-1.65].map(z=>({z,y:1.01,r:.11,w:.13})),wheel_style:'rubber_dish'},
   mg_anchors:{coax_pkt:'turret',aa_nsvt:'turret'},exhaust:{fuel:'diesel',outlets:[{pos:[-1.16,1.12,-2.35],dir:[-1,.05,-.1]}]}
-});
+}));
 const common={explosive_type:'none',penetrator_material:'steel',drag_coefficient:.3,normalization_deg:0,shatter_angle_deg:90,fuse_delay_s:0,fuse_sensitivity_mm:0};
 const shells=[
   {id:ammo[0],name:'125 mm 3BM-22 (APFSDS)',kind:'apfsds',caliber_mm:44,mass_kg:4.83,muzzle_velocity_ms:1760,explosive_mass_kg:0,

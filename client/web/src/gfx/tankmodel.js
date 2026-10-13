@@ -13,6 +13,8 @@ import { stationsOf, buildLoop, fitLoop, placeLinks, sprocketPhase, liftSprocket
 import { partMesh, imageTexture } from './imported.js';
 import { pintleGun } from './mgmodel.js';
 import { buildGearSupports } from './gearSupports.js';
+import {captureHitboxGeometry, ModelHitbox} from '../collision/meshHitbox.js';
+import { addT72aCasting } from './t72aModel.js';
 
 const MATERIAL_PROPS = {
   paint: { rough: 0.62, metal: 0.22 },
@@ -71,7 +73,8 @@ export function addPart(b, part, offset, mats, bore = 0) {
     return;
   }
   if (part.type === 'mesh') {
-    b.polyMesh(back, false, part.vertices, part.faces, mat);
+    if (part.name === 't72a_cast_turret' && part.t72a_smoothing) addT72aCasting(b, back, part, mat);
+    else b.polyMesh(back, false, part.vertices, part.faces, mat);
     return;
   }
   if (part.type === 'loft') {
@@ -100,12 +103,24 @@ export function addPart(b, part, offset, mats, bore = 0) {
 export function buildTank(renderer, loadout, generatedTurretParts) {
   const { vehicle, visual } = loadout;
   const mats = materials(visual.palette);
+  // Explicit T-72A opt-in, preserved in stock workshop exports. The captured buffers
+  // are precisely the ones sent to this renderer, including every instanced track link.
+  const hitCapture = visual.t72a_hitbox?.schema_version === 1 && !loadout.imported ? captureHitboxGeometry(renderer) : null;
+  if (hitCapture) renderer = hitCapture.renderer;
+  const appendPart = (builder, part, offset, palette, bore = 0) => {
+    const first = builder.vertexCount / 3;
+    addPart(builder, part, offset, palette, bore);
+    if (hitCapture) (builder.hitboxRanges ||= []).push({first, count: builder.vertexCount / 3 - first,
+      part: {name: part.name, mat: part.mat, mount: part.mount, recoil: !!part.recoil,
+        faceGroups: part.t72a_smoothing || null}});
+  };
 
   const meshes = [];
   const meshNode = (name, parent, builder) => {
     const node = parent.add(new Node(name));
     if (builder.vertexCount > 0) {
       node.mesh = renderer.mesh(builder.build());
+      hitCapture?.tag(node.mesh, builder.hitboxRanges);
       meshes.push(node.mesh);
     }
     return node;
@@ -118,7 +133,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   const running = body.add(new Node('running_gear'));
 
   const hullBuilder = new GeoBuilder();
-  for (const part of visual.parts) if (part.mount !== 'turret' && part.mount !== 'gun' && !part.hinge) addPart(hullBuilder, part, [0, 0, 0], mats);
+  for (const part of visual.parts) if (part.mount !== 'turret' && part.mount !== 'gun' && !part.hinge) appendPart(hullBuilder, part, [0, 0, 0], mats);
   const hull = meshNode('hull', body, hullBuilder);
   const shellNodes = [hull]; // everything that hides the interior
 
@@ -130,7 +145,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     const h = part.hinge;
     const key = JSON.stringify([h.a, h.b, h.angle]);
     if (!hingeGroups.has(key)) hingeGroups.set(key, { h, b: new GeoBuilder() });
-    addPart(hingeGroups.get(key).b, part, h.a, mats);
+    appendPart(hingeGroups.get(key).b, part, h.a, mats);
   }
   const hinges = [];
   for (const { h, b } of hingeGroups.values()) {
@@ -191,7 +206,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     const impTurret = imp && imp.parts.some((p) => (p.mount === 'turret' || p.mount === 'gun' || p.mount === 'barrel') && (p.turret || 0) === ti);
     const parts = own.length ? own : impTurret ? [] : generatedTurretParts(t, ti);
     const shell = new GeoBuilder();
-    for (const p of parts) if (p.mount === 'turret') addPart(shell, p, t.pivot, mats);
+    for (const p of parts) if (p.mount === 'turret') appendPart(shell, p, t.pivot, mats);
     // a turret riding on another hangs from that turret's node and turns with it
     const up = t.parent != null && turrets[t.parent] ? loadout.turrets[t.parent] : null;
     const node = (up ? turrets[t.parent].node : body).add(new Node('turret_' + ti));
@@ -214,10 +229,10 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
         if (p.mount !== 'gun' || (p.gun || 0) !== gi) continue;
         if (p.payload != null) {
           if (!carried[p.payload]) carried[p.payload] = new GeoBuilder();
-          addPart(carried[p.payload], p, g.trunnion, mats);
+          appendPart(carried[p.payload], p, g.trunnion, mats);
           continue;
         }
-        addPart(p.recoil ? moving : fixed, p, g.trunnion, mats, (g.def?.caliber_mm || 0) / 2000);
+        appendPart(p.recoil ? moving : fixed, p, g.trunnion, mats, (g.def?.caliber_mm || 0) / 2000);
       }
       const gn = node.add(new Node('gun_' + gi));
       gn.pos = [g.trunnion[0] - t.pivot[0], g.trunnion[1] - t.pivot[1], g.trunnion[2] - t.pivot[2]];
@@ -271,6 +286,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       gun.box(translation(0, y0 + 0.065, ahead), false, [slot, 0.13, 0.012], mats.paint_dark);
     }
     const gn = meshNode('mg_gun', tn, gun);
+    if (hitCapture) { gn.hitboxBinding = {role: 'machine_gun', moduleRef: mg.id}; pn.hitboxBinding = {role: 'machine_gun_mount', moduleRef: mg.id}; }
     gn.pos = rel;
     shellNodes.push(pn, gn);
     mgs.push({ index: mi, node: gn, post: pn, anchor: hullMounted ? 'hull' : 'turret', muzzle, muzzleVector });
@@ -330,6 +346,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     const addWheel = (name, spec, mesh, kind = 0, index = 0) => {
       const n = running.add(new Node(name));
       n.baseY = spec.y;
+      if (hitCapture) n.hitboxBinding = {role: 'running_gear', moduleRef: side < 0 ? 'track_l' : 'track_r'};
       n.pos = [side * (rg.track_x + (spec.x || 0)), spec.y, spec.z];
       // the imported model's own wheel, turning on the same axle, in place of the built-in one
       const own = impParts(name, (p) => p.side === side && p.index === index);
@@ -372,6 +389,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   }
   const matrices = new Float32Array(linkCount * 2 * 16);
   const pins = new Float32Array((linkCount + 1) * 2);
+  const openTrackPins = { 1: null, [-1]: null };
   const gearSupports = !imp && hullBuilder.vertexCount ? buildGearSupports(renderer, running, hullBuilder.data, wheels, rg, mats, meshes, vehicle.physics?.suspension?.kind) : null;
   if (gearSupports) shellNodes.push(...gearSupports.nodes);
 
@@ -392,7 +410,54 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
       const lifts = lod >= 2 ? level : dyn.lifts[side];
       const loop = lod >= 2 ? staticLoop : fitLoop(rg, stations, lifts, lod === 0 && dyn.ground ? dyn.ground[side] : null, staticLoop.length, dyn.slack ? dyn.slack[side] : 1);
       // the ground run stands still on the ground, so seen from the hull it runs backwards
+      const sideOffset = o;
       o = placeLinks(loop, linkCount, -dyn.travel[side], side * rg.track_x, matrices, o, pins);
+      if (dyn.openBelts?.[side]) {
+        let brokenPins = openTrackPins[side];
+        if (!brokenPins) brokenPins = openTrackPins[side] = new Float32Array((linkCount + 1) * 3);
+        const x = side * rg.track_x;
+        for (let i = 0; i <= linkCount; i++) {
+          brokenPins[i * 3] = x;
+          brokenPins[i * 3 + 1] = pins[i * 2 + 1];
+          brokenPins[i * 3 + 2] = pins[i * 2];
+        }
+        // Open the seam from its retained anchors rather than adding fixed rotations to
+        // the closed-loop tangents: those rotations can cancel the gap as the wheels settle.
+        const lastAnchor = (linkCount - 1) * 3;
+        const firstLength = Math.hypot(brokenPins[1] - brokenPins[4], brokenPins[2] - brokenPins[5]);
+        const lastLength = Math.hypot(brokenPins[linkCount * 3 + 1] - brokenPins[lastAnchor + 1], brokenPins[linkCount * 3 + 2] - brokenPins[lastAnchor + 2]);
+        const separation = brokenPins[5] - brokenPins[lastAnchor + 2];
+        const direction = Math.sign(separation) || 1;
+        const reach = Math.max(-0.7, Math.min(0.7, (Math.abs(separation) - pitch * 0.35) / (firstLength + lastLength || 1)));
+        const ground = dyn.ground?.[side];
+        const hinge = (anchor, free, length, sign) => {
+          const ai = anchor * 3, fi = free * 3;
+          // Raise a rigid terminal shoe about its unchanged inboard pin. Reducing its
+          // inward reach gives terrain clearance and widens the opening without stretching.
+          for (let attempt = 0; attempt <= 8; attempt++) {
+            const projection = reach > 0 ? reach * (1 - attempt / 8) : reach;
+            brokenPins[fi + 1] = brokenPins[ai + 1] + length * Math.sqrt(1 - projection * projection);
+            brokenPins[fi + 2] = brokenPins[ai + 2] + sign * length * projection;
+            if (!ground || brokenPins[fi + 1] >= ground(brokenPins[fi + 2]) + rg.track_thickness / 2) break;
+          }
+        };
+        hinge(1, 0, firstLength, -direction);
+        hinge(linkCount - 1, linkCount, lastLength, direction);
+        const writeTerminal = (index, a, b) => {
+          const ai = a * 3, bi = b * 3;
+          const dy = brokenPins[bi + 1] - brokenPins[ai + 1];
+          const dz = brokenPins[bi + 2] - brokenPins[ai + 2];
+          const len = Math.hypot(dy, dz) || 1;
+          const c = dz / len, sn = -dy / len;
+          const m = sideOffset + index * 16;
+          matrices[m] = 1; matrices[m + 1] = 0; matrices[m + 2] = 0; matrices[m + 3] = 0;
+          matrices[m + 4] = 0; matrices[m + 5] = c; matrices[m + 6] = sn; matrices[m + 7] = 0;
+          matrices[m + 8] = 0; matrices[m + 9] = -sn; matrices[m + 10] = c; matrices[m + 11] = 0;
+          matrices[m + 12] = x; matrices[m + 13] = (brokenPins[ai + 1] + brokenPins[bi + 1]) / 2; matrices[m + 14] = (brokenPins[ai + 2] + brokenPins[bi + 2]) / 2; matrices[m + 15] = 1;
+        };
+        writeTerminal(0, 0, 1);
+        writeTerminal(linkCount - 1, linkCount - 1, linkCount);
+      } else openTrackPins[side] = null;
       const phasePitch = loop.length / linkCount;
       const rawSprocketPhase = sprocketPhase(loop, pins, linkCount, rg.sprocket, teeth);
       sd.sprocket.node.pitch = liftSprocketPhase(rawSprocketPhase, teeth, dyn.travel[side], phasePitch, sd.sprocketPhaseState);
@@ -419,7 +484,9 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
   updateRunningGear({ lifts: { 1: level, [-1]: level }, travel: { 1: 0, [-1]: 0 } });
 
 
+  const hitbox = hitCapture ? new ModelHitbox(root, hitCapture) : null;
   return {
+    hitbox,
     root,
     running,
     body,
@@ -435,6 +502,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     sprocketFront: staticLoop.sprocketFront,
     linkCount,
     linkPitch: pitch,
+    openTrackPins,
     updateRunningGear,
     /** Folds the hinged flaps: 0 up (closed), 1 down. */
     setFold,
@@ -452,6 +520,7 @@ export function buildTank(renderer, loadout, generatedTurretParts) {
     imported: !!imp,
     triangles: meshes.reduce((s, m) => s + m.count / 3, 0) + importedTris,
     dispose() {
+      hitbox?.dispose();
       for (const m of meshes) renderer.freeMesh(m);
     },
   };

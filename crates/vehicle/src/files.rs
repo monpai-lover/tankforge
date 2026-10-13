@@ -227,6 +227,9 @@ pub struct SightDef {
 #[serde(deny_unknown_fields)]
 pub struct GunMount {
     pub gun: GunDef,
+    /// Donor identity for presentation audio; never selects combat properties.
+    #[serde(default, rename = "sourceVehicle", skip_serializing_if = "Option::is_none")]
+    pub source_vehicle: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mechanized_loading:Option<tg_weapon::loading::MechanizedLoadingDef>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -307,6 +310,9 @@ pub struct FoldYawLimitStage {
 #[serde(deny_unknown_fields)]
 pub struct WeaponsFile {
     pub main_gun: GunDef,
+    /// Donor identity for presentation audio; the retained GunDef owns gameplay.
+    #[serde(default, rename = "sourceVehicle", skip_serializing_if = "Option::is_none")]
+    pub source_vehicle: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub mechanized_loading:Option<tg_weapon::loading::MechanizedLoadingDef>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -393,6 +399,9 @@ pub struct TransmissionDef {
 pub struct EngineFile {
     pub engine: EngineDef,
     pub transmission: TransmissionDef,
+    /// Workshop donor used by audio only; engine/transmission data remain authoritative.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub audio_source_vehicle: Option<String>,
 }
 
 #[cfg(test)]

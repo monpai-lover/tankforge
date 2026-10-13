@@ -2,6 +2,7 @@
 // models of the guns): the swivel at the origin, the gun pointing +z. Each returns the geometry
 // and the muzzle's distance ahead of the swivel.
 import { GeoBuilder } from './geo.js';
+import { t72aNsvt } from './t72aModel.js';
 import { translation, mul, rotZ, m4 } from './math.js';
 
 const IDENTITY = m4();
@@ -101,6 +102,7 @@ function generic(b, m, heavy) {
 
 /** The pintle gun for this weapon id: { geo: GeoBuilder, muzzle: m ahead of the swivel }. */
 export function pintleGun(weapon, caliber, mats, displayVariant = null) {
+  if (weapon === 'nsvt' && displayVariant === 'nsvt_t72a') return t72aNsvt(mats);
   if (MODELS && MODELS[weapon]) {
     const a = MODELS[weapon];
     return { geo: fromAsset(a, mats, weapon === 'mg34' && displayVariant === 'mg34_remote'), muzzle: a.muzzle, muzzleVector: assetMuzzle(a) };

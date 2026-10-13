@@ -54,7 +54,7 @@ function controls(id, mesh = false, bundle = data.vehicles[id], mode = 'historic
     cam: { yaw: 0, pitch: 0, shake: 0 }, camPos: [0, 3, 0], aimPoint: [0, 3, 800], aim: { dist: 800 },
     MG: [],
     T: [],
-    aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], guided: [], online: null,
+    aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], bulletShells:new Map(), guided: [], online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
   G.veh.netState=()=>({pos:G.veh.body.origin(),ex:G.veh.body.ex,ez:G.veh.body.ez,v:G.veh.body.v,w:G.veh.body.w,track:[0,0],rpm:0,gear:0});

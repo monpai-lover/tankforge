@@ -1,0 +1,82 @@
+{
+  "schema": "ExactHitOracleWitnessV1",
+  "renderer": "Renderer.mesh/_src + Node.update",
+  "tube": {
+    "bufferHash": "9bdaffb74fedb4d48e4159b8c3c48ac0615e1bd06d1a081e406cc0161d062a11",
+    "positionsHash": "d514cca1fd4a062ecdc172eddcf665960e11490a8a52d31574d98988094536f5",
+    "firstTriangle": 0,
+    "triangles": 160
+  },
+  "queries": [
+    {
+      "key": "hetzer-empty",
+      "segment": [
+        [
+          -3,
+          0.15,
+          -1.9
+        ],
+        [
+          3,
+          0.15,
+          -1.9
+        ]
+      ],
+      "expected": []
+    },
+    {
+      "key": "selected-tube-axial",
+      "segment": [
+        [
+          0.38,
+          1.44,
+          3.83
+        ],
+        [
+          0.38,
+          1.44,
+          3.63
+        ]
+      ],
+      "expected": []
+    },
+    {
+      "key": "selected-tube-side",
+      "segment": [
+        [
+          0.534,
+          1.44,
+          3.015
+        ],
+        [
+          0.38,
+          1.44,
+          3.015
+        ]
+      ],
+      "expected": [
+        {
+          "t": 0.6720780188743095,
+          "triangle": 41,
+          "key": "vehicle/0:body/2:turret_0/1:gun_0/1:barrel/visual:14",
+          "instance": 0
+        },
+        {
+          "t": 0.7564935915346532,
+          "triangle": 47,
+          "key": "vehicle/0:body/2:turret_0/1:gun_0/1:barrel/visual:14",
+          "instance": 0
+        }
+      ]
+    }
+  ],
+  "legacy": {
+    "box": true,
+    "t": 0.26416666666666666,
+    "point": [
+      -1.415,
+      0.15,
+      -1.9
+    ]
+  }
+}

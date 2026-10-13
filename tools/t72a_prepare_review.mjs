@@ -1,0 +1,22 @@
+// Scratch review packaging only: reads repo sources/assets; never builds or deploys production.
+import fs from 'node:fs';
+import path from 'node:path';
+import {pathToFileURL} from 'node:url';
+if (!process.argv[2] || !process.argv[3]) throw new Error('Usage: node t72a_prepare_review.mjs REPO_ROOT NEW_OUTPUT_DIRECTORY');
+const root=path.resolve(process.argv[2]);
+const {loadData}=await import(pathToFileURL(path.join(root,'client/web/tools/load-data.mjs')));
+const {loadReloadAudio}=await import(pathToFileURL(path.join(root,'client/web/tools/load-reload-audio.mjs')));
+const data=loadData();
+data.designCore=fs.readFileSync(path.join(root,'client/web/assets/tg_design.wasm')).toString('base64');
+data.crewModel=JSON.parse(fs.readFileSync(path.join(root,'client/web/assets/crew_model.json'),'utf8'));
+data.mgModels=JSON.parse(fs.readFileSync(path.join(root,'client/web/assets/mg_models.json'),'utf8'));
+data.reloadAudio=loadReloadAudio(root); data.sfx={}; data.images={};
+const out=path.resolve(process.argv[3]);
+if (fs.existsSync(out)) throw new Error('Review output already exists; select a new directory.');
+fs.mkdirSync(out,{recursive:true});
+fs.writeFileSync(path.join(out,'data.json'),JSON.stringify(data));
+let t=fs.readFileSync(path.join(root,'client/web/template.html'),'utf8');
+t=t.replace('/*__DATA__*/','{}').replace('<script>/*__BUNDLE__*/</script>',`<script type="module">document.getElementById('tf-data').textContent=await (await fetch('./data.json')).text(); await import('../../client/web/src/boot.js');</script>`);
+const cut=t.indexOf('<div id="app">');
+fs.writeFileSync(path.join(out,'index.html'),'<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">'+t.slice(0,cut)+'</head><body>'+t.slice(cut)+'</body></html>');
+console.log(out,fs.statSync(path.join(out,'data.json')).size);

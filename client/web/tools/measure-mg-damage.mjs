@@ -55,7 +55,7 @@ function geometry(mg, variant = null) {
     [0, muzzleVector[0] - radius, true], [0, muzzleVector[0] + radius, false],
     [1, muzzleVector[1] - radius, true], [1, muzzleVector[1] + radius, false]]);
   return {
-    source: ['dshk', 'm2hb', 'kpvt', 'mg34'].includes(mg.id)
+    source: variant === 'nsvt_t72a' ? 'client/web/src/gfx/t72aModel.js nsvt_t72a; clipped receiver and bore ROI' : ['dshk', 'm2hb', 'kpvt', 'mg34'].includes(mg.id)
       ? 'client/web/assets/mg_models.json; clipped receiver and bore ROI'
       : 'client/web/src/gfx/mgmodel.js generic geometry; clipped receiver and bore ROI',
     muzzle: muzzleVector, receiver, barrel,
@@ -66,6 +66,7 @@ export function measureCatalog(catalog, models) {
   setMgModels(models);
   return catalog.map(mg => {
     const damage_geometry = geometry(mg);
+    if (mg.id === 'nsvt') damage_geometry.variants = { nsvt_t72a: geometry(mg, 'nsvt_t72a') };
     if (mg.id === 'mg34') damage_geometry.variants = { mg34_remote: geometry(mg, 'mg34_remote') };
     return { ...mg, damage_geometry };
   });
@@ -116,8 +117,8 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
   const mismatches = catalog.filter((m, i) => JSON.stringify(m.damage_geometry) !== JSON.stringify(measured[i].damage_geometry)).map(m => m.id);
   if (process.argv.includes('--write')) {
     fs.writeFileSync(catalogPath, catalogWithGeometry(text, measured));
-    console.log(`Updated ${catalog.length} MG measurements and mg34_remote.`);
+    console.log(`Updated ${catalog.length} MG measurements plus mg34_remote and nsvt_t72a.`);
   } else if (mismatches.length) {
     console.error('MG damage geometry differs: ' + mismatches.join(', ')); process.exitCode = 1;
-  } else console.log(`Checked ${catalog.length} MG measurements and mg34_remote.`);
+  } else console.log(`Checked ${catalog.length} MG measurements plus mg34_remote and nsvt_t72a.`);
 }

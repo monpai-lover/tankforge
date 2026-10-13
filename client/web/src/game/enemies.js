@@ -75,9 +75,17 @@ export class Enemy {
     // modules and crew (crates/combat): set by useCombat once the core is there
     this.combat = null;
     this.cstate = null;
-    this.caps = null;
+    this._caps = null;
     this.buf = [];
     this.pose();
+  }
+
+  get caps() { return this._caps; }
+  set caps(value) {
+    this._caps = value;
+    if (!this.veh) return;
+    this.veh.setDamageCaps(value);
+    if (this.model && this.x !== undefined) this.pose();
   }
 
   /** A snapshot of the other player's vehicle, received at `at` (seconds). */
@@ -160,7 +168,7 @@ export class Enemy {
       for (const mg of mt.guns) mg.node.pitch = this.alive ? -(this.gunPitch[i] || 0) : 0.08;
     });
     const tr = this.remote ? this.veh.t.travel : { 1: 0, [-1]: 0 };
-    M.updateRunningGear({ lod: 1, lifts: this.veh.wheelLifts(), travel: { 1: tr[1], [-1]: tr[-1] }, ground: { 1: this.veh.groundUnder(1), [-1]: this.veh.groundUnder(-1) }, wheels: this.veh.wheelPose() });
+    M.updateRunningGear({ lod: 1, lifts: this.veh.wheelLifts(), travel: { 1: tr[1], [-1]: tr[-1] }, ground: { 1: this.veh.groundUnder(1), [-1]: this.veh.groundUnder(-1) }, wheels: this.veh.wheelPose(), openBelts: this.veh.runningGearPose() });
   }
 
   /** A plate's corners in the hull frame (turret plates turned with the turret). */
@@ -280,14 +288,17 @@ export function useCombat(e, combat, key) {
  * segment, dir its direction (world, unit), speed m/s, distance flown. Returns the combat report
  * (with the hull-space shot it was made from, for the hit camera).
  */
-export function combatHit(e, p0, dir, shell, speed, distance, seed, onResolved = null) {
+export function combatHit(e, p0, dir, shell, speed, distance, seed, replayDischarge = null, replay_time_s = undefined, onResolved = null) {
+  // Preserve the accepted audio-only callback form while admitting replay context.
+  if (typeof replayDischarge === 'function') { onResolved = replayDischarge; replayDischarge = null; }
   const b = e.veh.body;
   // a point on the flight line a little short of the vehicle, in its own frame
   const o = b.localPoint([p0[0] - dir[0] * 2, p0[1] - dir[1] * 2, p0[2] - dir[2] * 2]);
   const d = b.localDir(dir);
-  const shot = { shell, origin: o, dir: d, speed_ms: speed, distance_m: distance, seed, turret_yaw: e.turretYaw || 0 };
+  const shot = { shell, origin: o, dir: d, speed_ms: speed, distance_m: distance, seed:replayDischarge?.seed??seed, turret_yaw: e.turretYaw || 0, replayDischarge, replay_time_s };
   const pose = captureImpactPose(e);
   const r = e.combat.shoot(e.combatKey, e.cstate, shot);
+  if(!r)return null;
   rememberImpactPose(r, pose);
   // Presentation observes the terminal report before damage changes the target's pose.
   try { onResolved?.(r); } catch {}

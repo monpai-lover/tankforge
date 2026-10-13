@@ -136,6 +136,7 @@ export class Combat {
   get ready() {
     return !!this.core;
   }
+  setReplayAdmission(admission,pose,time){this.replayAdmission=admission;this.replayPose=pose;this.replayTime=time;}
 
   /** Registers source changes once, before model/interior creation. Never changes source data. */
   prepare(id, bundle) {
@@ -233,7 +234,13 @@ export class Combat {
   /** shot: {shell, origin, dir (hull space), speed_ms, distance_m, seed, turret_yaw} */
   shoot(id, state, shot) {
     this._applyFold(id);
-    return this.core.combatShoot(id, state, { ...shot, shell: shellDef(shot.shell), origin: v3(shot.origin), dir: v3(shot.dir) });
+    const source=shot.replayDischarge,prepared=this.replayAdmission?.prepare(id,source,this.replayPose?.(id),shot.replay_time_s??this.replayTime?.()??0,state);
+    if(source&&!prepared)return null;
+    const {replayDischarge,replay_time_s,...wire}=shot;
+    const report=this.core.combatShoot(id,state,{...wire,shell:shellDef(shot.shell),origin:v3(shot.origin),dir:v3(shot.dir),seed:source?.seed??shot.seed},prepared?.context??null);
+    if(prepared){const capable=this.core.combatReplayRevision===1,evidence=this.replayAdmission.commit(prepared,state,report,capable);if(evidence)report.replay=evidence;else report.replay_unavailable=capable?'invalid_or_over_limit_evidence':'unsupported_core_causal_replay';}
+    else report.replay_unavailable='non_authoritative_analysis';
+    return report;
   }
 
   splash(id, state, at, kg, yaw, seed) {
@@ -242,19 +249,30 @@ export class Combat {
   }
 
   advance(id, state, dt, seed) {
-    return this.core.combatAdvance(id, state, dt, seed);
+    const prepared=dt>0?this.replayAdmission?.prepareAdvance(id,state):null;
+    const result=this.core.combatAdvance(id,state,dt,seed,prepared?.context??null);
+    if(prepared){const committed=this.replayAdmission.commitAdvance(prepared,state,result,dt,this.replayTime?.()??0,this.replayPose?.(id));if(this.core.combatReplayRevision===1){result.replay_commit=committed;if(committed?.replay)result.replay=committed.replay;}else result.replay_unavailable='unsupported_core_causal_replay';}
+    return result;
   }
 
   /** The vehicle now carries `carried` main-gun rounds: which racks still hold some. */
   ammo(id, state, carried) {
-    return this.core.combatAmmo(id, state, carried);
+    const prepared=this.replayAdmission?.prepareAdvance(id,state);
+    const result=this.core.combatAmmo(id,state,carried);
+    if(prepared){if(JSON.stringify(result.state.modules)!==JSON.stringify(state.modules)||JSON.stringify(result.state.rack_fill)!==JSON.stringify(state.rack_fill))this._recordState(prepared,state,result,[]);else this.replayAdmission.bindState(id,result.state);}
+    return result;
   }
 
   repair(id, state) {
-    return this.core.combatRepair(id, state);
+    const prepared=this.replayAdmission?.prepareAdvance(id,state),result=this.core.combatRepair(id,state);
+    if(prepared&&result.ok)this._recordState(prepared,state,result,['repair_started']);
+    return result;
   }
 
   extinguish(id, state) {
-    return this.core.combatExtinguish(id, state);
+    const prepared=this.replayAdmission?.prepareAdvance(id,state),result=this.core.combatExtinguish(id,state);
+    if(prepared&&result.ok)this._recordState(prepared,state,result,['extinguished']);
+    return result;
   }
+  _recordState(prepared,before,result,events){const committed=this.replayAdmission.commitAdvance(prepared,before,{...result,events,cause_transitions:[]},0,this.replayTime?.()??0,this.replayPose?.(prepared.key));result.replay_commit=committed;if(committed?.replay)result.replay=committed.replay;}
 }

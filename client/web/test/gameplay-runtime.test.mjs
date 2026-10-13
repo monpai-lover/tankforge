@@ -58,7 +58,7 @@ function controls(id, mode = 'historical') {
     T: lo.turrets.map(t => ({ yaw: t.facing, bearing: true, yawErr: 0,
       guns: t.guns.map(() => ({ pitch: 0, pitchErr: 0, smoke: 0 })),
       loading: loading.newLoading(t.guns.length, t.loaders.length, t.guns.map(g => !g.rack)) })),
-    aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], online: null,
+    aps: lo.weapons.aps, apsOn: true, shots: [], bullets: [], bulletShells:new Map(), online: null,
     veh: { body: new RigidBody(1000, [1000, 1000, 1000], [0, 0, 0]), impulse() {}, worldPoint: p => p },
   };
   G.veh.netState=()=>({pos:G.veh.body.origin(),ex:G.veh.body.ex,ez:G.veh.body.ez,v:G.veh.body.v,w:G.veh.body.w,track:[0,0],rpm:0,gear:0});

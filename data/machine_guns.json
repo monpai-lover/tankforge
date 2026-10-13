@@ -666,6 +666,40 @@
      0.0575,
      0.51
     ]
+   },
+   "variants": {
+    "nsvt_t72a": {
+     "source": "client/web/src/gfx/t72aModel.js nsvt_t72a; clipped receiver and bore ROI",
+     "muzzle": [
+      0,
+      0.06,
+      1.17
+     ],
+     "receiver": {
+      "center": [
+       -0.061,
+       0.0365,
+       -0.1685
+      ],
+      "half_extents": [
+       0.141,
+       0.1095,
+       0.3185
+      ]
+     },
+     "barrel": {
+      "center": [
+       0,
+       0.06,
+       0.66
+      ],
+      "half_extents": [
+       0.0515,
+       0.065,
+       0.51
+      ]
+     }
+    }
    }
   }
  }

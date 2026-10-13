@@ -16,6 +16,13 @@ function b64ToBytes(b64) {
 
 const enc = new TextEncoder();
 const dec = new TextDecoder();
+function combatSeed(seed,revision){
+  const text=typeof seed==='string'?seed:typeof seed==='bigint'?seed.toString():Number.isSafeInteger(seed)&&seed>=0?String(seed):null;
+  if(text===null||!/^(0|[1-9][0-9]{0,19})$/.test(text)||BigInt(text)>18446744073709551615n)throw Error('invalid combat seed');
+  if(revision===1)return text;
+  if(BigInt(text)>BigInt(Number.MAX_SAFE_INTEGER))throw Error('legacy core cannot exactly represent combat seed');
+  return Number(text);
+}
 
 export class DesignCore {
   /** instance: a WebAssembly.Instance of tg_design_wasm. */
@@ -24,6 +31,7 @@ export class DesignCore {
     this.initData = initData;
     this.calls = 0;
     this.lastMs = 0;
+    this.combatReplayRevision=instance.exports.tg_replay_revision?.()===1?1:0;
     this.call({ op: 'init', ...initData });
   }
 
@@ -31,11 +39,13 @@ export class DesignCore {
   call(req) {
     const ex = this.instance.exports;
     const bytes = enc.encode(JSON.stringify(req));
+    if (req.op?.startsWith('combat_geometry_') && bytes.length > 128 * 1024 * 1024) throw new Error('geometry diagnostic request byte limit');
     const t0 = typeof performance !== 'undefined' ? performance.now() : Date.now();
     const ptr = ex.tg_alloc(bytes.length);
     new Uint8Array(ex.memory.buffer, ptr, bytes.length).set(bytes);
-    const out = ex.tg_call(ptr, bytes.length);
-    ex.tg_free(ptr, bytes.length);
+    let out;
+    try { out = ex.tg_call(ptr, bytes.length); }
+    finally { ex.tg_free(ptr, bytes.length); }
     const view = new DataView(ex.memory.buffer);
     const n = view.getUint32(out, true);
     const text = dec.decode(new Uint8Array(ex.memory.buffer, out + 4, n));
@@ -81,14 +91,14 @@ export class DesignCore {
   combatNew(key) {
     return this.call({ op: 'combat_new', key });
   }
-  combatShoot(key, state, shot) {
-    return this.call({ op: 'combat_shoot', key, state, shot });
+  combatShoot(key, state, shot, context = null) {
+    return this.call({ op: 'combat_shoot', key, state, shot:{...shot,seed:combatSeed(shot.seed,this.combatReplayRevision)}, context:this.combatReplayRevision===1?context:null });
   }
   combatSplash(key, state, at, kg, yaw, seed) {
     return this.call({ op: 'combat_splash', key, state, at, kg, yaw, seed });
   }
-  combatAdvance(key, state, dt, seed) {
-    return this.call({ op: 'combat_advance', key, state, dt, seed });
+  combatAdvance(key, state, dt, seed, context = null) {
+    return this.call({ op: 'combat_advance', key, state, dt, seed, context:this.combatReplayRevision===1?context:null });
   }
   combatRepair(key, state) {
     return this.call({ op: 'combat_repair', key, state });
@@ -98,6 +108,21 @@ export class DesignCore {
   }
   combatExtinguish(key, state) {
     return this.call({ op: 'combat_extinguish', key, state });
+  }
+  // X1 opt-in diagnostics only. Active combat does not consume these pending surfaces.
+  combatGeometryInstall(payload, expectedHash) {
+    if (!(payload instanceof Uint8Array) || payload.byteLength > 32 * 1024 * 1024) throw new Error('geometry diagnostic binary payload byte limit');
+    return this.call({ op: 'combat_geometry_install', diagnostic: true, payload: Array.from(payload), expectedHash });
+  }
+  combatGeometryRegister(manifest, expectedHash, meshHandles) {
+    if (typeof manifest !== 'string' || enc.encode(manifest).byteLength > 4 * 1024 * 1024 || !Array.isArray(meshHandles) || meshHandles.length > 4096) throw new Error('geometry diagnostic manifest/handle limit');
+    return this.call({ op: 'combat_geometry_register', diagnostic: true, manifest, expectedHash, meshHandles });
+  }
+  combatGeometryTrace(handle, a, b, context, capacity = 4096) {
+    return this.call({ op: 'combat_geometry_trace', diagnostic: true, handle, a, b, context, capacity });
+  }
+  combatGeometryRelease(handle) {
+    return this.call({ op: 'combat_geometry_release', diagnostic: true, handle });
   }
 }
 

@@ -1,0 +1,185 @@
+{
+  "schema_version": 1,
+  "vehicle": "su_t72a",
+  "status": "GEOMETRY_COMPONENT_AND_REVIEW_COMPLETE_NATIVE_COMBAT_INTEGRATION_PENDING",
+  "remoteMainChecked": "c6486a293194f385678df704fe9b3ded1d56932c",
+  "publishedOriginalBase": "84033dd10d019bef0b7be344d6eedb77b9f87b38",
+  "worktreeBranch": "model/t72a-details-realhit-20261013",
+  "priorCandidateLocalCommit": "2c8a1c415f226aaa829bcd0f00365099659dd71b",
+  "remotePushed": false,
+  "productionDeployed": false,
+  "model": {
+    "priorAuthoredParts": 100,
+    "authoredParts": 165,
+    "additionalAuthoredParts": 65,
+    "priorUniqueTriangles": 16588,
+    "uniqueTriangles": 21168,
+    "uniqueCollisionMeshes": 15,
+    "posedMeshInstances": 273,
+    "posedTriangleInstances": 54372,
+    "geometryContentSha256": "eb30ff6b07e6006f7b8914f9d0c1b53b661bc2a0335a07aab87827ebf3cfa4ef",
+    "exactUploadedFloat32PositionEquality": true
+  },
+  "geometryAudit": {
+    "poses": 144,
+    "partPiecesIncludingMG": 167,
+    "runtimePartMappingErrorM": 2.0980834936068504e-07,
+    "seatFailures": 0,
+    "mantletContactFailures": 0,
+    "gunHullSurfaceCrossings": 0,
+    "opticObstructions": 0,
+    "blockedBores": [],
+    "mgPostStable": true
+  },
+  "node": {
+    "previousCandidate": {
+      "tests": 832,
+      "pass": 824,
+      "fail": 8,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "failedTests": [
+        "test/ammo-resupply-network.test.mjs",
+        "test/gameplay-network.test.mjs",
+        "real source-tagged native T72 C2 outputs replay into stock OnlineAmmo and fitted mechanical work",
+        "aps_pose actual stabilized aimTurrets State observations are admitted under the shared motor profile",
+        "aps_pose su_t10m historical actual six-step encoder fits the finite parented-joint quantization bound",
+        "aps_pose su_t10m casual actual six-step encoder fits the finite parented-joint quantization bound",
+        "aps_pose su_t10m_oplot23 historical actual six-step encoder fits the finite parented-joint quantization bound",
+        "aps_pose su_t10m_oplot23 casual actual six-step encoder fits the finite parented-joint quantization bound"
+      ]
+    },
+    "thisCandidate": {
+      "tests": 845,
+      "pass": 837,
+      "fail": 8,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "failedTests": [
+        "test/ammo-resupply-network.test.mjs",
+        "test/gameplay-network.test.mjs",
+        "real source-tagged native T72 C2 outputs replay into stock OnlineAmmo and fitted mechanical work",
+        "aps_pose actual stabilized aimTurrets State observations are admitted under the shared motor profile",
+        "aps_pose su_t10m historical actual six-step encoder fits the finite parented-joint quantization bound",
+        "aps_pose su_t10m casual actual six-step encoder fits the finite parented-joint quantization bound",
+        "aps_pose su_t10m_oplot23 historical actual six-step encoder fits the finite parented-joint quantization bound",
+        "aps_pose su_t10m_oplot23 casual actual six-step encoder fits the finite parented-joint quantization bound"
+      ]
+    },
+    "sameFailures": true,
+    "newHitboxTests": {
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "failedTests": []
+    },
+    "existingModelTests": {
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0,
+      "failedTests": []
+    },
+    "failureReason": "Existing missing native/generated verification receipts. No assertions skipped, relaxed or fake receipts supplied."
+  },
+  "gpuVsCpu": {
+    "loadingMode": "about:blank set_content; direct file navigation not verified",
+    "htmlSha256": "835c7bfd9efdf219c0a6fd7d2b6a7a14926ddd28df14e7f794c53c0c6c789013",
+    "browser": "144.0.7559.96",
+    "views": 4,
+    "sampledPixelCenters": 2240,
+    "samplesOnGeometry": 237,
+    "coverageMismatches": 0,
+    "depthMismatches": 0,
+    "maxNormalizedDepthError": 3.496568798944111e-07,
+    "depthTolerance": 3e-06,
+    "scope": "Independent simplified WebGL2 review renderer using exact model buffers; finite samples including misses, not proof for every pixel or arbitrary pose."
+  },
+  "actualGameBrowser": {
+    "renderer": "Chromium 144.0.7559.96 / WebGL2 / ANGLE SwiftShader / Xvfb; actual boot.js/main.js, local blob import-map packaging",
+    "recordedFrames": 11,
+    "pngCount": 12,
+    "errors": [],
+    "messages": [],
+    "mgShots": 7,
+    "mgMuzzleEmissionErrorM": 8.543552590585307e-06,
+    "postUnchanged": true,
+    "scope": "Actual production boot/main/renderer, still original WASM damage. Appearance/control validation, not a live surface-hit damage test."
+  },
+  "regressionScope": {
+    "vehicles": [
+      "su_t72a"
+    ],
+    "machineGuns": [],
+    "vehicleCount": 28,
+    "machineGunCount": 12,
+    "excludedImported": [
+      "su_t10m",
+      "su_t10m_oplot23",
+      "su_bmpt34",
+      "us_m56",
+      "xp_kda35",
+      "de_gepard",
+      "de_aufkl_panther",
+      "de_vk1602",
+      "de_hetzer_mk103",
+      "de_hetzer_mk103_camo",
+      "de_sdkfz140_1",
+      "de_hetzer_sdkfz1401",
+      "xp_bmp_k64",
+      "xp_bmp_k64_atgm",
+      "xp_bmp_k64_kornet",
+      "su_att_m46"
+    ]
+  },
+  "schemaAndProtectedFiles": {
+    "schemaValid": true,
+    "unchanged": {
+      "data/vehicles/su_t72a/vehicle.json": true,
+      "data/vehicles/su_t72a/weapons.json": true,
+      "data/vehicles/su_t72a/engine.json": true,
+      "data/vehicles/su_t72a/armor.json": true,
+      "data/vehicles/su_t72a/crew.json": true,
+      "data/vehicles/su_t72a/modules.json": true,
+      "client/web/src/main.js": true,
+      "client/web/src/game/enemies.js": true,
+      "client/web/src/game/combat.js": true,
+      "client/web/src/game/audio.js": true,
+      "client/web/src/gfx/track.js": true,
+      "crates/combat/src/lib.rs": true
+    }
+  },
+  "sourceHashes": {
+    "data/vehicles/su_t72a/visual.json": "48b5bf1434f3784ece8a289c7c52d6174c24d0bad295c25ece2236badef7f7e0",
+    "tools/t72a_visual.mjs": "c10ddb2f16d2eebb4c63e5462a481b2c0a35cbf4c196cf4ac5f57c43a002cb73",
+    "client/web/src/gfx/tankmodel.js": "c7fd9cf75fcbfebdf7c537a6bd95c820a2c68acbd2ac37aff6480596f6625742",
+    "client/web/src/gfx/t72aModel.js": "7f2a3a33d39e69d1a971f55a27d898fc7241abb3dbbc6d795a3d10e34eff187e",
+    "client/web/src/gfx/geo.js": "9089a6b46999fddeabe8e3fb020e9bdebdbbd300003a6c5be4135d799242772a",
+    "client/web/src/gfx/math.js": "6fb4c7832ec98c2011c35470954fbda13031e12739047e473705219bb89cefc5",
+    "client/web/src/gfx/track.js": "e61c078087a9ee41db2d85b7353e1a2a0eaff04d345b1be4399c20364bec9830",
+    "client/web/src/gfx/gearSupports.js": "c7c67923665a44c34b6ca4579c5d2ddfbf674e7361e9c8693dda47c33701deec",
+    "client/web/src/gfx/mgmodel.js": "36a4485d62f2d09b2b47db54b8d1b2c91080fbe2017b784a6245a5a853103f52",
+    "client/web/src/collision/meshHitbox.js": "1545e0d8d3506410cd9949784c343a609324df6b398282f445a24fc934cdfed1"
+  },
+  "environmentLimits": [
+    "Direct file:// browser navigation was blocked by administrator policy; about:blank HTML injection was used for the successful test.",
+    "Browser requires the working Xvfb display for SwiftShader in this environment; initial no-display attempt failed."
+  ],
+  "notCompleted": [
+    "Native Rust/WASM/server authoritative triangle collision and damage event integration",
+    "Complete projectile-geometry sweep (positive radius is a spherical approximation)",
+    "Continuous collision against moving/rotating targets over an entire time step",
+    "Precise internal module/crew mesh collision; existing boxes/spheres are unchanged",
+    "Automatic detached-track/damaged-part state wiring",
+    "Full online hit/kill replay and heterogeneous workshop transplant acceptance",
+    "iOS/Safari device validation and many-tank performance validation",
+    "Factory-measured 1979-specific detail/armor thickness map"
+  ]
+}

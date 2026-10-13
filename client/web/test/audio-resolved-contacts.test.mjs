@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import { Sound } from '../src/game/audio.js';
 import { Combat, arr3, bulletShell } from '../src/game/combat.js';
 import { combatHit } from '../src/game/enemies.js';
+import { capturePlayerImpactPose, rememberImpactPose } from '../src/game/replayPose.js';
 import { TestRange } from '../src/game/testrange.js';
 import { RigidBody } from '../src/sim/tank/body.js';
 import { loadData } from '../tools/load-data.mjs';
@@ -23,9 +24,10 @@ const effects=new Proxy({},{get:()=>()=>{}});
 function impactLayers(r,report){assert.equal(report.outcome,'penetrated');assert.ok(report.layers.length>=1);assert.ok(r.starts.includes('impact_penetrated'));assert.ok(r.starts.includes('tail_steel'));assert.equal(r.starts.some(id=>id.startsWith('blast_')),report.bursts.some(b=>(b.explosive_kg??b.explosive_mass_kg)>0));}
 
 test('actual matched WASM self missile report emits armor audio before self state changes with no invented blast',()=>{
-  const r=audio(),t=target(),def=data.missiles.bgm71a_tow,war=data.projectiles[def.warhead],G={time:1,combat:t.combat,combatKey:t.e.combatKey,cstate:t.fresh.state,caps:t.fresh.caps,veh:{body:t.body},T:[{yaw:0}],cam:{shake:0}},initial=G.cstate;let report;
+  const r=audio(),t=target(),def=data.missiles.bgm71a_tow,war=data.projectiles[def.warhead],G={time:1,combat:t.combat,combatKey:t.e.combatKey,cstate:t.fresh.state,caps:t.fresh.caps,veh:{body:t.body},model:t.e.model,loadout:{turrets:[]},T:[{yaw:0}],cam:{shake:0}},initial=G.cstate;let report;
   const shoot=t.combat.shoot.bind(t.combat);t.combat.shoot=(...args)=>report=shoot(...args);const contact=r.sound.contact;r.sound.contact=event=>{assert.equal(G.cstate,initial);contact(event);};
-  actual('selfMissileHit',{G,fx:effects,sound:r.sound,rng:{nextF32:()=>.5},hud:{toast(){}},arr3})([3,2.05,.75],[-1,0,0],war,300,def);
+  // This audio fixture has no admitted replay; retain the actual captured pose without a UI.
+  actual('selfMissileHit',{G,fx:effects,sound:r.sound,rng:{nextF32:()=>.5},hud:{toast(){}},arr3,capturePlayerImpactPose,savePlayerReplayPose:rememberImpactPose,presentVictimReplay:()=>false})([3,2.05,.75],[-1,0,0],war,300,def);
   assert.equal(r.contacts.length,1);assert.equal(r.contacts[0].eventId,report);assert.deepEqual(r.contacts[0].bursts,[]);assert.equal(G.cstate,report.state);impactLayers(r,report);
 });
 test('actual matched WASM AI and player missile hits emit the same report family once independently of hit replay',()=>{

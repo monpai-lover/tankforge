@@ -3,72 +3,22 @@
 // file draws them -- the missile with its fins, the motor's flame and smoke, the tracking flare,
 // the protection gun's bursts and tracers, bullets striking the missile, air bursts and breaking
 // up -- and plays them.
-import { Node, rotX, rotY, mul, translation } from '../gfx/math.js';
-import { GeoBuilder, hexToLinear } from '../gfx/geo.js';
+import { Node, m4 } from '../gfx/math.js';
+import { ProjectileFlightOwner, poseProjectile } from './projectileFlight.js';
 
 const G = 9.80665;
-const mat = (hex, rough = 0.6, metal = 0.2) => ({ color: hexToLinear(hex), rough, metal });
 /** Colours of each missile type: body, fins and bands. */
 const LOOK = {
   bgm71a_tow: { body: '#5d6640', fins: '#3a3f2a', band: '#c9a43a', flare: [1.0, 0.95, 0.75] },
   tt250_rocket: { body: '#4b4f4c', fins: '#363a38', band: '#6e7370', flare: [1.0, 0.72, 0.35] },
 };
 
-/** A ring of points round the y axis at height y (wound the way GeoBuilder.loft wants). */
-function ring(r, y, n = 16) {
-  const out = [];
-  for (let i = 0; i < n; i++) {
-    const a = -(i / n) * 2 * Math.PI;
-    out.push([r * Math.cos(a), y, r * Math.sin(a)]);
-  }
-  return out;
-}
-
-/**
- * The missile's body as a mesh along +z (nose forward): a lofted body from its radius profile,
- * the fins, and a band. Built along +y and turned onto +z.
- */
-function missileGeometry(def) {
-  const L = def.length_m;
-  const r = def.caliber_mm / 2000;
-  const look = LOOK[def.id] || LOOK.bgm71a_tow;
-  const body = mat(look.body, 0.55, 0.25);
-  const fins = mat(look.fins, 0.6, 0.3);
-  const band = mat(look.band, 0.5, 0.2);
-  const b = new GeoBuilder();
-  const up = rotX(Math.PI / 2); // +y onto +z
-  const h = L / 2;
-  // radius profile tail -> nose; a rocket has a blunt ogive, a missile a short rounded nose
-  const prof =
-    def.guidance === 'none'
-      ? [[-h, r * 0.78], [-h + 0.06, r * 0.92], [-h + 0.14, r], [h - 0.55, r], [h - 0.32, r * 0.93], [h - 0.16, r * 0.74], [h - 0.06, r * 0.42], [h, r * 0.08]]
-      : [[-h, r * 0.62], [-h + 0.04, r * 0.85], [-h + 0.08, r], [h - 0.22, r], [h - 0.12, r * 0.88], [h - 0.05, r * 0.6], [h, r * 0.2]];
-  b.loft(up, false, prof.map(([y, rr]) => ring(rr, y, 18)), body, 32, [true, true]);
-  // a band round the body behind the warhead
-  const by = h - L * 0.38;
-  b.loft(up, false, [ring(r * 1.012, by - 0.03, 18), ring(r * 1.012, by + 0.03, 18)], band, 10, [false, false]);
-  // fins: four at the tail, and for a wire-guided missile four wings amidships
-  const span = Math.max(def.span_m / 2, r * 1.4);
-  const finSet = (y, chord, outer, t) => {
-    for (let k = 0; k < 4; k++) {
-      const a = (k * Math.PI) / 2 + Math.PI / 4;
-      const mid = (r + outer) / 2;
-      // radial: the fin's span (box x) along (cos a, 0, sin a) of the body frame
-      const m = mul(up, mul(translation(Math.cos(a) * mid, y, Math.sin(a) * mid), rotY(-a)));
-      b.box(m, false, [outer - r, chord, t], fins);
-    }
-  };
-  finSet(-h + 0.09, def.guidance === 'none' ? 0.34 : 0.12, span, 0.008);
-  if (def.guidance !== 'none') finSet(-h + L * 0.55, 0.14, span * 0.95, 0.006);
-  return b.build();
-}
-
 export class Missiles {
   /**
    * core: the WebAssembly core (design/core.js); defs: data.missiles; projectiles: data.projectiles
    * (the warheads); renderer, scene: where the missiles are drawn; fx, sound: effects and audio.
    */
-  constructor({ core, defs, projectiles, renderer, scene, fx, sound }) {
+  constructor({ core, defs, projectiles, renderer, scene, fx, sound, projectileFlight = null }) {
     this.core = core;
     this.defs = defs || {};
     this.projectiles = projectiles || {};
@@ -76,7 +26,8 @@ export class Missiles {
     this.scene = scene;
     this.fx = fx;
     this.sound = sound;
-    this.meshes = new Map();
+    this.projectileFlight = projectileFlight || (renderer ? new ProjectileFlightOwner(renderer, {projectiles: this.projectiles, missiles: this.defs}) : null);
+    this.bodyLeases = new Map();
     this.nodes = new Map(); // missile id -> {node, def, prev, trailAcc, t}
     this.tracers = [];
     this.aps = new Map(); // owner -> latest state
@@ -84,6 +35,9 @@ export class Missiles {
     this.local = true;
     this.audioMounts = new Map();
     this.audioOrdinals = new Map();
+    this.acceptedLaunches=new Map();
+    this.terminalLaunches=new Map(); // struck sources awaiting this frame's contact delivery
+    this.retainedSegments=null;
   }
   setAudioMount(owner, weaponId, instance, position) { this.audioMounts.set(owner,{weaponId,instance,position}); }
 
@@ -94,8 +48,10 @@ export class Missiles {
   /** Clears the sky (a new battle): the terrain grid the missiles fly over and the radar sees. */
   reset(terrain = null) {
     this.sound?.resetMissiles?.();
-    for (const id of this.nodes.keys()) this.sound.removeProjectile?.(id);
-    for (const owner of this.aps.keys()) this.sound.cancelOwner?.(`aps:${owner}`);
+    for (const id of this.nodes.keys()) this.sound?.removeProjectile?.(id);
+    for (const owner of this.aps.keys()) this.sound?.cancelOwner?.(`aps:${owner}`);
+    for(const a of [...this.acceptedLaunches.values(),...this.terminalLaunches.values()])a.lease?.release();
+    this.acceptedLaunches.clear();this.terminalLaunches.clear();this.retainedSegments=null;
     for (const v of this.nodes.values()) this._drop(v);
     this.nodes.clear();
     this.tracers.length = 0;
@@ -104,10 +60,18 @@ export class Missiles {
     if (this.core) this.core.call({ op: 'mw_reset', defs: Object.values(this.defs), terrain });
   }
 
-  launch(def, owner, team, pos, dir, seed, id = null, audio = {}) {
+  launch(def, owner, team, pos, dir, seed, id = null, context = null) {
     if (!this.core) return null;
     const r = this.core.call({ op: 'mw_launch', def, owner, team, pos, dir, seed: seed >>> 0, id });
-    if (r.id != null) this._launchLook(def, pos, dir,{...audio,projectileId:r.id,emitterId:`missile:${owner}`});
+    if (r.id != null) {
+      this._launchLook(def,pos,dir,{...context,projectileId:r.id,emitterId:`missile:${owner}`});
+      const time_s=this.replayTime?.()??null;
+      const source=context?.weapon_instance&&context?.projectile_id&&this.replayAdmission&&Number.isFinite(time_s)?this.replayAdmission.acceptDischarge(owner,{...context,seed:seed>>>0,time_s,origin:pos,direction:dir,flight_trust:'missile_world_segments_legacy_contact'}):null;
+      this.acceptedLaunches.get(r.id)?.lease?.release();this.terminalLaunches.get(r.id)?.lease?.release();this.terminalLaunches.delete(r.id);
+      const lease=source?this.replayAdmission.retainProjectile(source):null;
+      this.acceptedLaunches.set(r.id,{id:r.id,owner,def,source,lease,previous:pos.slice(),distance:0,time_offset:Number.isFinite(r.time_s)?time_s-r.time_s:null});
+      if(this.acceptedLaunches.size>256){const oldest=this.acceptedLaunches.keys().next().value;this.acceptedLaunches.get(oldest).lease?.release();this.acceptedLaunches.delete(oldest);}
+    }
     return r.id;
   }
 
@@ -117,7 +81,9 @@ export class Missiles {
 
   /** The missile struck something the world does not know of (a vehicle, a building). */
   end(id) {
-    this.sound.removeProjectile?.(id);
+    this.sound?.removeProjectile?.(id);
+    this.acceptedLaunches.get(id)?.lease?.release();this.terminalLaunches.get(id)?.lease?.release();this.terminalLaunches.delete(id);
+    this.acceptedLaunches.delete(id);
     if (this.core) this.core.call({ op: 'mw_end', id });
     const v = this.nodes.get(id);
     if (v) {
@@ -145,14 +111,46 @@ export class Missiles {
 
   /** Steps the world (offline) and draws the result. actors: see crates/missile Actor. */
   step(dt, actors) {
+    for(const a of this.terminalLaunches.values())a.lease?.release();
+    this.terminalLaunches.clear();this.retainedSegments=null;
     if (!this.core || !(dt > 0)) return { events: [], fired: [], missiles: [], aps: [] };
     const res = this.core.call({ op: 'mw_step', dt, actors });
-    this.present(res, dt);
+    this.retainedSegments=[];
+    for(const m of [...(res.missiles||[]),...(res.ended||[])]) {
+      const admitted=this.acceptedLaunches.get(m.id);if(!admitted)continue;
+      const contact=(res.events||[]).find(e=>e.type==='missile_hit'&&e.missile===m.id);
+      const p0=admitted.previous.slice(),p1=(contact?.point||m.pos).slice();
+      admitted.distance+=Math.hypot(...p1.map((v,i)=>v-p0[i]));admitted.previous=p1;if(admitted.source)admitted.source.travelled_distance_m=admitted.distance;
+      const time_s=Number.isFinite(res.time_s)&&Number.isFinite(admitted.time_offset)?res.time_s+admitted.time_offset:null;
+      const source=admitted.source;
+      if(source&&Number.isFinite(time_s)) {
+        if(!source.flight.length)source.flight.push({time_s:source.launch_time_s,position:p0.slice(),velocity_m_s:m.vel.slice()});
+        if(source.flight.length>=256){source.flight.splice(1,1);source.flight_compacted_count=(source.flight_compacted_count||0)+1;}
+        source.flight.push({time_s,position:p1.slice(),velocity_m_s:m.vel.slice()});
+        if(source.segments.length>=256){source.segments.splice(1,1);source.segment_compacted_count=(source.segment_compacted_count||0)+1;}
+        source.segments.push({start_time_s:Math.max(source.launch_time_s,time_s-dt),end_time_s:time_s,from:p0.slice(),to:p1.slice()});
+      }
+      if(!m.status||m.status==='flying'||m.status==='struck')this.retainedSegments.push({id:m.id,owner:m.owner,team:m.team,def:m.def,p0,p1,vel:m.vel.slice(),contact,source,distance:admitted.distance,time_s});
+    }
+    try { this.present(res, dt); }
+    finally {
+      for(const m of res.ended||[]){
+        const admitted=this.acceptedLaunches.get(m.id);if(!admitted)continue;
+        if(m.status==='struck'&&this.retainedSegments.some(s=>s.id===m.id&&s.contact))this.terminalLaunches.set(m.id,admitted);
+        else admitted.lease?.release();
+        this.acceptedLaunches.delete(m.id);
+      }
+      // The preserved legacy core has no terminal snapshots. Its absent missiles
+      // must still retire; no contact sweep or timestamp is invented for them.
+      const flying=new Set((res.missiles||[]).map(m=>m.id));
+      for(const[id,admitted]of this.acceptedLaunches)if(!flying.has(id)){admitted.lease?.release();this.acceptedLaunches.delete(id);}
+    }
     return res;
   }
 
   /** Where each missile moved this frame: [{id, owner, team, def, p0, p1, vel}] (for hit tests). */
   segments() {
+    if(this.local&&this.retainedSegments)return this.retainedSegments;
     const out = [];
     for (const [id, v] of this.nodes) if (v.prev && v.pos) out.push({ id, owner: v.owner, team: v.team, def: v.def.id, p0: v.prev, p1: v.pos, vel: v.vel });
     return out;
@@ -179,7 +177,7 @@ export class Missiles {
       v.t += dt;
       this._pose(v);
       this._trail(v, dt);
-      if(v.prev)this.sound.projectileSegment?.({id:m.id,p0:v.prev,p1:v.pos,velocity:v.vel,time:this.sound.full?.listener.time??0,caliber:def.caliber_mm,motor:v.motor});
+      if(v.prev)this.sound?.projectileSegment?.({id:m.id,p0:v.prev,p1:v.pos,velocity:v.vel,time:this.sound?.full?.listener.time??0,caliber:def.caliber_mm,motor:v.motor});
     }
     // how they ended, while the missiles are still known
     for (const a of res.aps || []) {
@@ -191,7 +189,7 @@ export class Missiles {
     for (const e of res.events || []) this._event(e);
     for (const [id, v] of this.nodes) {
       if (!seen.has(id)) {
-        this.sound.removeProjectile?.(id);
+        this.sound?.removeProjectile?.(id);
         this._drop(v);
         this.nodes.delete(id);
       }
@@ -230,7 +228,7 @@ export class Missiles {
     for (const v of this.nodes.values()) {
       const look = LOOK[v.def.id] || LOOK.bgm71a_tow;
       const d = norm(v.vel);
-      const back = v.def.length_m / 2;
+      const back = v.def.length_m;
       const p = [v.pos[0] - d[0] * back, v.pos[1] - d[1] * back, v.pos[2] - d[2] * back];
       fx.spawn({ pos: p, life: 0.05, size0: v.def.guidance === 'none' ? 0.5 : 0.22, color: look.flare, alpha: 0.9, additive: true });
     }
@@ -238,37 +236,31 @@ export class Missiles {
 
   // ------------------------------------------------------------------ inside
 
-  _mesh(def) {
-    if (!this.meshes.has(def.id)) this.meshes.set(def.id, this.renderer.mesh(missileGeometry(def)));
-    return this.meshes.get(def.id);
-  }
-
   _node(def) {
-    const n = new Node('missile');
-    n.mesh = this._mesh(def);
-    n.castShadow = true;
-    this.scene.add(n);
+    if (!this.projectileFlight) return new Node('missile_unavailable');
+    const profile = this.projectileFlight.profile(this.projectiles[def.warhead], def), lease = this.projectileFlight.acquire(profile, 'intact', 'missile');
+    const n = lease.node; this.bodyLeases.set(n, lease);
+    this.scene?.add(n);
     return n;
   }
 
   _drop(v) {
-    this.scene.children = this.scene.children.filter((c) => c !== v.node);
+    this.bodyLeases.get(v.node)?.release(); this.bodyLeases.delete(v.node);
+    if(this.scene)this.scene.children = this.scene.children.filter((c) => c !== v.node);
   }
 
   _pose(v) {
     const n = v.node;
-    n.pos = v.pos.slice();
-    const sp = Math.hypot(v.vel[0], v.vel[2]);
-    n.yaw = Math.atan2(v.vel[0], v.vel[2]);
-    n.pitch = -Math.atan2(v.vel[1], sp);
-    // a wire-guided missile rolls slowly; a damaged one tumbles a little
-    n.roll = v.t * (v.def.guidance === 'none' ? 0.6 : 2.4) + (v.hits ? Math.sin(v.t * 9) * 0.3 * v.hits : 0);
+    if(!n.projectileProfile)return;
+    // The missile-world point is its recorded legacy contact anchor, now also the display nose.
+    poseProjectile(n, v.pos, v.vel, n.projectileProfile);
+    if(!n.local)n.local=m4(); n.local.set(n.world);
   }
 
   _trail(v, dt) {
     const fx = this.fx;
     const d = norm(v.vel);
-    const back = v.def.length_m / 2;
+    const back = v.def.length_m;
     const tail = [v.pos[0] - d[0] * back, v.pos[1] - d[1] * back, v.pos[2] - d[2] * back];
     const heavy = v.def.guidance === 'none';
     // the motor's flame while it burns
@@ -299,7 +291,7 @@ export class Missiles {
       const j = () => (Math.random() - 0.5) * 2;
       fx.spawn({ pos, vel: [-dir[0] * s + j(), -dir[1] * s + Math.random(), -dir[2] * s + j()], life: 1.6 + Math.random() * 1.6, size0: heavy ? 0.8 : 0.4, size1: heavy ? 3.6 : 2.2, color: [0.72, 0.7, 0.66], alpha: 0.5, drag: 1.5, gravity: -0.3, fadeIn: 0.04 });
     }
-    this.sound.launch(dist(pos, this.camPos), heavy,{...audio,missileId:defId,position:pos,direction:dir,time:audio.time??this.sound.full?.listener.time??0});
+    this.sound?.launch?.(dist(pos, this.camPos), heavy,{...audio,missileId:defId,position:pos,direction:dir,time:audio.time??this.sound?.full?.listener.time??0});
   }
 
   _fired(list) {
@@ -349,7 +341,7 @@ export class Missiles {
           // the warhead goes off in the air: the shaped charge's jet flash, fireball, fragments
           fx.explosion(e.point, null, kg, false);
           fx.spawn({ pos: e.point, life: 0.08, size0: 3.5, size1: 7, color: [1, 0.95, 0.85], alpha: 1, additive: true });
-          this.sound.blast(kg, d(e.point),{eventId:`missile:${e.missile}`,position:e.point,time:this.sound.full?.listener.time??0});
+          this.sound?.blast?.(kg, d(e.point),{eventId:`missile:${e.missile}`,position:e.point,time:this.sound?.full?.listener.time??0});
         } else {
           // broken up: the motor bursts and the pieces fall
           fx.explosion(e.point, null, Math.min(kg * 0.15, 0.6), false);
@@ -357,8 +349,8 @@ export class Missiles {
             const j = () => (Math.random() - 0.5) * 12;
             fx.spawn({ pos: e.point, vel: [j(), Math.random() * 6, j()], life: 1.6 + Math.random(), size0: 0.08, size1: 0.06, color: [0.12, 0.12, 0.11], alpha: 1, gravity: 9.8, drag: 0.3 });
           }
-          this.sound.contact?.({eventId:`missile:${e.missile}`,position:e.point,debris:'metal_debris',bursts:[],time:this.sound.full?.listener.time??0});
-          if(!this.sound.fullEnabled)this.sound.blast(0.5,d(e.point));
+          this.sound?.contact?.({eventId:`missile:${e.missile}`,position:e.point,debris:'metal_debris',bursts:[],time:this.sound?.full?.listener.time??0});
+          if(!this.sound?.fullEnabled)this.sound?.blast?.(0.5,d(e.point));
         }
         break;
       }

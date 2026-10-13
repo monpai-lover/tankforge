@@ -15,13 +15,23 @@
     },
     "mg_variants": {
       "type": "object",
-      "description": "Display variants by secondary weapon id. The Hetzer remote MG34 omits the infantry buttstock; the shared source asset and weapon tuning are preserved.",
-      "additionalProperties": { "enum": ["mg34_remote"] }
+      "description": "Display-only variants by secondary instance id. Each variant keeps its mount hierarchy and has measured damage_geometry metadata; no weapon tuning is changed.",
+      "additionalProperties": {
+        "enum": [
+          "mg34_remote",
+          "nsvt_t72a"
+        ]
+      }
     },
     "mg_anchors": {
       "type": "object",
       "description": "Pintle attachment frames by secondary weapon id. Omitted entries ride with the main turret; hull entries stay fixed to the casemate roof.",
-      "additionalProperties": { "enum": ["hull", "turret"] }
+      "additionalProperties": {
+        "enum": [
+          "hull",
+          "turret"
+        ]
+      }
     },
     "palette": {
       "type": "object",
@@ -375,6 +385,83 @@
                 "description": "index of the gun within that turret (mount = gun)"
               }
             }
+          },
+          {
+            "type": "object",
+            "required": [
+              "type",
+              "vertices",
+              "faces"
+            ],
+            "properties": {
+              "type": {
+                "const": "mesh"
+              },
+              "name": {
+                "type": "string"
+              },
+              "mount": {
+                "enum": [
+                  "hull",
+                  "turret",
+                  "gun"
+                ]
+              },
+              "vertices": {
+                "type": "array",
+                "minItems": 3,
+                "items": {
+                  "type": "array",
+                  "minItems": 3,
+                  "maxItems": 3,
+                  "items": {
+                    "type": "number"
+                  }
+                }
+              },
+              "faces": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "minItems": 3,
+                  "items": {
+                    "type": "integer",
+                    "minimum": 0
+                  }
+                }
+              },
+              "t72a_smoothing": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 2
+                },
+                "description": "Only t72a_cast_turret consumes these per-triangle smoothing groups. Aperture reveals and caps use zero (flat)."
+              },
+              "recoil": {
+                "type": "boolean"
+              }
+            },
+            "allOf": [
+              {
+                "if": {
+                  "required": [
+                    "t72a_smoothing"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "const": "t72a_cast_turret"
+                    }
+                  }
+                }
+              }
+            ]
           }
         ]
       }
@@ -568,6 +655,22 @@
     "hull_bottom": {
       "type": "number",
       "description": "Height of the hull's floor (m) for the belly contacts, when the parts do not give it."
+    },
+    "t72a_hitbox": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "source"
+      ],
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "source": {
+          "const": "render_vertex_buffers"
+        }
+      }
     }
   }
 }
