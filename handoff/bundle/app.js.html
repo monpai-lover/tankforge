@@ -15899,6 +15899,7 @@ precision highp float;void main(){}`);
       gl.disable(gl.SCISSOR_TEST);
       gl.viewport(0, 0, this.w, this.h);
       gl.depthMask(true);
+      gl.colorMask(true, true, true, true);
       gl.clearColor(0.012, 0.018, 0.024, 0);
       gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     }
@@ -15915,7 +15916,12 @@ precision highp float;void main(){}`);
       gl.useProgram(this.skyProgram.p);
       this.f(this.skyProgram, "uMini", settings.mini ? 1 : 0);
       gl.bindVertexArray(this.emptyVAO);
+      gl.colorMask(true, true, true, true);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      // The opaque sky marks the view as covered (alpha 1). Everything drawn over it keeps that alpha:
+      // the overlay canvas is composited with alpha, so blended ghost/x-ray parts must not punch
+      // see-through holes to the live game view behind the replay.
+      gl.colorMask(true, true, true, false);
       let vp = camera2.viewProj || M.mul(M.perspective((camera2.fov || 45) * Math.PI / 180, w / h), M.look(camera2.eye, camera2.target));
       let p = this.meshProgram;
       gl.useProgram(p.p);
@@ -15988,7 +15994,7 @@ precision highp float;void main(){}`);
       for (let q of opaque) draw(q);
       transparent.sort((a, b) => V3.len(V3.sub(M.point(b.n.model, b.n.center), camera2.eye)) - V3.len(V3.sub(M.point(a.n.model, a.n.center), camera2.eye)));
       gl.enable(gl.BLEND);
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
       gl.depthMask(false);
       for (let q of transparent) draw(q);
       if (ghost > 0.02) {
@@ -16012,14 +16018,14 @@ precision highp float;void main(){}`);
         gl.depthMask(true);
         for (let n of settings.extra) if ((n.alpha ?? 1) >= 0.999) draw({ n, alpha: 1, g: 0, d: 0, heat: 0 });
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.depthMask(false);
         for (let n of settings.extra) if ((n.alpha ?? 1) < 0.999) draw({ n, alpha: n.alpha, g: 0, d: 0, heat: 0 });
       }
       if (settings.fragments && this.samples) {
         gl.depthMask(false);
         gl.enable(gl.BLEND);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         let t = this.traceProgram;
         gl.useProgram(t.p);
         this.mat(t, "uVP", vp);
@@ -16035,7 +16041,7 @@ precision highp float;void main(){}`);
         this.f(s, "uTime", settings.time || 0);
         gl.bindVertexArray(this.shard.vao);
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.shard.ib);
-        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.blendFuncSeparate(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA, gl.ONE, gl.ONE_MINUS_SRC_ALPHA);
         gl.drawElementsInstanced(gl.TRIANGLES, this.shard.count, gl.UNSIGNED_INT, 0, settings.dynamicCount ?? this.samples);
         this.drawCalls += 3;
         if (settings.field) {
@@ -16050,6 +16056,7 @@ precision highp float;void main(){}`);
       }
       gl.depthMask(true);
       gl.disable(gl.BLEND);
+      gl.colorMask(true, true, true, true);
       return vp;
     }
     finish(bloom = 0.075) {
@@ -19442,6 +19449,7 @@ precision highp float;void main(){}`);
 
   // client/web/src/i18n/en.json
   var en_default = {
+    "\u5916\u90E8\u96F6\u4EF6\u5F8C\u65B9": "behind external parts",
     "%\u3000\u4E0B\u9677": "%\u3000sinks",
     "%\u3000\u5F48\u7C27": "%\u3000spring",
     ") m\u3000\u5167\u90E8\u5269\u9918": ") m\u3000room left inside",
@@ -20920,8 +20928,9 @@ precision highp float;void main(){}`);
       const q = point2(p);
       return finite(q) ? q.reduce((s, v2, k) => s + (v2 - contact.point[k]) * dir[k], 0) : NaN;
     };
+    const pathContacts = Array.isArray(report.primary_geometry_contacts) ? report.primary_geometry_contacts : report.geometry_contacts || [];
     let interior2 = Infinity;
-    for (const c of report.geometry_contacts || []) if (["module", "crew"].includes(c.physicalRole)) {
+    for (const c of pathContacts) if (["module", "crew"].includes(c.physicalRole)) {
       const t = along2(c.point);
       if (Number.isFinite(t) && t >= 0) interior2 = Math.min(interior2, t);
     }
@@ -20936,7 +20945,7 @@ precision highp float;void main(){}`);
     }
     if (!layers.length) return unknownArmorPreview(contact);
     const stopped = layers.find((l) => !l.passed), reach = stopped ? Math.min(interior2, along2(stopped.point)) : interior2;
-    for (const c of report.geometry_contacts || []) {
+    for (const c of pathContacts) {
       const t = along2(c.point);
       if ((c.topologyPending || ["unknown", "audit_pending"].includes(c.physicalRole)) && Number.isFinite(t) && t >= -1e-3 && t <= reach + 1e-3) return unknownArmorPreview(contact, "unsupported_entry_path");
     }
@@ -21050,7 +21059,7 @@ precision highp float;void main(){}`);
       this.cross.style.color = color;
       this.label.style.color = color;
       this.primary.textContent = Number.isFinite(h.need) ? `\u7B49\u6548 ${h.need.toFixed(1)} mm \xB7 ${LABELS[k]}` : `${LABELS[k] || LABELS.unknown} \xB7 \u7B49\u6548 \u2014`;
-      this.secondary.textContent = Number.isFinite(h.pen) ? `\u7A7F\u6DF1 ${h.pen.toFixed(1)} mm \xB7 \u5165\u5C04 ${h.inc.toFixed(1)}\xB0` : k === "pending" ? "\u6B63\u5728\u67E5\u8A62\u6B64\u4F4D\u7F6E" : "\u6B64\u8868\u9762\u6C92\u6709\u767B\u8A18\u7684\u9632\u8B77\u6578\u503C";
+      this.secondary.textContent = Number.isFinite(h.pen) ? `\u7A7F\u6DF1 ${h.pen.toFixed(1)} mm \xB7 \u5165\u5C04 ${h.inc.toFixed(1)}\xB0${h.screened ? " \xB7 \u5916\u90E8\u96F6\u4EF6\u5F8C\u65B9" : ""}` : k === "pending" ? "\u6B63\u5728\u67E5\u8A62\u6B64\u4F4D\u7F6E" : "\u6B64\u8868\u9762\u6C92\u6709\u767B\u8A18\u7684\u9632\u8B77\u6578\u503C";
       const w = this.label.offsetWidth, height = this.label.offsetHeight, viewport = this.canvas.ownerDocument.defaultView;
       const left = x + 18 + w > Math.min(rect.right, viewport?.innerWidth || rect.right) ? -w - 18 : 18;
       const top = y + 18 + height > Math.min(rect.bottom, viewport?.innerHeight || rect.bottom) ? -height - 18 : 18;
@@ -21267,12 +21276,16 @@ precision highp float;void main(){}`);
         try {
           const posed = this._analysisScene(combat, packet, spec);
           if (!posed?.available) throw Error("analysis_surface_unavailable");
-          const contacts = combat.core.combatSurfaceTrace(this.analysisKey, origin, end).crossings, contact = contacts[0];
+          const contacts = combat.core.combatSurfaceTrace(this.analysisKey, origin, end).crossings;
+          // Tracks, wheels and stowage in front of a plate are external screens: inspect the armour behind them.
+          const armorAt = contacts.findIndex((c) => c.physicalRole === "armor"), screens = armorAt > 0 ? contacts.slice(0, armorAt) : [];
+          const external = screens.every((c) => c.physicalRole === "module" || c.physicalRole === "decoration");
+          const contact = armorAt >= 0 && external ? contacts[armorAt] : contacts[0];
           if (!contact) value = null;
           else if (contact.physicalRole !== "armor") value = { ...unknownArmorPreview(contact), geometrySource: "registered_triangles" };
           else {
             const report = this._analysisShot(combat, origin, dir, turretYaw, end);
-            value = { ...armorPreviewFromReport(contact, report, dir), geometrySource: "registered_triangles" };
+            value = { ...armorPreviewFromReport(contact, report, dir), geometrySource: "registered_triangles", screened: screens.length > 0 };
           }
         } catch {
           value = this._unregisteredPick(origin, end);
