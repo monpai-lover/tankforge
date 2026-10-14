@@ -1,2 +1,4 @@
 bundle/data.line
 tankforge-full-online*.html
+tests/out/
+flight/*.o

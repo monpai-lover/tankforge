@@ -1,5 +1,8 @@
 # Cloud handoff: replay / damage / aircraft fixes
 
+**Results of this round: see [CHANGES.md](CHANGES.md)** (Traditional Chinese): fixes, root causes,
+verification, browser test harness in `tests/`, flight core in `flight/`.
+
 Source of truth is `bundle/app.js.html`, extracted from the user's
 `tankforge-full-online-20261014.html` (sha256 84fde108…fb2fd3). It is newer than
 `origin/main`: it contains 10 modules this branch's `client/web/src` lacks
