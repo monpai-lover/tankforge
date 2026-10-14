@@ -24,6 +24,8 @@
 
 **根因二**：射線先碰到履帶、負重輪、誘導輪、外掛件時，`pick()` 直接回報未知。現在若前面只有外部零件（module／decoration），改查後方第一塊裝甲，游標附註「外部零件後方」。
 
+**根因三**：44 輛車中有 20 輛（T-10M、BMP-T34、獵豹防空車、追獵者各型、BMP-K64……）沒有表面目錄，游標退回「未標記的渲染三角形」查詢，永遠只回答「防護未知」。現在這些車改用戰鬥模型的裝甲板（armor.json；與防護分析試射相同的舊式射擊）計算，顯示游標下那一塊板的等效厚度（例：獵豹側面 35 mm、54° → 54 mm、可擊穿；BMP-K64 側面 80 mm、54° → 123 mm）。
+
 **驗證**：在車庫用格點掃描游標（T-72A／虎式／三號，各 54 點）：「未知」由 9／17／18 降到 4／10／9（剩下的是只打到履帶、後面沒有裝甲的射線）。三號側面 30 mm、51° → 等效 44 mm、可擊穿。截圖 `2-effective-thickness-cursor.jpg`。另外第 4 項修正後，原本因為內表面被判為未審核而顯示未知的情況也一併消失。
 
 ## 3. 彈藥殉爆後遊戲卡死
@@ -83,7 +85,7 @@
 
 - 第 4 項只作用在本機權威（離線）戰鬥。線上對戰由伺服器判定，伺服器端目錄仍是原規則。
 - 斷砲管目前只有畫面效果，碰撞上砲管仍完整（原因見第 4 項取捨）。要恢復斷裂碰撞，需要用同樣規則重新產生目錄與變體，並更新核心內建的受信任登錄表（需要這個 wasm 的 Rust 原始碼，本 repo 與 TankForge.zip 中都沒有）。
-- 全資料（280 MB）驗證結果見下方；其餘測試因本機僅 3 GB 記憶體，使用裁剪資料（T-72A、三號、虎式、M8、Prototype A 及其表面目錄）。
+- **全資料驗證**：完整的 280 MB 單檔頁面在這台 3 GB 記憶體的機器上載入時 Chromium 直接記憶體不足當掉（`Page crashed`），無法整頁測試。改為把完整資料切成 6 批（每批含原始、未裁減的車輛資料與表面目錄），用 `tests/catalogs_all.js` 驗證**全部 24 輛有表面目錄的車**：修正後目錄全部被原生核心接受，3BM22 沿裝甲法線射擊時沒有任何一發被「未審核表面」攔下（結果存於 `tests/catalogs_all.result.txt`；少數 miss／external／ricochet 是 armor.json 板中心不在網格上或圓弧砲塔跳彈）。其餘 20 輛沒有表面目錄的車走裝甲板路徑（第 2 項根因三）。請在記憶體足夠的電腦上用 `./build.sh` 產生的完整檔再實玩確認一次。其餘功能測試使用裁剪資料（T-72A、三號、虎式、M8、Prototype A 及其表面目錄）。
 - `client/web/test` 的 node 測試：1049 通過、23 失敗。這些測試針對 `client/web/src`（本輪未修改），失敗為既有狀況（replay-v3、replay-network、aps_pose 等）。
 
 ## 驗證工具（`tests/`）
@@ -97,4 +99,4 @@ cd handoff/tests
 ./run.sh plates_apfsds.js      # 任一測試腳本；結果印在終端，截圖存 out/
 ```
 
-測試腳本：`replay_alpha.js`（回放透明）、`armor_cursor_probe.js` / `armor_cursor_grid.js`（等效厚度）、`detonation_offensive.js` / `detonation_victim.js` / `victim_skip.js`（殉爆）、`plates_apfsds.js` / `plates_apc.js`（擊穿判定）、`damage_barrel_track.js` / `replay_barrel.js` / `track_fallback.js`（損壞畫面）、`aircraft_takeoff.js` / `aircraft_landing.js`（飛機）。
+測試腳本：`replay_alpha.js`（回放透明）、`armor_cursor_probe.js` / `armor_cursor_grid.js`（等效厚度）、`detonation_offensive.js` / `detonation_victim.js` / `victim_skip.js`（殉爆）、`plates_apfsds.js` / `plates_apc.js`（擊穿判定）、`damage_barrel_track.js` / `replay_barrel.js` / `track_fallback.js`（損壞畫面）、`aircraft_takeoff.js` / `aircraft_landing.js`（飛機）、`catalogs_all.js`（批次驗證所有表面目錄：`./run.sh trim 車輛清單` 後 `./run.sh page` 再執行）、`full_data.js`（完整頁面的總檢查，需要約 4 GB 以上可用記憶體；`PAGE=full.html`，頁面用 `sh devpage.sh ../bundle/data.line out/full.html` 產生）。
