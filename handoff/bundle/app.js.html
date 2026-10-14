@@ -3304,11 +3304,16 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     validateShape(r) {
       const { nodes, disabled } = nodesOf(r.model.root);
       if (nodes.size !== r.buffers.length) return false;
+      // The word-by-word position check runs once per uploaded vertex array (and again every 240th
+      // query): repeating it for every mesh on every pose was ~11 ms per game step on slow machines.
+      const deep = (r.validations = (r.validations || 0) + 1) % 240 === 0;
       for (const b of r.buffers) {
         const n = nodes.get(b.path), data = n?.mesh?._src?.data;
         if (n !== b.node || disabled.has(b.path) || n.mesh !== b.mesh || !data || data.length / STRIDE !== b.vertexCount || (n.mesh.instanced ? n.mesh.instances : 1) !== b.instances) return false;
+        if (!deep && b.validatedData === data) continue;
         const bits = new Uint32Array(data.buffer, data.byteOffset, data.length);
         for (let i = 0; i < b.vertexCount; i++) for (let k = 0; k < 3; k++) if (bits[i * STRIDE + k] !== b.words[i * 3 + k]) return false;
+        b.validatedData = data;
       }
       return true;
     }
@@ -15252,6 +15257,12 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     return v2;
   };
   var visibleEnd = (e) => e.physicalEnd + 3.3;
+  // State commits (fire ticks, repairs) may extend a film only briefly past its last real event,
+  // and never past a death: a burning wreck commits every 0.25 s for up to a minute, which kept
+  // the (full-screen victim) replay running and the game looking frozen after an ammo detonation.
+  var COMMIT_TAIL_FILM_S = 6;
+  var POST_FATAL_PHYSICAL_S = 1;
+  var MAX_FILM_S = 40;
   var smooth4 = (a, b, x) => {
     const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
     return t * t * (3 - 2 * t);
@@ -15302,6 +15313,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       this.clock = createReplayClockForEvent(first);
       this.directorEvent = null;
       this.endFilm = 0;
+      this.evidenceEndFilm = 0;
       if (!this.append(evidence).accepted) throw Error("initial replay evidence rejected");
     }
     append(raw) {
@@ -15329,12 +15341,17 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         this.options.onPressure?.();
         return { accepted: false, reason: "summary_pressure" };
       }
-      let event, sourceClock;
+      let event, sourceClock, reach = Infinity;
       try {
         event = prepareReplayEvent(e, this.catalog, this.origin);
+        if (this.fatal && !result.terminal && event.id !== this.fatal.id && event.contact_s > this.fatal.physicalEnd + POST_FATAL_PHYSICAL_S) return { accepted: false, reason: "after_terminal" };
         sourceClock = createReplayClockForEvent(event);
         const filmSpanS = Math.max(1.8, sourceClock.knots.at(-1)[0]);
-        this.clock.appendPhysicalAnchors([event.contact_s, event.physicalEnd, ...event.mechanism_anchors.map((a) => a.time_s)], { filmSpanS, reserve: result.terminal });
+        // A re-sent event (new mechanism records, e.g. fire ticks) may extend the film only by a short
+        // tail, and nothing after a death extends it: see COMMIT_TAIL_FILM_S.
+        const repeat = !!previous && !result.fresh && !result.terminal;
+        reach = Math.min(this.fatal && !result.terminal ? this.fatal.physicalEnd + POST_FATAL_PHYSICAL_S : Infinity, repeat ? this.clock.physicalAt(this.evidenceEndFilm + COMMIT_TAIL_FILM_S) : Infinity);
+        this.clock.appendPhysicalAnchors([event.contact_s, event.physicalEnd, ...event.mechanism_anchors.map((a) => a.time_s)].filter((t) => t <= reach), { filmSpanS, reserve: result.terminal });
       } catch {
         return { accepted: false, reason: "invalid_physical_records" };
       }
@@ -15362,20 +15379,25 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         }
         this.aggregated++;
       }
-      this.endFilm = Math.max(this.endFilm, this.clock.filmAt(event.physicalEnd), this.filmTimeS);
+      if (reach === Infinity) {
+        this.endFilm = Math.max(this.endFilm, this.clock.filmAt(event.physicalEnd), this.filmTimeS);
+        this.evidenceEndFilm = Math.max(this.evidenceEndFilm, this.endFilm);
+      } else this.endFilm = Math.max(this.endFilm, this.clock.filmAt(Math.min(event.physicalEnd, reach)));
       return { accepted: true, duplicate: false, late, terminal: result.terminal, source_status: result.source_status, aggregated: this.aggregated };
     }
     commit(c) {
       if (this.finished || !validateReplayCommit(c, this.actor) || c.record.time_s < 0) return false;
+      if (this.fatal && c.record.time_s > this.fatal.physicalEnd + POST_FATAL_PHYSICAL_S) return false;
       const staged = this.coverage.stage(), apply = staged.commit(c);
       if (apply === null) return false;
-      this.clock.appendPhysicalAnchors([c.record.time_s], { filmSpanS: 3.6 });
+      const extend = this.clock.filmAt(c.record.time_s) <= this.evidenceEndFilm + COMMIT_TAIL_FILM_S;
+      if (extend) this.clock.appendPhysicalAnchors([c.record.time_s], { filmSpanS: 3.6 });
       this.coverage.publish(staged);
       if (!this.commits.some((q) => q.record.event_id === c.record.event_id)) {
         this.commits.push(freeze2(own(c)));
         if (this.commits.length > 64) this.commits.shift();
       }
-      this.endFilm = Math.max(this.endFilm, this.clock.filmAt(c.record.time_s));
+      if (extend) this.endFilm = Math.max(this.endFilm, Math.min(this.clock.filmAt(c.record.time_s), this.evidenceEndFilm + COMMIT_TAIL_FILM_S));
       return true;
     }
     checkpoint(c) {
@@ -15402,7 +15424,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       }
       this.clock.publish(candidate.clock);
       this.coverage.publish(staged);
-      for (const field of ["events", "summaries", "pinned", "fatal", "directorEvent", "endFilm", "aggregated", "decorativeAggregated", "summaryPressure"]) this[field] = candidate[field];
+      for (const field of ["events", "summaries", "pinned", "fatal", "directorEvent", "endFilm", "evidenceEndFilm", "aggregated", "decorativeAggregated", "summaryPressure"]) this[field] = candidate[field];
       return true;
     }
     promoteVictim(death) {
@@ -15415,6 +15437,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       this.filmTimeS += dt;
       this.clock.markPlayed(this.filmTimeS);
       if (this.filmTimeS > this.endFilm + 1.5) this.finish("tail_complete");
+      else if (this.filmTimeS > MAX_FILM_S) this.finish("film_limit");
     }
     _retire(seq, id2) {
       if (seq <= this.retiredThrough) return;
@@ -16600,6 +16623,7 @@ precision highp float;void main(){}`);
       this.serial = 0;
       this.drawSerial = 0;
       this.presentationIds = /* @__PURE__ */ new WeakMap();
+      this.presented = /* @__PURE__ */ new Map();
       this.projectile = null;
       this.projectiles = env.projectiles || new ProjectileFlightOwner(env.renderer, env.catalog || {});
       this.ownsProjectiles = !env.projectiles;
@@ -16608,8 +16632,8 @@ precision highp float;void main(){}`);
         this.hide("renderer_unavailable");
       } });
       this.root.hidden = true;
-      this.root.innerHTML = '<div class="hc-frame"><span class="hc-who"></span><b class="hc-title"></b><span class="hc-trust" style="position:absolute;right:6px;top:27px;font-size:10px;opacity:.8"></span></div><div class="hc-foot"><span class="hc-mods"></span><span class="hc-crew"></span></div>';
-      this.el = Object.fromEntries(["frame", "who", "title", "mods", "crew", "trust"].map((k) => [k, this.root.querySelector(`.hc-${k}`)]));
+      this.root.innerHTML = '<div class="hc-frame"><span class="hc-who"></span><b class="hc-title"></b><span class="hc-trust" style="position:absolute;right:6px;top:27px;font-size:10px;opacity:.8"></span><span class="hc-skip" hidden style="position:absolute;right:6px;bottom:6px;font-size:11px;opacity:.85">\u7A7A\u767D\u9375\uFF1A\u8DF3\u904E\u56DE\u653E</span></div><div class="hc-foot"><span class="hc-mods"></span><span class="hc-crew"></span></div>';
+      this.el = Object.fromEntries(["frame", "who", "title", "mods", "crew", "trust", "skip"].map((k) => [k, this.root.querySelector(`.hc-${k}`)]));
     }
     get active() {
       return !!this.cur && !this.cur.session.finished;
@@ -16649,6 +16673,10 @@ precision highp float;void main(){}`);
         return true;
       }
       if (this.victimActive && purpose !== "victim") return false;
+      // Re-sent evidence of an event already shown (a burning wreck re-sends its kill with every fire
+      // tick) must not start the same replay again; only a new death does.
+      const deaths = evidence.deaths?.length || 0, shown = evidence.authority !== "analysis" ? this.presented.get(evidence.event_id) : void 0;
+      if (shown !== void 0 && deaths <= shown) return false;
       if (current && purpose !== "analysis" && purpose !== "victim") {
         this._defer(target, rep, shell, dist3, mg, detail, purpose);
         return false;
@@ -16668,6 +16696,11 @@ precision highp float;void main(){}`);
         return false;
       }
       const cur = { target: snapshot, sourceModel: target.model, rep, shell, dist: dist3, mg, session, draw, cam: null, frame: null, rectPx: null };
+      if (evidence.authority !== "analysis") {
+        this.presented.delete(evidence.event_id);
+        this.presented.set(evidence.event_id, deaths);
+        if (this.presented.size > 256) this.presented.delete(this.presented.keys().next().value);
+      }
       Object.defineProperties(cur, { t: { get: () => session.filmTimeS, set: (t) => {
         if (session.purpose !== "analysis" && t < session.filmTimeS) throw Error("runtime replay cannot rewind");
         session.filmTimeS = t;
@@ -16789,6 +16822,7 @@ precision highp float;void main(){}`);
       this.el.frame.style.height = css(h);
       this.root.style.opacity = "1";
       this.root.dataset.stage = this.stage().name;
+      if (this.el.skip) this.el.skip.hidden = !this.victimActive;
     }
     contextLost() {
       this.presentation.contextLost();
@@ -19449,6 +19483,7 @@ precision highp float;void main(){}`);
 
   // client/web/src/i18n/en.json
   var en_default = {
+    "\u7A7A\u767D\u9375\uFF1A\u8DF3\u904E\u56DE\u653E": "Space: skip replay",
     "\u5916\u90E8\u96F6\u4EF6\u5F8C\u65B9": "behind external parts",
     "%\u3000\u4E0B\u9677": "%\u3000sinks",
     "%\u3000\u5F48\u7C27": "%\u3000spring",
@@ -34619,6 +34654,11 @@ void main() {
       if (tag2 === "INPUT" || tag2 === "SELECT" || tag2 === "TEXTAREA") return;
       if (e.target instanceof HTMLButtonElement && (e.code === "Space" || e.code === "Enter")) return;
       if (G4.thumbs.length || G4.mode === "bureau") return;
+      if (hitcam.victimActive && (e.code === "Space" || e.code === "Escape") && !e.repeat) {
+        e.preventDefault();
+        hitcam.hide("manual_skip");
+        return;
+      }
       if (deploy.visible) {
         if (e.code === "Tab") {
           e.preventDefault();
