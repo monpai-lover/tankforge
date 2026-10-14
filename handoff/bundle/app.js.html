@@ -3080,6 +3080,66 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     return v2;
   };
   var actorKey = (a) => `${a.battle}:${a.entity}:${a.life}`;
+  // Surface catalogs declare not-yet-reviewed triangles (inner faces of the hull/turret shells, gun
+  // mounts, gear mounts...) with resistancePolicy "unsupported", and the native core stops any shell
+  // at the first such surface ("unsupported_surface_resistance"): a round that had already passed
+  // the armour was reported as not penetrating. TankForge declares those surfaces as non-armour
+  // fittings (they carry no authored thickness; the wall they belong to is charged once by its
+  // armour layer), with content hashes and catalog/manifest hashes recomputed the way the
+  // generator does. Geometry, payloads and authored armour stay untouched.
+  var UNAUDITED_BASIS = "tankforge_unaudited_surface_no_armor";
+  var UNAUDITED_REVISION = "tankforge-unaudited-v1";
+  var normalizedPackets = /* @__PURE__ */ new Map();
+  var canonicalJson = (v2) => Array.isArray(v2) ? "[" + v2.map(canonicalJson).join(",") + "]" : v2 && typeof v2 === "object" ? "{" + Object.keys(v2).sort().map((k) => JSON.stringify(k) + ":" + canonicalJson(v2[k])).join(",") + "}" : JSON.stringify(v2);
+  function declareUnauditedSurfaces(manifestText, catalogText) {
+    const c = JSON.parse(catalogText), m = JSON.parse(manifestText), meshes = new Map(m.meshes.map((q) => [q.key, q])), surfaces = new Map(m.surfaces.map((q) => [q.key, q]));
+    let changed = 0;
+    for (const d of c.declarations || []) {
+      if (d.resistancePolicy !== "unsupported") continue;
+      const range = meshes.get(d.meshKey)?.ranges.find((q) => q.first === d.first && q.count === d.count), surface = range && surfaces.get(range.surfaceKey);
+      if (!surface) continue;
+      Object.assign(d, { role: "decoration", resistancePolicy: "no_authored_armor", fuseEligible: false, armorBinding: { armorRefs: [], boundarySide: null, layerKey: null, materialRegionKey: null, pairing: "none", status: "none", thicknessSource: "none" }, topology: { kind: "decorative_surface", solidKey: null, status: "declared" } });
+      d.declaration = { basis: UNAUDITED_BASIS, revision: UNAUDITED_REVISION };
+      const body = { ...d };
+      delete body.key;
+      const hash = sha256Text(canonicalJson(body));
+      d.declaration = { basis: UNAUDITED_BASIS, contentHash: hash, revision: UNAUDITED_REVISION };
+      d.key = `decl:${hash}`;
+      Object.assign(surface, { role: "decoration", topology: "decorative_surface", contactEligible: true, fuseEligible: false, responseRef: d.key });
+      changed++;
+    }
+    if (!changed) return null;
+    const innerManifest = { ...m };
+    delete innerManifest.manifestHash;
+    m.manifestHash = sha256Text(canonicalJson(innerManifest));
+    const manifest = JSON.stringify(m), manifestHash = sha256Text(manifest);
+    c.manifestHash = manifestHash;
+    const innerCatalog = { ...c };
+    delete innerCatalog.catalogHash;
+    c.catalogHash = sha256Text(canonicalJson(innerCatalog));
+    const catalog = JSON.stringify(c);
+    return { manifest, manifestHash, catalog, catalogHash: sha256Text(catalog), changed };
+  }
+  function normalizeSurfacePacket(packet) {
+    if (!packet?.manifest || !packet.catalog) return packet;
+    const cacheKey = `${packet.manifestHash}:${packet.catalogHash}:${(packet.variants || []).map((v2) => v2.recordHash).join(",")}`;
+    if (normalizedPackets.has(cacheKey)) return normalizedPackets.get(cacheKey);
+    let out = packet;
+    try {
+      const stock = declareUnauditedSurfaces(packet.manifest, packet.catalog);
+      if (stock) {
+        // Barrel-fracture collision variants are checked against the core's compiled trusted registry
+        // and name the shipped stock catalog as their parent, so they cannot accompany the corrected
+        // catalog; the broken barrel is shown by the renderer instead.
+        out = { ...packet, manifest: stock.manifest, manifestHash: stock.manifestHash, catalog: stock.catalog, catalogHash: stock.catalogHash, variants: [], unauditedSurfaces: stock.changed, droppedVariants: (packet.variants || []).length, sourceManifestHash: packet.manifestHash, sourceCatalogHash: packet.catalogHash };
+      }
+    } catch (error) {
+      console.warn("surface catalog normalisation failed; using the catalog as shipped:", error.message);
+      out = packet;
+    }
+    normalizedPackets.set(cacheKey, out);
+    return out;
+  }
   function nodesOf(root) {
     const nodes = /* @__PURE__ */ new Map(), disabled = /* @__PURE__ */ new Set();
     const visit = (n, key4, removed = false) => {
@@ -3116,6 +3176,9 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     supports(spec) {
       return !!this.packets[spec];
     }
+    packet(spec) {
+      return normalizeSurfacePacket(this.packets[spec]);
+    }
     register(key4, spec, actor3, model, body) {
       if (!this.supports(spec)) return null;
       const previous = this.actors.get(key4);
@@ -3138,7 +3201,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       }
       try {
         if (this.core.combatSurfaceRevision !== 1) throw Error("surface_combat_core_unavailable");
-        const packet = this.packets[spec], manifest = JSON.parse(packet.manifest), nodes = nodesOf(model.root).nodes, rows = [], buffers = [];
+        const packet = this.packet(spec), manifest = JSON.parse(packet.manifest), nodes = nodesOf(model.root).nodes, rows = [], buffers = [];
         for (const mesh of manifest.meshes) {
           const node = nodes.get(mesh.key.slice(5));
           if (!node) throw Error(`surface_render_assembly_missing:${mesh.key}`);
