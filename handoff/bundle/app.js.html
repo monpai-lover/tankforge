@@ -21562,7 +21562,7 @@ precision highp float;void main(){}`);
         } catch {
           value = this._unregisteredPick(origin, end);
         }
-      } else value = this._unregisteredPick(origin, end);
+      } else value = this._platePick(combat, origin, dir, turretYaw, end);
       this.inspectionCache = { combat, core: combat?.core, shell: this.shell, dist: this.dist, yaw: turretYaw, origin: origin.slice(), dir: dir.slice(), pose: this._inspectionPose(), value };
       this.cursor.present(value);
       return value;
@@ -21610,6 +21610,22 @@ precision highp float;void main(){}`);
         for (let k = 0; k < matrices.length; k++) if (matrices[k] !== p.matrices[k]) return false;
       }
       return true;
+    }
+    /** Vehicles without a surface catalog: the combat model's armour plates (armor.json) answer. */
+    _platePick(combat, origin, dir, turretYaw, end) {
+      if (!combat || !this.bundle) return this._unregisteredPick(origin, end);
+      try {
+        if (!this.speedCache || this.speedCache.shell !== this.shell || this.speedCache.dist !== this.dist) this.speedCache = { shell: this.shell, dist: this.dist, speed: speedAt(this.shell, this.dist) };
+        const key4 = `${this.analysisKey}:plates`, fresh = combat.fresh(key4, this.bundle);
+        const shot = { shell: this.shell, origin: origin.map((v2, k) => v2 + dir[k] * 0.5), dir, speed_ms: this.speedCache.speed, distance_m: this.dist, seed: 1, turret_yaw: turretYaw };
+        const report = combat.shoot(key4, fresh.state, shot), first = report?.layers?.find((l) => l.entering !== false);
+        if (!report?.hit || !first) return this._unregisteredPick(origin, end);
+        const contact = { schema: "ArmorPlateContactV1", physicalRole: "armor", point: point2(first.point), plate: first.plate };
+        // Plate reports carry no interior contacts to stop at, so the preview is the plate under the cursor.
+        return { ...armorPreviewFromReport(contact, { ...report, layers: [first] }, dir), geometrySource: "armor_plates" };
+      } catch {
+        return this._unregisteredPick(origin, end);
+      }
     }
     _unregisteredPick(origin, end) {
       if (!this.renderInspector) {
@@ -33210,7 +33226,8 @@ void main() {
         removeAircraft();
         const plane = new Aircraft(renderer, api);
         let x, z, heading;
-        if (runway || !G4.map && Math.abs(G4.s.x) < 30 && G4.s.z < 400) [x, z, heading] = !G4.map ? [0, Math.max(-40, G4.s.z + 18), 0] : [G4.s.x, G4.s.z, G4.s.heading];
+        // The range road (x -6..6, z -80..2600) is the runway; on maps the aircraft parks beside the tank.
+        if (!G4.map && (runway || Math.abs(G4.s.x) < 30 && G4.s.z < 400)) [x, z, heading] = [0, Math.max(-40, G4.s.z + 18), 0];
         else {
           heading = G4.s.heading;
           x = G4.s.x + Math.cos(heading) * 16;
