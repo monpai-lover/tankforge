@@ -3143,6 +3143,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
   function nodesOf(root) {
     const nodes = /* @__PURE__ */ new Map(), disabled = /* @__PURE__ */ new Set();
     const visit = (n, key4, removed = false) => {
+      if (n.damageVisual) return;
       removed = removed || n.hitboxDisabled === true;
       if (n.mesh?._src?.data) {
         nodes.set(key4, n);
@@ -7162,6 +7163,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     const matrices = new Float32Array(linkCount * 2 * 16);
     const pins = new Float32Array((linkCount + 1) * 2);
     const openTrackPins = { 1: null, [-1]: null };
+    const brokenPins = { 1: null, [-1]: null };
     const fixedPinSource = { 1: { pins: new Float64Array((linkCount + 1) * 3), diagnostics: null }, [-1]: { pins: new Float64Array((linkCount + 1) * 3), diagnostics: null } };
     const gearSupports = !imp && hullBuilder.vertexCount ? buildGearSupports(renderer, running, hullBuilder.data, wheels, rg, mats, meshes, vehicle2.physics?.suspension?.kind, vehicle2.physics?.suspension?.station_kinds) : null;
     if (gearSupports) shellNodes.push(...gearSupports.nodes);
@@ -7182,9 +7184,30 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
             pins[i * 2 + 1] = chain.nodes[i * 3 + 1];
           }
         } else {
-          const fixed = prepareTrackPins(rg, stations, linkCount, pitch, lifts, -dyn.travel[side], lod === 0 ? dyn.ground?.[side] : null, source.pins);
+          const broken = !!chain?.unsupported;
+          const fixed = prepareTrackPins(rg, stations, linkCount, pitch, lifts, broken ? 0 : -dyn.travel[side], lod === 0 ? dyn.ground?.[side] : null, source.pins);
           source.diagnostics = fixed.diagnostics;
-          if (fixed.supported) {
+          if (broken && fixed.supported) {
+            // Broken, but no simulated chain for this side (remote vehicle without an authority frame,
+            // or no trusted shoe topology): show the track run off the wheels and lying behind the hull.
+            let low = Infinity, front = -Infinity;
+            for (let i = 0; i <= linkCount; i++) {
+              low = Math.min(low, source.pins[i * 3 + 1]);
+              front = Math.max(front, source.pins[i * 3 + 2]);
+            }
+            const laid = brokenPins[side] || (brokenPins[side] = new Float64Array((linkCount + 1) * 3));
+            for (let i = 0; i <= linkCount; i++) {
+              laid[i * 3] = side * rg.track_x + Math.sin(i * 0.7) * 0.02 * Math.min(1, i / 12);
+              laid[i * 3 + 1] = low;
+              laid[i * 3 + 2] = front - pitch * 0.5 - i * pitch;
+            }
+            loop = fixed.loop;
+            for (let i = 0; i <= linkCount; i++) {
+              pins[i * 2] = laid[i * 3 + 2];
+              pins[i * 2 + 1] = laid[i * 3 + 1];
+            }
+            o = placeTrackPins(laid, linkCount, matrices, o, 0);
+          } else if (fixed.supported) {
             loop = fixed.loop;
             loop.idlerShift = fixed.diagnostics.idlerShift;
             for (let i = 0; i <= linkCount; i++) {
@@ -7350,6 +7373,154 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         for (const m of meshes) renderer.freeMesh(m);
       }
     };
+  }
+
+  // client/web/src/gfx/damageVisuals.js
+  // Render-only damage state of the model: a destroyed gun barrel is shown broken off (shortened,
+  // ragged, scorched, drooping). The registered barrel node keeps its mesh and stays in the posed
+  // collision scene; it is only hidden while its broken mirror is shown, so surface registration and
+  // replay snapshots keep working (nodesOf skips damageVisual nodes; replays clone them as drawn).
+  var BROKEN_BARREL_KEEP = 0.46;
+  var SCORCH = [0.11, 0.095, 0.08];
+  function brokenBarrelData(data, lo, hi, scorchAll = false) {
+    // Keep part of the length outside the trunnion (z > 0); the breech end inside the turret stays.
+    const length2 = hi[2] - Math.max(lo[2], 0), cut = hi[2] - length2 * (1 - BROKEN_BARREL_KEEP), rag = Math.max(0.03, length2 * 0.03), cx = (lo[0] + hi[0]) / 2, cy = (lo[1] + hi[1]) / 2, out = [];
+    const ragAt = (x, y) => {
+      const a = Math.atan2(y - cy, x - cx);
+      return rag * (0.5 + 0.5 * Math.sin(a * 5 + 1.3) * Math.cos(a * 3));
+    };
+    for (let t = 0; t < data.length; t += STRIDE * 3) {
+      let keep = false;
+      for (let v2 = 0; v2 < 3; v2++) if (data[t + v2 * STRIDE + 2] <= cut + rag) keep = true;
+      if (!keep) continue;
+      for (let v2 = 0; v2 < 3; v2++) {
+        const at2 = t + v2 * STRIDE, x = data[at2], y = data[at2 + 1], z = Math.min(data[at2 + 2], cut + ragAt(data[at2], data[at2 + 1]));
+        const burn = scorchAll ? 0.55 : Math.min(1, Math.max(0, (z - (cut - length2 * 0.22)) / (length2 * 0.22)));
+        for (let k = 0; k < STRIDE; k++) out.push(data[at2 + k]);
+        const o = out.length - STRIDE;
+        out[o + 2] = z;
+        for (let k = 0; k < 3; k++) out[o + 6 + k] = out[o + 6 + k] * (1 - burn * 0.9) + SCORCH[k] * burn * 0.9;
+        out[o + 9] = Math.min(1, out[o + 9] + burn * 0.4);
+        out[o + 10] *= 1 - burn;
+      }
+    }
+    return out.length ? new Float32Array(out) : null;
+  }
+  function brokenBarrels(caps) {
+    const weapons = caps?.weapons || {};
+    return Object.keys(weapons).filter((k) => /^gun:\d+:\d+$/.test(k) && weapons[k]?.can_fire === false && /barrel/.test(weapons[k]?.reason || "")).sort();
+  }
+  var DamageVisuals = class {
+    constructor(renderer, model) {
+      this.renderer = renderer;
+      this.model = model;
+      this.guns = /* @__PURE__ */ new Map();
+      this.meshes = [];
+      this.key = "";
+    }
+    _mirror(ti, gi) {
+      const id2 = `gun:${ti}:${gi}`;
+      if (this.guns.has(id2)) return this.guns.get(id2);
+      const g = this.model.turrets?.[ti]?.guns?.[gi], barrel = g?.barrel;
+      let entry = null;
+      if (barrel && g.node) {
+        const sources = [], lo = [Infinity, Infinity, Infinity], hi = [-Infinity, -Infinity, -Infinity];
+        const walk = (n) => {
+          const data = n.mesh?._src?.data;
+          if (data && !n.mesh.instanced) {
+            sources.push(n);
+            for (let i = 0; i < data.length; i += STRIDE) for (let k = 0; k < 3; k++) {
+              lo[k] = Math.min(lo[k], data[i + k]);
+              hi[k] = Math.max(hi[k], data[i + k]);
+            }
+          }
+          n.children.forEach(walk);
+        };
+        walk(barrel);
+        if (sources.length && hi[2] - lo[2] > 0.2) {
+          const root = new Node("broken_barrel");
+          root.damageVisual = true;
+          root.visible = false;
+          // Barrel parts are the barrel node itself and its direct (imported) children.
+          for (const n of sources) {
+            const data = brokenBarrelData(n.mesh._src.data, lo, hi);
+            if (!data) continue;
+            const part = n === barrel ? root : Object.assign(root.add(new Node("broken_barrel_part")), { damageVisual: true, pos: n.pos.slice(), yaw: n.yaw, pitch: n.pitch, roll: n.roll, local: n.local && n.local.slice() });
+            part.mesh = this.renderer.mesh(data);
+            part.kind = part.baseKind = n.kind === 9 ? 0 : n.kind;
+            this.meshes.push(part.mesh);
+          }
+          root.brokenGun = id2;
+          barrel.barrelGun = id2;
+          g.node.add(root);
+          entry = { barrel, root };
+        }
+      }
+      this.guns.set(id2, entry);
+      return entry;
+    }
+    /** Hidden mirrors exist from the start, so impact poses and replay snapshots already contain them. */
+    prime() {
+      (this.model.turrets || []).forEach((t, ti) => (t.guns || []).forEach((_, gi) => this._mirror(ti, gi)));
+    }
+    /** caps: the combat capability result (caps.weapons["gun:t:g"]). */
+    update(caps) {
+      const broken = brokenBarrels(caps), key4 = broken.join(",");
+      if (key4 !== this.key) {
+        this.key = key4;
+        for (const [id2, entry] of this.guns) if (entry && !broken.includes(id2)) {
+          entry.root.visible = false;
+          entry.barrel.visible = true;
+        }
+        for (const id2 of broken) {
+          const [, ti, gi] = id2.split(":").map(Number), entry = this._mirror(ti, gi);
+          if (!entry) continue;
+          entry.root.visible = true;
+          entry.barrel.visible = false;
+        }
+      }
+      for (const entry of this.guns.values()) if (entry?.root.visible) {
+        const b = entry.barrel, r = entry.root;
+        r.pos = b.pos.slice();
+        r.yaw = b.yaw;
+        r.roll = b.roll;
+        r.local = b.local && b.local.slice();
+        r.pitch = (b.pitch || 0) + 0.1;
+      }
+      return broken.length;
+    }
+    dispose() {
+      for (const m of this.meshes) this.renderer.freeMesh(m);
+      this.meshes.length = 0;
+      for (const entry of this.guns.values()) if (entry) {
+        entry.barrel.visible = true;
+        entry.root.visible = false;
+      }
+      this.guns.clear();
+    }
+  };
+  function damageVisualsFor(renderer, model, caps) {
+    if (!model) return 0;
+    if (!model.damageVisuals) {
+      const visuals = model.damageVisuals = new DamageVisuals(renderer, model), dispose = model.dispose?.bind(model);
+      if (dispose) model.dispose = () => {
+        visuals.dispose();
+        dispose();
+      };
+      visuals.prime();
+    }
+    return model.damageVisuals.update(caps);
+  }
+  /** Replay frames show a barrel broken from the first recorded hit whose report says so. */
+  function applyReplayBarrelDamage(root, records, physicalS) {
+    const broken = /* @__PURE__ */ new Set();
+    for (const event of records || []) if (physicalS >= event.contact_s) for (const id2 of brokenBarrels(event.evidence?.report?.caps)) broken.add(id2);
+    const walk = (n) => {
+      if (n.brokenGun) n.visible = broken.has(n.brokenGun);
+      else if (n.barrelGun) n.visible = !broken.has(n.barrelGun);
+      n.children.forEach(walk);
+    };
+    walk(root);
   }
 
   // client/web/src/gfx/interior.js
@@ -16395,6 +16566,7 @@ precision highp float;void main(){}`);
         }
         inner.updateLaunchers?.();
       }
+      applyReplayBarrelDamage(this.target.model.root, frame.records || [frame.event].filter(Boolean), frame.physicalS);
       this.nodes.length = 0;
       this.target.model.root.collect(this.nodes);
       const damage = /* @__PURE__ */ new Map(), pulses = /* @__PURE__ */ new Map();
@@ -35951,6 +36123,8 @@ void main() {
       hitcam.tick(dt);
       if (G4.skipDraw) return;
       for (const e of G4.enemies || []) if (!e.remote && e.veh.brokenTracks) e.pose();
+      damageVisualsFor(renderer, G4.model, G4.mode === "battle" ? G4.caps : null);
+      for (const e of G4.enemies || []) damageVisualsFor(renderer, e.model, e.caps);
       scene.update(null);
       const nodes = scene.collect([], (inSight || G4.cam?.hideBody) && !testing && !G4.thumbShot ? M2.root : null);
       nodes.push(...G4.projectileFlight.sync(G4.shots, G4.bullets, testing ? testRange.shots : void 0));
