@@ -19546,6 +19546,7 @@ precision highp float;void main(){}`);
 
   // client/web/src/i18n/en.json
   var en_default = {
+    "\u904A\u6232\u66F4\u65B0\u767C\u751F\u932F\u8AA4\uFF08\u5DF2\u7E7C\u7E8C\u904B\u884C\uFF09\uFF1A": "Game update error (still running): ",
     "\u7A7A\u767D\u9375\uFF1A\u8DF3\u904E\u56DE\u653E": "Space: skip replay",
     "\u5916\u90E8\u96F6\u4EF6\u5F8C\u65B9": "behind external parts",
     "%\u3000\u4E0B\u9677": "%\u3000sinks",
@@ -34452,7 +34453,13 @@ void main() {
       }
       for (const e of G4.enemies || []) {
         if (!e.combat || e.remote && G4.online || !busy(e.cstate)) continue;
-        const r = G4.combat.advance(e.combatKey, e.cstate, step, rng2.nextF32() * 4294967295 >>> 0);
+        let r;
+        try {
+          r = G4.combat.advance(e.combatKey, e.cstate, step, rng2.nextF32() * 4294967295 >>> 0);
+        } catch (error) {
+          console.error("combat advance rejected:", error);
+          continue;
+        }
         if (r.replay) {
           const shell = data.projectiles[r.replay.projectile_id] || (data.machineGuns[r.replay.projectile_id.replace(/^bullet_/, "")] ? bulletShell(data.machineGuns[r.replay.projectile_id.replace(/^bullet_/, "")]) : null);
           hitcam.show(camTarget(e), { ...r.replay.report, replay: r.replay }, shell, 0, shell?.caliber_mm < 20, "", "offensive");
@@ -35363,9 +35370,14 @@ void main() {
             } else if (e.combat && wasAlive) {
               const seed2 = shotSeed(sh);
               if (sh.replayDischarge) G4.localReplay.clipProjectileStep(sh.replayDischarge, eh.hit.t);
-              const rep = combatHit(e, p0, dir, sh.shell, speed, dist3, seed2, sh.replayDischarge, sh.replayDischarge?.flight.at(-1)?.time_s, (report) => {
-                if (!(e.remote && G4.online)) sound.resolvedContact?.(report, sh.shell, e.veh.body, { position: eh.hit.point, time: G4.time });
-              }, p1);
+              let rep = null;
+              try {
+                rep = combatHit(e, p0, dir, sh.shell, speed, dist3, seed2, sh.replayDischarge, sh.replayDischarge?.flight.at(-1)?.time_s, (report) => {
+                  if (!(e.remote && G4.online)) sound.resolvedContact?.(report, sh.shell, e.veh.body, { position: eh.hit.point, time: G4.time });
+                }, p1);
+              } catch (error) {
+                console.error("combat hit rejected:", error);
+              }
               if (!rep) {
                 done = true;
                 break;
@@ -36144,7 +36156,19 @@ void main() {
       } else if (!G4.paused && G4.thumbs.length) thumbStep();
       else if (!G4.paused) {
         if (dt > 0) G4.fps = lerp(G4.fps || 60, 1 / dt, 0.05);
-        update(dt);
+        try {
+          update(dt);
+        } catch (error) {
+          // One failing step (for example a combat-core rejection) must not end the animation loop:
+          // that froze the whole game. Report it and keep running.
+          const message = String(error?.message || error);
+          if (message !== G4.frameError || performance.now() - (G4.frameErrorAt || 0) > 5e3) {
+            console.error("frame update failed:", error);
+            hud.toast(`\u904A\u6232\u66F4\u65B0\u767C\u751F\u932F\u8AA4\uFF08\u5DF2\u7E7C\u7E8C\u904B\u884C\uFF09\uFF1A${message}`, 4);
+            G4.frameError = message;
+            G4.frameErrorAt = performance.now();
+          }
+        }
         const scaled = G4.mode === "battle" || G4.mode === "test" ? renderScale.sample(dt) : null;
         if (scaled != null) renderer.renderScale = scaled;
         if (!G4.qualityChosen && renderer.quality !== "low" && renderScale.atFloor) {
