@@ -13,6 +13,21 @@ async def main():
             await pg.screenshot(path=f"{prefix}{name}.png", timeout=180000)
             return name
         await pg.expose_function("pyShot", shot)
+        cdp = await pg.context.new_cdp_session(pg)
+        async def profile(cmd):
+            # pyProfile('start') / pyProfile('stop'): CPU profile, returns the top self-time functions.
+            if cmd == "start":
+                await cdp.send("Profiler.enable"); await cdp.send("Profiler.setSamplingInterval", {"interval": 500}); await cdp.send("Profiler.start"); return "started"
+            prof = (await cdp.send("Profiler.stop"))["profile"]
+            nodes = {n["id"]: n for n in prof["nodes"]}; self = {}
+            dt = {}
+            ts = prof.get("timeDeltas", []); smp = prof.get("samples", [])
+            for i, sid in enumerate(smp):
+                n = nodes[sid]; cf = n["callFrame"]; key = f'{cf["functionName"] or "(anon)"}:{cf["lineNumber"]+1}'
+                self[key] = self.get(key, 0) + (ts[i] if i < len(ts) else 0)
+            top = sorted(self.items(), key=lambda kv: -kv[1])[:25]
+            return [f"{k} {v/1000:.0f}ms" for k, v in top]
+        await pg.expose_function("pyProfile", profile)
         t0=time.time()
         await pg.goto("file://"+page_path, wait_until="load", timeout=600000)
         await pg.wait_for_function("!document.getElementById('boot-splash')", timeout=600000)

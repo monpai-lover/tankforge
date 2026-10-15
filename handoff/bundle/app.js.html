@@ -4212,6 +4212,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         if (this.onContextLost) this.onContextLost();
       });
       canvas.addEventListener("webglcontextrestored", () => {
+        this._insetCallerState = null;
         let ok = true;
         try {
           this._restore();
@@ -5308,32 +5309,22 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       const gl = this.gl;
       if (!this._drawLit || this.lost) return;
       const x = Math.round(rect[0]), y = Math.round(rect[1]), w = Math.max(1, Math.round(rect[2])), h = Math.max(1, Math.round(rect[3]));
+      // getParameter/isEnabled are synchronous round trips to the GPU process; querying ~25 of them
+      // every frame for this status picture stalled the game whenever the GPU was busy (with the
+      // replay inset after a detonation: seconds per frame). render() binds everything it uses, so
+      // restore its end-of-frame state: fixed-function state read once, objects unbound.
       const get = (p) => gl.getParameter(p);
-      const state = {
-        read: get(gl.READ_FRAMEBUFFER_BINDING),
-        draw: get(gl.DRAW_FRAMEBUFFER_BINDING),
-        viewport: get(gl.VIEWPORT),
-        scissor: get(gl.SCISSOR_BOX),
+      const fixed = this._insetCallerState || (this._insetCallerState = {
         scissorOn: gl.isEnabled(gl.SCISSOR_TEST),
         depthOn: gl.isEnabled(gl.DEPTH_TEST),
         depthWrite: get(gl.DEPTH_WRITEMASK),
         depthFunc: get(gl.DEPTH_FUNC),
         blendOn: gl.isEnabled(gl.BLEND),
         blend: [get(gl.BLEND_SRC_RGB), get(gl.BLEND_DST_RGB), get(gl.BLEND_SRC_ALPHA), get(gl.BLEND_DST_ALPHA)],
-        equations: [get(gl.BLEND_EQUATION_RGB), get(gl.BLEND_EQUATION_ALPHA)],
-        program: get(gl.CURRENT_PROGRAM),
-        vao: get(gl.VERTEX_ARRAY_BINDING),
-        activeTexture: get(gl.ACTIVE_TEXTURE),
-        buffer: get(gl.ARRAY_BUFFER_BINDING),
-        renderbuffer: get(gl.RENDERBUFFER_BINDING),
-        textures: []
-      };
+        equations: [get(gl.BLEND_EQUATION_RGB), get(gl.BLEND_EQUATION_ALPHA)]
+      });
+      const state = { ...fixed, read: null, draw: null, viewport: [0, 0, this.canvas.width, this.canvas.height], scissor: [0, 0, this.canvas.width, this.canvas.height], program: null, vao: null, activeTexture: gl.TEXTURE0, buffer: null, renderbuffer: null, textures: [] };
       try {
-        for (const unit of /* @__PURE__ */ new Set([state.activeTexture, ...[U_SHADOW, U_TEX, U_NTEX, U_SCENE].map((u) => gl.TEXTURE0 + u)])) {
-          gl.activeTexture(unit);
-          state.textures.push([unit, get(gl.TEXTURE_BINDING_2D)]);
-        }
-        gl.activeTexture(state.activeTexture);
         const owner = ["replay-full", "replay-corner"].includes(opts.owner) ? opts.owner : "status", key4 = `${owner}:${w}x${h}`;
         if (!this.insetTs) this.insetTs = /* @__PURE__ */ new Map();
         let T2 = this.insetTs.get(key4);
@@ -16709,10 +16700,14 @@ precision highp float;void main(){}`);
       this.abortAcquisition();
       if (surface.staged && surface.staged !== this) throw Error("supplied replay candidate acquisition already pending");
       const r = surface.renderer, checkpoint = surface.tracked.snapshot(), existing = surface.session === this, stage2 = { surface, prepared, meshes: /* @__PURE__ */ new Map(), textures: /* @__PURE__ */ new Map(), created: null };
+      let uploads = 0;
       try {
         for (const node of prepared.sourceNodes) {
           let gpu = stage2.meshes.get(node.geo) || (existing ? surface.meshes.get(node.geo) : null);
-          if (!gpu) gpu = r.upload(node.geo);
+          if (!gpu) {
+            gpu = r.upload(node.geo);
+            uploads++;
+          }
           stage2.meshes.set(node.geo, gpu);
           node.gpu = gpu;
           for (const [imageKey, textureKey] of [["textureSource", "texture"], ["normalSource", "normalTexture"]]) {
@@ -16721,6 +16716,7 @@ precision highp float;void main(){}`);
             let texture = stage2.textures.get(image) || (existing ? surface.textures.get(image) : null);
             if (!texture) {
               const g = r.gl;
+              uploads++;
               texture = g.createTexture();
               g.bindTexture(g.TEXTURE_2D, texture);
               g.pixelStorei(g.UNPACK_FLIP_Y_WEBGL, true);
@@ -16736,7 +16732,9 @@ precision highp float;void main(){}`);
             node[textureKey] = texture;
           }
         }
-        const error = r.gl.getError();
+        // getError() waits for the GPU to drain; asking it every frame stalled the whole game (seconds per
+        // frame on a busy GPU after a detonation). Check only when this frame actually uploaded something.
+        const error = uploads ? r.gl.getError() : r.gl.NO_ERROR;
         if (Number.isFinite(error) && error !== r.gl.NO_ERROR) throw Error(`supplied replay candidate GL upload failed (${error})`);
         stage2.created = surface.tracked.added(checkpoint);
         this.staged = stage2;
@@ -16785,7 +16783,7 @@ precision highp float;void main(){}`);
           bounds3[2] = Math.max(bounds3[2], rect[0] + rect[2]);
           bounds3[3] = Math.max(bounds3[3], rect[1] + rect[3]);
         }
-        const width = (bounds3[2] - bounds3[0]) / s, height = (bounds3[3] - bounds3[1]) / s, cap = Math.min(r.gl.getParameter(r.gl.MAX_RENDERBUFFER_SIZE), r.gl.getParameter(r.gl.MAX_TEXTURE_SIZE)), dpr = Math.max(0.1, Math.min(s, 1.6, cap / width, cap / height));
+        const width = (bounds3[2] - bounds3[0]) / s, height = (bounds3[3] - bounds3[1]) / s, cap = surface.maxSize ??= Math.min(r.gl.getParameter(r.gl.MAX_RENDERBUFFER_SIZE), r.gl.getParameter(r.gl.MAX_TEXTURE_SIZE)), dpr = Math.max(0.1, Math.min(s, 1.6, cap / width, cap / height));
         this._publish(stage2);
         Object.assign(surface.canvas.style, { display: "block", left: `${bounds3[0] / s}px`, top: `${bounds3[1] / s}px`, width: `${width}px`, height: `${height}px` });
         r.resize(width, height, dpr);
@@ -31839,7 +31837,8 @@ void main() {
     }
     _inputs() {
       const k = this.keys, has = (a, b) => k.has(a) || b && k.has(b);
-      return [(has("KeyW", "ArrowDown") ? 1 : 0) - (has("KeyS", "ArrowUp") ? 1 : 0), (has("KeyD", "ArrowRight") ? 1 : 0) - (has("KeyA", "ArrowLeft") ? 1 : 0), (has("KeyE") ? 1 : 0) - (has("KeyQ") ? 1 : 0)];
+      // Stick convention: W / Up pushes the nose down (dive), S / Down pulls it up.
+      return [(has("KeyS", "ArrowDown") ? 1 : 0) - (has("KeyW", "ArrowUp") ? 1 : 0), (has("KeyD", "ArrowRight") ? 1 : 0) - (has("KeyA", "ArrowLeft") ? 1 : 0), (has("KeyE") ? 1 : 0) - (has("KeyQ") ? 1 : 0)];
     }
     _step(dt) {
       const s = this.state, inp = this._inputs(), manual = inp.some((v2) => Math.abs(v2) > 0.02), free = this.keys.has("KeyC");
@@ -33209,7 +33208,7 @@ void main() {
     const airHud = document.createElement("div");
     airHud.id = "air-hud";
     airHud.hidden = true;
-    airHud.innerHTML = '<div class="air-aim"></div><div class="air-nose"></div><div class="air-panel"><b class="air-main"></b><span class="air-flags"></span><span class="air-help">\u6ED1\u9F20\uFF1A\u7784\u6E96\u65B9\u5411\u3000W/S \u4FEF\u4EF0\u3000A/D \u6EFE\u8F49\u3000Q/E \u65B9\u5411\u8235\u3000Shift/Ctrl \u6216\u6EFE\u8F2A\uFF1A\u6CB9\u9580\u3000C \u81EA\u7531\u89C0\u5BDF\u3000I \u6559\u5B98\u3000L \u5E73\u98DB\u3000G \u8D77\u843D\u67B6\u3000F \u895F\u7FFC\u3000B \u715E\u8ECA\u3000V \u8996\u89D2\u3000F8 \u56DE\u5230\u6230\u8ECA</span></div>';
+    airHud.innerHTML = '<div class="air-aim"></div><div class="air-nose"></div><div class="air-panel"><b class="air-main"></b><span class="air-flags"></span><span class="air-help">\u6ED1\u9F20\uFF1A\u7784\u6E96\u65B9\u5411\u3000W \u4FEF\u885D\uFF0FS \u62C9\u8D77\u3000A/D \u6EFE\u8F49\u3000Q/E \u65B9\u5411\u8235\u3000Shift/Ctrl \u6216\u6EFE\u8F2A\uFF1A\u6CB9\u9580\u3000C \u81EA\u7531\u89C0\u5BDF\u3000I \u6559\u5B98\u3000L \u5E73\u98DB\u3000G \u8D77\u843D\u67B6\u3000F \u895F\u7FFC\u3000B \u715E\u8ECA\u3000V \u8996\u89D2\u3000F8 \u56DE\u5230\u6230\u8ECA</span></div>';
     document.body.appendChild(airHud);
     const airEl = { aim: airHud.querySelector(".air-aim"), nose: airHud.querySelector(".air-nose"), main: airHud.querySelector(".air-main"), flags: airHud.querySelector(".air-flags") };
     let airExitArmed = 0;
