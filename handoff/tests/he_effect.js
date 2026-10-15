@@ -6,9 +6,9 @@ tf.select('su_t72a'); await frames(2); tf.finishThumbs(); tf.startBattle(); awai
 const P = x.data.projectiles;
 const he = Object.values(P).filter(p => (p.kind === 'he') && p.explosive_mass_kg > 0).sort((a, b) => a.explosive_mass_kg - b.explosive_mass_kg);
 const pick = [0.05, 0.3, 0.7, 1.5, 3.5, 6, 20].map(kg => he.reduce((b, p) => Math.abs(Math.log(p.explosive_mass_kg / kg)) < Math.abs(Math.log(b.explosive_mass_kg / kg)) ? p : b));
-const shells = [...new Map(pick.map(p => [p.id, p])).values()];
+const shells = window.__SHELLS ? window.__SHELLS.split(',').map(id => P[id]) : [...new Map(pick.map(p => [p.id, p])).values()];
 const out = { shells: shells.map(s => [s.id, s.caliber_mm, s.explosive_mass_kg]), rows: [] };
-const N = 4;
+const N = 4; let nbCalls = 0; const nb0 = G.combat.nearBurst.bind(G.combat); G.combat.nearBurst = (...a) => { nbCalls++; return nb0(...a); }; const oe = console.error; const errs = []; console.error = (...a) => { errs.push(String(a[0]) + String(a[1]?.message || '')); oe(...a); };
 for (const e of G.enemies.filter(q => ['us_m8', 'de_pz3_j', 'su_t72a'].includes(q.id))) {
   for (const sh of shells) {
     const row = { veh: e.id, shell: sh.id, kg: sh.explosive_mass_kg };
@@ -22,8 +22,8 @@ for (const e of G.enemies.filter(q => ['us_m8', 'de_pz3_j', 'su_t72a'].includes(
       if (!e.alive || e.caps?.destroyed) kills++;
       crew += (e.caps?.crew_total ?? 0) - (e.caps?.crew_alive ?? 0);
     }
-    row.direct = `${kills}/${N} kills, ${(crew / N).toFixed(1)} crew lost`;
-    for (const dist of [1.5, 3, 6, 12]) {
+    row.direct = `${kills}/${N} kills, ${(crew / N).toFixed(1)} crew lost, ${nbCalls} bursts`; nbCalls = 0;
+    for (const dist of (window.__SHELLS ? [] : [1.5, 3, 6, 12])) {
       let kk = 0, cc = 0;
       for (let k = 0; k < N; k++) {
         x.reviveRangeEnemy(e); tf.advance(0.05, [], false);
@@ -39,4 +39,4 @@ for (const e of G.enemies.filter(q => ['us_m8', 'de_pz3_j', 'su_t72a'].includes(
     out.rows.push(row);
   }
 }
-return out;
+out.errs = errs.slice(0, 5); return out;

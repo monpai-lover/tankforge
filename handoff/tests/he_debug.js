@@ -1,4 +1,4 @@
-window.__SHELL='he_300_tt_rocket'; window.__VEHS='de_pz3_j';
+window.__SHELL='heat_152_tow'; window.__VEHS='us_m8';
 const tf = window.__tf, x = window.__tfx, G = tf.G;
 const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
 await tf.coreReady().catch(e => null);

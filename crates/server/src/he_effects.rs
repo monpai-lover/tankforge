@@ -1,4 +1,4 @@
-//! Direct HE/HESH hits detonate on the surface. Besides what `tg_combat::shoot` resolved for the hit,
+//! Direct HE/HESH/HEAT hits detonate on the surface. Besides what `tg_combat::shoot` resolved for the hit,
 //! the blast and fragments act on the vehicle from the contact point, and a charge that can blow
 //! through the plate it struck also bursts inside. Same gameplay rules as the browser game
 //! (`heContactEffects` in handoff/bundle/app.js.html, handoff/CHANGES.md); an estimate, not a
@@ -56,15 +56,30 @@ fn burst(t: &Target, r: &mut Report, at: Vec3, kg: f32, yaw: f32, seed: u64) {
     merge(r, add);
 }
 
+/// The plate struck; a hit on the running gear or another non-plate part bursts against the nearest
+/// hull armour, taken as the thinnest plate within 1.5 m.
+fn nearest_plate_mm(t: &Target, r: &Report, at: Vec3) -> Option<f32> {
+    r.layers.first().map(|l| l.thickness_mm).filter(|t| t.is_finite()).or_else(|| {
+        t.def.plates.iter().filter(|p| p.thickness_mm > 0.0 && (p.center - at).length() <= 1.5).map(|p| p.thickness_mm).reduce(f32::min)
+    })
+}
+
 /// The hit report with the contact detonation's damage merged in (unchanged for other rounds).
 /// `before`: the target state the hit was resolved from.
 pub fn contact(t: &Target, before: &TargetState, shot: &Shot, mut r: Report) -> Report {
-    if !matches!(shot.shell.kind, ProjectileKind::He | ProjectileKind::Hesh) || r.caps.destroyed {
+    // HEAT too: the core resolves the jet; the warhead's blast and casing fragments still act.
+    if !matches!(shot.shell.kind, ProjectileKind::He | ProjectileKind::Hesh | ProjectileKind::Heat | ProjectileKind::HeatFs) || r.caps.destroyed {
         return r;
     }
     let tnt = tnt_kg(&shot.shell);
     let Some(at) = r.impact else { return r };
     if !(tnt > 0.0) {
+        return r;
+    }
+    // HEAT: only against thin skins (the charge blows through the plate struck); on armour its blast
+    // stays outside and the core's jet is the whole effect, as before.
+    let heat = matches!(shot.shell.kind, ProjectileKind::Heat | ProjectileKind::HeatFs);
+    if heat && !nearest_plate_mm(t, &r, at).is_some_and(|mm| breach_mm(tnt) >= mm) {
         return r;
     }
     let dir = shot.dir.normalized();
@@ -89,11 +104,7 @@ pub fn contact(t: &Target, before: &TargetState, shot: &Shot, mut r: Report) -> 
         }
     }
     burst(t, &mut r, at + n * 0.15, tnt, yaw, seed.wrapping_add(1));
-    // The plate struck; a hit on the running gear or another non-plate part bursts against the
-    // nearest hull armour, taken as the thinnest plate within 1.5 m.
-    let plate = r.layers.first().map(|l| l.thickness_mm).filter(|t| t.is_finite()).or_else(|| {
-        t.def.plates.iter().filter(|p| p.thickness_mm > 0.0 && (p.center - at).length() <= 1.5).map(|p| p.thickness_mm).reduce(f32::min)
-    });
+    let plate = nearest_plate_mm(t, &r, at);
     if r.outcome != Outcome::Overpressure && plate.is_some_and(|mm| breach_mm(tnt) >= mm) {
         // Blown through: the blast and plate fragments vent into the compartment, between the hole
         // and the hull centreline. The core's internal blast grows only weakly with charge, so a
@@ -127,7 +138,7 @@ mod tests {
     fn heavy_he_direct_hits_knock_out_light_vehicles() {
         let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
         let c = crate::server::load_combat(&data);
-        for (vehicle, shell, min_kills) in [("de_pz3_j", "he_122_of471", 7), ("us_m8", "he_122_of471", 7), ("us_m8", "he_88_sprgr", 5)] {
+        for (vehicle, shell, min_kills) in [("de_pz3_j", "he_122_of471", 7), ("us_m8", "he_122_of471", 7), ("us_m8", "he_88_sprgr", 5), ("us_m8", "heat_152_tow", 7)] {
             let (t, s) = (&c.targets[vehicle], &c.projectiles[shell]);
             let (mut before, mut after) = (0, 0);
             for seed in 1..=10u64 {

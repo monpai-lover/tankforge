@@ -14726,7 +14726,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
   // Plate an HE charge in contact can blow through (mm): the core's own estimate (13.1 * kg^0.673).
   var heBreachMm = (tntKg) => 13.1 * Math.pow(tntKg, 0.673);
   /**
-   * A direct HE/HESH hit detonates on the surface: besides what the core resolved for the hit, the
+   * A direct HE/HESH/HEAT hit detonates on the surface: besides what the core resolved for the hit, the
    * blast and fragments act on the vehicle from the contact point, and a charge that can blow through
    * the plate it struck also bursts inside (part of the charge). Gameplay estimate (see CHANGES.md).
    * Returns the hit report with the added damage merged in.
@@ -14778,10 +14778,17 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     return last;
   }
   function heContactEffects(e, shell, point, dir, rep, time_s) {
-    if (!rep || !["he", "hesh"].includes(shell?.kind) || !e.combat?.nearBurst || rep.caps?.destroyed) return rep;
+    // HEAT too: its shaped-charge jet is resolved by the core, but the warhead's blast and casing
+    // fragments still act on the vehicle (an ATGM on a thin-skinned vehicle).
+    if (!rep || !["he", "hesh", "heat", "heat_fs"].includes(shell?.kind) || !e.combat?.nearBurst || rep.caps?.destroyed) return rep;
     const tnt = tntEquivalentKg(shell);
     if (!(tnt > 0)) return rep;
     const b = e.veh.body, seed2 = ((rep.shot?.seed ?? 1) ^ 2654435769) >>> 0;
+    let plate = rep.layers?.[0];
+    if (!plate || !Number.isFinite(plate.thickness_mm)) plate = thinnestPlateNear(e, b.localPoint(point));
+    // HEAT: only against thin skins (the charge blows through the plate struck); on armour its blast
+    // stays outside and the core's jet is the whole effect, as before.
+    if ((shell.kind === "heat" || shell.kind === "heat_fs") && !(plate && heBreachMm(tnt) >= plate.thickness_mm)) return rep;
     let n = rep.normal ? b.worldDir(arr3(rep.normal)) : dir.map((q) => -q);
     if (n[0] * dir[0] + n[1] * dir[1] + n[2] * dir[2] > 0) n = n.map((q) => -q);
     const added = [];
@@ -14789,7 +14796,8 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       if (e.caps?.destroyed) return;
       let r = null;
       try {
-        r = e.combat.nearBurst(e.combatKey, e.cstate, b.localPoint(at2), { ...shell, explosive_mass_kg: kg }, e.turretYaw || 0, seed2 + k >>> 0, null, time_s);
+        // The core treats a HEAT-kind burst as a shaped charge; the warhead's blast is an HE burst.
+        r = e.combat.nearBurst(e.combatKey, e.cstate, b.localPoint(at2), { ...shell, kind: "he", explosive_mass_kg: kg }, e.turretYaw || 0, seed2 + k >>> 0, null, time_s);
       } catch (error) {
         console.error("HE contact burst rejected:", error);
       }
@@ -14801,8 +14809,6 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     burst(point.map((q, i) => q + n[i] * 0.15), tnt, 1);
     // The plate struck; a hit on the running gear or another non-plate part bursts against the
     // nearest hull armour, taken as the thinnest plate within 1.5 m of the contact point.
-    let plate = rep.layers?.[0];
-    if (!plate || !Number.isFinite(plate.thickness_mm)) plate = thinnestPlateNear(e, b.localPoint(point));
     if (plate && Number.isFinite(plate.thickness_mm) && heBreachMm(tnt) >= plate.thickness_mm) heInternalBurst(e, b.localPoint(point.map((q, i) => q - n[i] * 0.2)), tnt * 0.6, burst);
     if (!added.length) return rep;
     if (e.caps.destroyed && e.alive) {
@@ -14810,7 +14816,8 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       e.pose();
     }
     const last = added.at(-1), killed = last.caps.destroyed && !rep.caps.destroyed;
-    return { ...rep, state: last.state, caps: last.caps, title: killed ? last.title : rep.title, crew: [...rep.crew || [], ...added.flatMap((r) => r.crew || [])], modules: [...rep.modules || [], ...added.flatMap((r) => r.modules || [])], events: [...rep.events || [], ...added.flatMap((r) => r.events || [])], he_contact: { tnt_kg: tnt, breach_mm: heBreachMm(tnt), plate_mm: plate?.thickness_mm ?? null, breached: added.length > 1 || !!(plate && heBreachMm(tnt) >= plate.thickness_mm) } };
+    // Merged into the hit's own report (same object: sound and replay consumers keyed on it see it once).
+    return Object.assign(rep, { state: last.state, caps: last.caps, title: killed ? last.title : rep.title, crew: [...rep.crew || [], ...added.flatMap((r) => r.crew || [])], modules: [...rep.modules || [], ...added.flatMap((r) => r.modules || [])], events: [...rep.events || [], ...added.flatMap((r) => r.events || [])], he_contact: { tnt_kg: tnt, point: point.slice(), breach_mm: heBreachMm(tnt), plate_mm: plate?.thickness_mm ?? null, breached: added.length > 1 || !!(plate && heBreachMm(tnt) >= plate.thickness_mm) } });
   }
   function mixState(a, b, k) {
     const mix6 = (x, y) => Array.isArray(x) && Array.isArray(y) ? x.map((v2, i) => v2 + (y[i] - v2) * k) : y ?? x;
@@ -24288,7 +24295,10 @@ precision highp float;void main(){}`);
     }
     launch(e) {
       this.syncContext();
-      const p = this.profile("missile", e.missileId);
+      // The bank carries launch_/motor_ cues for every missile but binds only some of them to a
+      // profile (TOW, Konkurs and Kornet launched silently): fall back to the cues by name.
+      const named = (k) => this.bank.cues?.[k + "_" + e.missileId] ? k + "_" + e.missileId : null;
+      const p = this.profile("missile", e.missileId) || (named("launch") ? { cues: { launch: named("launch"), motor: named("motor") } } : null);
       if (!p || !this.once("launch:" + e.projectileId, e.time)) return;
       this.play(p.cues.launch, e);
       if (this.trackers.has(e.projectileId) || this.trackers.size < 128) {
@@ -35264,6 +35274,7 @@ void main() {
             }, p1);
             if (!rep) continue;
             if (!(e.remote && G4.online)) rep = heContactEffects(e, war, best.point, dir, rep, G4.time);
+            if (rep.he_contact && !(rep.bursts || []).length) sound.blast(rep.he_contact.tnt_kg, Math.hypot(best.point[0] - G4.camPos[0], best.point[2] - G4.camPos[2]), { eventId: `missile-burst:${sg.id}`, position: best.point, time: G4.time, shellKind: war.kind });
             const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
             fx.shellArmor(best.point, dir, nrm, war, rep.outcome);
             sound.impact(Math.hypot(best.point[0] - G4.camPos[0], best.point[2] - G4.camPos[2]), true);
@@ -36506,6 +36517,7 @@ void main() {
                 break;
               }
               if (!(e.remote && G4.online)) rep = heContactEffects(e, sh.shell, eh.hit.point, dir, rep, G4.time);
+              if (rep.he_contact && !(rep.bursts || []).length) sound.blast(rep.he_contact.tnt_kg, Math.hypot(eh.hit.point[0] - G4.camPos[0], eh.hit.point[2] - G4.camPos[2]), { eventId: `burst:${seed2}`, position: eh.hit.point, time: G4.time, shellKind: sh.shell.kind });
               if (e.remote && sh.seq && G4.online) net.send({ t: "hit", seq: sh.seq, target: e.netId, result: rep.outcome, plate: rep.plate ?? null, shot: wireShot(rep.shot) });
               const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
               fx.shellArmor(eh.hit.point, dir, nrm, sh.shell, rep.outcome);
