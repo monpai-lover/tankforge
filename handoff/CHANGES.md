@@ -160,6 +160,7 @@ W／↑ 推桿俯衝，S／↓ 拉桿爬升（原本相反）。操作說明同�
   - 新主機加上 `TUNNEL_TOKEN=` 參數，腳本會一併安裝 cloudflared。
   - 最後要在 Cloudflare 後台把 Public hostname `tank.monpai.site` 指到 `HTTP localhost:8788`。
 - 也可以不用 Cloudflare，改用 `MODE=caddy`，由 Caddy 直接對外並自動申請憑證。
+- `update-existing.sh` 可以就地更新現有的 `/opt/tankforge` 部署，不改 nginx 和服務設定。它會換掉伺服器程式、資料和頁面，先備份舊版並產生 rollback 腳本，再重啟服務並檢查。已在模擬的 /opt/tankforge 上測過更新和還原，都正常。
 - 與 Claude of Tanks 的差別：戰鬥仍由伺服器權威判定，不交給房主瀏覽器。
 - `tg-server`（`crates/server/src/server.rs`）改為：
   - 瀏覽器支援 gzip 時，直接送旁邊預先壓縮的 `index.html.gz`（280 MB → 60 MB）；

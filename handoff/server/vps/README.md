@@ -93,6 +93,28 @@ sudo MODE=caddy EMAIL=you@example.com ./install.sh
 
 安裝腳本會安裝 Caddy，並自動申請 Let's Encrypt 憑證。如果 80／443 已經被其他網頁伺服器（例如寶塔的 nginx）佔用，腳本會停下來，不會改動它。這種情況請改用 Tunnel 模式，或參考 `nginx-site.conf` 把 `tank.monpai.site` 反向代理到 `127.0.0.1:8788`。
 
+## 更新已經在跑的舊部署（例如 /opt/tankforge）
+
+如果 tank.monpai.site 已經在跑舊版 TankForge，例如 `/opt/tankforge` 加上 systemd 服務 `tankforge`、前面接 nginx，可以直接就地更新。這樣不用重設網域、nginx 或服務：
+
+```sh
+cd tankforge-vps
+URL=https://tank.monpai.site ./update-existing.sh
+```
+
+用擁有 `/opt/tankforge` 的帳號執行即可。重啟服務時會詢問 sudo 密碼；沒有 sudo 時，腳本會結束舊程序，由 systemd 自動用新版本重新啟動。
+
+腳本會依序：
+
+1. 把伺服器程式、資料和遊戲頁面換成這個包裡的版本，新增壓縮頁 `tankforge-range.html.gz`；
+2. 舊版備份成 `*.bak-時間`；
+3. 產生還原腳本 `/opt/tankforge/rollback-時間.sh`；
+4. 重啟服務並檢查。
+
+要還原時，執行它印出的 rollback 腳本即可。
+
+如果不是預設路徑，可以這樣指定：`TARGET=/opt/tankforge SERVICE=tankforge PORT=8787 ./update-existing.sh`。
+
 ## 日常維護
 
 ```sh
