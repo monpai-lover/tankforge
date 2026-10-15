@@ -2,3 +2,4 @@ bundle/data.line
 tankforge-full-online*.html
 tests/out/
 flight/*.o
+server/dist/tankforge-server-linux-x86_64/

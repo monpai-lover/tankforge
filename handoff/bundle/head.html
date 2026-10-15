@@ -297,6 +297,9 @@ body:not([data-mode="battle"]) #hud { display: none; }
 #aps .aps-scope u { position: absolute; width: 5px; height: 5px; margin: -2px; border-radius: 50%; background: #ff8a3a; box-shadow: 0 0 4px #ff8a3a; }
 @keyframes aps-blink { 50% { opacity: 0.45; } }
 #drive { position: absolute; left: var(--gutter); bottom: var(--gutter); display: grid; grid-template-columns: auto; justify-items: start; gap: 2px; pointer-events: none; }
+/* The status dial stays put (as in War Thunder): damage notes sit beside it, not under it. */
+#drive #slip { display: none; }
+#drive #dmg-list { position: absolute; left: 100%; bottom: 4px; margin-left: 6px; width: max-content; max-width: 260px; }
 /* the War Thunder status panel: a round window with the vehicle seen from above (drawn by the
    renderer under the panel), the module pictograms round its ring, crew and ready rounds at its
    sides, the drive readouts in its square bottom-left corner */
@@ -304,10 +307,13 @@ body:not([data-mode="battle"]) #hud { display: none; }
 #vs { --vs-scale: 0.8; position: relative; width: 260px; height: 260px; transform: scale(var(--vs-scale)); transform-origin: 0 100%; margin-top: calc(-260px * (1 - var(--vs-scale))); margin-right: calc(-260px * (1 - var(--vs-scale))); }
 #status-pic { position: absolute; inset: 0; width: 260px; height: 260px; display: block; }
 #vs-stab { position: absolute; left: 0; right: 0; top: 14px; text-align: center; font-family: var(--display); font-size: 17px; letter-spacing: 0.06em; color: #eef3f8; text-shadow: 0 1px 2px #000; }
-#crew-count { position: absolute; left: 14px; top: 156px; font-family: var(--display); font-size: 16px; color: #eef3f8; text-shadow: 0 1px 2px #000; }
+#crew-count { position: absolute; left: 41px; top: 150px; font-family: var(--body); font-size: 16px; color: #f2f6fa; text-shadow: 0 1px 2px #000; }
+#crew-count[data-lost="1"] { color: #f0302a; }
 #vs-ammo { position: absolute; right: 18px; top: 116px; font-family: var(--display); font-size: 16px; color: #eef3f8; text-shadow: 0 1px 2px #000; }
-#vs .st-lines { position: absolute; left: 12px; bottom: 8px; gap: 0 6px; font-size: 15px; line-height: 1.25; }
-#vs .st-lines dt { font-family: var(--display); letter-spacing: 0.04em; opacity: 0.9; }
+/* War Thunder dial readouts: "擋位 5 / 轉速 2500 / 速度 31 km/h", plain white over the dial's corner. */
+#vs .st-lines { position: absolute; left: 10px; bottom: 6px; display: grid; grid-template-columns: auto auto; justify-content: start; gap: 0 6px; margin: 0; font-family: var(--body); font-size: 16px; line-height: 1.3; color: #f2f6fa; text-shadow: 0 1px 2px #000; }
+#vs .st-lines dt, #vs .st-lines dd { margin: 0; font-family: var(--body); font-weight: 400; letter-spacing: 0; opacity: 1; }
+#vs-stab, #vs-ammo { display: none; }
 #vs .st-opt { display: none; }
 #vs .st-lines[data-cruise="1"] .st-opt { display: block; }
 #hint { position: absolute; left: 50%; bottom: calc(var(--gutter) + 150px); transform: translateX(-50%); padding: 3px 12px; border-radius: 3px; background: rgba(16, 18, 13, 0.55); font-size: 13.5px; color: var(--ink); text-shadow: 0 1px 2px #000; white-space: nowrap; pointer-events: none; opacity: 0; transition: opacity 0.35s; }
@@ -506,7 +512,7 @@ body[data-touch="1"] #workshop { top: auto; bottom: 0; right: 0; width: 100%; ma
   #g-hint { display: none; }
   body[data-mode="garage"] #toast { top: 84px; }
   /* narrow battle screen: three instruments share the bottom edge */
-  body:not([data-touch="1"]) #vs { --vs-scale: 0.64; }
+  body:not([data-touch="1"]) #vs { --vs-scale: 0.82; }
   body:not([data-touch="1"]) .st-lines { font-size: 11.5px; }
   body:not([data-touch="1"]) .ammo-slot { width: 42px; }
   body:not([data-touch="1"]) #mapbox { padding: 4px; }
@@ -890,9 +896,9 @@ body[data-air="1"] #drive, body[data-air="1"] #gunbox, body[data-air="1"] #help,
         <span id="crew-count" title="乘員"></span>
         <span id="vs-ammo" title="待發彈"></span>
         <dl class="st-lines">
-          <dt>GEAR</dt><dd id="gear">1</dd>
-          <dt>RPM</dt><dd id="rpm-val">0</dd>
-          <dt>SPD</dt><dd><span id="speed">0</span> km/h</dd>
+          <dt>擋位</dt><dd id="gear">1</dd>
+          <dt>轉速</dt><dd id="rpm-val">0</dd>
+          <dt>速度</dt><dd><span id="speed">0</span> km/h</dd>
           <dt class="st-opt" id="cruise-dt">CRUISE</dt><dd class="st-opt" id="cruise">關</dd>
         </dl>
         <span id="terrain" hidden>道路</span>

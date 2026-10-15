@@ -1,0 +1,17 @@
+# systemd unit: copy the unpacked folder to /opt/tankforge-server, then
+#   sudo cp tankforge-server.service /etc/systemd/system/ && sudo systemctl enable --now tankforge-server
+[Unit]
+Description=TankForge online server
+After=network-online.target
+
+[Service]
+WorkingDirectory=/opt/tankforge-server
+ExecStart=/opt/tankforge-server/start.sh
+Environment=PORT=8787
+Restart=on-failure
+RestartSec=3
+User=nobody
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target
