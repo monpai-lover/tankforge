@@ -310,3 +310,20 @@ fn v3_replay_protocol_receipt_from_actual_handlers() {
         std::fs::write(path,serde_json::to_vec_pretty(&json!({"revision":1,"actors":{"shooter":shot_flight::actor(&l.players[&a]),"victim":shot_flight::actor(&l.players[&b]),"observer":shot_flight::actor(&l.players[&c])},"phases":phases,"sources":super::ammo_tests::source_tags(),"replay_sources":replay_source_tags()})).unwrap()).unwrap();
     }
 }
+#[test]
+fn he_burst_near_an_enemy_damages_it_once_and_needs_a_live_filled_shell(){
+    let (mut l,a,b,_,_)=fixture_vehicle("us_m8");
+    let hp=serde_json::to_value(&l.players[&b].combat).unwrap();
+    let fire=send(&mut l,a,json!({"t":"fire","seq":5,"instance":"gun:0:0","shell":"he_88_sprgr","o":[0,0,0],"d":[0,0,1]}),0.0);
+    assert!(!message(&fire,a,"fire_accepted").is_null(),"{fire:?}");
+    // farther than the shell can have flown yet: rejected, and the shell stays live
+    assert!(send(&mut l,a,json!({"t":"burst","seq":5,"at":[3000.0,0.0,0.0]}),0.01).is_empty());
+    let out=send(&mut l,a,json!({"t":"burst","seq":5,"at":[2.2,0.2,0.0]}),0.02);
+    assert!(!message(&out,b,"damage").is_null(),"no splash damage: {out:?}");
+    assert_ne!(serde_json::to_value(&l.players[&b].combat).unwrap(),hp);
+    // the same shell bursts once
+    assert!(send(&mut l,a,json!({"t":"burst","seq":5,"at":[2.2,0.2,0.0]}),0.03).is_empty());
+    // a solid shot has no filler to burst
+    send(&mut l,a,json!({"t":"fire","seq":6,"instance":"gun:0:0","shell":"apcbc_88_l56","o":[0,0,0],"d":[0,0,1]}),9.0);
+    assert!(send(&mut l,a,json!({"t":"burst","seq":6,"at":[2.2,0.2,0.0]}),9.02).is_empty());
+}

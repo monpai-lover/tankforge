@@ -13,7 +13,7 @@ pub(super) struct ReplayHistory {
     pub identities:VecDeque<(u64,String)>,
     pub death_event_id:Option<String>,pub cause_event_id:Option<String>,pub unavailable:Option<String>,
 }
-pub(super) enum Mutation {Shot{attacker:u32,shot:tg_combat::Shot,discharge:Option<ReplayDischarge>,mg:bool},Advance{dt:f64,seed:u64},Repair{repair:bool},Ammo{carried:u32}}
+pub(super) enum Mutation {Shot{attacker:u32,shot:tg_combat::Shot,discharge:Option<ReplayDischarge>,mg:bool},Burst{attacker:u32,at:Vec3,kg:f32,yaw:f32,seed:u64},Advance{dt:f64,seed:u64},Repair{repair:bool},Ammo{carried:u32}}
 pub(super) fn public_state(st:&CombatState)->Value {
     let mut v=serde_json::to_value(st).unwrap_or(Value::Null);
     if let Some(o)=v.as_object_mut(){o.remove("fire_at");o.remove("active_fire_cause");}
@@ -41,12 +41,19 @@ impl Lobby {
             Mutation::Shot{attacker,shot,discharge,mg}=>{
                 let context=discharge.as_ref().map(|d|DamageContext{actor:actor.clone(),event_id:event_id.clone(),shot_id:d.shot_id.clone(),shooter:d.shooter.clone(),pose_revision:0,geometry_revision:0});
                 let r=match context.as_ref(){Some(c)=>tg_combat::shoot_context(t,&before,&shot,c),None=>tg_combat::shoot(t,&before,&shot)};
+                let r=crate::he_effects::contact(t,&before,&shot,r);
                 if mg&&r.modules.is_empty()&&r.crew.is_empty()&&!r.caps.destroyed {
                     if matches!(r.outcome,tg_combat::Outcome::Miss){return Vec::new();}
                     let from=attacker;
                     return vec![(from,ServerMsg::Damage{target,from,result:serde_json::to_value(r.outcome).unwrap().as_str().unwrap().into(),plate:r.plate.clone(),hp:p.hp,killed:false,report:serde_json::to_value(&r).ok(),replay:None,replay_unavailable:Some("no_state_commit".into()),hit_feedback:discharge.as_ref().map(|d|json!({"event_id":event_id,"shot_id":d.shot_id,"weapon_instance":d.weapon_instance,"projectile_id":d.projectile_id})),owner_commit:None})];
                 }
                 (r.state.clone(),r.caps.clone(),Some(r.clone()),r.events.clone(),r.cause_transitions.clone(),discharge,Some(attacker),0.0,false)
+            },
+            Mutation::Burst{attacker,at,kg,yaw,seed}=>{
+                // a shell bursting nearby (ground, building): blast and fragments only, no replay film
+                let r=tg_combat::splash(t,&before,at,kg,yaw,seed);
+                if r.modules.is_empty()&&r.crew.is_empty()&&!r.caps.destroyed {return Vec::new();}
+                (r.state.clone(),r.caps.clone(),Some(r.clone()),r.events.clone(),r.cause_transitions.clone(),None,Some(attacker),0.0,false)
             },
             Mutation::Advance{dt,seed}=>{
                 let mut state=before.clone();let result=tg_combat::advance_context(t,&mut state,dt as f32,seed,&event_id);let caps=tg_combat::caps(t,&state);

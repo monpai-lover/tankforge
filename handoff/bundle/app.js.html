@@ -3732,7 +3732,17 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         prepared.context.pose_revision = surface.revision;
         prepared.context.geometry_revision = surface.geometryRevision;
       }
-      const physical = { ...wire, shell: shellDef(shot.shell), origin: v3(shot.origin), dir: v3(shot.dir), seed: source?.seed ?? shot.seed };
+      let dir = shot.dir;
+      if (surface) {
+        // The surface core only accepts a direction that matches its flight segment (within ~1e-5 rad).
+        // Callers pass the velocity at the end of a gravity-curved step, which differs from the chord
+        // by ~1e-4 rad for slow rounds and bullets: the hit was rejected ("invalid incoming surface
+        // segment") and lost. The swept chord is the direction of this segment.
+        const xyz = (p) => Array.isArray(p) ? p : [p.x, p.y, p.z], e = xyz(finite_end), o = xyz(shot.origin), chord = [0, 1, 2].map((i) => e[i] - o[i]), length = Math.hypot(...chord);
+        if (!(length > 1e-6)) return null;
+        dir = chord.map((q) => q / length);
+      }
+      const physical = { ...wire, shell: shellDef(shot.shell), origin: v3(shot.origin), dir: v3(dir), seed: source?.seed ?? shot.seed };
       const report = surface ? this.core.combatSurfaceShoot(id2, state, physical, finite_end, prepared?.context ?? null) : this.core.combatShoot(id2, state, physical, prepared?.context ?? null);
       if (surface && report.outcome === "miss") {
         this.replayAdmission?.bindState(id2, report.state);
@@ -7192,7 +7202,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         let loop = lod >= 2 ? staticLoop : fitLoop(rg, stations, lifts, lod === 0 && dyn.ground ? dyn.ground[side] : null, staticLoop.length, dyn.slack ? dyn.slack[side] : 1);
         const source = fixedPinSource[side], chain = dyn.openBelts?.[side];
         let phasePitch = pitch;
-        if (chain?.nodes) {
+        if (chain?.nodes && !chain.laid) {
           openTrackPins[side] = chain.nodes;
           o = placeTrackPins(chain.nodes, linkCount, matrices, o, chain.cutPin, chain.widthAxis);
           for (let i = 0; i <= linkCount; i++) {
@@ -7200,7 +7210,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
             pins[i * 2 + 1] = chain.nodes[i * 3 + 1];
           }
         } else {
-          const broken = !!chain?.unsupported;
+          const broken = !!(chain?.unsupported || chain?.laid);
           const fixed = prepareTrackPins(rg, stations, linkCount, pitch, lifts, broken ? 0 : -dyn.travel[side], lod === 0 ? dyn.ground?.[side] : null, source.pins);
           source.diagnostics = fixed.diagnostics;
           if (broken && fixed.supported) {
@@ -7422,9 +7432,20 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     }
     return out.length ? new Float32Array(out) : null;
   }
-  function brokenBarrels(caps) {
-    const weapons = caps?.weapons || {};
-    return Object.keys(weapons).filter((k) => /^gun:\d+:\d+$/.test(k) && weapons[k]?.can_fire === false && /barrel/.test(weapons[k]?.reason || "")).sort();
+  function brokenBarrels(caps, state = null, modules = null) {
+    const weapons = caps?.weapons || {}, guns = Object.keys(weapons).filter((k) => /^gun:\d+:\d+$/.test(k)).sort();
+    const out = new Set(guns.filter((k) => weapons[k]?.can_fire === false && /barrel/.test(weapons[k]?.reason || "")));
+    // The reason names only the first cause ("gunner unavailable", "repairing", "destroyed" can hide
+    // a barrel that is gone), so also read the barrel modules' health: barrels pair with guns in order.
+    if (Array.isArray(modules) && Array.isArray(state?.modules)) {
+      const barrels = modules.map((m, i) => m?.kind === "gun_barrel" ? i : -1).filter((i) => i >= 0);
+      const keys = guns.length ? guns : ["gun:0:0"];
+      barrels.forEach((i, n) => {
+        const h = state.modules[i], health = typeof h === "number" ? h : h?.health;
+        if (Number.isFinite(health) && health <= 0 && keys[Math.min(n, keys.length - 1)]) out.add(keys[Math.min(n, keys.length - 1)]);
+      });
+    }
+    return [...out].sort();
   }
   var DamageVisuals = class {
     constructor(renderer, model) {
@@ -7480,8 +7501,8 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       (this.model.turrets || []).forEach((t, ti) => (t.guns || []).forEach((_, gi) => this._mirror(ti, gi)));
     }
     /** caps: the combat capability result (caps.weapons["gun:t:g"]). */
-    update(caps) {
-      const broken = brokenBarrels(caps), key4 = broken.join(",");
+    update(caps, state = null, modules = null) {
+      const broken = brokenBarrels(caps, state, modules), key4 = broken.join(",");
       if (key4 !== this.key) {
         this.key = key4;
         for (const [id2, entry] of this.guns) if (entry && !broken.includes(id2)) {
@@ -7515,7 +7536,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       this.guns.clear();
     }
   };
-  function damageVisualsFor(renderer, model, caps) {
+  function damageVisualsFor(renderer, model, caps, state = null, modules = null) {
     if (!model) return 0;
     if (!model.damageVisuals) {
       const visuals = model.damageVisuals = new DamageVisuals(renderer, model), dispose = model.dispose?.bind(model);
@@ -7525,7 +7546,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       };
       visuals.prime();
     }
-    return model.damageVisuals.update(caps);
+    return model.damageVisuals.update(caps, state, modules);
   }
   /** Replay frames show a barrel broken from the first recorded hit whose report says so. */
   function applyReplayBarrelDamage(root, records, physicalS) {
@@ -12118,7 +12139,9 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       chain.widthAxis = b.ex.slice();
       chain.cut(pins, velocities, cutPin);
       this.trackChains[side] = chain;
-      this.trackViews[side] = { nodes: new Float64Array(pins.length), widthAxis: [1, 0, 0], cutPin, count, pitch };
+      // laid: the cut chain keeps simulating, but a stopped hull leaves it draped on the wheels and the
+      // break is invisible, so the model shows the thrown track lying on the ground instead.
+      this.trackViews[side] = { nodes: new Float64Array(pins.length), widthAxis: [1, 0, 0], cutPin, count, pitch, laid: true };
       this.trackSupport[side] = { supported: true, reason: "source_instanced_shoes", ...source.diagnostics };
       this.trackRevision++;
       this.runningGearPose();
@@ -14618,6 +14641,8 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     resolve(hit, dir, shell, distance3) {
       if (hit.box) return { result: "track", pen: penAt(shell, distance3) };
       const p = hit.plate;
+      // A surface-geometry hit (combat vehicles, wrecks included) has no plate: the round just stops.
+      if (!p) return { result: "nopen", pen: penAt(shell, distance3) };
       const dl = this.veh.body.localDir(dir);
       const cos = Math.min(1, Math.abs(dot3(dl, p.n)) / (len3(dl) || 1));
       const angle = Math.acos(cos) / DEG;
@@ -14684,6 +14709,108 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     }
     r.shot = shot;
     return r;
+  }
+  // TNT equivalence (RE factor) of the filler types used by the projectile data. Values from the RE
+  // table of Wikipedia "TNT equivalent"; amatol (0.91-1.10 by ratio), explosive D (ammonium picrate,
+  // not listed), A-IX-1 (96% RDX) and A-IX-2 (aluminised RDX, taken as hexal) are estimates.
+  var RE_FACTOR = { tnt: 1, petn: 1.66, hexogen: 1.6, rdx: 1.6, okfol: 1.6, comp_b: 1.33, amatol: 1, explosive_d: 0.95, a_ix_1: 1.54, a_ix_2: 1.35 };
+  function tntEquivalentKg(shell) {
+    const kg = shell?.explosive_mass_kg || 0;
+    return Number.isFinite(kg) && kg > 0 ? kg * (RE_FACTOR[shell.explosive_type] ?? 1) : 0;
+  }
+  /** The same charge with its filler expressed as TNT (the combat core reads the mass only). */
+  function tntCharge(shell) {
+    const kg = tntEquivalentKg(shell);
+    return kg > 0 ? { ...shell, explosive_mass_kg: kg } : shell;
+  }
+  // Plate an HE charge in contact can blow through (mm): the core's own estimate (13.1 * kg^0.673).
+  var heBreachMm = (tntKg) => 13.1 * Math.pow(tntKg, 0.673);
+  /**
+   * A direct HE/HESH hit detonates on the surface: besides what the core resolved for the hit, the
+   * blast and fragments act on the vehicle from the contact point, and a charge that can blow through
+   * the plate it struck also bursts inside (part of the charge). Gameplay estimate (see CHANGES.md).
+   * Returns the hit report with the added damage merged in.
+   */
+  /**
+   * A charge that blew through the hull at `hole` (hull-local): the blast and plate fragments vent into
+   * the compartment, so the inner burst sits between the hole and the hull centreline. The core's
+   * internal blast grows only weakly with charge, so a large charge's lethal volume (radius ~ cube root
+   * of the charge, the blast scaling law) is spread over the crew stations inside it.
+   */
+  function heInternalBurst(e, hole, inside, burst) {
+    const b = e.veh.body, inner = [hole[0] * 0.45, hole[1], hole[2] * 0.7];
+    burst(b.worldPoint(inner), inside, 2);
+    const lethal = 0.6 + 0.9 * Math.cbrt(inside), crew = (e.bundle?.crew || []).map((c) => arr3(c.pos)).filter((c) => Math.hypot(c[0] - inner[0], c[1] - inner[1], c[2] - inner[2]) <= lethal);
+    crew.slice(0, 5).forEach((c, k) => burst(b.worldPoint(c), inside * 0.5, 3 + k));
+  }
+  /** Thinnest hull plate within 1.5 m of a hull-local point (null when none is known). */
+  function thinnestPlateNear(e, at2) {
+    return (e.bundle?.armor || []).map((q) => ({ c: arr3(q.center), thickness_mm: q.thickness_mm })).filter((q) => Number.isFinite(q.thickness_mm) && q.thickness_mm > 0 && Math.hypot(q.c[0] - at2[0], q.c[1] - at2[1], q.c[2] - at2[2]) <= 1.5).sort((p1, p2) => p1.thickness_mm - p2.thickness_mm)[0] || null;
+  }
+  /**
+   * A large charge bursting close to (not on) a hull can still blow through thin armour. Its breach
+   * capability falls off over a reach of ~0.5 * cube root of the charge (scaled distance); bursts
+   * further away leave the hull closed (the core's fragments and exposure still apply).
+   */
+  function heStandoffBreach(e, shell, at2, time_s, seed2) {
+    const tnt = tntEquivalentKg(shell);
+    if (!(tnt > 0) || !e.box || e.caps?.destroyed || !e.combat?.nearBurst) return null;
+    const b = e.veh.body, pl = b.localPoint(at2), box = e.box;
+    const near = [Math.max(-box.hw, Math.min(box.hw, pl[0])), Math.max(0.2, Math.min(box.top, pl[1])), Math.max(-box.hl, Math.min(box.hl, pl[2]))];
+    const d = Math.hypot(pl[0] - near[0], pl[1] - near[1], pl[2] - near[2]), reach = 0.5 * Math.cbrt(tnt), f = 1 - d / reach;
+    if (!(f > 0)) return null;
+    const plate = thinnestPlateNear(e, near);
+    if (!plate || heBreachMm(tnt) * f < plate.thickness_mm) return null;
+    let last = null;
+    heInternalBurst(e, near, tnt * 0.6 * f, (p, kg, k) => {
+      if (e.caps?.destroyed) return;
+      let r = null;
+      try {
+        r = e.combat.nearBurst(e.combatKey, e.cstate, b.localPoint(p), { ...shell, explosive_mass_kg: kg }, e.turretYaw || 0, seed2 + k >>> 0, null, time_s);
+      } catch (error) {
+        console.error("HE standoff breach rejected:", error);
+      }
+      if (!r) return;
+      e.cstate = r.state;
+      e.caps = r.caps;
+      last = r;
+    });
+    return last;
+  }
+  function heContactEffects(e, shell, point, dir, rep, time_s) {
+    if (!rep || !["he", "hesh"].includes(shell?.kind) || !e.combat?.nearBurst || rep.caps?.destroyed) return rep;
+    const tnt = tntEquivalentKg(shell);
+    if (!(tnt > 0)) return rep;
+    const b = e.veh.body, seed2 = ((rep.shot?.seed ?? 1) ^ 2654435769) >>> 0;
+    let n = rep.normal ? b.worldDir(arr3(rep.normal)) : dir.map((q) => -q);
+    if (n[0] * dir[0] + n[1] * dir[1] + n[2] * dir[2] > 0) n = n.map((q) => -q);
+    const added = [];
+    const burst = (at2, kg, k) => {
+      if (e.caps?.destroyed) return;
+      let r = null;
+      try {
+        r = e.combat.nearBurst(e.combatKey, e.cstate, b.localPoint(at2), { ...shell, explosive_mass_kg: kg }, e.turretYaw || 0, seed2 + k >>> 0, null, time_s);
+      } catch (error) {
+        console.error("HE contact burst rejected:", error);
+      }
+      if (!r) return;
+      e.cstate = r.state;
+      e.caps = r.caps;
+      added.push(r);
+    };
+    burst(point.map((q, i) => q + n[i] * 0.15), tnt, 1);
+    // The plate struck; a hit on the running gear or another non-plate part bursts against the
+    // nearest hull armour, taken as the thinnest plate within 1.5 m of the contact point.
+    let plate = rep.layers?.[0];
+    if (!plate || !Number.isFinite(plate.thickness_mm)) plate = thinnestPlateNear(e, b.localPoint(point));
+    if (plate && Number.isFinite(plate.thickness_mm) && heBreachMm(tnt) >= plate.thickness_mm) heInternalBurst(e, b.localPoint(point.map((q, i) => q - n[i] * 0.2)), tnt * 0.6, burst);
+    if (!added.length) return rep;
+    if (e.caps.destroyed && e.alive) {
+      e.alive = false;
+      e.pose();
+    }
+    const last = added.at(-1), killed = last.caps.destroyed && !rep.caps.destroyed;
+    return { ...rep, state: last.state, caps: last.caps, title: killed ? last.title : rep.title, crew: [...rep.crew || [], ...added.flatMap((r) => r.crew || [])], modules: [...rep.modules || [], ...added.flatMap((r) => r.modules || [])], events: [...rep.events || [], ...added.flatMap((r) => r.events || [])], he_contact: { tnt_kg: tnt, breach_mm: heBreachMm(tnt), plate_mm: plate?.thickness_mm ?? null, breached: added.length > 1 || !!(plate && heBreachMm(tnt) >= plate.thickness_mm) } };
   }
   function mixState(a, b, k) {
     const mix6 = (x, y) => Array.isArray(x) && Array.isArray(y) ? x.map((v2, i) => v2 + (y[i] - v2) * k) : y ?? x;
@@ -15572,6 +15699,9 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
   var COMMIT_TAIL_FILM_S = 6;
   var POST_FATAL_PHYSICAL_S = 1;
   var MAX_FILM_S = 40;
+  // Seconds an attacker's replay waits on the target for the next round (longer than most reloads).
+  var REPLAY_HOLD_S = 10;
+  var REPLAY_HOLD_MAX_FILM_S = 240;
   var smooth4 = (a, b, x) => {
     const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
     return t * t * (3 - 2 * t);
@@ -15660,6 +15790,10 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         // tail, and nothing after a death extends it: see COMMIT_TAIL_FILM_S.
         const repeat = !!previous && !result.fresh && !result.terminal;
         reach = Math.min(this.fatal && !result.terminal ? this.fatal.physicalEnd + POST_FATAL_PHYSICAL_S : Infinity, repeat ? this.clock.physicalAt(this.evidenceEndFilm + COMMIT_TAIL_FILM_S) : Infinity);
+        // A held session (offensive, see holdS) waiting for the next round: skip the real-time gap
+        // (reload) quickly, so the new round's own flight and impact still play at normal pace.
+        const lead = Math.max(0, (Number.isFinite(event.launch_s) ? event.launch_s : event.contact_s) - 0.05);
+        if (this.options.holdS && !previous && result.fresh && lead - this.clock.physicalAt(this.filmTimeS) > 0.5) this.clock.appendPhysicalAnchors([lead], { filmSpanS: 0.3 });
         this.clock.appendPhysicalAnchors([event.contact_s, event.physicalEnd, ...event.mechanism_anchors.map((a) => a.time_s)].filter((t) => t <= reach), { filmSpanS, reserve: result.terminal });
       } catch {
         return { accepted: false, reason: "invalid_physical_records" };
@@ -15745,8 +15879,10 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       if (this.finished || !Number.isFinite(dt) || dt < 0) return;
       this.filmTimeS += dt;
       this.clock.markPlayed(this.filmTimeS);
-      if (this.filmTimeS > this.endFilm + 1.5) this.finish("tail_complete");
-      else if (this.filmTimeS > MAX_FILM_S) this.finish("film_limit");
+      // holdS: an attacker's replay stays on the target (camera fixed) between rounds, so the next hit
+      // joins the same view instead of restarting it; a kill ends it normally.
+      if (this.filmTimeS > this.endFilm + (this.fatal || !this.options.holdS ? 1.5 : this.options.holdS)) this.finish("tail_complete");
+      else if (this.filmTimeS > (this.options.maxFilmS || MAX_FILM_S)) this.finish("film_limit");
     }
     _retire(seq, id2) {
       if (seq <= this.retiredThrough) return;
@@ -17003,7 +17139,7 @@ precision highp float;void main(){}`);
         snapshot = snapshotReplayTarget(this.env.renderer, target, rep, rep.replay?.accepted_pose || null);
         const options = { presentation: this.presentation };
         draw = this.env.replayDrawFactory ? this.env.replayDrawFactory(this.env.renderer, snapshot, this.projectiles, options) : new SuppliedReplayDraw(this.env.renderer, snapshot, this.projectiles, options);
-        session = createReplaySession(this.env.renderer, snapshot, evidence, purpose, { catalog: this.env.catalog || {}, draw, onPressure: this.env.onPressure, onFinish: (reason) => this.env.onFinish?.(reason, session?.purpose || purpose) });
+        session = createReplaySession(this.env.renderer, snapshot, evidence, purpose, { catalog: this.env.catalog || {}, draw, ...purpose === "offensive" ? { holdS: REPLAY_HOLD_S, maxFilmS: REPLAY_HOLD_MAX_FILM_S } : {}, onPressure: this.env.onPressure, onFinish: (reason) => this.env.onFinish?.(reason, session?.purpose || purpose) });
         prepared = draw.prepare(session.prepareFrame(`acquire:${this.serial}`));
         draw.acquire(prepared);
       } catch {
@@ -23740,6 +23876,9 @@ precision highp float;void main(){}`);
     }
     return true;
   }
+  // Engine loops were mixed at 0.12/0.09 and drowned under everything else (user report): ~+8 dB.
+  var ENGINE_LOOP_GAIN = 0.3;
+  var ENGINE_LOAD_GAIN = 0.22;
   var FullAudio = class {
     constructor(sound, bank) {
       this.sound = sound;
@@ -24251,17 +24390,17 @@ precision highp float;void main(){}`);
       }
       for (const [i, g] of engineBands) {
         const key4 = "engine:" + e.emitterId + ":" + bands[i];
-        this.loop(key4, p.cues[bands[i]], { ...e, gain: 0.12 * g, rate: r.rates[i], loopOffset: r.phases[i], fadeIn: true });
+        this.loop(key4, p.cues[bands[i]], { ...e, gain: ENGINE_LOOP_GAIN * g, rate: r.rates[i], loopOffset: r.phases[i], fadeIn: true });
       }
       if (r.load > 0.02) {
         const key4 = "engine:" + e.emitterId + ":load";
-        this.loop(key4, p.cues.load, { ...e, gain: 0.09 * r.load, fadeIn: true });
+        this.loop(key4, p.cues.load, { ...e, gain: ENGINE_LOAD_GAIN * r.load, fadeIn: true });
       }
       if (speed > 0.05) {
         if (gear) {
           const key4 = "gear:" + e.emitterId;
           const cue = this.runningGearCue(gear.cues.roll || gear.cues.loop, surface?.cues.texture || surface?.cues.loop);
-          if (cue) this.loop(key4, cue, { ...e, gain: Math.min(0.12, speed * 0.01), rate: clamp9(0.75 + speed * 0.025, 0.75, 1.4) });
+          if (cue) this.loop(key4, cue, { ...e, gain: Math.min(0.2, speed * 0.016), rate: clamp9(0.75 + speed * 0.025, 0.75, 1.4) });
           else this.stopLoop(key4);
         }
       }
@@ -34643,6 +34782,7 @@ void main() {
       G4.lastCombat = { id: e.id, title: rep.title, outcome: rep.outcome, events: rep.events.slice(), crew: rep.crew.length, modules: rep.modules.length, destroyed: rep.caps.destroyed, mg };
     }
     function splashNear(pt, shell, own2 = true, source = null, time_s = G4.time) {
+      shell = tntCharge(shell);
       const kg = shell.explosive_mass_kg || 0;
       if (!Number.isFinite(kg) || kg <= 0 || !G4.combat || G4.online) return;
       const r = Math.min(60, 12 + 8 * Math.cbrt(kg)) + 4;
@@ -34650,8 +34790,12 @@ void main() {
         if (!e.combat || !e.alive || e.remote && G4.online) continue;
         if (Math.hypot(e.x - pt[0], e.z - pt[2]) > r + e.radius) continue;
         const local = e.veh.body.localPoint(pt);
-        const rep = G4.combat.nearBurst(e.combatKey, e.cstate, local, shell, e.turretYaw || 0, rng2.nextF32() * 4294967295 >>> 0, source, time_s);
+        let rep = G4.combat.nearBurst(e.combatKey, e.cstate, local, shell, e.turretYaw || 0, rng2.nextF32() * 4294967295 >>> 0, source, time_s);
         if (!rep) continue;
+        e.cstate = rep.state;
+        e.caps = rep.caps;
+        const breach = heStandoffBreach(e, shell, pt, time_s, rng2.nextF32() * 4294967295 >>> 0);
+        if (breach) rep = { ...rep, state: breach.state, caps: breach.caps, title: breach.caps.destroyed ? breach.title : rep.title, crew: [...rep.crew, ...breach.crew], modules: [...rep.modules, ...breach.modules] };
         sound.resolvedContact?.(rep, shell, e.veh.body, { position: pt, time: G4.time });
         e.cstate = rep.state;
         e.caps = rep.caps;
@@ -35115,10 +35259,11 @@ void main() {
               fx.shellArmor(best.point, dir, null, war, "stopped");
               continue;
             }
-            const rep = combatHit(e, p0, dir, war, speed, dist3, sg.source?.seed ?? seed2(), sg.source, sg.time_s, (report) => {
+            let rep = combatHit(e, p0, dir, war, speed, dist3, sg.source?.seed ?? seed2(), sg.source, sg.time_s, (report) => {
               if (!(e.remote && G4.online)) sound.resolvedContact?.(report, war, e.veh.body, { position: best.point, time: G4.time });
             }, p1);
             if (!rep) continue;
+            if (!(e.remote && G4.online)) rep = heContactEffects(e, war, best.point, dir, rep, G4.time);
             const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
             fx.shellArmor(best.point, dir, nrm, war, rep.outcome);
             sound.impact(Math.hypot(best.point[0] - G4.camPos[0], best.point[2] - G4.camPos[2]), true);
@@ -36249,9 +36394,14 @@ void main() {
               const dir = [b.s.vel[0] / sp2, b.s.vel[1] / sp2, b.s.vel[2] / sp2];
               if (!G4.bulletShells.has(b.def.id)) G4.bulletShells.set(b.def.id, bulletShell(b.def));
               if (b.replayDischarge) G4.localReplay.clipProjectileStep(b.replayDischarge, eb.hit.t);
-              const rep = combatHit(e, p0, dir, G4.bulletShells.get(b.def.id), sp2, b.travelled, b.replayDischarge?.seed ?? rng2.nextF32() * 4294967295 >>> 0, b.replayDischarge, b.replayDischarge?.flight.at(-1)?.time_s, (report) => {
-                if (!(e.remote && G4.online)) sound.resolvedContact?.(report, G4.bulletShells.get(b.def.id), e.veh.body, { position: eb.hit.point, time: G4.time });
-              }, p1);
+              let rep = null;
+              try {
+                rep = combatHit(e, p0, dir, G4.bulletShells.get(b.def.id), sp2, b.travelled, b.replayDischarge?.seed ?? rng2.nextF32() * 4294967295 >>> 0, b.replayDischarge, b.replayDischarge?.flight.at(-1)?.time_s, (report) => {
+                  if (!(e.remote && G4.online)) sound.resolvedContact?.(report, G4.bulletShells.get(b.def.id), e.veh.body, { position: eb.hit.point, time: G4.time });
+                }, p1);
+              } catch (error) {
+                console.error("combat hit rejected:", error);
+              }
               if (!rep) {
                 done = true;
                 break;
@@ -36322,6 +36472,7 @@ void main() {
             fx.shellGround(bh.point, MASONRY_DUST, sh.shell);
             sound.impact(Math.hypot(bh.point[0] - G4.s.x, bh.point[2] - G4.s.z), false, { eventId: sh, position: bh.point, material: "earth_gravel", bursts: sh.shell.explosive_mass_kg > 0 ? [{ explosive_kg: sh.shell.explosive_mass_kg }] : [], time: G4.time, shellKind: sh.shell.kind });
             if (sh.from == null) splashNear(bh.point, sh.shell);
+            if (sh.from == null && G4.online && sh.seq && sh.shell.explosive_mass_kg > 0) net.send({ t: "burst", seq: sh.seq, at: bh.point.slice() });
             done = true;
           } else if (sh.from != null && (eh || me)) {
             const pt = eh ? eh.hit.point : me;
@@ -36354,6 +36505,7 @@ void main() {
                 done = true;
                 break;
               }
+              if (!(e.remote && G4.online)) rep = heContactEffects(e, sh.shell, eh.hit.point, dir, rep, G4.time);
               if (e.remote && sh.seq && G4.online) net.send({ t: "hit", seq: sh.seq, target: e.netId, result: rep.outcome, plate: rep.plate ?? null, shot: wireShot(rep.shot) });
               const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
               fx.shellArmor(eh.hit.point, dir, nrm, sh.shell, rep.outcome);
@@ -36395,6 +36547,7 @@ void main() {
             fx.shellGround(pt, impactColor(pt), sh.shell);
             const dist3 = Math.hypot(pt[0] - sh.origin[0], pt[2] - sh.origin[2]);
             sound.impact(Math.hypot(pt[0] - G4.s.x, pt[2] - G4.s.z), false, { eventId: sh, position: pt, material: "earth_gravel", debris: "earth_debris", shellKind: sh.shell.kind, bursts: sh.shell.explosive_mass_kg > 0 ? [{ explosive_kg: sh.shell.explosive_mass_kg }] : [], time: G4.time });
+            if (sh.from == null && G4.online && sh.seq && sh.shell.explosive_mass_kg > 0) net.send({ t: "burst", seq: sh.seq, at: pt.slice() });
             if (sh.from == null) {
               splashNear(pt, sh.shell);
               G4.lastHit = { type: "ground", dist: dist3, tof: sh.age, speed, point: pt };
@@ -36941,8 +37094,9 @@ void main() {
       hitcam.tick(dt);
       if (G4.skipDraw) return;
       for (const e of G4.enemies || []) if (!e.remote && e.veh.brokenTracks) e.pose();
-      damageVisualsFor(renderer, G4.model, G4.mode === "battle" ? G4.caps : null);
-      for (const e of G4.enemies || []) damageVisualsFor(renderer, e.model, e.caps);
+      const own = G4.mode === "battle";
+      damageVisualsFor(renderer, G4.model, own ? G4.caps : null, own ? G4.cstate : null, own ? G4.bundle?.modules : null);
+      for (const e of G4.enemies || []) damageVisualsFor(renderer, e.model, e.caps, e.caps ? e.cstate : null, e.bundle?.modules);
       scene.update(null);
       const nodes = scene.collect([], (inSight || G4.cam?.hideBody) && !testing && !G4.thumbShot ? M2.root : null);
       nodes.push(...G4.projectileFlight.sync(G4.shots, G4.bullets, testing ? testRange.shots : void 0));

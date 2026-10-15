@@ -168,6 +168,9 @@ pub enum ClientMsg {
         #[serde(default)]
         shot: Option<WireShot>,
     },
+    /// Where this player's high-explosive shell `seq` burst without striking a vehicle (ground,
+    /// building), in world metres: its blast and fragments reach vehicles nearby.
+    Burst { seq: u32, at: [f64; 3] },
     /// A machine-gun bullet that struck another vehicle (bullets are not relayed one by one).
     MgHit { #[serde(default)] seq: Option<u32>, #[serde(default)] instance: Option<String>, target: u32, gun: String, shot: WireShot },
     /// Field repair of the player's own broken modules; the fire extinguisher.
@@ -1393,6 +1396,7 @@ impl Lobby {
                 Some(shot) if self.can_resolve(target) => self.combat_hit(id, Some(seq), None, None, target, &shot, now),
                 _ => self.hit(id, seq, target, &result, plate, now),
             },
+            ClientMsg::Burst { seq, at } => self.burst(id, seq, at, now),
             ClientMsg::MgHit { seq, instance, target, gun, shot } => {
                 if !self.can_resolve(target) {
                     return Vec::new();
@@ -1794,6 +1798,46 @@ impl Lobby {
         };
         let mg = gun.is_some();
         self.commit_damage(room,target,replay_receipts::Mutation::Shot{attacker:id,shot:tg_combat::Shot{shell,origin:o,dir:d.normalized(),speed_ms:shot.speed,distance_m:shot.dist,seed,turret_yaw:shot.yaw},discharge,mg},now)
+    }
+
+    /// The shooter's HE shell `seq` burst at `at` (world) without striking a vehicle: the server's
+    /// splash model on every enemy vehicle in reach. The shell must be one this player fired
+    /// recently and not yet resolved, carry filler, and have been able to fly that far.
+    fn burst(&mut self, id: u32, seq: u32, at: [f64; 3], now: f64) -> Out {
+        let Some(shooter) = self.players.get(&id) else { return Vec::new() };
+        let (Some(room), team) = (shooter.room, shooter.team) else { return Vec::new() };
+        if !at.iter().all(|x| x.is_finite()) || !self.rooms.get(&room).map(|r| r.playing).unwrap_or(false) {
+            return Vec::new();
+        }
+        let p = self.players.get_mut(&id).expect("player");
+        let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && f.kind == WeaponKind::Cannon && !f.used && now - f.at <= SHOT_LIFE) else { return Vec::new() };
+        let Some(shell) = self.projectiles.get(&f.shell).cloned() else { return Vec::new() };
+        if !matches!(shell.kind, tg_weapon::ProjectileKind::He | tg_weapon::ProjectileKind::Hesh | tg_weapon::ProjectileKind::Heat | tg_weapon::ProjectileKind::HeatFs) {
+            return Vec::new();
+        }
+        let tnt = crate::he_effects::tnt_kg(&shell);
+        let o = f.replay.origin;
+        let flown = ((at[0] - o[0]).powi(2) + (at[1] - o[1]).powi(2) + (at[2] - o[2]).powi(2)).sqrt();
+        let reach = shell.muzzle_velocity_ms.max(1.0) as f64 * (now - f.at).max(0.0) * 1.2 + 40.0;
+        if !(tnt > 0.0) || flown > reach {
+            if flown > reach { self.rejected_hits += 1; }
+            return Vec::new();
+        }
+        f.used = true;
+        let radius = (12.0 + 8.0 * (tnt as f64).cbrt()).min(60.0) + 4.0;
+        let targets: Vec<u32> = self.players.values().filter(|t| t.id != id && t.room == Some(room) && t.team != team && t.alive && t.combat.is_some() && self.targets.contains_key(&t.vehicle))
+            .filter(|t| t.state.as_ref().and_then(crate::missiles::pose_of).is_some_and(|ps| ((ps.pos[0] - at[0]).powi(2) + (ps.pos[2] - at[2]).powi(2)).sqrt() <= radius + 6.0)).map(|t| t.id).collect();
+        let mut out = Vec::new();
+        for target in targets {
+            let t = &self.players[&target];
+            let Some(pose) = t.state.as_ref().and_then(crate::missiles::pose_of) else { continue };
+            let yaw = t.state.as_ref().map(crate::missiles::yaws_of).and_then(|y| y.first().copied()).unwrap_or(0.0) as f32;
+            let l = pose.local_point(at);
+            let local = Vec3::new(l[0] as f32, l[1] as f32, l[2] as f32);
+            let seed = shot_seed(id, seq) ^ ((target as u64) << 32);
+            out.extend(self.commit_damage(room, target, replay_receipts::Mutation::Burst { attacker: id, at: local, kg: tnt, yaw, seed }, now));
+        }
+        out
     }
 
     /// The shooter's one-way delay: half the median of the round trips it reported (s).

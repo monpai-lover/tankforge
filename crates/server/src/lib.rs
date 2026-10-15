@@ -5,6 +5,7 @@
 pub mod lobby;
 pub mod ammo;
 pub mod gameplay;
+pub mod he_effects;
 pub mod missiles;
 pub mod server;
 pub mod ws;
