@@ -4,7 +4,7 @@ from playwright.async_api import async_playwright
 page_path, script_path, prefix = sys.argv[1], sys.argv[2], sys.argv[3]
 async def main():
     async with async_playwright() as p:
-        br = await p.chromium.launch(headless=True, args=["--use-gl=angle","--use-angle=swiftshader","--enable-unsafe-swiftshader","--ignore-gpu-blocklist","--js-flags=--max-old-space-size=2048"])
+        br = await p.chromium.launch(headless=True, args=["--use-gl=angle","--use-angle=swiftshader","--enable-unsafe-swiftshader","--ignore-gpu-blocklist","--autoplay-policy=no-user-gesture-required","--js-flags=--max-old-space-size=2048"])
         pg = await br.new_page(viewport={"width":int(__import__("os").environ.get("VW","960")),"height":int(__import__("os").environ.get("VH","540"))})
         logs = []
         pg.on("console", lambda m: (logs.append(f"[{m.type}] {m.text}"), m.text.startswith("@@") and print(m.text, flush=True)))
