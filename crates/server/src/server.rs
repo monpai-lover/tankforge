@@ -263,6 +263,9 @@ struct Request {
     path: String,
     key: Option<String>,
     upgrade: bool,
+    /// Accept-Encoding includes gzip.
+    gzip: bool,
+    if_none_match: Option<String>,
 }
 
 fn read_request(r: &mut BufReader<TcpStream>) -> io::Result<Request> {
@@ -275,7 +278,7 @@ fn read_request(r: &mut BufReader<TcpStream>) -> io::Result<Request> {
     if method != "GET" {
         return Err(io::Error::new(io::ErrorKind::InvalidData, "only GET"));
     }
-    let (mut key, mut upgrade) = (None, false);
+    let (mut key, mut upgrade, mut gzip, mut if_none_match) = (None, false, false, None);
     loop {
         line.clear();
         let n = r.read_line(&mut line)?;
@@ -292,17 +295,49 @@ fn read_request(r: &mut BufReader<TcpStream>) -> io::Result<Request> {
             match name.as_str() {
                 "sec-websocket-key" => key = Some(value.to_string()),
                 "upgrade" => upgrade = value.eq_ignore_ascii_case("websocket"),
+                "accept-encoding" => gzip = value.to_ascii_lowercase().contains("gzip"),
+                "if-none-match" => if_none_match = Some(value.to_string()),
                 _ => {}
             }
         }
     }
-    Ok(Request { path, key, upgrade })
+    Ok(Request { path, key, upgrade, gzip, if_none_match })
 }
 
 fn respond(s: &mut TcpStream, status: &str, kind: &str, body: &[u8]) -> io::Result<()> {
     let head = format!("HTTP/1.1 {status}\r\nContent-Type: {kind}\r\nContent-Length: {}\r\nCache-Control: no-cache\r\nAccess-Control-Allow-Origin: *\r\nConnection: close\r\n\r\n", body.len());
     s.write_all(head.as_bytes())?;
     s.write_all(body)?;
+    s.flush()
+}
+
+/// The page to send: `<page>.gz` when the browser takes gzip and it exists (the full single-file
+/// build is ~280 MB, ~60 MB compressed), otherwise the page itself.
+fn page_file(page: &Path, gzip: bool) -> Option<(std::fs::File, bool)> {
+    if gzip {
+        let mut gz = page.as_os_str().to_owned();
+        gz.push(".gz");
+        if let Ok(f) = std::fs::File::open(PathBuf::from(gz)) {
+            return Some((f, true));
+        }
+    }
+    std::fs::File::open(page).ok().map(|f| (f, false))
+}
+
+/// Streams the page with an ETag (size + mtime), so a returning browser gets 304 instead of the
+/// whole file again.
+fn respond_page(s: &mut TcpStream, mut file: std::fs::File, gzipped: bool, if_none_match: Option<&str>) -> io::Result<()> {
+    let meta = file.metadata()?;
+    let mtime = meta.modified().ok().and_then(|t| t.duration_since(std::time::UNIX_EPOCH).ok()).map_or(0, |d| d.as_secs());
+    let etag = format!("\"{:x}-{:x}{}\"", meta.len(), mtime, if gzipped { "-gz" } else { "" });
+    let common = format!("Content-Type: text/html; charset=utf-8\r\nETag: {etag}\r\nVary: Accept-Encoding\r\nCache-Control: no-cache\r\nConnection: close\r\n");
+    if if_none_match.is_some_and(|v| v.split(',').any(|t| t.trim().trim_start_matches("W/") == etag)) {
+        s.write_all(format!("HTTP/1.1 304 Not Modified\r\n{common}\r\n").as_bytes())?;
+        return s.flush();
+    }
+    let encoding = if gzipped { "Content-Encoding: gzip\r\n" } else { "" };
+    s.write_all(format!("HTTP/1.1 200 OK\r\n{common}{encoding}Content-Length: {}\r\n\r\n", meta.len()).as_bytes())?;
+    io::copy(&mut file, s)?;
     s.flush()
 }
 
@@ -324,9 +359,9 @@ fn connection(stream: TcpStream, hub: Shared, page: &Option<PathBuf>) -> io::Res
             out.set_nodelay(true)?;
             websocket(reader, out, hub)
         }
-        ("/", _, _) | ("/index.html", _, _) => match page.as_ref().map(std::fs::read) {
-            Some(Ok(html)) => respond(&mut out, "200 OK", "text/html; charset=utf-8", &html),
-            _ => respond(&mut out, "404 Not Found", "text/plain; charset=utf-8", "沒有遊戲頁面:先在 client/web 執行 npm run build,或用 --page 指定".as_bytes()),
+        ("/", _, _) | ("/index.html", _, _) => match page.as_ref().and_then(|p| page_file(p, req.gzip)) {
+            Some((file, gzipped)) => respond_page(&mut out, file, gzipped, req.if_none_match.as_deref()),
+            None => respond(&mut out, "404 Not Found", "text/plain; charset=utf-8", "沒有遊戲頁面:先在 client/web 執行 npm run build,或用 --page 指定".as_bytes()),
         },
         ("/rooms", _, _) => {
             let list = serde_json::to_string(&lock(&hub).lobby.room_list()).unwrap_or_default();

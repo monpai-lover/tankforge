@@ -3,3 +3,5 @@ tankforge-full-online*.html
 tests/out/
 flight/*.o
 server/dist/tankforge-server-linux-x86_64/
+server/dist/tankforge-vps/
+server/dist/tankforge-vps.tar.gz

@@ -1,0 +1,5 @@
+# TankForge site for Caddy (MODE=caddy: automatic HTTPS without Cloudflare).
+# install.sh fills in @DOMAIN@ and @PORT@. tg-server serves the page (pre-compressed), /ws and /rooms.
+@DOMAIN@ {
+	reverse_proxy 127.0.0.1:@PORT@
+}

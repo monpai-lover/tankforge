@@ -153,6 +153,25 @@ W／↑ 推桿俯衝，S／↓ 拉桿爬升（原本相反）。操作說明同�
 
 ---
 
+### 15. VPS 完整部署包（tank.monpai.site，參考 Claude of Tanks 的 Cloudflare 前置做法）
+- `server/package-vps.sh` 產生 `server/dist/tankforge-vps.tar.gz`（約 61 MB，未提交進 git）。包內有聯機伺服器、資料、完整遊戲頁面（壓縮檔）和一鍵安裝腳本 `install.sh`。說明見 `server/vps/README.md`。
+- 預設部署方式：玩家連到 Cloudflare，再經 Cloudflare Tunnel 連到 VPS 上的 `tg-server`（只聽 127.0.0.1:8788）。不用開對外連接埠，也不用自己管憑證。
+  - 已經有 cloudflared 的主機直接執行 `sudo ./install.sh`。
+  - 新主機加上 `TUNNEL_TOKEN=` 參數，腳本會一併安裝 cloudflared。
+  - 最後要在 Cloudflare 後台把 Public hostname `tank.monpai.site` 指到 `HTTP localhost:8788`。
+- 也可以不用 Cloudflare，改用 `MODE=caddy`，由 Caddy 直接對外並自動申請憑證。
+- 與 Claude of Tanks 的差別：戰鬥仍由伺服器權威判定，不交給房主瀏覽器。
+- `tg-server`（`crates/server/src/server.rs`）改為：
+  - 瀏覽器支援 gzip 時，直接送旁邊預先壓縮的 `index.html.gz`（280 MB → 60 MB）；
+  - 以串流方式傳送頁面，不再把整個檔案讀進記憶體；
+  - 加上 ETag，玩家再次打開時只回 304。
+  - `cargo test -p tg-server` 117 項通過。
+- 本機驗證：
+  - 解開包並通過 SHA256 校驗；
+  - gzip 回應內容和原始頁面逐位元組相同，ETag 回訪回 304；
+  - 用瀏覽器從壓縮檔載入頁面後，點「聯機」自動連到同一台伺服器的 `/ws`。
+  - Cloudflare 與 Tunnel 這一段需要網域後台設定，無法在本機測試。
+
 ## 尚未完成／已知限制
 
 - 第 4 項只作用在本機權威（離線）戰鬥。線上對戰由伺服器判定，伺服器端目錄仍是原規則。
