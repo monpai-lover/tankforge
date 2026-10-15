@@ -5,3 +5,5 @@ flight/*.o
 server/dist/tankforge-server-linux-x86_64/
 server/dist/tankforge-vps/
 server/dist/tankforge-vps.tar.gz
+tools/opex_audio/fadpcm
+tools/opex_audio/__pycache__/

@@ -1,0 +1,1145 @@
+{
+ "mapping": {
+  "report_2a46_1_125": {
+   "event": "event:/ground/weapon/cannons/125mm_2a46_t72",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 859,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "report_d10t_100": {
+   "event": "event:/ground/weapon/cannons/100mm_d10t",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1086,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "report_d25t_122": {
+   "event": "event:/ground/weapon/cannons/122mm_d25t",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 994,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m62_t2_122": {
+   "event": "event:/ground/weapon/cannons/122mm_d25t",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 994,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m46_130": {
+   "event": "event:/ground/weapon/cannons/130mm_b13",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 859,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "report_zis_s_53_85": {
+   "event": "event:/ground/weapon/cannons/85mm_zis_c53",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 446,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "report_l11_76": {
+   "event": "event:/ground/weapon/cannons/76mm_l11",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_kwk36_88_l56": {
+   "event": "event:/ground/weapon/cannons/88mm_kwk36",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 446,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "report_kwk39_50": {
+   "event": "event:/ground/weapon/cannons/50mm_kwk39",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 997,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_kwk40_75_l48": {
+   "event": "event:/ground/weapon/cannons/75mm_kwk40",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_pak39_75_l48": {
+   "event": "event:/ground/weapon/cannons/75mm_kwk40",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_pak40_75": {
+   "event": "event:/ground/weapon/cannons/75mm_kwk40",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_gun_75": {
+   "event": "event:/ground/weapon/cannons/75mm_kwk40",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_kwk42_75_l70": {
+   "event": "event:/ground/weapon/cannons/75mm_kwk42",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_kwk44_1_75_l70": {
+   "event": "event:/ground/weapon/cannons/75mm_kwk42",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m3_75": {
+   "event": "event:/ground/weapon/cannons/75mm_m3",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m1a1_76": {
+   "event": "event:/ground/weapon/cannons/76mm_m1a1",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m1a2_76": {
+   "event": "event:/ground/weapon/cannons/76mm_m1",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m7_3in": {
+   "event": "event:/ground/weapon/cannons/76mm_m7",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_m54_90mm": {
+   "event": "event:/ground/weapon/cannons/90mm_m3a1",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 113,
+   "rule": "max_energy",
+   "candidates": 2
+  },
+  "report_m6_37mm": {
+   "event": "event:/ground/weapon/cannons/37mm_m6",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 260,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_qf6pdr_mk2": {
+   "event": "event:/ground/weapon/cannons/57mm_qf6",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 381,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_qf_75_mk5": {
+   "event": "event:/ground/weapon/cannons/75mm_qf75",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_xp_78_lr": {
+   "event": "event:/ground/weapon/cannons/76mm_qf17",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 217,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_pak36t_47": {
+   "event": "event:/ground/weapon/cannons/45mm_20k",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1180,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_custom_heavy": {
+   "event": "event:/ground/weapon/cannons/122mm_d25t",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 994,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_custom_light": {
+   "event": "event:/ground/weapon/cannons/37mm_m6",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 260,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "report_72k_25": {
+   "event": "event:/ground/weapon/cannons/25mm_72k",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1036,
+   "rule": "max_energy",
+   "candidates": 17
+  },
+  "report_flak38_20": {
+   "event": "event:/ground/weapon/cannons/20mm_flak38",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 2388,
+   "rule": "max_energy",
+   "candidates": 41
+  },
+  "report_kwk38_20": {
+   "event": "event:/ground/weapon/cannons/20mm_kwk30",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 603,
+   "rule": "max_energy",
+   "candidates": 25
+  },
+  "report_kda_35": {
+   "event": "event:/ground/weapon/cannons/35mm_oerlikon_kda",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 659,
+   "rule": "max_energy",
+   "candidates": 10
+  },
+  "report_mk103_30": {
+   "event": "event:/ground/weapon/cannons/30mm_mk103_38",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 2559,
+   "rule": "max_energy",
+   "candidates": 39
+  },
+  "report_besa_single": {
+   "event": "event:/ground/weapon/mguns/8mm_besa",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 2220,
+   "rule": "max_energy",
+   "candidates": 51
+  },
+  "report_dshk_single": {
+   "event": "event:/ground/weapon/mguns/13mm_dshk",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 1914,
+   "rule": "max_energy",
+   "candidates": 39
+  },
+  "report_dt_single": {
+   "event": "event:/ground/weapon/mguns/8mm_dt",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 747,
+   "rule": "max_energy",
+   "candidates": 40
+  },
+  "report_kpvt_single": {
+   "event": "event:/ground/weapon/mguns/16mm_kpvt",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 542,
+   "rule": "max_energy",
+   "candidates": 50
+  },
+  "report_m1919a4_single": {
+   "event": "event:/ground/weapon/mguns/8mm_m1919",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1196,
+   "rule": "max_energy",
+   "candidates": 19
+  },
+  "report_m2hb_single": {
+   "event": "event:/ground/weapon/mguns/12mm_m2",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 395,
+   "rule": "max_energy",
+   "candidates": 77
+  },
+  "report_mg34_single": {
+   "event": "event:/ground/weapon/mguns/8mm_mg34",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 2605,
+   "rule": "max_energy",
+   "candidates": 64
+  },
+  "report_mg42_single": {
+   "event": "event:/ground/weapon/mguns/8mm_mg42",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 2605,
+   "rule": "max_energy",
+   "candidates": 53
+  },
+  "report_mg_proto_single": {
+   "event": "event:/ground/weapon/mguns/8mm_m240",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 1474,
+   "rule": "max_energy",
+   "candidates": 80
+  },
+  "report_nsvt_single": {
+   "event": "event:/ground/weapon/mguns/13mm_nsvt",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 431,
+   "rule": "max_energy",
+   "candidates": 45
+  },
+  "report_pkt_single": {
+   "event": "event:/ground/weapon/mguns/8mm_pkt",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 129,
+   "rule": "max_energy",
+   "candidates": 52
+  },
+  "report_sgmt_single": {
+   "event": "event:/ground/weapon/mguns/8mm_sgmt",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 168,
+   "rule": "max_energy",
+   "candidates": 45
+  },
+  "rotary_oplot23_gsh6_23_custom_fire_loop": {
+   "event": "event:/ground/weapon/cannons/25mm_gau12_rotor",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 46,
+   "rule": "longest",
+   "candidates": 15
+  },
+  "rotary_oplot23_gsh6_23_custom_spin_up": {
+   "event": "event:/ground/weapon/cannons/25mm_gau12_rotor",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 422,
+   "rule": "rising",
+   "candidates": 15
+  },
+  "rotary_oplot23_gsh6_23_custom_stop": {
+   "event": "event:/ground/weapon/cannons/25mm_gau12_rotor",
+   "bank": "tanks_weapons",
+   "fsb": 1,
+   "sample": 1620,
+   "rule": "falling",
+   "candidates": 15
+  },
+  "rotary_oplot_mo_14_5x6_fire_loop": {
+   "event": "event:/ground/weapon/cannons/20mm_m61_rotor",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 766,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "rotary_oplot_mo_14_5x6_spin_up": {
+   "event": "event:/ground/weapon/cannons/20mm_m61_rotor",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 91,
+   "rule": "rising",
+   "candidates": 7
+  },
+  "rotary_oplot_mo_14_5x6_stop": {
+   "event": "event:/ground/weapon/cannons/20mm_m61_rotor",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 188,
+   "rule": "falling",
+   "candidates": 7
+  },
+  "launch_9m113_konkurs": {
+   "event": "event:/ground/weapon/atgm/atgm_ussr",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 761,
+   "rule": "loudest",
+   "candidates": 19
+  },
+  "motor_9m113_konkurs": {
+   "event": "event:/ground/weapon/atgm/atgm_ussr",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1081,
+   "rule": "longest",
+   "candidates": 19
+  },
+  "launch_9m133_kornet": {
+   "event": "event:/ground/weapon/atgm/atgm_kornet",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 175,
+   "rule": "loudest",
+   "candidates": 9
+  },
+  "motor_9m133_kornet": {
+   "event": "event:/ground/weapon/atgm/atgm_kornet",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1081,
+   "rule": "longest",
+   "candidates": 9
+  },
+  "launch_bgm71a_tow": {
+   "event": "event:/ground/weapon/atgm/atgm_TOW",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 894,
+   "rule": "loudest",
+   "candidates": 11
+  },
+  "motor_bgm71a_tow": {
+   "event": "event:/ground/weapon/atgm/atgm_TOW",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 1007,
+   "rule": "longest",
+   "candidates": 11
+  },
+  "launch_tt250_rocket": {
+   "event": "event:/ground/weapon/rockets/380mm_sturmtiger",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 62,
+   "rule": "loudest",
+   "candidates": 32
+  },
+  "motor_tt250_rocket": {
+   "event": "event:/ground/weapon/rockets/380mm_sturmtiger",
+   "bank": "tanks_weapons",
+   "fsb": 0,
+   "sample": 951,
+   "rule": "longest",
+   "candidates": 32
+  },
+  "impact_penetrated": {
+   "event": "event:/ground/effects/hit_mid",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 395,
+   "rule": "max_energy",
+   "candidates": 5
+  },
+  "impact_stopped": {
+   "event": "event:/ground/effects/hit_mid_unpierce",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 118,
+   "rule": "max_energy",
+   "candidates": 7
+  },
+  "impact_ricochet": {
+   "event": "event:/ground/effects/rico_mid",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 118,
+   "rule": "max_energy",
+   "candidates": 14
+  },
+  "impact_shattered": {
+   "event": "event:/ground/effects/hit_big_unpierce",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 732,
+   "rule": "max_energy",
+   "candidates": 9
+  },
+  "tail_steel": {
+   "event": "event:/ground/effects/hit_big",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 732,
+   "rule": "longest",
+   "candidates": 14
+  },
+  "tail_aluminium": {
+   "event": "event:/ground/effects/hit_small",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 11,
+   "rule": "longest",
+   "candidates": 18
+  },
+  "tail_composite": {
+   "event": "event:/ground/effects/hit_heat_mid_unpierce",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 479,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "tail_earth_gravel": {
+   "event": "event:/ground/explosions/no_explosive_ground",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 18,
+   "rule": "max_energy",
+   "candidates": 80
+  },
+  "armour_spall": {
+   "event": "event:/ground/effects/metalclanks",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 314,
+   "rule": "max_energy",
+   "candidates": 2
+  },
+  "metal_debris": {
+   "event": "event:/ground/effects/part_fall",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 306,
+   "rule": "max_energy",
+   "candidates": 12
+  },
+  "earth_debris": {
+   "event": "event:/ground/explosions/no_explosive_ground",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 37,
+   "rule": "second",
+   "candidates": 80
+  },
+  "heat_small": {
+   "event": "event:/ground/effects/hit_heat_small",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 11,
+   "rule": "max_energy",
+   "candidates": 18
+  },
+  "heat_large": {
+   "event": "event:/ground/effects/hit_heat_big",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 221,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "internal_filler_small": {
+   "event": "event:/ground/effects/aphe_explosion",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 841,
+   "rule": "second",
+   "candidates": 9
+  },
+  "internal_filler_medium": {
+   "event": "event:/ground/effects/aphe_explosion",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 40,
+   "rule": "max_energy",
+   "candidates": 9
+  },
+  "blast_micro": {
+   "event": "event:/ground/explosions/explosion_ground_20_37",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 44,
+   "rule": "max_energy",
+   "candidates": 72
+  },
+  "blast_small": {
+   "event": "event:/ground/explosions/explosion_ground_37_50",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 44,
+   "rule": "max_energy",
+   "candidates": 73
+  },
+  "blast_medium": {
+   "event": "event:/ground/explosions/explosion_ground",
+   "bank": "tanks_explosions",
+   "fsb": 0,
+   "sample": 177,
+   "rule": "max_energy",
+   "candidates": 80
+  },
+  "blast_large": {
+   "event": "event:/ground/explosions/art_explosion_ground",
+   "bank": "tanks_explosions",
+   "fsb": 0,
+   "sample": 78,
+   "rule": "max_energy",
+   "candidates": 78
+  },
+  "blast_very_heavy": {
+   "event": "event:/ground/explosions/art_heavy_ground",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 44,
+   "rule": "max_energy",
+   "candidates": 75
+  },
+  "ammo_cookoff": {
+   "event": "event:/ground/explosions/ammo_explode",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 3,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "flight_small_approach": {
+   "event": "event:/ground/effects/shell_whiz",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 616,
+   "rule": "shortest",
+   "candidates": 5
+  },
+  "flight_small_recede": {
+   "event": "event:/ground/effects/shell_whiz",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 328,
+   "rule": "second_shortest",
+   "candidates": 5
+  },
+  "flight_large_approach": {
+   "event": "event:/ground/effects/shell_whiz",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 496,
+   "rule": "longest",
+   "candidates": 5
+  },
+  "flight_large_recede": {
+   "event": "event:/ground/effects/shell_whiz",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 405,
+   "rule": "second_longest",
+   "candidates": 5
+  },
+  "supersonic_small_crack": {
+   "event": "event:/ground/effects/killscene/shell_flight",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 730,
+   "rule": "shortest",
+   "candidates": 6
+  },
+  "supersonic_large_crack": {
+   "event": "event:/ground/effects/killscene/shell_flight",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 406,
+   "rule": "loudest",
+   "candidates": 6
+  },
+  "ricochet_small_pass": {
+   "event": "event:/ground/effects/rico_small",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 266,
+   "rule": "max_energy",
+   "candidates": 19
+  },
+  "ricochet_large_pass": {
+   "event": "event:/ground/effects/rico",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 286,
+   "rule": "max_energy",
+   "candidates": 15
+  },
+  "track_light": {
+   "event": "event:/ground/engines/tracks_light",
+   "bank": "tanks_engines",
+   "fsb": 0,
+   "sample": 638,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "track_medium": {
+   "event": "event:/ground/engines/tracks_t34",
+   "bank": "tanks_engines",
+   "fsb": 0,
+   "sample": 1242,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "track_heavy": {
+   "event": "event:/ground/engines/tracks_heavy",
+   "bank": "tanks_engines",
+   "fsb": 0,
+   "sample": 168,
+   "rule": "longest",
+   "candidates": 2
+  },
+  "wheel_road": {
+   "event": "event:/ground/engines/tracks_wheels",
+   "bank": "tanks_engines",
+   "fsb": 0,
+   "sample": 1764,
+   "rule": "longest",
+   "candidates": 10
+  },
+  "surface_soft": {
+   "event": "event:/ground/engines/surface_light",
+   "bank": "tanks_engines",
+   "fsb": 0,
+   "sample": 352,
+   "rule": "longest",
+   "candidates": 17
+  },
+  "surface_gravel": {
+   "event": "event:/ground/engines/surface_heavy",
+   "bank": "tanks_engines",
+   "fsb": 0,
+   "sample": 352,
+   "rule": "longest",
+   "candidates": 17
+  },
+  "collision_tree_wood": {
+   "event": "event:/ground/effects/collision_tree",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 796,
+   "rule": "max_energy",
+   "candidates": 11
+  },
+  "feed_belt_grab": {
+   "event": "event:/ground/effects/reload_cannon_auto",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 631,
+   "rule": "shortest",
+   "candidates": 42
+  },
+  "feed_belt_load": {
+   "event": "event:/ground/effects/reload_cannon_auto",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 151,
+   "rule": "longest",
+   "candidates": 42
+  },
+  "feed_belt_lock": {
+   "event": "event:/ground/effects/reload_cannon_auto",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 607,
+   "rule": "loudest",
+   "candidates": 42
+  },
+  "feed_clip_grab": {
+   "event": "event:/ground/effects/reload_cannon_20mm",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 331,
+   "rule": "shortest",
+   "candidates": 25
+  },
+  "feed_clip_load": {
+   "event": "event:/ground/effects/reload_cannon_20mm",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 309,
+   "rule": "longest",
+   "candidates": 25
+  },
+  "feed_clip_lock": {
+   "event": "event:/ground/effects/reload_cannon_20mm",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 855,
+   "rule": "loudest",
+   "candidates": 25
+  },
+  "feed_disc_grab": {
+   "event": "event:/ground/effects/reload_cannon_aa_mag",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 442,
+   "rule": "shortest",
+   "candidates": 11
+  },
+  "feed_disc_load": {
+   "event": "event:/ground/effects/reload_cannon_aa_mag",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 497,
+   "rule": "longest",
+   "candidates": 11
+  },
+  "feed_disc_lock": {
+   "event": "event:/ground/effects/reload_cannon_aa_mag",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 743,
+   "rule": "loudest",
+   "candidates": 11
+  },
+  "separate_charge_grab": {
+   "event": "event:/ground/effects/reload_cannon_heavy",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 651,
+   "rule": "shortest",
+   "candidates": 18
+  },
+  "separate_charge_load": {
+   "event": "event:/ground/effects/reload_cannon_heavy",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 369,
+   "rule": "longest",
+   "candidates": 18
+  },
+  "separate_projectile_grab": {
+   "event": "event:/ground/effects/reload_cannon_heavy",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 87,
+   "rule": "second_shortest",
+   "candidates": 18
+  },
+  "separate_projectile_load": {
+   "event": "event:/ground/effects/reload_cannon_heavy",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 767,
+   "rule": "second_longest",
+   "candidates": 18
+  },
+  "ready_light": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 600,
+   "rule": "shortest",
+   "candidates": 13
+  },
+  "ready_medium": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 343,
+   "rule": "second_shortest",
+   "candidates": 13
+  },
+  "ready_heavy": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 35,
+   "rule": "loudest",
+   "candidates": 13
+  },
+  "reload_9m113_konkurs_grab": {
+   "event": "event:/ground/effects/reload_rocket",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 238,
+   "rule": "shortest",
+   "candidates": 7
+  },
+  "reload_9m113_konkurs_load": {
+   "event": "event:/ground/effects/reload_rocket",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 608,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "reload_9m113_konkurs_lock": {
+   "event": "event:/ground/effects/reload_rocket",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 75,
+   "rule": "loudest",
+   "candidates": 7
+  },
+  "reload_9m133_kornet_grab": {
+   "event": "event:/ground/effects/reload_rocket",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 238,
+   "rule": "shortest",
+   "candidates": 7
+  },
+  "reload_9m133_kornet_load": {
+   "event": "event:/ground/effects/reload_rocket",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 608,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "reload_9m133_kornet_lock": {
+   "event": "event:/ground/effects/reload_rocket",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 75,
+   "rule": "loudest",
+   "candidates": 7
+  },
+  "reload_bgm71a_tow_grab": {
+   "event": "event:/ground/effects/reload_rocket_it1",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 238,
+   "rule": "shortest",
+   "candidates": 7
+  },
+  "reload_bgm71a_tow_load": {
+   "event": "event:/ground/effects/reload_rocket_it1",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 608,
+   "rule": "longest",
+   "candidates": 7
+  },
+  "reload_bgm71a_tow_lock": {
+   "event": "event:/ground/effects/reload_rocket_it1",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 75,
+   "rule": "loudest",
+   "candidates": 7
+  },
+  "rangefinder_confirmation": {
+   "event": "event:/ground/effects/binoculars_zoom",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 722,
+   "rule": "max_energy",
+   "candidates": 8
+  },
+  "console_action": {
+   "event": "event:/ground/effects/binoculars_on",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 429,
+   "rule": "max_energy",
+   "candidates": 3
+  },
+  "ui_tone_on": {
+   "event": "event:/aircraft/gui/check",
+   "bank": "aircraft_gui",
+   "fsb": 1,
+   "sample": 15,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "ui_tone_off": {
+   "event": "event:/aircraft/gui/uncheck",
+   "bank": "aircraft_gui",
+   "fsb": 1,
+   "sample": 19,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "ui_tone_detect": {
+   "event": "event:/aircraft/gui/alarm_launch_detected",
+   "bank": "aircraft_gui",
+   "fsb": 0,
+   "sample": 18,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "ui_tone_lock": {
+   "event": "event:/aircraft/gui/alarm_radar",
+   "bank": "aircraft_gui",
+   "fsb": 0,
+   "sample": 238,
+   "rule": "max_energy",
+   "candidates": 43
+  },
+  "ui_tone_overheat": {
+   "event": "event:/aircraft/gui/alarm_wep",
+   "bank": "aircraft_gui",
+   "fsb": 1,
+   "sample": 4,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "ui_tone_empty": {
+   "event": "event:/aircraft/gui/no_bullets",
+   "bank": "aircraft_gui",
+   "fsb": 1,
+   "sample": 7,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "ui_tone_fault": {
+   "event": "event:/aircraft/gui/alarm_rocket",
+   "bank": "aircraft_gui",
+   "fsb": 1,
+   "sample": 5,
+   "rule": "shortest",
+   "candidates": 4
+  },
+  "ambient_battlefield": {
+   "event": "event:/ground/ambient/forest",
+   "bank": "tanks_ambient",
+   "fsb": 0,
+   "sample": 19,
+   "rule": "max_energy",
+   "candidates": 1
+  },
+  "de_manual_grab": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 600,
+   "rule": "shortest",
+   "candidates": 13
+  },
+  "de_manual_load": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 186,
+   "rule": "longest",
+   "candidates": 13
+  },
+  "de_manual_lock": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 35,
+   "rule": "loudest",
+   "candidates": 13
+  },
+  "su_manual_grab": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 343,
+   "rule": "second_shortest",
+   "candidates": 13
+  },
+  "su_manual_load": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 587,
+   "rule": "second_longest",
+   "candidates": 13
+  },
+  "su_manual_lock": {
+   "event": "event:/ground/effects/reload_cannon_manual",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 677,
+   "rule": "second",
+   "candidates": 13
+  },
+  "us_manual_grab": {
+   "event": "event:/ground/effects/reload_cannon",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 462,
+   "rule": "shortest",
+   "candidates": 16
+  },
+  "us_manual_load": {
+   "event": "event:/ground/effects/reload_cannon",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 418,
+   "rule": "longest",
+   "candidates": 16
+  },
+  "us_manual_lock": {
+   "event": "event:/ground/effects/reload_cannon",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 418,
+   "rule": "loudest",
+   "candidates": 16
+  },
+  "az_t72_drive": {
+   "event": "event:/ground/effects/reload_cannon_T72",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 714,
+   "rule": "loudest",
+   "candidates": 1
+  },
+  "az_t72_ram": {
+   "event": "event:/ground/effects/reload_cannon_T64",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 78,
+   "rule": "loudest",
+   "candidates": 56
+  },
+  "az_t72_lock": {
+   "event": "event:/ground/effects/reload_cannon_T72",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 714,
+   "rule": "loudest",
+   "candidates": 1
+  },
+  "_engines": {
+   "de_flakpz38t": "E01 -> E18",
+   "de_hetzer": "E01 -> E18",
+   "de_hetzer_flak": "E01 -> E18",
+   "de_hetzer_mk103": "E01 -> E18",
+   "de_hetzer_mk103_camo": "E01 -> E18",
+   "de_sdkfz140_1": "E01 -> E18",
+   "de_hetzer_sdkfz1401": "E01 -> E18",
+   "su_t34_1940": "E08 -> E12",
+   "su_t34_85": "E08 -> E12",
+   "su_is2": "E08 -> E12"
+  }
+ },
+ "missing": {}
+}

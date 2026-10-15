@@ -23885,6 +23885,8 @@ precision highp float;void main(){}`);
   }
   // Engine loops were mixed at 0.12/0.09 and drowned under everything else (user report): ~+8 dB.
   var ENGINE_LOOP_GAIN = 0.3;
+  // Decoded (float32) audio kept in memory; the OPEX cues are longer than the generated ones were.
+  var FULL_AUDIO_DECODED_BYTES = 48 * 1024 * 1024;
   var ENGINE_LOAD_GAIN = 0.22;
   var FullAudio = class {
     constructor(sound, bank) {
@@ -24003,7 +24005,7 @@ precision highp float;void main(){}`);
             const b = await ctx.decodeAudioData(bytes);
             if (epoch !== this.epoch || this.sound.ctx !== ctx) return;
             const size = b.length * b.numberOfChannels * 4;
-            const limit = 32 * 1024 * 1024 - (this.sound.reloadBytes || 0);
+            const limit = FULL_AUDIO_DECODED_BYTES - (this.sound.reloadBytes || 0);
             if (!Number.isFinite(size) || size <= 0 || size > limit) {
               this.failed.add(id2);
               return;
@@ -24027,7 +24029,7 @@ precision highp float;void main(){}`);
       }
     }
     makeCacheRoom(size) {
-      const limit = 32 * 1024 * 1024 - (this.sound.reloadBytes || 0), entries = 96 - Object.keys(this.sound.reloadSamples || {}).length;
+      const limit = FULL_AUDIO_DECODED_BYTES - (this.sound.reloadBytes || 0), entries = 96 - Object.keys(this.sound.reloadSamples || {}).length;
       if (!Number.isFinite(size) || size <= 0 || size > limit || entries <= 0) return false;
       while (this.bytes + size > limit || this.buffers.size >= entries) {
         let victim;
@@ -24245,6 +24247,11 @@ precision highp float;void main(){}`);
     stopLoop(key4) {
       this.loops.get(key4)?.stop();
     }
+    /** OPEX ground ambience under a battle: one bed loop that stays on the listener (no direction). */
+    ambient(on, gain = 0.16) {
+      if (!on || !this.bank.cues?.ambient_battlefield || !vec2(this.listener.position)) return this.stopLoop("ambient");
+      this.loop("ambient", "ambient_battlefield", { position: this.listener.position.slice(), gain, emitterId: "ambient" });
+    }
     weapon(cal, e = {}, kind2 = "weapon") {
       this.syncContext();
       if (e.accepted === false) {
@@ -24430,7 +24437,8 @@ precision highp float;void main(){}`);
       if (e.spall) play("impact", "armour_spall", "report");
       if (e.debris) play("impact", e.debris, "report");
       for (const b of e.bursts || []) {
-        const kg = b.explosive_kg ?? b.explosive_mass_kg;
+        // the combat core reports a burst's charge as kg
+        const kg = b.explosive_kg ?? b.explosive_mass_kg ?? b.kg;
         if (!(kg > 0) || !Number.isFinite(kg)) continue;
         const pos = vec2(b.worldPosition) ? b.worldPosition : vec2(b.position) ? b.position : e.position;
         const ev = { ...e, position: pos };
@@ -24719,6 +24727,9 @@ precision highp float;void main(){}`);
     }
     projectileSegment(event) {
       this.full?.segment(event);
+    }
+    ambient(on) {
+      this.full?.ambient?.(on);
     }
     removeProjectile(id2) {
       this.full?.removeProjectile(id2);
@@ -34858,7 +34869,9 @@ void main() {
       }
       missileVehicle();
       (G4.enemies || []).forEach((e, i) => {
-        if (e.remote || e.rangeTarget) return;
+        // Range targets do not fight, but one that carries an active protection system keeps it
+        // armed (it was left off: missiles at a T-10M Oplot-23 or BMPT target were never engaged).
+        if (e.remote || e.rangeTarget && !e.loadout.weapons?.aps) return;
         e.ammoPlan = captureAmmoPlan(e.loadout);
         e.resupply = newResupplyState();
         e.ammoLoading = e.loadout.turrets.map((t) => newLoading(t.guns.length, t.loaders.length, t.guns.map((g) => !g.rack), t.guns.map((g) => g.mechanizedLoading)));
@@ -35047,7 +35060,11 @@ void main() {
       if (!aps) return;
       const ti = aps.turret ?? 1;
       const parentYaw = lo.turrets[ti].parent != null ? yaws[lo.turrets[ti].parent] || 0 : 0;
-      const axes = apsFrame(ps, 0), local = muzzleLocal(mountFor(lo, yaws, ti), { yaw: yaws[ti] || 0, pitch: 0 }).trunnion;
+      // The radar/gun origin on its traverse axis (trunnion height): taking the trunnion swung by the
+      // APS turret's own yaw moved it every frame while the gun slewed (on AI vehicles that yaw also
+      // followed their aiming), and the radar's velocity estimate from a moving origin never judged
+      // a missile a threat, so AI protection detected missiles but never locked or fired.
+      const mount = mountFor(lo, yaws, ti), axes = apsFrame(ps, 0), local = [mount.pivot[0], mount.trunnion[1], mount.pivot[2]];
       actor3.aps_pivot = [0, 1, 2].map((k) => ps.pos[k] + axes[0][k] * local[0] + axes[1][k] * local[1] + axes[2][k] * local[2]);
       G4.missiles?.setAudioMount?.(actor3.id, lo.turrets[ti].guns[0].def.id, lo.turrets[ti].guns[0].damageKey, actor3.aps_pivot);
       actor3.aps_base_yaw = (ps.heading || 0) + parentYaw;
@@ -35068,7 +35085,7 @@ void main() {
       syncApsControl();
       (G4.enemies || []).forEach((e, i) => {
         const aps = e.loadout.weapons?.aps;
-        if (!aps || e.remote || e.rangeTarget || !e.ammoLoading) return;
+        if (!aps || e.remote || !e.ammoLoading) return;
         const ti = aps.turret ?? 1, t = e.loadout.turrets[ti], g = t.guns[0], L = e.ammoLoading[ti];
         if (e.alive) for (const gi of tick(L, dt, (gi2, li) => reloadTime(t, gi2, li, G4.gameplayMode), (gi2) => weaponReloadRate(e.caps, t.guns[gi2].damageKey))) {
           const gun2 = t.guns[gi];
@@ -35182,7 +35199,7 @@ void main() {
           const aps = e?.loadout.weapons?.aps;
           if (!e || !aps || !e.alive) continue;
           const ti = aps.turret ?? 1;
-          if (!e.remote && !e.rangeTarget) {
+          if (!e.remote) {
             const g = e.loadout.turrets[ti].guns[0];
             consumeApsRounds(e.loadout, g.damageKey, Math.max(0, roundsLeft(g) - a.rounds));
             g.belt = Math.min(g.belt, roundsLeft(g));
@@ -35274,7 +35291,7 @@ void main() {
             }, p1);
             if (!rep) continue;
             if (!(e.remote && G4.online)) rep = heContactEffects(e, war, best.point, dir, rep, G4.time);
-            if (rep.he_contact && !(rep.bursts || []).length) sound.blast(rep.he_contact.tnt_kg, Math.hypot(best.point[0] - G4.camPos[0], best.point[2] - G4.camPos[2]), { eventId: `missile-burst:${sg.id}`, position: best.point, time: G4.time, shellKind: war.kind });
+            if (["he", "hesh", "heat", "heat_fs"].includes(war.kind) && tntEquivalentKg(war) > 0 && !(rep.bursts || []).length) sound.blast(tntEquivalentKg(war), Math.hypot(best.point[0] - G4.camPos[0], best.point[2] - G4.camPos[2]), { eventId: `missile-burst:${sg.id}`, position: best.point, time: G4.time, shellKind: war.kind });
             const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
             fx.shellArmor(best.point, dir, nrm, war, rep.outcome);
             sound.impact(Math.hypot(best.point[0] - G4.camPos[0], best.point[2] - G4.camPos[2]), true);
@@ -36517,7 +36534,7 @@ void main() {
                 break;
               }
               if (!(e.remote && G4.online)) rep = heContactEffects(e, sh.shell, eh.hit.point, dir, rep, G4.time);
-              if (rep.he_contact && !(rep.bursts || []).length) sound.blast(rep.he_contact.tnt_kg, Math.hypot(eh.hit.point[0] - G4.camPos[0], eh.hit.point[2] - G4.camPos[2]), { eventId: `burst:${seed2}`, position: eh.hit.point, time: G4.time, shellKind: sh.shell.kind });
+              if (["he", "hesh", "heat", "heat_fs"].includes(sh.shell.kind) && tntEquivalentKg(sh.shell) > 0 && !(rep.bursts || []).length) sound.blast(tntEquivalentKg(sh.shell), Math.hypot(eh.hit.point[0] - G4.camPos[0], eh.hit.point[2] - G4.camPos[2]), { eventId: `burst:${seed2}`, position: eh.hit.point, time: G4.time, shellKind: sh.shell.kind });
               if (e.remote && sh.seq && G4.online) net.send({ t: "hit", seq: sh.seq, target: e.netId, result: rep.outcome, plate: rep.plate ?? null, shot: wireShot(rep.shot) });
               const nrm = rep.normal ? e.veh.body.worldDir(arr3(rep.normal)) : null;
               fx.shellArmor(eh.hit.point, dir, nrm, sh.shell, rep.outcome);
@@ -37308,6 +37325,7 @@ void main() {
     let last = performance.now();
     function frame(now) {
       sound.setFullAudible?.((G4.mode === "battle" || G4.mode === "test") && !G4.paused && !document.hidden && !G4.thumbShot);
+      sound.ambient?.(G4.mode === "battle" && !G4.paused && !document.hidden && !G4.thumbShot);
       sound.setReloadAudible(G4.mode === "battle" && !G4.paused && !document.hidden && !G4.thumbShot && !G4.caps?.destroyed && !G4.online?.dead);
       if (G4.mode !== "battle" || G4.caps?.destroyed || G4.online?.dead) sound.cancelReloads();
       if (G4.paused) hud.hideHitMarker();

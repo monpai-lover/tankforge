@@ -1,0 +1,13 @@
+const tf = window.__tf, x = window.__tfx, G = tf.G;
+const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+await tf.coreReady().catch(e => null);
+const S = tf.sound, started = [];
+const nameOf = (buf) => { for (const [k, v] of S.full?.buffers || []) if (v === buf || v?.buffer === buf) return 'full:' + k; for (const [k, v] of Object.entries(S.reloadSamples || {})) if (v === buf) return 'reload:' + k; return 'other'; };
+const bs = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function (...a) { started.push(nameOf(this.buffer)); return bs.apply(this, a); };
+tf.finishThumbs(); tf.select('su_t72a'); await frames(2); tf.startBattle(); await frames(3); S.start();
+await new Promise(r => setTimeout(r, 4000));
+const out = { buffered: S.full?.buffers?.has('report_2a46_1_125'), failed: [...(S.full?.failed || [])].slice(0, 10) };
+started.length = 0; tf.fireGun(0, 0); await new Promise(r => setTimeout(r, 800)); out.first = started.filter(s => /report|az_/.test(s));
+await new Promise(r => setTimeout(r, 9000)); started.length = 0; tf.fireGun(0, 0); await new Promise(r => setTimeout(r, 800)); out.second = started.filter(s => /report|az_/.test(s));
+out.buffered2 = S.full?.buffers?.has('report_2a46_1_125');
+return out;

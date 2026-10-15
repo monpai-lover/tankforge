@@ -1,12 +1,12 @@
 {
  "id": "apcbc_75_m61",
- "name": "75 mm M61 shot (APCBC)",
+ "name": "75 mm M61 (APCBC)",
  "kind": "apcbc",
  "caliber_mm": 75.0,
  "mass_kg": 6.8,
  "muzzle_velocity_ms": 610.0,
- "explosive_mass_kg": 0.0,
- "explosive_type": "none",
+ "explosive_mass_kg": 0.065,
+ "explosive_type": "explosive_d",
  "penetrator_material": "steel",
  "length_mm": 278,
  "drag_coefficient": 0.4,
@@ -42,6 +42,6 @@
  ],
  "ricochet_angle_deg": 70.0,
  "normalization_deg": 4.0,
- "fuse_delay_s": 0.0,
- "fuse_sensitivity_mm": 0
+ "fuse_delay_s": 0.0024,
+ "fuse_sensitivity_mm": 15
 }

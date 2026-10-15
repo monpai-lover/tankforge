@@ -232,18 +232,64 @@ W／↑ 推桿俯衝，S／↓ 拉桿爬升（原本相反）。操作說明同�
 - T-72A 在雪中倒車只有約 3 km/h，但真車的倒車極速本來就約 4 km/h，這不是錯誤。
 - 需要使用者提供卡住的地點、車輛和操作，才能繼續查。
 
-### 23. OPEX 音效（進行中，尚未替換）
-- `OPEX 问鼎九天 公开版(3.7.6).zip` 是戰雷的 FMOD Studio 音效庫（.bank）。目前遊戲裡的音效：
-  - 引擎：多數已經用 OPEX 引擎事件合成；
-  - 砲聲、命中、爆炸：仍是 ElevenLabs 生成的音效，共 284 個 cue。
-- 解析結果：
-  - `tanks_weapons.bank` 有 767 個事件、3910 個波形，分成兩組：1219 個 Vorbis 和 2691 個 FADPCM。
-  - 波形沒有名稱；事件名稱存在 `masterbank.strings.bank` 的壓縮字串樹裡。
-- 要完整替換，還需要以下步驟：
-  1. 解出字串樹，取得每個事件的名稱；
-  2. 用 GUID 把事件經時間軸、樂器對應到波形；
-  3. 解碼波形：FADPCM 要自己寫解碼器；Vorbis 要用系統的 libvorbis 重建 FMOD 拿掉的 setup header；
-  4. 依口徑和砲種把波形對到遊戲的約 50 個開火 cue，以及命中、爆炸 cue。
+### 23. 飛彈（HEAT 戰鬥部）秒殺薄皮車、飛彈聲音
+- 原因：反坦克飛彈 Kornet（4.6 kg）、Konkurs（2.7 kg）、TOW（2.4 kg Comp B）都是 HEAT 戰鬥部。第 21 節的爆炸規則原本只套用在 HE／HESH，所以飛彈只剩一道細細的聚能射流，穿過 M8 裝甲車的薄車體後，只傷到射流路徑上的東西。
+- 修正：HEAT 也套用接觸爆炸規則，但只限於藥量炸得穿被打中那塊板的情況，也就是薄皮車；遇到厚裝甲時仍只有射流，跟以前一樣，不會額外炸掉主戰車外部的 APS 等模組。瀏覽器端的戰鬥核心會把 HEAT 類型的爆炸當成聚能裝藥，所以爆風改以 HE 傳入。伺服器使用相同規則。
+- 結果：Konkurs、TOW、Kornet、90 mm HEAT、125 mm HEAT-FS 直接命中 M8 都是 4/4 擊毀；直接命中三號，前四種 4/4 擊毀，125 mm HEAT-FS 2/4。伺服器上 TOW 打 M8 從 8/10 提高到 10/10，`cargo test -p tg-server` 120 項全部通過。
+- 聲音：
+  - 直接命中時會播放戰鬥部本身的爆炸聲。以前只有命中和殉爆聲，因為核心不會為 HEAT 射流回報爆炸，追加的爆炸也沒有送進音效系統。
+  - TOW、Konkurs、Kornet 的發射聲和飛行引擎聲，以前雖然在音效庫裡，但沒有任何設定指向它們，所以發射時沒有聲音。現在改為依飛彈名稱直接取用。
+
+### 24. APCBC 裝藥（依史實）
+- 克倫威爾的 75 mm M61 改為帶裝藥：0.065 kg Explosive D，底部引信延遲 2.4 ms，15 mm 觸發，和美軍 M61 相同。英軍其實同時用過有裝藥的 M61 和拆掉裝藥的「M61 shot」（1945 年 7 月的 Churchill VII 武裝手冊兩種都列出），這次依使用者要求採用有裝藥的版本。伺服器資料（`data/projectiles`）和遊戲內嵌資料同步修改。
+- 實測（`tests/apcbc_filler.js`）：帶裝藥的穿甲彈擊穿後，引信觸發，會在車內爆炸。Pzgr.39、M61、8.8 cm Pzgr.39、BR-350A、BR-412B 都有在車內起爆的紀錄。
+- 全部 88 種砲彈的裝藥檢查：
+  - HE、HEAT、APHE 共 43 種都有裝藥；APCR、APDS、APFSDS 共 17 種都沒有，符合史實。
+  - APCBC 有裝藥 11 種；沒有裝藥的 3 種（美國 37 mm M51、英國 6 磅砲 Mk.9、美國 90 mm M318）史實上就是實心彈。
+  - AP 14 種都是實心彈。唯一不確定的是 3 cm MK 103 的 Pzgr（部分 30 mm 穿甲彈帶有少量裝藥），維持原狀。
+
+### 25. 全部音效改用 OPEX
+- 使用者提供的 `OPEX 问鼎九天 公开版(3.7.6).zip` 是戰雷的 FMOD Studio 音效庫。工具在 `handoff/tools/opex_audio/`（`build.py` 加上幾個解析模組），全部離線完成：
+  - 事件名稱：解出 `masterbank.strings.bank` 的壓縮字串樹（`strings.py`），共 8355 筆，其中 7541 個事件。
+  - 事件 → 波形：在各 bank 的 GUID 參照圖中，從事件走到時間軸、樂器，再到 `WAV ` 項目，對應到 FSB 第幾個樣本（`graph.py`）。
+  - 解碼：
+    - Vorbis：FMOD 拿掉了 setup header，用系統的 libvorbisenc 重新產生，以 CRC32 比對 FSB 記錄的值（`vorbis_headers.py`）。武器庫 10 種設定中比對到 6 種，其餘只影響約 24 個低取樣率的波形。
+    - FADPCM：用 C 解碼（`fadpcm.c`），解出的樣本數和 FSB 標頭完全一致。
+  - 每個 cue 依規則選一個代表波形（能量最大、最長、最短、上升或下降等），音量對齊被取代的那個 cue 的平均響度（峰值不超過 −0.5 dBFS）。
+  - 一律轉為單聲道：所有遊戲音效都經過 3D 定位，而執行環境限制解碼後的音訊記憶體。循環音用 Ogg Vorbis，單次音用 MP3。
+  - 對照表見 `handoff/tools/opex_audio/mapping.json`，每個 cue 的 `source` 欄位也記錄了 OPEX 事件和樣本編號。
+- 替換結果：141 個 cue 全部改為 OPEX 音效，沒有遺漏。
+  - 開火（砲、機砲、機槍）：44 個 cue，取自 `weapon/cannons/100mm_d10t`、`weapon/cannons/122mm_d25t`、`weapon/cannons/125mm_2a46_t72`、`weapon/cannons/130mm_b13`、`weapon/cannons/20mm_flak38`、`weapon/cannons/20mm_kwk30`、`weapon/cannons/25mm_72k`、`weapon/cannons/30mm_mk103_38`…
+  - 轉管砲：6 個 cue，取自 `weapon/cannons/20mm_m61_rotor`、`weapon/cannons/25mm_gau12_rotor`
+  - 飛彈發射／飛行引擎：8 個 cue，取自 `weapon/atgm/atgm_TOW`、`weapon/atgm/atgm_kornet`、`weapon/atgm/atgm_ussr`、`weapon/rockets/380mm_sturmtiger`
+  - 命中、跳彈、剝落、碎片：15 個 cue，取自 `effects/aphe_explosion`、`effects/hit_big`、`effects/hit_big_unpierce`、`effects/hit_heat_big`、`effects/hit_heat_mid_unpierce`、`effects/hit_heat_small`、`effects/hit_mid`、`effects/hit_mid_unpierce`…
+  - 爆炸、殉爆：6 個 cue，取自 `explosions/ammo_explode`、`explosions/art_explosion_ground`、`explosions/art_heavy_ground`、`explosions/explosion_ground`、`explosions/explosion_ground_20_37`、`explosions/explosion_ground_37_50`
+  - 砲彈飛過、超音速、跳彈飛過：8 個 cue，取自 `effects/killscene/shell_flight`、`effects/rico`、`effects/rico_small`、`effects/shell_whiz`
+  - 履帶、輪胎、地面：7 個 cue，取自 `effects/collision_tree`、`engines/surface_heavy`、`engines/surface_light`、`engines/tracks_heavy`、`engines/tracks_light`、`engines/tracks_t34`、`engines/tracks_wheels`
+  - 裝填、彈鏈、就緒：37 個 cue，取自 `effects/reload_cannon`、`effects/reload_cannon_20mm`、`effects/reload_cannon_T64`、`effects/reload_cannon_T72`、`effects/reload_cannon_aa_mag`、`effects/reload_cannon_auto`、`effects/reload_cannon_heavy`、`effects/reload_cannon_manual`…
+  - 介面音：9 個 cue，取自 `effects/binoculars_on`、`effects/binoculars_zoom`、`gui/alarm_launch_detected`、`gui/alarm_radar`、`gui/alarm_rocket`、`gui/alarm_wep`、`gui/check`、`gui/no_bullets`…
+  - 環境：1 個 cue，取自 `ambient/forest`
+  - 引擎：26 個引擎家族中，原本已有 24 個用 OPEX 事件合成。剩下兩個生成的家族，改指向 OPEX 中同類的引擎：E01（38(t)／追獵者）改為 E18（OPEX hetzer），E08（T-34／IS-2）改為 E12（OPEX t34）。
+  - OPEX 的 75／76 mm 火砲共用同一組射擊樣本，三個隨機變化版本由 18 門砲共用；OPEX 本身是用事件參數來區分各門砲。所以這兩個口徑的砲聲聽起來相同，這是照 OPEX 原樣。有獨立樣本的砲，聲音各自不同：122 mm D-25T、100 mm D-10T、125 mm、50 mm KwK、57 mm 6 磅砲、90 mm，以及各型機槍。
+- 環境音：遊戲原本沒有環境音。新增 `ambient_battlefield`，戰鬥中以低音量持續播放，跟著聽者，沒有方向。OPEX 的 `tank_warfare` 戰場遠景使用低取樣率的 Vorbis 設定，這裡無法重建，所以改用 OPEX 的 `forest` 戶外環境，把結尾 2 秒交叉淡入開頭，做成 27 秒的無縫循環。
+- 一起修好的問題：
+  - 戰鬥核心回報爆炸藥量用的欄位是 `kg`，音效系統卻只讀 `explosive_kg`，所以 APHE 在車內爆炸、HEAT 爆炸這類由核心回報的爆炸以前都沒有爆炸聲。
+  - 解碼後的音訊記憶體上限從 32 MB 提高到 48 MB。OPEX 的音效比原本生成的長，例如 T-72A 的砲聲曾經因為超過上限而沒有載入。
+- 驗證：
+  - `tests/audio_probe.js`：開火、T-72 自動裝彈機的驅動／推彈／閉鎖聲、OPEX t72 引擎、環境音、命中、殉爆都有實際播放。
+  - `tests/missile_audio.js`：飛彈打在地面有爆炸聲；直接命中有命中、剝落和戰鬥部爆炸聲。
+  - 沒有人實際試聽過（`subjectiveAudition: NOT RUN`）。
+- 版權：OPEX 是戰雷的第三方模組，內容來自 Gaijin 或模組作者。放在公開網站上播放有版權風險，是否公開請自行決定。
+
+### 26. AI 的主動防禦系統（APS）
+- 原因一：在靶場（沒有地圖的戰鬥）裡，AI 車輛都是「靶車」，而 APS 的設定流程會直接跳過靶車。所以帶有奧普洛特 APS 的 T-10M 從來沒有開啟過 APS。修正後，有 APS 的靶車也會開啟 APS，並消耗 APS 彈藥，但仍然不會用主砲開火。
+- 原因二：APS 雷達的原點取自 APS 機槍的耳軸。機槍轉動時這個點會跟著繞轉軸移動，每一幀都可能偏移 0.3～0.8 m，雷達用這個會動的原點估算飛彈速度。改為固定在旋轉軸上、耳軸的高度。
+- 驗證：
+  - 靶場的 T-10M 現在會偵測到 TOW（約 988 m）。
+  - 玩家自己開 T-10M 時，APS 從偵測、鎖定、開火到擊落 TOW 都正常（`tests/aps_player.js`）。
+  - 直接在瀏覽器的飛彈核心重現相同的靶場幾何（同樣的 actor、seed、地形）時，也會擊落（`tests/aps_core.js`）。
+- **未解決**：在靶場測試（`tests/aps_range.js`）中，AI 的 T-10M 雷達會偵測到 TOW，但追蹤估計會逐漸偏離，一直沒有鎖定和開火。已經排除的因素：actor 內容、隊伍、seed、地形、雷達原點、每幀更新、其他車輛，原因還沒找到。
+
 
 ## 尚未完成／已知限制
 
