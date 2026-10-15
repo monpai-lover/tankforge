@@ -15890,18 +15890,18 @@ void main(){
  float sun=max(dot(N,normalize(vec3(-.55,.9,.4))),0.);float spec=pow(max(dot(N,normalize(view+normalize(vec3(-.55,.9,.4)))),0.),uKind==4?78.:mix(78.,8.,clamp(vMaterial.x,0.,1.)));
  vec3 color=base*(.50+sun*.78*sh)+vec3(uKind==4?.35:mix(.07,.3,clamp(vMaterial.y,0.,1.)))*spec*sh;
  if(uKind==4){color+=vec3(.14,.22,.32)*pow(1.-nv,2.);}
- if(uKind==5&&ghost>.01){alpha=uAlpha;}
+ if(uKind==5&&ghost>.01){color=mix(color,vec3(.0015,.002,.003),ghost);alpha=uAlpha;}
  else if(ghost>.01&&uKind!=2&&uKind!=3){
-  vec3 frost=color;
+  vec3 frost=vec3(.025,.045,.070)*(.7+.3*sun)+vec3(.4,.48,.54)*rim;
   float faceAlpha=uKind==6?.30:.18;
   float edgeAlpha=uKind==1?.24:uKind==6?.88:.65;
   float xalpha=faceAlpha+fineRim*edgeAlpha;
-  if(uKind==1){xalpha=.011+fineRim*.18;frost=color;}
+  if(uKind==1){xalpha=.011+fineRim*.18;frost=vec3(.17,.21,.25);}
   color=mix(color,frost,ghost);alpha=mix(1.,xalpha,ghost);
   if(uDamage>.035){vec3 dc=damage(uDamage);float amount=smoothstep(.035,.18,uDamage);
    if(uKind==6){
     // Crew remain translucent diagnostic silhouettes; red does not become a solid doll.
-    color=mix(color,base*(.3+.2*sun)+dc*(.045+fineRim*.8),amount*ghost);
+    color=mix(color,vec3(.035,.048,.07)+dc*(.045+fineRim*.8),amount*ghost);
     alpha=mix(alpha,.27+fineRim*.60,amount*ghost);
    }else{
     color=mix(color,dc*(.61+sun*.20)+vec3(.08)*rim,amount*ghost);
