@@ -22,7 +22,7 @@ import fsb, graph, strings, vorbis_headers, fsbvorbis
 W, E, X, N, A, U = 'tanks_weapons', 'tanks_effects', 'tanks_explosions', 'tanks_engines', 'tanks_ambient', 'aircraft_gui'
 G = 'event:/ground/'
 def gun(name): return (W, G + 'weapon/cannons/' + name)
-def mg(name): return (W, G + 'weapon/mguns/' + name)
+def mg(name): return (W, G + 'weapon/mguns/' + name, 'shot_tail')
 # cue id -> (bank, event, rule). Rules pick one waveform of the event (see choose()).
 CUES = {
     # main guns, autocannons and machine guns: the gun itself where OPEX has it, else the nearest
@@ -43,11 +43,11 @@ CUES = {
     'report_nsvt_single': mg('13mm_nsvt'), 'report_pkt_single': mg('8mm_pkt'), 'report_sgmt_single': mg('8mm_sgmt'),
     # rotary guns: GSh-6-23 ~ GAU-12 rotor, 14.5 mm six-barrel ~ M61 rotor
     'rotary_oplot23_gsh6_23_custom_fire_loop': gun('25mm_gau12_rotor') + ('longest',),
-    'rotary_oplot23_gsh6_23_custom_spin_up': gun('25mm_gau12_rotor') + ('rising',),
-    'rotary_oplot23_gsh6_23_custom_stop': gun('25mm_gau12_rotor') + ('falling',),
+    'rotary_oplot23_gsh6_23_custom_spin_up': gun('25mm_gau12_rotor') + ('rising_mid',),
+    'rotary_oplot23_gsh6_23_custom_stop': gun('25mm_gau12_rotor') + ('falling_long',),
     'rotary_oplot_mo_14_5x6_fire_loop': gun('20mm_m61_rotor') + ('longest',),
-    'rotary_oplot_mo_14_5x6_spin_up': gun('20mm_m61_rotor') + ('rising',),
-    'rotary_oplot_mo_14_5x6_stop': gun('20mm_m61_rotor') + ('falling',),
+    'rotary_oplot_mo_14_5x6_spin_up': gun('20mm_m61_rotor') + ('rising_mid',),
+    'rotary_oplot_mo_14_5x6_stop': gun('20mm_m61_rotor') + ('falling_long',),
     # missiles and rockets
     'launch_9m113_konkurs': (W, G + 'weapon/atgm/atgm_ussr', 'loudest'), 'motor_9m113_konkurs': (W, G + 'weapon/atgm/atgm_ussr', 'longest'),
     'launch_9m133_kornet': (W, G + 'weapon/atgm/atgm_kornet', 'loudest'), 'motor_9m133_kornet': (W, G + 'weapon/atgm/atgm_kornet', 'longest'),
@@ -102,7 +102,12 @@ RELOADS = {
 }
 # cues the game did not have before: (bank, event, rule, fsb sample or None, loop)
 # tank_warfare's beds use low-rate Vorbis setups the system libvorbis does not reproduce: the forest bed
-NEW_CUES = {'ambient_battlefield': (A, G + 'ambient/forest', 'sample', (0, 19), True)}
+NEW_CUES = {'ambient_battlefield': (A, G + 'ambient/forest', 'sample', (0, 19), True),
+            # machine-gun rounds: OPEX's own bullet sounds instead of the cannon-shell impacts
+            'bullet_armour': (E, G + 'effects/hit_mgun', 'short_loud', None, False),
+            'bullet_ricochet': (E, G + 'effects/rico_mgun', 'loudest', None, False),
+            'bullet_ground': (X, G + 'explosions/ground_splash', 'short_loud', None, False)}
+NEW_CUE_MEAN_DB_BY_ID = {'bullet_armour': -22.0, 'bullet_ricochet': -24.0, 'bullet_ground': -26.0}
 NEW_CUE_MEAN_DB = -30.0
 # engine families still on generated audio -> the OPEX family already in the bank for that engine
 ENGINE_REMAP = {'E01': 'E18', 'E08': 'E12'}
@@ -160,8 +165,29 @@ def choose(cands, rule):
         'longest': lambda: by(lambda f: -f['duration'])[0], 'second_longest': lambda: by(lambda f: -f['duration'])[min(1, len(cands) - 1)],
         'shortest': lambda: by(lambda f: f['duration'])[0], 'second_shortest': lambda: by(lambda f: f['duration'])[min(1, len(cands) - 1)],
         'rising': lambda: by(lambda f: -f['rising'])[0], 'falling': lambda: by(lambda f: f['rising'])[0],
+        # spin-up / run-down of a rotary gun: real length, not a single crack
+        # one bullet's impact: the loudest short variant
+        'short_loud': lambda: max([c for c in cands if c[1]['duration'] <= 0.8] or cands, key=lambda c: c[1]['peak']),
+        'rising_mid': lambda: sorted([c for c in cands if 0.25 <= c[1]['duration'] <= 2.5] or cands, key=lambda c: -c[1]['rising'])[0],
+        'falling_long': lambda: sorted([c for c in cands if c[1]['duration'] >= 0.4] or cands, key=lambda c: c[1]['rising'])[0],
     }
     return rules[rule]()[0]
+
+def shot_tail(cands, out):
+    """A machine gun's single shot: OPEX keeps the crack of each round (0.06-0.2 s variants) apart
+    from its tail/echo layers; the cue plays once per round, so it is the loudest crack with the
+    loudest decaying tail under it, ~1.6 s (the generated cues were 1.5-2 s)."""
+    shots = [c for c in cands if c[1]['duration'] <= 0.25]
+    tails = [c for c in cands if 0.4 <= c[1]['duration'] <= 3.2 and c[1]['rising'] < 0.5]
+    if not shots: return None
+    shot = max(shots, key=lambda c: c[1]['peak'])[0][2]
+    if not tails:
+        return shot
+    tail = max(tails, key=lambda c: c[1]['energy'])[0][2]
+    run(['ffmpeg', '-v', 'error', '-y', '-i', shot, '-i', tail, '-filter_complex',
+         '[0]aresample=44100,aformat=channel_layouts=mono[a];[1]aresample=44100,aformat=channel_layouts=mono,volume=-7dB[b];'
+         '[a][b]amix=inputs=2:duration=longest:normalize=0,atrim=0:1.6,afade=t=out:st=1.25:d=0.35', out])
+    return out
 
 def loudness(path):
     out = subprocess.run(['ffmpeg', '-v', 'info', '-i', path, '-af', 'volumedetect', '-f', 'null', '-'], capture_output=True, text=True).stderr
@@ -171,7 +197,7 @@ def loudness(path):
 
 def encode(src, old_url, loop, out_base):
     """Match the replaced cue's mean loudness (peak <= -0.5 dBFS); loops Ogg Vorbis, one-shots MP3."""
-    target = NEW_CUE_MEAN_DB
+    target = NEW_CUE_MEAN_DB_BY_ID.get(os.path.basename(out_base), NEW_CUE_MEAN_DB)
     if old_url:
         old = out_base + '.old'
         open(old, 'wb').write(base64.b64decode(old_url.split(',', 1)[1]))
@@ -217,7 +243,11 @@ def main(opex, data_line, work):
             p = B.wav(bank, fi, si)
             f = p and features(p)
             if f and f['peak'] > 0.01: cands.append(((fi, si, p), f))
-        pick = choose(cands, rule)
+        if rule == 'shot_tail':
+            p = shot_tail(cands, os.path.join(work, 'cues', cue_id + '.composite.wav'))
+            pick = (cands[0][0][0], cands[0][0][1], p) if p else None
+        else:
+            pick = choose(cands, rule)
         if not pick: missing[cue_id] = f'{event}: no decodable waveform ({len(waves)} listed)'; return False
         fi, si, p = pick
         new = encode(p, cue.get('url'), bool(cue.get('loop')), os.path.join(work, 'cues', cue_id))

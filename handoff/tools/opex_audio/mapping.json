@@ -259,97 +259,97 @@
   "report_besa_single": {
    "event": "event:/ground/weapon/mguns/8mm_besa",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 2220,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 51
   },
   "report_dshk_single": {
    "event": "event:/ground/weapon/mguns/13mm_dshk",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 1914,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 39
   },
   "report_dt_single": {
    "event": "event:/ground/weapon/mguns/8mm_dt",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 747,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 40
   },
   "report_kpvt_single": {
    "event": "event:/ground/weapon/mguns/16mm_kpvt",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 542,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 50
   },
   "report_m1919a4_single": {
    "event": "event:/ground/weapon/mguns/8mm_m1919",
    "bank": "tanks_weapons",
-   "fsb": 0,
-   "sample": 1196,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 19
   },
   "report_m2hb_single": {
    "event": "event:/ground/weapon/mguns/12mm_m2",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 395,
-   "rule": "max_energy",
-   "candidates": 77
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
+   "candidates": 95
   },
   "report_mg34_single": {
    "event": "event:/ground/weapon/mguns/8mm_mg34",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 2605,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 64
   },
   "report_mg42_single": {
    "event": "event:/ground/weapon/mguns/8mm_mg42",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 2605,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 53
   },
   "report_mg_proto_single": {
    "event": "event:/ground/weapon/mguns/8mm_m240",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 1474,
-   "rule": "max_energy",
-   "candidates": 80
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
+   "candidates": 81
   },
   "report_nsvt_single": {
    "event": "event:/ground/weapon/mguns/13mm_nsvt",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 431,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 45
   },
   "report_pkt_single": {
    "event": "event:/ground/weapon/mguns/8mm_pkt",
    "bank": "tanks_weapons",
-   "fsb": 0,
-   "sample": 129,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 52
   },
   "report_sgmt_single": {
    "event": "event:/ground/weapon/mguns/8mm_sgmt",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 168,
-   "rule": "max_energy",
+   "fsb": null,
+   "sample": null,
+   "rule": "shot_tail",
    "candidates": 45
   },
   "rotary_oplot23_gsh6_23_custom_fire_loop": {
@@ -365,15 +365,15 @@
    "bank": "tanks_weapons",
    "fsb": 0,
    "sample": 422,
-   "rule": "rising",
+   "rule": "rising_mid",
    "candidates": 15
   },
   "rotary_oplot23_gsh6_23_custom_stop": {
    "event": "event:/ground/weapon/cannons/25mm_gau12_rotor",
    "bank": "tanks_weapons",
-   "fsb": 1,
-   "sample": 1620,
-   "rule": "falling",
+   "fsb": 0,
+   "sample": 899,
+   "rule": "falling_long",
    "candidates": 15
   },
   "rotary_oplot_mo_14_5x6_fire_loop": {
@@ -389,7 +389,7 @@
    "bank": "tanks_weapons",
    "fsb": 0,
    "sample": 91,
-   "rule": "rising",
+   "rule": "rising_mid",
    "candidates": 7
   },
   "rotary_oplot_mo_14_5x6_stop": {
@@ -397,7 +397,7 @@
    "bank": "tanks_weapons",
    "fsb": 0,
    "sample": 188,
-   "rule": "falling",
+   "rule": "falling_long",
    "candidates": 7
   },
   "launch_9m113_konkurs": {
@@ -1139,6 +1139,30 @@
    "su_t34_1940": "E08 -> E12",
    "su_t34_85": "E08 -> E12",
    "su_is2": "E08 -> E12"
+  },
+  "bullet_armour": {
+   "event": "event:/ground/effects/hit_mgun",
+   "bank": "tanks_effects",
+   "fsb": 0,
+   "sample": 117,
+   "rule": "short_loud",
+   "candidates": 16
+  },
+  "bullet_ricochet": {
+   "event": "event:/ground/effects/rico_mgun",
+   "bank": "tanks_effects",
+   "fsb": 1,
+   "sample": 70,
+   "rule": "loudest",
+   "candidates": 23
+  },
+  "bullet_ground": {
+   "event": "event:/ground/explosions/ground_splash",
+   "bank": "tanks_explosions",
+   "fsb": 1,
+   "sample": 39,
+   "rule": "short_loud",
+   "candidates": 8
   }
  },
  "missing": {}

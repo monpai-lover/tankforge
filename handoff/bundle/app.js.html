@@ -24427,6 +24427,12 @@ precision highp float;void main(){}`);
       this.syncContext();
       if (!this.once(this.eventKey("contact", e.eventId), e.time)) return;
       if (e.outcome === "miss") return;
+      // machine-gun rounds: OPEX's bullet sounds, not the cannon-shell impact chain (a heavy shell
+      // thud and debris for every bullet)
+      if (e.caliber > 0 && e.caliber < 20) {
+        const cue = e.outcome === "ricochet" ? "bullet_ricochet" : e.outcome ? "bullet_armour" : "bullet_ground";
+        if (this.bank.cues?.[cue]) return void this.play(cue, e);
+      }
       const play = (kind2, id2, role) => {
         const p = this.effect(kind2, id2);
         if (p) this.play(p.cues[role] || p.cues.report || p.cues.attack || p.cues.tail || p.cues.debris || p.cues.blast || p.cues.cookoff, e);
@@ -24465,7 +24471,9 @@ precision highp float;void main(){}`);
       let r = this.trackers.get(e.id);
       if (!r) {
         if (this.trackers.size >= 128) return;
-        r = { time: e.time, crack: false, approach: false, recede: false };
+        // own: a round first seen next to the listener (its muzzle). Your own bullets do not whistle
+        // past you (every machine-gun round played the shell whiz on leaving the muzzle).
+        r = { time: e.time, crack: false, approach: false, recede: false, own: distance2(e.p0, this.listener.position) < 25 };
         this.trackers.set(e.id, r);
       }
       r.time = e.time;
@@ -24475,7 +24483,7 @@ precision highp float;void main(){}`);
         this.loop("motor:" + e.id, r.motor, { position: e.p1, velocity: e.velocity, emitterId: r.emitterId, gain: 0.25, rate: this.doppler(e.velocity, e.p1) });
       }
       const p = this.effect("flight", e.caliber < 60 ? "small" : "large");
-      if (!p || e.replayIllustration) return;
+      if (!p || e.replayIllustration || r.own && !(e.caliber >= 20)) return;
       const a = e.p0.map((v22, i) => v22 - this.listener.position[i]), v2 = e.p1.map((x, i) => x - e.p0[i]), len8 = Math.hypot(...v2), speed = Math.hypot(...e.velocity);
       if (len8 <= 0) return;
       const u = v2.map((x) => x / len8), along2 = a.reduce((n, x, i) => n + x * u[i], 0), perp3 = Math.sqrt(Math.max(0, a.reduce((n, x) => n + x * x, 0) - along2 * along2));
@@ -36411,7 +36419,7 @@ void main() {
           if (bb && eb && bb.t < eb.hit.t) eb = null;
           if (bb && !eb) {
             fx.bulletGround(bb.point, MASONRY_DUST, heavy);
-            sound.contact?.({ eventId: b, position: bb.point, material: "earth_gravel", debris: "earth_debris", bursts: [], time: G4.time });
+            sound.contact?.({ eventId: b, position: bb.point, material: "earth_gravel", debris: "earth_debris", bursts: [], time: G4.time, caliber: b.def.caliber_mm });
             done = true;
           } else if (eb) {
             fx.bulletBoard(eb.hit.point, heavy);
@@ -36454,7 +36462,7 @@ void main() {
           } else if (groundHit(p0, p1, surfaceAt)) {
             const pt = groundHit(p0, p1, surfaceAt);
             fx.bulletGround(pt, impactColor(pt), heavy);
-            sound.contact?.({ eventId: b, position: pt, material: "earth_gravel", debris: "earth_debris", bursts: [], time: G4.time });
+            sound.contact?.({ eventId: b, position: pt, material: "earth_gravel", debris: "earth_debris", bursts: [], time: G4.time, caliber: b.def.caliber_mm });
             done = true;
           }
         }
