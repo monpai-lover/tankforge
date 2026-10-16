@@ -15731,6 +15731,16 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
   // Seconds an attacker's replay waits on the target for the next round (longer than most reloads).
   var REPLAY_HOLD_S = 10;
   var REPLAY_HOLD_MAX_FILM_S = 240;
+  // A later round of a held session: its flight to contact in slow motion over this much film, then
+  // its effects in real time.
+  var REPLAY_LOCAL_APPROACH_S = 0.9;
+  function localReplayPhysical(e, filmS) {
+    const launch = Number.isFinite(e.launch_s) ? e.launch_s : e.contact_s, f = Math.max(0, filmS);
+    return f < REPLAY_LOCAL_APPROACH_S ? launch + (e.contact_s - launch) * f / REPLAY_LOCAL_APPROACH_S : e.contact_s + (f - REPLAY_LOCAL_APPROACH_S);
+  }
+  function localReplaySpan(e) {
+    return REPLAY_LOCAL_APPROACH_S + Math.max(0, e.physicalEnd - e.contact_s, ...(e.mechanism_anchors || []).map((a) => a.time_s - e.contact_s));
+  }
   var smooth4 = (a, b, x) => {
     const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
     return t * t * (3 - 2 * t);
@@ -15782,6 +15792,9 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       this.directorEvent = null;
       this.endFilm = 0;
       this.evidenceEndFilm = 0;
+      // Held offensive sessions: later rounds play on their own clock from the moment they arrive
+      // (film start), so rounds of a burst overlap on the X-ray instead of queueing one after another.
+      this.localStart = /* @__PURE__ */ new Map();
       if (!this.append(evidence).accepted) throw Error("initial replay evidence rejected");
     }
     append(raw) {
@@ -15814,16 +15827,18 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         event = prepareReplayEvent(e, this.catalog, this.origin);
         if (this.fatal && !result.terminal && event.id !== this.fatal.id && event.contact_s > this.fatal.physicalEnd + POST_FATAL_PHYSICAL_S) return { accepted: false, reason: "after_terminal" };
         sourceClock = createReplayClockForEvent(event);
-        const filmSpanS = Math.max(1.8, sourceClock.knots.at(-1)[0]);
+        if (this.options.holdS && this.directorEvent && event.id !== this.directorEvent.id && !previous && result.fresh && !this.fatal) {
+          this.localStart.set(event.id, this.filmTimeS);
+          sourceClock = null;
+        }
+        const filmSpanS = sourceClock ? Math.max(1.8, sourceClock.knots.at(-1)[0]) : 0;
         // A re-sent event (new mechanism records, e.g. fire ticks) may extend the film only by a short
         // tail, and nothing after a death extends it: see COMMIT_TAIL_FILM_S.
         const repeat = !!previous && !result.fresh && !result.terminal;
         reach = Math.min(this.fatal && !result.terminal ? this.fatal.physicalEnd + POST_FATAL_PHYSICAL_S : Infinity, repeat ? this.clock.physicalAt(this.evidenceEndFilm + COMMIT_TAIL_FILM_S) : Infinity);
         // A held session (offensive, see holdS) waiting for the next round: skip the real-time gap
         // (reload) quickly, so the new round's own flight and impact still play at normal pace.
-        const lead = Math.max(0, (Number.isFinite(event.launch_s) ? event.launch_s : event.contact_s) - 0.05);
-        if (this.options.holdS && !previous && result.fresh && lead - this.clock.physicalAt(this.filmTimeS) > 0.5) this.clock.appendPhysicalAnchors([lead], { filmSpanS: 0.3 });
-        this.clock.appendPhysicalAnchors([event.contact_s, event.physicalEnd, ...event.mechanism_anchors.map((a) => a.time_s)].filter((t) => t <= reach), { filmSpanS, reserve: result.terminal });
+        if (sourceClock) this.clock.appendPhysicalAnchors([event.contact_s, event.physicalEnd, ...event.mechanism_anchors.map((a) => a.time_s)].filter((t) => t <= reach), { filmSpanS, reserve: result.terminal });
       } catch {
         return { accepted: false, reason: "invalid_physical_records" };
       }
@@ -15851,7 +15866,10 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         }
         this.aggregated++;
       }
-      if (reach === Infinity) {
+      if (this.localStart.has(event.id)) {
+        this.endFilm = Math.max(this.endFilm, this.localStart.get(event.id) + localReplaySpan(event));
+        this.evidenceEndFilm = Math.max(this.evidenceEndFilm, this.endFilm);
+      } else if (reach === Infinity) {
         this.endFilm = Math.max(this.endFilm, this.clock.filmAt(event.physicalEnd), this.filmTimeS);
         this.evidenceEndFilm = Math.max(this.evidenceEndFilm, this.endFilm);
       } else this.endFilm = Math.max(this.endFilm, this.clock.filmAt(Math.min(event.physicalEnd, reach)));
@@ -15934,31 +15952,35 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       if (this.purpose !== "analysis") this.clock.markPlayed(filmTimeS);
       const physicalS = this.clock.physicalAt(filmTimeS);
       this.summaries = this.summaries.filter((e) => visibleEnd(e) > physicalS);
-      const events = [...new Set([this.fatal, this.pinned, ...this.events, ...this.summaries].filter(Boolean))], samples = events.map((e) => samplePreparedReplay(e, physicalS));
+      const local = (e) => {
+        const start = this.localStart.get(e.id);
+        return start === void 0 ? physicalS : localReplayPhysical(e, filmTimeS - start);
+      };
+      const events = [...new Set([this.fatal, this.pinned, ...this.events, ...this.summaries].filter(Boolean))], samples = events.map((e) => samplePreparedReplay(e, local(e)));
       let state = this.lastArrivedState, version = state?.version ?? -1, selected = this.purpose === "victim" && this.fatal && filmTimeS >= this.clock.filmAt(this.fatal.launch_s) ? this.fatal : this.directorEvent, pose = null, poseVersion = -1;
-      const admit = (v2, s, time) => {
-        if (time <= physicalS && v2 > version) {
+      const admit = (v2, s, time, now = physicalS) => {
+        if (time <= now && v2 > version) {
           version = v2;
           state = { version: v2, state: s };
         }
       };
       for (const e of events) {
-        const raw = e.evidence;
-        if (e.contact_s <= physicalS) {
-          admit(raw.state_after_version, raw.report.state, e.contact_s);
+        const raw = e.evidence, now = local(e);
+        if (e.contact_s <= now) {
+          admit(raw.state_after_version, raw.report.state, e.contact_s, now);
           if (raw.commit_seq > poseVersion) {
             poseVersion = raw.commit_seq;
             pose = raw.accepted_pose;
           }
-          if (e.physicalEnd <= physicalS) this._retire(raw.commit_seq, raw.event_id);
+          if (e.physicalEnd <= now) this._retire(raw.commit_seq, raw.event_id);
         }
         for (const r of raw.mechanism_records || []) {
-          admit(r.state_after_version, r.state_after, r.time_s);
-          if (r.time_s <= physicalS) this._retire(r.commit_seq, r.event_id);
+          admit(r.state_after_version, r.state_after, r.time_s, now);
+          if (r.time_s <= now) this._retire(r.commit_seq, r.event_id);
         }
         for (const d of raw.deaths || []) {
-          admit(d.state_after_version, d.state_after, d.time_s);
-          if (d.time_s <= physicalS) this._retire(d.commit_seq, d.event_id);
+          admit(d.state_after_version, d.state_after, d.time_s, now);
+          if (d.time_s <= now) this._retire(d.commit_seq, d.event_id);
         }
       }
       for (const c of this.commits) {
@@ -15982,7 +16004,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         const previousReveal = this.directorEvent.flight.length ? smooth4(1.65, 1.91, previousPhase) : 1;
         reveal = previousReveal + (reveal - previousReveal) * cameraBlend;
       }
-      const records = events.filter((e) => e.contact_s <= physicalS).sort((a, b) => a.evidence.commit_seq - b.evidence.commit_seq);
+      const records = events.filter((e) => e.contact_s <= local(e)).sort((a, b) => a.evidence.commit_seq - b.evidence.commit_seq);
       this.frame = freeze2({ id: frameId, filmTimeS, physicalS, directorPhase: phase, reveal, cameraProjectile, cameraPrevious, cameraBlend, event: selected, records, projectile: sample?.projectile, projectiles, bodySummaries, bodyBudgetOverflow: bodySummaries.length, traces, staticTraces, arrivals: traces.filter((t) => t.arrived && t.hit), state: state?.state ?? null, stateVersion: version, acceptedPose: pose, poseVersion, sourceEventId: this.fatal?.id ?? this.pinned?.id ?? selected?.id, terminalEventId: this.fatal?.evidence.deaths.at(-1)?.event_id ?? null, aggregated: this.aggregated + this.decorativeAggregated + Math.max(0, all.length - 4096) });
       this.frameId = frameId;
       return this.frame;
@@ -17159,7 +17181,11 @@ precision highp float;void main(){}`);
       // tick) must not start the same replay again; only a new death does.
       const deaths = evidence.deaths?.length || 0, shown = evidence.authority !== "analysis" ? this.presented.get(evidence.event_id) : void 0;
       if (shown !== void 0 && deaths <= shown) return false;
-      if (current && purpose !== "analysis" && purpose !== "victim") {
+      // A hit on another vehicle waits for the current replay only while that one is still showing
+      // something live; a destroyed target or a replay merely holding for the next round gives way at
+      // once (it kept showing a finished kill while the next target was being shot).
+      const idle = current && (current.session.fatal || current.session.filmTimeS > current.session.endFilm);
+      if (current && purpose !== "analysis" && purpose !== "victim" && !(purpose === "offensive" && idle)) {
         this._defer(target, rep, shell, dist3, mg, detail, purpose);
         return false;
       }
