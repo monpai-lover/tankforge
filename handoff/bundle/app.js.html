@@ -33641,7 +33641,7 @@ void main() {
         }
         plane.spawn(x, surfaceAt(x, z), z, heading, 0, true);
         scene.add(plane.root);
-        air = G4.air = { plane, active: false };
+        air = G4.air = { plane, active: false, guns: aircraftGuns() };
       }
       air.active = true;
       G4.view = "third";
@@ -33651,6 +33651,58 @@ void main() {
       document.body.dataset.air = "1";
       airHud.hidden = false;
       hud.toast("\u5DF2\u767B\u4E0A NF-01 \u8A66\u98DB\u6A5F\uFF1AShift \u52A0\u6CB9\u9580\u6ED1\u8DD1\uFF0C\u7D04 190 km/h \u6642\u6ED1\u9F20\u5411\u4E0A\u62C9\u8D77\u3000F8 \u56DE\u5230\u6230\u8ECA", 6);
+    }
+    // NF-01 armament (user request): two 7.92 mm machine guns in the cowling and a 20 mm cannon firing
+    // through the propeller hub (MG 34 ballistics stand in for the MG 17; the cannon belt alternates
+    // the 2 cm high-explosive incendiary and the AP tracer of the data). LMB fires all, RMB the cannon.
+    function aircraftGuns() {
+      const mg = data.machineGuns.mg34, belt = ["hefi_20_sprgr", "apt_20_pzgr39"].filter((id2) => data.projectiles[id2]);
+      return [
+        { id: "air_mg_l", kind: "mg", def: mg, mount: [-0.3, 0.58, 2.5], rpm: 1100, ammo: 1e3, cool: 0, fired: 0 },
+        { id: "air_mg_r", kind: "mg", def: mg, mount: [0.3, 0.58, 2.5], rpm: 1100, ammo: 1e3, cool: 0, fired: 0 },
+        { id: "air_cannon", kind: "cannon", belt, mount: [0, 0, 4.15], rpm: 700, ammo: 200, cool: 0, fired: 0 }
+      ].filter((g) => g.kind === "mg" ? !!mg : belt.length > 0);
+    }
+    function stepAircraftGuns(dt) {
+      const air = G4.air, P = air?.plane;
+      if (!air?.active || !air.guns || !P?.root || P.crashed || P.cur?.[22] > 0.5) return;
+      const m = P.root.local, S = P.cur, vel = [S[7], S[8], S[9]];
+      const world = (p) => [0, 1, 2].map((k) => m[k] * p[0] + m[4 + k] * p[1] + m[8 + k] * p[2] + m[12 + k]);
+      const fwdRaw = [m[8], m[9], m[10]], fl = Math.hypot(...fwdRaw) || 1, fwd = fwdRaw.map((v2) => v2 / fl), conv = [0, 1, 2].map((k) => m[12 + k] + fwd[k] * 400);
+      for (const g of air.guns) {
+        const want = g.ammo > 0 && (air.fireAll || g.kind === "cannon" && air.fireCannon);
+        g.cool -= dt;
+        if (!want) {
+          g.cool = Math.max(0, g.cool);
+          continue;
+        }
+        while (g.cool <= 0 && g.ammo > 0) {
+          g.cool += 60 / g.rpm;
+          g.ammo--;
+          g.fired++;
+          const o = world(g.mount), d0 = conv.map((v2, k) => v2 - o[k]), dl = Math.hypot(...d0) || 1, aim = d0.map((v2) => v2 / dl);
+          if (g.kind === "mg") {
+            const dir = disperse(aim, g.def.dispersion_mrad, rng2);
+            const bullet = { s: newShot(o, dir, bulletOf(g.def)), def: g.def, instance: `air/${g.id}`, age: 0, travelled: 0, tracer: g.fired % 3 === 0 };
+            for (let k = 0; k < 3; k++) bullet.s.vel[k] += vel[k];
+            if (!G4.bulletShells.has(g.def.id)) G4.bulletShells.set(g.def.id, bulletShell(g.def));
+            bullet.replayDischarge = G4.localReplay?.acceptDischarge(1, { weapon_instance: bullet.instance, projectile_id: G4.bulletShells.get(g.def.id).id, seed: rng2.nextF32() * 4294967295 >>> 0, time_s: G4.time || 0, origin: o, direction: dir, velocity_m_s: bullet.s.vel, flight_trust: "local_ballistic_world_segments_legacy_contact" });
+            bullet.replayLease = G4.localReplay?.retainProjectile(bullet.replayDischarge);
+            G4.bullets.push(bullet);
+            fx.mgFlash(o, fwd, g.def.caliber_mm);
+            sound.mg(g.def.caliber_mm, { weaponId: "air_mg", emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
+          } else {
+            const shell = data.projectiles[g.belt[g.fired % g.belt.length]], dir = disperse(aim, 1.2, rng2);
+            const sh = { s: newShot(o, dir, shell), shell, age: 0, origin: o.slice(), travelled: 0, projectile_source: null };
+            for (let k = 0; k < 3; k++) sh.s.vel[k] += vel[k];
+            sh.replayDischarge = G4.localReplay?.acceptDischarge(1, { weapon_instance: `air/${g.id}`, projectile_id: shell.id, seed: rng2.nextF32() * 4294967295 >>> 0, time_s: G4.time || 0, origin: o, direction: dir, velocity_m_s: sh.s.vel, flight_trust: "local_ballistic_world_segments_legacy_contact", projectile_source: null });
+            sh.replayLease = G4.localReplay?.retainProjectile(sh.replayDischarge);
+            G4.shots.push(sh);
+            fx.mgFlash(o, fwd, 20);
+            sound.shot(20, { weaponId: "air_cannon", generic: true, emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
+          }
+        }
+      }
     }
     function exitAircraft() {
       const air = G4.air;
@@ -33664,6 +33716,7 @@ void main() {
         removeAircraft();
       } else air.active = false;
       for (const k of p.keys) p.keys.delete(k);
+      air.fireAll = air.fireCannon = false;
       document.body.dataset.air = "0";
       airHud.hidden = true;
       G4.cam.pivot = null;
@@ -33697,7 +33750,8 @@ void main() {
       place(airEl.nose, h.nose);
       if ((G4.airHudTick = (G4.airHudTick || 0) + 1) % 4 !== 1) return;
       airEl.main.textContent = h.crashed ? "\u5DF2\u589C\u6BC0\u3000F8 \u56DE\u5230\u6230\u8ECA" : `\u7A7A\u901F ${air$fmt(h.ias)} km/h\u3000\u9AD8\u5EA6 ${air$fmt(h.agl)} m\u3000\u722C\u5347 ${air$fmt(h.vs, 1)} m/s\u3000\u822A\u5411 ${air$fmt(h.heading)}\u00B0\u3000\u6CB9\u9580 ${Math.round(h.throttle * 100)}%`;
-      airEl.flags.textContent = [h.instructor ? "\u6559\u5B98" : "\u624B\u52D5", h.level ? "\u5E73\u98DB\u4FDD\u6301" : "", h.gear > 0.5 ? "\u8D77\u843D\u67B6\u653E\u4E0B" : "\u8D77\u843D\u67B6\u6536\u8D77", h.flaps > 0.5 ? "\u895F\u7FFC" : "", h.brake ? "\u715E\u8ECA\uFF0F\u6E1B\u901F\u677F" : "", h.stall > 0.3 ? "\u5931\u901F\uFF01" : "", h.mode === 4 ? "\u5730\u9762\u6ED1\u8DD1" : "", `\u8FCE\u89D2 ${air$fmt(h.aoa, 1)}\u00B0\u3000${air$fmt(h.load, 1)} G`].filter(Boolean).join("\u3000");
+      const ammo = (kind2) => (air.guns || []).filter((g) => g.kind === kind2).reduce((n, g) => n + g.ammo, 0);
+      airEl.flags.textContent = [air.guns?.length ? `\u6A5F\u69CD ${ammo("mg")}\u3000\u6A5F\u7832 ${ammo("cannon")}` : "", h.instructor ? "\u6559\u5B98" : "\u624B\u52D5", h.level ? "\u5E73\u98DB\u4FDD\u6301" : "", h.gear > 0.5 ? "\u8D77\u843D\u67B6\u653E\u4E0B" : "\u8D77\u843D\u67B6\u6536\u8D77", h.flaps > 0.5 ? "\u895F\u7FFC" : "", h.brake ? "\u715E\u8ECA\uFF0F\u6E1B\u901F\u677F" : "", h.stall > 0.3 ? "\u5931\u901F\uFF01" : "", h.mode === 4 ? "\u5730\u9762\u6ED1\u8DD1" : "", `\u8FCE\u89D2 ${air$fmt(h.aoa, 1)}\u00B0\u3000${air$fmt(h.load, 1)} G`].filter(Boolean).join("\u3000");
     }
     function goBattle() {
       if (net.inRoom) {
@@ -36168,6 +36222,8 @@ void main() {
       if (G4.mode !== "battle") return;
       if (G4.air?.active) {
         if (e.button === 0 && !locked() && lockable()) requestLock();
+        else if (e.button === 0) G4.air.fireAll = true;
+        else if (e.button === 2) G4.air.fireCannon = true;
         return;
       }
       if (e.button === 0) {
@@ -36180,6 +36236,10 @@ void main() {
       else if (e.button === 2) G4.rmb = true;
     });
     window.addEventListener("mouseup", (e) => {
+      if (G4.air) {
+        if (e.button === 0) G4.air.fireAll = false;
+        else if (e.button === 2) G4.air.fireCannon = false;
+      }
       if (e.button === 0) G4.fireHeld = false;
       else if (e.button === 1) G4.mgHeld = false;
       else if (e.button === 2) G4.rmb = false;
@@ -36868,6 +36928,7 @@ void main() {
         input.brake = 1;
         G4.fireHeld = G4.mgHeld = false;
         G4.air.plane.update(dt);
+        stepAircraftGuns(dt);
       }
       const orbit = G4.free || garage;
       const inSight = G4.view === "sight" && !garage && !G4.xray && !flying;
