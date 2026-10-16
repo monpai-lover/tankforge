@@ -5,8 +5,29 @@
  * Nuclear Option stick gains: this plant accepts aerodynamic surface deflection.
  * wasm-flight-lab: measurement-only filtered derivatives / bounded integrators.
  * References and pinned identifiers: RESEARCH.md. */
+#ifndef FF_GAIN
+#define FF_GAIN 1.f
+#endif
+#ifndef CAPTURE_LO
+#define CAPTURE_LO .03f
+#endif
+#ifndef CAPTURE_HI
+#define CAPTURE_HI .12f
+#endif
+#ifndef PITCH_CAPTURE
+#define PITCH_CAPTURE .8f
+#endif
+#ifndef YAW_CAPTURE
+#define YAW_CAPTURE 1.2f
+#endif
+#ifndef YAW_FF
+#define YAW_FF 1.f
+#endif
+#ifndef BANK_CAPTURE
+#define BANK_CAPTURE .6f
+#endif
 typedef struct {
- V last_aim;
+ V last_aim,aim_w;
  float last_alpha,alpha_rate,last_load,load_rate,aim_rate,heading_rate;
  float p_integral,y_integral,aoa_gate,g_gate,q_schedule,confidence,off;
  float hold[3],manual_value[3],axis_auth[3];
@@ -47,6 +68,11 @@ static void refined_instructor(float dt,V target,V r,V u,V f,float qbar,
  i->alpha_rate=approach(i->alpha_rate,clamp(a_rate,-5,5),dt,12.5f);i->last_alpha=alpha;
  i->load_rate=approach(i->load_rate,clamp((load-i->last_load)/dt,-30,30),dt,12.5f);i->last_load=load;
  float ar=fatan2(len(cross(i->last_aim,target)),clamp(dot(i->last_aim,target),-1,1))/dt;
+ /* The marker's own angular velocity (world, filtered ~0.1 s): fed forward so the nose moves with a
+  * moving aim instead of trailing it by rate/gain (a 4 deg/s crossing target was trailed by ~4 deg). */
+ V wr=mul(cross(i->last_aim,target),1/maxf(dt,1e-4f));
+ if(len(wr)>3)wr=mul(wr,3/len(wr));
+ i->aim_w=v(approach(i->aim_w.x,wr.x,dt,10),approach(i->aim_w.y,wr.y,dt,10),approach(i->aim_w.z,wr.z,dt,10));
  i->aim_rate=approach(i->aim_rate,ar,dt,7);i->last_aim=target;
  float lx=dot(target,r),ly=dot(target,u),lz=dot(target,f);
  i->off=fatan2(__builtin_sqrtf(lx*lx+ly*ly),lz);
@@ -62,8 +88,11 @@ static void refined_instructor(float dt,V target,V r,V u,V f,float qbar,
  if(absf(eh)>2.62f && !i->commit)i->commit=eh<0?-1:1;
  if(absf(eh)<2.05f)i->commit=0;
  if(i->commit&&absf(eh)>2.4f)eh=i->commit*absf(eh);
- float bank_signal=(eh-i->heading_rate*.58f)*i->confidence;
+ /* heading rate of the marker: the turn to fly, not only the error to close */
+ float aim_h=clamp(i->aim_w.y/maxf(target.x*target.x+target.z*target.z,.04f),-1.5f,1.5f)*FF_GAIN;
+ float bank_signal=(eh-(i->heading_rate-aim_h)*.58f+aim_h/.67f)*i->confidence;
  float want=fatan2(bank_signal*speed*.67f,G);
+ want*=1-BANK_CAPTURE*(1-smooth(CAPTURE_LO,CAPTURE_HI,i->off))*(1-smooth(.02f,.08f,absf(aim_h)));
  float max_bank=mix(.82f,1.20f,smooth(58,92,speed));
  want=clamp(want,-max_bank,max_bank);
  desired_bank+=clamp(wrap(want-desired_bank),-1.5f*dt,1.5f*dt);
@@ -93,14 +122,20 @@ static void refined_instructor(float dt,V target,V r,V u,V f,float qbar,
  if(fine&&i->axis_auth[2]>.99f&&absf(ctl_y)<.4f)i->y_integral=clamp(i->y_integral+ey*dt*.07f,-.016f,.016f);
  else i->y_integral=approach(i->y_integral,0,dt,3);
  float align=clamp(1-absf(bank_err)/1.6f,.28f,1);
- float pr=clamp(ep*2.0f*sensitivity+i->p_integral,-.30f,.7f)*align*i->q_schedule;
+ /* body-frame feed-forward of the marker's motion (pitch-up, yaw-right rates) */
+ float ff_p=-dot(i->aim_w,r)*FF_GAIN,ff_y=dot(i->aim_w,u)*FF_GAIN;
+ /* capture cone (MouseFlight / War Thunder fine aim): close a few degrees directly with the
+  * elevator and rudder rather than by banking */
+ float capture=1-smooth(CAPTURE_LO,CAPTURE_HI,i->off);
+ float pr=clamp((ep*(2.0f+PITCH_CAPTURE*capture)*sensitivity+i->p_integral)*align*i->q_schedule+ff_p,-.30f,.7f);
  if(pr>0)pr*=envelope;
  /* Plant-normalized inner rate servos. Coefficients match this project's
   * existing force/moment equations; feedback damps measured body rates. */
  float pressure=maxf(qbar,40),dp=6*af_c/(2*maxf(speed,12)),dr=.25f*af_b/(2*maxf(speed,12)),dy=.5f*af_b/(2*maxf(speed,12));
  float ap=pressure*af_s*af_c*.26f/af_ix,aroll=pressure*af_s*af_b*.12f/af_iz,ayaw=pressure*af_s*af_b*.05f/af_iy;
  float rr=clamp(bank_err*2.2f*sensitivity,-1.6f,1.6f);
- float yr=clamp(ey*.65f+G/maxf(speed,45)*fsin(bank)+i->y_integral,-.25f,.25f);
+ float coord=G/maxf(speed,45)*fsin(bank);
+ float yr=clamp(ey*(.65f+YAW_CAPTURE*capture)+coord+i->y_integral+clamp(ff_y-coord,-.08f,.08f)*YAW_FF,-.25f,.25f);
  i->cmd_pitch_rate=pr;i->cmd_roll_rate=rr;i->cmd_yaw_rate=yr;
  float p=(.38f/.26f)*(alpha-.028f)+(dp/.26f)*pr+(pr+omega.x)/maxf(ap*.22f,.3f);
  float roll=(dr/.12f)*rr+(rr+omega.z)/maxf(aroll*.16f,.8f);

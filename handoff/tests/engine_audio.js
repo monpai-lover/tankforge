@@ -8,10 +8,10 @@ const loops = () => [...S.full.loops.entries()].filter(([k]) => k.startsWith('en
 for (const id of (window.__VEH || 'su_t72a,us_m8').split(',')) {
   tf.finishThumbs(); await frames(2); tf.select(id); await frames(4); tf.startBattle(); await frames(3); S.start();
   tf.pause(true); S.setFullAudible = () => S.full?.suspend(false); S.full?.suspend(false);
-  for (let k = 0; k < 8; k++) { tf.advance(0.25, [], true); await wait(250); }
+  for (let k = 0; k < 16; k++) { tf.advance(0.25, [], true); await wait(250); }
   const idle = { loops: loops(), rpm: Math.round(G.info.rpm) };
   for (let k = 0; k < 10; k++) { tf.advance(0.3, ['fwd'], true); await wait(200); }
   const drive = { loops: loops(), rpm: Math.round(G.info.rpm), speed: +G.s.u.toFixed(1) };
-  out[id] = { idle, drive, rigs: [...S.full.rigs.keys()].length, family: S.full.profile('engine', id)?.id, src: S.full.bank.cues[S.full.profile('engine', id)?.cues.idle]?.source?.split(' ').slice(2, 3)[0], failed: [...S.full.failed].filter(k => k.startsWith('engine_')) };
+  out[id] = { idle, drive, rigs: [...S.full.rigs.keys()].length, family: S.full.profile('engine', id)?.id, src: S.full.bank.cues[S.full.profile('engine', id)?.cues.idle]?.source?.split(' ').slice(2).join(' '), failed: [...S.full.failed].filter(k => k.startsWith('engine_')) };
 }
 return out;

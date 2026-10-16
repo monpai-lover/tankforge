@@ -6,10 +6,11 @@
 Each engine family (fullAudio profiles engine_E01..E26) takes the OPEX engine of the same or the
 nearest vehicle (FAMILY_ENGINE). An OPEX engine event holds ~25 recordings: the 8 s layers several
 engines share (transmission / ambience beds) are left out; of the rest, loops of 1.8 s or more are
-ranked by brightness (zero crossings, a stand-in for engine speed): the darkest is idle, the one
-nearest the median mid, the brightest high, and the loudest left over the load layer. Start and
-stop are the engine's own engine_start / engine_stop events. Loops are encoded at -16 dBFS mean
-(the generated cues were -19), start -17, stop -19. Same decode/encode pipeline as build.py.
+ranked by brightness (zero crossings, a stand-in for engine speed): the one nearest the median is
+mid, the brightest high, and the loudest left over the load layer. Idle is the steadiest 2.6 s (else 1.8 s)
+of the engine's own start recording after it catches, looped (else the darkest layer). Start and stop are the
+engine's engine_start / engine_stop events. Mean levels: idle -20 dBFS, mid -17, high -15, load -16,
+start -17, stop -19 (OPEX's layers are all near one level; the game sets it by engine speed). Same decode/encode pipeline as build.py.
 """
 import array, collections, json, math, os, subprocess, sys
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -47,7 +48,34 @@ FAMILY_ENGINE = {
     'E25': 'tank01',          # generic tank engine (Prototype A, the fallback family)
     'E26': 'patria',          # modern wheeled diesel (KDA 35, W78)
 }
-MEAN_DB = {'idle': -16.0, 'mid': -16.0, 'high': -16.0, 'load': -17.0, 'start': -17.0, 'stop': -19.0}
+# OPEX keeps every layer at about the same level (the game sets it by engine speed): idle quieter
+MEAN_DB = {'idle': -20.0, 'mid': -17.0, 'high': -15.0, 'load': -16.0, 'start': -17.0, 'stop': -19.0}
+IDLE_TAIL_S, IDLE_XFADE_S = 2.6, 0.4
+
+def idle_from_start(path, work, name, length=None, spread_db=6):
+    """The engine settled at idle in its start recording: the steadiest IDLE_TAIL_S window after the
+    engine catches (the recordings fade out over their last second, to hand over to the loop), looped
+    seamlessly (its end cross-faded into its start). None when no window is steady within 6 dB."""
+    rate = 44100
+    a = array.array('h', b.run(['ffmpeg', '-v', 'error', '-i', path, '-f', 's16le', '-ac', '1', '-ar', str(rate), '-']))
+    n, x, q = int((length or IDLE_TAIL_S) * rate), int(IDLE_XFADE_S * rate), rate // 4
+    if len(a) < n * 1.3: return None
+    lv = [10 * math.log10(sum(v * v for v in a[i:i + q]) / q + 1) for i in range(0, len(a) - q + 1, q)]
+    top, k = max(lv), n // q
+    best = None
+    for s0 in range(len(lv) // 3, len(lv) - k + 1):
+        w = lv[s0:s0 + k]
+        spread = max(w) - min(w)
+        if min(w) > top - 9 and (best is None or spread < best[0]): best = (spread, s0)
+    if not best or best[0] > spread_db: return None
+    tail = a[best[1] * q:best[1] * q + n]
+    body = array.array('h', tail[x:])
+    for i in range(x):
+        w = i / x
+        body[len(body) - x + i] = int(max(-32768, min(32767, tail[n - x + i] * (1 - w) + tail[i] * w)))
+    out = os.path.join(work, 'cues', name + '.idle.wav')
+    b.run(['ffmpeg', '-v', 'error', '-y', '-f', 's16le', '-ar', str(rate), '-ac', '1', '-i', '-', out], body.tobytes())
+    return out
 
 class EngineBanks(b.Banks):
     def __init__(self, opex, work):
@@ -92,6 +120,12 @@ def main(opex, data_line, work, *only):
             got = [(w, B.wav(N, *w)) for w in ws[:4]]
             got = [(w, path) for w, path in got if path]
             if got: picks[role] = (got[0][0], got[0][1], None, None)
+        # idle: the start recording's settled end where it is steady (the layers are not labelled by
+        # engine speed in the banks, and the darkest is not always the idle)
+        if 'start' in picks:
+            # a short or uneven start: a shorter window, a little more variation allowed
+            ip = idle_from_start(picks['start'][1], work, p['cues'].get('idle', p['family'])) or idle_from_start(picks['start'][1], work, p['cues'].get('idle', p['family']), 1.8, 8)
+            if ip: picks['idle'] = (picks['start'][0], ip, None, 'start-tail')
         for role, (w, path, _, bright) in picks.items():
             cue_id = p['cues'].get(role)
             if not cue_id: continue
@@ -99,12 +133,14 @@ def main(opex, data_line, work, *only):
             b.NEW_CUE_MEAN_DB_BY_ID[cue_id] = MEAN_DB[role]
             cue.update(b.encode(path, None, loop, os.path.join(work, 'cues', cue_id)))
             cue['loop'] = loop
-            cue['source'] = f'OPEX {N}.bank {G}{name}/{"engine" if loop else ("engine_start" if role == "start" else "engine_stop")} FSB{w[0]}#{w[1]}'
+            ev = 'engine_start' if role == 'start' or bright == 'start-tail' else 'engine_stop' if role == 'stop' else 'engine'
+            cue['source'] = f'OPEX {N}.bank {G}{name}/{ev} FSB{w[0]}#{w[1]}' + (f' (last {IDLE_TAIL_S} s, looped)' if bright == 'start-tail' else '')
             cue['subjectiveAudition'] = 'NOT RUN'
             cue.pop('engineRpm', None); cue.pop('referenceRpm', None)
         p['opexEngine'] = name
-        report[p['family']] = {'engine': name, 'candidates': len(cands), **{r: [list(v[0]), round(v[3]) if v[3] else None] for r, v in picks.items()}}
-        print(p['family'], name, len(cands), {r: (tuple(v[0]), round(v[3]) if v[3] else None) for r, v in picks.items()})
+        tag = lambda v: v[3] if isinstance(v[3], str) else round(v[3]) if v[3] else None
+        report[p['family']] = {'engine': name, 'candidates': len(cands), **{r: [list(v[0]), tag(v)] for r, v in picks.items()}}
+        print(p['family'], name, len(cands), {r: (tuple(v[0]), tag(v)) for r, v in picks.items()})
     prev = fa.setdefault('opexSource', {}).get('engines', {}).get('families', {}) if only else {}
     fa['opexSource']['engines'] = {'tool': 'handoff/tools/opex_audio/engines.py', 'families': {**prev, **report}}
     open(data_line, 'w', encoding='utf-8').write(s[:i] + json.dumps(d, ensure_ascii=False, separators=(',', ':')) + s[j:])
