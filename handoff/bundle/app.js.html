@@ -24539,7 +24539,9 @@ precision highp float;void main(){}`);
     }
     segment(e) {
       this.syncContext();
-      if (!vec2(e.p0) || !vec2(e.p1) || !vec2(e.velocity)) return;
+      // the aircraft's own guns: the firing loop is the sound; their rounds flying off do not whistle and
+      // crack (from the chase camera, 25 m behind, each of ~50 rounds a second did) or take trackers
+      if (!vec2(e.p0) || !vec2(e.p1) || !vec2(e.velocity) || e.ownAir) return;
       let r = this.trackers.get(e.id);
       if (!r) {
         if (this.trackers.size >= 128) return;
@@ -34022,6 +34024,10 @@ void main() {
     // engine's low and full-power layers cross-faded by its power and pitched with it, the airflow by
     // airspeed, the guns' firing loops while they fire, a fire burning; one-shots for the gear,
     // flaps, touchdown, a stopped propeller, a break-up and the crash (hits: aircraftHit).
+    const vec3Norm = (v2) => {
+      const l = Math.hypot(v2[0], v2[1], v2[2]);
+      return l > 1e-6 ? v2.map((x) => x / l) : [0, 0, 1];
+    };
     const AIR_LOOPS = ["air:engine_low", "air:engine_high", "air:wind", "air:mg", "air:cannon", "air:fire"];
     function airAudio() {
       const full = sound.full, air = G4.air, P = air?.plane;
@@ -34032,7 +34038,10 @@ void main() {
         return;
       }
       const S = P.cur, D = P.damage, pos = (P.drawPos || P.position).slice(), vel = [S[7], S[8], S[9]];
-      const at = (gain, rate = 1) => ({ position: pos, velocity: vel, gain, rate, emitterId: "player:air", fadeIn: true, time: G4.time });
+      // the panner cone pointed at the listener: the player's own aircraft at full level from any camera
+      // (no direction left the cone along world +X, so the level changed as the aircraft turned)
+      const lp = full.listener.position || pos, toward = vec3Norm([lp[0] - pos[0], lp[1] - pos[1], lp[2] - pos[2]]);
+      const at = (gain, rate = 1) => ({ position: pos, direction: toward, velocity: vel, gain, rate, emitterId: "player:air", fadeIn: true, time: G4.time });
       const one = (id2, gain = 1) => full.play(id2, { position: pos, velocity: vel, gain, emitterId: "player:air", time: G4.time });
       if (!air.audio) {
         // decode them all now (the loops kept in memory), or the first gear, hit or burst goes silent
@@ -37060,7 +37069,7 @@ void main() {
           stepShot(b.s, h);
           b.age += h;
           const p1 = b.s.pos;
-          sound.projectileSegment?.({ id: b, time: G4.time, p0, p1, velocity: b.s.vel, caliber: b.def.caliber_mm });
+          sound.projectileSegment?.({ id: b, time: G4.time, p0, p1, velocity: b.s.vel, caliber: b.def.caliber_mm, ownAir: b.ownAir });
           b.travelled += Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
           if (b.replayDischarge) G4.localReplay.recordProjectileStep(b.replayDischarge, { start_time_s: b.replayDischarge.flight.at(-1)?.time_s ?? b.replayDischarge.launch_time_s, end_time_s: b.replayDischarge.launch_time_s + b.age, from: p0, to: p1, velocity_m_s: b.s.vel });
           const heavy = b.def.caliber_mm > 10;
@@ -37150,7 +37159,7 @@ void main() {
           stepShot(sh.s, h);
           sh.age += h;
           const p1 = sh.s.pos;
-          sound.projectileSegment?.({ id: sh, time: G4.time, p0, p1, velocity: sh.s.vel, caliber: sh.shell.caliber_mm });
+          sound.projectileSegment?.({ id: sh, time: G4.time, p0, p1, velocity: sh.s.vel, caliber: sh.shell.caliber_mm, ownAir: sh.ownAir });
           sh.travelled += Math.hypot(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]);
           if (sh.replayDischarge) G4.localReplay.recordProjectileStep(sh.replayDischarge, { start_time_s: sh.replayDischarge.flight.at(-1)?.time_s ?? sh.replayDischarge.launch_time_s, end_time_s: sh.replayDischarge.launch_time_s + sh.age, from: p0, to: p1, velocity_m_s: sh.s.vel });
           if (!sh.ownAir && G4.air && aircraftHit(p0, p1, sh.shell, sh.s.vel, sh.shooter)) {
