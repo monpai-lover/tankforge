@@ -216,7 +216,9 @@ def encode(src, old_url, loop, out_base):
              '[tail][head]amix=inputs=2:normalize=0[x];[x][rest]concat=n=2:v=0:a=1', looped])
         src, dur = looped, 27.0
     elif dur > 29: fx.append('atrim=0:29')
-    if not loop: fx += ['silenceremove=start_periods=1:start_threshold=-55dB', f'afade=t=out:st={max(0, min(dur, 29) - 0.12):.3f}:d=0.12']
+    # the end fade: 0.12 s, at most 30% of a very short cue (a single gun crack is 0.05 s)
+    fade = min(0.12, dur * 0.3)
+    if not loop: fx += ['silenceremove=start_periods=1:start_threshold=-55dB', f'afade=t=out:st={max(0, min(dur, 29) - fade):.3f}:d={fade:.3f}']
     ext, codec = ('ogg', ['-c:a', 'libvorbis', '-q:a', '5']) if loop else ('mp3', ['-c:a', 'libmp3lame', '-b:a', '160k'])
     out = out_base + '.' + ext
     # mono: every game sound goes through a 3D panner, and the runtime caps decoded audio (float32)

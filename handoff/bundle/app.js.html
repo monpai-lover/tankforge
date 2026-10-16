@@ -33914,6 +33914,8 @@ void main() {
           continue;
         }
         while (g.cool <= 0 && g.ammo > 0) {
+          // the round left |cool| s ago within this frame: its crack is placed there (not bunched per frame)
+          const shotTime = (G4.time || 0) + g.cool;
           g.cool += 60 / g.rpm;
           g.ammo--;
           g.fired++;
@@ -33928,7 +33930,7 @@ void main() {
             G4.bullets.push(bullet);
             fx.mgFlash(o, fwd, g.def.caliber_mm);
             air.mgUntil = G4.time + 0.09;
-            if (!sound.full?.bank?.cues?.air_mg_fire) sound.mg(g.def.caliber_mm, { weaponId: "air_mg", emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
+            if (!airShot("mg", g.fired, o, vel, shotTime)) sound.mg(g.def.caliber_mm, { weaponId: "air_mg", emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
           } else {
             const shell = data.projectiles[g.belt[g.fired % g.belt.length]], dir = disperse(aim, 1.2, rng2);
             const sh = { s: newShot(o, dir, shell), shell, age: 0, origin: o.slice(), travelled: 0, projectile_source: null, ownAir: true };
@@ -33938,7 +33940,7 @@ void main() {
             G4.shots.push(sh);
             fx.mgFlash(o, fwd, 20);
             air.cannonUntil = G4.time + 0.12;
-            if (!sound.full?.bank?.cues?.air_cannon_fire) sound.shot(20, { weaponId: "air_cannon", generic: true, emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
+            if (!airShot("cannon", g.fired, o, vel, shotTime)) sound.shot(20, { weaponId: "air_cannon", generic: true, emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
           }
         }
       }
@@ -34028,7 +34030,14 @@ void main() {
       const l = Math.hypot(v2[0], v2[1], v2[2]);
       return l > 1e-6 ? v2.map((x) => x / l) : [0, 0, 1];
     };
-    const AIR_LOOPS = ["air:engine_low", "air:engine_high", "air:wind", "air:mg", "air:cannon", "air:fire"];
+    const AIR_LOOPS = ["air:engine_low", "air:engine_high", "air:wind", "air:fire"];
+    /** One round's crack (a random one of OPEX's variants) at `time`; false when the bank lacks them. */
+    function airShot(kind2, n, at2, vel, time) {
+      const full = sound.full, id2 = `air_${kind2}_shot_${1 + (n * 7 + Math.floor(Math.random() * 4)) % 4}`;
+      if (!full?.bank?.cues?.[id2]) return false;
+      full.play(id2, { position: at2, velocity: vel, gain: kind2 === "mg" ? 0.55 : 0.75, rate: 0.96 + Math.random() * 0.08, emitterId: "player:air", time });
+      return true;
+    }
     function airAudio() {
       const full = sound.full, air = G4.air, P = air?.plane;
       if (!full?.bank?.cues?.air_engine_low) return;
@@ -34045,7 +34054,7 @@ void main() {
       const one = (id2, gain = 1) => full.play(id2, { position: pos, velocity: vel, gain, emitterId: "player:air", time: G4.time });
       if (!air.audio) {
         // decode them all now (the loops kept in memory), or the first gear, hit or burst goes silent
-        for (const id2 of Object.keys(full.bank.cues)) if (id2.startsWith("air_")) full.request(id2, /^air_(engine|wind|mg|cannon)/.test(id2));
+        for (const id2 of Object.keys(full.bank.cues)) if (id2.startsWith("air_")) full.request(id2, /^air_(engine|wind|mg_shot|cannon_shot)/.test(id2));
       }
       const st = air.audio || (air.audio = { gear: P.state.gear, flaps: P.state.flaps, engine: !D.dead("engine"), ground: P.onGround, broken: D.broken });
       const running = !D.dead("engine") && !D.dead("prop") && !D.broken, power = running ? Math.max(0, Math.min(1.12, S[27])) : 0;
@@ -34061,10 +34070,12 @@ void main() {
       const ias = S[14];
       if (ias > 12) full.loop("air:wind", "air_wind", at(Math.min(0.55, 0.06 + (ias / 110) ** 2 * 0.3), 0.8 + Math.min(0.45, ias / 320)));
       else full.stopLoop("air:wind");
-      if (G4.time < (air.mgUntil ?? -1)) full.loop("air:mg", "air_mg_fire", at(0.75));
-      else full.stopLoop("air:mg");
-      if (G4.time < (air.cannonUntil ?? -1)) full.loop("air:cannon", "air_cannon_fire", at(0.85));
-      else full.stopLoop("air:cannon");
+      // a burst over: the guns' echo tail once
+      for (const kind2 of ["mg", "cannon"]) {
+        const firing = G4.time < (air[kind2 + "Until"] ?? -1);
+        if (st[kind2] && !firing) one(`air_${kind2}_tail`, kind2 === "mg" ? 0.8 : 0.9);
+        st[kind2] = firing;
+      }
       if (D.fire > 0 && !D.broken) full.loop("air:fire", "air_fire", at(0.45));
       else full.stopLoop("air:fire");
       if (st.gear !== P.state.gear) one("air_gear", 0.7);
