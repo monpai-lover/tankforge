@@ -21589,6 +21589,12 @@ precision highp float;void main(){}`);
     }
     present(preview) {
       if (preview === this.preview) return;
+      // A refreshing query (the view or the vehicle moves a little every frame) must not swap a shown
+      // result for "computing" and back (the label flickered): keep the last result up to 0.6 s.
+      if (preview?.verdict === "pending" && this.preview && this.preview.verdict !== "pending") {
+        this.pendingSince ??= performance.now();
+        if (performance.now() - this.pendingSince < 600) return;
+      } else this.pendingSince = null;
       this.preview = preview;
       this.render();
     }
@@ -21610,8 +21616,12 @@ precision highp float;void main(){}`);
       this.root.style.top = `${y}px`;
       this.cross.style.color = color;
       this.label.style.color = color;
-      this.primary.textContent = Number.isFinite(h.need) ? `\u7B49\u6548 ${h.need.toFixed(1)} mm \xB7 ${LABELS[k]}` : `${LABELS[k] || LABELS.unknown} \xB7 \u7B49\u6548 \u2014`;
-      this.secondary.textContent = Number.isFinite(h.pen) ? `\u7A7F\u6DF1 ${h.pen.toFixed(1)} mm \xB7 \u5165\u5C04 ${h.inc.toFixed(1)}\xB0${h.screened ? " \xB7 \u5916\u90E8\u96F6\u4EF6\u5F8C\u65B9" : ""}` : k === "pending" ? "\u6B63\u5728\u67E5\u8A62\u6B64\u4F4D\u7F6E" : "\u6B64\u8868\u9762\u6C92\u6709\u767B\u8A18\u7684\u9632\u8B77\u6578\u503C";
+      // only on a change: the page translator rewrites these texts in place, and resetting them each
+      // frame made the label alternate between the two languages
+      const primary = Number.isFinite(h.need) ? `\u7B49\u6548 ${h.need.toFixed(1)} mm \xB7 ${LABELS[k]}` : `${LABELS[k] || LABELS.unknown} \xB7 \u7B49\u6548 \u2014`;
+      if (primary !== this.primaryRaw) this.primary.textContent = this.primaryRaw = primary;
+      const secondary = Number.isFinite(h.pen) ? `\u7A7F\u6DF1 ${h.pen.toFixed(1)} mm \xB7 \u5165\u5C04 ${h.inc.toFixed(1)}\xB0${h.screened ? " \xB7 \u5916\u90E8\u96F6\u4EF6\u5F8C\u65B9" : ""}` : k === "pending" ? "\u6B63\u5728\u67E5\u8A62\u6B64\u4F4D\u7F6E" : "\u6B64\u8868\u9762\u6C92\u6709\u767B\u8A18\u7684\u9632\u8B77\u6578\u503C";
+      if (secondary !== this.secondaryRaw) this.secondary.textContent = this.secondaryRaw = secondary;
       const w = this.label.offsetWidth, height = this.label.offsetHeight, viewport = this.canvas.ownerDocument.defaultView;
       const left = x + 18 + w > Math.min(rect.right, viewport?.innerWidth || rect.right) ? -w - 18 : 18;
       const top = y + 18 + height > Math.min(rect.bottom, viewport?.innerHeight || rect.bottom) ? -height - 18 : 18;
@@ -21817,8 +21827,10 @@ precision highp float;void main(){}`);
         }
       }
       if (now - this.inspectionAt < 100) {
-        this.cursor.present(this.pendingPreview);
-        return this.pendingPreview;
+        // between queries: the last answer, not "computing" (the label flickered as the view swayed)
+        const held = cached2?.value ?? this.pendingPreview;
+        this.cursor.present(held);
+        return held;
       }
       this.inspectionAt = now;
       this.inspectionValidatedAt = now;
@@ -32053,6 +32065,11 @@ void main() {
       return { body: b.finish((k) => k !== 8), cockpit: b.finish((k) => k === 8), glass, prop: prop.finish(), controls };
     };
   })();
+  // NF-01 gear (body metres, +z forward): lowest point of the main wheels (y, z) and of the tail wheel;
+  // the three-point attitude puts both on the ground: atan((-0.79 + 1.57) / (0.14 + 4.16)) = 10.3 deg.
+  var MAIN_WHEEL_LOW = [-1.57, 0.14];
+  var TAIL_WHEEL_LOW = [-0.79, -4.16];
+  var TAILDRAGGER_PITCH = Math.atan2(TAIL_WHEEL_LOW[0] - MAIN_WHEEL_LOW[0], MAIN_WHEEL_LOW[1] - TAIL_WHEEL_LOW[1]);
   function loadFlightCore(world) {
     const raw = atob(FLIGHT_CORE_WASM), bytes = new Uint8Array(raw.length);
     for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
@@ -32113,7 +32130,7 @@ void main() {
     m.set([1 - 2 * (yy + zz), 2 * (x * y + z * w), 2 * (x * z - y * w), 0, 2 * (x * y - z * w), 1 - 2 * (xx + zz), 2 * (y * z + x * w), 0, 2 * (x * z + y * w), 2 * (y * z - x * w), 1 - 2 * (xx + yy), 0, p[0], p[1], p[2], 1]);
     return m;
   }
-  var AIRCRAFT_KEYS = /* @__PURE__ */ new Set(["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight", "KeyC"]);
+  var AIRCRAFT_KEYS = /* @__PURE__ */ new Set(["KeyW", "KeyS", "KeyA", "KeyD", "KeyQ", "KeyE", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "ShiftLeft", "ShiftRight", "ControlLeft", "ControlRight", "KeyC", "KeyZ"]);
   var Aircraft = class {
     constructor(renderer, api) {
       this.renderer = renderer;
@@ -32243,11 +32260,22 @@ void main() {
     }
     pose(alpha = 1) {
       const a = this.prev, b = this.cur, t = Math.max(0, Math.min(1, alpha));
-      const pos = [0, 1, 2].map((k) => a[k] + (b[k] - a[k]) * t), q = aqSlerp(Array.from(a.slice(3, 7)), Array.from(b.slice(3, 7)), t);
+      const pos = [0, 1, 2].map((k) => a[k] + (b[k] - a[k]) * t);
+      let q = aqSlerp(Array.from(a.slice(3, 7)), Array.from(b.slice(3, 7)), t);
+      const S = b, gear = S[33];
+      // Tail-dragger on the ground: the core holds the hull level at a fixed 2 m (the wheels hung in
+      // the air). Drawn sitting on its main wheels and tail wheel (three-point attitude), the tail
+      // lifting as it speeds up for take-off, and blended out as it leaves the ground.
+      const agl = S[35], ground = Math.max(0, Math.min(1, (2.6 - agl) / 0.6)) * (gear >= 0.9 ? 1 : 0);
+      if (ground > 0) {
+        const tail = 1 - Math.max(0, Math.min(1, (S[13] - 22) / 18)), theta = TAILDRAGGER_PITCH * tail * ground, c = Math.cos(theta), sn = Math.sin(theta);
+        q = aqMul(q, aqAxis([1, 0, 0], -theta));
+        const h = -(MAIN_WHEEL_LOW[0] * c + MAIN_WHEEL_LOW[1] * sn);
+        pos[1] -= (2 - h) * ground;
+      }
       this.drawPos = pos;
       this.drawQ = q;
       this.root.local = quatMatrix(pos, q);
-      const S = b, gear = S[33];
       for (const c of this.controls) {
         const angle = c.type === "roll" ? S[25] * c.sign * 0.38 : c.type === "pitch" ? S[24] * 0.42 : c.type === "yaw" ? S[26] * 0.4 : c.type === "gear" ? (1 - gear) * c.sign * -1.51 : (1 - gear) * -1.5;
         c.node.visible = !(c.type === "gear" || c.type === "tailgear") || gear >= 0.02;
@@ -32268,15 +32296,18 @@ void main() {
       this.camQ = aqSlerp(this.camQ, aqLook(wanted, seedUp), 1 - Math.exp(-dt * (s.camera ? 9 : 4.1)));
       const right = aqRot(this.camQ, [1, 0, 0]), freeQ = aqMul(aqAxis(right, -this.free.pitch), aqAxis([0, 1, 0], this.free.yaw)), dir = aqRot(freeQ, aqRot(this.camQ, [0, 0, 1]));
       let eye, fov;
+      // Z held: zoom (as the tank's), eased in and out
+      this.zoomK = (this.zoomK || 0) + ((this.keys.has("KeyZ") ? 1 : 0) - (this.zoomK || 0)) * (1 - Math.exp(-dt * 10));
+      const zoom = (wide, narrow) => (wide + (narrow - wide) * this.zoomK) * Math.PI / 180;
       if (s.camera) {
         eye = aqRot(q, [0, 1.15, -0.4]).map((v2, i) => v2 + pos[i]);
-        fov = 73 * Math.PI / 180;
+        fov = zoom(73, 28);
       } else {
         const distance3 = 25 * (1 + Math.max(0, Math.min(0.3, (this.cur[13] - 110) / 110)));
         eye = [pos[0] - dir[0] * distance3, pos[1] - dir[1] * distance3 + 4.7, pos[2] - dir[2] * distance3];
         eye[1] = Math.max(eye[1], groundAt(eye[0], eye[2]) + 2.5);
         const target = [pos[0] + dir[0] * 400, pos[1] + dir[1] * 400 + 2.5, pos[2] + dir[2] * 400];
-        fov = 61 * Math.PI / 180;
+        fov = zoom(61, 22);
         return { camPos: eye, fwd: norm(sub(target, eye)), fovY: fov };
       }
       return { camPos: eye, fwd: dir, fovY: fov };
