@@ -23955,11 +23955,13 @@ precision highp float;void main(){}`);
     }
     return true;
   }
-  // Engine loops were mixed at 0.12/0.09 and drowned under everything else (user report): ~+8 dB.
-  var ENGINE_LOOP_GAIN = 0.3;
-  // Decoded (float32) audio kept in memory; the OPEX cues are longer than the generated ones were.
-  var FULL_AUDIO_DECODED_BYTES = 48 * 1024 * 1024;
-  var ENGINE_LOAD_GAIN = 0.22;
+  // Engine loops were mixed at 0.12/0.09 and drowned under everything else (user report): ~+8 dB;
+  // raised again with the OPEX engines (user report 2026-10-16: many engines unheard): 0.3 -> 0.5.
+  var ENGINE_LOOP_GAIN = 0.5;
+  // Decoded (float32) audio kept in memory; the OPEX cues are longer than the generated ones were,
+  // and the OPEX engines hold 2-6 MB of loops a vehicle (up to 8 heard at once).
+  var FULL_AUDIO_DECODED_BYTES = 80 * 1024 * 1024;
+  var ENGINE_LOAD_GAIN = 0.35;
   var FullAudio = class {
     constructor(sound, bank) {
       this.sound = sound;
@@ -24311,7 +24313,10 @@ precision highp float;void main(){}`);
       }
       if (v2) {
         this.pose(v2, e);
-        safe2(() => v2.gain.gain.setTargetAtTime(v2.level * clamp9(e.gain ?? 0.2, 0, 1) / (1 + (distance2(e.position || this.listener.position, this.listener.position) / 90) ** 2), this.sound.ctx.currentTime, 0.08));
+        // engines and running gear carry far (user report: vehicles 200 m off were silent at 1/(1+(d/90)^2)
+        // = 0.17): a gentler 1/(1 + d/70) for them (0.26 at 200 m, 0.15 at 400 m)
+        const d = distance2(e.position || this.listener.position, this.listener.position), fall = e.rolloff === "far" ? 1 / (1 + d / 70) : 1 / (1 + (d / 90) ** 2);
+        safe2(() => v2.gain.gain.setTargetAtTime(v2.level * clamp9(e.gain ?? 0.2, 0, 1) * fall, this.sound.ctx.currentTime, 0.08));
         safe2(() => v2.source.playbackRate.setTargetAtTime(clamp9(e.rate ?? 1, 0.5, 2), this.sound.ctx.currentTime, 0.08));
       }
       return v2;
@@ -24426,7 +24431,8 @@ precision highp float;void main(){}`);
       if (!p) return;
       let r = this.rigs.get(e.emitterId);
       if (!r) {
-        if (this.rigs.size >= 6 || distance2(e.position || this.listener.position, this.listener.position) > 400) return;
+        // (user report 2026-10-16: many vehicles' engines unheard) up to 8 engines within 600 m
+        if (this.rigs.size >= 8 || distance2(e.position || this.listener.position, this.listener.position) > 600) return;
         r = { running: false, keys: /* @__PURE__ */ new Set(), phases: [0, 0, 0], rates: [1, 1, 1] };
         this.rigs.set(e.emitterId, r);
       }
@@ -24479,17 +24485,17 @@ precision highp float;void main(){}`);
       }
       for (const [i, g] of engineBands) {
         const key4 = "engine:" + e.emitterId + ":" + bands[i];
-        this.loop(key4, p.cues[bands[i]], { ...e, gain: ENGINE_LOOP_GAIN * g, rate: r.rates[i], loopOffset: r.phases[i], fadeIn: true });
+        this.loop(key4, p.cues[bands[i]], { ...e, gain: ENGINE_LOOP_GAIN * g, rate: r.rates[i], loopOffset: r.phases[i], fadeIn: true, rolloff: "far" });
       }
       if (r.load > 0.02) {
         const key4 = "engine:" + e.emitterId + ":load";
-        this.loop(key4, p.cues.load, { ...e, gain: ENGINE_LOAD_GAIN * r.load, fadeIn: true });
+        this.loop(key4, p.cues.load, { ...e, gain: ENGINE_LOAD_GAIN * r.load, fadeIn: true, rolloff: "far" });
       }
       if (speed > 0.05) {
         if (gear) {
           const key4 = "gear:" + e.emitterId;
           const cue = this.runningGearCue(gear.cues.roll || gear.cues.loop, surface?.cues.texture || surface?.cues.loop);
-          if (cue) this.loop(key4, cue, { ...e, gain: Math.min(0.2, speed * 0.016), rate: clamp9(0.75 + speed * 0.025, 0.75, 1.4) });
+          if (cue) this.loop(key4, cue, { ...e, gain: Math.min(0.2, speed * 0.016), rate: clamp9(0.75 + speed * 0.025, 0.75, 1.4), rolloff: "far" });
           else this.stopLoop(key4);
         }
       }
