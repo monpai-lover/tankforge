@@ -76,7 +76,7 @@ static void refined_instructor(float dt,V target,V r,V u,V f,float qbar,
  bank_err=mix(bank_err,vertical_err,vertical_weight);
  i->roll_error=bank_err;
  i->q_schedule=clamp(qbar/6200.f,.30f,1);
- float ceiling=.28f+flaps*.025f;
+ float ceiling=af_stall+flaps*.025f;
  float pred=alpha+maxf(0,i->alpha_rate)*.27f;
  float aoa_goal=1-smooth(ceiling*.73f,ceiling*.97f,pred);
  float gpred=load+maxf(i->load_rate,0)*.085f;
@@ -97,8 +97,8 @@ static void refined_instructor(float dt,V target,V r,V u,V f,float qbar,
  if(pr>0)pr*=envelope;
  /* Plant-normalized inner rate servos. Coefficients match this project's
   * existing force/moment equations; feedback damps measured body rates. */
- float pressure=maxf(qbar,40),dp=6*2.1f/(2*maxf(speed,12)),dr=.25f*11/(2*maxf(speed,12)),dy=.5f*11/(2*maxf(speed,12));
- float ap=pressure*22*2.1f*.26f/14000.f,aroll=pressure*22*11*.12f/6500.f,ayaw=pressure*22*11*.05f/21000.f;
+ float pressure=maxf(qbar,40),dp=6*af_c/(2*maxf(speed,12)),dr=.25f*af_b/(2*maxf(speed,12)),dy=.5f*af_b/(2*maxf(speed,12));
+ float ap=pressure*af_s*af_c*.26f/af_ix,aroll=pressure*af_s*af_b*.12f/af_iz,ayaw=pressure*af_s*af_b*.05f/af_iy;
  float rr=clamp(bank_err*2.2f*sensitivity,-1.6f,1.6f);
  float yr=clamp(ey*.65f+G/maxf(speed,45)*fsin(bank)+i->y_integral,-.25f,.25f);
  i->cmd_pitch_rate=pr;i->cmd_roll_rate=rr;i->cmd_yaw_rate=yr;

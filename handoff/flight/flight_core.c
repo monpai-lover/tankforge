@@ -42,6 +42,12 @@ static Q qnorm(Q q){float l=__builtin_sqrtf(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w);ret
 static V pos,vel,omega,wind;
 static Q att;
 static float t,engine,ctl_p,ctl_r,ctl_y,manual_hold,authority,stall,load,alpha,beta,speed,bank,pitch,heading,desired_bank,gear,flaps,thrust;
+/* Airframe (configure_airframe; defaults: the NF-01). mass kg, wing area m2, chord / span m, pitch / yaw /
+ * roll inertia kg m2, zero-lift drag, induced-drag factor, lift slope /rad, stall AoA rad, engine kind
+ * (0 propeller: thrust falls with speed, max 15.5 kN; 1 turbojet: thrust_max N rising slightly with Mach,
+ * throttle above 1 = afterburner up to ab_gain more), transonic drag rise from Mach 0.88. */
+static float af_m=3200,af_s=22,af_c=2.1f,af_b=11,af_ix=14000,af_iy=21000,af_iz=6500,af_cd0=.026f,af_k=.065f,af_cla=4.5f,af_stall=.28f,af_tmax=15500,af_ab=0;
+static int af_jet=0;
 /* Battle damage from the host (set_damage): engine thrust, lift of each wing, control authority. */
 static float dmg_thrust=1,dmg_lift_l=1,dmg_lift_r=1,dmg_pitch=1,dmg_roll=1,dmg_yaw=1;
 static float wind_strength=0,wind_direction=.8f,sensitivity=1,g_limit=6.5f;
@@ -87,7 +93,13 @@ static void telemetry(void){
 }
 EX int state_ptr(void){return (int)(uintptr_t)out;}
 EX int state_len(void){return 80;}
-EX int core_version(void){return 201;}
+EX int core_version(void){return 202;}
+EX void configure_airframe(float mass,float area,float chord,float span,float ix,float iy,float iz,float cd0,float k,float cla,float stall_aoa,int jet,float thrust_max,float ab_gain){
+ af_m=clamp(sane(mass,3200),300,60000);af_s=clamp(sane(area,22),4,200);af_c=clamp(sane(chord,2.1f),.5f,12);af_b=clamp(sane(span,11),2,60);
+ af_ix=clamp(sane(ix,14000),500,5e6f);af_iy=clamp(sane(iy,21000),500,5e6f);af_iz=clamp(sane(iz,6500),200,5e6f);
+ af_cd0=clamp(sane(cd0,.026f),.005f,.2f);af_k=clamp(sane(k,.065f),.01f,.5f);af_cla=clamp(sane(cla,4.5f),1,8);af_stall=clamp(sane(stall_aoa,.28f),.12f,.6f);
+ af_jet=jet!=0;af_tmax=clamp(sane(thrust_max,15500),500,4e5f);af_ab=clamp(sane(ab_gain,0),0,2);
+}
 /* 1 = intact. A torn-off wing (0) rolls the aircraft toward it past what the ailerons hold; pitch 0 is the
  * tail gone: no pitch or yaw stability left, and the nose tucks under. */
 EX void set_damage(float thrust_k,float lift_l,float lift_r,float pitch_k,float roll_k,float yaw_k){
@@ -137,7 +149,7 @@ EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pit
  }
  float pCmd=0,rCmd=0,yCmd=0;
  if(flags&32){
-   float required=3200*G/maxf(qbar*22,1000);float trim=clamp((required-.20f)/4.5f,-.10f,.17f);
+   float required=af_m*G/maxf(qbar*af_s,1000);float trim=clamp((required-.20f)/4.5f,-.10f,.17f);
    target=norm(v(target.x,trim-clamp(vel.y*.018f,-.15f,.15f),target.z));
  }
  if(control_profile){
@@ -171,30 +183,30 @@ EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pit
  pCmd=clamp(pCmd,-1,1);rCmd=clamp(rCmd,-1,1);yCmd=clamp(yCmd,-1,1);
  ctl_p+=clamp(pCmd-ctl_p,-3.5f*dt,3.5f*dt);ctl_r+=clamp(rCmd-ctl_r,-4.0f*dt,4.0f*dt);ctl_y+=clamp(yCmd-ctl_y,-3*dt,3*dt);
  engine+=(throttle-engine)*clamp(dt*1.6f,0,1);gear+=clamp(((flags&4)?1.f:0.f)-gear,-.55f*dt,.55f*dt);flaps+=clamp(((flags&8)?1.f:0.f)-flaps,-.65f*dt,.65f*dt);
- float stallAngle=.28f+flaps*.025f;stall=smooth(stallAngle*.82f,stallAngle*1.45f,absf(alpha))*smooth(12,35,speed);
- float cl=.20f+4.5f*alpha+.36f*flaps;float post=1.05f*fsin(2*alpha);
+ float stallAngle=af_stall+flaps*.025f;stall=smooth(stallAngle*.82f,stallAngle*1.45f,absf(alpha))*smooth(12,35,speed);
+ float cl=.20f+af_cla*alpha+.36f*flaps;float post=1.05f*fsin(2*alpha);
  cl=mix(cl,post,smooth(stallAngle,stallAngle+.32f,absf(alpha)));cl=clamp(cl,-1.5f,1.7f);
- float cd=.026f+.065f*cl*cl+.030f*gear+.035f*flaps+((flags&16)? .095f:0)+.7f*stall*fsin(alpha)*fsin(alpha)+.16f*beta*beta+.045f*(2-dmg_lift_l-dmg_lift_r);
+ float mach=speed/340.f;float cd=af_cd0+af_k*cl*cl+.04f*smooth(.88f,1.08f,mach)+.030f*gear+.035f*flaps+((flags&16)? .095f:0)+.7f*stall*fsin(alpha)*fsin(alpha)+.16f*beta*beta+.045f*(2-dmg_lift_l-dmg_lift_r);
  V lift_dir=norm(sub(u,mul(vh,dot(u,vh))));
  float wings=(dmg_lift_l+dmg_lift_r)*.5f;
- V lift=mul(lift_dir,qbar*22*cl*wings),drag=mul(vh,-qbar*22*cd);
- V side=mul(r,-qbar*22*.62f*beta);
- thrust=engine*minf(15500,950000/maxf(speed+30,45))*dmg_thrust;
- V aero=add(add(lift,drag),side);V force=add(add(aero,mul(f,thrust)),v(0,-3200*G,0));
- load=dot(aero,u)/(3200*G);
- float c=2.1f,b=11.f;float eff=maxf(qbar,40);float dampingV=maxf(speed,12);
+ V lift=mul(lift_dir,qbar*af_s*cl*wings),drag=mul(vh,-qbar*af_s*cd);
+ V side=mul(r,-qbar*af_s*.62f*beta);
+ thrust=(af_jet?af_tmax*minf(engine,1)*(1+.18f*minf(mach,1.2f))*(1+af_ab*clamp((engine-1)/.12f,0,1)):engine*minf(af_tmax,950000*af_tmax/15500/maxf(speed+30,45)))*dmg_thrust;
+ V aero=add(add(lift,drag),side);V force=add(add(aero,mul(f,thrust)),v(0,-af_m*G,0));
+ load=dot(aero,u)/(af_m*G);
+ float c=af_c,b=af_b;float eff=maxf(qbar,40);float dampingV=maxf(speed,12);
  float tail_gone=dmg_pitch<.02f?1.f:0.f;
- V moment=v(eff*22*c*(-.26f*ctl_p*dmg_pitch+(.38f*(alpha-.028f)-6*c/(2*dampingV)*omega.x)*(1-.8f*tail_gone)+.07f*tail_gone),
-            eff*22*b*(.05f*ctl_y*dmg_yaw+(.12f*beta-.50f*b/(2*dampingV)*omega.y)*(1-.7f*tail_gone)),
-            eff*22*b*(-.12f*ctl_r*dmg_roll+.012f*beta-.25f*b/(2*dampingV)*omega.z*(.35f+.65f*wings)-.4f*(dmg_lift_l-dmg_lift_r)*clamp(cl,-.4f,1.5f)));
+ V moment=v(eff*af_s*c*(-.26f*ctl_p*dmg_pitch+(.38f*(alpha-.028f)-6*c/(2*dampingV)*omega.x)*(1-.8f*tail_gone)+.07f*tail_gone),
+            eff*af_s*b*(.05f*ctl_y*dmg_yaw+(.12f*beta-.50f*b/(2*dampingV)*omega.y)*(1-.7f*tail_gone)),
+            eff*af_s*b*(-.12f*ctl_r*dmg_roll+.012f*beta-.25f*b/(2*dampingV)*omega.z*(.35f+.65f*wings)-.4f*(dmg_lift_l-dmg_lift_r)*clamp(cl,-.4f,1.5f)));
  if(stall>.3f)moment.z+=fsin(t*5.3f)*stall*1100;
- V inertia=v(14000,21000,6500);V gyro=cross(omega,v(omega.x*inertia.x,omega.y*inertia.y,omega.z*inertia.z));
+ V inertia=v(af_ix,af_iy,af_iz);V gyro=cross(omega,v(omega.x*inertia.x,omega.y*inertia.y,omega.z*inertia.z));
  V torque=sub(moment,gyro);
  omega=add(omega,mul(v(torque.x/inertia.x,torque.y/inertia.y,torque.z/inertia.z),dt));
  omega.x=clamp(omega.x,-2.8f,2.8f);omega.y=clamp(omega.y,-2.0f,2.0f);omega.z=clamp(omega.z,-4,4);
  Q dq=qmul(att,(Q){omega.x,omega.y,omega.z,0});
  att=qnorm((Q){att.x+dq.x*dt*.5f,att.y+dq.y*dt*.5f,att.z+dq.z*dt*.5f,att.w+dq.w*dt*.5f});
- vel=add(vel,mul(force,dt/3200));pos=add(pos,mul(vel,dt));
+ vel=add(vel,mul(force,dt/af_m));pos=add(pos,mul(vel,dt));
  float ground=ground_at(pos.x,pos.z);
  if(pos.y<ground+2.f){
    int runway=landable_at(pos.x,pos.z);

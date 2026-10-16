@@ -22,6 +22,14 @@ AIR_CUES = {
     'air_engine_low': (EN, A + 'engines/engine01', ('sample', (0, 1030)), True, -21.0),
     'air_engine_high': (EN, A + 'engines/engine01', ('sample', (0, 1349)), True, -19.0),
     'air_wind': (EF, A + 'effects/wind', 'longest', True, -26.0),
+    # NF-02 jet (J79 turbojet, M61A1): the J79's steady compressor whine (FSB0#557, ~1.1 kHz) at low
+    # thrust, its jet roar (FSB0#1380, 18.6 s) at high thrust, the afterburner layer of the J79 WEP
+    # event (FSB0#755); the M61's firing loop (FSB0#382: a flat 3 s 'brrrt') and its burst tail (FSB0#181)
+    'air_jet_whine': (EN, A + 'engines/engine05_05_J79_N1', ('sample', (0, 557)), True, -22.0),
+    'air_jet_roar': (EN, A + 'engines/engine05_05_J79_N1', ('sample', (0, 1380)), True, -18.0),
+    'air_jet_afterburner': (EN, A + 'engines/engine05_04_J79GE_N1_WEP', ('sample', (0, 755)), True, -18.0),
+    'air_vulcan_fire': (GU, A + 'weapon/m61_gun_outside', ('sample', (0, 382)), True, -15.0),
+    'air_vulcan_tail': (GU, A + 'weapon/m61_gun_outside', ('sample', (0, 181)), False, -21.0),
     # one crack per round (OPEX keeps each gun's report as 0.05-0.09 s variants) and, when a burst
     # ends, the echo tail (the 0.9 / 2.1 s Vorbis layers decay from the first frame: they are not
     # firing loops, and looped they pulsed once a second)

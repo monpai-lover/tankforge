@@ -1,0 +1,22 @@
+// NF-02 sounds: J79 whine/roar by thrust, the afterburner layer, the M61 loop and its tail.
+const tf = window.__tf, x = window.__tfx, G = tf.G;
+const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+await tf.coreReady().catch(e => null); await x.flightCoreP;
+const S = tf.sound, started = [];
+const nameOf = (buf) => { for (const [k, v] of S.full?.buffers || []) if (v === buf) return k; return 'other'; };
+const bs = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function (...a) { started.push(nameOf(this.buffer)); return bs.apply(this, a); };
+const count = () => { const c = {}; for (const s of started.splice(0)) if (/air_/.test(s)) c[s] = (c[s] || 0) + 1; return c; };
+const loops = () => [...S.full.loops.entries()].filter(([k]) => k.startsWith('air:')).map(([k, v]) => [k.slice(4), +v.gain.gain.value.toFixed(2), +v.source.playbackRate.value.toFixed(2)]);
+const run = async (secs) => { for (let k = 0; k < secs * 6; k++) { tf.advance(1 / 6, [], true); await wait(170); } };
+tf.finishThumbs(); await frames(2); tf.startBattle(); await frames(3); S.start();
+document.getElementById('jet-btn').click();
+for (let i = 0; i < 60 && !G.air?.active; i++) await frames(1);
+tf.pause(true); S.setFullAudible = () => S.full?.suspend(false); S.full?.suspend(false);
+const P = G.air.plane; P.spawn(-6000, 1000, -6000, Math.PI, 200, false); P.aim = [0, 0, -1];
+P.state.throttle = 0.4; await run(2); await wait(3000); await run(1); count(); await run(1);
+const low = loops();
+P.state.throttle = 1.12; await run(3); const ab = loops();
+const calls = []; const op = S.full.play.bind(S.full); S.full.play = (id, e, loop) => { const r = op(id, e, loop); if (/tail|gear/.test(id)) calls.push({ id, r: !!r, has: S.full.buffers.has(id), pinned: S.full.pinned.has(id), voices: S.full.voices.size, nonloop: [...S.full.voices].filter(v => !v.loop).length, muted: S.muted, master: !!S.master, def: !!S.full.bank.cues[id], kind: S.full.cueKinds.get(id), bus: !!S.full.bus(S.full.cueKinds.get(id)), failed: S.full.failed.has(id), pressure: S.full.pressure.has(id), decoding: S.full.decoding.has(id), bytes: Math.round(S.full.bytes / 1e6), nbuf: S.full.buffers.size }); return r; };
+await wait(2000); started.length = 0; G.air.fireAll = true; for (let k = 0; k < 60; k++) { tf.advance(1 / 60, [], k % 6 === 0); await wait(16); } const firing = loops(); G.air.fireAll = false; const trace = []; for (let k = 0; k < 20; k++) { tf.advance(1 / 60, [], k % 6 === 0); await wait(16); trace.push([+(G.time).toFixed(3), +(G.air.vulcanUntil ?? -1).toFixed(3), G.air.audio?.vulcan, started.slice(-1)[0]]); } await run(1);
+return { calls, low, ab, firing, sounds: count(), decoded: [...S.full.buffers.keys()].filter(k => k.startsWith('air')), fired: 725 - G.air.guns[0].ammo };

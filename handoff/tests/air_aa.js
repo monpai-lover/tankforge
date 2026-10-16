@@ -3,11 +3,11 @@
 const tf = window.__tf, x = window.__tfx, G = tf.G;
 const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
 await tf.coreReady().catch(e => null); await x.flightCoreP;
-tf.finishThumbs(); document.getElementById('air-btn').click();
+tf.finishThumbs(); document.getElementById(window.__AIRBTN || 'air-btn').click();
 for (let i = 0; i < 40 && !G.air?.active; i++) await frames(1);
 tf.pause(true);
 const aa = G.enemies.filter(e => ['de_flakpz38t', 'de_gepard'].includes(e.id)).map(e => ({ id: e.id, x: Math.round(e.x), z: Math.round(e.z) }));
-const P = G.air.plane; P.spawn(-200, 300, -600, 0.25, 95, false); P.aim = [Math.sin(0.25), 0, Math.cos(0.25)];
+const P = G.air.plane; P.spawn(-200, 300, -600, 0.25, window.__AIRSPEED || 95, false); P.aim = [Math.sin(0.25), 0, Math.cos(0.25)];
 tf.advance(0.1, [], false);
 const log = []; let t = 0, firedAt = null, firstHit = null, downAt = null, shots = 0;
 const n0 = G.shots.length; const push = G.shots.push.bind(G.shots); G.shots.push = (...a) => { for (const s of a) if (s.from?.startsWith?.('aa:')) shots++; return push(...a); };
