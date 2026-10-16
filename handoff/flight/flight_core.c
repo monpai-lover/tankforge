@@ -42,6 +42,8 @@ static Q qnorm(Q q){float l=__builtin_sqrtf(q.x*q.x+q.y*q.y+q.z*q.z+q.w*q.w);ret
 static V pos,vel,omega,wind;
 static Q att;
 static float t,engine,ctl_p,ctl_r,ctl_y,manual_hold,authority,stall,load,alpha,beta,speed,bank,pitch,heading,desired_bank,gear,flaps,thrust;
+/* Battle damage from the host (set_damage): engine thrust, lift of each wing, control authority. */
+static float dmg_thrust=1,dmg_lift_l=1,dmg_lift_r=1,dmg_pitch=1,dmg_roll=1,dmg_yaw=1;
 static float wind_strength=0,wind_direction=.8f,sensitivity=1,g_limit=6.5f;
 static float out[80];
 static int crashed,mode,protect=1,external_world=0;
@@ -85,13 +87,20 @@ static void telemetry(void){
 }
 EX int state_ptr(void){return (int)(uintptr_t)out;}
 EX int state_len(void){return 80;}
-EX int core_version(void){return 200;}
+EX int core_version(void){return 201;}
+/* 1 = intact. A torn-off wing (0) rolls the aircraft toward it past what the ailerons hold; pitch 0 is the
+ * tail gone: no pitch or yaw stability left, and the nose tucks under. */
+EX void set_damage(float thrust_k,float lift_l,float lift_r,float pitch_k,float roll_k,float yaw_k){
+ dmg_thrust=clamp(sane(thrust_k,1),0,1);dmg_lift_l=clamp(sane(lift_l,1),0,1);dmg_lift_r=clamp(sane(lift_r,1),0,1);
+ dmg_pitch=clamp(sane(pitch_k,1),0,1);dmg_roll=clamp(sane(roll_k,1),0,1);dmg_yaw=clamp(sane(yaw_k,1),0,1);
+}
 EX void configure(float wind_kts,float wind_deg,float response,float max_g,int protection){
  wind_strength=clamp(sane(wind_kts,0),0,45)*.514444f;wind_direction=sane(wind_deg,45)*PI/180;
  sensitivity=clamp(sane(response,1),.5f,1.6f);g_limit=clamp(sane(max_g,6.5f),2,9);protect=protection!=0;
 }
 EX void reset(int scenario){
  clear_instructor();t=0;engine=.72f;ctl_p=ctl_r=ctl_y=manual_hold=0;authority=1;load=1;stall=0;desired_bank=0;gear=flaps=0;crashed=0;mode=0;
+ dmg_thrust=dmg_lift_l=dmg_lift_r=dmg_pitch=dmg_roll=dmg_yaw=1;
  omega=v(0,0,0);wind=v(0,0,0);pos=v(0,720,-3650);vel=v(0,0,112);att=(Q){-.0105f,0,0,.999945f};
  if(scenario==1){pos=v(0,250,-4700);vel=v(0,-1,91);gear=1;engine=.48f;}
  if(scenario==2){pos=v(0,1650,-4300);vel=v(0,0,57);engine=.3f;att=(Q){-.115f,0,0,.99337f};}
@@ -165,17 +174,19 @@ EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pit
  float stallAngle=.28f+flaps*.025f;stall=smooth(stallAngle*.82f,stallAngle*1.45f,absf(alpha))*smooth(12,35,speed);
  float cl=.20f+4.5f*alpha+.36f*flaps;float post=1.05f*fsin(2*alpha);
  cl=mix(cl,post,smooth(stallAngle,stallAngle+.32f,absf(alpha)));cl=clamp(cl,-1.5f,1.7f);
- float cd=.026f+.065f*cl*cl+.030f*gear+.035f*flaps+((flags&16)? .095f:0)+.7f*stall*fsin(alpha)*fsin(alpha)+.16f*beta*beta;
+ float cd=.026f+.065f*cl*cl+.030f*gear+.035f*flaps+((flags&16)? .095f:0)+.7f*stall*fsin(alpha)*fsin(alpha)+.16f*beta*beta+.045f*(2-dmg_lift_l-dmg_lift_r);
  V lift_dir=norm(sub(u,mul(vh,dot(u,vh))));
- V lift=mul(lift_dir,qbar*22*cl),drag=mul(vh,-qbar*22*cd);
+ float wings=(dmg_lift_l+dmg_lift_r)*.5f;
+ V lift=mul(lift_dir,qbar*22*cl*wings),drag=mul(vh,-qbar*22*cd);
  V side=mul(r,-qbar*22*.62f*beta);
- thrust=engine*minf(15500,950000/maxf(speed+30,45));
+ thrust=engine*minf(15500,950000/maxf(speed+30,45))*dmg_thrust;
  V aero=add(add(lift,drag),side);V force=add(add(aero,mul(f,thrust)),v(0,-3200*G,0));
  load=dot(aero,u)/(3200*G);
  float c=2.1f,b=11.f;float eff=maxf(qbar,40);float dampingV=maxf(speed,12);
- V moment=v(eff*22*c*(-.26f*ctl_p+.38f*(alpha-.028f)-6*c/(2*dampingV)*omega.x),
-            eff*22*b*(.05f*ctl_y+.12f*beta-.50f*b/(2*dampingV)*omega.y),
-            eff*22*b*(-.12f*ctl_r+.012f*beta-.25f*b/(2*dampingV)*omega.z));
+ float tail_gone=dmg_pitch<.02f?1.f:0.f;
+ V moment=v(eff*22*c*(-.26f*ctl_p*dmg_pitch+(.38f*(alpha-.028f)-6*c/(2*dampingV)*omega.x)*(1-.8f*tail_gone)+.07f*tail_gone),
+            eff*22*b*(.05f*ctl_y*dmg_yaw+(.12f*beta-.50f*b/(2*dampingV)*omega.y)*(1-.7f*tail_gone)),
+            eff*22*b*(-.12f*ctl_r*dmg_roll+.012f*beta-.25f*b/(2*dampingV)*omega.z*(.35f+.65f*wings)-.4f*(dmg_lift_l-dmg_lift_r)*clamp(cl,-.4f,1.5f)));
  if(stall>.3f)moment.z+=fsin(t*5.3f)*stall*1100;
  V inertia=v(14000,21000,6500);V gyro=cross(omega,v(omega.x*inertia.x,omega.y*inertia.y,omega.z*inertia.z));
  V torque=sub(moment,gyro);
