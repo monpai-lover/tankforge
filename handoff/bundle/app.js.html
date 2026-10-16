@@ -33925,7 +33925,8 @@ void main() {
             bullet.replayLease = G4.localReplay?.retainProjectile(bullet.replayDischarge);
             G4.bullets.push(bullet);
             fx.mgFlash(o, fwd, g.def.caliber_mm);
-            sound.mg(g.def.caliber_mm, { weaponId: "air_mg", emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
+            air.mgUntil = G4.time + 0.09;
+            if (!sound.full?.bank?.cues?.air_mg_fire) sound.mg(g.def.caliber_mm, { weaponId: "air_mg", emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
           } else {
             const shell = data.projectiles[g.belt[g.fired % g.belt.length]], dir = disperse(aim, 1.2, rng2);
             const sh = { s: newShot(o, dir, shell), shell, age: 0, origin: o.slice(), travelled: 0, projectile_source: null, ownAir: true };
@@ -33934,7 +33935,8 @@ void main() {
             sh.replayLease = G4.localReplay?.retainProjectile(sh.replayDischarge);
             G4.shots.push(sh);
             fx.mgFlash(o, fwd, 20);
-            sound.shot(20, { weaponId: "air_cannon", generic: true, emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
+            air.cannonUntil = G4.time + 0.12;
+            if (!sound.full?.bank?.cues?.air_cannon_fire) sound.shot(20, { weaponId: "air_cannon", generic: true, emitterId: `air/${g.id}`, eventId: g.fired, position: o, direction: fwd, velocity: vel, time: G4.time });
           }
         }
       }
@@ -33955,13 +33957,13 @@ void main() {
       if (!r) return null;
       P.applyDamage();
       const point = [0, 1, 2].map((k) => p0[k] + d[k] * r.t), dist = Math.hypot(point[0] - G4.camPos[0], point[1] - G4.camPos[1], point[2] - G4.camPos[2]);
-      if (tnt > 0) {
-        fx.explosion(point, null, tnt, false);
-        sound.blast(tnt, dist, { eventId: `air:${G4.time}:${Math.random()}`, position: point, time: G4.time });
-      } else {
-        fx.armorImpact(point, true);
-        sound.contact?.({ eventId: `air:${G4.time}:${Math.random()}`, position: point, outcome: "stopped", material: "steel_armor", bursts: [], time: G4.time, caliber: shell.caliber_mm });
-      }
+      const cue = tnt > 0 ? "air_hit_he" : "air_hit";
+      if (tnt > 0) fx.explosion(point, null, tnt, false);
+      else fx.armorImpact(point, true);
+      if (sound.full?.bank?.cues?.[cue]) sound.full.play(cue, { position: point, gain: air.active ? 1 : 0.8, emitterId: air.active ? "player:air" : "air", time: G4.time });
+      else if (tnt > 0) sound.blast(tnt, dist, { eventId: `air:${G4.time}:${Math.random()}`, position: point, time: G4.time });
+      else sound.contact?.({ eventId: `air:${G4.time}:${Math.random()}`, position: point, outcome: "stopped", material: "steel_armor", bursts: [], time: G4.time, caliber: shell.caliber_mm });
+      if (r.killed.some((id2) => id2.startsWith("wing_")) && sound.full?.bank?.cues?.air_broken) sound.full.play("air_broken", { position: point, emitterId: "air", time: G4.time });
       for (const id2 of r.killed) if (id2.startsWith("wing_")) {
         const side = id2 === "wing_l" ? -1 : 1, at = P.worldPoint([side * 3, 0.15, 0]);
         fx.explosion(at, null, 0.4, false);
@@ -33998,6 +34000,7 @@ void main() {
           air.wreck = { t: 40, at: P.position };
           const at = air.wreck.at, dist = Math.hypot(at[0] - G4.camPos[0], at[1] - G4.camPos[1], at[2] - G4.camPos[2]);
           fx.explosion(at, impactColor(at), 4, true);
+          if (sound.full?.bank?.cues?.air_crash) sound.full.play("air_crash", { position: at, emitterId: "air", time: G4.time });
           sound.blast(4, dist, { eventId: `air-crash:${G4.time}`, position: at, time: G4.time });
           if (air.active) G4.cam.shake = 1.2;
           hud.toast(air.downBy ? `NF-01 被${air.downBy}擊落，墜毀　F8 回到戰車` : "NF-01 墜毀　F8 回到戰車", 5);
@@ -34014,6 +34017,53 @@ void main() {
         const at = P.worldPoint([0, 0.3, 2]), dark = D.dead("engine") || D.broken ? 0.06 : 0.22;
         for (let n = Math.floor(dt * 30) + (Math.random() < dt * 30 % 1 ? 1 : 0); n > 0; n--) fx.spawn({ pos: at.map((v2) => v2 + (Math.random() - 0.5) * 0.5), vel: [S[7] * 0.1, 0.4, S[9] * 0.1], life: 2.5 + Math.random() * 2, size0: 0.5, size1: 3 + Math.random() * 2, color: [dark, dark * 0.97, dark * 0.95], alpha: 0.35 + 0.35 * (1 - eng), drag: 0.6, gravity: -0.2, fadeIn: 0.05 });
       }
+    }
+    // NF-01 sounds from OPEX's aircraft banks (cues air_*, handoff/tools/opex_audio/aircraft.py): the
+    // engine's low and full-power layers cross-faded by its power and pitched with it, the airflow by
+    // airspeed, the guns' firing loops while they fire, a fire burning; one-shots for the gear,
+    // flaps, touchdown, a stopped propeller, a break-up and the crash (hits: aircraftHit).
+    const AIR_LOOPS = ["air:engine_low", "air:engine_high", "air:wind", "air:mg", "air:cannon", "air:fire"];
+    function airAudio() {
+      const full = sound.full, air = G4.air, P = air?.plane;
+      if (!full?.bank?.cues?.air_engine_low) return;
+      if (!P?.root?.local || P.crashed || G4.mode !== "battle") {
+        for (const k of AIR_LOOPS) full.stopLoop(k);
+        if (air) air.audio = null;
+        return;
+      }
+      const S = P.cur, D = P.damage, pos = (P.drawPos || P.position).slice(), vel = [S[7], S[8], S[9]];
+      const at = (gain, rate = 1) => ({ position: pos, velocity: vel, gain, rate, emitterId: "player:air", fadeIn: true, time: G4.time });
+      const one = (id2, gain = 1) => full.play(id2, { position: pos, velocity: vel, gain, emitterId: "player:air", time: G4.time });
+      if (!air.audio) {
+        // decode them all now (the loops kept in memory), or the first gear, hit or burst goes silent
+        for (const id2 of Object.keys(full.bank.cues)) if (id2.startsWith("air_")) full.request(id2, /^air_(engine|wind|mg|cannon)/.test(id2));
+      }
+      const st = air.audio || (air.audio = { gear: P.state.gear, flaps: P.state.flaps, engine: !D.dead("engine"), ground: P.onGround, broken: D.broken });
+      const running = !D.dead("engine") && !D.dead("prop") && !D.broken, power = running ? Math.max(0, Math.min(1.12, S[27])) : 0;
+      if (running) {
+        // rough when damaged: the pitch wavers
+        const k = Math.min(1, power / 0.9), rough = 1 + (1 - D.frac("engine")) * 0.05 * Math.sin(G4.time * 23), rate = (0.8 + 0.3 * Math.min(1, power)) * rough;
+        full.loop("air:engine_low", "air_engine_low", at(0.5 * Math.cos(k * Math.PI / 2) + 0.06, rate));
+        full.loop("air:engine_high", "air_engine_high", at(0.55 * Math.sin(k * Math.PI / 2) + 0.04, rate * 0.96));
+      } else {
+        full.stopLoop("air:engine_low");
+        full.stopLoop("air:engine_high");
+      }
+      const ias = S[14];
+      if (ias > 12) full.loop("air:wind", "air_wind", at(Math.min(0.55, 0.06 + (ias / 110) ** 2 * 0.3), 0.8 + Math.min(0.45, ias / 320)));
+      else full.stopLoop("air:wind");
+      if (G4.time < (air.mgUntil ?? -1)) full.loop("air:mg", "air_mg_fire", at(0.75));
+      else full.stopLoop("air:mg");
+      if (G4.time < (air.cannonUntil ?? -1)) full.loop("air:cannon", "air_cannon_fire", at(0.85));
+      else full.stopLoop("air:cannon");
+      if (D.fire > 0 && !D.broken) full.loop("air:fire", "air_fire", at(0.45));
+      else full.stopLoop("air:fire");
+      if (st.gear !== P.state.gear) one("air_gear", 0.7);
+      if (st.flaps !== P.state.flaps) one("air_flap", 0.8);
+      if (st.engine && D.dead("engine") || st.prop === false && D.dead("prop")) one("air_prop_dead", 0.9);
+      if (!st.broken && D.broken) one("air_broken", 1);
+      if (!st.ground && P.onGround && S[8] < -0.6) one("air_tire", Math.min(1, 0.4 - S[8] * 0.15));
+      Object.assign(st, { gear: P.state.gear, flaps: P.state.flaps, engine: !D.dead("engine"), prop: !D.dead("prop"), ground: P.onGround, broken: D.broken });
     }
     function exitAircraft() {
       const air = G4.air;
@@ -37518,6 +37568,7 @@ void main() {
         aiMissiles(dt);
         aiAntiAir(dt);
         airEffects(dt);
+        airAudio();
         missileStep(dt);
       }
       const terrainId = terrainAt(G4.s.x, G4.s.z);
