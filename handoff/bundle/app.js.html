@@ -15759,15 +15759,15 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
   // Seconds an attacker's replay waits on the target for the next round (longer than most reloads).
   var REPLAY_HOLD_S = 10;
   var REPLAY_HOLD_MAX_FILM_S = 240;
-  // A later round of a held session: its flight to contact in slow motion over this much film, then
-  // its effects in real time.
-  var REPLAY_LOCAL_APPROACH_S = 0.9;
+  // A later round of a held session starts at its contact: its whole trace drawn and its impact shown
+  // the moment it hits, then its effects in real time (user report 2026-10-17: each later round first
+  // replayed its flight over 0.9 s of film, so its hit appeared 0.9 s late, one after another; only the
+  // first round of a session plays its flight).
   function localReplayPhysical(e, filmS) {
-    const launch = Number.isFinite(e.launch_s) ? e.launch_s : e.contact_s, f = Math.max(0, filmS);
-    return f < REPLAY_LOCAL_APPROACH_S ? launch + (e.contact_s - launch) * f / REPLAY_LOCAL_APPROACH_S : e.contact_s + (f - REPLAY_LOCAL_APPROACH_S);
+    return e.contact_s + Math.max(0, filmS);
   }
   function localReplaySpan(e) {
-    return REPLAY_LOCAL_APPROACH_S + Math.max(0, e.physicalEnd - e.contact_s, ...(e.mechanism_anchors || []).map((a) => a.time_s - e.contact_s));
+    return Math.max(0, e.physicalEnd - e.contact_s, ...(e.mechanism_anchors || []).map((a) => a.time_s - e.contact_s));
   }
   var smooth4 = (a, b, x) => {
     const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
