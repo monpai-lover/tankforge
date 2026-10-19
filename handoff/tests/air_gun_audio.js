@@ -10,7 +10,7 @@ const bs = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototyp
 const count = () => { const c = {}; for (const s of started.splice(0)) { const k = s.replace(/_\d$/, '_*'); c[k] = (c[k] || 0) + 1; } return c; };
 const run = (secs) => { for (let k = 0; k < secs * 10; k++) tf.advance(0.1, [], true); };
 tf.finishThumbs(); await frames(2); tf.startBattle(); await frames(3); S.start();
-document.getElementById('air-btn').click();
+document.querySelector('.hangar-card[data-air=nf01]').click();
 for (let i = 0; i < 40 && !G.air?.active; i++) await frames(1);
 tf.pause(true); S.setFullAudible = () => S.full?.suspend(false); S.full?.suspend(false);
 const P = G.air.plane, out = {};

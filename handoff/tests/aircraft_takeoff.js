@@ -3,7 +3,7 @@ const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? 
 const log = (...a) => console.log('@@', ...a.map(v => typeof v === 'string' ? v : JSON.stringify(v)));
 await tf.coreReady().catch(e => null); await x.flightCoreP;
 tf.finishThumbs();
-document.getElementById('air-btn').click();
+document.querySelector('.hangar-card[data-air=nf01]').click();
 for (let i = 0; i < 40 && !G.air?.active; i++) await frames(1);
 tf.pause(true);
 const P = G.air?.plane, out = { active: !!G.air?.active, mode: G.mode };

@@ -3,7 +3,7 @@
 const tf = window.__tf, x = window.__tfx, G = tf.G;
 const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
 await tf.coreReady().catch(e => null); await x.flightCoreP;
-tf.finishThumbs(); document.getElementById('jet-btn').click();
+tf.finishThumbs(); document.querySelector('.hangar-card[data-air=nf02]').click();
 for (let i = 0; i < 60 && !G.air?.active; i++) await frames(1);
 tf.pause(true);
 const P = G.air.plane, out = { type: P.type.id, guns: G.air.guns.map(g => [g.id, g.rpm, g.ammo]) };

@@ -11,7 +11,7 @@ tf.select('su_t72a'); await frames(3); tf.startBattle(); await frames(3); tf.pau
 tf.advance(1, [], false);
 out.A_tank_ms = time(120, () => tf.advance(1 / 60, ['fwd'], false));
 if (window.__PROF) { await pyProfile('start'); time(60, () => tf.advance(1 / 60, ['fwd'], false)); out.A_top = (await pyProfile('stop')).slice(0, 12); }
-tf.pause(false); document.getElementById('jet-btn').click();
+tf.pause(false); document.querySelector('.hangar-card[data-air=nf02]').click();
 for (let i = 0; i < 80 && !(G.air?.active && G.air.plane.type.id === 'nf02'); i++) await frames(1);
 tf.pause(true);
 const P = G.air.plane; P.spawn(-200, 300, -600, 0.25, 200, false); P.aim = [Math.sin(0.25), 0, Math.cos(0.25)];

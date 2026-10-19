@@ -11,12 +11,15 @@ const out = {};
 for (const btn of (window.__TYPES || 'air-btn,jet-btn').split(',')) {
   if (G.air?.active) { x.exitAircraft(); x.exitAircraft(); }
   tf.pause(false);
-  document.getElementById(btn).click();
+  document.querySelector(`.hangar-card[data-air=${btn === 'jet-btn' ? 'nf02' : 'nf01'}]`).click();
   for (let i = 0; i < 80 && !(G.air?.active && G.air.plane.type.id === (btn === 'jet-btn' ? 'nf02' : 'nf01')); i++) await frames(1);
   tf.pause(true);
   const P = G.air.plane, jet = P.type.id === 'nf02', speed = jet ? 220 : 90;
+  if (window.__NOBIAS) Object.defineProperty(P, 'aimBias', { configurable: true, get: () => [0, 0, 0, 1], set: () => {} });
   const nose = () => [P.cur[48], P.cur[49], P.cur[50]], right = () => [P.cur[42], P.cur[43], P.cur[44]], up = () => [P.cur[45], P.cur[46], P.cur[47]];
-  const off = () => { const n = nose(), a = P.aim; return Math.acos(Math.max(-1, Math.min(1, n[0] * a[0] + n[1] * a[1] + n[2] * a[2]))) / D; };
+  // __PIP: the error of where the rounds go (the pipper's line of sight) from the aim, not the nose's
+  const pipDir = () => { const pp = G.air.pipper; if (!pp) return nose(); const c = P.drawPos || P.position, d = [pp.at[0] - c[0], pp.at[1] - c[1], pp.at[2] - c[2]], l = Math.hypot(...d); return d.map(v => v / l); };
+  const off = () => { const n = window.__PIP ? pipDir() : nose(), a = P.aim; return Math.acos(Math.max(-1, Math.min(1, n[0] * a[0] + n[1] * a[1] + n[2] * a[2]))) / D; };
   const level = () => { P.spawn(-6000, 1500, -6000, Math.PI, speed, false); P.state.throttle = jet ? 0.92 : 0.8; P.aim = nose(); for (let k = 0; k < 120; k++) tf.advance(1 / 60, [], false); P.aim = nose(); for (let k = 0; k < 60; k++) tf.advance(1 / 60, [], false); };
   const res = {};
   for (const [name, dx, dy] of [['1r', 1, 0], ['1u', 0, 1], ['3r', 3, 0], ['3d', 2.1, 2.1], ['8r', 8, 0], ['30r', 30, 0]]) {

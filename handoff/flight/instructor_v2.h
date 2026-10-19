@@ -12,7 +12,7 @@
 #define CAPTURE_LO .03f
 #endif
 #ifndef CAPTURE_HI
-#define CAPTURE_HI .12f
+#define CAPTURE_HI .16f
 #endif
 #ifndef PITCH_CAPTURE
 #define PITCH_CAPTURE .8f
@@ -22,6 +22,12 @@
 #endif
 #ifndef YAW_FF
 #define YAW_FF 1.f
+#endif
+#ifndef MAX_BANK_HI
+#define MAX_BANK_HI 1.45f
+#endif
+#ifndef BANK_SLEW
+#define BANK_SLEW 4.f
 #endif
 #ifndef BANK_CAPTURE
 #define BANK_CAPTURE .6f
@@ -93,9 +99,10 @@ static void refined_instructor(float dt,V target,V r,V u,V f,float qbar,
  float bank_signal=(eh-(i->heading_rate-aim_h)*.58f+aim_h/.67f)*i->confidence;
  float want=fatan2(bank_signal*speed*.67f,G);
  want*=1-BANK_CAPTURE*(1-smooth(CAPTURE_LO,CAPTURE_HI,i->off))*(1-smooth(.02f,.08f,absf(aim_h)));
- float max_bank=mix(.82f,1.20f,smooth(58,92,speed));
+ /* deep enough to turn at the G limit (acos(1/6.5) = 81 deg) instead of zoom-climbing with the pull */
+ float max_bank=mix(.82f,MAX_BANK_HI,smooth(58,92,speed));
  want=clamp(want,-max_bank,max_bank);
- desired_bank+=clamp(wrap(want-desired_bank),-1.5f*dt,1.5f*dt);
+ desired_bank+=clamp(wrap(want-desired_bank),-BANK_SLEW*dt,BANK_SLEW*dt);
  float bank_err=wrap(desired_bank-bank);
  /* When nearly vertical, horizontal heading and bank cease being reliable.
   * Use target in the body frame; inside the capture cone just damp roll. */

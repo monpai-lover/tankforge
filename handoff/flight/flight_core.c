@@ -186,7 +186,9 @@ EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pit
  float stallAngle=af_stall+flaps*.025f;stall=smooth(stallAngle*.82f,stallAngle*1.45f,absf(alpha))*smooth(12,35,speed);
  float cl=.20f+af_cla*alpha+.36f*flaps;float post=1.05f*fsin(2*alpha);
  cl=mix(cl,post,smooth(stallAngle,stallAngle+.32f,absf(alpha)));cl=clamp(cl,-1.5f,1.7f);
- float mach=speed/340.f;float cd=af_cd0+af_k*cl*cl+.04f*smooth(.88f,1.08f,mach)+.030f*gear+.035f*flaps+((flags&16)? .095f:0)+.7f*stall*fsin(alpha)*fsin(alpha)+.16f*beta*beta+.045f*(2-dmg_lift_l-dmg_lift_r);
+ float mach=speed/340.f;
+ /* wave drag: rising through the transonic to a peak near Mach 1.1, easing off supersonic (a third less by Mach 2) */
+ float cd=af_cd0+af_k*cl*cl+.028f*smooth(.88f,1.05f,mach)*(1-.35f*smooth(1.2f,2.f,mach))+.030f*gear+.035f*flaps+((flags&16)? .095f:0)+.7f*stall*fsin(alpha)*fsin(alpha)+.16f*beta*beta+.045f*(2-dmg_lift_l-dmg_lift_r);
  V lift_dir=norm(sub(u,mul(vh,dot(u,vh))));
  float wings=(dmg_lift_l+dmg_lift_r)*.5f;
  V lift=mul(lift_dir,qbar*af_s*cl*wings),drag=mul(vh,-qbar*af_s*cd);

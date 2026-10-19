@@ -10,7 +10,7 @@ const count = () => { const c = {}; for (const s of started.splice(0)) if (/air_
 const loops = () => [...S.full.loops.entries()].filter(([k]) => k.startsWith('air:')).map(([k, v]) => [k.slice(4), +v.gain.gain.value.toFixed(2), +v.source.playbackRate.value.toFixed(2)]);
 const run = async (secs) => { for (let k = 0; k < secs * 6; k++) { tf.advance(1 / 6, [], true); await wait(170); } };
 tf.finishThumbs(); await frames(2); tf.startBattle(); await frames(3); S.start();
-document.getElementById('jet-btn').click();
+document.querySelector('.hangar-card[data-air=nf02]').click();
 for (let i = 0; i < 60 && !G.air?.active; i++) await frames(1);
 tf.pause(true); S.setFullAudible = () => S.full?.suspend(false); S.full?.suspend(false);
 const P = G.air.plane; P.spawn(-6000, 1000, -6000, Math.PI, 200, false); P.aim = [0, 0, -1];
