@@ -105,6 +105,28 @@ fn bullet(mg: &serde_json::Value) -> Option<tg_weapon::ProjectileDef> {
     serde_json::from_value(v).ok()
 }
 
+/// Penetration of a ball round as a share of the armour-piercing round's (the data's pen_mm_100m).
+pub const BALL_PEN: f32 = 0.4;
+
+/// The round of a rifle-calibre machine gun's belt that a shot is (user report: small machine guns
+/// went through the M8's 9.5 mm sides): one armour-piercing round in four, by the shot's seed, the
+/// rest ball (a lead-cored bullet with ~40% of the AP round's penetration, ricocheting from 62 deg).
+/// Heavy machine guns (10 mm and up) are left as their AP data. The handoff client picks it the same
+/// way (beltBall in handoff/bundle/app.js.html).
+pub fn belt_round(def: &tg_weapon::ProjectileDef, seed: u64) -> tg_weapon::ProjectileDef {
+    if def.caliber_mm >= 10.0 || seed % 4 == 0 {
+        return def.clone();
+    }
+    let mut b = def.clone();
+    b.id = format!("{}_ball", def.id);
+    b.name = format!("{} ball", def.name);
+    for p in &mut b.penetration_curve {
+        p.pen_mm *= BALL_PEN;
+    }
+    b.ricochet_angle_deg = 62.0;
+    b
+}
+
 /// Loads every vehicle's armour, modules and crew, every shell and machine gun for the combat model.
 pub fn load_combat(data: &Path) -> CombatData {
     let read = |p: PathBuf| std::fs::read_to_string(p).ok();
@@ -457,4 +479,21 @@ fn websocket(mut reader: BufReader<TcpStream>, stream: TcpStream, hub: Shared) -
     let _ = writer_thread.join();
     let _ = stream.shutdown(Shutdown::Both);
     result
+}
+
+#[cfg(test)]
+mod belt_tests {
+    use super::*;
+
+    #[test]
+    fn rifle_belts_are_one_ap_round_in_four_and_heavy_guns_stay_ap() {
+        let rifle = bullet(&serde_json::json!({"id": "mg34", "name": "MG 34", "caliber_mm": 7.92, "pen_mm_100m": 10.0})).unwrap();
+        let heavy = bullet(&serde_json::json!({"id": "m2hb", "name": "M2HB", "caliber_mm": 12.7, "pen_mm_100m": 22.0})).unwrap();
+        let rounds: Vec<_> = (0..8u64).map(|s| belt_round(&rifle, s)).collect();
+        assert_eq!(rounds.iter().filter(|r| r.id == "bullet_mg34").count(), 2);
+        let ball = rounds.iter().find(|r| r.id == "bullet_mg34_ball").unwrap();
+        // ball: 4 mm at 100 m, under the M8's 9.5 mm sides (the AP round's 10 mm is not)
+        assert!((ball.pen_at(100.0) - 4.0).abs() < 1e-4 && ball.ricochet_angle_deg == 62.0);
+        assert!((0..8u64).all(|s| belt_round(&heavy, s).id == "bullet_m2hb"));
+    }
 }

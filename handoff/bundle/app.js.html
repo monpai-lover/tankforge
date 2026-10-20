@@ -3126,26 +3126,154 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
   // fittings (they carry no authored thickness; the wall they belong to is charged once by its
   // armour layer), with content hashes and catalog/manifest hashes recomputed the way the
   // generator does. Geometry, payloads and authored armour stay untouched.
+  // Unreviewed triangles lying on an authored armour plate (armor.json: within 12 cm of its plane,
+  // inside its outline or 25 cm past it (the authored plates are from published dimensions and stop
+  // short of the modelled walls), facing along its normal; at least 60% of the declaration's area) are that
+  // plate's armour instead (user report: machine guns went through the M8's turret, rear and gun
+  // shield, whose walls had only unreviewed triangles and so became fittings): bound to the plate's
+  // layer (one made the generator's way where the catalog has none), outer or inner side paired in
+  // the plate's material region so a wall is charged once. Geometry stays as shipped; the thickness
+  // is the authored one, not a measurement.
+  var PLATE_BASIS = "tankforge_plate_coincident_surface";
+  var PLATE_REVISION = "tankforge-plate-bind-v1";
+  function meshTriangles(b64) {
+    const bytes = decode(b64), dv = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+    if (bytes.length < 32 || String.fromCharCode(...bytes.subarray(0, 7)) !== "THMESH1") return null;
+    const nv = dv.getUint32(12, true), nt = dv.getUint32(16, true), pb = dv.getUint32(20, true), ib = dv.getUint32(24, true);
+    if (pb !== nv * 12 || ib !== nt * 12 || 32 + pb + ib > bytes.length) return null;
+    return { pos: new Float32Array(bytes.buffer.slice(bytes.byteOffset + 32, bytes.byteOffset + 32 + pb)), idx: new Uint32Array(bytes.buffer.slice(bytes.byteOffset + 32 + pb, bytes.byteOffset + 32 + pb + ib)), nt };
+  }
+  /** Per triangle of a declaration: the plate and side it lies on ("id|outer"), or null; with areas. */
+  function plateBinder(m, c, payloads) {
+    const plates = (c.acceptedAnatomy?.armor || []).map((p) => {
+      const v3 = (q) => [q.x, q.y, q.z], n = v3(p.normal), u = v3(p.axis_u), w = [n[1] * u[2] - n[2] * u[1], n[2] * u[0] - n[0] * u[2], n[0] * u[1] - n[1] * u[0]];
+      return { p, c: v3(p.center), n, u, w };
+    });
+    if (!plates.length || !payloads) return null;
+    const f32 = new Float32Array(1), u32 = new Uint32Array(f32.buffer), bits = (b) => b.map((x) => (u32[0] = x, f32[0]));
+    const world = new Map(), tris = new Map();
+    for (const inst of m.meshInstances || []) if (!world.has(inst.meshKey) && inst.worldBits?.length === 16) world.set(inst.meshKey, bits(inst.worldBits));
+    const meshOf = (key4) => {
+      if (!tris.has(key4)) {
+        const mesh = m.meshes.find((q) => q.key === key4), b64 = mesh && payloads[mesh.payloadHash];
+        tris.set(key4, b64 ? meshTriangles(b64) : null);
+      }
+      return tris.get(key4);
+    };
+    return (d) => {
+      const T = meshOf(d.meshKey), M = world.get(d.meshKey);
+      if (!T || !M || d.first + d.count > T.nt) return null;
+      const at = (i) => {
+        const x = T.pos[i * 3], y = T.pos[i * 3 + 1], z = T.pos[i * 3 + 2];
+        return [M[0] * x + M[4] * y + M[8] * z + M[12], M[1] * x + M[5] * y + M[9] * z + M[13], M[2] * x + M[6] * y + M[10] * z + M[14]];
+      };
+      const keys = [], plateOf = /* @__PURE__ */ new Map(), area = /* @__PURE__ */ new Map();
+      let total = 0;
+      for (let t = d.first; t < d.first + d.count; t++) {
+        const A = at(T.idx[t * 3]), B = at(T.idx[t * 3 + 1]), E = at(T.idx[t * 3 + 2]);
+        const ab = [B[0] - A[0], B[1] - A[1], B[2] - A[2]], ae = [E[0] - A[0], E[1] - A[1], E[2] - A[2]];
+        const cr = [ab[1] * ae[2] - ab[2] * ae[1], ab[2] * ae[0] - ab[0] * ae[2], ab[0] * ae[1] - ab[1] * ae[0]], ar = Math.hypot(...cr) / 2;
+        let best = null;
+        if (ar > 0) {
+          total += ar;
+          const tn = cr.map((q) => q / (ar * 2)), g = [(A[0] + B[0] + E[0]) / 3, (A[1] + B[1] + E[1]) / 3, (A[2] + B[2] + E[2]) / 3];
+          for (const P of plates) {
+            const r = [g[0] - P.c[0], g[1] - P.c[1], g[2] - P.c[2]], dist = Math.abs(r[0] * P.n[0] + r[1] * P.n[1] + r[2] * P.n[2]), facing = tn[0] * P.n[0] + tn[1] * P.n[1] + tn[2] * P.n[2];
+            if (dist > 0.12 || Math.abs(facing) < 0.8) continue;
+            if (Math.abs(r[0] * P.u[0] + r[1] * P.u[1] + r[2] * P.u[2]) > P.p.half_u + 0.25 || Math.abs(r[0] * P.w[0] + r[1] * P.w[1] + r[2] * P.w[2]) > P.p.half_v + 0.25) continue;
+            if (!best || dist < best.dist) best = { P, dist, side: facing > 0 ? "outer" : "inner" };
+          }
+        }
+        const k = best ? best.P.p.id + "|" + best.side : null;
+        if (k) {
+          plateOf.set(k, { plate: best.P.p, side: best.side });
+          area.set(k, (area.get(k) || 0) + ar);
+        }
+        keys.push(k);
+      }
+      return { keys, plateOf, area, total };
+    };
+  }
   var UNAUDITED_BASIS = "tankforge_unaudited_surface_no_armor";
   var UNAUDITED_REVISION = "tankforge-unaudited-v1";
   var normalizedPackets = /* @__PURE__ */ new Map();
   var canonicalJson = (v2) => Array.isArray(v2) ? "[" + v2.map(canonicalJson).join(",") + "]" : v2 && typeof v2 === "object" ? "{" + Object.keys(v2).sort().map((k) => JSON.stringify(k) + ":" + canonicalJson(v2[k])).join(",") + "}" : JSON.stringify(v2);
-  function declareUnauditedSurfaces(manifestText, catalogText) {
+  function declareUnauditedSurfaces(manifestText, catalogText, payloads = null) {
     const c = JSON.parse(catalogText), m = JSON.parse(manifestText), meshes = new Map(m.meshes.map((q) => [q.key, q])), surfaces = new Map(m.surfaces.map((q) => [q.key, q]));
-    let changed = 0;
-    for (const d of c.declarations || []) {
-      if (d.resistancePolicy !== "unsupported") continue;
-      const range = meshes.get(d.meshKey)?.ranges.find((q) => q.first === d.first && q.count === d.count), surface = range && surfaces.get(range.surfaceKey);
-      if (!surface) continue;
-      Object.assign(d, { role: "decoration", resistancePolicy: "no_authored_armor", fuseEligible: false, armorBinding: { armorRefs: [], boundarySide: null, layerKey: null, materialRegionKey: null, pairing: "none", status: "none", thicknessSource: "none" }, topology: { kind: "decorative_surface", solidKey: null, status: "declared" } });
-      d.declaration = { basis: UNAUDITED_BASIS, revision: UNAUDITED_REVISION };
+    let changed = 0, bound = 0;
+    const onPlate = plateBinder(m, c, payloads), layers = new Map((c.layers || []).map((l) => [l.armorRef, l]));
+    const rekey = (d, basis, revision) => {
+      d.declaration = { basis, revision };
       const body = { ...d };
       delete body.key;
       const hash = sha256Text(canonicalJson(body));
-      d.declaration = { basis: UNAUDITED_BASIS, contentHash: hash, revision: UNAUDITED_REVISION };
+      d.declaration = { basis, contentHash: hash, revision };
       d.key = `decl:${hash}`;
-      Object.assign(surface, { role: "decoration", topology: "decorative_surface", contactEligible: true, fuseEligible: false, responseRef: d.key });
+    };
+    // binds one declaration (with its surface and range) to a plate side, or declares it a fitting
+    const apply = (d, surface, range, hit) => {
+      if (hit) {
+        const p = hit.plate, src = (range.sourceKey || "visual").replace(/:part:\d+$/, "");
+        let layer = layers.get(p.id);
+        if (!layer) {
+          layer = { armorRef: p.id, authoredEngineeringHash: sha256Text(canonicalJson(p)), authoredMaterial: p.material, authoredThicknessMm: p.thickness_mm, chargePolicy: "once_per_material_region", declarationKeys: [], historicalMeasurement: false, key: `layer:${src}:${p.id}`, materialRegionKey: `region:${src}:${p.id}`, thicknessSource: "authored_engineering" };
+          c.layers.push(layer);
+          layers.set(p.id, layer);
+          // the manifest's anatomy binding for the layer (as the generator lists its own layers)
+          if (!m.bindings.some((q) => q.key === layer.key)) m.bindings.push({ armorId: p.id, authoredEngineeringHash: layer.authoredEngineeringHash, key: layer.key, kind: "armor", status: "tankforge_plate_coincident_association" });
+        }
+        Object.assign(d, { role: "armor", resistancePolicy: "authored_thickness", fuseEligible: true, armorBinding: { armorRefs: [p.id], boundarySide: hit.side, layerKey: layer.key, materialRegionKey: layer.materialRegionKey, pairing: "same_material_region", status: "declared", thicknessSource: "authored_engineering" } });
+        rekey(d, PLATE_BASIS, PLATE_REVISION);
+        layer.declarationKeys.push(d.key);
+        Object.assign(surface, { role: "armor", topology: "boundary_shell", contactEligible: true, fuseEligible: true, armorLayerKey: layer.key, moduleKey: null, crewKey: null, responseRef: d.key });
+        range.bindingKey = layer.key;
+        bound++;
+      } else {
+        Object.assign(d, { role: "decoration", resistancePolicy: "no_authored_armor", fuseEligible: false, armorBinding: { armorRefs: [], boundarySide: null, layerKey: null, materialRegionKey: null, pairing: "none", status: "none", thicknessSource: "none" } });
+        rekey(d, UNAUDITED_BASIS, UNAUDITED_REVISION);
+        Object.assign(surface, { role: "decoration", topology: "decorative_surface", contactEligible: true, fuseEligible: false, responseRef: d.key });
+      }
       changed++;
+    };
+    const declarations = [], dropped = /* @__PURE__ */ new Set();
+    for (const d of c.declarations || []) {
+      declarations.push(d);
+      if (d.resistancePolicy !== "unsupported") continue;
+      const mesh = meshes.get(d.meshKey), ri = mesh ? mesh.ranges.findIndex((q) => q.first === d.first && q.count === d.count) : -1, range = mesh?.ranges[ri], surface = range && surfaces.get(range.surfaceKey);
+      if (!surface) continue;
+      const cl = onPlate?.(d), top = cl && [...cl.area.entries()].sort((x, y) => y[1] - x[1])[0];
+      const onAny = cl ? [...cl.area.values()].reduce((x, y) => x + y, 0) : 0;
+      if (!cl || !top || top[1] >= 0.6 * cl.total || onAny < 0.3 * cl.total || d.count < 2) {
+        apply(d, surface, range, top && top[1] >= 0.6 * cl.total ? cl.plateOf.get(top[0]) : null);
+        continue;
+      }
+      // a feature running over several walls (a turret's loft band): cut into contiguous runs of
+      // triangles on the same plate side, each with its own range, surface and declaration
+      declarations.pop();
+      const runs = [];
+      cl.keys.forEach((k, i) => {
+        const last = runs.at(-1);
+        if (last && last.k === k) last.count++;
+        else runs.push({ k, first: d.first + i, count: 1 });
+      });
+      const parts = runs.map((run, i) => {
+        const sd = structuredClone(d), ss = { ...surface, key: `${surface.key}:tf${i}` };
+        sd.first = run.first;
+        sd.count = run.count;
+        if (sd.material && sd.material.renderMaterialSampleTriangle != null) sd.material.renderMaterialSampleTriangle = run.first;
+        const sr = { ...range, first: run.first, count: run.count, sourceTriangleFirst: (range.sourceTriangleFirst ?? range.first) + (run.first - range.first), surfaceKey: ss.key };
+        m.surfaces.push(ss);
+        apply(sd, ss, sr, run.k ? cl.plateOf.get(run.k) : null);
+        declarations.push(sd);
+        return sr;
+      });
+      mesh.ranges.splice(ri, 1, ...parts);
+      dropped.add(surface.key);
+    }
+    c.declarations = declarations;
+    if (dropped.size) {
+      const used = new Set(m.meshes.flatMap((q) => q.ranges.map((r) => r.surfaceKey)));
+      m.surfaces = m.surfaces.filter((q) => !dropped.has(q.key) || used.has(q.key));
     }
     if (!changed) return null;
     const innerManifest = { ...m };
@@ -3157,7 +3285,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     delete innerCatalog.catalogHash;
     c.catalogHash = sha256Text(canonicalJson(innerCatalog));
     const catalog = JSON.stringify(c);
-    return { manifest, manifestHash, catalog, catalogHash: sha256Text(catalog), changed };
+    return { manifest, manifestHash, catalog, catalogHash: sha256Text(catalog), changed, bound };
   }
   function normalizeSurfacePacket(packet) {
     if (!packet?.manifest || !packet.catalog) return packet;
@@ -3165,12 +3293,12 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     if (normalizedPackets.has(cacheKey)) return normalizedPackets.get(cacheKey);
     let out = packet;
     try {
-      const stock = declareUnauditedSurfaces(packet.manifest, packet.catalog);
+      const stock = declareUnauditedSurfaces(packet.manifest, packet.catalog, packet.payloads);
       if (stock) {
         // Barrel-fracture collision variants are checked against the core's compiled trusted registry
         // and name the shipped stock catalog as their parent, so they cannot accompany the corrected
         // catalog; the broken barrel is shown by the renderer instead.
-        out = { ...packet, manifest: stock.manifest, manifestHash: stock.manifestHash, catalog: stock.catalog, catalogHash: stock.catalogHash, variants: [], unauditedSurfaces: stock.changed, droppedVariants: (packet.variants || []).length, sourceManifestHash: packet.manifestHash, sourceCatalogHash: packet.catalogHash };
+        out = { ...packet, manifest: stock.manifest, manifestHash: stock.manifestHash, catalog: stock.catalog, catalogHash: stock.catalogHash, variants: [], unauditedSurfaces: stock.changed, plateSurfaces: stock.bound, droppedVariants: (packet.variants || []).length, sourceManifestHash: packet.manifestHash, sourceCatalogHash: packet.catalogHash };
       }
     } catch (error) {
       console.warn("surface catalog normalisation failed; using the catalog as shipped:", error.message);
@@ -3582,11 +3710,24 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       ammo_capacity: ammoCapacity(bundle.weapons)
     };
   }
-  function bulletShell(mg) {
-    const pen = mg.pen_mm_100m || 8;
+  // Rifle-calibre machine-gun belts (user report: small machine guns went through the M8's 9.5 mm
+  // sides): one armour-piercing round in four, by the shot's seed, the rest ball (a lead-cored bullet
+  // with ~40% of the AP round's penetration, ricocheting from 62 deg); heavy machine guns keep their AP
+  // data. As the server picks it (belt_round in crates/server/src/server.rs).
+  var BALL_PEN = 0.4;
+  function beltBall(mg, seed) {
+    return (mg?.caliber_mm || 0) < 10 && (seed >>> 0) % 4 !== 0;
+  }
+  /** The shell of a "bullet_<mg>" or "bullet_<mg>_ball" projectile id, or null. */
+  function bulletShellOf(machineGuns, id2) {
+    const m = /^bullet_(.+?)(_ball)?$/.exec(id2 || ""), mg = m && machineGuns?.[m[1]];
+    return mg ? bulletShell(mg, !!m[2]) : null;
+  }
+  function bulletShell(mg, ball = false) {
+    const pen = (mg.pen_mm_100m || 8) * (ball ? BALL_PEN : 1);
     return {
-      id: "bullet_" + mg.id,
-      name: mg.name,
+      id: "bullet_" + mg.id + (ball ? "_ball" : ""),
+      name: ball ? `${mg.name} ball` : mg.name,
       kind: "ap",
       caliber_mm: mg.caliber_mm,
       mass_kg: (mg.bullet_mass_g || 10) / 1e3,
@@ -3602,7 +3743,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
         { distance_m: 500, pen_mm: pen * 0.55 },
         { distance_m: 1e3, pen_mm: pen * 0.3 }
       ],
-      ricochet_angle_deg: 70,
+      ricochet_angle_deg: ball ? 62 : 70,
       normalization_deg: 0,
       fuse_delay_s: 0,
       fuse_sensitivity_mm: 0
@@ -15051,8 +15192,8 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
       if (coreEpoch !== null && Number.isFinite(f3.start_s) && speed > 0) traces.push({ ...row, start_s: coreEpoch + f3.start_s, end_s: coreEpoch + f3.start_s + distance3 / speed });
       else unknown.push({ ...row, start_s: null, end_s: null });
     }
-    const mgId = e.projectile_id?.replace(/^bullet_/, ""), mg = catalog?.machineGuns?.[mgId];
-    const shell = catalog?.projectiles?.[e.projectile_id] || (mg ? { ...bulletShell(mg), kind: "mg" } : null) || e.presentation_shell || null;
+    const mgShell = bulletShellOf(catalog?.machineGuns, e.projectile_id);
+    const shell = catalog?.projectiles?.[e.projectile_id] || (mgShell ? { ...mgShell, kind: "mg" } : null) || e.presentation_shell || null;
     const missile = Object.values(catalog?.missiles || {}).find((d) => d.warhead === e.projectile_id && flight.length);
     const profile = shell ? projectileProfile(shell, missile || null, e.projectile_source || null) : null;
     const family = (shell?.kind || rep.shell_kind || "unknown").toLowerCase().replace("heat-fs", "heat_fs"), kinetic = ["ap", "apcbc", "aphe", "apcr", "apds", "apfsds", "mg"].includes(family), limitations = [];
@@ -15395,6 +15536,17 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     if (recorded && (!finite32(projectile.nose) || !finite32(projectile.tangent) || V2.len(projectile.tangent) <= 1e-10)) throw new RangeError("recorded projectile nose/tangent is invalid");
     return { hull: hull2, event, phase, entry, direction: direction2, projectile, recorded };
   }
+  /**
+   * Near plane of an X-ray replay camera (user report: at long range the replay flickered): close
+   * enough for the hull (a fifth of the distance to it) and for the round the camera rides behind
+   * (two fifths of the distance to its nose), but no closer: with the near plane held at 4 cm while
+   * the target was 1,500 m away, 24-bit depth resolved only ~3 m there and its surfaces z-fought.
+   * `fallback` when there is no recorded round (a close-up of the hull).
+   */
+  function replayNear(hullNear, noseDistance, fallback) {
+    const nose = Number.isFinite(noseDistance) ? noseDistance * 0.4 : fallback;
+    return Math.max(5e-3, Math.min(hullNear, nose));
+  }
   function finish(cam, rect, hull2, projectile, recorded, fitHull = false, fitPortrait = true) {
     if (fitPortrait) fitCamera(cam, rect);
     if (!finite32(cam.eye) || !finite32(cam.target) || !Number.isFinite(V2.len(V2.sub(cam.target, cam.eye))) || V2.len(V2.sub(cam.target, cam.eye)) <= 1e-10) throw new RangeError("replay camera pose cannot be represented");
@@ -15413,7 +15565,7 @@ precision highp float;in vec4 col;out vec4 c;void main(){vec2 q=gl_PointCoord-.5
     const centerDistance = V2.len(V2.sub(cam.eye, hull2.center));
     const noseDistance = recorded ? V2.len(V2.sub(cam.eye, projectile.nose)) : 0;
     const margin = Math.max(hull2.radius * 0.1, 0.01);
-    const near = Math.max(1e-3, (centerDistance - hull2.radius) * 0.1);
+    const near = Math.max(1e-3, Math.min((centerDistance - hull2.radius) * 0.1, recorded ? noseDistance * 0.4 : Infinity));
     const far = Math.max(near + margin, centerDistance + hull2.radius + margin, noseDistance + margin);
     const basis = cameraBasis(cam.eye, cam.target);
     const proj = perspective(cam.fov * Math.PI / 180, aspect, near, far);
@@ -17001,7 +17153,7 @@ precision highp float;void main(){}`);
         const previous = this.camera({ ...frame, ...frame.cameraPrevious, cameraPrevious: null, cameraBlend: 1 }, rect, purpose), next2 = { eye: fromSource(camera2.eye), target: fromSource(camera2.target) }, k = frame.cameraBlend;
         camera2 = { eye: toSource(previous.eye.map((v2, i) => v2 + (next2.eye[i] - v2) * k)), target: toSource(previous.target.map((v2, i) => v2 + (next2.target[i] - v2) * k)), fov: previous.fov + (camera2.fov - previous.fov) * k };
       }
-      const eye = fromSource(camera2.eye), target = fromSource(camera2.target), forward = norm(sub(target, eye)), up2 = Math.abs(dot8(forward, axes[1])) > 1 - 1e-8 ? axes[2] : axes[1], basis = lookAtLH(eye, forward, up2), radius = Math.hypot(...max.map((v2, k) => (v2 - min[k]) * 0.5)), distance3 = Math.hypot(...sub(eye, center)), near = Math.max(5e-3, Math.min(0.04 * scale4, Math.max(5e-3, distance3 - radius) * 0.2)), far = Math.max(near + 1, distance3 + radius * 4 + 20), proj = perspective(camera2.fov * Math.PI / 180, rect[2] / rect[3], near, far), viewProj = mul(proj, basis.view);
+      const eye = fromSource(camera2.eye), target = fromSource(camera2.target), forward = norm(sub(target, eye)), up2 = Math.abs(dot8(forward, axes[1])) > 1 - 1e-8 ? axes[2] : axes[1], basis = lookAtLH(eye, forward, up2), radius = Math.hypot(...max.map((v2, k) => (v2 - min[k]) * 0.5)), distance3 = Math.hypot(...sub(eye, center)), near = replayNear(Math.max(5e-3, distance3 - radius) * 0.2, recorded ? Math.hypot(...sub(eye, projectile.nose)) : null, 0.04 * scale4), far = Math.max(near + 1, distance3 + radius * 4 + 20), proj = perspective(camera2.fov * Math.PI / 180, rect[2] / rect[3], near, far), viewProj = mul(proj, basis.view);
       if (!viewMatrixValid(viewProj) || !finitePoint(eye) || !finitePoint(target) || !(proj[0] > 0 && proj[5] > 0)) throw new RangeError("supplied replay camera cannot be represented");
       const tanY = Math.tan(camera2.fov * Math.PI / 360);
       return { ...camera2, ...basis, eye, pos: eye, target, viewProj, proj, near, far, tanY, tanX: tanY * rect[2] / rect[3], hullScale: scale4, flightTiming: recorded ? "recorded" : "unknown", projectileNose: recorded ? projectile.nose.slice() : null, sourceCamera: "supplied-html-v3" };
@@ -20043,6 +20195,104 @@ precision highp float;void main(){}`);
 
   // client/web/src/i18n/en.json
   var en_default = {
+    // aircraft, hangar and flight HUD (whole phrases: the word-by-word fallback scrambled them)
+    "\u5168\u70ae\u958b\u706b": "all guns fire",
+    "\u64ca\u50b7\u4e58\u54e1 1 \u540d": "1 crew hit",
+    "\u64ca\u50b7\u4e58\u54e1 2 \u540d": "2 crew hit",
+    "\u64ca\u50b7\u4e58\u54e1 3 \u540d": "3 crew hit",
+    "\u64ca\u50b7\u4e58\u54e1 4 \u540d": "4 crew hit",
+    "\u64ca\u50b7\u4e58\u54e1 5 \u540d": "5 crew hit",
+    "\u64ca\u50b7\u4e58\u54e1 6 \u540d": "6 crew hit",
+    "\u64ca\u50b7\u4e58\u54e1 7 \u540d": "7 crew hit",
+    "\u51fa\u64ca\u3000100\u20132000 m \u9776\u8eca\uff1a\u8fd1\u8655\u8584\u88dd\u7532\uff0c\u9060\u8655\u5148\u9032\u88dd\u7532\uff0cTab \u56de\u8eca\u5eab": "sortie  targets at 100–2000 m: thin armour near, modern armour far  Tab back to garage",
+    "F \u9577\u6309\u4fee\u5fa9\uff0cJ \u9577\u6309\u68c4\u8eca\uff0cR \u91cd\u751f\uff0cEnter \u804a\u5929": "hold F to repair, hold J to bail out, R respawn, Enter chat",
+    "NF-01 \u8a66\u98db\u6a5f": "NF-01 test aircraft",
+    "NF-02 \u5674\u5c04\u6230\u9b25\u6a5f": "NF-02 jet fighter",
+    "P-51D \u91ce\u99ac": "P-51D Mustang",
+    "\u5674\u706b Mk IX": "Spitfire Mk IX",
+    "F-86F \u8ecd\u5200": "F-86F Sabre",
+    "F-104G \u661f\u5f0f": "F-104G Starfighter",
+    "A6M2 \u96f6\u5f0f\u8266\u6230 21 \u578b": "A6M2 Zero Model 21",
+    "F4U-1D \u6d77\u76dc": "F4U-1D Corsair",
+    "Me 262 A-1a \u71d5\u5f0f": "Me 262 A-1a Schwalbe",
+    "Hunter F.6 \u7375\u4eba": "Hunter F.6",
+    "Mirage IIIE \u5e7b\u8c61": "Mirage IIIE",
+    "\u65e5\u672c": "Japan",
+    "\u6cd5\u570b": "France",
+    "\u897f\u5fb7": "West Germany",
+    "\u6d3b\u585e\u6230\u9b25\u6a5f": "piston fighter",
+    "\u5674\u5c04\u6230\u9b25\u6a5f": "jet fighter",
+    "\u8d85\u97f3\u901f\u6230\u9b25\u6a5f": "supersonic fighter",
+    "\u6d3b\u585e\u8a66\u98db\u6a5f": "piston test aircraft",
+    "\u8a66\u98db\u6a5f": "test aircraft",
+    "\u8a66\u9a57\u6a5f": "experimental",
+    "\u539f\u5275\u8a66\u9a57\u6a5f": "original experimental type",
+    "\u7b2c\u4e8c\u6b21\u4e16\u754c\u5927\u6230": "World War II",
+    "\u65e9\u671f\u5674\u5c04\u6a5f": "Early jets",
+    "\u8d85\u97f3\u901f": "Supersonic",
+    "\u4e5d\u4e03\u5f0f": "Type 97",
+    "\u4e5d\u4e5d\u5f0f\u4e00\u865f": "Type 99-1",
+    "\u706b\u795e\u7832": "Vulcan",
+    "\u6a5f\u7832": "cannon",
+    "\u87ba\u65cb\u69f3": "propeller",
+    "\u5f48\u85e5\u7bb1": "ammunition box",
+    "\u5f48\u85e5\u9f13": "ammunition drum",
+    "\u98db\u884c\u54e1": "pilot",
+    "\u5de6\u7ffc": "left wing",
+    "\u53f3\u7ffc": "right wing",
+    "\u5de6\u526f\u7ffc": "left aileron",
+    "\u53f3\u526f\u7ffc": "right aileron",
+    "\u5c3e\u6bb5": "tail section",
+    "\u5347\u964d\u8235": "elevator",
+    "\u65b9\u5411\u8235": "rudder",
+    "\u5168\u52d5\u5c3e\u7ffc": "all-moving tailplane",
+    "\u6a5f\u9ad4": "airframe",
+    "\u640d\u6bc0": "destroyed",
+    "\u8d77\u706b\uff01": "on fire!",
+    "\u98db\u6a5f\u53ea\u80fd\u5728\u51fa\u64ca\u5f8c\u4f7f\u7528\uff08\u9776\u5834\u6216\u5730\u5716\uff09": "Aircraft can be flown after you sortie (range or map)",
+    "\u7dda\u4e0a\u5c0d\u6230\u66ab\u4e0d\u652f\u63f4\u98db\u6a5f": "Aircraft are not available in online battles yet",
+    "\u98db\u884c\u6838\u5fc3\u7121\u6cd5\u8f09\u5165": "The flight core failed to load",
+    "\u98db\u884c\u4e2d\uff1a2 \u79d2\u5167\u518d\u6309\u4e00\u6b21 F8 \u68c4\u6a5f\u56de\u5230\u6230\u8eca": "In flight: press F8 again within 2 s to bail out back to the tank",
+    "\u56de\u5230\u6230\u8eca": "back to the tank",
+    "\u5df2\u589c\u6bc0": "Crashed",
+    "\u7a81\u7834\u97f3\u969c\uff01": "Through the sound barrier!",
+    "\u5931\u901f\uff01": "Stall!",
+    "\u99ac\u8d6b": "Mach",
+    "\u7a7a\u901f": "IAS",
+    "\u9ad8\u5ea6": "altitude",
+    "\u722c\u5347": "climb",
+    "\u822a\u5411": "heading",
+    "\u6cb9\u9580": "throttle",
+    "\u5f8c\u71c3\u5668": "afterburner",
+    "\u5f8c\u71c3": "afterburner",
+    "\u6559\u5b98": "instructor",
+    "\u624b\u52d5": "manual",
+    "\u5e73\u98db\u4fdd\u6301": "level hold",
+    "\u8d77\u843d\u67b6\u653e\u4e0b": "gear down",
+    "\u8d77\u843d\u67b6\u6536\u8d77": "gear up",
+    "\u8d77\u843d\u67b6": "gear",
+    "\u895f\u7ffc": "flaps",
+    "\u6e1b\u901f\u677f": "airbrake",
+    "\u5730\u9762\u6ed1\u8dd1": "taxiing",
+    "\u8fce\u89d2": "AoA",
+    "\u98db\u6a5f\u6a5f\u5eab": "Aircraft hangar",
+    "\u9ede\u9078\u6a5f\u578b\u51fa\u64ca\u3000Esc \u95dc\u9589": "Pick a type to fly  Esc closes",
+    "\u6a5f\u5eab": "Hangar",
+    "\u8eca\u5eab\u8207\u6a5f\u5eab": "Garage and hangar",
+    "\u9078\u64c7\u98db\u6a5f": "Choose an aircraft",
+    "\u63db\u6a5f": "change aircraft",
+    "\u8d77\u98db": "Take off",
+    "\u7ffc\u5c55": "span",
+    "\u7ffc\u9762\u7a4d": "wing area",
+    "\u7ffc\u8ca0\u8377": "wing loading",
+    "\u63a8\u529b": "thrust",
+    "\u63a8\u91cd\u6bd4": "thrust/weight",
+    "\u904e\u8f09\u4e0a\u9650": "g limit",
+    "\u8d77\u98db\u901f\u5ea6": "take-off speed",
+    "AEROLAB \u6d3b\u585e\u5f15\u64ce": "AEROLAB piston engine",
+    "J79 \u7d1a\u6e26\u8f2a\u5674\u5c04 48 kN\uff08\u5f8c\u71c3 +50%\uff09": "J79-class turbojet 48 kN (afterburner +50%)",
+    "\u6ed1\u9f20\u7784\u6e96\u98db\u884c\u3000Shift\uff0fCtrl \u6cb9\u9580\u3000\u5de6\u9375\u5168\u90e8\u958b\u706b\u3000\u53f3\u9375\u6a5f\u7832\u3000G \u8d77\u843d\u67b6\u3000F \u895f\u7ffc\u3000V \u5ea7\u8259\u8996\u89d2\u3000F8 \u96e2\u6a5f": "Mouse-aim flying  Shift / Ctrl throttle  LMB all guns  RMB cannon  G gear  F flaps  V cockpit view  F8 leave the aircraft",
+    "\u6ed1\u9f20\uff1a\u7784\u6e96\u65b9\u5411\u3000W \u4fef\u885d\uff0fS \u62c9\u8d77\u3000A/D \u6efe\u8f49\u3000Q/E \u65b9\u5411\u8235\u3000Shift/Ctrl \u6216\u6efe\u8f2a\uff1a\u6cb9\u9580\u3000C \u81ea\u7531\u89c0\u5bdf\u3000I \u6559\u5b98\u3000L \u5e73\u98db\u3000G \u8d77\u843d\u67b6\u3000F \u895f\u7ffc\u3000B \u715e\u8eca\u3000V \u8996\u89d2\u3000O \u5167\u69cb\u900f\u8996\u3000\u5de6\u9375\u5168\u90e8\u958b\u706b\uff0f\u53f3\u9375\u6a5f\u7832\u3000F8 \u56de\u5230\u6230\u8eca": "Mouse: aim  W dive / S pull up  A/D roll  Q/E rudder  Shift/Ctrl or wheel: throttle  C free look  I instructor  L level  G gear  F flaps  B brake  V view  O X-ray  LMB all guns / RMB cannon  F8 back to the tank",
     "\u64CB\u4F4D": "Gear",
     "\u8F49\u901F": "RPM",
     "\u901F\u5EA6": "Speed",
@@ -23323,6 +23573,7 @@ precision highp float;void main(){}`);
       this.particles = [];
       this.decals = [];
       this.beams = [];
+      this.glows = [];
     }
     spawn(p) {
       if (this.particles.length > 1100) this.particles.shift();
@@ -23351,6 +23602,10 @@ precision highp float;void main(){}`);
     }
     beam(a, b, halfWidth, color, alpha) {
       this.beams.push({ a, b, halfWidth, color, alpha });
+    }
+    /** A soft additive sprite for this frame only (as beam, but round and seen from any side). */
+    glow(pos, size, color, alpha, seed = 0.37) {
+      this.glows.push({ pos, size, color, alpha, seed });
     }
     update(dt) {
       const ps = this.particles;
@@ -23470,8 +23725,31 @@ precision highp float;void main(){}`);
         if (p.additive) this.softAddCount = this._softQuad(this.softAdd, this.softAddCount, cs, p.color, a, extra);
         else this.softAlphaCount = this._softQuad(this.softAlpha, this.softAlphaCount, cs, p.color, a, extra);
       }
+      for (const g of this.glows) {
+        const [x, y, z] = g.pos, size = g.size, near = Math.hypot(x - cam.pos[0], y - cam.pos[1], z - cam.pos[2]);
+        const R = [r[0] * size, r[1] * size, r[2] * size], U = [up2[0] * size, up2[1] * size, up2[2] * size];
+        const cs = [[x - R[0] - U[0], y - R[1] - U[1], z - R[2] - U[2]], [x + R[0] - U[0], y + R[1] - U[1], z + R[2] - U[2]], [x + R[0] + U[0], y + R[1] + U[1], z + R[2] + U[2]], [x - R[0] + U[0], y - R[1] + U[1], z - R[2] + U[2]]];
+        extra[0] = g.seed;
+        extra[1] = 0.12;
+        extra[2] = size;
+        this.softAddCount = this._softQuad(this.softAdd, this.softAddCount, cs, g.color, g.alpha * Math.min(1, Math.max(0.2, (near - 1) / 6)), extra);
+      }
+      this.glows.length = 0;
       const BEAM = [[-1, 2], [1, 2], [1, 2], [-1, 2]];
       for (const b of this.beams) {
+        // seen end-on (a tracer flying away from or toward the camera) a ribbon is foreshortened to
+        // its width and showed as a flat square (user report): as its on-screen length falls under
+        // four widths it fades into a round glow at its head
+        const d = sub(b.b, b.a), toCam = sub(cam.pos, b.b), L = Math.hypot(d[0], d[1], d[2]), dcam = Math.hypot(toCam[0], toCam[1], toCam[2]);
+        const across = L > 1e-6 && dcam > 1e-6 ? Math.hypot(...cross(d, toCam)) / dcam : 0, k = Math.max(0, Math.min(1, (across / (b.halfWidth * 2) - 1) / 3));
+        if (k < 1) {
+          const [x, y, z] = b.b, size = b.halfWidth * 1.3, R = [r[0] * size, r[1] * size, r[2] * size], U = [up2[0] * size, up2[1] * size, up2[2] * size];
+          extra[0] = 0.61;
+          extra[1] = 0.1;
+          extra[2] = size;
+          this.softAddCount = this._softQuad(this.softAdd, this.softAddCount, [[x - R[0] - U[0], y - R[1] - U[1], z - R[2] - U[2]], [x + R[0] - U[0], y + R[1] - U[1], z + R[2] - U[2]], [x + R[0] + U[0], y + R[1] + U[1], z + R[2] + U[2]], [x - R[0] + U[0], y - R[1] + U[1], z - R[2] + U[2]]], b.color, b.alpha * (1 - k), extra);
+        }
+        if (k <= 0) continue;
         const side = norm(cross(sub(b.b, b.a), sub(cam.pos, b.a)));
         const s = [side[0] * b.halfWidth, side[1] * b.halfWidth, side[2] * b.halfWidth];
         this.addCount = this._quad(
@@ -23483,7 +23761,7 @@ precision highp float;void main(){}`);
           [b.b[0] - s[0], b.b[1] - s[1], b.b[2] - s[2]],
           BEAM,
           b.color,
-          b.alpha
+          b.alpha * k
         );
       }
       this.beams.length = 0;
@@ -32237,8 +32515,22 @@ void main() {
       }
       if (spec.jet) {
         const j = spec.jet;
-        b.add(lathe([[j.nozzle - 0.15, j.r * 0.92, j.r * 0.92], [j.nozzle, j.r, j.r], [j.nozzle + 0.12, j.r * 1.04, j.r * 1.04]], 24), [0, 0, 0], [1, 1, 1], "#5f6264", 3);
-        b.add(cylinder, [0, 0, j.nozzle + 0.02], [j.r * 0.86, j.r * 0.86, 0.04], "#161819", 0);
+        if (j.pods) {
+          // underwing engine nacelles (the Me 262): [x, y, intake z, nozzle z, radius], mirrored; the
+          // fuselage itself has no nozzle
+          for (const [px, py, z0, z1, r] of j.pods) for (const side of [-1, 1]) {
+            const L = z0 - z1;
+            b.add(lathe([[z1 - 0.25, 0.02, 0.02], [z1 - 0.05, r * 0.42, r * 0.42], [z1, r * 0.75, r * 0.75], [z1 + L * 0.25, r, r], [z1 + L * 0.75, r * 0.98, r * 0.98], [z0, r * 0.82, r * 0.82]], 20), [side * px, py, 0], [1, 1, 1], base, 3);
+            b.add(cylinder, [side * px, py, z0 - 0.02], [r * 0.7, r * 0.7, 0.05], "#101213", 0);
+            b.add(lathe([[z0 - 0.3, 0.02, 0.02], [z0 - 0.05, r * 0.3, r * 0.3], [z0 + 0.02, r * 0.18, r * 0.18]], 14), [side * px, py, 0], [1, 1, 1], accent, 3);
+            b.add(cylinder, [side * px, py, z1 - 0.03], [r * 0.5, r * 0.5, 0.06], "#5f6264", 3);
+            // pylon fairing up to the wing
+            b.box([side * px, py + r * 0.85, (z0 + z1) / 2], [0.08, r * 0.4, L * 0.32], base, 3);
+          }
+        } else {
+          b.add(lathe([[j.nozzle - 0.15, j.r * 0.92, j.r * 0.92], [j.nozzle, j.r, j.r], [j.nozzle + 0.12, j.r * 1.04, j.r * 1.04]], 24), [0, 0, 0], [1, 1, 1], "#5f6264", 3);
+          b.add(cylinder, [0, 0, j.nozzle + 0.02], [j.r * 0.86, j.r * 0.86, 0.04], "#161819", 0);
+        }
         if (j.intake) {
           b.add(cylinder, [0, j.intake.y || 0, j.intake.z - 0.03], [j.intake.rx, j.intake.ry, 0.05], "#101213", 0);
           if (j.intake.splitter) b.box([0, j.intake.y || 0, j.intake.z - 0.12], [0.04, j.intake.ry * 1.8, 0.2], base, 3);
@@ -32281,6 +32573,12 @@ void main() {
           } else if (ins.kind === "star") {
             at(0.45, "#203a78", 0);
             for (let k = 0; k < 5; k++) w.box([side * ins.x + Math.sin(k * 1.2566) * 0.15, y + 0.012, ins.z + Math.cos(k * 1.2566) * 0.15], [0.11, 0.012, 0.36], "#f2f2ee", 0, Q.axis([0, 1, 0], k * 1.2566));
+          } else if (ins.kind === "hinomaru") {
+            at(0.5, "#b8222a", 0);
+          } else if (ins.kind === "cocarde") {
+            at(0.5, "#203a78", 0);
+            at(0.33, "#f2f2ee", 0.006);
+            at(0.17, "#c12a22", 0.012);
           } else {
             at(0.5, "#e8c23a", 0);
             at(0.45, "#203a78", 0.006);
@@ -32580,7 +32878,7 @@ void main() {
   // standard fit; their rounds are the game's own data (or a near round with the gun's mass and speed).
   var AIR_FIGHTERS = {
     p51d: {
-      name: "P-51D \\u91CE\\u99AC", nation: "\\u7F8E\\u570B", era: "1944", role: "\\u6D3B\\u585E\\u6230\\u9B25\\u6A5F", engineText: "Packard V-1650-7 Merlin 1490 hp",
+      name: "P-51D \u91CE\u99AC", nation: "\u7F8E\u570B", era: "1944", role: "\u6D3B\u585E\u6230\u9B25\u6A5F", engineText: "Packard V-1650-7 Merlin 1490 hp",
       airframe: [4500, 21.6, 2, 11.3, 26e3, 39e3, 9600, 0.017, 0.062, 4.7, 0.27, 0, 18500, 0], gLimit: 7, rotateKmh: 170, chase: 24,
       engine: { low: "air_eng_p51d_low", high: "air_eng_p51d_high" },
       guns: [["m2", 6, 1880, 800], []],
@@ -32601,7 +32899,7 @@ void main() {
       parts: { engine: [[0, 0.05, 2.3], [0.45, 0.45, 1]], fuel: [[0, 0.15, -0.9], [0.4, 0.35, 0.35]], ammo: [[0, -0.35, 0.6], [3, 0.08, 0.3]] }
     },
     bf109g: {
-      name: "Bf 109 G-6", nation: "\\u5FB7\\u570B", era: "1943", role: "\\u6D3B\\u585E\\u6230\\u9B25\\u6A5F", engineText: "Daimler-Benz DB 605A 1475 PS",
+      name: "Bf 109 G-6", nation: "\u5FB7\u570B", era: "1943", role: "\u6D3B\u585E\u6230\u9B25\u6A5F", engineText: "Daimler-Benz DB 605A 1475 PS",
       airframe: [3150, 16.05, 1.65, 9.92, 15e3, 22e3, 5100, 0.021, 0.07, 4.6, 0.26, 0, 17000, 0], gLimit: 7, rotateKmh: 160, chase: 22,
       engine: { low: "air_eng_bf109g_low", high: "air_eng_bf109g_high" },
       guns: [["mg131", 2, 600, 900], ["mg151", 1, 200, 700]],
@@ -32622,7 +32920,7 @@ void main() {
       parts: { engine: [[0, 0.05, 2.1], [0.42, 0.45, 0.9]], fuel: [[0, -0.05, -0.8], [0.35, 0.35, 0.45]], ammo: [[0, 0.3, 1.35], [0.3, 0.15, 0.3]] }
     },
     spitfire9: {
-      name: "\\u5674\\u706B Mk IX", nation: "\\u82F1\\u570B", era: "1943", role: "\\u6D3B\\u585E\\u6230\\u9B25\\u6A5F", engineText: "Rolls-Royce Merlin 66 1720 hp",
+      name: "\u5674\u706B Mk IX", nation: "\u82F1\u570B", era: "1943", role: "\u6D3B\u585E\u6230\u9B25\u6A5F", engineText: "Rolls-Royce Merlin 66 1720 hp",
       airframe: [3400, 22.5, 2, 11.23, 15500, 23e3, 7e3, 0.019, 0.058, 4.9, 0.29, 0, 17500, 0], gLimit: 7, rotateKmh: 150, chase: 23,
       engine: { low: "air_eng_spitfire9_low", high: "air_eng_spitfire9_high" },
       guns: [["m2", 2, 500, 800], ["hispano", 2, 240, 600]],
@@ -32643,7 +32941,7 @@ void main() {
       parts: { engine: [[0, 0.05, 2.4], [0.42, 0.45, 1]], fuel: [[0, 0.15, 0.9], [0.4, 0.35, 0.35]], ammo: [[0, -0.33, 0.6], [2.9, 0.07, 0.3]] }
     },
     mig15: {
-      name: "MiG-15bis", nation: "\\u8607\\u806F", era: "1950", role: "\\u5674\\u5C04\\u6230\\u9B25\\u6A5F", engineText: "Klimov VK-1 26.5 kN",
+      name: "MiG-15bis", nation: "\u8607\u806F", era: "1950", role: "\u5674\u5C04\u6230\u9B25\u6A5F", engineText: "Klimov VK-1 26.5 kN",
       airframe: [5e3, 20.6, 2.2, 10.08, 3e4, 38e3, 5800, 0.018, 0.1, 3.9, 0.3, 1, 26500, 0], gLimit: 8, rotateKmh: 230, chase: 28,
       engine: { whine: "air_jet_mig15_whine", roar: "air_jet_mig15_roar" },
       guns: [["nr23", 2, 160, 800], ["n37", 1, 40, 400]],
@@ -32664,7 +32962,7 @@ void main() {
       parts: { engine: [[0, 0, -2.2], [0.62, 0.62, 1.7]], fuel: [[0, 0.1, 0.5], [0.62, 0.6, 0.9]], ammo: [[0, -0.45, 2.4], [0.42, 0.15, 0.6]] }
     },
     f86f: {
-      name: "F-86F \\u8ECD\\u5200", nation: "\\u7F8E\\u570B", era: "1952", role: "\\u5674\\u5C04\\u6230\\u9B25\\u6A5F", engineText: "General Electric J47-GE-27 26.3 kN",
+      name: "F-86F \u8ECD\u5200", nation: "\u7F8E\u570B", era: "1952", role: "\u5674\u5C04\u6230\u9B25\u6A5F", engineText: "General Electric J47-GE-27 26.3 kN",
       airframe: [6900, 28.1, 2.7, 11.3, 53e3, 67e3, 1e4, 0.017, 0.1, 4, 0.3, 1, 26300, 0], gLimit: 7.3, rotateKmh: 230, chase: 29,
       engine: { whine: "air_jet_f86f_whine", roar: "air_jet_f86f_roar" },
       guns: [["m3", 6, 1800, 1200], []],
@@ -32725,6 +33023,178 @@ void main() {
         muzzles: [[0.35, -0.6, 1.2, 0.35, 0.05]]
       },
       parts: { engine: [[0, 0, -3.6], [0.6, 0.6, 2.2]], fuel: [[0, 0.1, 0.9], [0.6, 0.55, 1.4]], ammo: [[0.3, -0.45, 0.5], [0.3, 0.15, 0.5]] }
+    },
+    // From three-view drawings on Wikimedia Commons (user request: collect blueprints and model from
+    // them; Fw 190 CC BY 2.5 Tomasz/Steifer, A6M and F4U and Hunter CC BY-SA 3.0 Kaboldy, Yak-9 CC BY-SA
+    // 4.0, Me 262 CC0, MiG-17 and Mirage III public domain): stations measured off the drawings scaled
+    // to the published length and span, the origin at the estimated CG (a quarter of the mean chord).
+    fw190a8: {
+      name: "Fw 190 A-8", nation: "德國", era: "1944", role: "活塞戰鬥機", engineText: "BMW 801 D-2 1700 PS",
+      airframe: [4400, 18.3, 1.85, 10.5, 21300, 32e3, 8100, 0.021, 0.068, 4.6, 0.26, 0, 19500, 0], gLimit: 7, rotateKmh: 175, chase: 23,
+      engine: { low: "air_eng_fw190a8_low", high: "air_eng_fw190a8_high" },
+      guns: [["mg131", 2, 950, 900], ["mg151", 4, 780, 700]],
+      spec: {
+        fuselage: [[-6.7, 0.03, 0.08], [-6.2, 0.12, 0.28], [-4.6, 0.28, 0.45], [-3.1, 0.4, 0.57], [-1.6, 0.47, 0.65], [-0.2, 0.55, 0.68], [0.8, 0.63, 0.66], [1.6, 0.65, 0.65], [1.9, 0.6, 0.6]],
+        colors: { base: "#66707a", dark: "#26292b", accent: "#1d1d1d" },
+        canopy: [[0, 0.68, -1.6], [0.28, 0.3, 0.95]],
+        prop: { z: 1.95, r: 1.65, blades: 3, spinner: [[1.9, 0.45], [2.05, 0.4], [2.2, 0.24], [2.3, 0.01]] },
+        wing: [[0.6, -0.42, 0.47, 2.25, 0.15], [2.2, -0.27, 0.4, 1.95, 0.12], [3.8, -0.12, 0.32, 1.62, 0.08], [4.95, -0.01, 0.22, 1.3, 0.045], [5.22, 0.02, 0.05, 0.8, 0.015]],
+        aileron: { x: 4.1, y: -0.08, z: -0.95, w: 1.6, d: 0.3 },
+        htail: { p: [0, 0.3, -5.6], sections: [[0.12, 0, 0.5, 1.2, 0.045], [1.1, 0.01, 0.38, 1, 0.035], [1.75, 0.02, 0.15, 0.55, 0.015], [1.85, 0.02, 0, 0.3, 8e-3]] },
+        fin: { pts: [[0.45, -4.6], [1.1, -5.3], [1.4, -5.75], [1.38, -6], [0.35, -6.1]], rudder: { p: [0, 0.3, -6.05], pts: [[0, 0], [1.1, 0], [1, -0.3], [0.1, -0.55], [0, -0.5]] } },
+        gear: { kind: "taildragger", main: { x: 1.75, y: -0.45, z: 0.55, len: 1.05, r: 0.33 }, aux: { y: -0.45, z: -5.6, len: 0.3, r: 0.12 } },
+        insignia: { x: 3.6, z: -0.35, y: -0.05, kind: "cross" },
+        extras: [["cyl", [0, 0, 1.93], [0.5, 0.5, 0.03], "#1d1f20"], ["cyl", [0, 0, 1.3], [0.665, 0.665, 0.35], "#d8b830"], ["box", [0, 0.6, 0.9], [0.3, 0.1, 0.5], "#66707a"]],
+        muzzles: [[-0.14, 0.62, 1.45, 0.3, 0.035], [0.14, 0.62, 1.45, 0.3, 0.035], [-0.95, -0.42, 0.62, 0.25, 0.04], [0.95, -0.42, 0.62, 0.25, 0.04], [-2.3, -0.28, 0.55, 0.35, 0.04], [2.3, -0.28, 0.55, 0.35, 0.04]]
+      },
+      parts: { engine: [[0, 0, 1.2], [0.6, 0.6, 0.65]], fuel: [[0, -0.25, -0.6], [0.42, 0.35, 0.6]], ammo: [[0, -0.3, 0.2], [2.3, 0.08, 0.3]] }
+    },
+    yak9u: {
+      name: "Yak-9U", nation: "蘇聯", era: "1944", role: "活塞戰鬥機", engineText: "Klimov VK-107A 1500 hp",
+      airframe: [3200, 17.15, 1.8, 9.74, 13800, 20200, 5e3, 0.02, 0.065, 4.7, 0.27, 0, 16500, 0], gLimit: 7, rotateKmh: 160, chase: 22,
+      engine: { low: "air_eng_yak9u_low", high: "air_eng_yak9u_high" },
+      guns: [["ubs", 2, 340, 800], ["shvak", 1, 120, 700]],
+      spec: {
+        fuselage: [[-5.9, 0.03, 0.08], [-5.4, 0.12, 0.3], [-4, 0.27, 0.47], [-2.5, 0.38, 0.58], [-1, 0.45, 0.66], [0.3, 0.47, 0.68], [1.4, 0.45, 0.6], [2.2, 0.38, 0.48], [2.5, 0.34, 0.4]],
+        colors: { base: "#7c858b", dark: "#2c3033", accent: "#b8302a" },
+        canopy: [[0, 0.6, -1.3], [0.27, 0.3, 0.85]],
+        prop: { z: 2.6, r: 1.5, blades: 3, spinner: [[2.5, 0.33], [2.75, 0.29], [3, 0.16], [3.15, 0.01]] },
+        wing: [[0.5, -0.38, 0.75, 2.35, 0.15], [1.8, -0.25, 0.65, 2, 0.12], [3.4, -0.08, 0.5, 1.55, 0.075], [4.5, 0.04, 0.35, 1.15, 0.045], [4.85, 0.08, 0.15, 0.6, 0.015]],
+        aileron: { x: 3.6, y: -0.06, z: -0.95, w: 1.9, d: 0.3 },
+        htail: { p: [0, 0.18, -4.75], sections: [[0.12, 0, 0.45, 1.05, 0.04], [0.9, 0.01, 0.33, 0.9, 0.03], [1.45, 0.02, 0.1, 0.5, 0.015], [1.52, 0.02, 0, 0.25, 6e-3]] },
+        fin: { pts: [[0.38, -4], [1.15, -4.75], [1.38, -5.1], [1.35, -5.3], [0.3, -5.4]], rudder: { p: [0, 0.3, -5.35], pts: [[0, 0], [1.08, 0], [0.95, -0.35], [0.2, -0.6], [0, -0.55]] } },
+        gear: { kind: "taildragger", main: { x: 1.3, y: -0.42, z: 0.5, len: 1.05, r: 0.3 }, aux: { y: -0.38, z: -4.9, len: 0.3, r: 0.1 } },
+        insignia: { x: 3.4, z: -0.3, y: 0, kind: "redstar" },
+        extras: [["ball", [0, -0.6, -0.4], [0.32, 0.22, 1], "#7c858b"], ["box", [0, -0.62, 0.55], [0.22, 0.12, 0.04], "#141617"]],
+        muzzles: [[-0.15, 0.38, 2.15, 0.25, 0.035], [0.15, 0.38, 2.15, 0.25, 0.035], [0, 0, 3.2, 0.15, 0.04]]
+      },
+      parts: { engine: [[0, 0.05, 1.5], [0.38, 0.42, 0.85]], fuel: [[0, -0.3, 0.1], [1.6, 0.12, 0.7]], ammo: [[0, 0.3, 0.6], [0.3, 0.12, 0.3]] }
+    },
+    a6m2: {
+      name: "A6M2 零式艦戰 21 型", nation: "日本", era: "1941", role: "活塞戰鬥機", engineText: "Nakajima Sakae 12 940 hp",
+      airframe: [2410, 22.44, 2, 12, 12200, 18300, 5800, 0.021, 0.055, 5, 0.28, 0, 12e3, 0], gLimit: 7, rotateKmh: 140, chase: 22,
+      engine: { low: "air_eng_a6m2_low", high: "air_eng_a6m2_high" },
+      guns: [["type97", 2, 1e3, 700], ["type99", 2, 120, 490]],
+      spec: {
+        fuselage: [[-6.7, 0.02, 0.05], [-5.6, 0.12, 0.26], [-4.26, 0.26, 0.39], [-2.2, 0.49, 0.57], [-0.48, 0.56, 0.63], [1.02, 0.6, 0.6], [1.6, 0.6, 0.6], [1.96, 0.55, 0.55]],
+        colors: { base: "#bdb99a", dark: "#1d1f1f", accent: "#bdb99a" },
+        canopy: [[0, 0.68, -0.75], [0.28, 0.32, 1.15]],
+        prop: { z: 2.11, r: 1.45, blades: 3, spinner: [[1.96, 0.3], [2.2, 0.26], [2.4, 0.15], [2.5, 0.01]] },
+        wing: [[0.55, -0.41, 0.74, 2.52, 0.17], [2.25, -0.22, 0.67, 2.11, 0.13], [4.14, -0.01, 0.56, 1.63, 0.085], [5.4, 0.12, 0.43, 1.24, 0.05], [5.85, 0.17, 0.3, 0.8, 0.03], [6, 0.19, 0.12, 0.3, 0.01]],
+        aileron: { x: 4, y: -0.03, z: -0.81, w: 2.6, d: 0.32 },
+        htail: { p: [0, 0.24, -4.9], sections: [[0.15, 0, 0.6, 1.5, 0.05], [1, 0.01, 0.45, 1.25, 0.04], [1.8, 0.02, 0.21, 0.9, 0.02], [2.35, 0.02, -0.15, 0.4, 0.01]] },
+        fin: { pts: [[0.45, -4.35], [1.45, -5.4], [1.58, -5.6], [1.55, -5.75], [0.35, -5.75]], rudder: { p: [0, 0.2, -5.75], pts: [[0, 0], [1.35, 0], [1.2, -0.45], [0.6, -0.65], [0, -0.62]] } },
+        gear: { kind: "taildragger", main: { x: 1.75, y: -0.5, z: 0.45, len: 1, r: 0.32 }, aux: { y: -0.3, z: -6.1, len: 0.2, r: 0.09 } },
+        insignia: { x: 4.3, z: -0.2, y: 0.15, kind: "hinomaru" },
+        extras: [["cyl", [0, 0, 1.45], [0.615, 0.615, 1.05], "#1d1f1f"]],
+        muzzles: [[-0.15, 0.52, 1.95, 0.3, 0.03], [0.15, 0.52, 1.95, 0.3, 0.03], [-2.4, -0.25, 0.85, 0.35, 0.04], [2.4, -0.25, 0.85, 0.35, 0.04]]
+      },
+      parts: { engine: [[0, 0, 1.4], [0.55, 0.55, 0.6]], fuel: [[0, -0.4, -0.3], [1.8, 0.12, 0.8]], ammo: [[0, 0.35, 0.9], [0.3, 0.12, 0.3]] }
+    },
+    f4u1d: {
+      name: "F4U-1D 海盜", nation: "美國", era: "1944", role: "活塞戰鬥機", engineText: "Pratt & Whitney R-2800-8W 2250 hp",
+      airframe: [5600, 29.2, 2.4, 12.5, 34800, 52e3, 14600, 0.0185, 0.06, 4.8, 0.27, 0, 23e3, 0], gLimit: 7, rotateKmh: 170, chase: 26,
+      engine: { low: "air_eng_f4u1d_low", high: "air_eng_f4u1d_high" },
+      guns: [["m2", 6, 2400, 800]],
+      spec: {
+        fuselage: [[-7.2, 0.02, 0.05], [-6.28, 0.13, 0.33], [-4.7, 0.35, 0.5], [-3.47, 0.44, 0.68], [-1.02, 0.53, 0.72], [1.26, 0.72, 0.72], [2.05, 0.73, 0.72], [2.39, 0.66, 0.66]],
+        colors: { base: "#22304a", dark: "#131820", accent: "#22304a" },
+        canopy: [[0, 0.85, -1.7], [0.3, 0.36, 0.8]],
+        prop: { z: 2.55, r: 2, blades: 3, spinner: [[2.39, 0.32], [2.6, 0.28], [2.85, 0.16], [3, 0.01]] },
+        wing: [[0.55, -0.62, 0.81, 2.68, 0.2], [1.75, -0.95, 0.81, 2.66, 0.18], [3.5, -0.62, 0.69, 2.4, 0.13], [5.5, -0.25, 0.55, 1.95, 0.07], [6.1, -0.15, 0.4, 1.2, 0.04], [6.24, -0.13, 0.2, 0.5, 0.01]],
+        aileron: { x: 4.6, y: -0.4, z: -1.15, w: 2.1, d: 0.38 },
+        htail: { p: [0, 0.35, -6.08], sections: [[0.15, 0, 0.5, 1.3, 0.055], [1.4, 0.01, 0.42, 1.15, 0.04], [2.3, 0.02, 0.25, 0.8, 0.02], [2.5, 0.02, 0.05, 0.35, 0.01]] },
+        fin: { pts: [[0.7, -4.6], [2, -5.15], [2.2, -5.45], [2.2, -5.6], [0.55, -5.6]], rudder: { p: [0, 0.55, -5.6], pts: [[0, 0], [1.65, 0], [1.5, -0.45], [0.9, -0.75], [0, -0.85]] } },
+        gear: { kind: "taildragger", main: { x: 1.75, y: -0.95, z: 0.69, len: 1, r: 0.4 }, aux: { y: -0.5, z: -5.5, len: 0.33, r: 0.16 } },
+        insignia: { x: 4.6, z: -0.3, y: -0.27, kind: "star" },
+        extras: [["box", [-1, -0.72, 0.8], [0.55, 0.07, 0.04], "#101215"], ["box", [1, -0.72, 0.8], [0.55, 0.07, 0.04], "#101215"], ["cyl", [0, 0, 2.38], [0.5, 0.5, 0.03], "#1d1f20"]],
+        muzzles: [[-2.6, -0.82, 0.95, 0.25, 0.03], [-2.85, -0.78, 0.94, 0.25, 0.03], [-3.1, -0.74, 0.93, 0.25, 0.03], [2.6, -0.82, 0.95, 0.25, 0.03], [2.85, -0.78, 0.94, 0.25, 0.03], [3.1, -0.74, 0.93, 0.25, 0.03]]
+      },
+      parts: { engine: [[0, 0, 1.6], [0.68, 0.68, 0.75]], fuel: [[0, 0.2, -0.2], [0.45, 0.4, 0.5]], ammo: [[0, -0.75, 0], [3.1, 0.08, 0.35]] }
+    },
+    me262: {
+      name: "Me 262 A-1a 燕式", nation: "德國", era: "1944", role: "噴射戰鬥機", engineText: "2 × Junkers Jumo 004 B 8.8 kN",
+      airframe: [6400, 21.7, 1.8, 12.65, 42e3, 53e3, 16e3, 0.028, 0.075, 4.3, 0.27, 1, 17600, 0], gLimit: 7, rotateKmh: 190, chase: 28,
+      engine: { whine: "air_jet_me262_whine", roar: "air_jet_me262_roar" },
+      guns: [["mk108", 4, 360, 650]],
+      spec: {
+        fuselage: [[-5.74, 0.02, 0.02], [-5.51, 0.07, 0.1], [-4.38, 0.18, 0.25], [-2.95, 0.32, 0.4], [-1.53, 0.42, 0.5], [-0.11, 0.48, 0.58], [1.31, 0.5, 0.6], [2.44, 0.46, 0.55], [3.58, 0.38, 0.42], [4.43, 0.2, 0.2], [4.86, 0.02, 0.02]],
+        colors: { base: "#5f6d5c", dark: "#24302a", accent: "#e8d23a" },
+        canopy: [[0, 0.75, 0.4], [0.3, 0.3, 0.92]],
+        jet: { nozzle: -5.74, r: 0.3, pods: [[1.95, -0.85, 2.73, -1.22, 0.46]] },
+        wing: [[0.5, -0.55, 1.3, 2.75, 0.17], [2, -0.45, 1.05, 2.3, 0.15], [4, -0.32, 0.35, 1.7, 0.1], [6, -0.2, -0.32, 1.1, 0.06], [6.32, -0.18, -0.45, 0.65, 0.02]],
+        aileron: { x: 5, y: -0.25, z: -1.05, w: 2, d: 0.35 },
+        htail: { p: [0, 0.68, -4.5], sections: [[0.1, 0, 0.47, 1.15, 0.05], [1, 0.01, 0.3, 0.95, 0.04], [1.75, 0.02, 0.05, 0.55, 0.02], [1.85, 0.02, -0.1, 0.3, 0.01]] },
+        fin: { pts: [[0.35, -3.4], [1.93, -5], [1.95, -5.3], [1.9, -5.42], [0.3, -5.42]], rudder: { p: [0, 0.55, -5.42], pts: [[0, 0], [1.35, 0], [1.2, -0.3], [0, -0.32]] } },
+        gear: { kind: "tricycle", main: { x: 1.5, y: -0.55, z: 0.35, len: 0.95, r: 0.4 }, aux: { y: -0.6, z: 4.3, len: 0.95, r: 0.3 } },
+        insignia: { x: 4, z: 0, y: -0.2, kind: "cross" },
+        extras: [],
+        muzzles: [[-0.18, 0.35, 4.1, 0.3, 0.05], [0.18, 0.35, 4.1, 0.3, 0.05], [-0.2, 0.17, 4.05, 0.3, 0.05], [0.2, 0.17, 4.05, 0.3, 0.05]]
+      },
+      parts: { engine: [[0, -0.85, 0.75], [2.4, 0.46, 2]], fuel: [[0, 0, 0.1], [0.45, 0.45, 1.6]], ammo: [[0, 0.25, 3.2], [0.4, 0.2, 0.5]] }
+    },
+    hunter6: {
+      name: "Hunter F.6 獵人", nation: "英國", era: "1956", role: "噴射戰鬥機", engineText: "Rolls-Royce Avon 203 45.1 kN",
+      airframe: [8050, 32.4, 3.3, 10.26, 93e3, 118e3, 9600, 0.019, 0.11, 4.1, 0.3, 1, 45100, 0], gLimit: 7.5, rotateKmh: 250, chase: 32,
+      engine: { whine: "air_jet_hunter6_whine", roar: "air_jet_hunter6_roar" },
+      guns: [["aden", 4, 600, 1400]],
+      spec: {
+        fuselage: [[-7.26, 0.38, 0.38], [-6.47, 0.4, 0.45], [-4.98, 0.55, 0.55], [-2.99, 0.6, 0.65], [0, 0.7, 0.7], [2.49, 0.7, 0.67], [4.58, 0.55, 0.55], [5.97, 0.3, 0.3], [6.72, 0.02, 0.02]],
+        colors: { base: "#6d746b", dark: "#2a2e2c", accent: "#c12a22" },
+        canopy: [[0, 0.72, 4.13], [0.3, 0.3, 1.05]],
+        jet: { nozzle: -7.3, r: 0.37 },
+        wing: [[0.65, -0.15, 2.44, 4.13, 0.18], [1.44, -0.16, 2.14, 3.73, 0.16], [3.03, -0.19, 0.6, 3, 0.13], [4.43, -0.22, -0.75, 2.29, 0.1], [4.97, -0.24, -1.39, 1.94, 0.07], [5.13, -0.25, -1.99, 1.35, 0.02]],
+        aileron: { x: 4, y: -0.22, z: -2.4, w: 2, d: 0.45 },
+        htail: { p: [0, 1.04, -5.9], sections: [[0.12, 0, 1.02, 2.1, 0.06], [0.9, 0, 0.21, 1.6, 0.045], [1.69, 0, -0.62, 1.1, 0.02]] },
+        fin: { pts: [[0.72, -3], [1.44, -5.07], [2.44, -6.57], [2.56, -7.12], [1.9, -6.85], [0.75, -6.45]], rudder: { p: [0, 1, -6.45], pts: [[0, 0], [0.85, -0.32], [0.8, -0.65], [0, -0.45]] } },
+        gear: { kind: "tricycle", main: { x: 2.25, y: -0.25, z: -0.4, len: 1.15, r: 0.37 }, aux: { y: -0.6, z: 4.6, len: 0.9, r: 0.23 } },
+        insignia: { x: 3.8, z: -1.2, y: -0.08, kind: "roundel" },
+        extras: [["box", [-0.95, -0.1, 2.4], [0.32, 0.14, 0.04], "#101213"], ["box", [0.95, -0.1, 2.4], [0.32, 0.14, 0.04], "#101213"], ["ball", [-0.3, -0.62, 3.4], [0.18, 0.12, 0.6], "#6d746b"], ["ball", [0.3, -0.62, 3.4], [0.18, 0.12, 0.6], "#6d746b"]],
+        muzzles: [[-0.3, -0.42, 5.4, 0.3, 0.04], [0.3, -0.42, 5.4, 0.3, 0.04], [-0.3, -0.54, 5.2, 0.3, 0.04], [0.3, -0.54, 5.2, 0.3, 0.04]]
+      },
+      parts: { engine: [[0, 0, -2.5], [0.62, 0.62, 2]], fuel: [[0, 0.05, 1], [0.66, 0.6, 1.2]], ammo: [[0, -0.5, 3.6], [0.45, 0.2, 0.6]] }
+    },
+    mig17f: {
+      name: "MiG-17F", nation: "蘇聯", era: "1953", role: "噴射戰鬥機", engineText: "Klimov VK-1F 26.5 / 33.1 kN",
+      airframe: [5350, 22.6, 2.2, 9.63, 38800, 49e3, 5700, 0.019, 0.1, 3.9, 0.3, 1, 26500, 0.25], gLimit: 8, rotateKmh: 235, chase: 28,
+      engine: { whine: "air_jet_mig17f_whine", roar: "air_jet_mig17f_roar", ab: "air_jet_mig17f_ab" },
+      guns: [["n37", 1, 40, 400], ["nr23", 2, 160, 850]],
+      spec: {
+        fuselage: [[-5.55, 0.34, 0.3], [-5.2, 0.39, 0.42], [-4.5, 0.47, 0.55], [-3.3, 0.55, 0.67], [-1.7, 0.64, 0.74], [0.2, 0.7, 0.76], [1.7, 0.7, 0.74], [3.1, 0.64, 0.71], [4, 0.58, 0.63], [4.38, 0.55, 0.59]],
+        colors: { base: "#b3b8bb", dark: "#3a3e40", accent: "#c12a22" },
+        canopy: [[0, 0.8, 2.15], [0.3, 0.3, 0.95]],
+        jet: { nozzle: -5.6, r: 0.3, intake: { z: 4.39, rx: 0.47, ry: 0.5, splitter: true } },
+        wing: [[0.74, 0, 2.48, 3.33, 0.14], [1.38, -0.03, 1.8, 2.65, 0.12], [2.76, -0.1, 0.4, 2.35, 0.085], [4.39, -0.2, -1.24, 1.98, 0.05], [4.82, -0.24, -1.75, 1.2, 0.015]],
+        aileron: { x: 3.6, y: -0.2, z: -2.25, w: 2, d: 0.35 },
+        htail: { p: [0, 2.3, -5.2], sections: [[0.12, 0, 0.55, 1.32, 0.04], [0.9, 0, -0.18, 1, 0.03], [1.6, 0, -1, 0.62, 0.015], [1.67, 0, -1.08, 0.3, 8e-3]] },
+        fin: { pts: [[0.62, -2.48], [2.85, -5.74], [2.79, -5.9], [0.45, -4.81]], rudder: { p: [0, 0.5, -4.85], pts: [[0, 0], [2.29, -1.05], [2.29, -1.8], [0, -0.72]] } },
+        gear: { kind: "tricycle", main: { x: 1.92, y: -0.2, z: -0.6, len: 1.5, r: 0.33 }, aux: { y: -0.65, z: 3.3, len: 1.05, r: 0.25 } },
+        insignia: { x: 3.2, z: -1.1, y: -0.03, kind: "redstar" },
+        extras: [["box", [-1.38, 0.08, 0.48], [0.02, 0.13, 1.33], "#b3b8bb"], ["box", [1.38, 0.08, 0.48], [0.02, 0.13, 1.33], "#b3b8bb"], ["box", [-2.76, 0, -0.78], [0.02, 0.12, 1.18], "#b3b8bb"], ["box", [2.76, 0, -0.78], [0.02, 0.12, 1.18], "#b3b8bb"], ["box", [-3.4, -0.04, -1.2], [0.02, 0.1, 0.85], "#b3b8bb"], ["box", [3.4, -0.04, -1.2], [0.02, 0.1, 0.85], "#b3b8bb"]],
+        muzzles: [[0.38, -0.55, 3.4, 0.35, 0.06], [-0.36, -0.6, 3.5, 0.3, 0.04], [-0.26, -0.7, 3.4, 0.3, 0.04]]
+      },
+      parts: { engine: [[0, 0, -2.6], [0.62, 0.62, 1.8]], fuel: [[0, 0.1, 0.6], [0.66, 0.62, 1]], ammo: [[0, -0.5, 2.6], [0.42, 0.15, 0.6]] }
+    },
+    mirage3e: {
+      name: "Mirage IIIE 幻象", nation: "法國", era: "1964", role: "超音速戰鬥機", engineText: "SNECMA Atar 09C 41.97 / 60.8 kN",
+      airframe: [8500, 34.85, 5.2, 8.22, 109e3, 123e3, 14e3, 0.016, 0.19, 2.6, 0.45, 1, 41970, 0.45], gLimit: 7, rotateKmh: 300, chase: 32,
+      engine: { whine: "air_jet_mirage3e_whine", roar: "air_jet_mirage3e_roar", ab: "air_jet_mirage3e_ab" },
+      guns: [["defa", 2, 250, 1250]],
+      spec: {
+        fuselage: [[-5.8, 0.5, 0.5], [-5.2, 0.58, 0.6], [-3.5, 0.66, 0.7], [-1.5, 0.72, 0.78], [0.5, 0.74, 0.8], [2.5, 0.66, 0.74], [4, 0.55, 0.62], [5.5, 0.42, 0.48], [6.7, 0.25, 0.28], [7.4, 0.12, 0.13], [7.7, 0.02, 0.02]],
+        colors: { base: "#a9aeb0", dark: "#2f3335", accent: "#203a78" },
+        canopy: [[0, 0.8, 4.3], [0.3, 0.3, 0.95]],
+        jet: { nozzle: -5.85, r: 0.48 },
+        wing: [[0.65, -0.25, 3.2, 7, 0.16], [2, -0.27, 0.82, 4.62, 0.11], [3.3, -0.29, -1.48, 2.32, 0.06], [4, -0.3, -2.71, 1.09, 0.025], [4.11, -0.3, -2.9, 0.9, 0.01]],
+        aileron: { x: 3.2, y: -0.29, z: -3.75, w: 1.3, d: 0.45 },
+        htail: { p: [0, -0.25, -3.75], sections: [[0.75, 0, 0, 0.45, 0.02], [2.4, -0.02, 0, 0.45, 0.015]] },
+        fin: { pts: [[0.7, -0.9], [2.75, -3.95], [2.75, -4.6], [0.65, -5]], rudder: { p: [0, 0.75, -4.9], pts: [[0, 0], [1.9, 0.3], [1.9, -0.2], [0, -0.55]] } },
+        gear: { kind: "tricycle", main: { x: 1.58, y: -0.35, z: -1.2, len: 1.25, r: 0.33 }, aux: { y: -0.6, z: 3.9, len: 1.05, r: 0.25 } },
+        insignia: { x: 2.6, z: -2.4, y: -0.18, kind: "cocarde" },
+        extras: [["cyl", [-0.78, 0, 1], [0.32, 0.42, 3], "#a9aeb0"], ["cyl", [0.78, 0, 1], [0.32, 0.42, 3], "#a9aeb0"], ["cyl", [-0.8, 0, 2.52], [0.27, 0.36, 0.04], "#111314"], ["cyl", [0.8, 0, 2.52], [0.27, 0.36, 0.04], "#111314"], ["ball", [-0.74, 0, 2.6], [0.12, 0.16, 0.35], "#2f3335"], ["ball", [0.74, 0, 2.6], [0.12, 0.16, 0.35], "#2f3335"], ["box", [0, 0.65, 1.5], [0.25, 0.18, 2.6], "#a9aeb0"], ["cyl", [0, 0, 8.2], [0.03, 0.03, 1], "#2f3335"], ["box", [-0.3, -0.75, -4.2], [0.03, 0.25, 0.8], "#a9aeb0"], ["box", [0.3, -0.75, -4.2], [0.03, 0.25, 0.8], "#a9aeb0"]],
+        muzzles: [[-0.45, -0.55, 2.3, 0.3, 0.05], [0.45, -0.55, 2.3, 0.3, 0.05]]
+      },
+      parts: { engine: [[0, 0, -3.4], [0.65, 0.65, 2.4]], fuel: [[0, -0.25, -0.6], [2.2, 0.15, 1.6]], ammo: [[0, -0.5, 1.6], [0.5, 0.18, 0.6]] }
     }
   };
   /** Damage parts and skin of a hangar fighter from its specification (as AIR_PARTS / AIR_SKIN). */
@@ -32738,18 +33208,18 @@ void main() {
     const tailZ0 = fz0 + 0.3, tailZ1 = Math.min(wz0, -1.6), ail = sp.aileron, [cc, cs] = sp.canopy, pt = f.parts;
     const hp = jet ? { engine: 110, fuel: 70, ammo: 45, wing: 170, tail: 120, elevator: 50 } : { engine: 90, fuel: 60, ammo: 40, wing: 160, tail: 110, elevator: 40 };
     const parts = [
-      { id: "engine", name: "\\u5F15\\u64CE", c: pt.engine[0], h: pt.engine[1], hp: hp.engine, color: "#6d747a", fire: jet ? 0.15 : 0.12 },
-      ...sp.prop ? [{ id: "prop", name: "\\u87BA\\u65CB\\u69F3", c: [0, 0, sp.prop.z + 0.1], h: [0.3, 0.3, 0.3], hp: 40, color: "#e7a943" }] : [],
-      { id: "fuel", name: "\\u6CB9\\u7BB1", c: pt.fuel[0], h: pt.fuel[1], hp: hp.fuel, color: "#d79a35", fire: jet ? 0.4 : 0.45 },
-      { id: "ammo", name: "\\u5F48\\u85E5\\u7BB1", c: pt.ammo[0], h: pt.ammo[1], hp: hp.ammo, color: "#8f8a4a" },
-      { id: "pilot", name: "\\u98DB\\u884C\\u54E1", c: [0, cc[1] + 0.02, cc[2] - 0.1], h: [0.22, 0.42, 0.28], hp: 30, color: "#e2b48c" },
-      { id: "wing_l", name: "\\u5DE6\\u7FFC", ...wing(-1), hp: hp.wing, color: "#98a3a6" },
-      { id: "wing_r", name: "\\u53F3\\u7FFC", ...wing(1), hp: hp.wing, color: "#98a3a6" },
-      { id: "aileron_l", name: "\\u5DE6\\u526F\\u7FFC", c: [-ail.x, ail.y, ail.z - ail.d / 2], h: [ail.w / 2, 0.04, ail.d / 2], hp: 30, color: "#c3ccce" },
-      { id: "aileron_r", name: "\\u53F3\\u526F\\u7FFC", c: [ail.x, ail.y, ail.z - ail.d / 2], h: [ail.w / 2, 0.04, ail.d / 2], hp: 30, color: "#c3ccce" },
-      { id: "tail", name: "\\u5C3E\\u6BB5", c: [0, 0.2, (tailZ0 + tailZ1) / 2], h: [frx * 0.75, fry * 0.6, (tailZ1 - tailZ0) / 2], hp: hp.tail, color: "#7f8a8c" },
-      { id: "elevator", name: jet ? "\\u5168\\u52D5\\u5C3E\\u7FFC" : "\\u5347\\u964D\\u8235", c: [0, ht.p[1], ht.p[2] + (hz0 + hz1) / 2], h: [hx1, 0.05, (hz1 - hz0) / 2], hp: hp.elevator, color: "#c3ccce" },
-      { id: "rudder", name: "\\u65B9\\u5411\\u8235", c: [0, rd.p[1] + (ry0 + ry1) / 2, rd.p[2] + (rz0 + rz1) / 2], h: [0.05, (ry1 - ry0) / 2, (rz1 - rz0) / 2], hp: 35, color: "#c3ccce" }
+      { id: "engine", name: "\u5F15\u64CE", c: pt.engine[0], h: pt.engine[1], hp: hp.engine, color: "#6d747a", fire: jet ? 0.15 : 0.12 },
+      ...sp.prop ? [{ id: "prop", name: "\u87BA\u65CB\u69F3", c: [0, 0, sp.prop.z + 0.1], h: [0.3, 0.3, 0.3], hp: 40, color: "#e7a943" }] : [],
+      { id: "fuel", name: "\u6CB9\u7BB1", c: pt.fuel[0], h: pt.fuel[1], hp: hp.fuel, color: "#d79a35", fire: jet ? 0.4 : 0.45 },
+      { id: "ammo", name: "\u5F48\u85E5\u7BB1", c: pt.ammo[0], h: pt.ammo[1], hp: hp.ammo, color: "#8f8a4a" },
+      { id: "pilot", name: "\u98DB\u884C\u54E1", c: [0, cc[1] + 0.02, cc[2] - 0.1], h: [0.22, 0.42, 0.28], hp: 30, color: "#e2b48c" },
+      { id: "wing_l", name: "\u5DE6\u7FFC", ...wing(-1), hp: hp.wing, color: "#98a3a6" },
+      { id: "wing_r", name: "\u53F3\u7FFC", ...wing(1), hp: hp.wing, color: "#98a3a6" },
+      { id: "aileron_l", name: "\u5DE6\u526F\u7FFC", c: [-ail.x, ail.y, ail.z - ail.d / 2], h: [ail.w / 2, 0.04, ail.d / 2], hp: 30, color: "#c3ccce" },
+      { id: "aileron_r", name: "\u53F3\u526F\u7FFC", c: [ail.x, ail.y, ail.z - ail.d / 2], h: [ail.w / 2, 0.04, ail.d / 2], hp: 30, color: "#c3ccce" },
+      { id: "tail", name: "\u5C3E\u6BB5", c: [0, 0.2, (tailZ0 + tailZ1) / 2], h: [frx * 0.75, fry * 0.6, (tailZ1 - tailZ0) / 2], hp: hp.tail, color: "#7f8a8c" },
+      { id: "elevator", name: jet ? "\u5168\u52D5\u5C3E\u7FFC" : "\u5347\u964D\u8235", c: [0, ht.p[1], ht.p[2] + (hz0 + hz1) / 2], h: [hx1, 0.05, (hz1 - hz0) / 2], hp: hp.elevator, color: "#c3ccce" },
+      { id: "rudder", name: "\u65B9\u5411\u8235", c: [0, rd.p[1] + (ry0 + ry1) / 2, rd.p[2] + (rz0 + rz1) / 2], h: [0.05, (ry1 - ry0) / 2, (rz1 - rz0) / 2], hp: 35, color: "#c3ccce" }
     ];
     const [fy0, fy1] = bounds(sp.fin.pts.map((p) => p[0])), [fzz0, fzz1] = bounds(sp.fin.pts.map((p) => p[1]));
     const skin = [
@@ -33534,7 +34004,7 @@ void main() {
       onChange: () => {
         document.getElementById("net-btn").dataset.on = net.inRoom ? "2" : net.open ? "1" : "0";
         const go = document.getElementById("battle-btn");
-        const label = !net.inRoom ? "\u958B\u59CB\u6230\u9B25" : net.isHost ? "\u958B\u59CB\u806F\u6A5F\u6230\u9B25" : "\u7B49\u5F85\u623F\u4E3B\u958B\u6230";
+        const label = G4.airGarage?.on ? "起飛" : !net.inRoom ? "\u958B\u59CB\u6230\u9B25" : net.isHost ? "\u958B\u59CB\u806F\u6A5F\u6230\u9B25" : "\u7B49\u5F85\u623F\u4E3B\u958B\u6230";
         if (go.textContent !== label) go.textContent = label;
       }
     });
@@ -34348,6 +34818,10 @@ void main() {
     airHud.id = "air-hud";
     airHud.hidden = true;
     airHud.innerHTML = '<div class="air-aim"></div><div class="air-nose"></div><div class="air-pipper" hidden><b></b></div><div class="air-panel"><b class="air-main"></b><span class="air-flags"></span><span class="air-help">\u6ED1\u9F20\uFF1A\u7784\u6E96\u65B9\u5411\u3000W \u4FEF\u885D\uFF0FS \u62C9\u8D77\u3000A/D \u6EFE\u8F49\u3000Q/E \u65B9\u5411\u8235\u3000Shift/Ctrl \u6216\u6EFE\u8F2A\uFF1A\u6CB9\u9580\u3000C \u81EA\u7531\u89C0\u5BDF\u3000I \u6559\u5B98\u3000L \u5E73\u98DB\u3000G \u8D77\u843D\u67B6\u3000F \u895F\u7FFC\u3000B \u715E\u8ECA\u3000V \u8996\u89D2\u3000O \u5167\u69CB\u900F\u8996\u3000\u5DE6\u9375\u5168\u90E8\u958B\u706B\uFF0F\u53F3\u9375\u6A5F\u7832\u3000F8 \u56DE\u5230\u6230\u8ECA</span></div>';
+    // the sonic boom's flash over the screen
+    const airFlash = document.createElement("div");
+    airFlash.className = "air-flash";
+    airHud.appendChild(airFlash);
     document.body.appendChild(airHud);
     const airEl = { aim: airHud.querySelector(".air-aim"), nose: airHud.querySelector(".air-nose"), pipper: airHud.querySelector(".air-pipper"), pipperText: airHud.querySelector(".air-pipper b"), main: airHud.querySelector(".air-main"), flags: airHud.querySelector(".air-flags") };
     /**
@@ -34410,7 +34884,7 @@ void main() {
       document.body.dataset.air = "1";
       airHud.hidden = false;
       const T = air.plane.type;
-      hud.toast(`\u5DF2\u767B\u4E0A ${T.name}\uFF1AShift \u52A0\u6CB9\u9580\u6ED1\u8DD1${T.sound === "jet" ? "\uFF08\u8D85\u904E 100% \u70BA\u5F8C\u71C3\u5668\uFF09" : ""}\uFF0C\u7D04 ${T.rotateKmh} km/h \u6642\u6ED1\u9F20\u5411\u4E0A\u62C9\u8D77\u3000${T.sound === "jet" ? "F9" : "F8"} \u56DE\u5230\u6230\u8ECA`, 6);
+      hud.toast(LANG === "en" ? `Boarded the ${T.name}: Shift opens the throttle for the take-off run${T.sound === "jet" ? " (over 100% is the afterburner)" : ""}; at about ${T.rotateKmh} km/h pull the mouse up.  F8 back to the tank` : `\u5DF2\u767B\u4E0A ${T.name}\uFF1AShift \u52A0\u6CB9\u9580\u6ED1\u8DD1${T.sound === "jet" ? "\uFF08\u8D85\u904E 100% \u70BA\u5F8C\u71C3\u5668\uFF09" : ""}\uFF0C\u7D04 ${T.rotateKmh} km/h \u6642\u6ED1\u9F20\u5411\u4E0A\u62C9\u8D77\u3000F8 \u56DE\u5230\u6230\u8ECA`, 6);
     }
     // NF-01 armament (user request): two 7.92 mm machine guns in the cowling and a 20 mm cannon firing
     // through the propeller hub (MG 34 ballistics stand in for the MG 17; the cannon belt alternates
@@ -34435,7 +34909,14 @@ void main() {
       nr23: { kind: "cannon", belt: () => ["hei_23_ofz", "api_23_bza"] },
       n37: { kind: "cannon", belt: () => [airShell("he_37_n37", "he_37_m63", { name: "37 mm N-37 OZT (HE-I)", mass_kg: 0.735, muzzle_velocity_ms: 690, explosive_mass_kg: 0.041 })] },
       nr30: { kind: "cannon", belt: () => [airShell("he_30_nr30", "he_30_mgesch", { name: "30 mm NR-30 OFZ (HE-I)", mass_kg: 0.41, muzzle_velocity_ms: 780, explosive_mass_kg: 0.0485, explosive_type: "a_ix_2" })] },
-      m61: { kind: "rotary" }
+      m61: { kind: "rotary" },
+      type97: { kind: "mg", def: () => ({ ...data.machineGuns.mg34, id: "type97_77", name: "Type 97 (7.7 mm)", caliber_mm: 7.7, bullet_mass_g: 11.3, muzzle_velocity_ms: 745, dispersion_mrad: 2 }) },
+      ubs: { kind: "mg", def: () => ({ ...data.machineGuns.dshk, id: "ubs_127", name: "UBS (12.7 mm)", muzzle_velocity_ms: 860, dispersion_mrad: 2.1 }) },
+      type99: { kind: "cannon", belt: () => [airShell("he_20_type99", "hefi_20_sprgr", { name: "20 mm Type 99-1 (HE)", mass_kg: 0.128, muzzle_velocity_ms: 600, explosive_mass_kg: 0.006, explosive_type: "tnt" })] },
+      shvak: { kind: "cannon", belt: () => [airShell("hei_20_shvak", "hei_20_dm51", { name: "20 mm ShVAK OZ (HE-I)", mass_kg: 0.096, muzzle_velocity_ms: 790, explosive_mass_kg: 0.0035, explosive_type: "tnt" }), "apt_20_pzgr39"] },
+      mk108: { kind: "cannon", belt: () => [airShell("he_30_mk108", "he_30_mgesch", { name: "30 mm MK 108 M-Gesch. (HE)", mass_kg: 0.33, muzzle_velocity_ms: 505 })] },
+      aden: { kind: "cannon", belt: () => [airShell("he_30_aden", "he_30_mgesch", { name: "30 mm ADEN (HE)", mass_kg: 0.22, muzzle_velocity_ms: 790, explosive_mass_kg: 0.025, explosive_type: "rdx" }), "apt_30_pzgr"] },
+      defa: { kind: "cannon", sound: "aden", belt: () => [airShell("he_30_defa", "he_30_mgesch", { name: "30 mm DEFA 552 (HE)", mass_kg: 0.24, muzzle_velocity_ms: 815, explosive_mass_kg: 0.024, explosive_type: "rdx" }), "apt_30_pzgr"] }
     };
     function airShell(id2, from, over) {
       if (!data.projectiles[id2] && data.projectiles[from]) data.projectiles[id2] = { ...data.projectiles[from], id: id2, ...over };
@@ -34510,8 +34991,9 @@ void main() {
             const dir = disperse(aim, g.def.dispersion_mrad, rng2);
             const bullet = { s: newShot(o, dir, bulletOf(g.def)), def: g.def, instance: `air/${g.id}`, age: 0, travelled: 0, tracer: g.fired % (g.kind === "rotary" ? 5 : 3) === 0, ownAir: true };
             for (let k = 0; k < 3; k++) bullet.s.vel[k] += vel[k];
-            if (!G4.bulletShells.has(g.def.id)) G4.bulletShells.set(g.def.id, bulletShell(g.def));
-            bullet.replayDischarge = G4.localReplay?.acceptDischarge(1, { weapon_instance: bullet.instance, projectile_id: G4.bulletShells.get(g.def.id).id, seed: rng2.nextF32() * 4294967295 >>> 0, time_s: G4.time || 0, origin: o, direction: dir, velocity_m_s: bullet.s.vel, flight_trust: "local_ballistic_world_segments_legacy_contact" });
+            const beltSeed = rng2.nextF32() * 4294967295 >>> 0;
+            bullet.shell = beltShell(g.def, beltSeed);
+            bullet.replayDischarge = G4.localReplay?.acceptDischarge(1, { weapon_instance: bullet.instance, projectile_id: bullet.shell.id, seed: beltSeed, time_s: G4.time || 0, origin: o, direction: dir, velocity_m_s: bullet.s.vel, flight_trust: "local_ballistic_world_segments_legacy_contact" });
             bullet.replayLease = G4.localReplay?.retainProjectile(bullet.replayDischarge);
             G4.bullets.push(bullet);
             fx.mgFlash(o, fwd, g.def.caliber_mm);
@@ -34566,7 +35048,7 @@ void main() {
       if (air.active) {
         G4.cam.shake = Math.min(1.2, (G4.cam.shake || 0) + (tnt > 0 ? 0.35 : 0.08));
         const names = r.killed.map((id2) => D.by[id2]?.name).filter(Boolean);
-        const who = shooter?.name ? `被${shooter.name}擊中` : "中彈";
+        const who = LANG === "en" ? shooter?.name ? `Hit by ${shooter.name}` : "Hit" : shooter?.name ? `被${shooter.name}擊中` : "中彈";
         const now = performance.now();
         if (names.length || !wasFire && D.fire > 0 || now - (air.hitToastAt || 0) > 1500) {
           air.hitToastAt = now;
@@ -34575,7 +35057,8 @@ void main() {
       }
       if (!wasDown && airDown(P)) {
         air.downBy = shooter?.name || null;
-        hud.toast(D.pilotDead ? `NF-01 飛行員陣亡${shooter?.name ? `（${shooter.name}）` : ""}` : `NF-01 被${shooter?.name || "擊"}擊落！`, 4);
+        const nm = P.type.name;
+        hud.toast(LANG === "en" ? D.pilotDead ? `${nm}: pilot killed${shooter?.name ? ` (${shooter.name})` : ""}` : `${nm} shot down${shooter?.name ? ` by ${shooter.name}` : ""}!` : D.pilotDead ? `${nm} 飛行員陣亡${shooter?.name ? `（${shooter.name}）` : ""}` : `${nm} 被${shooter?.name || "擊"}擊落！`, 4);
       }
       return point;
     }
@@ -34597,7 +35080,8 @@ void main() {
           if (sound.full?.bank?.cues?.air_crash) sound.full.play("air_crash", { position: at, emitterId: "air", time: G4.time });
           sound.blast(4, dist, { eventId: `air-crash:${G4.time}`, position: at, time: G4.time });
           if (air.active) G4.cam.shake = 1.2;
-          hud.toast(air.downBy ? `NF-01 被${air.downBy}擊落，墜毀　F8 回到戰車` : "NF-01 墜毀　F8 回到戰車", 5);
+          const nm = P.type.name;
+          hud.toast(LANG === "en" ? `${nm} ${air.downBy ? `shot down by ${air.downBy}, ` : ""}crashed  F8 back to the tank` : air.downBy ? `${nm} 被${air.downBy}擊落，墜毀　F8 回到戰車` : `${nm} 墜毀　F8 回到戰車`, 5);
         }
         if (air.wreck.t > 0) {
           air.wreck.t -= dt;
@@ -34606,29 +35090,75 @@ void main() {
         return;
       }
       if (D.fire > 0 && !D.broken) fx.burning(P.worldPoint(D.by.fuel?.c || [0, 0.1, 0.9]), dt, 0.9);
-      // Afterburner flame: beams drawn this frame from the nozzle as the model is drawn (particles fell
-      // behind the nozzle at speed: user report), white core, orange plume, a faint glow, flickering
+      // Afterburner flame (user requests: drawn at the nozzle at any speed; better looking): this frame's
+      // sprites, so it reads from behind as well as from the side: a white-hot nozzle disc, a blue-white
+      // core, shock diamonds (Mach discs) spaced along it, an orange plume widening and reddening to its
+      // tip and a faint glow; the plume lengthens with afterburner and is shortened by airspeed at sea
+      // level (thicker air), the diamonds drift and the whole flame flickers
       const noz = P.type.nozzle;
       if (noz && P.type.airframe[13] > 0 && !P.crashed && !D.dead("engine") && !D.broken && S[27] > 1.01) {
-        const ab = Math.min(1, (S[27] - 1) / 0.12), flick = 0.9 + 0.1 * Math.sin(G4.time * 53) + 0.06 * Math.sin(G4.time * 131);
-        const at = (z) => P.worldPoint([0, 0, noz.z - z]);
-        fx.beam(at(0), at(noz.r * (3 + 2.5 * ab) * flick), noz.r * 0.55, [1, 0.92, 0.82], 0.85 * ab);
-        fx.beam(at(0.1), at(noz.r * (6 + 5 * ab) * flick), noz.r * 0.85, [1, 0.5, 0.16], 0.6 * ab);
-        fx.beam(at(0), at(noz.r * (8 + 6 * ab) * flick), noz.r * 1.25, [0.9, 0.35, 0.12], 0.18 * ab);
+        const ab = Math.min(1, (S[27] - 1) / 0.12), r = noz.r, t = G4.time, flick = 0.88 + 0.08 * Math.sin(t * 53) + 0.06 * Math.sin(t * 131 + 1.3) + 0.04 * Math.random();
+        const L = r * (7 + 6 * ab) * flick * (1 - 0.25 * Math.min(1, S[13] / 400)), at = (z) => P.worldPoint([0, 0, noz.z - z]);
+        fx.glow(at(0.02), r * 1.05, [1, 0.86, 0.62], 0.75 * ab, 0.11);
+        fx.glow(at(r * 0.6), r * 1.15, [0.62, 0.74, 1], 0.4 * ab, 0.23);
+        fx.beam(at(0), at(r * 2.6 * flick), r * 0.42, [0.78, 0.86, 1], 0.7 * ab);
+        const step = r * (1.25 + 0.25 * ab), drift = (t * 7) % 1 * 0.12 * step;
+        for (let k = 0; k < 5; k++) {
+          const z = r * 0.9 + step * k + drift;
+          if (z > L * 0.75) break;
+          fx.glow(at(z), r * (0.5 - 0.06 * k), [1, 0.93, 0.78], 0.85 * ab * (1 - 0.17 * k), 0.5 + 0.1 * k);
+        }
+        for (let k = 0; k < 9; k++) {
+          const f = (k + 0.5) / 9, z = L * f;
+          fx.glow(at(z), r * (0.75 + 0.7 * f), [1, 0.6 - 0.32 * f, 0.22 - 0.14 * f], 0.32 * ab * (1 - f) ** 1.3, 0.7 + 0.03 * k);
+        }
+        fx.beam(at(0.1), at(L), r * 0.8, [1, 0.5, 0.16], 0.45 * ab);
+        fx.glow(at(L * 0.35), r * 3.2, [1, 0.45, 0.15], 0.07 * ab, 0.9);
       }
-      // Transonic: a vapour cone around the wing near Mach 1 and the boom as the aircraft goes through it
+      // Transonic (user requests: a sonic boom; the effect not good enough yet): a vapour cone drawn
+      // each frame as a shell of sprites flaring aft from the cockpit over the wing (densest at Mach
+      // 0.98-1.02, shimmering), a few wisps shed behind it; going through Mach 1 a white flash, a
+      // shock ring expanding from the airframe, the boom twice (the N-wave's bow and tail shocks,
+      // 0.12 s apart), a jolt of the view and a flash over the screen
       const mach = S[13] / 340;
-      if (mach > 0.95 && mach < 1.06 && !P.crashed) {
-        const strength = 1 - Math.abs(mach - 1.005) / 0.055, span = P.type.fighter ? Math.max(...P.type.fighter.spec.wing.map((w) => w[0])) : 4.5;
-        for (let k = 0; k < 6; k++) {
-          const a = Math.random() * Math.PI * 2, r = 0.6 + Math.random() * span * 0.55, z = -0.5 - Math.random() * 2.5 + r * -0.15;
-          fx.spawn({ pos: P.worldPoint([Math.cos(a) * r, Math.sin(a) * r * 0.75, z]), vel: [S[7] * 0.985, S[8] * 0.985, S[9] * 0.985], life: 0.08, size0: 1.1, size1: 1.8, color: [0.93, 0.95, 0.97], alpha: 0.22 * strength, drag: 0, gravity: 0 });
+      const spec = P.type.fighter?.spec, span = spec ? Math.max(...spec.wing.map((w) => w[0])) : 4.5, cz = spec ? spec.canopy[0][2] : 1;
+      if (mach > 0.93 && mach < 1.07 && !P.crashed) {
+        const strength = Math.max(0, 1 - Math.abs(mach - 1) / 0.07) ** 0.7, t = G4.time;
+        // a thin shell: small sprites close round each ring, the front ring crisp, fading aft
+        for (let ring = 0; ring < 9; ring++) {
+          const f = ring / 8, z = cz - 0.8 - f * 2.6, r = 0.75 + f * span * 0.7, n = 16 + ring * 5;
+          for (let k = 0; k < n; k++) {
+            const a = (k + ring * 0.37) / n * Math.PI * 2 + Math.sin(t * 9 + k) * 0.04, rr = r * (1 + 0.04 * Math.sin(t * 23 + k * 1.7 + ring));
+            fx.glow(P.worldPoint([Math.cos(a) * rr, Math.sin(a) * rr * 0.85, z]), 0.26 + f * 0.3, [0.93, 0.96, 1], strength * (ring === 0 ? 0.12 : 0.075 - 0.05 * f) * (0.75 + 0.25 * Math.sin(t * 31 + k)), 0.2 + 0.05 * k);
+          }
+        }
+        if (Math.random() < 0.5) {
+          const a = Math.random() * Math.PI * 2, r = 0.8 + Math.random() * span * 0.7;
+          fx.spawn({ pos: P.worldPoint([Math.cos(a) * r, Math.sin(a) * r * 0.85, cz - 2.5 - Math.random() * 1.5]), vel: [S[7] * 0.9, S[8] * 0.9, S[9] * 0.9], life: 0.25, size0: 0.5, size1: 1.4, color: [0.93, 0.95, 0.97], alpha: 0.08 * strength, drag: 0, gravity: 0 });
         }
       }
-      if ((air.lastMach ?? mach) < 1 && mach >= 1) {
-        if (sound.full?.bank?.cues?.air_sonic_boom) sound.full.play("air_sonic_boom", { position: P.position, emitterId: "player:air", gain: 1, time: G4.time });
-        if (air.active) G4.cam.shake = Math.min(1.2, (G4.cam.shake || 0) + 0.5);
-        if (air.active) hud.toast("\u7A81\u7834\u97F3\u969C\uFF01", 1.5);
+      if ((air.lastMach ?? mach) < 1 && mach >= 1 && !P.crashed) {
+        const full = sound.full, at = P.position;
+        if (full?.bank?.cues?.air_sonic_boom) {
+          full.play("air_sonic_boom", { position: at, emitterId: "player:air", gain: 1, time: G4.time });
+          full.play("air_sonic_boom", { position: at, emitterId: "player:air:tail", gain: 0.7, rate: 0.92, time: G4.time + 0.12 });
+        }
+        fx.spawn({ pos: P.worldPoint([0, 0, cz - 2]), vel: [S[7], S[8], S[9]], life: 0.28, size0: span * 0.8, size1: span * 3.2, color: [1, 1, 1], alpha: 0.75, additive: true, drag: 0, gravity: 0 });
+        // the shock ring: outward from the airframe in its cross-section, carried along with it
+        for (let k = 0; k < 40; k++) {
+          const a = k / 40 * Math.PI * 2, d = [Math.cos(a), Math.sin(a), 0], m = P.root.local, w = [m[0] * d[0] + m[4] * d[1], m[1] * d[0] + m[5] * d[1], m[2] * d[0] + m[6] * d[1]];
+          fx.spawn({ pos: P.worldPoint([d[0] * span * 0.6, d[1] * span * 0.6, cz - 3]), vel: [S[7] * 0.97 + w[0] * 70, S[8] * 0.97 + w[1] * 70, S[9] * 0.97 + w[2] * 70], life: 0.7, size0: 1.2, size1: 4.5, color: [0.95, 0.97, 1], alpha: 0.4, drag: 2.2, gravity: 0 });
+        }
+        if (air.active) {
+          G4.cam.shake = Math.min(1.4, (G4.cam.shake || 0) + 0.9);
+          airFlash.style.transition = "none";
+          airFlash.style.opacity = "0.6";
+          requestAnimationFrame(() => {
+            airFlash.style.transition = "opacity 0.6s ease-out";
+            airFlash.style.opacity = "0";
+          });
+          hud.toast("\u7A81\u7834\u97F3\u969C\uFF01", 1.5);
+        }
       }
       air.lastMach = mach;
       const eng = D.frac("engine");
@@ -34653,7 +35183,7 @@ void main() {
     }
     const AIR_LOOPS = ["air:engine_low", "air:engine_high", "air:jet_whine", "air:jet_roar", "air:afterburner", "air:vulcan", "air:wind", "air:fire"];
     /** One round's crack (a random one of OPEX's variants) at `time`; false when the bank lacks them. */
-    const AIR_SHOT_GAIN = { mg: 0.85, cannon: 0.95, m2: 0.8, m3: 0.8, mg131: 0.85, hispano: 0.95, nr23: 0.95, n37: 1, nr30: 1 };
+    const AIR_SHOT_GAIN = { mg: 0.85, cannon: 0.95, m2: 0.8, m3: 0.8, mg131: 0.85, hispano: 0.95, nr23: 0.95, n37: 1, nr30: 1, type97: 0.85, ubs: 0.8, type99: 0.95, shvak: 0.95, mk108: 1, aden: 1 };
     function airShot(kind2, n, at2, vel, time) {
       const full = sound.full, id2 = `air_${kind2}_shot_${1 + (n * 7 + Math.floor(Math.random() * 4)) % 4}`;
       if (!full?.bank?.cues?.[id2]) return false;
@@ -35398,8 +35928,22 @@ void main() {
     }
     const buildingHit = (p0, p1) => G4.map ? G4.map.segmentHit(p0, p1) : null;
     const MASONRY_DUST = [0.62, 0.58, 0.5];
+    /** A machine gun's round for a shot's seed (rifle calibres: AP or ball, see beltBall), cached. */
+    function beltShell(def, seed) {
+      const ball = beltBall(def, seed), key = ball ? def.id + "#ball" : def.id;
+      if (!G4.bulletShells.has(key)) G4.bulletShells.set(key, bulletShell(def, ball));
+      return G4.bulletShells.get(key);
+    }
     function hitSelf(p0, p1) {
       const b = G4.veh.body;
+      // far from the tank: no surface trace (every flak shell fired at an aircraft was traced against
+      // the player's tank each step, ~500 core calls a frame: the stutter when the M61 drew fire)
+      {
+        const o = b.origin(), h = G4.model?.height || 3, R = Math.hypot(Math.max(Math.abs(G4.dims.front), Math.abs(G4.dims.rear)) + 2.5, G4.dims.width / 2 + 2.5, h) + 1;
+        const c = [o[0], o[1] + h / 2, o[2]], d = [p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2]], dd = d[0] * d[0] + d[1] * d[1] + d[2] * d[2] || 1;
+        const t = Math.max(0, Math.min(1, ((c[0] - p0[0]) * d[0] + (c[1] - p0[1]) * d[1] + (c[2] - p0[2]) * d[2]) / dd));
+        if (Math.hypot(p0[0] + d[0] * t - c[0], p0[1] + d[1] * t - c[1], p0[2] + d[2] * t - c[2]) > R) return null;
+      }
       if (G4.combat?.surfaceOwner?.actors.has(G4.combatKey)) {
         const c = G4.combat.surfaceOwner.trace(G4.combatKey, p0, p1, G4.time)?.[0];
         return c ? b.worldPoint(c.point) : null;
@@ -35588,7 +36132,7 @@ void main() {
     function presentVictimReplay(evidence) {
       const actor3 = replayActorFor(G4.online ? net.id : 1);
       if (!actor3 || actor3.battle !== evidence.actor.battle || actor3.entity !== evidence.actor.entity || actor3.life !== evidence.actor.life) return false;
-      const shell = data.projectiles[evidence.projectile_id] || (data.machineGuns[evidence.projectile_id.replace(/^bullet_/, "")] ? bulletShell(data.machineGuns[evidence.projectile_id.replace(/^bullet_/, "")]) : null), death = evidence.deaths.at(-1);
+      const shell = data.projectiles[evidence.projectile_id] || bulletShellOf(data.machineGuns, evidence.projectile_id), death = evidence.deaths.at(-1);
       if (!death) return hitcam.show?.(playerReplayTarget(evidence), { ...evidence.report, replay: evidence }, shell, 0, shell?.caliber_mm < 20, "", "offensive") ?? false;
       if (!G4.victimReplay?.offer(actor3, death)) return false;
       const shown = hitcam.showVictim?.(playerReplayTarget(evidence), evidence, shell) ?? false;
@@ -35806,7 +36350,7 @@ void main() {
           e.replayActor = { ...evidence2.actor };
           const member = o.members.get(m.target);
           if (member) member.replayActor = { ...evidence2.actor };
-          const shell = data.projectiles[evidence2.projectile_id] || (data.machineGuns[evidence2.projectile_id.replace(/^bullet_/, "")] ? bulletShell(data.machineGuns[evidence2.projectile_id.replace(/^bullet_/, "")]) : null);
+          const shell = data.projectiles[evidence2.projectile_id] || bulletShellOf(data.machineGuns, evidence2.projectile_id);
           hitcam.show({ ...camTarget(e), actor: evidence2.actor }, { ...evidence2.report, replay: evidence2 }, shell, evidence2.travelled_distance_m || 0, shell?.caliber_mm < 20, "", "offensive");
         }
       }
@@ -36814,7 +37358,7 @@ void main() {
           continue;
         }
         if (r.replay) {
-          const shell = data.projectiles[r.replay.projectile_id] || (data.machineGuns[r.replay.projectile_id.replace(/^bullet_/, "")] ? bulletShell(data.machineGuns[r.replay.projectile_id.replace(/^bullet_/, "")]) : null);
+          const shell = data.projectiles[r.replay.projectile_id] || bulletShellOf(data.machineGuns, r.replay.projectile_id);
           hitcam.show(camTarget(e), { ...r.replay.report, replay: r.replay }, shell, 0, shell?.caliber_mm < 20, "", "offensive");
         }
         if (r.replay_commit?.record && hitcam.cur?.session) hitcam.cur.session.commit(r.replay_commit);
@@ -37156,6 +37700,7 @@ void main() {
         if (e.repeat) return;
         if (G4.air?.active) exitAircraft();
         else if (e.code === "F9" && G4.mode === "battle") enterAircraft(false, G4.lastAirType || "nf01");
+        else if (G4.mode === "garage" && hangar.hidden && e.code === "F8") setAirGarage(!G4.airGarage.on);
         else openHangar(hangar.hidden);
         return;
       }
@@ -37347,12 +37892,12 @@ void main() {
     });
     // Hangar (user request): every flyable type on cards (nation, role, engine, guns, mass); picking one
     // takes off from the range road (from the garage) or appears beside the tank (in battle).
-    const AIR_GUN_TEXT = { mg: "MG 17 7.92 mm", cannon: "MG 151/20 20 mm", m2: "AN/M2 12.7 mm", m3: "M3 12.7 mm", mg131: "MG 131 13 mm", mg151: "MG 151/20 20 mm", hispano: "Hispano Mk II 20 mm", nr23: "NR-23 23 mm", n37: "N-37D 37 mm", nr30: "NR-30 30 mm", m61: "M61A1 20 mm 火神砲", vulcan: "M61A1 20 mm 火神砲" };
+    const AIR_GUN_TEXT = { mg: "MG 17 7.92 mm", cannon: "MG 151/20 20 mm", m2: "AN/M2 12.7 mm", m3: "M3 12.7 mm", mg131: "MG 131 13 mm", mg151: "MG 151/20 20 mm", hispano: "Hispano Mk II 20 mm", nr23: "NR-23 23 mm", n37: "N-37D 37 mm", nr30: "NR-30 30 mm", type97: "九七式 7.7 mm", type99: "九九式一號 20 mm", ubs: "UBS 12.7 mm", shvak: "ShVAK 20 mm", mk108: "MK 108 30 mm", aden: "ADEN 30 mm", defa: "DEFA 552 30 mm", m61: "M61A1 20 mm 火神砲", vulcan: "M61A1 20 mm 火神砲" };
     const AIR_HANGAR = [
       ["試飛機", ["nf01", "nf02"]],
-      ["第二次世界大戰", ["p51d", "bf109g", "spitfire9"]],
-      ["韓戰時期噴射機", ["mig15", "f86f"]],
-      ["超音速", ["f104g", "mig21"]]
+      ["第二次世界大戰", ["p51d", "f4u1d", "bf109g", "fw190a8", "spitfire9", "yak9u", "a6m2"]],
+      ["早期噴射機", ["me262", "mig15", "f86f", "mig17f", "hunter6"]],
+      ["超音速", ["f104g", "mig21", "mirage3e"]]
     ];
     const AIR_TEST_INFO = {
       nf01: { nation: "試驗機", era: "", role: "活塞試飛機", engineText: "AEROLAB 活塞引擎", guns: "2 × MG 17 7.92 mm、1 × MG 151/20 20 mm" },
@@ -37421,8 +37966,155 @@ void main() {
       battleBtn.after(airBtn);
       airBtn.addEventListener("click", (e) => {
         e.currentTarget.blur();
-        openHangar(true);
+        if (G4.mode === "garage") setAirGarage(true);
+        else openHangar(true);
       });
+    }
+    // Garage hangar (user request: the aircraft hangar looks and works like the tank garage): 車庫｜機庫
+    // tabs in the garage header; in the hangar the chosen aircraft stands where the tank stood, its cards
+    // (with a picture of it) along the bottom, its data on the right, X-ray shows its damage parts and
+    // 起飛 takes off in it from the range road. F8 in battle keeps the quick-pick overlay.
+    const airGarage = G4.airGarage = { on: false, sel: AIRCRAFT_TYPES[G4.lastAirType] ? G4.lastAirType : "p51d", plane: null, api: null, size: null, thumbsDone: false, cards: /* @__PURE__ */ new Map(), drop: () => dropAirPreview(), show: () => showAirType(airGarage.sel) };
+    flightCoreP.then((api) => {
+      airGarage.api = api;
+      if (api && airGarage.on) showAirType(airGarage.sel);
+    });
+    {
+      const tabs = document.createElement("div");
+      tabs.id = "g-mode";
+      tabs.setAttribute("role", "tablist");
+      tabs.setAttribute("aria-label", "車庫與機庫");
+      tabs.innerHTML = '<button type="button" class="tab" role="tab" data-g="ground" aria-selected="true">車庫</button><button type="button" class="tab" role="tab" data-g="air" aria-selected="false">機庫</button>';
+      document.querySelector("#g-top h1").after(tabs);
+      tabs.addEventListener("click", (e) => {
+        const b = e.target.closest(".tab");
+        if (!b) return;
+        b.blur();
+        setAirGarage(b.dataset.g === "air");
+      });
+      const list = document.createElement("div");
+      list.id = "air-list";
+      list.setAttribute("aria-label", "選擇飛機");
+      document.getElementById("vehicle-list").after(list);
+      for (const [title, ids] of AIR_HANGAR) {
+        const sep = document.createElement("div");
+        sep.className = "air-sep";
+        sep.textContent = title;
+        list.appendChild(sep);
+        for (const id2 of ids) {
+          if (!AIRCRAFT_TYPES[id2]) continue;
+          const i = airTypeInfo(id2), b = document.createElement("button"), pic = document.createElement("canvas");
+          b.type = "button";
+          b.className = "card";
+          b.dataset.air = id2;
+          b.setAttribute("aria-pressed", "false");
+          pic.width = THUMB_W;
+          pic.height = THUMB_H;
+          b.appendChild(pic);
+          b.insertAdjacentHTML("beforeend", `<span class="nation">${i.nation}</span><span class="cap"><span class="vname">${i.name}</span><span class="vsub">${[i.role, i.era].filter(Boolean).join("・")}</span></span>`);
+          b.addEventListener("click", (e) => {
+            e.currentTarget.blur();
+            showAirType(id2);
+          });
+          b.addEventListener("dblclick", () => flyType(id2));
+          list.appendChild(b);
+          airGarage.cards.set(id2, { button: b, pic });
+        }
+      }
+      const info = document.createElement("div");
+      info.id = "g-air";
+      document.getElementById("g-info").prepend(info);
+      // the battle button, the arrow keys and Enter belong to the hangar while it is shown
+      document.getElementById("battle-btn").addEventListener("click", (e) => {
+        if (G4.mode !== "garage" || !airGarage.on) return;
+        e.stopImmediatePropagation();
+        e.currentTarget.blur();
+        flyType(airGarage.sel);
+      }, true);
+      window.addEventListener("keydown", (e) => {
+        if (G4.mode !== "garage" || !airGarage.on || G4.workshop || !hangar.hidden || G4.thumbs.length) return;
+        const tag2 = e.target.tagName;
+        if (tag2 === "INPUT" || tag2 === "SELECT" || tag2 === "TEXTAREA") return;
+        if (e.code === "ArrowLeft" || e.code === "ArrowRight") {
+          const ids = [...airGarage.cards.keys()], i = ids.indexOf(airGarage.sel);
+          showAirType(ids[(i + (e.code === "ArrowLeft" ? -1 : 1) + ids.length) % ids.length]);
+        } else if (e.code === "Enter" && !(e.target instanceof HTMLButtonElement)) {
+          if (!e.repeat) flyType(airGarage.sel);
+        } else return;
+        e.preventDefault();
+        e.stopImmediatePropagation();
+      }, true);
+    }
+    const GARAGE_HINT = { ground: "拖曳畫面可環視　<kbd>←</kbd> <kbd>→</kbd> 換車　<kbd>Enter</kbd> 出擊", air: "拖曳畫面可環視　<kbd>←</kbd> <kbd>→</kbd> 換機　<kbd>Enter</kbd> 起飛" };
+    function setAirGarage(on) {
+      if (on === airGarage.on || G4.mode !== "garage" && on) return;
+      if (G4.workshop) setWorkshop(false);
+      if (G4.protect) setProtect(false);
+      if (G4.xray) setXray(false);
+      airGarage.on = on;
+      document.body.dataset.garage = on ? "air" : "ground";
+      for (const t of document.querySelectorAll("#g-mode .tab")) t.setAttribute("aria-selected", String(t.dataset.g === "air" === on));
+      document.querySelector("#g-top h1 span").textContent = on ? "機庫" : "車庫";
+      document.getElementById("battle-btn").textContent = on ? "起飛" : !net.inRoom ? "開始戰鬥" : net.isHost ? "開始聯機戰鬥" : "等待房主開戰";
+      document.getElementById("g-hint").innerHTML = GARAGE_HINT[on ? "air" : "ground"];
+      if (on) showAirType(airGarage.sel);
+      else dropAirPreview();
+      // looked at from higher than a tank: from the tank's eye height the wings were seen edge-on
+      G4.cam.pitch = on ? Math.min(G4.cam.pitch, -0.42) : GARAGE.camPitch;
+      G4.cam.pivot = null;
+      measureInsets();
+    }
+    function showAirType(id2) {
+      if (!AIRCRAFT_TYPES[id2]) return;
+      airGarage.sel = id2;
+      for (const [k, c] of airGarage.cards) c.button.setAttribute("aria-pressed", String(k === id2));
+      airGarage.cards.get(id2)?.button.scrollIntoView?.({ block: "nearest", inline: "nearest" });
+      renderAirInfo(id2);
+      if (!airGarage.api || G4.mode !== "garage" || !airGarage.on) return;
+      if (!airGarage.thumbsDone) airThumbs();
+      airPreview(id2);
+    }
+    /** The aircraft on show (built once per type picked; the flight core is idle in the garage). */
+    function airPreview(id2) {
+      if (airGarage.plane?.type.id === id2) return airGarage.plane;
+      dropAirPreview();
+      const p = new Aircraft(renderer, airGarage.api, id2), x = G4.s.x, z = G4.s.z;
+      p.spawn(x, surfaceAt(x, z), z, G4.s.heading, 0, true);
+      p.pose(1);
+      if (G4.xray) p.setXray(true);
+      scene.add(p.root);
+      const sp = p.type.fighter?.spec, zs = sp ? sp.fuselage.map((s) => s[0]) : null;
+      airGarage.size = sp ? { len: Math.max(...zs) - Math.min(...zs) + (sp.prop ? 0.7 : 0), span: 2 * Math.max(...sp.wing.map((w) => w[0])) } : id2 === "nf02" ? { len: 15.4, span: 9.9 } : { len: 9.5, span: 11 };
+      return airGarage.plane = p;
+    }
+    function dropAirPreview() {
+      const p = airGarage.plane;
+      if (!p) return;
+      scene.children = scene.children.filter((c) => c !== p.root);
+      p.dispose();
+      airGarage.plane = null;
+    }
+    /** Pictures for the cards: each type drawn once in the garage light (as the tanks' thumbStep). */
+    function airThumbs() {
+      airGarage.thumbsDone = true;
+      const aspect = THUMB_W / THUMB_H;
+      for (const [id2, c] of airGarage.cards) {
+        airPreview(id2);
+        G4.thumbShot = G4.airThumb = true;
+        update(1 / 60);
+        G4.thumbShot = G4.airThumb = false;
+        let sw = canvas.width, sh = sw / aspect;
+        if (sh > canvas.height) {
+          sh = canvas.height;
+          sw = sh * aspect;
+        }
+        c.pic.getContext("2d").drawImage(canvas, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh, 0, 0, THUMB_W, THUMB_H);
+      }
+    }
+    function renderAirInfo(id2) {
+      const i = airTypeInfo(id2), T = AIRCRAFT_TYPES[id2], af = T.airframe, jet = T.sound === "jet", row = (k, v2) => `<dt>${k}</dt><dd>${v2}</dd>`;
+      const thrust = af[12] * (1 + af[13]);
+      document.getElementById("g-air").innerHTML = `<div class="kind">${[i.nation, i.role].filter(Boolean).join("・")}</div><h2>${i.name}</h2><p class="based">${i.era ? LANG === "en" ? i.era : `${i.era} 年` : "原創試驗機"}</p><dl>` + row("引擎", i.engine) + row("武裝", i.guns) + row("全重", i.mass) + row("翼展", `${af[3]} m`) + row("翼面積", i.wing) + row("翼負荷", `${Math.round(af[0] / af[1])} kg/m²`) + (jet ? row("推力", `${(af[12] / 1e3).toFixed(1)} kN${i.ab ? `（後燃器 ${(thrust / 1e3).toFixed(1)} kN）` : ""}`) + row("推重比", (thrust / (af[0] * 9.81)).toFixed(2)) : "") + row("過載上限", `${T.gLimit} G`) + row("起飛速度", `約 ${T.rotateKmh} km/h`) + `</dl><p class="air-keys">滑鼠瞄準飛行　Shift／Ctrl 油門　左鍵全部開火　右鍵機砲　G 起落架　F 襟翼　V 座艙視角　F8 離機</p>`;
     }
     const locked = () => document.pointerLockElement === canvas;
     const lockable = () => !!canvas.requestPointerLock && document.body.dataset.touch !== "1";
@@ -37787,7 +38479,9 @@ void main() {
           }
           if (!G4.bulletShells.has(bullet.def.id)) G4.bulletShells.set(bullet.def.id, bulletShell(bullet.def));
           if (!G4.online) {
-            bullet.replayDischarge = G4.localReplay?.acceptDischarge(1, { weapon_instance: bullet.instance, projectile_id: G4.bulletShells.get(bullet.def.id).id, seed: rng2.nextF32() * 4294967295 >>> 0, time_s: G4.time || 0, origin: mz.pos, direction: dir, velocity_m_s: bullet.s.vel, flight_trust: "local_ballistic_world_segments_legacy_contact" });
+            const beltSeed = rng2.nextF32() * 4294967295 >>> 0;
+            bullet.shell = beltShell(bullet.def, beltSeed);
+            bullet.replayDischarge = G4.localReplay?.acceptDischarge(1, { weapon_instance: bullet.instance, projectile_id: bullet.shell.id, seed: beltSeed, time_s: G4.time || 0, origin: mz.pos, direction: dir, velocity_m_s: bullet.s.vel, flight_trust: "local_ballistic_world_segments_legacy_contact" });
             bullet.replayLease = G4.localReplay?.retainProjectile(bullet.replayDischarge);
           }
           G4.bullets.push(bullet);
@@ -37833,12 +38527,13 @@ void main() {
             if (e.combat && e.alive && !friend && b.from == null) {
               const sp2 = Math.hypot(b.s.vel[0], b.s.vel[1], b.s.vel[2]) || 1;
               const dir = [b.s.vel[0] / sp2, b.s.vel[1] / sp2, b.s.vel[2] / sp2];
-              if (!G4.bulletShells.has(b.def.id)) G4.bulletShells.set(b.def.id, bulletShell(b.def));
+              // the belt's round: chosen as it was fired (with its replay), else by this hit's seed
+              const hitSeed = b.replayDischarge?.seed ?? rng2.nextF32() * 4294967295 >>> 0, round = b.shell || beltShell(b.def, hitSeed);
               if (b.replayDischarge) G4.localReplay.clipProjectileStep(b.replayDischarge, eb.hit.t);
               let rep = null;
               try {
-                rep = combatHit(e, p0, dir, G4.bulletShells.get(b.def.id), sp2, b.travelled, b.replayDischarge?.seed ?? rng2.nextF32() * 4294967295 >>> 0, b.replayDischarge, b.replayDischarge?.flight.at(-1)?.time_s, (report) => {
-                  if (!(e.remote && G4.online)) sound.resolvedContact?.(report, G4.bulletShells.get(b.def.id), e.veh.body, { position: eb.hit.point, time: G4.time });
+                rep = combatHit(e, p0, dir, round, sp2, b.travelled, hitSeed, b.replayDischarge, b.replayDischarge?.flight.at(-1)?.time_s, (report) => {
+                  if (!(e.remote && G4.online)) sound.resolvedContact?.(report, round, e.veh.body, { position: eb.hit.point, time: G4.time });
                 }, p1);
               } catch (error) {
                 console.error("combat hit rejected:", error);
@@ -37848,11 +38543,11 @@ void main() {
                 break;
               }
               // a filled round flown as a bullet (the NF-02's M56): its contact burst as a shell's
-              const bshell = G4.bulletShells.get(b.def.id);
+              const bshell = round;
               if (bshell?.explosive_mass_kg > 0 && !(e.remote && G4.online)) rep = heContactEffects(e, bshell, eb.hit.point, dir, rep, G4.time);
               if (e.remote && G4.online) net.send({ t: "mg_hit", seq: b.seq, instance: b.instance, target: e.netId, gun: b.def.id, shot: wireShot(rep.shot) });
               if (rep.replay || rep.modules.length || rep.crew.length || rep.caps.destroyed) {
-                onCombatHit(e, rep, G4.bulletShells.get(b.def.id), b.travelled, true);
+                onCombatHit(e, rep, round, b.travelled, true);
               }
               if (!(e.remote && G4.online)) showHit(hud, rep);
             }
@@ -38388,6 +39083,23 @@ void main() {
         target[0] += Math.sin(G4.s.heading) * mid;
         target[2] += Math.cos(G4.s.heading) * mid;
       }
+      // the hangar: the aircraft in the tank's place (the tank still drawn for its own card pictures)
+      const airG = G4.airGarage, airShown = garage && !!airG?.on;
+      if (airShown && !airG.plane && airG.api && !G4.thumbShot) airG.show();
+      if (G4.model) G4.model.root.visible = !airShown || G4.thumbShot && !G4.airThumb;
+      if (airG?.plane) {
+        if (!garage) airG.drop();
+        else {
+          airG.plane.root.visible = airShown && !(G4.thumbShot && !G4.airThumb);
+          if (airG.plane.xray !== !!G4.xray) airG.plane.setXray(!!G4.xray);
+          if (airShown) {
+            const c = airG.plane.drawPos;
+            target[0] = c[0];
+            target[1] = c[1] + 0.3;
+            target[2] = c[2];
+          }
+        }
+      }
       if (!G4.cam.pivot) G4.cam.pivot = target.slice();
       const follow = 1 - Math.exp(-dt * 14);
       for (let i = 0; i < 3; i++) G4.cam.pivot[i] += (target[i] - G4.cam.pivot[i]) * follow;
@@ -38414,13 +39126,22 @@ void main() {
       if (flying && !G4.thumbShot) {
         const c = G4.air.plane.camera(dt, surfaceAt);
         camPos = c.camPos;
-        fwd = c.fwd;
+        // the view jolted by a sonic boom or a blast (the shake was a tank's view only)
+        fwd = G4.cam.shake > 0.02 ? norm(c.fwd.map((v2) => v2 + jitter() * 0.02)) : c.fwd;
         fovY = c.fovY;
       } else if (testing && !G4.thumbShot) {
         const c = testRange.camera(dt, G4);
         camPos = c.camPos;
         fwd = c.fwd;
         fovY = c.fovY;
+      } else if (G4.thumbShot && G4.airThumb && G4.airGarage?.plane) {
+        // a hangar card's picture: the aircraft framed by its length and span as seen from the garage view
+        const ag = G4.airGarage, tanY2 = aspect >= 16 / 9 ? THUMB_TAN * 9 / 16 : THUMB_TAN / aspect;
+        fovY = 2 * Math.atan(tanY2);
+        fwd = dirFrom2(GARAGE.camYaw, -0.2);
+        const rel = wrapPi(GARAGE.camYaw + Math.PI - G4.s.heading), seen = ag.size.len * Math.abs(Math.sin(rel)) + ag.size.span * Math.abs(Math.cos(rel));
+        const dist3 = seen * 0.5 * 1.06 / THUMB_TAN, c = ag.plane.drawPos;
+        camPos = [c[0] - fwd[0] * dist3, c[1] + 0.3 - fwd[1] * dist3, c[2] - fwd[2] * dist3];
       } else if (G4.thumbShot) {
         const tanY2 = aspect >= 16 / 9 ? THUMB_TAN * 9 / 16 : THUMB_TAN / aspect;
         fovY = 2 * Math.atan(tanY2);
@@ -38446,8 +39167,9 @@ void main() {
           const tanY2 = Math.max(Math.tan(GARAGE_FOV / 2), 0.26 / aspect);
           wantFov = 2 * Math.atan(tanY2);
           const free = Math.max(0.35, 1 - G4.inset.right);
-          const fit2 = (G4.dims.front - G4.dims.rear) * 0.6 / (tanY2 * aspect * free);
-          G4.cam.distTarget = clamp15(fit2 * G4.gzoom, 8, GARAGE_MAX_DIST);
+          const airSize = G4.airGarage?.on && G4.airGarage.plane ? G4.airGarage.size : null;
+          const fit2 = (airSize ? Math.max(airSize.len, airSize.span) * 0.78 : (G4.dims.front - G4.dims.rear) * 0.6) / (tanY2 * aspect * free);
+          G4.cam.distTarget = clamp15(fit2 * G4.gzoom, 8, airSize ? 40 : GARAGE_MAX_DIST);
         }
         G4.cam.fov = lerp(G4.cam.fov > 1.2 ? THIRD_FOV : G4.cam.fov, wantFov, 1 - Math.exp(-dt * 11));
         if (G4.camOverride) {

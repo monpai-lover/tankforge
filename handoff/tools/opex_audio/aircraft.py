@@ -56,13 +56,22 @@ FIGHTER_ENGINES = [
     ('air_eng_spitfire9', A + 'engines/engine10', 'piston'),
     ('air_jet_mig15', A + 'engines/engine05_02_nene_N1', 'jet'), ('air_jet_f86f', A + 'engines/engine05_06_J47_N1', 'jet'),
     ('air_jet_mig21', A + 'engines/engine05_r11_N1_WEP', 'jet_ab'),
+    # the blueprint types (OPEX names its piston engines only by number: four not yet used, one each;
+    # engine03 / 08 hold only beds shared with other engines)
+    ('air_eng_fw190a8', A + 'engines/engine09', 'piston'), ('air_eng_f4u1d', A + 'engines/engine04', 'piston'),
+    ('air_eng_a6m2', A + 'engines/engine07', 'piston'), ('air_eng_yak9u', A + 'engines/engine11', 'piston'),
+    ('air_jet_me262', A + 'engines/engine05_04_Jumo004_twin_N1', 'jet'), ('air_jet_hunter6', A + 'engines/engine05_06_avon_N1_N2', 'jet'),
+    ('air_jet_mig17f', A + 'engines/engine05_02_nene_N1_WEP', 'jet_ab'), ('air_jet_mirage3e', A + 'engines/engine05_atar_N1_WEP', 'jet_ab'),
 ]
 FIGHTER_GUNS = [
     ('m2', A + 'weapon/m2_gun_outside'), ('m3', A + 'weapon/m3_gun_outside'), ('mg131', A + 'weapon/mg_131_gun_outside'),
-    ('hispano', A + 'weapon/shvak_gun_outside'), ('nr23', A + 'weapon/nr23_gun_outside'), ('n37', A + 'weapon/ns37_gun_outside'),
+    ('hispano', A + 'weapon/hs_mk2_gun_outside'), ('nr23', A + 'weapon/nr23_gun_outside'), ('n37', A + 'weapon/ns37_gun_outside'),
     ('nr30', A + 'weapon/cannon_nr_30_outside'),
+    ('type97', A + 'weapon/type97_gun_outside'), ('type99', A + 'weapon/type99_gun_outside'), ('ubs', A + 'weapon/berezin_gun_outside'),
+    ('shvak', A + 'weapon/shvak_gun_outside'), ('mk108', A + 'weapon/mk_108_gun_outside'), ('aden', A + 'weapon/cannon_aden_outside'),
 ]
-GUN_DB = {'m2': (-16.0, -24.0), 'm3': (-16.0, -24.0), 'mg131': (-15.0, -23.0), 'hispano': (-13.0, -21.0), 'nr23': (-13.0, -21.0), 'n37': (-12.0, -19.0), 'nr30': (-12.0, -20.0)}
+GUN_DB = {'m2': (-16.0, -24.0), 'm3': (-16.0, -24.0), 'mg131': (-15.0, -23.0), 'hispano': (-13.0, -21.0), 'nr23': (-13.0, -21.0), 'n37': (-12.0, -19.0), 'nr30': (-12.0, -20.0),
+          'type97': (-15.0, -23.0), 'type99': (-13.0, -21.0), 'ubs': (-16.0, -24.0), 'shvak': (-13.0, -21.0), 'mk108': (-12.0, -19.0), 'aden': (-12.0, -19.0)}
 
 def levels(path, q_s=0.25):
     a = array.array('h', b.run(['ffmpeg', '-v', 'error', '-i', path, '-f', 's16le', '-ac', '1', '-ar', '8000', '-']))
@@ -74,6 +83,7 @@ def brightness(path):
     return sum(1 for i in range(1, len(a)) if (a[i - 1] < 0) != (a[i] < 0)) / 2 / max(1e-3, len(a) / 8000)
 
 USED_SHOTS = set()
+USED_ROARS = set()
 def fighter_cues(B, bank, event, role, uses):
     """[(cue suffix, (fsb, sample), path, loop, mean dB)] for an engine (piston: darkest / brightest loop of
     2 s or more; jet: brightest steady loop = whine, loudest other steady loop = roar, and with an
@@ -96,7 +106,8 @@ def fighter_cues(B, bank, event, role, uses):
         if role == 'piston':
             return [('_low', loops[0][0], loops[0][1], True, -21.0), ('_high', loops[-1][0], loops[-1][1], True, -19.0)]
         whine = loops[-1]; rest = [c for c in loops if c is not whine and br[c[0]] < 900] or loops[:-1]
-        roar = max(rest, key=lambda c: c[2]['energy']); out = [('_whine', whine[0], whine[1], True, -22.0), ('_roar', roar[0], roar[1], True, -18.0)]
+        # a roar layer no earlier type took (the generic jet beds recur across OPEX's turbojets)
+        roar = max([c for c in rest if c[0] not in USED_ROARS] or rest, key=lambda c: c[2]['energy']); USED_ROARS.add(roar[0]); out = [('_whine', whine[0], whine[1], True, -22.0), ('_roar', roar[0], roar[1], True, -18.0)]
         left = [c for c in loops if c is not roar and c is not whine]
         if role == 'jet_ab' and left:
             ab = max(left, key=lambda c: c[2]['energy']); out.append(('_ab', ab[0], ab[1], True, -18.0))

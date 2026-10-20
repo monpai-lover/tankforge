@@ -55,12 +55,12 @@ body:not([data-mode="garage"]) #garage { display: none; }
 #g-settings { margin-left: auto; }
 
 #g-info { top: max(68px, calc(var(--hdr, 68px) - 4px)); right: var(--gutter); width: 318px; max-height: calc(100% - max(68px, calc(var(--hdr, 68px) - 4px)) - 214px); overflow-y: auto; }
-#g-kind { font-family: var(--display); font-size: 12.5px; font-weight: 600; color: var(--amber); letter-spacing: 0.14em; }
-#g-name { margin: 2px 0 2px; font-family: var(--display); font-size: 24px; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; color: var(--ink); text-wrap: balance; }
-#g-based { margin: 0; font-size: 12.5px; color: var(--dim); }
+#g-kind, #g-air .kind { font-family: var(--display); font-size: 12.5px; font-weight: 600; color: var(--amber); letter-spacing: 0.14em; }
+#g-name, #g-air h2 { margin: 2px 0 2px; font-family: var(--display); font-size: 24px; font-weight: 700; line-height: 1.15; letter-spacing: 0.02em; color: var(--ink); text-wrap: balance; }
+#g-based, #g-air .based { margin: 0; font-size: 12.5px; color: var(--dim); }
 #g-outline { display: inline-block; margin: 8px 0 0; padding: 1px 8px; border: 1px solid var(--line); font-size: 12px; color: var(--dim); }
 #g-outline[data-kind="traced"] { border-color: var(--ok); color: var(--ok); }
-#spec { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 10px 0 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; }
+#spec, #g-air dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; margin: 10px 0 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 12.5px; }
 /* modifications: the family's weapon fits and camouflages, War Thunder's way */
 #g-mods { margin: 0 0 12px; padding-top: 8px; border-top: 1px solid var(--line); }
 #g-mods h3 { margin: 0 0 6px; font-size: 12px; letter-spacing: 0.08em; color: var(--amber); font-weight: 600; }
@@ -70,11 +70,11 @@ body:not([data-mode="garage"]) #garage { display: none; }
 .mod:hover { border-color: var(--amber); }
 .mod[aria-pressed="true"] { border-color: var(--amber); background: rgba(214, 160, 52, 0.18); cursor: default; }
 .mod:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-#spec dt { color: var(--dim); white-space: nowrap; }
-#spec dd { margin: 0; min-width: 0; font-variant-numeric: tabular-nums; }
+#spec dt, #g-air dt { color: var(--dim); white-space: nowrap; }
+#spec dd, #g-air dd { margin: 0; min-width: 0; font-variant-numeric: tabular-nums; }
 
 #g-bottom { position: absolute; left: 0; right: 0; bottom: 0; display: flex; align-items: flex-end; gap: var(--gutter); padding: 26px var(--gutter) calc(var(--gutter) + env(safe-area-inset-bottom, 0px)); background: linear-gradient(to top, rgba(12, 14, 9, 0.9) 40%, rgba(12, 14, 9, 0)); }
-#vehicle-list { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+#vehicle-list, #air-list { flex: 1; min-width: 0; display: flex; gap: 8px; overflow-x: auto; padding: 4px 2px 8px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 .card { position: relative; flex: none; width: 172px; padding: 0; background: var(--solid); border: 1px solid var(--line); color: var(--ink); text-align: left; cursor: pointer; }
 .card:hover { border-color: var(--dim); }
 .card[aria-pressed="true"] { border-color: var(--amber); box-shadow: 0 0 0 1px var(--amber); }
@@ -503,7 +503,7 @@ body[data-touch="1"] #workshop { top: auto; bottom: 0; right: 0; width: 100%; ma
   #spec { margin: 5px 0 6px; padding-top: 5px; gap: 1px 10px; font-size: 12px; }
   #spec dt:nth-of-type(n+4), #spec dd:nth-of-type(n+4) { display: none; }
   #g-bottom { flex-direction: column; align-items: stretch; gap: 6px; padding-top: 8px; background: linear-gradient(to top, rgba(12, 14, 9, 0.92) 70%, rgba(12, 14, 9, 0)); }
-  #vehicle-list { flex: none; }
+  #vehicle-list, #air-list { flex: none; }
   .card { width: 128px; }
   .card .cap { padding: 3px 6px 4px; }
   .card .vname { font-size: 12.5px; }
@@ -539,7 +539,7 @@ body[data-touch="1"] #workshop { top: auto; bottom: 0; right: 0; width: 100%; ma
   .card .cap { padding: 2px 6px 3px; }
   .card .vname { font-size: 12px; }
   .card .vsub { display: none; }
-  #vehicle-list { padding-bottom: 4px; }
+  #vehicle-list, #air-list { padding-bottom: 4px; }
   #battle-btn { padding: 10px; font-size: 17px; }
   #g-go { width: 200px; }
   #g-hint { display: none; }
@@ -773,9 +773,18 @@ body[data-air="1"] #drive, body[data-air="1"] #gunbox, body[data-air="1"] #help,
 #hangar .hangar-card b { font: 700 15px var(--display); }
 #hangar .hangar-card em { font-style: normal; color: var(--amber); }
 #hangar .hangar-card small { opacity: 0.7; }
+/* the garage's hangar tab (user request: the aircraft hangar as the tank garage): the aircraft's cards
+   in the vehicle strip, grouped by era, its data in the info panel */
+#g-mode { display: flex; gap: 2px; }
+#g-mode .tab { font-size: 15px; }
+.air-sep { flex: none; display: flex; align-items: center; justify-content: center; width: 22px; padding: 4px 0; writing-mode: vertical-rl; font-family: var(--display); font-size: 11.5px; letter-spacing: 0.18em; color: var(--dim); border-left: 1px solid var(--line); }
+#g-air .air-keys { margin: 0 0 10px; font-size: 11.5px; line-height: 1.6; color: var(--dim); }
+body:not([data-garage="air"]) #air-list, body:not([data-garage="air"]) #g-air { display: none; }
+body[data-garage="air"] #vehicle-list, body[data-garage="air"] #g-filter, body[data-garage="air"] #g-info > :not(#g-air):not(.tools), body[data-garage="air"] #prot-btn, body[data-garage="air"] #ws-open, body[data-garage="air"] #prot, body[data-garage="air"] #air-btn { display: none; }
 #air-btn, #jet-btn { margin-top: 8px; width: 100%; padding: 8px 12px; font: 600 14px var(--display); letter-spacing: 0.08em; color: var(--ink); background: var(--panel); border: 1px solid var(--line); border-radius: 3px; cursor: pointer; }
 #air-btn:hover, #jet-btn:hover { border-color: var(--amber); color: var(--amber); }
 #air-hud { position: fixed; inset: 0; pointer-events: none; z-index: 3; font: 13px/1.45 var(--body); color: var(--ink); }
+#air-hud .air-flash { position: absolute; inset: 0; opacity: 0; background: radial-gradient(ellipse at center, rgba(255, 255, 255, 0.9) 0%, rgba(235, 242, 255, 0.55) 45%, rgba(220, 230, 245, 0) 85%); }
 #air-hud .air-aim, #air-hud .air-nose { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; }
 #air-hud .air-aim { border: 2px solid var(--amber); border-radius: 50%; box-shadow: 0 0 0 1px #0008; }
 #air-hud .air-nose::before, #air-hud .air-nose::after { content: ""; position: absolute; background: #f5f3ee; box-shadow: 0 0 0 1px #0008; }

@@ -1783,7 +1783,9 @@ impl Lobby {
                 let Some(def) = def else { return Vec::new() };
                 let discharge=f.replay.clone();
                 f.used = true;
-                (def.clone(), shot_seed(id, seq), Some(discharge))
+                let seed = shot_seed(id, seq);
+                let def = if kind == WeaponKind::MachineGun { crate::server::belt_round(def, seed) } else { def.clone() };
+                (def, seed, Some(discharge))
             }
             (None, Some(g)) => {
                 if self.own_weapon(id, instance, Some(g), None, None, WeaponKind::MachineGun).is_err() { return Vec::new(); }
@@ -1792,7 +1794,8 @@ impl Lobby {
                 if p.mg_window.1 >= self.rooms[&room].gameplay.legacy_mg_window() { return Vec::new(); }
                 let Some(def) = self.bullets.get(g) else { return Vec::new() };
                 p.mg_window.1 += 1;
-                (def.clone(), shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32), None)
+                let seed = shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32);
+                (crate::server::belt_round(def, seed), seed, None)
             }
             _ => return Vec::new(),
         };
