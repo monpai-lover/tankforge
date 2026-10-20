@@ -680,6 +680,25 @@ W／↑ 推桿俯衝，S／↓ 拉桿爬升（原本相反）。操作說明同�
 
 **其他**：Vulcan 和其他機槍的射擊表現沒有改變；P-51D、F-104G、NF-02 重測與上一輪相同（F-104G 仍達 1.4 馬赫）；後續砲彈的回放仍在命中當下顯示（延遲 0）。
 
+### 40. 新載具：VK 30.02 (DB)（使用者提供的模型與命中參考）
+
+使用者提供的 `VK3002_DB_armor_v1_4.html` 內有三樣東西：外觀模型（GLB），全車 195,124 個碰撞三角形的命中參考（`tankforge.reference.surface-hitbox/1.0`，51 個分區、裝甲名義厚度、出處與可信度、砲塔／火炮／艙蓋關節），以及檢視頁面。命中參考的二進位檔 SHA-256 與它的 manifest 一致；內嵌 GLB 的雜湊（e294…）和 manifest 記載的 `sourceVisualSha256`（663b…）不同，GLB 自己標示為「v1.4 armour metadata, untouched v1.3 visual geometry」，所以不是同一份位元組。
+
+- **外觀**：`client/web/tools/glb-vehicle.py` 依 `import.json` 切開：砲塔（`Turret_Yaw` 以下）、火炮（`Gun_Elevation`）、會後座的砲管（長度 2.5 m 以上的部分加上 z 2.2 m 以前方）、每側 8 個交錯負重輪、主動輪（後方）和誘導輪都找到並各自轉動；模型自己的履帶不用，改由遊戲的履帶。`model.json` 1.7 MB。
+- **裝甲**（`tools/vk3002_plates.py`）：從命中參考取每個「當裝甲用」分區的裝甲面三角形，放到靜止姿態的車體座標，依朝向（20° 內）分組、再依相連性切開。每塊至少 0.02 m² 的連通面做成一塊 armor.json 板：中心、法線、面內主軸、尺寸都量自三角形本身；只保留朝外的那一面，雙面的板不重複。
+  - 共 71 塊：首上 60 mm、首下 60 mm、車體側面 40 mm、車尾 50 mm、頂板與底板 16 mm、砲塔正面 80 mm、砲塔側／後 45 mm（四面折角各一塊）、炮盾 80 mm，以及艙蓋、檢修蓋。
+  - 厚度用命中參考的名義值，它自己標的出處（`published_research` 或 `game_estimate`）和可信度一併記在每塊板的 `source`。
+  - 斜率用模型的實際網格法線（參考資料明確這樣規定）：首上板約 66°，公開資料是 55°。
+  - 砲塔、炮盾、車長塔的板會跟著砲塔轉動。核心只接受固定的分區名稱，所以砲塔座圈和車長塔側壁歸到 `turret_side`，砲塔底板和車長塔蓋歸到 `turret_roof`。
+- **性能**（`vehicle.json` 的 notes 寫明出處）：Wikipedia「VK 30.01-30.02 (D)」：35 t，含砲全長 9.02 m、寬 3.28 m、高 2.69 m，Maybach HL 210 P45 650 hp（設計也有 Daimler-Benz MB 507 柴油機的說法），56 km/h，最大裝甲 80 mm。主砲 7.5 cm KwK 42 L/70 和彈藥沿用豹式 G 型的資料；俯仰 -5°／+20°（命中參考的關節範圍），同軸與車首各一挺 MG 34，乘員 5 名。變速比、懸吊（板簧）、內部配置是估計值。
+- **實測**（`tests/vk3002.js`，保護分析沿每塊板法線射擊）：
+  - 75 mm Pzgr. 39/42（500 m，約 150 mm 穿深）每塊板都擊穿。
+  - MG 34 穿甲彈（100 m，約 10 mm）打到裝甲全部擋下；沒有打到裝甲的幾發是先碰到翼子板等外部附件（external）。
+  - 修正前有幾發「無裝甲」：我擺的模組盒穿出了裝甲板，射線（受種子的散布影響）先碰到模組。變速箱伸到車尾板後面；右側彈架到 x 1.45 m，超出 40 mm 斜側板；油箱穿出下側板 6.5 cm。已把三者都移進板內，重測兩次（不同種子）都沒有再出現無裝甲。
+  - 最後結果：75 mm 49 塊擊穿、1 塊斜角跳彈；MG 34 擋下 41、跳彈 1、打到外部附件 8。
+  - 車庫顯示、出擊、主砲射擊都正常，靶場道路極速 58 km/h（休閒模式）。
+- **還沒做**：這輛車目前用 armor.json 板的判定路徑（和其他 20 輛沒有表面目錄的車一樣），還沒有渲染三角形的表面目錄。命中參考本身就是三角形級的資料，但要變成遊戲的表面目錄，必須從遊戲實際上傳的渲染緩衝產生（`docs/hitbox-conventions.md` 第 1、3 條），而產生目錄宣告和裝甲層的產生器不在這個 repo 裡。
+
 ## 尚未完成／已知限制
 
 - 第 4 項和第 39 項的表面目錄修正只作用在本機權威（離線）戰鬥。線上對戰由伺服器判定，伺服器端目錄仍是原規則；彈鏈規則伺服器也有（第 39 項），但線上時客戶端用的種子和伺服器不同，所以客戶端畫面上的命中效果可能和伺服器判定不一樣（以伺服器為準）。
@@ -702,4 +721,4 @@ cd handoff/tests
 
 測試腳本：`replay_alpha.js`（回放透明）、`armor_cursor_probe.js` / `armor_cursor_grid.js`（等效厚度）、`detonation_offensive.js` / `detonation_victim.js` / `victim_skip.js`（殉爆）、`plates_apfsds.js` / `plates_apc.js`（擊穿判定）、`damage_barrel_track.js` / `replay_barrel.js` / `track_fallback.js`（損壞畫面）、`aircraft_takeoff.js` / `aircraft_landing.js`（飛機）、`catalogs_all.js`（批次驗證所有表面目錄：`./run.sh trim 車輛清單` 後 `./run.sh page` 再執行）、`full_data.js`（完整頁面的總檢查，需要約 4 GB 以上可用記憶體；`PAGE=full.html`，頁面用 `sh devpage.sh ../bundle/data.line out/full.html` 產生）。
 
-第 39 項新增：`air_hangar.js`（車庫的機庫分頁；`__FLY=1` 測起飛）、`air_look.js`（機型俯視近照，`__IDS`）、`air_fx.js`（後燃尾焰與音爆）、`mg_m8.js`（機槍對 M8 每塊裝甲）、`perf_vulcan.js`（火神砲命中時的每步耗時與核心呼叫統計）、`replay_far.js`（遠距命中回放的近／遠裁切面）、`beam_endon.js`（正後方看曳光）、`tracer.js`（坦克砲彈曳光）。
+第 39 項新增：`air_hangar.js`（車庫的機庫分頁；`__FLY=1` 測起飛）、`air_look.js`（機型俯視近照，`__IDS`）、`air_fx.js`（後燃尾焰與音爆）、`mg_m8.js`（機槍對 M8 每塊裝甲）、`perf_vulcan.js`（火神砲命中時的每步耗時與核心呼叫統計）、`replay_far.js`（遠距命中回放的近／遠裁切面）、`beam_endon.js`（正後方看曳光）、`tracer.js`（坦克砲彈曳光）。第 40 項：`vk3002.js`（VK 30.02 的車庫、內構、每塊板的試射、極速與主砲；`__VEH` 換車）。

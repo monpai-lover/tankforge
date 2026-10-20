@@ -1,0 +1,41 @@
+{
+ "engine": {
+  "horsepower": 650,
+  "max_rpm": 3000,
+  "idle_rpm": 800,
+  "weight_kg": 1200,
+  "torque_curve": [
+   [
+    800,
+    1390
+   ],
+   [
+    1500,
+    1650
+   ],
+   [
+    2100,
+    1720
+   ],
+   [
+    3000,
+    1520
+   ]
+  ]
+ },
+ "transmission": {
+  "forward_gears": 7,
+  "reverse_gears": 1,
+  "gear_ratios": [
+   9.21,
+   4.56,
+   2.87,
+   1.83,
+   1.27,
+   0.9,
+   0.68
+  ],
+  "final_drive_ratio": 11.43,
+  "shift_time_s": 0.3
+ }
+}

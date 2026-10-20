@@ -1,0 +1,65 @@
+{
+ "id": "de_vk3002_db",
+ "name": "VK 30.02 (DB)",
+ "schema_version": 1,
+ "model": "model.json",
+ "meta": {
+  "nation": "germany",
+  "class": "medium",
+  "year": 1942,
+  "outline": "model",
+  "based_on": "VK 30.02 (DB), Daimler-Benz's 1942 design for the Panther competition, with the 7.5 cm KwK 42 L/70",
+  "notes": "Exterior and armour regions: the user's own model and hitbox reference (VK3002_DB_armor_v1_4.html, schema tankforge.reference.surface-hitbox/1.0, revision 1.4), used with the user's permission; the model is cut into its moving pieces by client/web/tools/glb-vehicle.py and the plates are fitted to its armour regions (tools/vk3002_plates.py). Figures (Wikipedia 'VK 30.01-30.02 (D)'): 35 t, 9.02 m long with the gun, 3.28 m wide, 2.69 m high, Maybach HL 210 P45 of 650 hp (the Daimler-Benz MB 507 diesel is also given for the design), 56 km/h; armour thicknesses are the reference's (60 mm glacis, 40 mm sides, 50 mm rear, 16 mm roof and floor, 80 mm turret front, 45 mm turret sides), its own confidence marked medium or low. Gear ratios, suspension rates and the interior are estimates; no prototype was completed."
+ },
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json"
+ },
+ "hull": {
+  "size_m": [
+   3.26,
+   1.84,
+   6.26
+  ],
+  "mass_kg": 35000,
+  "center_of_mass": [
+   0,
+   1.0,
+   -0.1
+  ]
+ },
+ "turret": {
+  "size_m": [
+   2.13,
+   0.77,
+   2.2
+  ],
+  "ring_diameter_m": 1.75,
+  "position_m": [
+   0.0,
+   1.831,
+   0.32
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.61,
+  "track_length_m": 4.48,
+  "suspension": {
+   "kind": "leaf_spring",
+   "travel_m": 0.22,
+   "stiffness": 300000,
+   "damping": 23000
+  },
+  "rolling_resistance": 0.045,
+  "sprocket_radius_m": 0.385,
+  "drivetrain_efficiency": 0.8,
+  "max_brake_decel_ms2": 5.5,
+  "max_turn_rate_deg_s": 26.0,
+  "max_reverse_speed_ms": 1.5,
+  "min_turn_radius_m": 0.0
+ }
+}
