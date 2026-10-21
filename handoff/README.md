@@ -1,5 +1,10 @@
 # Cloud handoff: replay / damage / aircraft fixes
 
+The latest aircraft update is documented in [AIRCRAFT_MODEL_REFINEMENT.md](AIRCRAFT_MODEL_REFINEMENT.md),
+[IMPACT_PERFORMANCE.md](IMPACT_PERFORMANCE.md) and [FLIGHT_CONTROL_IMPROVEMENTS.md](FLIGHT_CONTROL_IMPROVEMENTS.md).
+It includes three-position flaps; see [FLIGHT_DIAGNOSTICS.md](FLIGHT_DIAGNOSTICS.md) for F10 telemetry
+and [flight/README.md](flight/README.md) for rebuilding and checking the embedded flight core.
+
 **Results of this round: see [CHANGES.md](CHANGES.md)** (Traditional Chinese): fixes, root causes,
 verification, browser test harness in `tests/`, flight core in `flight/`.
 

@@ -88,12 +88,13 @@ static void telemetry(void){
  out[64]=instructor.cmd_pitch_rate;out[65]=instructor.cmd_roll_rate;out[66]=instructor.cmd_yaw_rate;
  out[67]=instructor.alpha_rate;out[68]=instructor.load_rate;out[69]=instructor.heading_rate;
  out[70]=handoff_mode;out[71]=release_delay;out[72]=return_rate;out[73]=instructor.roll_error;
- out[74]=.5f*density(pos.y)*speed*speed;out[75]=len(vel);out[76]=t;out[77]=out[78]=out[79]=0;
+ out[74]=.5f*density(pos.y)*speed*speed;out[75]=len(vel);out[76]=t;
+ out[77]=instructor.aoa_gate_down;out[78]=instructor.g_gate_down;out[79]=g_limit_down;
  out[42]=r.x;out[43]=r.y;out[44]=r.z;out[45]=u.x;out[46]=u.y;out[47]=u.z;out[48]=f.x;out[49]=f.y;out[50]=f.z;
 }
 EX int state_ptr(void){return (int)(uintptr_t)out;}
 EX int state_len(void){return 80;}
-EX int core_version(void){return 202;}
+EX int core_version(void){return 203;}
 EX void configure_airframe(float mass,float area,float chord,float span,float ix,float iy,float iz,float cd0,float k,float cla,float stall_aoa,int jet,float thrust_max,float ab_gain){
  af_m=clamp(sane(mass,3200),300,60000);af_s=clamp(sane(area,22),4,200);af_c=clamp(sane(chord,2.1f),.5f,12);af_b=clamp(sane(span,11),2,60);
  af_ix=clamp(sane(ix,14000),500,5e6f);af_iy=clamp(sane(iy,21000),500,5e6f);af_iz=clamp(sane(iz,6500),200,5e6f);
@@ -127,7 +128,9 @@ EX void spawn(float x,float y,float z,float hdg,float airspeed,int on_ground){
  if(on_ground){pos.y=ground_at(pos.x,pos.z)+2.f;vel=mul(f,.1f);gear=1;flaps=.5f;engine=.05f;}
  telemetry();
 }
-/* flags: 1 instructor; 2 free-look; 4 gear; 8 flap; 16 airbrake; 32 level-hold.
+/* flags: 1 instructor; 2 free-look; 4 gear; 8 legacy full flap; 16 airbrake;
+ * 32 level-hold; 64 combat flap (0.25); 128 takeoff flap (0.5).
+ * Flap priority: takeoff, combat, legacy full, then retracted.
  * Manual override is global, with a short blending handoff after release. */
 EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pitch,float manual_roll,float manual_yaw,int flags){
  dt=clamp(sane(dt,0),0,.025f);if(dt==0||crashed)return;
@@ -149,9 +152,10 @@ EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pit
  }
  float pCmd=0,rCmd=0,yCmd=0;
  if(flags&32){
-   float required=af_m*G/maxf(qbar*af_s,1000);float trim=clamp((required-.20f)/4.5f,-.10f,.17f);
+   float required=af_m*G/maxf(qbar*af_s,1000);float trim=clamp((required-.20f)/af_cla,-.10f,.17f);
    target=norm(v(target.x,trim-clamp(vel.y*.018f,-.15f,.15f),target.z));
  }
+ update_envelope(dt,qbar,flags);
  if(control_profile){
   refined_instructor(dt,target,r,u,f,qbar,manual_pitch,manual_roll,manual_yaw,flags,&pCmd,&rCmd,&yCmd);
  }else {
@@ -172,17 +176,12 @@ EX void step(float dt,float ax,float ay,float az,float throttle,float manual_pit
    mode=absf(wrap(desired_bank-bank))>.24f?1:(absf(ehead)+absf(erp)>.07f?2:0);
  }else {desired_bank=bank;mode=3;}
  pCmd=mix(manual_pitch,pCmd,authority);rCmd=mix(manual_roll,rCmd,authority);yCmd=mix(manual_yaw,yCmd,authority);
- /* Envelope intervention uses measured AoA and normal aerodynamic load, not speed-clamping. */
- if(protect && (flags&1)){
-   float predicted=alpha+maxf(0,-omega.x)*.22f;
-   if(predicted>.20f && pCmd>0)pCmd*=clamp((.275f-predicted)/.075f,0,1);
-   if(alpha>.285f)pCmd=minf(pCmd,-clamp((alpha-.285f)*5,0,.6f));
-   if(load>g_limit && pCmd>0)pCmd*=clamp(1-(load-g_limit)*.7f,0,1);
- }
  } /* legacy controller */
+ pCmd=protect_pitch(pCmd,flags);
  pCmd=clamp(pCmd,-1,1);rCmd=clamp(rCmd,-1,1);yCmd=clamp(yCmd,-1,1);
  ctl_p+=clamp(pCmd-ctl_p,-3.5f*dt,3.5f*dt);ctl_r+=clamp(rCmd-ctl_r,-4.0f*dt,4.0f*dt);ctl_y+=clamp(yCmd-ctl_y,-3*dt,3*dt);
- engine+=(throttle-engine)*clamp(dt*1.6f,0,1);gear+=clamp(((flags&4)?1.f:0.f)-gear,-.55f*dt,.55f*dt);flaps+=clamp(((flags&8)?1.f:0.f)-flaps,-.65f*dt,.65f*dt);
+ float flap_target=(flags&128)?.5f:(flags&64)?.25f:(flags&8)?1.f:0.f;
+ engine+=(throttle-engine)*clamp(dt*1.6f,0,1);gear+=clamp(((flags&4)?1.f:0.f)-gear,-.55f*dt,.55f*dt);flaps+=clamp(flap_target-flaps,-.65f*dt,.65f*dt);
  float stallAngle=af_stall+flaps*.025f;stall=smooth(stallAngle*.82f,stallAngle*1.45f,absf(alpha))*smooth(12,35,speed);
  float cl=.20f+af_cla*alpha+.36f*flaps;float post=1.05f*fsin(2*alpha);
  cl=mix(cl,post,smooth(stallAngle,stallAngle+.32f,absf(alpha)));cl=clamp(cl,-1.5f,1.7f);
