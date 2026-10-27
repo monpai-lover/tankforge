@@ -1,0 +1,19 @@
+{
+  "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E120_00_DEM/Copernicus_DSM_COG_10_N23_00_E120_00_DEM.tif",
+  "boundsWgs84": [
+    120.37986111111111,
+    23.880138888888887,
+    120.65986111111111,
+    24.000138888888888
+  ],
+  "shape": [
+    432,
+    1008
+  ],
+  "sourceResolutionDegrees": [
+    0.0002777777777777778,
+    0.0002777777777777778
+  ],
+  "readMethod": "Actual native1arcsecond GLO30 COG window, no resampling",
+  "notBareEarth": true
+}

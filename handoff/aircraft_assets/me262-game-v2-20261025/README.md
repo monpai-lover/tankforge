@@ -1,0 +1,42 @@
+# Me 262 game-v2 source import and repairs
+
+Run from the repository root. The original user archive is required and is never modified. Its SHA256 is `30beda948d09760f1af24f0c79314c25923765862f8e6555761dc9fc35fb5f1f`.
+
+```sh
+python3 handoff/tools/aircraft_glb/import_me262_game_v2.py /home/boyang/Desktop/me262_game_v2.zip --output handoff/aircraft_assets/me262-game-v2-20261025 --optics handoff/aircraft_assets/me262-game-v2-20261025/optics-calibration.json --corrected-glb-output handoff/tests/out/me262-game-v2-20261025/corrected-models
+python3 handoff/tests/me262_native_glb_audit.py /home/boyang/Desktop/me262_game_v2.zip handoff/aircraft_assets/me262-game-v2-20261025 --out handoff/tests/out/me262-game-v2-20261025/native-glb-audit.json
+node handoff/tests/me262_actual_aircraft_probe.mjs handoff/aircraft_assets/me262-game-v2-20261025 handoff/tests/out/me262-game-v2-20261025/native-glb-audit.json handoff/tests/out/me262-game-v2-20261025/actual-aircraft
+python3 handoff/tests/me262_native_glb_audit.py /home/boyang/Desktop/me262_game_v2.zip handoff/aircraft_assets/me262-game-v2-20261025 --actual handoff/tests/out/me262-game-v2-20261025/actual-aircraft --out handoff/tests/out/me262-game-v2-20261025/actual-native-glb-audit.json
+sh handoff/flight/build.sh --no-embed
+node handoff/tests/flight_gear_sequence.test.mjs
+```
+
+The first command produces three native-v2 records and four independently usable corrected GLBs, including the plain A-1a. The A-1a game record shares the R4M-capable source geometry; accepted inventory must hide individual rockets and their optional wooden racks for other loadouts. A-2a and U4 are separate aircraft IDs. No bundle, aircraft definitions or damage catalog is rewritten by these commands. The optional GLBs remain under ignored test output; retain their generated hashes when sharing them.
+
+`me262.json`, `me262a2a.json` and `me262u4.json` retain every source indexed face exactly once. Their corresponding ledgers map each source node, primitive and face range to encoded parts. Eight source faces belonging to two disconnected dangling strips are preserved as `source_excluded`. They are removed only from the corrected GLB's active index accessor; its original accessor and binary bytes remain available with explicit recovery metadata.
+
+The original nose long door closes diagonally across the wheel-well opening, and the front door overlaps it by about 89 mm. The importer re-fits the original moving door vertices to the independently measured original airframe opening. It retains the door topology, UVs, material, original hinges and original animation channels. It adds no static cover. Both original and corrected door vertices are recorded in the ledger. Independent triangle probes cover the aperture with 1 mm side clearance and a 2 mm door seam; curved-skin interpolation error is at most 8.59 mm.
+
+The complete original `GROUP_Revi16B` assembly moves 0.12 m toward the pilot. The eye moves with it and retains 0.315 m eye relief. Only the original twelve-face mounting bracket is extended to retain its original forward panel anchor. All other cockpit geometry stays unchanged. The registration and bracket adaptation are game geometry fitting, not surveyed factory installation dimensions. `optics-calibration.json` preserves the measured source bounds and the review status; actual cockpit browser review remains required.
+
+All source `INT_*`, `WPN_*`, pilot, store and mount geometry remains separate, with source IDs, original material/atlas data and semantic visual modules. The supplied internal anatomy and ammunition envelopes describe approximate public-reference layouts. Rendering them does not make the accepted combat system use visible triangles or independently simulate each displayed engine, tank or avionics item.
+
+The source animation contract uses signed roll/pitch/yaw with a true zero neutral. Flaps, slats, canopy and each independent gear axis use 0–1. Core 213 owns the optional Me 262 sequence: `configure_gear_sequence(1,3,3,1,.75,1)`; accepted `aero[36]` is main gear, `[37]` main doors, `[38]` nose gear, `[39]` nose door. Each source axis reads these values directly. Extension takes 7.75 s and retraction 8 s, within fixed-step floating-point endpoint tolerance. Mid-sequence reversals retain clearance and current state. The effective legacy gear scalar is the mean of the two legs, and actual touchdown additionally requires both legs locked. Default mode 0 preserves core 212 behavior and leaves all four new slots zero. Slats are source visual kinematics only until a physical slat model is integrated.
+
+The independent CPU audit checks 14 clips × 49 frames × three variants, exact source-face coverage and encoded triangles. Maximum rest quantization error is 0.285 mm; maximum measured affine-actuator interpolation error is 2.752 mm. The actual Aircraft-class probe additionally captures the production decoder, mesh uploads, original internal/crew modules, source-store mounting, fixed-gun feed creation and every production pose. Its geometry fixtures supply explicit accepted 80/48 samples; they are not claimed live flights. The separate real-WASM probes establish accepted gear authority and compare native pitch/roll/yaw responses with actual source trailing-edge motion. Source wheel-spin comparison uses each tyre's measured effective rolling radius and accepted ground travel; the smaller nose wheel correctly spins faster. Browser image review remains a separate gate.
+
+The WASM test uses a SHA-pinned core 212 fixture (from repository commit `3d4c4953e3519ae5b54b377db91b92bce87cedbe` when no local fixture exists) and verifies exact mode-0 80/48 telemetry parity, actual four-axis timing, reversals, reconfiguration, spawn isolation and native terrain touchdown.
+
+Weapon integration must use source muzzle/socket order: lower left/right followed by upper left/right. The A-1a has four MK 108 feeds (100/100/80/80 rounds); A-2a retains the lower two 100-round feeds and two source bomb-release sockets. U4 has one distinct MK 214A socket and must receive its separately reviewed feed and ammunition definition. R4M has 24 source rocket/socket bindings with stable `store_index` and individual accepted release visibility. These asset records do not implement server weapon authority on their own.
+
+The actual-class probe also writes `actual-aircraft/me262-accepted-catalog-export.json`. It uses the real production gun factory, registered projectile source JSONs and an empty custom-loadout browser-storage fixture. `patch_me262_aircraft_catalog.py` applies only the three type values and missing referenced shell, preserving every other original type/shell/missile value byte-for-byte. It rejects stale app exports, unknown native hashes, unexpected baseline Me262 values and conflicting old shells. The local combined-mode catalog and the published baseline differ in existing era metadata; build a public candidate from the actual published baseline to preserve those unrelated fields:
+
+```sh
+python3 handoff/tools/aircraft_glb/patch_me262_aircraft_catalog.py data/aircraft/aircraft.json handoff/tests/out/me262-game-v2-20261025/actual-aircraft/me262-accepted-catalog-export.json --write --proof handoff/aircraft_assets/me262-game-v2-20261025/accepted-catalog-proof.json
+python3 handoff/tools/aircraft_glb/patch_me262_aircraft_catalog.py /opt/tankforge/data/aircraft/aircraft.json handoff/tests/out/me262-game-v2-20261025/actual-aircraft/me262-accepted-catalog-export.json --out handoff/tests/out/me262-game-v2-20261025/public/aircraft.json --proof handoff/tests/out/me262-game-v2-20261025/public/accepted-catalog-proof.json
+python3 handoff/tests/me262_catalog_legacy_preflight.py --catalog handoff/tests/out/me262-game-v2-20261025/public/aircraft.json
+```
+
+The final command starts the existing installed binary with only a copied catalog in a temporary directory and a private loopback port, then creates temporary rooms and actually deploys both new type IDs through WebSocket. It terminates its own child process; it does not touch the running service. This checks dynamic catalog compatibility, not the full battle physics. The U4's registered game round currently inherits the existing 50 mm Pzgr.39 projectile, including 17 g PETN filler; it is an explicit game profile, not a certified historical MK 214 ammunition reconstruction.
+
+Original author and derivative notices are preserved in `CREDITS_AND_LICENSES.md`. The supplied package scripts are never executed by the importer or audits.

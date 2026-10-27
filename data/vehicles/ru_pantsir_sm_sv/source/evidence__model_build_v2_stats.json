@@ -1,0 +1,54 @@
+{
+  "source_triangles": 291957,
+  "culled_islands": 0,
+  "culled_triangles": 0,
+  "source_sha256": "044a1d62df9bb11ab1a6854371fad54989079eebf4226e149bdeb5d9a854732a",
+  "fidelity_policy": "No LOD0 culling, welding or collapse. Coplanar dissolve only with normal/material/UV boundaries preserved.",
+  "lossless_planar_triangles": 291829,
+  "imported_clean_triangles": 291853,
+  "exports": [
+    {
+      "lod": 0,
+      "file": "pantsir_lod0.glb",
+      "bytes": 19737300,
+      "exterior_triangles": 291829,
+      "internal_triangles": 4372,
+      "triangles": 296201,
+      "mesh_nodes": 181,
+      "animations": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ]
+    },
+    {
+      "lod": 1,
+      "file": "pantsir_lod1.glb",
+      "bytes": 12737892,
+      "exterior_triangles": 167250,
+      "internal_triangles": 2242,
+      "triangles": 169492,
+      "mesh_nodes": 181,
+      "animations": []
+    },
+    {
+      "lod": 2,
+      "file": "pantsir_lod2.glb",
+      "bytes": 9187056,
+      "exterior_triangles": 110869,
+      "internal_triangles": 1380,
+      "triangles": 112249,
+      "mesh_nodes": 181,
+      "animations": [],
+      "policy": "Derived from balanced V2 geometry; no culling, original normal/UV seams and armor cut boundaries retained."
+    }
+  ],
+  "summary": {
+    "source_triangles": 291957,
+    "reduction_percent": 0.04,
+    "armor_zones": 11,
+    "internal_components": 142,
+    "texture_policy": "Original diffuse + normal textures, UVs and custom corner normals retained for LOD0; LOD1 maps512px. Legacy spec/gloss maps omitted."
+  }
+}

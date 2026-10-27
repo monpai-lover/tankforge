@@ -90,6 +90,7 @@ pub struct SuspensionState {
     pub spring: Vec<f64>,
     pub damper: Vec<f64>,
     pub force: Vec<f64>,
+    support_available: Vec<bool>,
 }
 
 impl SuspensionSystem {
@@ -185,15 +186,16 @@ impl SuspensionSystem {
             spring: vec![0.0; u],
             damper: vec![0.0; u],
             force: vec![0.0; u],
+            support_available: vec![true; n],
         }
     }
 
     /// How far station `s` must rise (+) from static to stand on its ground, along the hull's up.
-    pub fn wanted(&self, prof: &GroundProfile, body: &VehicleRigidBody, s: &Station) -> (f64, f64) {
+    pub fn wanted(&self, prof: &GroundProfile, body: &VehicleRigidBody, s: &Station) -> Option<(f64, f64)> {
         let up_y = body.ey[1].max(0.2);
-        let sup = support_under(self.window, prof, s);
+        let sup = support_under(self.window, prof, s)?;
         let h = body.world_point([s.x, s.y, s.z])[1];
-        (sup, (sup + s.r + self.thickness - h) / up_y)
+        Some((sup, (sup + s.r + self.thickness - h) / up_y))
     }
 
     pub fn sync_pose(&self, st: &mut SuspensionState, body: &VehicleRigidBody, broken: [bool; 2]) {
@@ -236,10 +238,12 @@ impl SuspensionSystem {
         rg.normal_impulse.fill(0.0); rg.spring_impulse.fill(0.0); rg.rock_impulse.fill(0.0);
         self.sync_pose(st, body, broken);
         for (i, s) in self.stations.iter().enumerate() {
-            st.support[i] = support_under_mode(self.window, &profiles[si(s.side)], s, broken[si(s.side)]);
+            let support = support_under_mode(self.window, &profiles[si(s.side)], s, broken[si(s.side)]);
+            st.support_available[i] = support.is_some();
+            st.support[i] = support.unwrap_or(0.0);
             st.normals[i] = station_normal(profiles, body, s);
             st.load[i] = 0.0; st.grounded[i] = false;
-            body.prepare_normal_response(i, st.normals[i], st.contact[i], WheelBlend::single(i, 1.0));
+            if st.support_available[i] { body.prepare_normal_response(i, st.normals[i], st.contact[i], WheelBlend::single(i, 1.0)); }
         }
         for (ui, u) in self.units.iter().enumerate() {
             let rg = body.running_gear.as_mut().unwrap();
@@ -252,6 +256,7 @@ impl SuspensionSystem {
                 if u.members.len() > 1 { self.spring_impulse(st, body, u, ui, u.rock, true, dt); }
             }
             for i in 0..self.stations.len() {
+                if !st.support_available[i] { continue; }
                 let p = st.contact[i]; let n = st.normals[i]; let blend = WheelBlend::single(i, 1.0);
                 let pen = (st.support[i] - p[1]) * n[1];
                 let vn = dot(body.coupled_point_velocity(p, blend), n);
@@ -278,8 +283,8 @@ fn station_normal(profiles: &[GroundProfile; 2], body: &VehicleRigidBody, s: &St
     let a = &profiles[si(s.side)]; let o = &profiles[si(-s.side)];
     let mut k = 1;
     while k < a.zs.len() - 2 && a.zs[k] < s.z { k += 1; }
-    let along = (a.h[k + 1] - a.h[k - 1]) / (a.zs[k + 1] - a.zs[k - 1]);
-    let across = (if s.side > 0 { a.h[k] - o.h[k] } else { o.h[k] - a.h[k] }) / (2.0 * s.x.abs());
+    let along = a.along_slope(k);
+    let across = if a.supported_at(k) && o.supported_at(k) { (if s.side > 0 { a.h[k] - o.h[k] } else { o.h[k] - a.h[k] }) / (2.0 * s.x.abs()) } else { 0.0 };
     let f = norm([body.ez[0], 0.0, body.ez[2]]);
     norm([-along * f[0] - across * f[2], 1.0, -along * f[2] + across * f[0]])
 }

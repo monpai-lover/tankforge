@@ -1,0 +1,61 @@
+Ground-point guidance: approved native implementation contract, 2026-10-27
+
+Observed gap
+The existing camera can capture sk.point / pod.point. Native intent currently
+serializes only a live UnitRef, so this ground-point capture disappears at the
+client/server boundary. Native seeker targets currently contain live units only.
+This is separate from the reproduced native readiness-display defect and the
+valid TV/IIR UnitRef cue defect covered by the delivered tests.
+
+Proposed authoritative path
+1. Add an optional normalized sight direction to air_seeker_control. It is a
+   control intent, never a target coordinate or a client-reported contact.
+   Preserve the existing controller, battle, life, epoch and sequence checks.
+2. Resolve a finite ray from the accepted aircraft/sensor pose against the
+   registered native terrain/facility scene. Enforce the selected weapon's
+   gimbal, range, minimum range, operating hardware and line-of-sight rules.
+3. Store a separate native point-lock record with the unit life, selected store,
+   capture generation and server time. Advance the existing preparation/capture
+   clocks. Return the accepted point/status to the display. Do not invent a
+   UnitRef for a terrain point or expose a hidden enemy through this path.
+4. Give a launched TV/IIR weapon an immutable accepted point estimate. Give a
+   laser weapon the current accepted designator point and retain the existing
+   support-loss policy when the designation changes or disappears. Radio/ARM
+   behavior remains separate; a terrain point cannot impersonate an emitter.
+5. Keep native flight, finite collision, ammunition decrement and damage owners
+   unchanged. No point lock authorizes a hit; collision still determines impact.
+
+Required regression cases
+Valid vehicle UnitRef and ground-point acquisition/release; laser unavailable,
+laser loss, blocked LOS, gimbal/range/minimum-range limits, stale life/control,
+store switch, duplicate input, and exact authoritative ammunition consumption.
+Malformed look directions and all client-supplied contact coordinates reject.
+
+Implementation plan and ownership
+1. frontline.rs: add optional sight:[f64;3] intent beside nullable target. Existing
+   life/controller/epoch/sequence admission remains authoritative and unchanged.
+2. frontline_sim.rs: finite first-contact terrain/facility ray and point LOS;
+   retain the existing swept projectile collision and damage owners.
+3. frontline_air.rs: resolve sight only from the accepted model/sensor pose;
+   preserve a repeated sight's accepted point and progress, and preserve point
+   on enabled/no-target/no-sight updates. No client point coordinates are parsed.
+4. frontline_air_missiles.rs: explicit Unit/Point binding, separate carried
+   point preparation and independent laser_point hardware support. TV/IIR keeps
+   its launch point. Laser/beam needs the matching live designator and LOS.
+5. Tests: actual host protocol/world RED first, then fixed point capture,
+   preparation, gimbal/range/LOS, lifetime/sequence/store cancellation, one
+   accepted inventory decrement, actual finite impact and laser support loss.
+   Existing AAM, decoy and ordinary UnitRef AGM tests must stay green.
+
+Hardware boundary
+Changing/depleting the selected store clears only its carried point acquisition.
+The independently accepted laser_point survives while laser:true, the pod is
+operational and the controlling life remains valid. enabled:false cancels seeker
+preparation; laser:false explicitly ends designator support. Closing the pod,
+losing control or losing the aircraft also clears its hardware point. A newly
+selected store receives no inherited point lock/preparation from that hardware.
+
+Native RED: D:/TankForge-validation/agm-point-20261027/native-red.log
+Cargo environment: CARGO_HOME=C:/Users/24908/.codex/scratch/tankforge-rust/cargo;
+RUSTUP_HOME=.../rustup; CARGO_TARGET_DIR=D:/TankForge-validation/rust-r81-target.
+No canonical app/profile/Cargo configuration/audio edits belong to this work.

@@ -1,0 +1,39 @@
+[
+  {
+    "id": "f15c",
+    "preset": "option6",
+    "mount": {
+      "station": "center",
+      "side": 0,
+      "owner": "body",
+      "anchor": [
+        0,
+        -1.371,
+        0.3
+      ],
+      "anchors": [
+        [
+          0,
+          -1.371,
+          0.3
+        ]
+      ],
+      "end": [
+        0,
+        -1.371,
+        0.3
+      ],
+      "lower": 0,
+      "root": [
+        0.0,
+        -0.9854386341556082,
+        0.3030482215628583
+      ],
+      "existingProceduralPylon": true,
+      "length": 1.4,
+      "weapons": [
+        "gbu10"
+      ]
+    }
+  }
+]

@@ -104,6 +104,8 @@ pub struct TriangleRange {
     pub first: u32,
     pub count: u32,
     pub source_key: String,
+    #[serde(default)]
+    pub source_triangle_first: u32,
     pub surface_key: String,
     pub solid_key: Option<String>,
     pub binding_key: Option<String>,
@@ -413,6 +415,13 @@ impl HitMeshManifestV1 {
                 cursor = cursor
                     .checked_add(r.count)
                     .ok_or("triangle range overflow")?;
+                let source_end = r
+                    .source_triangle_first
+                    .checked_add(r.count)
+                    .ok_or("source triangle range overflow")?;
+                if source_end as usize > MAX_TRIANGLES {
+                    return Err("source triangle range inventory limit".into());
+                }
             }
             if cursor != m.triangle_count {
                 return Err("incomplete triangle coverage".into());

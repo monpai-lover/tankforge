@@ -1,0 +1,381 @@
+{
+  "scope": "All12 registered roads at<=5m centre intervals and5 body probes (10x4m footprint) per interval; six entire pad+grading rectangles dry, realroad entrygap<=1cm, source separations>=300m",
+  "passes": true,
+  "failures": [],
+  "failureCount": 0,
+  "roads": [
+    {
+      "id": "west:W0-W1",
+      "footprintProbes": 12160
+    },
+    {
+      "id": "west:W1-W2",
+      "footprintProbes": 6605
+    },
+    {
+      "id": "west:W2-W3",
+      "footprintProbes": 28065
+    },
+    {
+      "id": "west:W3-W4",
+      "footprintProbes": 14015
+    },
+    {
+      "id": "centre:C0-C1",
+      "footprintProbes": 12540
+    },
+    {
+      "id": "centre:C1-C2",
+      "footprintProbes": 11520
+    },
+    {
+      "id": "centre:C2-C3",
+      "footprintProbes": 14685
+    },
+    {
+      "id": "centre:C3-C4",
+      "footprintProbes": 14190
+    },
+    {
+      "id": "east:E0-E1",
+      "footprintProbes": 9840
+    },
+    {
+      "id": "east:E1-E2",
+      "footprintProbes": 10870
+    },
+    {
+      "id": "east:E2-E3",
+      "footprintProbes": 8445
+    },
+    {
+      "id": "east:E3-E4",
+      "footprintProbes": 8635
+    }
+  ],
+  "wetFootprintProbes": 10613,
+  "minimumDeckWaterClearanceMeters": 2.956976071221966,
+  "wetValidationProbes": [
+    {
+      "x": -18466.78765964153,
+      "z": 5967.5392581279375,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.89440964541048,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18464.44665964153,
+      "z": 5963.3742581279375,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.91960017344248,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18464.446659641533,
+      "z": 5963.374258127937,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.91960017344248,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18466.299,
+      "z": 5962.588,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.91858295309281,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18462.105659641533,
+      "z": 5959.209258127937,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.97326866027517,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18467.005390002985,
+      "z": 5967.926634016644,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.89269952881585,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18463.958,
+      "z": 5958.423,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.97049732927121,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18459.764659641532,
+      "z": 5955.044258127937,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.03506356118942,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18463.251609997013,
+      "z": 5953.084365983355,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.03506356118942,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18464.664390002985,
+      "z": 5963.761634016644,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.91725811631287,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18461.617000000002,
+      "z": 5954.258,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.03269455417279,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18457.423659641536,
+      "z": 5950.879258127937,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.09203687155673,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18460.910609997016,
+      "z": 5948.919365983355,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.09203687155674,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18462.323390002988,
+      "z": 5959.596634016644,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 74.96715428558404,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18459.276,
+      "z": 5950.093,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.08856225956151,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18455.082659641535,
+      "z": 5946.714258127937,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.18321914772338,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18458.569609997016,
+      "z": 5944.7543659833555,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.17860029720563,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18459.982390002988,
+      "z": 5955.431634016644,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.02987159921267,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18463.469340358468,
+      "z": 5953.471741872063,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.02987159921268,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18459.276,
+      "z": 5950.093,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.08856225956151,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18455.08265964153,
+      "z": 5946.714258127938,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.1832191477234,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18458.569609997012,
+      "z": 5944.754365983355,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.17860029720572,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18459.98239000299,
+      "z": 5955.431634016645,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.02987159921265,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18463.46934035847,
+      "z": 5953.471741872062,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.02987159921268,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18456.935,
+      "z": 5945.928,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.17585451422653,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18452.74165964153,
+      "z": 5942.549258127938,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.31065687504628,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18456.22860999701,
+      "z": 5940.589365983355,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.30628321163596,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18457.64139000299,
+      "z": 5951.266634016645,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.08568444991411,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18461.12834035847,
+      "z": 5949.306741872062,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.08568444991414,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18454.594,
+      "z": 5941.763,
+      "expectedWet": true,
+      "expectedSupported": true,
+      "height": 75.30237599704095,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18631.5317333862,
+      "z": 5753.3145,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 75.81316905919803,
+      "highestWaterLevel": 75.229
+    },
+    {
+      "x": -18560.974770445493,
+      "z": 5800.299,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 71.79805500275296,
+      "highestWaterLevel": 71.594
+    },
+    {
+      "x": -18517.537764205037,
+      "z": 6251.641,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 65.5780764521024,
+      "highestWaterLevel": 64.202
+    },
+    {
+      "x": -18665.607458194798,
+      "z": 6240.912,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 66.30706305207714,
+      "highestWaterLevel": 65.758
+    },
+    {
+      "x": -18679.078286868833,
+      "z": 6270.696,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 66.65637704745343,
+      "highestWaterLevel": 66.287
+    },
+    {
+      "x": -18017.4555,
+      "z": -2723.4584999999997,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 52.04446469339368,
+      "highestWaterLevel": 50.571
+    },
+    {
+      "x": -18433.209507660446,
+      "z": 5823.0615,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 69.13168818427613,
+      "highestWaterLevel": 68.402
+    },
+    {
+      "x": -18240.121137637645,
+      "z": 5649.2765,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 75.20443444207669,
+      "highestWaterLevel": 74.888
+    },
+    {
+      "x": -18471.047882859013,
+      "z": 6096.896,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 70.79726354852954,
+      "highestWaterLevel": 68.376
+    },
+    {
+      "x": -18470.09865914524,
+      "z": 6291.5165,
+      "expectedWet": true,
+      "expectedSupported": false,
+      "height": 63.31177427992841,
+      "highestWaterLevel": 62.379
+    }
+  ],
+  "vehicleLimitation": "Native individual tank driving/turning still requires separate runtime tests. This geometry proof does not certify arbitrary chassis, road buildings or real bridge load capacity."
+}

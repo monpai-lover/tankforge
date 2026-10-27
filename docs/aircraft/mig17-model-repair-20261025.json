@@ -1,0 +1,347 @@
+{
+  "date": "2026-10-25",
+  "phase": "asset_patch_and_actual_aircraft_cpu_verified_gpu_pending",
+  "baseCommit": "58948c0",
+  "archive": {
+    "path": "/home/boyang/Desktop/TankForge_MiG17_模型動畫包_20261025.zip",
+    "sha256": "99cbfaaa8bfa759e87035d7b9d33e29f635690437b27706e84e44d9eab0aae4f"
+  },
+  "sourceGlbSha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e",
+  "nativeRecord": {
+    "path": "handoff/aircraft_assets/mig17f-20261025/native.json",
+    "sha256": "e553b9d081f59cfed0fda9e91e900cd5b60bd6ba42b69feb95df82af30a3b6f9",
+    "parts": 65,
+    "movers": 14,
+    "sourceTriangles": 85645,
+    "retainedSourceTriangles": 85645,
+    "renderedAirframeTriangles": 82980,
+    "sourceExcludedTriangles": 2665,
+    "legacyExclusions": {
+      "body_source_00": "8 faces, unidentified historic exclusion, original data retained reversible",
+      "body_source_14": "2657 faces, legacy preinstalled ordnance, original data retained reversible"
+    },
+    "originalBlobPrefixPreserved": true,
+    "faceLedger": "handoff/aircraft_assets/mig17f-20261025/native.audit.json"
+  },
+  "fixedProblems": [
+    "Wrong package gear-main metadata picked an outer trunnion cap instead of the wheels: actual Aircraft ground pose buried both main tires about0.735m and induced13.799deg nose-up",
+    "Static source wings and native rails were tagged body, leaving them behind after accepted wing detachment",
+    "Package linear quaternion sampling did not follow the source gear49-frame mechanism curve",
+    "Full-aircraft glass bounding box was used as cockpit canopy; source reflector was not registered",
+    "New authored datum differs from frozen accepted model by X reflection and source CG translation; retaining old accepted boxes and mount coordinates introduces visible/combat offsets",
+    "Actual core212 positive yaw and existing visible rudder deflection had opposite signs; asset mapping corrected after actual-WASM proof"
+  ],
+  "geometryPreservation": {
+    "method": "Only existing position-connected components from reviewed source meshes are assigned left/right wing groups. Per-source face ranges prove exactly-once retention; original positions/normals/UVs/material scalars and texture atlas retained. No replacement wheel forks, struts, doors or linkage meshes.",
+    "wingAndPylonSourceMeshes": [
+      "body_source_01",
+      "body_source_03",
+      "body_source_11",
+      "body_source_12",
+      "body_source_15"
+    ],
+    "ambiguousWingRoot": "Central/straddling components stay body; no coarse bounding-box clipping of the fuselage. 00 remains a labelled legacy exclusion rather than a new semantic identification."
+  },
+  "animationContracts": {
+    "gear": "Actual canonical source49 keys indexed by mechanism phase0down/1up; existing Aircraft.pose computes1-native gear extension",
+    "surfaces": "Actual49 source quaternion values retained. Runtime input keys derive actual signed angle/max angle, preserving the original core physical deflection contract rather than applying timeline easing to aerodynamic controls.",
+    "yaw": "Source phase/deflection maps to negative game S26; all49 source quaternions remain unchanged; explicit yawRuntimeSense=-1",
+    "globalPhysicsOrWasmChanged": false
+  },
+  "validation": {
+    "recordSha256": "e553b9d081f59cfed0fda9e91e900cd5b60bd6ba42b69feb95df82af30a3b6f9",
+    "glbSha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e",
+    "appSha256": "156e222d9ac067ab1bb502569f090543f1ca73ec4679b61756b12dc990032aed",
+    "actualConstructor": true,
+    "actualDecoder": true,
+    "actualMeshUploadCalls": 111,
+    "sourceTriangles": 85645,
+    "renderedTriangles": 82980,
+    "faceCoverage": "Every original GLB face retained exactly once, including two explicit legacy-excluded source parts",
+    "clips": {
+      "gear": {
+        "frames": 49,
+        "maxVertexErrorM": 0.00028278908630389386
+      },
+      "roll": {
+        "frames": 49,
+        "maxVertexErrorM": 0.00028278908630389386
+      },
+      "pitch": {
+        "frames": 49,
+        "maxVertexErrorM": 0.00028278908630389386
+      },
+      "yaw": {
+        "frames": 49,
+        "maxVertexErrorM": 0.00028278908630389386
+      },
+      "flap": {
+        "frames": 49,
+        "maxVertexErrorM": 0.00028278908630389386
+      }
+    },
+    "maximumPosedVertexErrorM": 0.00028278908630389386,
+    "maximumRigidOrthogonalityError": 7.738731233608576e-08,
+    "fixedSourceTriangleDriftM": 0.0,
+    "groundedTires": [
+      {
+        "source": "gear_main_l_wheel_source_07",
+        "groundedMinimumY": -0.000180660406617017
+      },
+      {
+        "source": "gear_main_r_wheel_source_07",
+        "groundedMinimumY": 0.00015318557747678874
+      },
+      {
+        "source": "gear_nose_source_06",
+        "groundedMinimumY": -8.232162556964795e-06
+      }
+    ],
+    "leftWingDamageChecks": "Actual AircraftDamage.harm/applyDamage and Aircraft.pose: left fixed wing/pylons/control surfaces hidden; right wing/body/right gear retained",
+    "geometryContracts": "gear49 mechanism-time keys; surface49 geometry keys addressed by actual signed deflection/maxAngle, not linear clip clock; yaw has explicit source-to-physics sign mapping",
+    "yawKernel": [
+      {
+        "inputYaw": -1,
+        "acceptedYawControl": -0.7499998211860657,
+        "bodyAngularYaw": -0.3596583604812622,
+        "heading": -0.032901689410209656,
+        "forwardX": -0.03289181739091873,
+        "trailingLocalDeltaX": -0.16688151178655458,
+        "trailingWorldDeltaX": -0.16730739244209167
+      },
+      {
+        "inputYaw": 1,
+        "acceptedYawControl": 0.7499998211860657,
+        "bodyAngularYaw": 0.3596583604812622,
+        "heading": 0.032901689410209656,
+        "forwardX": 0.03289181739091873,
+        "trailingLocalDeltaX": 0.1667399922415615,
+        "trailingWorldDeltaX": 0.16718267904745132
+      }
+    ],
+    "yawConsistent": true,
+    "gpuTested": false,
+    "passed": true,
+    "limitations": [
+      "CPU captured actual renderer.mesh input and actual source methods; no GPU/material visual acceptance yet",
+      "Legacy accepted boxes remain approximations; no native visible-triangle damage migration",
+      "Source variant does not establish F subtype; authored hinge/kinematic historical accuracy remains unproven"
+    ]
+  },
+  "nativeYawRegression": {
+    "stepsPerSide": 30,
+    "dtSeconds": 0.008333333333333333,
+    "coreVersion": 212,
+    "positiveAndNegative": [
+      {
+        "inputYaw": -1,
+        "acceptedYawControl": -0.7499998211860657,
+        "bodyAngularYaw": -0.3596583604812622,
+        "heading": -0.032901689410209656,
+        "forwardX": -0.03289181739091873,
+        "trailingLocalDeltaX": -0.16688151178655458,
+        "trailingWorldDeltaX": -0.16730739244209167
+      },
+      {
+        "inputYaw": 1,
+        "acceptedYawControl": 0.7499998211860657,
+        "bodyAngularYaw": 0.3596583604812622,
+        "heading": 0.032901689410209656,
+        "forwardX": 0.03289181739091873,
+        "trailingLocalDeltaX": 0.1667399922415615,
+        "trailingWorldDeltaX": 0.16718267904745132
+      }
+    ],
+    "consistentAfterPatch": true
+  },
+  "mounts": {
+    "actualFunction": "Current bundle layoutStores",
+    "presets": [
+      {
+        "name": "炸彈",
+        "count": 2,
+        "items": [
+          {
+            "store": "fab250",
+            "p": [
+              -2.3503,
+              -0.7395,
+              -0.18350000000000002
+            ],
+            "mount": [
+              -2.3503,
+              -0.5770000000000001,
+              -0.3395
+            ],
+            "owner": "wing_l",
+            "nativePylon": true,
+            "extraGenericPylon": null
+          },
+          {
+            "store": "fab250",
+            "p": [
+              2.3503,
+              -0.7395,
+              -0.18350000000000002
+            ],
+            "mount": [
+              2.3503,
+              -0.5770000000000001,
+              -0.3395
+            ],
+            "owner": "wing_r",
+            "nativePylon": true,
+            "extraGenericPylon": null
+          }
+        ]
+      },
+      {
+        "name": "火箭",
+        "count": 2,
+        "items": [
+          {
+            "store": "ub16",
+            "p": [
+              -2.3503,
+              -0.7370000000000001,
+              -0.18350000000000002
+            ],
+            "mount": [
+              -2.3503,
+              -0.5770000000000001,
+              -0.3395
+            ],
+            "owner": "wing_l",
+            "nativePylon": true,
+            "extraGenericPylon": null
+          },
+          {
+            "store": "ub16",
+            "p": [
+              2.3503,
+              -0.7370000000000001,
+              -0.18350000000000002
+            ],
+            "mount": [
+              2.3503,
+              -0.5770000000000001,
+              -0.3395
+            ],
+            "owner": "wing_r",
+            "nativePylon": true,
+            "extraGenericPylon": null
+          }
+        ]
+      }
+    ],
+    "gapBelowSourceRailMeters": 0.015,
+    "limit": "Actual station/mount/native-pylon ownership verified; CPU fixture uses store geometry fallback without optional imported weapon sockets, so final GPU store-model/socket visual inspection remains pending."
+  },
+  "datum": {
+    "oldNativeRecordSha256": "9da638d160b051984d3ff5654a02a2c0c3ef143f3216338403e1f3e904fc49a2",
+    "oldCgInModel": [
+      0,
+      -0.15,
+      -0.5002
+    ],
+    "newCgInModel": [
+      0,
+      0,
+      0
+    ],
+    "oldToNewPoint": [
+      [
+        -1,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        1,
+        0,
+        -0.15
+      ],
+      [
+        0,
+        0,
+        1,
+        -0.5002
+      ],
+      [
+        0,
+        0,
+        0,
+        1
+      ]
+    ],
+    "proof": {
+      "1": {
+        "n": 4734,
+        "maximum": 0.5768358672774933,
+        "median": 0.00042769839649492534,
+        "p95": 0.15267696822189716,
+        "within1mmFraction": 0.5475285171102662
+      },
+      "-1": {
+        "n": 4734,
+        "maximum": 0.00020000000000042206,
+        "median": 0.00013333333333331865,
+        "p95": 0.00020000000000020002,
+        "within1mmFraction": 1.0
+      }
+    },
+    "acceptedInternalLayout": "Engine/fuel/ammo preserve the old accepted approximate layout under that transform. Pilot and structural boxes/skin are derived from actual new Aircraft construction. They remain legacy boxes, not measured anatomy or visible-triangle combat."
+  },
+  "acceptedDamagePatch": {
+    "path": "handoff/aircraft_assets/mig17f-20261025/accepted-damage-patch.json",
+    "sha256": "395d3a60c5be794705bc3c40dc055fa8d8106c6a06796307d64428c04f7df6c5",
+    "partCount": 21,
+    "skinCount": 6,
+    "largestUntransformedOldCenterErrorMeters": 1.0421515702443944,
+    "requiredAction": "Merge parts/skin for mig17f only into canonical aircraft.json before publishing; keep other23types, gun feeds, ammo, loadouts and year unchanged."
+  },
+  "evidenceDirectory": "handoff/tests/out/mig17-animation-pack-20261025",
+  "limits": [
+    "No GPU/material/browser acceptance yet; no deployment, Cargo, full page or commit performed",
+    "Source MiG17 subtype is unspecified; existing mig17f slot retained as an explicitly disclosed mapping",
+    "No certified historical hinge accuracy or physical center-of-gravity claim; authored source datum is retained",
+    "Accepted native box contact model remains; this is not a global triangle-combat migration",
+    "Other aircraft fixes and complete mixed-mode work remain outside this isolated asset patch"
+  ],
+  "opticsProvenance": {
+    "version": 4,
+    "source": {
+      "glbSha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e",
+      "mesh": "glass_source_13",
+      "primitive": 0,
+      "material": 7,
+      "alphaMode": "BLEND",
+      "alpha": 0.17000000178813934,
+      "sourceFaceRanges": [
+        [
+          956,
+          140
+        ],
+        [
+          1396,
+          54
+        ]
+      ],
+      "frame": "Exact new GLB/native datum, not transformed old sight points"
+    },
+    "preservedEye": [
+      -0.015,
+      0.8558,
+      1.9500000476837158
+    ],
+    "eyeSeated": [
+      0,
+      0.9200000166893005,
+      1.9500000476837158
+    ],
+    "opaqueSupportWarp": false,
+    "changeFromPrior0da501": "Only spec.opticsCalibration added; exact non-calibration JSON equality asserted, no eye/mesh/source49quaternion/physical metadata changes"
+  },
+  "reproduction": "handoff/aircraft_assets/mig17f-20261025/README.md"
+}

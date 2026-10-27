@@ -32,10 +32,12 @@ use tg_weapon::{ProjectileDef, ProjectileKind};
 use tg_penetration::impact::{self, ImpactState, FragmentProvenance, ImpactEvent, EnergyBudget};
 mod impact_report;
 pub mod geometry;
+pub mod surface_armor;
 pub mod replay_evidence;
 pub mod causes;
 pub mod weapon_damage;
 mod weapon_mg;
+pub mod near_burst;
 
 #[cfg(test)]
 mod tests;
@@ -80,6 +82,10 @@ pub struct TargetDef {
     /// Only mg_anchors/mg_variants are needed; callers should send a slim object.
     #[serde(default)]
     pub visual: serde_json::Value,
+    /// Triangle-surface armour (surface_armor.rs): the drawn model's armour triangles, from the
+    /// vehicle's trusted data. With it the plates are normally empty.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub surfaces: Option<surface_armor::SurfaceArmorDef>,
 }
 
 #[derive(Clone, Debug)]
@@ -95,6 +101,9 @@ pub struct Target {
     pub track_side: Vec<i8>,
     pub lo: Vec3,
     pub hi: Vec3,
+    /// The triangle-surface armour, when the definition carries it and it loaded.
+    pub surf: Option<std::sync::Arc<surface_armor::SurfaceArmor>>,
+    pub surface_error: Option<String>,
 }
 
 fn is_turret_zone(p: &ArmorPlate) -> bool {
@@ -134,7 +143,19 @@ impl Target {
             .collect();
         let turret_crew = def.crew.iter().map(|c| matches!(c.role, CrewRole::Commander | CrewRole::Gunner | CrewRole::Loader) && inside_turret(c.pos)).collect();
         let track_side = def.modules.iter().map(|m| if m.kind == ModuleKind::Track { if m.center.x < 0.0 { -1 } else { 1 } } else { 0 }).collect();
+        let (surf, surface_error) = match def.surfaces.as_ref().map(surface_armor::SurfaceArmor::new) {
+            Some(Ok(a)) => (Some(std::sync::Arc::new(a)), None),
+            Some(Err(e)) => (None, Some(e)),
+            None => (None, None),
+        };
         let mut pts: Vec<Vec3> = Vec::new();
+        // the surfaces at every heading of the turret (eight steps cover its swept circle's box)
+        if let Some(a) = &surf {
+            let pivot = def.turret.as_ref().map(|t| t.pivot).unwrap_or(Vec3::ZERO);
+            for k in 0..8 {
+                pts.extend(a.corners(k as f32 * std::f32::consts::FRAC_PI_4, pivot));
+            }
+        }
         for p in &def.plates {
             let v = p.normal.cross(p.axis_u);
             for (a, b) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
@@ -178,7 +199,33 @@ impl Target {
             hi = Vec3::new(hi.x.max(p.x), hi.y.max(p.y), hi.z.max(p.z));
         }
         let pad = Vec3::new(0.3, 0.3, 0.3);
-        Target { def, weapon_bindings, binding_errors, materials, turret_plate, turret_module, turret_crew, track_side, lo: lo - pad, hi: hi + pad }
+        Target { def, weapon_bindings, binding_errors, materials, turret_plate, turret_module, turret_crew, track_side, lo: lo - pad, hi: hi + pad, surf, surface_error }
+    }
+
+    // Target's authoring fields are public for existing construction adapters.
+    // Recompute at the damage boundary so in-place edits cannot retain an old
+    // scene's accepted anatomy. Never call this inside individual fragment loops.
+    pub fn registration_hash(&self) -> String {
+        fn engineering_numbers(v:&mut serde_json::Value) {
+            match v {
+                serde_json::Value::Array(a)=>for v in a {engineering_numbers(v)},
+                serde_json::Value::Object(o)=>for v in o.values_mut(){engineering_numbers(v)},
+                serde_json::Value::Number(n) if n.is_f64()=>{
+                    let f=n.as_f64().expect("finite JSON number");
+                    // Browser JSON loses the spelling distinction 8.0 versus 8.
+                    // Only exact safe integers are canonicalized; do not round
+                    // fractional values or collapse large native integer IDs.
+                    if f.fract()==0. && f.abs()<=9_007_199_254_740_991. {*n=serde_json::Number::from(f as i64);}
+                },
+                _=>{}
+            }
+        }
+        let mut identity=serde_json::to_value(&self.def).expect("registered target must serialize");
+        identity.as_object_mut().unwrap().remove("id");
+        let mut materials:Vec<_>=self.materials.values().collect();materials.sort_by(|a,b|a.id.cmp(&b.id));
+        let mut record=serde_json::to_value((identity,materials,&self.weapon_bindings,&self.binding_errors,&self.track_side)).expect("registered anatomy must serialize");
+        engineering_numbers(&mut record);
+        geometry::manifest::sha256(&serde_json::to_vec(&record).expect("registered anatomy must serialize"))
     }
 
     pub fn fresh_state(&self) -> TargetState {
@@ -236,6 +283,7 @@ impl Target {
             } } }
         }
         for (c,&rotates) in self.def.crew.iter().zip(&self.turret_crew) { add(if rotates { turn(c.pos) } else { c.pos }); }
+        if let Some(a) = &self.surf { for p in a.corners(yaw, pivot) { add(p); } }
         if let Some(t) = &self.def.turret {
             for x in [-0.5,0.5] { for y in [0.0,1.0] { for z in [-0.5,0.5] {
                 add(turn(t.pivot + Vec3::new(x*t.size.x,y*t.size.y,z*t.size.z)));
@@ -279,7 +327,7 @@ impl Target {
             })
             .collect();
         let crew = self.def.crew.iter().zip(&self.turret_crew).map(|(c, &t)| if t && yaw != 0.0 { turn(c.pos) } else { c.pos }).collect();
-        Posed { plates, boxes, crew }
+        Posed { plates, boxes, crew, yaw, pivot }
     }
 }
 
@@ -287,6 +335,8 @@ struct Posed {
     plates: Vec<ArmorPlate>,
     boxes: Vec<ModuleBox>,
     crew: Vec<Vec3>,
+    yaw:f32,
+    pivot:Vec3,
 }
 
 /// Exact local module box; the target's cached bounds remain the conservative broadphase.
@@ -758,6 +808,44 @@ pub struct Burst {
     pub radius: f32,
     pub inside: bool,
     pub explosive_kg: f32,
+    /// Report-local physical time, using the same clock as ImpactEvent.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub time_s: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub armed_at_s: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub delay_s: Option<f64>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub detonation_id: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mechanism: Option<String>,
+}
+
+#[derive(Clone, Debug)]
+struct DelayedFuse {
+    armed_at_s: f64,
+    time_s: f64,
+    delay_s: f64,
+    detonation_id: String,
+}
+fn arm_aphe_fuse(fuse: &mut Option<DelayedFuse>, state: &mut ImpactState,
+    shell: &ProjectileDef, time_s: f64) {
+    if fuse.is_some() || state.fuse != impact::FuseState::Unarmed
+        || !time_s.is_finite() || !shell.fuse_delay_s.is_finite() || shell.fuse_delay_s < 0.0
+        || state.integrity <= 0.0 { return; }
+    let Some(charge) = state.charge.as_ref().filter(|c|
+        c.disposition == impact::ChargeDisposition::Contained) else { return; };
+    let delay_s = shell.fuse_delay_s as f64;
+    *fuse = Some(DelayedFuse { armed_at_s: time_s, time_s: time_s+delay_s,
+        delay_s, detonation_id: format!("{}/detonation:0", charge.charge_id) });
+    state.fuse = impact::FuseState::Armed;
+}
+fn fail_aphe_fuse(fuse: &mut Option<DelayedFuse>, state: &mut ImpactState) {
+    *fuse = None;
+    state.fuse = impact::FuseState::Failed;
+    if let Some(charge) = state.charge.as_mut() {
+        charge.disposition = impact::ChargeDisposition::Failed;
+    }
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -794,6 +882,9 @@ pub struct CrewHit {
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Report {
+    #[serde(default)] pub geometry_contacts: Vec<serde_json::Value>,
+    #[serde(default)] pub primary_geometry_contacts: Vec<serde_json::Value>,
+    #[serde(default)] pub primary_module_destructions: Vec<serde_json::Value>,
     #[serde(default)] pub cause_transitions: Vec<causes::CauseTransition>,
     pub hit: bool,
     pub outcome: Outcome,
@@ -931,22 +1022,41 @@ fn ray_sphere(o: Vec3, d: Vec3, c: Vec3, r: f32) -> Option<f32> {
     }
 }
 
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 enum EvKind {
     Plate(usize),
     Module(usize),
     Crew(usize),
+    Decoration,
+    Unknown,
 }
 
 /// One thing in a shot's or a fragment's way.
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Debug)]
 struct Ev {
     t: f32,
     kind: EvKind,
+    contact: Option<geometry::surface::SurfaceCrossingV1>,
+    paired_contact: Option<geometry::surface::SurfaceCrossingV1>,
+    surface_transit: Option<SurfaceTransit>,
+}
+
+/// A registered material interval, distinct from any constructor triangle.
+#[derive(Clone, Copy, Debug)]
+struct SurfaceTransit {
+    id: u32,
+    deferred: bool,
+    is_exit: bool,
+}
+
+enum DeferredSurfaceSpall {
+    Kinetic(impact::ImpactTransition),
+    Legacy { pen: f32, energy: f32 },
 }
 
 /// The work of one shot: the target, its state, and everything recorded along the way.
 struct Work<'a> {
+    scene: Option<&'a geometry::combat_scene::CombatScene>,
     context: Option<&'a causes::DamageContext>,
     t: &'a Target,
     p: Posed,
@@ -960,6 +1070,53 @@ struct Work<'a> {
 }
 
 impl<'a> Work<'a> {
+    fn kinetic_surface_spall(&mut self, inner:Vec3, dir:Vec3, shell:&ProjectileDef, tr:&impact::ImpactTransition) {
+        let params=match shell.kind {
+            ProjectileKind::Apcr | ProjectileKind::Apds => tg_damage::DamageParams {
+                base_frag_count:2,frags_per_residual_mm:0.05,max_frags:10,cone_half_angle_deg:11.,..Default::default()
+            },
+            ProjectileKind::Apfsds => tg_damage::DamageParams {
+                base_frag_count:3,frags_per_residual_mm:0.05,max_frags:12,cone_half_angle_deg:10.,..Default::default()
+            },
+            _ => tg_damage::DamageParams {
+                base_frag_count:(4.+shell.caliber_mm*0.04)as u32,frags_per_residual_mm:0.12,
+                max_frags:36,cone_half_angle_deg:22.,..Default::default()
+            },
+        };
+        for fragment in tg_damage::generate_allocated_fragments(inner,dir,None,tr,&params,&mut self.rng) {
+            self.kinetic_fragment(&fragment,4.);
+        }
+    }
+    fn contact_receipt(contact:&geometry::surface::SurfaceCrossingV1)->serde_json::Value {
+        let mut receipt=serde_json::to_value(contact).unwrap();
+        receipt["schema"]=serde_json::json!("SurfaceContactReceiptV1");
+        let keys:Vec<_>=receipt.as_object().unwrap().iter().filter_map(|(k,v)|v.as_str().filter(|s|s.len()>256)
+            .map(|s|(k.clone(),geometry::manifest::sha256(s.as_bytes())))).collect();
+        for(key,hash)in keys{receipt.as_object_mut().unwrap().remove(&key);receipt[format!("{key}Hash")]=serde_json::json!(hash);}
+        receipt
+    }
+    fn record_primary_contact(&mut self,ev:&Ev){
+        self.record_contact(ev);
+        for contact in [ev.contact.as_ref(),ev.paired_contact.as_ref()].into_iter().flatten(){
+            if self.rep.primary_geometry_contacts.len()>=256{break;}
+            self.rep.primary_geometry_contacts.push(Self::contact_receipt(contact));
+        }
+    }
+    fn record_primary_destruction(&mut self,i:usize,before:f32,ev:&Ev){
+        if before>0.&&self.st.modules[i]==0.&&self.rep.primary_module_destructions.len()<256{
+            if let Some(contact)=&ev.contact {
+                self.rep.primary_module_destructions.push(serde_json::json!({"schema":"PrimaryModuleDestructionV1",
+                    "moduleRef":self.t.def.modules[i].id,"beforeHealth":before,"afterHealth":0,
+                    "contact":Self::contact_receipt(contact)}));
+            }
+        }
+    }
+    fn record_contact(&mut self,ev:&Ev) {
+        for contact in [ev.contact.as_ref(),ev.paired_contact.as_ref()].into_iter().flatten() {
+            if self.rep.geometry_contacts.len()>=256 {break;}
+            self.rep.geometry_contacts.push(Self::contact_receipt(contact));
+        }
+    }
     fn kinetic_fragment(&mut self, f: &tg_damage::Fragment, max_range: f32) {
         let (Some(physical), Some(profile)) = (&f.provenance.physical, &f.provenance.profile) else { return };
         let Ok(mut state) = impact::fragment_state(physical, frag_pen(f.energy_j) as f64, &f.provenance.fragment_id, profile) else { return };
@@ -972,15 +1129,17 @@ impl<'a> Work<'a> {
             if state.energy_j() <= 0.0 { break; }
             let (absorb,id) = match ev.kind {
                 EvKind::Module(i) => {
-                    if self.p.boxes[i].contains(f.origin) { continue; }
+                    if self.scene.is_none() && self.p.boxes[i].contains(f.origin) { continue; }
                     (absorb_mm(self.t.def.modules[i].kind) as f64 * if self.st.modules[i]>0.0 {1.0} else {0.5},self.t.def.modules[i].id.clone())
                 }
                 EvKind::Crew(i) => {
-                    if self.st.crew[i]<=0.0 || (f.origin-self.p.crew[i]).length()<=self.t.def.crew[i].radius {continue;}
+                    if self.st.crew[i]<=0.0 || (self.scene.is_none() && (f.origin-self.p.crew[i]).length()<=self.t.def.crew[i].radius) {continue;}
                     (CREW_ABSORB_MM as f64,format!("crew:{i}"))
                 }
-                EvKind::Plate(_) => continue,
+                EvKind::Unknown => break,
+                EvKind::Plate(_) | EvKind::Decoration => continue,
             };
+            self.record_contact(&ev);
             let segment_entry=state.current.clone();
             state.advance_time((ev.t-last_t).max(0.0) as f64); last_t=ev.t;
             let contact_id = format!("{}/target:{id}",f.provenance.fragment_id);
@@ -995,8 +1154,23 @@ impl<'a> Work<'a> {
         }
     }
 
+    /// The surface armour's walls along the shot's line, added as this shot's plates (the plate path
+    /// then meets them exactly where the model's triangles are).
+    fn add_walls(&mut self, o: Vec3, d: Vec3, max_t: f32) {
+        if self.scene.is_some() {return;}
+        let Some(a) = self.t.surf.clone() else { return };
+        for w in a.walls(o, d, max_t, self.p.yaw, self.p.pivot) {
+            self.p.plates.push(a.plate(w, self.p.yaw, self.p.pivot));
+        }
+    }
+
     fn to_kinetic_armour(&self,fragment:&tg_damage::Fragment,max:f32)->f32 {
+        if let Some(scene)=self.scene {return scene.events(fragment.origin,fragment.dir,max,true).iter().find(|e|matches!(e.kind,EvKind::Plate(_) | EvKind::Unknown) && e.t>1e-5).map_or(max,|e|e.t);}
         let mut best=max;
+        if let Some(a)=&self.t.surf {
+            let skip=fragment.provenance.source_layer_or_module.as_deref().and_then(|s| s.strip_prefix("plate:"));
+            if let Some(t)=a.nearest(fragment.origin,fragment.dir,max,self.p.yaw,self.p.pivot,skip,1e-5){best=best.min(t);}
+        }
         for plate in &self.p.plates {
             if fragment.provenance.source_layer_or_module.as_deref()==Some(format!("plate:{}",plate.id).as_str()){continue;}
             if let Some(hit)=plate.intersect(fragment.origin,fragment.dir){if hit.distance>1e-5 {best=best.min(hit.distance);}}
@@ -1005,12 +1179,13 @@ impl<'a> Work<'a> {
     }
 
     fn events(&self, o: Vec3, d: Vec3, max_t: f32, plates: bool) -> Vec<Ev> {
+        if let Some(scene)=self.scene {return scene.events(o,d,max_t,plates).into_iter().filter(|e|!matches!(e.kind,EvKind::Module(i) if empty_rack(self.t,&self.st,i))).collect();}
         let mut ev = Vec::new();
         if plates {
             for (i, pl) in self.p.plates.iter().enumerate() {
                 if let Some(h) = pl.intersect(o, d) {
                     if h.distance <= max_t {
-                        ev.push(Ev { t: h.distance, kind: EvKind::Plate(i) });
+                        ev.push(Ev { t: h.distance, kind: EvKind::Plate(i),contact:None,paired_contact:None,surface_transit:None });
                     }
                 }
             }
@@ -1021,14 +1196,14 @@ impl<'a> Work<'a> {
             }
             if let Some((t0, _)) = box_.intersect(o, d) {
                 if t0 <= max_t {
-                    ev.push(Ev { t: t0, kind: EvKind::Module(i) });
+                    ev.push(Ev { t: t0, kind: EvKind::Module(i),contact:None,paired_contact:None,surface_transit:None });
                 }
             }
         }
         for (i, c) in self.p.crew.iter().enumerate() {
             if let Some(t) = ray_sphere(o, d, *c, self.t.def.crew[i].radius) {
                 if t <= max_t {
-                    ev.push(Ev { t, kind: EvKind::Crew(i) });
+                    ev.push(Ev { t, kind: EvKind::Crew(i),contact:None,paired_contact:None,surface_transit:None });
                 }
             }
         }
@@ -1047,6 +1222,12 @@ impl<'a> Work<'a> {
         cursor: f32,
         max_t: f32,
     ) -> Option<Ev> {
+        if self.scene.is_some() {
+            // The measured finite crossing cannot be moved to a box entrance at
+            // the new cursor. Already traversed contacts remain traversed.
+            let i=pending.iter().position(|e|e.t>=cursor && e.t<=max_t)?;
+            return Some(pending.remove(i));
+        }
         let origin = start + dir * cursor;
         let mut next: Option<(usize, Ev)> = None;
         for (index, candidate) in pending.iter().enumerate() {
@@ -1054,6 +1235,7 @@ impl<'a> Work<'a> {
                 // Preserve declared plate work/order at a monotonic cursor;
                 // this does not replace declared solids with a geometry union.
                 EvKind::Plate(_) => Some(candidate.t.max(cursor)),
+                EvKind::Unknown | EvKind::Decoration => Some(candidate.t),
                 EvKind::Module(i) => {
                     if empty_rack(self.t, &self.st, i) {
                         None
@@ -1084,6 +1266,8 @@ impl<'a> Work<'a> {
                     Ev {
                         t,
                         kind: candidate.kind,
+                        contact:None,
+                        paired_contact:None,surface_transit:None,
                     },
                 ));
             }
@@ -1095,7 +1279,13 @@ impl<'a> Work<'a> {
 
     /// Distance from `o` along `d` to the nearest plate (a fragment inside stops at the armour).
     fn to_armour(&self, o: Vec3, d: Vec3, max_t: f32) -> f32 {
+        if let Some(scene)=self.scene {return scene.events(o,d,max_t,true).iter().find(|e|matches!(e.kind,EvKind::Plate(_) | EvKind::Unknown) && e.t>0.02).map_or(max_t,|e|e.t);}
         let mut best = max_t;
+        if let Some(a) = &self.t.surf {
+            if let Some(t) = a.nearest(o, d, max_t, self.p.yaw, self.p.pivot, None, 0.02) {
+                best = best.min(t);
+            }
+        }
         for pl in &self.p.plates {
             if let Some(h) = pl.intersect(o, d) {
                 if h.distance > 0.02 && h.distance < best {
@@ -1177,9 +1367,9 @@ impl<'a> Work<'a> {
             .events(o, d, reach, false)
             .into_iter()
             .filter(|ev| match ev.kind {
-                EvKind::Module(i) => !self.p.boxes[i].contains(o),
-                EvKind::Crew(i) => (o - self.p.crew[i]).length() > self.t.def.crew[i].radius,
-                EvKind::Plate(_) => true,
+                EvKind::Module(i) => self.scene.is_some() || !self.p.boxes[i].contains(o),
+                EvKind::Crew(i) => self.scene.is_some() || (o - self.p.crew[i]).length() > self.t.def.crew[i].radius,
+                EvKind::Plate(_) | EvKind::Decoration | EvKind::Unknown => true,
             })
             .collect();
         let mut e = energy_j;
@@ -1191,6 +1381,7 @@ impl<'a> Work<'a> {
                 break;
             }
             let pen = frag_pen(e);
+            self.record_contact(&ev);
             match ev.kind {
                 EvKind::Crew(i) => {
                     if self.st.crew[i] <= 0.0 {
@@ -1220,7 +1411,8 @@ impl<'a> Work<'a> {
                         e *= (1.0 - a / pen).powi(2);
                     }
                 }
-                EvKind::Plate(_) => {}
+                EvKind::Unknown => {end=o+d*ev.t;e=0.;break;}
+                EvKind::Plate(_) | EvKind::Decoration => {}
             }
         }
         if e > 50.0 {
@@ -1231,6 +1423,7 @@ impl<'a> Work<'a> {
 
     /// The blast of a filler inside a compartment: whoever and whatever is close.
     fn blast_inside(&mut self, at: Vec3, kg: f32) {
+        if self.scene.is_some(){self.blast_surface(at,kg,true);return;}
         let r = blast_radius_m(kg);
         // a bigger charge is deadlier at the same share of its radius
         let power = 150.0 * (kg.max(0.005) / 0.05).powf(0.25);
@@ -1252,43 +1445,49 @@ impl<'a> Work<'a> {
                 self.hurt_module(i, 70.0 * k, 0.6);
             }
         }
-        self.rep.bursts.push(Burst { pos: at, radius: r, inside: true, explosive_kg: kg });
+        self.rep.bursts.push(Burst { pos: at, radius: r, inside: true, explosive_kg: kg,
+            time_s:None, armed_at_s:None, delay_s:None, detonation_id:None, mechanism:None });
     }
 
     /// An outside burst: running gear, the barrel, and the crew of an open vehicle.
     fn blast_outside(&mut self, at: Vec3, kg: f32) {
+        self.blast_outside_query(at, at, kg);
+    }
+
+    /// Keep the actual detonation in the report. A contact can supply a
+    /// millimetre exterior query offset without moving that detonation.
+    fn blast_outside_query(&mut self, at: Vec3, query_at: Vec3, kg: f32) {
         let r = outside_radius_m(kg);
-        let power = (kg / 0.7).powf(0.35);
-        for i in 0..self.p.boxes.len() {
-            let m = &self.t.def.modules[i];
-            if !m.is_external() || empty_rack(self.t, &self.st, i) {
-                continue;
-            }
-            let c = self.p.boxes[i].center;
-            let dist = self.p.boxes[i].distance(at);
-            if dist < r {
-                let k = 1.0 - (dist / r).powi(2);
-                let dmg = 140.0 * k * power;
-                let id = m.id.clone();
-                let damage = self.hurt_module(i, dmg, 0.0);
-                self.rep.fragments.push(Frag { from: at, to: c, hit: Some(id), damage, kind: "blast".into(), provenance: Default::default(), budget: None });
-            }
+        self.external_exposure(query_at, kg, r);
+        self.rep.bursts.push(Burst { pos: at, radius: r, inside: false, explosive_kg: kg,
+            time_s:None, armed_at_s:None, delay_s:None, detonation_id:None, mechanism:None });
+    }
+    /// Existing radial pressure law, now bounded by actual modeled anatomy and
+    /// surface line of sight. This is not a pressure-cell/reflection simulation.
+    fn blast_surface(&mut self,at:Vec3,kg:f32,inside:bool){
+        let scene=self.scene.unwrap();let r=if inside{blast_radius_m(kg)}else{outside_radius_m(kg)};
+        let exposure=scene.exposed_anatomy(at,r*1.4);
+        let Ok(exposure)=exposure else{return};
+        for (kind,dist,contact) in exposure {
+            let (damage,hit)=match kind {
+                EvKind::Module(i)=>{
+                    let module=&self.t.def.modules[i];if module.is_external()==inside || empty_rack(self.t,&self.st,i){continue;}
+                    let radius=if inside{r*0.8}else{r};if dist>=radius {continue;}
+                    let power=if inside{70.}else{140.*(kg/0.7).powf(0.35)};let requested=power*(1.-(dist/radius).powi(2));
+                    let name=module.id.clone();(self.hurt_module(i,requested,if inside{0.6}else{0.}),name)
+                },
+                EvKind::Crew(i)=>{
+                    if !inside && !self.t.def.open_top {continue;}
+                    let radius=if inside{r}else{r*1.4};if dist>=radius {continue;}
+                    let power=if inside{150.*(kg.max(0.005)/0.05).powf(0.25)}else{120.*(kg/0.7).powf(0.35)};
+                    (self.hurt_crew(i,power*(1.-(dist/radius).powi(2))),format!("crew:{i}"))
+                },_=>continue,
+            };
+            let to=Vec3::new(contact.point[0] as f32,contact.point[1] as f32,contact.point[2] as f32);
+            self.record_contact(&Ev{t:dist,kind,contact:Some(contact),paired_contact:None,surface_transit:None});
+            self.rep.fragments.push(Frag{from:at,to,hit:Some(hit),damage,kind:"blast".into(),provenance:Default::default(),budget:None});
         }
-        if self.t.def.open_top {
-            let top = self.t.def.plates.iter().map(|p| p.center.y).fold(0.0f32, f32::max);
-            for i in 0..self.p.crew.len() {
-                let c = self.p.crew[i];
-                let dist = (c - at).length();
-                // an open vehicle: the blast reaches whoever it can see over the sides
-                if dist < r * 1.4 && (at.y > c.y - 0.2 || at.y > top - 0.3) {
-                    let k = 1.0 - (dist / (r * 1.4)).powi(2);
-                    let dmg = 120.0 * k * power;
-                    let damage = self.hurt_crew(i, dmg);
-                    self.rep.fragments.push(Frag { from: at, to: c, hit: Some(format!("crew:{}", i)), damage, kind: "blast".into(), provenance: Default::default(), budget: None });
-                }
-            }
-        }
-        self.rep.bursts.push(Burst { pos: at, radius: r, inside: false, explosive_kg: kg });
+        self.rep.bursts.push(Burst{time_s:None,armed_at_s:None,delay_s:None,detonation_id:None,mechanism:None,pos:at,radius:r,inside,explosive_kg:kg});
     }
 
     /// The casing of an APHE / HE round bursting at `at`, moving along `d` at `v` m/s.
@@ -1306,6 +1505,53 @@ impl<'a> Work<'a> {
             self.fragment(at, fly.normalized(), e, "burst", 6.0);
         }
         self.blast_inside(at, kg);
+    }
+
+    /// One accepted charge release. A stopped body keeps its armed fuse; an
+    /// unknown continuation outside this target cannot call this method.
+    fn detonate_aphe(&mut self, at: Vec3, d: Vec3, v: f32, shell: &ProjectileDef,
+        fuse: DelayedFuse, state: &mut ImpactState, inside: bool) {
+        if state.fuse != impact::FuseState::Armed || !state.charge.as_ref()
+            .is_some_and(|c| c.disposition == impact::ChargeDisposition::Contained) { return; }
+        state.fuse = impact::FuseState::Detonated;
+        state.elapsed_s = fuse.time_s;
+        state.traversal = None;
+        state.charge.as_mut().unwrap().disposition = impact::ChargeDisposition::Released;
+        self.rep.events.push("aphe_detonated".into());
+        self.rep.path.push(at);
+        if inside {
+            let kg = shell.explosive_mass_kg;
+            let casing = (shell.mass_kg * 0.85).max(0.05);
+            let ratio = kg / casing;
+            let gurney = 2400.0 * (ratio / (1.0 + 0.5 * ratio)).sqrt();
+            let n = (30.0 + kg * 400.0).clamp(30.0, 90.0) as usize;
+            let each_mass = casing / n as f32;
+            for index in 0..n {
+                let fly = d * (v * 0.5) + random_unit(&mut self.rng) * gurney;
+                let energy = (0.5 * each_mass as f64 *
+                    fly.to_array().iter().map(|x| (*x as f64).powi(2)).sum::<f64>()).max(0.0);
+                self.fragment(at, fly.normalized(), energy as f32, "burst", 6.0);
+                self.rep.fragments.last_mut().unwrap().provenance = FragmentProvenance {
+                    fragment_id: format!("{}/casing:{index}", fuse.detonation_id),
+                    parent_event_id: fuse.detonation_id.clone(),
+                    source: impact::FragmentSource::CasingFragment,
+                    source_layer_or_module: Some("projectile_casing".into()),
+                    physical: Some(impact::PhysicalFragment { mass_kg: each_mass as f64,
+                        energy_j: energy, area_m2:None, velocity_m_s:fly }),
+                    weight:1.0, start_s:Some(fuse.time_s),
+                    profile:Some(impact::ProfileReference { id:"legacy_gurney_casing".into(),
+                        revision:"aphe_delay_v1".into(), source:impact::ProfileSource::Estimated }),
+                };
+            }
+            self.blast_inside(at, kg);
+        } else {
+            self.blast_outside(at, shell.explosive_mass_kg);
+        }
+        if let Some(burst) = self.rep.bursts.last_mut() {
+            burst.time_s=Some(fuse.time_s); burst.armed_at_s=Some(fuse.armed_at_s);
+            burst.delay_s=Some(fuse.delay_s); burst.detonation_id=Some(fuse.detonation_id);
+            burst.mechanism=Some("delayed_aphe".into());
+        }
     }
 
     /// Spall off the inside of a plate the round has just come through.
@@ -1349,23 +1595,44 @@ impl<'a> Work<'a> {
 
 /// One round against the target. `st` is the target's state before; the report carries the state after.
 pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
-    shoot_internal(t,st,shot,None)
+    shoot_internal(t,st,shot,None,None)
+}
+/// Resolve a finite accepted flight segment against posed renderer triangles.
+pub fn shoot_surface(t:&Target,st:&TargetState,shot:&Shot,scene:&geometry::combat_scene::CombatScene,end:Vec3,context:Option<&causes::DamageContext>)->Result<Report,String> {
+    let delta=end-shot.origin;let span=delta.length();let d=shot.dir.normalized();
+    if !scene.accepts(t) || !span.is_finite() || span<=0.0 || (delta-d*span).length()>span*1e-5 || context.is_some_and(|c|!c.valid()) {return Err("invalid finite surface shot identity/segment".into());}
+    scene.reset_error();let report=shoot_internal(t,st,shot,context,Some((scene,span)));
+    if let Some(error)=scene.take_error(){return Err(error);} Ok(report)
+}
+/// The incoming ballistic owner proves an actual finite contact first. Only that
+/// contact admits bounded internal travel, using the same frozen surface scene.
+/// Inside a target the current impact owner follows a straight tangent at fixed
+/// pose; this is explicit and does not claim moving-target continuous collision.
+pub fn shoot_surface_impact(t:&Target,st:&TargetState,shot:&Shot,scene:&geometry::combat_scene::CombatScene,incoming_end:Vec3,context:Option<&causes::DamageContext>)->Result<Report,String>{
+    let delta=incoming_end-shot.origin;let length=delta.length();let dir=shot.dir.normalized();
+    if !scene.accepts(t) || !length.is_finite() || length<=0. || (delta-dir*length).length()>length*1e-5 {return Err("invalid incoming surface segment".into());}
+    if scene.crossings(shot.origin,incoming_end)?.is_empty(){return shoot_surface(t,st,shot,scene,incoming_end,context);}
+    let end=scene.continuation_end(shot.origin,dir)?;
+    let mut report=shoot_surface(t,st,shot,scene,end,context)?;
+    report.events.push("fixed_pose_internal_surface_continuation".into());Ok(report)
 }
 
 pub fn shoot_context(t:&Target,st:&TargetState,shot:&Shot,context:&causes::DamageContext)->Report {
     assert!(context.valid(),"contextual combat requires a validated admitted identity");
-    shoot_internal(t,st,shot,Some(context))
+    shoot_internal(t,st,shot,Some(context),None)
 }
-fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Option<&'a causes::DamageContext>) -> Report {
+fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Option<&'a causes::DamageContext>,surface:Option<(&'a geometry::combat_scene::CombatScene,f32)>) -> Report {
     let shell = &shot.shell;
     let d = shot.dir.normalized();
     let mut w = Work {
+        scene:surface.map(|(s,_)|s),
         context,
         t,
         p: t.posed(shot.turret_yaw),
         st: st.clone(),
         rng: Rng::new(shot.seed.max(1)),
         rep: Report {
+            geometry_contacts:vec![],primary_geometry_contacts:vec![],primary_module_destructions:vec![],
             cause_transitions:vec![],
             hit: false,
             outcome: Outcome::Miss,
@@ -1398,13 +1665,11 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
         newly_killed: vec![],
     };
     // only the part of the line that crosses the vehicle's box
-    let Some((t_in, t_out)) = ray_box(shot.origin, d, (t.lo + t.hi) * 0.5, (t.hi - t.lo) * 0.5)
-    else {
-        w.rep.title = "未命中".into();
-        return w.rep;
+    let (start,span)=if let Some((_,span))=surface {(shot.origin,span)} else {
+        let Some((t_in,t_out))=ray_box(shot.origin,d,(t.lo+t.hi)*0.5,(t.hi-t.lo)*0.5) else {w.rep.title="未命中".into();return w.rep;};
+        (shot.origin+d*(t_in-0.05).max(0.0),t_out-t_in+0.1)
     };
-    let start = shot.origin + d * (t_in - 0.05).max(0.0);
-    let span = t_out - t_in + 0.1;
+    w.add_walls(start,d,span);
     let mut events = w.events(start, d, span, true);
     let roll = 1.0 + 0.05 * gauss(&mut w.rng).clamp(-2.5, 2.5);
     let mut pen = shell.pen_at(shot.distance_m) * roll;
@@ -1438,13 +1703,23 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
             shell.kind,
             ProjectileKind::Apcr | ProjectileKind::Apds | ProjectileKind::Apfsds
         );
+    if aphe {
+        if let Some(state) = impact_state.as_mut() {
+            state.fuse = impact::FuseState::Unarmed;
+            if let Some(charge) = state.charge.as_mut() {
+                charge.disposition = impact::ChargeDisposition::Contained;
+            }
+        }
+    }
     let he = shell.kind == ProjectileKind::He;
     let hesh = shell.kind == ProjectileKind::Hesh;
     let mut touched = false;
     let mut inside = false;
-    let mut fuse_at: Option<f32> = None;
+    let mut delayed_fuse: Option<DelayedFuse> = None;
     let mut jet_end: Option<f32> = None;
-    let mut last_t = 0.0f32;
+    // The ballistic owner has already timed incoming travel to the first
+    // physical surface. Impact records start there, without counting it twice.
+    let mut last_t = if surface.is_some(){events.first().map_or(0.,|e|e.t)}else{0.};
     let mut core_parent: Option<(Vec3, impact::ImpactTransition)> = None;
     let mut alive = true;
     let mut through_armour = false;
@@ -1461,6 +1736,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
             }
         };
     let mut legacy_event = 0;
+    let mut deferred_surface_spall:HashMap<u32,DeferredSurfaceSpall>=HashMap::new();
     while legacy_event < events.len() {
         if !alive {
             break;
@@ -1471,16 +1747,24 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
             };
             event
         } else {
-            let event = events[legacy_event];
+            let event = events[legacy_event].clone();
             legacy_event += 1;
             event
         };
-        // the fuse runs out before this
-        if let Some(f) = fuse_at {
-            if ev.t >= f {
-                let at = start + d * f;
-                w.rep.path.push(at);
-                w.burst_fragments(at, d, speed, shell);
+        // The fuse measures seconds. Recompute the remaining distance at this
+        // segment's actual residual speed after every plate/module/crew contact.
+        if let (Some(fuse), Some(state)) = (delayed_fuse.as_ref(), impact_state.as_mut()) {
+            let gap = (ev.t-last_t).max(0.0);
+            let remaining = (fuse.time_s-state.elapsed_s).max(0.0);
+            if remaining <= gap as f64 / (speed as f64).max(1e-12) {
+                let at = start+d*(last_t+(remaining*speed as f64) as f32);
+                if let Some((origin,parent)) = &core_parent {
+                    if (at-*origin).length() > 1e-6 {
+                        w.rep.fragments.push(Frag { from:*origin,to:at,hit:None,damage:0.0,
+                            kind:"shell".into(),provenance:impact_report::outgoing_core_provenance(parent),budget:None });
+                    }
+                }
+                w.detonate_aphe(at,d,speed,shell,delayed_fuse.take().unwrap(),state,inside);
                 alive = false;
                 break;
             }
@@ -1496,14 +1780,45 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
             state.advance_time((ev.t - last_t).max(0.0) as f64);
         }
         last_t = last_t.max(ev.t);
-        let point = start + d * ev.t;
+        let point = ev.contact.as_ref().map_or(start+d*ev.t,|c|Vec3::new(c.point[0] as f32,c.point[1] as f32,c.point[2] as f32));
+        w.record_primary_contact(&ev);
+        if let Some(transit)=ev.surface_transit.filter(|t|t.is_exit) {
+            // Work was deposited at this interval's entrance. This is its real
+            // measured exit, not another armor charge or a rewound contact.
+            if let Some((origin,parent))=core_parent.take() {
+                if (point-origin).length()>1e-6 {w.rep.fragments.push(Frag {from:origin,to:point,hit:None,damage:0.,
+                    kind:"shell".into(),provenance:impact_report::outgoing_core_provenance(&parent),budget:None});}
+                core_parent=Some((point,parent));
+            }
+            if let Some(spall)=deferred_surface_spall.remove(&transit.id) {
+                match spall {
+                    DeferredSurfaceSpall::Kinetic(mut tr)=>{
+                        if let Some(state)=impact_state.as_ref() {tr.output.elapsed_s=state.elapsed_s;}
+                        w.kinetic_surface_spall(point,d,shell,&tr);
+                    },
+                    DeferredSurfaceSpall::Legacy {pen,energy}=>w.spall(point,d,shell,pen,energy),
+                }
+            }
+            w.rep.path.push(point);
+            continue;
+        }
         match ev.kind {
+            EvKind::Decoration => continue,
+            EvKind::Unknown => {
+                hit_something=true;first_point(&mut w,point,ev.contact.as_ref().map(|c|Vec3::new(c.facing_normal[0] as f32,c.facing_normal[1] as f32,c.facing_normal[2] as f32)),None,0.);
+                w.rep.events.push("unsupported_surface_resistance".into());w.rep.outcome=Outcome::Stopped;alive=false;break;
+            },
             EvKind::Plate(i) => {
-                let pl = w.p.plates[i].clone();
-                let Some(h) = pl.intersect(start, d) else {
-                    continue;
-                };
-                let entering = d.dot(pl.normal) < 0.0;
+                let mut pl = w.p.plates[i].clone();
+                let h=if let Some(contact)=&ev.contact {
+                    pl.normal=Vec3::new(contact.geometric_normal[0] as f32,contact.geometric_normal[1] as f32,contact.geometric_normal[2] as f32);
+                    let facing=Vec3::new(contact.facing_normal[0] as f32,contact.facing_normal[1] as f32,contact.facing_normal[2] as f32);
+                    tg_armor::PlateHit {distance:ev.t,point,facing_normal:facing,incidence_deg:(-d.dot(facing)).clamp(0.,1.).acos().to_degrees()}
+                } else {let Some(h)=pl.intersect(start,d) else{continue;};h};
+                let entering = ev.contact.as_ref().map_or(d.dot(pl.normal)<0.,|c|c.crossing!="exit");
+                let measured_exit=ev.paired_contact.as_ref().map(|c|Vec3::new(c.point[0] as f32,c.point[1] as f32,c.point[2] as f32));
+                let traversal_id=ev.surface_transit.map_or(0,|t|t.id);
+                let deferred_exit=ev.surface_transit.is_some_and(|t|t.deferred);
                 let first = !touched;
                 touched = true;
                 hit_something = true;
@@ -1560,7 +1875,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                     } else {
                         he_pen_mm(kg)
                     };
-                    let inner = point + d * (pl.thickness_mm * 0.001 + 0.03);
+                    let inner = if ev.contact.is_some(){measured_exit.unwrap_or(point)+d*0.03}else{point + d * (pl.thickness_mm * 0.001 + 0.03)};
                     if pl.zone != ArmorZone::Skirt && rating >= pl.thickness_mm {
                         w.note_layer(
                             i,
@@ -1599,7 +1914,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                             point,
                             entering,
                         );
-                        w.blast_outside(point - d * 0.05, kg);
+                        w.blast_outside_query(point, point - d * 0.001, kg);
                         w.rep.outcome = Outcome::Blast;
                     }
                     alive = false;
@@ -1628,7 +1943,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                     let available = state
                         .traversal
                         .as_ref()
-                        .filter(|c| c.layer_id == layer_id && c.traversal_id == 0)
+                        .filter(|c| c.layer_id == layer_id && c.traversal_id == traversal_id)
                         .map(|c| c.entry.remaining_pen_mm)
                         .unwrap_or(state.remaining_pen_mm);
                     let verdict = if state.energy_j() == 0.0 && req > 0.0 {
@@ -1643,13 +1958,13 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                         impact::ImpactVerdict::Passed
                     };
                     let before = state.remaining_pen_mm as f32;
-                    let Ok(tr) = impact::advance_kinetic_layer(
+                    let Ok(mut tr) = impact::advance_kinetic_layer(
                         state,
                         &impact::DeclaredLayerContact {
                             layer_id,
-                            traversal_id: 0,
+                            traversal_id,
                             cumulative_required_mm: req as f64,
-                            cumulative_path_m: los as f64 * 0.001,
+                            cumulative_path_m: if ev.contact.is_some(){measured_exit.map_or(0.,|p|(p-point).length() as f64)}else{los as f64*0.001},
                             thickness_mm: pl.thickness_mm as f64,
                             density_kg_m3: mat.density_kg_m3 as f64,
                             verdict,
@@ -1657,17 +1972,26 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                         },
                     ) else {
                         w.rep.events.push("rejected_impact_contact".into());
+                        if aphe { fail_aphe_fuse(&mut delayed_fuse,state); }
                         alive = false;
                         break;
                     };
                     pen = state.remaining_pen_mm as f32;
                     speed = state.velocity_m_s.length();
                     let passed = verdict == impact::ImpactVerdict::Passed;
-                    let inner = point + d * (los * 0.001);
+                    let inner = if ev.contact.is_some(){measured_exit.unwrap_or(point)}else{point + d * (los * 0.001)};
+                    if aphe {
+                        if matches!(verdict,impact::ImpactVerdict::Shattered|impact::ImpactVerdict::Ricochet) {
+                            fail_aphe_fuse(&mut delayed_fuse,state);
+                        } else if pl.zone != ArmorZone::Skirt && pl.thickness_mm >= shell.fuse_sensitivity_mm {
+                            arm_aphe_fuse(&mut delayed_fuse,state,shell,tr.entry.elapsed_s);
+                        }
+                        tr.output = state.current.clone();
+                    }
                     // Plate transit is already included in the shared output.
                     // Subsequent free travel begins at the actual plate exit.
                     if passed {
-                        last_t = ev.t + los * 0.001;
+                        last_t = ev.t + (inner-point).length();
                     }
                     w.note_layer(i, inc, los, req, before, pen, passed, point, entering);
                     w.rep.impact_events.push(impact_report::event(
@@ -1691,47 +2015,21 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                                 _ => Outcome::Stopped,
                             };
                         }
-                        if aphe
-                            && verdict == impact::ImpactVerdict::Stopped
-                            && pl.thickness_mm >= shell.fuse_sensitivity_mm
-                        {
-                            w.blast_outside(point - d * 0.05, shell.explosive_mass_kg * 0.5);
-                        }
                         alive = false;
                         break;
                     }
+                    if let Some(fuse) = delayed_fuse.as_ref().filter(|f| f.time_s <= state.elapsed_s) {
+                        let travelled = ((fuse.time_s-tr.entry.elapsed_s).max(0.0)
+                            *tr.entry.velocity_m_s.length() as f64) as f32;
+                        let at = point+d*travelled.min(los*0.001);
+                        w.rep.events.push("aphe_fuse_in_armour".into());
+                        w.detonate_aphe(at,d,speed,shell,delayed_fuse.take().unwrap(),state,false);
+                        alive=false;
+                        break;
+                    }
                     if entering {
-                        let params = match shell.kind {
-                            ProjectileKind::Apcr | ProjectileKind::Apds => {
-                                tg_damage::DamageParams {
-                                    base_frag_count: 2,
-                                    frags_per_residual_mm: 0.05,
-                                    max_frags: 10,
-                                    cone_half_angle_deg: 11.0,
-                                    ..Default::default()
-                                }
-                            }
-                            ProjectileKind::Apfsds => tg_damage::DamageParams {
-                                base_frag_count: 3,
-                                frags_per_residual_mm: 0.05,
-                                max_frags: 12,
-                                cone_half_angle_deg: 10.0,
-                                ..Default::default()
-                            },
-                            _ => tg_damage::DamageParams {
-                                base_frag_count: (4.0 + shell.caliber_mm * 0.04) as u32,
-                                frags_per_residual_mm: 0.12,
-                                max_frags: 36,
-                                cone_half_angle_deg: 22.0,
-                                ..Default::default()
-                            },
-                        };
-                        let fragments = tg_damage::generate_allocated_fragments(
-                            inner, d, None, &tr, &params, &mut w.rng,
-                        );
-                        for fragment in &fragments {
-                            w.kinetic_fragment(fragment, 4.0);
-                        }
+                        if deferred_exit {deferred_surface_spall.insert(traversal_id,DeferredSurfaceSpall::Kinetic(tr.clone()));}
+                        else {w.kinetic_surface_spall(inner,d,shell,&tr);}
                     }
                     core_parent = Some((inner, tr));
                     if pl.zone == ArmorZone::Skirt {
@@ -1745,11 +2043,9 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                     w.rep.outcome = Outcome::Penetrated;
                     if entering {
                         inside = true;
-                        w.rep.path.push(inner);
-                        if aphe && fuse_at.is_none() && pl.thickness_mm >= shell.fuse_sensitivity_mm
-                        {
-                            fuse_at = Some(ev.t + (speed * shell.fuse_delay_s).max(0.15));
-                        }
+                        if !deferred_exit {w.rep.path.push(inner);}
+                    } else {
+                        inside = false;
                     }
                     if state.energy_j() <= 0.0 {
                         alive = false;
@@ -1790,7 +2086,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                         && pl.thickness_mm >= shell.fuse_sensitivity_mm
                         && shell.explosive_mass_kg > 0.0
                     {
-                        w.blast_outside(point - d * 0.05, shell.explosive_mass_kg * 0.5);
+                        w.blast_outside_query(point, point - d * 0.001, shell.explosive_mass_kg * 0.5);
                     }
                     alive = false;
                     break;
@@ -1809,20 +2105,17 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                 w.rep.outcome = Outcome::Penetrated;
                 if entering {
                     inside = true;
-                    let inner = point
-                        + d * (pl.thickness_mm * 0.001 / eff.to_radians().cos().max(0.2) + 0.02);
-                    w.rep.path.push(inner);
+                    let inner = if ev.contact.is_some(){measured_exit.unwrap_or(point)}else{point
+                        + d * (pl.thickness_mm * 0.001 / eff.to_radians().cos().max(0.2) + 0.02)};
                     let e = energy(speed);
-                    w.spall(inner, d, shell, pen, e);
+                    if deferred_exit {
+                        deferred_surface_spall.insert(traversal_id,DeferredSurfaceSpall::Legacy{pen,energy:e});
+                    } else {
+                        w.rep.path.push(inner);
+                        w.spall(inner, d, shell, pen, e);
+                    }
                     if chemical && jet_end.is_none() {
                         jet_end = Some(ev.t + 0.6 + pen / 120.0);
-                    }
-                    if aphe
-                        && fuse_at.is_none()
-                        && shell.explosive_mass_kg > 0.0
-                        && pl.thickness_mm >= shell.fuse_sensitivity_mm
-                    {
-                        fuse_at = Some(ev.t + (speed * shell.fuse_delay_s).max(0.15));
                     }
                 }
             }
@@ -1837,7 +2130,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                     if inside || !m.is_external() {
                         w.burst_fragments(point, d, speed * 0.3, shell);
                     } else {
-                        w.blast_outside(point, kg);
+                        w.blast_outside_query(point, point - d * 0.001, kg);
                     }
                     w.rep.outcome = if inside {
                         w.rep.outcome
@@ -1858,8 +2151,10 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                         alive = false;
                         break;
                     };
+                    let health_before=w.st.modules[i];
                     let damage =
                         w.hurt_module(i, module_damage(tr.budget.target_deposition_j as f32), 0.8);
+                    w.record_primary_destruction(i,health_before,&ev);
                     let (origin, provenance) = core_parent
                         .as_ref()
                         .map(|(origin, parent)| {
@@ -1905,7 +2200,9 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                 } else {
                     module_damage(e)
                 };
+                let health_before=w.st.modules[i];
                 let damage = w.hurt_module(i, dmg, 0.8);
+                w.record_primary_destruction(i,health_before,&ev);
                 w.rep.fragments.push(Frag {
                     from: point,
                     to: point,
@@ -2025,41 +2322,48 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
         }
     }
     if alive && hit_something {
-        // still going: a fuse inside the box bursts there, otherwise the round has gone out
-        let exit_t = span;
-        match fuse_at {
-            Some(f) if f < exit_t => {
-                let at = start + d * f;
-                w.rep.path.push(at);
-                w.burst_fragments(at, d, speed, shell);
+        let end_distance = jet_end.unwrap_or(span).min(span).max(last_t);
+        let mut end = start+d*end_distance;
+        if let (Some(fuse),Some(state)) = (delayed_fuse.as_ref(),impact_state.as_mut()) {
+            let remaining = (fuse.time_s-state.elapsed_s).max(0.0);
+            if remaining <= (end_distance-last_t).max(0.0) as f64/(speed as f64).max(1e-12) {
+                end=start+d*(last_t+(remaining*speed as f64) as f32);
+                if let Some((origin,parent))=&core_parent {
+                    if (end-*origin).length()>1e-6 {
+                        w.rep.fragments.push(Frag {from:*origin,to:end,hit:None,damage:0.0,
+                            kind:"shell".into(),provenance:impact_report::outgoing_core_provenance(parent),budget:None});
+                    }
+                }
+                w.detonate_aphe(end,d,speed,shell,delayed_fuse.take().unwrap(),state,inside);
+                alive=false;
             }
-            _ => {
-                let end_distance = jet_end.unwrap_or(exit_t).min(exit_t).max(last_t);
-                let end = start + d * end_distance;
-                if let Some((origin, parent)) = &core_parent {
-                    if (end - *origin).length() > 1e-6 {
-                        w.rep.fragments.push(Frag {
-                            from: *origin,
-                            to: end,
-                            hit: None,
-                            damage: 0.0,
-                            kind: "shell".into(),
-                            provenance: impact_report::outgoing_core_provenance(parent),
-                            budget: None,
-                        });
-                    }
-                    if let Some(state) = impact_state.as_mut() {
-                        state.advance_time((end_distance - last_t).max(0.0) as f64);
-                    }
+        }
+        if alive {
+            if let Some((origin,parent))=&core_parent {
+                if (end-*origin).length()>1e-6 {
+                    w.rep.fragments.push(Frag {from:*origin,to:end,hit:None,damage:0.0,
+                        kind:"shell".into(),provenance:impact_report::outgoing_core_provenance(parent),budget:None});
                 }
-                w.rep.path.push(end);
-                if fuse_at.is_some() {
-                    w.rep.events.push("overpenetration".into());
-                }
+            }
+            if let Some(state)=impact_state.as_mut() {
+                state.advance_time((end_distance-last_t).max(0.0) as f64);
+            }
+            w.rep.path.push(end);
+            if delayed_fuse.is_some() {
+                w.rep.events.push("overpenetration".into());
+                w.rep.events.push("aphe_armed_exit_continuation_unresolved".into());
+            }
+        }
+    } else if !alive {
+        // Stopping the kinetic core does not stop an already-running fuse.
+        // Shatter/ricochet/invalid contacts cancel the fuse before reaching here.
+        if let (Some(fuse),Some(state))=(delayed_fuse.take(),impact_state.as_mut()) {
+            if state.fuse==impact::FuseState::Armed {
+                let at=start+d*last_t;
+                w.detonate_aphe(at,d,0.0,shell,fuse,state,inside);
             }
         }
     }
-    let _ = inside;
     w.rep.impact_state = impact_state;
     w.rep.hit = hit_something;
     finish(&mut w);
@@ -2069,12 +2373,14 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
 /// An HE round landing near the vehicle (`at` in hull space): running gear, barrel, open crew.
 pub fn splash(t: &Target, st: &TargetState, at: Vec3, explosive_kg: f32, turret_yaw: f32, seed: u64) -> Report {
     let mut w = Work {
+        scene:None,
         context:None,
         t,
         p: t.posed(turret_yaw),
         st: st.clone(),
         rng: Rng::new(seed.max(1)),
         rep: Report {
+            geometry_contacts:vec![],primary_geometry_contacts:vec![],primary_module_destructions:vec![],
             cause_transitions:vec![],
             hit: false,
             outcome: Outcome::Blast,
@@ -2210,6 +2516,6 @@ pub fn target_from_files(id: &str, vehicle: &serde_json::Value, plates: Vec<Armo
     } else {
         None
     };
-    TargetDef { id: id.into(), plates, modules, crew, turret, open_top: tv["open_top"].as_bool().unwrap_or(false), ammo_capacity: 0,
+    TargetDef {surfaces:None, id: id.into(), plates, modules, crew, turret, open_top: tv["open_top"].as_bool().unwrap_or(false), ammo_capacity: 0,
         weapons: serde_json::Value::Null, machine_guns: serde_json::Value::Null, visual: serde_json::Value::Null }
 }

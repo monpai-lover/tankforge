@@ -1,0 +1,64 @@
+{
+  "actualNativeFailure": "Production route needs explicit roadbedSegments",
+  "priorAssetSha256": "423d90e51edebf3b92b2c5b899ac184ad6d407ad21c8644093c55509cfc0f24d",
+  "newAssetSha256": "0cc7ebdf3379966abacca412049083ac2349434ab1d7a0ac9e413673c0e68a79",
+  "permittedChange": "Add exact route segments returned by original source-node surface builder to twelve roadbedSegments arrays; no nearest/chord binding.",
+  "onlyTwelveIndexFieldsChanged": true,
+  "allExistingJsonValuesIncludingAllGeometryAndHeightsIdentical": true,
+  "roadIndexCounts": [
+    {
+      "roadId": "west:W0-W1",
+      "exactSegmentIndices": 191
+    },
+    {
+      "roadId": "west:W1-W2",
+      "exactSegmentIndices": 196
+    },
+    {
+      "roadId": "west:W2-W3",
+      "exactSegmentIndices": 205
+    },
+    {
+      "roadId": "west:W3-W4",
+      "exactSegmentIndices": 191
+    },
+    {
+      "roadId": "centre:C0-C1",
+      "exactSegmentIndices": 213
+    },
+    {
+      "roadId": "centre:C1-C2",
+      "exactSegmentIndices": 199
+    },
+    {
+      "roadId": "centre:C2-C3",
+      "exactSegmentIndices": 196
+    },
+    {
+      "roadId": "centre:C3-C4",
+      "exactSegmentIndices": 206
+    },
+    {
+      "roadId": "east:E0-E1",
+      "exactSegmentIndices": 221
+    },
+    {
+      "roadId": "east:E1-E2",
+      "exactSegmentIndices": 218
+    },
+    {
+      "roadId": "east:E2-E3",
+      "exactSegmentIndices": 203
+    },
+    {
+      "roadId": "east:E3-E4",
+      "exactSegmentIndices": 217
+    }
+  ],
+  "indexReferenceCount": 2456,
+  "nativeExecutionStatus": "pending_reexecution",
+  "retainedNativeFailureLog": "handoff/tests/out/native-multimap-20261025/registry-attempt1.log",
+  "nativeCasesOnlyMapPinChanged": true,
+  "previousNativeCasesSha256": "78a1d5d04c9a0f71b4c3fb16c9d856a7550670689395ce2a664df4f5da20a706",
+  "newNativeCasesSha256": "f3155b80bb8291bb59a93425805779a5fcb467b4da23b8fb1f232d3b003d32aa"
+}

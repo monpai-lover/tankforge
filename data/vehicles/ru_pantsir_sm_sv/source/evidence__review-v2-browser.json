@@ -1,0 +1,233 @@
+{
+  "passed": true,
+  "checks": {
+    "defaultV2": true,
+    "posedMuzzle": true,
+    "xrayInvariant": true,
+    "removedPhysicalSurface": true,
+    "weapons": true,
+    "V2LODs": true,
+    "allSockets": true,
+    "noArmorLeak": true,
+    "noPageErrors": true
+  },
+  "report": {
+    "initial": {
+      "ready": true,
+      "mode": "exterior",
+      "lod": 0,
+      "triangles": 296201,
+      "meshes": 188,
+      "armorMeshes": 11,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.11213272344321,
+        8.722509384155273
+      ],
+      "yaw": 0,
+      "elevation": 0,
+      "explode": 0,
+      "missilesRemaining": 12,
+      "cannonBursts": 0,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 0,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    },
+    "neutral": {
+      "name": "muzzle_cannon_L1",
+      "position": [
+        -0.8069999907165766,
+        2.6730000972747803,
+        3.3250001072883606
+      ],
+      "direction": [
+        0,
+        0,
+        1
+      ],
+      "quaternion": [
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    "aimed": {
+      "name": "muzzle_cannon_L1",
+      "position": [
+        0.6082355608684871,
+        4.211338873448701,
+        3.004753491020928
+      ],
+      "direction": [
+        0.5313711260384404,
+        0.4694715627858908,
+        0.7051533011679186
+      ],
+      "quaternion": [
+        -0.22942025630948945,
+        0.30787935203733435,
+        0.07676294396012112,
+        0.9201543897730069
+      ]
+    },
+    "witness": {
+      "origin": [
+        -0.008684992790222168,
+        1.2096816450357437,
+        19.85945188999176
+      ],
+      "direction": [
+        0,
+        0,
+        -1
+      ],
+      "hit": {
+        "part_id": "armor_hull_front",
+        "name": "armor_hull_front",
+        "role": "armor",
+        "armor_zone": "hull_front",
+        "module_id": null,
+        "thickness_mm": 20,
+        "thickness_status": "provisional_gameplay_estimate",
+        "distance": 15.923575,
+        "point": [
+          -0.008685,
+          1.209682,
+          3.935877
+        ],
+        "faceIndex": 2446,
+        "approximate": false
+      }
+    },
+    "xray": {
+      "part_id": "armor_hull_front",
+      "name": "armor_hull_front",
+      "role": "armor",
+      "armor_zone": "hull_front",
+      "module_id": null,
+      "thickness_mm": 20,
+      "thickness_status": "provisional_gameplay_estimate",
+      "distance": 15.923575,
+      "point": [
+        -0.008685,
+        1.209682,
+        3.935877
+      ],
+      "faceIndex": 2446,
+      "approximate": false
+    },
+    "removed": {
+      "part_id": "fittings_hull",
+      "name": "fittings_hull_mesh_1",
+      "role": "exterior",
+      "armor_zone": null,
+      "module_id": "fittings",
+      "thickness_mm": null,
+      "thickness_status": null,
+      "distance": 15.956375,
+      "point": [
+        -0.008685,
+        1.209682,
+        3.903077
+      ],
+      "faceIndex": 74293,
+      "approximate": false
+    },
+    "missile": true,
+    "cannon": true,
+    "lods": [
+      {
+        "lod": 1,
+        "triangles": 169492,
+        "sockets": {
+          "cannon": 4,
+          "missile": 12
+        }
+      },
+      {
+        "lod": 2,
+        "triangles": 112249,
+        "sockets": {
+          "cannon": 4,
+          "missile": 12
+        }
+      },
+      {
+        "lod": 0,
+        "triangles": 296201,
+        "sockets": {
+          "cannon": 4,
+          "missile": 12
+        }
+      }
+    ],
+    "reset": {
+      "ready": true,
+      "mode": "exterior",
+      "lod": 0,
+      "triangles": 296201,
+      "meshes": 188,
+      "armorMeshes": 11,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.11213272344321,
+        8.722509384155273
+      ],
+      "yaw": 0,
+      "elevation": 0,
+      "explode": 0,
+      "missilesRemaining": 12,
+      "cannonBursts": 0,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 0,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    },
+    "regions": []
+  },
+  "errors": [],
+  "loadedGLBs": [
+    "http://127.0.0.1:52766/assets/pantsir_lod0.glb",
+    "http://127.0.0.1:52766/assets/pantsir_lod1.glb",
+    "http://127.0.0.1:52766/assets/pantsir_lod2.glb",
+    "http://127.0.0.1:52766/assets/pantsir_lod0.glb"
+  ]
+}

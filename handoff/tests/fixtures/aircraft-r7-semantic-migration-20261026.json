@@ -1,0 +1,5301 @@
+{
+  "schema": "TankForgeR7ExplicitSemanticMigrationV1",
+  "provenance": {
+    "r6ProfileSha256": "3d9b6e198405ec00295e7d9e3146a57d8790ef58f9b67f8d5da14c3e01318a82",
+    "r6AppSha256": "8305c62f4c858dbb5fb5ae69e9fd59eb5424243e3c43be68b775df568e076937",
+    "r6FlightCoreVersion": 214,
+    "r6FlightWasmSha256": "b35e59001c3e6d8f1f63c6645396359c2516a5cd1618ee22fbe9cd54d086d0f1",
+    "modelBaselineSha256": "d5eb789c29b25a1c03064f2550129cb9aaeda0c370212c3537de6f7fc5ee6827",
+    "slotExtensionSha256": "b3fff03ac2d21c02174090e3a5aa7beab303235a59f6d62e8ce5139a8c6c07d0",
+    "reason": "R7 source-bound V4 mount/sensor update, explicit inherited logical variants, source catalog R3R/R60/SAMP250 additions, source/native guided-support descriptions, and C215 control/kinematics ABI. Every original26 serialized physics/guns/fuel/metadata and all93 preset index/name/entries/item-id-count-station-side/gunPod semantics remain exact. Slot geometry/rails and sensors are separately pinned to actual source exporter/geometry gates."
+  },
+  "cohort": {
+    "appSha256": "1c5607d177bbc3213e2aba442abcf23f2d13798f0e5023e26dba9b3eee7defb3",
+    "profileSha256": "e1080c296dc70b4344dad7dda4935bf966980f7d44ff56b5cf96ad7141d74fc2",
+    "flightCoreVersion": 215,
+    "flightWasmSha256": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "sourceSections": {
+      "primaryProjectileFillers": {
+        "startLine": 5,
+        "sha256": "a215d466f9029e9929f27c7b2af3bc0eb5d9486a14c9e6ac587e89e81cad01b4"
+      },
+      "me262Sight": {
+        "startLine": 20,
+        "sha256": "9772673f0cbe5d9aadc5d307f328e3adf8b66afa03a351f145cef479a07f7356"
+      },
+      "mig17Wing": {
+        "startLine": 134,
+        "sha256": "a0396d1dace4192636575145723e8f7ddd25416303b5215cf95d10584e6f6811"
+      },
+      "aircraftCull": {
+        "startLine": 321,
+        "sha256": "11590e2a0f9c4a2890b872febdb94b2806637554684c5cb0168cd01ab125b69b"
+      },
+      "guidedAircraftVariants": {
+        "startLine": 38458,
+        "sha256": "856bbe0c79448ca2d961bb590cd19c248221c88bf380e36432d4fecd9ea9f28a"
+      },
+      "modelUpgradePrelude": {
+        "startLine": 34711,
+        "sha256": "00034508829aa214ac16946c9adc8ff5f961c8e0094fbe8a8d9c2a9e070b35f9"
+      },
+      "aircraftGeometry": {
+        "startLine": 36897,
+        "sha256": "6d1defd89691ac6f95884cd7061e2803248d14ccfab0d4686e3735b9209bd85f"
+      },
+      "AIR_PARTS": {
+        "startLine": 37834,
+        "sha256": "b21d65cc36ddf1c37919db24035a4b3fcbb54cc00a1b322704fecf41d9d5e769"
+      },
+      "AIR_SKIN": {
+        "startLine": 37849,
+        "sha256": "5b62aa458046735add9c562e4e5b974dffb6027b2ed1b3e03b58e3d61af62b3e"
+      },
+      "AIR_PARTS_JET": {
+        "startLine": 38419,
+        "sha256": "ba2ee475adf5eaa373406ee3f10ec8e6a809d0e0956035ce37fb867142ef8d01"
+      },
+      "AIR_SKIN_JET": {
+        "startLine": 38433,
+        "sha256": "20c36f4eb37d57dcc12e348c5624cee0f1bb2354db6721a66c0a29fb8e0e1999"
+      },
+      "AIRCRAFT_TYPES": {
+        "startLine": 38450,
+        "sha256": "9b1c6e42e531e5a84eaf7f893c7aa999381e895689e924ddc6e391bfac6db160"
+      },
+      "fightersAndTypeConstruction": {
+        "startLine": 38556,
+        "sha256": "f416d909ca3f1eac72747dc7d08215cecf60378a8f511e1c8e5f9b3c148af48b"
+      },
+      "registerAndDecodeModels": {
+        "startLine": 7749,
+        "sha256": "87f359b5a7047ffd5fa5a1a241a5b16da47db834cf6031edb54a2fa7ae4bc0f6"
+      },
+      "aircraftInstrumentMeta": {
+        "startLine": 7800,
+        "sha256": "24b45d07e30f6785ef12f2af7930e878520859ae9957936be57fe1dc8e244fb0"
+      },
+      "applyAircraftRebuilds": {
+        "startLine": 7940,
+        "sha256": "64e0728bdb2fe7b8f54ee2f37bf155c81c18dbeef8998f0568b81ca2d2c60107"
+      },
+      "configureAircraftSurfaces": {
+        "startLine": 39314,
+        "sha256": "8db9b431ae6dbaca7c478b4ca20e88f1d7d6b938952c6a4ae87e98d45bc7947c"
+      },
+      "bulletShell": {
+        "startLine": 5279,
+        "sha256": "eed3c433eabd08323b10abae2e409badb0146c5be703eda20c023f1e23d7b02e"
+      },
+      "guns": {
+        "startLine": 41938,
+        "sha256": "47fb3c7332f6d16a6facc1428a9dcecd851d6a12e4b9f3d9f7cbef1fdba17629"
+      },
+      "aircraftResources": {
+        "path": "handoff/tools/aircraft_resources.js",
+        "sha256": "22273e551a4921becff686f8af9650df68df271897feff0d2b2116c0834c04d5"
+      },
+      "syncPodGuns": {
+        "startLine": 42029,
+        "sha256": "31c05b228c0d5fc94d2480b06e5277c36dd9b7a5848a85402dee63763292dcf6"
+      },
+      "storeDefinitions": {
+        "startLine": 42225,
+        "sha256": "dfca373498a628d2edc7ef154b25d934b76e408ce0b4705177392379db4575b8"
+      },
+      "registerMountedStoreModels": {
+        "startLine": 42355,
+        "sha256": "b64ae30e8db161e6b4e8195c8a7645fe4c9cf12c2d189b0d37b07928f15f34ef"
+      },
+      "tntEquivalentKg": {
+        "startLine": 16960,
+        "sha256": "6f9dd12c0b490b9da4a03cf61607df98a6627bbfa2e08c50b223a558814d7218"
+      },
+      "weaponStatusCompatibilityLoadouts": {
+        "startLine": 42356,
+        "sha256": "d75875ff16419b076a0381d593e72af8d10d2116886ecb9770a869e100788f0c"
+      },
+      "airStationsAndMountPosition": {
+        "startLine": 42510,
+        "sha256": "2b1c3eb5746ae9603ba5cae7cfc345570438212e2b8cc94e0e1f018a351ca4d1"
+      },
+      "modelHardpoints": {
+        "startLine": 42584,
+        "sha256": "f364ecd6044ebf7bd7089d3570ba88761d6beac5201273db8ec43136500e4c09"
+      },
+      "layoutStores": {
+        "startLine": 42915,
+        "sha256": "3ce59f69c3caa348ac3908cd6f0ebcc3e76c7c37e27869bb862ac58a9829c934"
+      },
+      "slotsAndCustomLoadout": {
+        "startLine": 43002,
+        "sha256": "b57019bbc30462fde87d86eee997bf122b0c06c3c19793bf2694e418c90aba15"
+      },
+      "storeSocket": {
+        "startLine": 8054,
+        "sha256": "0de18989e05dd2e6beb15068760ab0416c4e854fd87592440ec73e7d33fcd80b"
+      },
+      "airWingSplit": {
+        "startLine": 37888,
+        "sha256": "2c511172ef40027b9de377b1ff19868298f0893aeb6b4aa7a784fe40a1d82a0c"
+      },
+      "fuel": {
+        "startLine": 43221,
+        "sha256": "d23a483ce3712f8e3932cf017026c078a73856ddad7e2dda14b9157c4098debe"
+      },
+      "aircraftRadarDefinitions": {
+        "startLine": 42441,
+        "sha256": "b7b930837fda9f76250dcbd0a3b4a8bdb2d8fb0ea100bf853696b5615ec06744"
+      },
+      "aircraftSensorDefinitions": {
+        "startLine": 44391,
+        "sha256": "c7d825cfc42a2fa38e37a16905f81efcc0f29a3eb2c890efcb4cc436229c1d62"
+      },
+      "storeWarhead": {
+        "startLine": 42497,
+        "sha256": "5ece42c71873333a7aa1fe3c5ef204fc043ce73f38e0258931d4dbbed6e3f54a"
+      },
+      "loadFlightCore": {
+        "startLine": 37772,
+        "sha256": "c79bbcbdc858458f20127506f7dffce33e017f1d05b162276291392fe8c80eb3"
+      },
+      "Aircraft.spawn": {
+        "startLine": 39783,
+        "sha256": "d3c3d61dca4293de252f8e7d9a6712bd14f35c442586b7a5f7ca838ef417c0c3"
+      }
+    }
+  },
+  "originalIds": [
+    "a10a",
+    "a6m2",
+    "bf109g",
+    "f104g",
+    "f15c",
+    "f16v",
+    "f4e",
+    "f4u1d",
+    "f86f",
+    "fw190a8",
+    "hunter6",
+    "me262",
+    "me262a2a",
+    "me262u4",
+    "mig15",
+    "mig17f",
+    "mig21",
+    "mig29",
+    "mirage3e",
+    "nf01",
+    "nf02",
+    "p51d",
+    "spitfire9",
+    "su25",
+    "su27",
+    "yak9u"
+  ],
+  "inherited": {
+    "su27skm": "su27",
+    "mig29smt": "mig29"
+  },
+  "originals": {
+    "a10a": {
+      "fields": {
+        "physics": "df8ec0325d733a11bdbf014f8b59c21c8eb599dcb4e2ed152657745531b3a16c",
+        "guns": "5e5f078d8c6d6137396ea2761b6fc776ff1a17466f17583b62acadb5a152586b",
+        "fuel": "8cb7bd9eab7512ed6146f06aa4816b1f4fa4dcceb1d670d79101c65aa87a4e47",
+        "metadata": "af2f787d40309d949077ed3b66251f3246e2727088e1e647197e1a96b06bef2b"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "對地（小牛）",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "lau68",
+              1,
+              "p2"
+            ],
+            [
+              "agm65d",
+              3,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p5"
+            ],
+            [
+              "mk82",
+              1,
+              "p7"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "agm65d",
+              3,
+              "p9"
+            ],
+            [
+              "lau68",
+              1,
+              "p10"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "lau68",
+              "count": 7,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p5",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p7",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "lau68",
+              "count": 7,
+              "station": "p10",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "炸彈",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "mk82",
+              1,
+              "p2"
+            ],
+            [
+              "mk82",
+              3,
+              "p3"
+            ],
+            [
+              "mk84",
+              1,
+              "p4"
+            ],
+            [
+              "mk84",
+              1,
+              "p8"
+            ],
+            [
+              "mk82",
+              3,
+              "p9"
+            ],
+            [
+              "mk82",
+              1,
+              "p10"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "mk84",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "mk84",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p10",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "lau68",
+              1,
+              "p2"
+            ],
+            [
+              "lau68",
+              1,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "lau68",
+              1,
+              "p9"
+            ],
+            [
+              "lau68",
+              1,
+              "p10"
+            ],
+            [
+              "aim9l",
+              2,
+              "p11"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "lau68",
+              "count": 7,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "lau68",
+              "count": 7,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "lau68",
+              "count": 7,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "lau68",
+              "count": 7,
+              "station": "p10",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "電視小牛",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "agm65a",
+              3,
+              "p3"
+            ],
+            [
+              "agm65a",
+              3,
+              "p9"
+            ],
+            [
+              "aim9l",
+              2,
+              "p11"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 5,
+          "name": "集束（干擾）",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "cbu87",
+              1,
+              "p2"
+            ],
+            [
+              "cbu87",
+              1,
+              "p3"
+            ],
+            [
+              "tank600",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p5"
+            ],
+            [
+              "mk82",
+              1,
+              "p7"
+            ],
+            [
+              "tank600",
+              1,
+              "p8"
+            ],
+            [
+              "cbu87",
+              1,
+              "p9"
+            ],
+            [
+              "cbu87",
+              1,
+              "p10"
+            ],
+            [
+              "alq131",
+              1,
+              "p11"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "cbu87",
+              "count": 1,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "cbu87",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "tank600",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p5",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p7",
+              "side": 1
+            },
+            {
+              "id": "tank600",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "cbu87",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "cbu87",
+              "count": 1,
+              "station": "p10",
+              "side": 1
+            },
+            {
+              "id": "alq131",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 6,
+          "name": "小牛 B／G",
+          "entries": [
+            [
+              "aim9m",
+              2,
+              "p1"
+            ],
+            [
+              "agm65b",
+              3,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "agm65g",
+              1,
+              "p9"
+            ],
+            [
+              "aim9m",
+              2,
+              "p11"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "agm65g",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "p11",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "a57d02feb81642efb1cc0b1c3396e8d00a90b67b06dfdf0443c56d5ba00a9604",
+      "newStoresSha256": "118a0456350715400a8db82c26ec8af3df6887af2a61aaa8d4400dcb9530bb96"
+    },
+    "a6m2": {
+      "fields": {
+        "physics": "667612abf62bf8e755ce46252fc86ca97333ce575b2dcf698b4b35e03d06bb40",
+        "guns": "ba56df94fd33322c42617b8a920bbc9a47d7ef281bac73629de5cdc95e014a55",
+        "fuel": "5a89093bfb1661ace48edbe8f4ed181a72d6a242a3a972c6b03a3fba58f46130",
+        "metadata": "e60c48e2b11b708d6a063286ee67ef0a3abdb9a7c3c624d1aeee99186ee27f4d"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "type97b60",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "type97b60",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "type97b60",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "5c9c477f0dabba65c52cf0eb51c68c0c2cfcdc1ab258833d73268123e970e44c"
+    },
+    "bf109g": {
+      "fields": {
+        "physics": "d3c463b0a6b12d9f6211344688e2a115466993c983b8fe392141f69890330ff0",
+        "guns": "135ab6798d3f9a3c6ee369edb4cb51af650e0cd9897eb28ff46f70eafda3fd8c",
+        "fuel": "9779da8419c53bb719db52984397f1f96609bae0e7f60dd788c373c8a35ef0cf",
+        "metadata": "47476fd05c4ab3eff36bb734f1ee2df252c81cf9e6062111dbd7de207b7ba006"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "sc250",
+              1,
+              "center"
+            ]
+          ],
+          "items": [
+            {
+              "id": "sc250",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "db3331a074cf4396eea17f771e98485f0e11e3be7177636cb2389e165b3e8ee4"
+    },
+    "f104g": {
+      "fields": {
+        "physics": "16490b94e3d7f64c6e64349abac558e0479df93dcb498a6dfe5a80f75138e028",
+        "guns": "e5c5f4003c76ed82880c938f1c027265ce2a148afde9feccfa43f2c41be4cf1b",
+        "fuel": "cb799d9aace4c461f33ae02f2dc9d4e9c3ad1b1200f7cd8fc2b3221372feafc1",
+        "metadata": "c71ec875ea2a03cc28718732cd518a2536593439ed61afa2f3efe3536cb03b08"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim9b",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9b",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9b",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "mk82",
+              2,
+              "inner"
+            ],
+            [
+              "aim9b",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim9b",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9b",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "be5a907d257ed08ef5783e9803aa69dd744a20d9ce487e705f6cc62b0e669255",
+      "newStoresSha256": "2775533e5dc681edb23f79698f5d2392f92b1dfcc668d0f02d8033b5025b74e0"
+    },
+    "f15c": {
+      "fields": {
+        "physics": "e523343a80c8b411d956468648e590e7ca42aaa89ea2196b8c23cecd1c4b8fcf",
+        "guns": "febad69f10ee42e829cb186e111066f5095cc501c72338f80a62025a86d0462b",
+        "fuel": "37603177186b377fc87d3d0b030b4ed9f7e5a2f3935ca1c7e6e1f40122c08688",
+        "metadata": "941b6987120f46967156984454d1013e79119c1fe5f6c058ea83fb028cfb4edd"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim7f",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "AMRAAM",
+          "entries": [
+            [
+              "aim120a",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "mk82",
+              2,
+              "center"
+            ],
+            [
+              "aim9l",
+              2,
+              "outer"
+            ],
+            [
+              "aim7f",
+              2,
+              "belly"
+            ]
+          ],
+          "items": [
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "空戰（7M／9M）",
+          "entries": [
+            [
+              "aim7m",
+              4,
+              "belly"
+            ],
+            [
+              "aim9m",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 5,
+          "name": "AMRAAM（120B／C）",
+          "entries": [
+            [
+              "aim120b",
+              2,
+              "belly"
+            ],
+            [
+              "aim120c",
+              2,
+              "mid"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim120b",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "9dcf139cc358bf2dd806d2fb84e864034606126e84a938bed124a3eecd0ccfc7",
+      "newStoresSha256": "d9acfaefb5a054d0c55e8da1a8abf843236a75f595abedad5354fe8fb76666a4"
+    },
+    "f16v": {
+      "fields": {
+        "physics": "5f2cb54c77656c05f476160cf365e6dcdf3101f4058656662792386f4ea24570",
+        "guns": "5aab60a8cbdc62a50164d3a67ede8cba197d719260fe480a2ff9fdba2d047ca3",
+        "fuel": "3e7b49d089413890ecf75b250f6a253e80541cb8e4697c310f61dcc9aa715992",
+        "metadata": "8913053b3eb080e93038197deb7100a3e7ad9e11ec1df862d676cd1d4d77de98"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim120c",
+              2,
+              "tip"
+            ],
+            [
+              "aim120c",
+              2,
+              "outer"
+            ],
+            [
+              "aim9x",
+              2,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "空戰（9M／120B）",
+          "entries": [
+            [
+              "aim9m",
+              2,
+              "tip"
+            ],
+            [
+              "aim120b",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "agm65g",
+              2,
+              "mid"
+            ],
+            [
+              "mk82",
+              2,
+              "inner"
+            ],
+            [
+              "aim9x",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm65g",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "agm65g",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "精準炸彈",
+          "entries": [
+            [
+              "gbu12",
+              2,
+              "inner"
+            ],
+            [
+              "aim120c",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "gbu12",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "b3c99a997862bb3d2c0f0eee73f4bfa2b669a0fcf02d57bc1596867d70d918b2",
+      "newStoresSha256": "d7c8927542d2d3092c0a9742d4d34011c7d1d6eb104f18e3df10522cd70eb847"
+    },
+    "f4e": {
+      "fields": {
+        "physics": "ba1527c4bab6f686db89214fab7bfc20c5187e7af2126edc4a85964c26037262",
+        "guns": "73c36f60783befdde0e1406bc93b96a73c9369c8a71a2db40a81b22983c2e4ff",
+        "fuel": "f12b1ac245b6f8accf552a2da3bf8497d135303a6069f270dac8761a4e110802",
+        "metadata": "7f42ce26585957b261cc6428287a6787c265adf9a2389ebf8159884ea0bd2acd"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim7e",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "agm65a",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ],
+            [
+              "pavespike",
+              1,
+              "center"
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "pavespike",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "lau3",
+              4,
+              "inner"
+            ],
+            [
+              "aim9l",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "lau3",
+              "count": 19,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "lau3",
+              "count": 19,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "lau3",
+              "count": 19,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "lau3",
+              "count": 19,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "重炸彈",
+          "entries": [
+            [
+              "mk84",
+              2,
+              "inner"
+            ],
+            [
+              "aim7e",
+              4,
+              "belly"
+            ]
+          ],
+          "items": [
+            {
+              "id": "mk84",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk84",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 5,
+          "name": "雷射炸彈",
+          "entries": [
+            [
+              "gbu12",
+              4,
+              "inner"
+            ],
+            [
+              "gbu10",
+              2,
+              "outer"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ],
+            [
+              "pavespike",
+              1,
+              "center"
+            ]
+          ],
+          "items": [
+            {
+              "id": "gbu12",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "gbu10",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "gbu10",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "pavespike",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 6,
+          "name": "犢牛／百舌鳥",
+          "entries": [
+            [
+              "agm12b",
+              2,
+              "inner"
+            ],
+            [
+              "agm45a",
+              2,
+              "outer"
+            ],
+            [
+              "aim7e",
+              4,
+              "belly"
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm12b",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "agm12b",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "agm45a",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "agm45a",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 7,
+          "name": "電視小牛 B",
+          "entries": [
+            [
+              "agm65b",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "aim7e",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "f509640b4d3f93c7fd2827619d7fe03b1f972bb52f791cbf52b7227c296c55b1",
+      "newStoresSha256": "09dba6b0fa8fe55c1fb7f3da414efa2b582d881bc6769ae722b3f71c92cda6b2"
+    },
+    "f4u1d": {
+      "fields": {
+        "physics": "cb2d3059b79089f9e62815c0564474799fe3bbc523a4b1e83049ec9e942cf1e5",
+        "guns": "b1fedc8accab299b714a1468647aad9efe8f4ad6482be1859982d66583cdc361",
+        "fuel": "4ba9fe15965393fef2337773b23ff955344564b5b22a2ac5265536b196a7af63",
+        "metadata": "e5c9174595cab6945f8a80001d363a02ec70944cb7b17fd6e698f764b3acdd7d"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "對地",
+          "entries": [
+            [
+              "anm65",
+              2,
+              "inner"
+            ],
+            [
+              "hvar",
+              4,
+              "mid"
+            ],
+            [
+              "hvar",
+              4,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "anm65",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "anm65",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "dc36b5ed830bc9fd62e3bd9dee93bd42be58bfc9967da95deae3677fbd6438cf"
+    },
+    "f86f": {
+      "fields": {
+        "physics": "bd1b4e733819a5a5a952c7a5e14dbb5a9a194621695e31943038e3ab5d37ecb1",
+        "guns": "ce25aa6d375e85fe68c0673396a7368c0351fdd3238f3a593c4ee477b5b03710",
+        "fuel": "3d00567be39e0e87e69438192601b3ad66d12f9d402d52302b808825f3e84b04",
+        "metadata": "17767c0f2890365dc6fc30b495488e4198394b0b39eac1ff1a649b1ae3d21ff7"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "500 磅炸彈",
+          "entries": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "anm64",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "anm64",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "hvar",
+              8,
+              "row"
+            ]
+          ],
+          "items": [
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "副油箱",
+          "entries": [
+            [
+              "tank120",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "tank120",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "tank120",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "炸彈／副油箱",
+          "entries": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ],
+            [
+              "tank120",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "anm64",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "anm64",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "tank120",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "tank120",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "89546671b63944f9336109a3797f760c14ae761945a4a52dde9dcaadba3d7002",
+      "newStoresSha256": "3eed112c797346c764505f42ffa38ad72a0c0928f6136cd2ce040334326ffb7b"
+    },
+    "fw190a8": {
+      "fields": {
+        "physics": "d485d5c334682ad55a0959e69a8290a2e59a6e94f995041043efce586779b449",
+        "guns": "202dbd8119b995e8b52e05044f82733d4181adb929633c5fd441a794a81244a9",
+        "fuel": "b37238a2b2faf08a171f3517505972fa48ec2ebbf4f7bd962a68c4aa9bc0c953",
+        "metadata": "70c81e2030053dc147321bd0c68611f04c42089ab60412e934cf23dd0ffbea8f"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "sc500",
+              1,
+              "center"
+            ]
+          ],
+          "items": [
+            {
+              "id": "sc500",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "9190d64d9bb2a4039d7d53b4bf16f16500171974f261ab752e969bbb5b0f2114"
+    },
+    "hunter6": {
+      "fields": {
+        "physics": "0d5057e2a60b677153cbebeb6fdee3f650921362b9aad54485ad33ad6c4d3d43",
+        "guns": "d7509e29d2b6da9dd088d372d39858b2628f7930f4a6b416830aef8450e2d6ea",
+        "fuel": "f519dab7a21ede2e3fb0e653a6f17b64998a74dae000c0848e34dda8810c6d6c",
+        "metadata": "4e56a9cc42d799754fa6c99af1d82a34249c05262074df7df690e6c79ad600ff"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "火箭",
+          "entries": [
+            [
+              "rp3",
+              8,
+              "row"
+            ]
+          ],
+          "items": [
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "rp3",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "炸彈",
+          "entries": [
+            [
+              "mc500",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "mc500",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mc500",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "89546671b63944f9336109a3797f760c14ae761945a4a52dde9dcaadba3d7002",
+      "newStoresSha256": "8bc1a8ac84f37213d11927ed3fa9ce97c6521e961018d02b45f15a4acc94ac13"
+    },
+    "me262": {
+      "fields": {
+        "physics": "f091cfbe5d6a360e95f925f2f5e05b750fcab92995f160b7c4a7754fadd476f7",
+        "guns": "30c3b0013b4538d16a99ae64a0ecb6ffed1785bb1a33bebe430b4cf49db204ee",
+        "fuel": "81429d0682e58437ab3abe3390f84bc8184a137e95e1b3570dd0f8aaa1a05dcf",
+        "metadata": "41360ddc81161f01efb1ebf9748dd352691d8eef871c95022e20e6b163bca822"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "R4M 火箭",
+          "entries": [
+            [
+              "r4m",
+              24,
+              "source_r4m"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": -1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            },
+            {
+              "id": "r4m",
+              "count": 1,
+              "station": "source_r4m",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "673ae23f6b6a9589ad887605ff2312a997bb4048abfd816f8f1c379f9013ef3e"
+    },
+    "me262a2a": {
+      "fields": {
+        "physics": "f091cfbe5d6a360e95f925f2f5e05b750fcab92995f160b7c4a7754fadd476f7",
+        "guns": "e73aa7f0b972bbc150df4d58e301ec686907c1e3042eba07e767aff4bfd98859",
+        "fuel": "81429d0682e58437ab3abe3390f84bc8184a137e95e1b3570dd0f8aaa1a05dcf",
+        "metadata": "3e86e2534cfa6323ee81f28149567ce2caee4d1d34bf00274ed539319fa6c478"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "2 × SC 250",
+          "entries": [
+            [
+              "sc250",
+              2,
+              "source_bombs"
+            ]
+          ],
+          "items": [
+            {
+              "id": "sc250",
+              "count": 1,
+              "station": "source_bombs",
+              "side": -1
+            },
+            {
+              "id": "sc250",
+              "count": 1,
+              "station": "source_bombs",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "cb991d8007291d5c770c2caa459effeb257201760cbb2e5dd97291b7bf61c333"
+    },
+    "me262u4": {
+      "fields": {
+        "physics": "f091cfbe5d6a360e95f925f2f5e05b750fcab92995f160b7c4a7754fadd476f7",
+        "guns": "48e4a186efe29455d0453866933bfa9c3c7a3ca3cb5ac1890c92c8c712e2ee5e",
+        "fuel": "81429d0682e58437ab3abe3390f84bc8184a137e95e1b3570dd0f8aaa1a05dcf",
+        "metadata": "4a69fc1fd4731c7714d83c3f66e24e1debb040b0dac2993ef85a6c09adb68064"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "21df2628f3a9e4664a42a46763fc1717028d2933a79a0f4f67e2cd6e93a1fc27"
+    },
+    "mig15": {
+      "fields": {
+        "physics": "7c7932ff89b5adab98691d5ecb868d0b024d009767d25864fbb5525b8ec09eb3",
+        "guns": "0e86fc89abc37d002eaad76c9a6ad567c35ff01e0884b8a197f3139f2bb6626e",
+        "fuel": "be7b010afb20890915780a022360c253a4a12acc9690d2039089d5b94ed6cecb",
+        "metadata": "3fdab2c46ba9f8b8e14441f0143774a92466f7d5e31d20d6396387207125467d"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "fab100",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "fab100",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "0209458e71d0f4bb62595a7d0d47e17d7b8becb8a7b883aab62f58e3a57149d5",
+      "newStoresSha256": "88661e3ec701ff559edbfa5021476fa11b913fd5b769288beb43ca03351218c5"
+    },
+    "mig17f": {
+      "fields": {
+        "physics": "9671d631cefdf8f78a086e83922db8981511502772d5ee217fb5db09769f08a3",
+        "guns": "c917d0f0f36c65bf901a757be776eb09521c91134e3e6e2c4124328c881c2912",
+        "fuel": "6ba354f9f561739772d1e625f1d1fa14cd144727719d3e09a7c4c21a1b223801",
+        "metadata": "e5407c8b08b6575be47e17e791db3d75d6e19b2ca719822c9f37dcae95549c10"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "ub16",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "ub16",
+              "count": 16,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "ub16",
+              "count": 16,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "0209458e71d0f4bb62595a7d0d47e17d7b8becb8a7b883aab62f58e3a57149d5",
+      "newStoresSha256": "feda40b95a3db3e574961d6cff0909da13bbb269f20f921e0e4bd11ee0d315dd"
+    },
+    "mig21": {
+      "fields": {
+        "physics": "b561053f0713be02780c8afbeb7237378b5957a297948c602d30452b676f6a18",
+        "guns": "2296b9ebc9683a451de915d1678f4fa98979dde241ad07b879a39f3a429ee836",
+        "fuel": "9237df5bbdd4a3c384a37b119e75703efa1bafaecea56f9354c53f4fa995eaeb",
+        "metadata": "3a7147ee761ba8e51dd21bf608f5dd9aab353a4f212f576705175bb21686b307"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r3s",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r3s",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "r3s",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "ub16",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "ub16",
+              "count": 16,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "ub16",
+              "count": 16,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "d546b30b014217c1e7668cba4a3d8940aa7ce890929d48cea4e429fcbff88df4",
+      "newStoresSha256": "14815406ffb7a5e73efda45d7188762175de33844b8d2af648db96f93d521f0a"
+    },
+    "mig29": {
+      "fields": {
+        "physics": "d12b28f2982963133d39c3b50eb30ac2bd4bb27ff79e1d1e7f4be9b501daa86d",
+        "guns": "b120baf3f9fc6ec6b2ba406f60546e704e02c7a13b365b80965135a85432c17a",
+        "fuel": "3ea3aca22a55dddf1fa4103c56a65fb459d3d5479a8ac07130ccce4e17c1f160",
+        "metadata": "9a4ba4794212c68665df21ce7cba3cb3d8edbd41ad1abfab97e1fdd5db9dbdf6"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r27r",
+              2,
+              "inner"
+            ],
+            [
+              "r73",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r27r",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "r27r",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "近戰",
+          "entries": [
+            [
+              "r27t",
+              2,
+              "inner"
+            ],
+            [
+              "r60m",
+              2,
+              "mid"
+            ],
+            [
+              "r60m",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r27t",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "r27t",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "d1fb5d89c331d80ca5b316d4721ec9edf8953591e8b003f1c11e1b8d15585568",
+      "newStoresSha256": "935df5b0285290b8bbc559d2fcfaab2f200046f343a0f17282c0dec6b6beba9c"
+    },
+    "mirage3e": {
+      "fields": {
+        "physics": "5436b25e49612be2be7e3a1a4486c80e7662051ed73ddaf0ab4ec150f894c268",
+        "guns": "1f124d7cdf88285d584d66eb889fe27f2b8478f3a4df2747ccd75a5a2bc272d6",
+        "fuel": "0db06bf755aa0a7cce51f048d2e2241bd3bddc56b74c929b870c23c3ada39139",
+        "metadata": "1765a4ff651689d5970713a76eafc17a049ff88a399c2e1de4313344bfc69f13"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "magic1",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "magic1",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "magic1",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "matra155",
+              2,
+              "inner"
+            ],
+            [
+              "magic1",
+              2,
+              "outer"
+            ]
+          ],
+          "items": [
+            {
+              "id": "matra155",
+              "count": 18,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "matra155",
+              "count": 18,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "magic1",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "magic1",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "73c79793d1f04bac0a62ba036da85e5d158395ea60881405833b50718d8696c7",
+      "newStoresSha256": "cafffbc4b9dbf88460dfe11961a171347ce9217df150a4be815178d121e9963b"
+    },
+    "nf01": {
+      "fields": {
+        "physics": "ff13f355fd7bca376aec22c341725cedb851da652de7d6881fe3978e16373459",
+        "guns": "7ffe74ede46c6d0a3a50b6628d6fd6ae6064fd7044578d1b490a58547f2d5391",
+        "fuel": "0a5c4dd6b970c8d5f68e68c731bacbb7eb5e8b61934fee73d3d60e6ff086bfa4",
+        "metadata": "f9c81a485dcee628051efeedbf0ed05ea5a4c919207d27832150138c9e08a951"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "sc250",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "sc250",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "sc250",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "hvar",
+              6,
+              "row"
+            ]
+          ],
+          "items": [
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "9e4187df6215f4e9332c328a149c40c5e85168d7ba55fa776caaef059b6601e9"
+    },
+    "nf02": {
+      "fields": {
+        "physics": "97cb6f8b753ea7e0dfa17775662e8a013b71e72007d3d6f2bf38d3484a959e68",
+        "guns": "eedd8481dcaa7c54a49be51e02284f3d8c08b6d739c4322699937dc03290886c",
+        "fuel": "ac92059e96470219bc95d93f6e82b300e4f9ddae5d77b5e33f26dc3381e69a1d",
+        "metadata": "df8d7441af6eb6021dd59171bde2c59aeb5ec5d59d3d03232a0f05b31aa7d941"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "tip"
+            ],
+            [
+              "aim120a",
+              2,
+              "mid"
+            ],
+            [
+              "aim7f",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "aim120a",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "aim120a",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "aim7f",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "agm65a",
+              2,
+              "mid"
+            ],
+            [
+              "agm65d",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "agm65a",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "agm65d",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "lau3",
+              2,
+              "outer"
+            ],
+            [
+              "aim9l",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "lau3",
+              "count": 19,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "lau3",
+              "count": 19,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9l",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "測試：紅外",
+          "entries": [
+            [
+              "aim9x",
+              2,
+              "tip"
+            ],
+            [
+              "irist",
+              2,
+              "outer"
+            ],
+            [
+              "asraam",
+              2,
+              "mid"
+            ],
+            [
+              "mica_ir",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim9x",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "irist",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "irist",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "asraam",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "asraam",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "mica_ir",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "mica_ir",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 5,
+          "name": "測試：紅外（出口型／早期）",
+          "entries": [
+            [
+              "r73e",
+              2,
+              "tip"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ],
+            [
+              "r27t1",
+              2,
+              "mid"
+            ],
+            [
+              "r27et1",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r73e",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "r73e",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "r27t1",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "r27t1",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "r27et1",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "r27et1",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 6,
+          "name": "測試：半主動",
+          "entries": [
+            [
+              "aim7m",
+              2,
+              "tip"
+            ],
+            [
+              "r27r1",
+              2,
+              "outer"
+            ],
+            [
+              "r27er1",
+              2,
+              "mid"
+            ],
+            [
+              "aim54a",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim7m",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim7m",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "r27r1",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "r27r1",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "r27er1",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "r27er1",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "aim54a",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "aim54a",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 7,
+          "name": "測試：主動雷達",
+          "entries": [
+            [
+              "aim120b",
+              2,
+              "tip"
+            ],
+            [
+              "aim120c",
+              2,
+              "outer"
+            ],
+            [
+              "rvvae",
+              2,
+              "mid"
+            ],
+            [
+              "meteor",
+              2,
+              "inner"
+            ],
+            [
+              "mica_em",
+              2,
+              "belly"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim120b",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "rvvae",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "rvvae",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "meteor",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "meteor",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "mica_em",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "mica_em",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 8,
+          "name": "測試：對地導引",
+          "entries": [
+            [
+              "agm65b",
+              2,
+              "tip"
+            ],
+            [
+              "agm65g",
+              2,
+              "outer"
+            ],
+            [
+              "agm65e",
+              2,
+              "mid"
+            ],
+            [
+              "kh29te",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "agm65b",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "agm65g",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "agm65g",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "agm65e",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "agm65e",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "kh29te",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "kh29te",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 9,
+          "name": "測試：駕束／指令／反輻射",
+          "entries": [
+            [
+              "vikhr",
+              2,
+              "tip"
+            ],
+            [
+              "agm12b",
+              2,
+              "outer"
+            ],
+            [
+              "agm45a",
+              2,
+              "mid"
+            ],
+            [
+              "agm88b",
+              2,
+              "inner"
+            ],
+            [
+              "kh31p",
+              2,
+              "belly"
+            ]
+          ],
+          "items": [
+            {
+              "id": "vikhr",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "vikhr",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "agm12b",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "agm12b",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "agm45a",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "agm45a",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "agm88b",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "agm88b",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "kh31p",
+              "count": 1,
+              "station": "belly",
+              "side": -1
+            },
+            {
+              "id": "kh31p",
+              "count": 1,
+              "station": "belly",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "00a345484ba394c36db9e3493239bb7b20ca5f8c8b7c878416bb88b26eb8e8e4",
+      "newStoresSha256": "4699e6e64e30fddf8d52790802f4a062871c9c8eea2c926e1431b8c691c9db1d"
+    },
+    "p51d": {
+      "fields": {
+        "physics": "7e2355fab683b772576bb88895752cf445630257eb56d69a99c68b336563c4b4",
+        "guns": "564f2d4c0013753fac37d829ce06d864fd23b7ebac9b51ad8cd4bf395528b635",
+        "fuel": "72ae54c19e209916c731b589620d2b501ce79199cb23193a3ae5a9437c43e9cc",
+        "metadata": "8e9d3b9cc99648ca32b83c9e025262edab44d7c32f754cd2e57ea33d1a88f079"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "anm64",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "anm64",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "hvar",
+              6,
+              "row"
+            ]
+          ],
+          "items": [
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": -1
+            },
+            {
+              "id": "hvar",
+              "count": 1,
+              "station": "row",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "b12642e4da311174165caab81fc5a09315aad500ad98cb12ce9d09bc418e58ef"
+    },
+    "spitfire9": {
+      "fields": {
+        "physics": "00702cdeb7228d2f8c6eaabb739ecd1793505a05043155e56a7a95cbd0312b3d",
+        "guns": "e4b3c31285ca058e07859a67181a4c9878927b2cc8afe352426f6a442bf5ac49",
+        "fuel": "a2ee2f58884a0232eb7aa3de45c26f693aa297d98b3c170494cc819d27882e4f",
+        "metadata": "e1914a07d509396463e385bf0646ca44627bc6a1945dc3c987c5aa815c9cd53c"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "mc500",
+              1,
+              "center"
+            ],
+            [
+              "gp250",
+              2,
+              "inner"
+            ]
+          ],
+          "items": [
+            {
+              "id": "mc500",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            },
+            {
+              "id": "gp250",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "gp250",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "226c94b4b335cda5d698efe5027c20366bfb745b8761b45546de33b8c3395b6a"
+    },
+    "su25": {
+      "fields": {
+        "physics": "91866bada54b9cfc1c0fa374204529f5f405c4914ec37e9efcbb77e36ad8af89",
+        "guns": "1f8a62d48495091a043ae79088d970484da4fa8a5e3312b6c7d3d390212a3bdb",
+        "fuel": "94124a14a6aaa57d576091daa9668b38c50d8b06feb8206b36762f10d758e66a",
+        "metadata": "9d8dfb761435c07ee78da3b152257daff465459f1914ac7dad15ee08d2c8880a"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "fab250",
+              1,
+              "p2"
+            ],
+            [
+              "fab500",
+              1,
+              "p3"
+            ],
+            [
+              "fab500",
+              1,
+              "p4"
+            ],
+            [
+              "fab500",
+              1,
+              "p7"
+            ],
+            [
+              "fab500",
+              1,
+              "p8"
+            ],
+            [
+              "fab250",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "p7",
+              "side": 1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p10",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "b8m1",
+              1,
+              "p2"
+            ],
+            [
+              "b8m1",
+              1,
+              "p3"
+            ],
+            [
+              "b8m1",
+              1,
+              "p4"
+            ],
+            [
+              "b8m1",
+              1,
+              "p7"
+            ],
+            [
+              "b8m1",
+              1,
+              "p8"
+            ],
+            [
+              "b8m1",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "p7",
+              "side": 1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p10",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 3,
+          "name": "雷射飛彈",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "s24b",
+              1,
+              "p2"
+            ],
+            [
+              "kh25ml",
+              1,
+              "p3"
+            ],
+            [
+              "kh29l",
+              1,
+              "p4"
+            ],
+            [
+              "fab250",
+              1,
+              "p5"
+            ],
+            [
+              "fab250",
+              1,
+              "p6"
+            ],
+            [
+              "kh29l",
+              1,
+              "p7"
+            ],
+            [
+              "kh25ml",
+              1,
+              "p8"
+            ],
+            [
+              "s24b",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "s24b",
+              "count": 1,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "kh25ml",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "kh29l",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "p5",
+              "side": -1
+            },
+            {
+              "id": "fab250",
+              "count": 1,
+              "station": "p6",
+              "side": 1
+            },
+            {
+              "id": "kh29l",
+              "count": 1,
+              "station": "p7",
+              "side": 1
+            },
+            {
+              "id": "kh25ml",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "s24b",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p10",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 4,
+          "name": "集束與機砲莢艙",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "sppu22",
+              1,
+              "p2"
+            ],
+            [
+              "rbk500",
+              1,
+              "p3"
+            ],
+            [
+              "ptb800",
+              1,
+              "p4"
+            ],
+            [
+              "rbk500",
+              1,
+              "p5"
+            ],
+            [
+              "rbk500",
+              1,
+              "p6"
+            ],
+            [
+              "ptb800",
+              1,
+              "p7"
+            ],
+            [
+              "rbk500",
+              1,
+              "p8"
+            ],
+            [
+              "sppu22",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p1",
+              "side": -1
+            },
+            {
+              "id": "sppu22",
+              "count": 1,
+              "station": "p2",
+              "side": -1
+            },
+            {
+              "id": "rbk500",
+              "count": 1,
+              "station": "p3",
+              "side": -1
+            },
+            {
+              "id": "ptb800",
+              "count": 1,
+              "station": "p4",
+              "side": -1
+            },
+            {
+              "id": "rbk500",
+              "count": 1,
+              "station": "p5",
+              "side": -1
+            },
+            {
+              "id": "rbk500",
+              "count": 1,
+              "station": "p6",
+              "side": 1
+            },
+            {
+              "id": "ptb800",
+              "count": 1,
+              "station": "p7",
+              "side": 1
+            },
+            {
+              "id": "rbk500",
+              "count": 1,
+              "station": "p8",
+              "side": 1
+            },
+            {
+              "id": "sppu22",
+              "count": 1,
+              "station": "p9",
+              "side": 1
+            },
+            {
+              "id": "r60m",
+              "count": 1,
+              "station": "p10",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "01625bdfdde8807aeb7e8f2b45085f318378e6748e0ee1b74f088cd39ec94963"
+        }
+      ],
+      "newSensorsSha256": "6bf19cc01bd0e8dd9ae48d9c48a08b65864963ca43f155e7cd76d8fd326f7ef4",
+      "newStoresSha256": "b8a514eded3796781ab6d583c1b0c97c257420455de392f4a47c0f6bd4b066d6"
+    },
+    "su27": {
+      "fields": {
+        "physics": "eda6d38944ca3b35dfa87f6a0cd75149f8fb9623b14cf00729e84efba8e60327",
+        "guns": "e6c43c6ad6f95740ad528bdd5e8aa766f639d564a945e32ac6bc9bb26cc6a24c",
+        "fuel": "cf769d059f598587925876c7b9f07df6fe073ac7df2fb9e8f27b808d79639a41",
+        "metadata": "5decd6b440be911425eab518875997f8aa1e59500794fc805cfa352c0518a56c"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r27r",
+              2,
+              "inner"
+            ],
+            [
+              "r27t",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ],
+            [
+              "r27r",
+              2,
+              "center"
+            ]
+          ],
+          "items": [
+            {
+              "id": "r27r",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "r27r",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "r27t",
+              "count": 1,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "r27t",
+              "count": 1,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "outer",
+              "side": -1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "outer",
+              "side": 1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            },
+            {
+              "id": "r27r",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            },
+            {
+              "id": "r27r",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "fab500",
+              2,
+              "center"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "inner",
+              "side": -1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "inner",
+              "side": 1
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            },
+            {
+              "id": "fab500",
+              "count": 1,
+              "station": "center",
+              "side": 0
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "mid",
+              "side": -1
+            },
+            {
+              "id": "b8m1",
+              "count": 20,
+              "station": "mid",
+              "side": 1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "tip",
+              "side": -1
+            },
+            {
+              "id": "r73",
+              "count": 1,
+              "station": "tip",
+              "side": 1
+            }
+          ],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "fa7d30a8a991076923695b9e27e3d1c57d4e4a73505bf9dff3cb6690ee8f0e12",
+      "newStoresSha256": "469b79b894165d99abe535564beeccf1dba641eecbc9ce58c302700b3955a00b"
+    },
+    "yak9u": {
+      "fields": {
+        "physics": "60a615e809e74b22bc08462a1fc05750cd543c35e9aa059763936ffd95be18e1",
+        "guns": "4f3b01a51b50ac65d344b00eacadbe40463cd0a66ea850cea66be43335aa9b7f",
+        "fuel": "9c6eb7a9818e1c5fcf643b539082b5af503873953d2d7adba6917b07834ae770",
+        "metadata": "65aac97a60d564c72efb75232c32a5e52e126a824f0f431ae737c33a7bf437e7"
+      },
+      "presets": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "items": [],
+          "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+        }
+      ],
+      "newSensorsSha256": "1f3547ecd884f05956e0b318c4c9e435ca36fcc2838c6f25e04411600233c9da",
+      "newStoresSha256": "3a70a37ec66d402089a9ce5b5a2ea9239224603a2d1516da68fd1b5b7fd599b7"
+    }
+  },
+  "originalPresetCount": 93,
+  "appendedPresets": {
+    "f15c": [
+      {
+        "index": 6,
+        "name": "AGM-65B TV",
+        "entries": [
+          [
+            "agm65b",
+            2,
+            "inner"
+          ],
+          [
+            "aim9m",
+            2,
+            "outer"
+          ]
+        ],
+        "items": [
+          {
+            "id": "agm65b",
+            "count": 1,
+            "station": "inner",
+            "side": -1
+          },
+          {
+            "id": "agm65b",
+            "count": 1,
+            "station": "inner",
+            "side": 1
+          },
+          {
+            "id": "aim9m",
+            "count": 1,
+            "station": "outer",
+            "side": -1
+          },
+          {
+            "id": "aim9m",
+            "count": 1,
+            "station": "outer",
+            "side": 1
+          }
+        ],
+        "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "index": 7,
+        "name": "AGM-65D IIR",
+        "entries": [
+          [
+            "agm65d",
+            2,
+            "inner"
+          ],
+          [
+            "aim9m",
+            2,
+            "outer"
+          ]
+        ],
+        "items": [
+          {
+            "id": "agm65d",
+            "count": 1,
+            "station": "inner",
+            "side": -1
+          },
+          {
+            "id": "agm65d",
+            "count": 1,
+            "station": "inner",
+            "side": 1
+          },
+          {
+            "id": "aim9m",
+            "count": 1,
+            "station": "outer",
+            "side": -1
+          },
+          {
+            "id": "aim9m",
+            "count": 1,
+            "station": "outer",
+            "side": 1
+          }
+        ],
+        "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      },
+      {
+        "index": 8,
+        "name": "AGM-65G IIR 重彈頭",
+        "entries": [
+          [
+            "agm65g",
+            2,
+            "inner"
+          ],
+          [
+            "aim9m",
+            2,
+            "outer"
+          ]
+        ],
+        "items": [
+          {
+            "id": "agm65g",
+            "count": 1,
+            "station": "inner",
+            "side": -1
+          },
+          {
+            "id": "agm65g",
+            "count": 1,
+            "station": "inner",
+            "side": 1
+          },
+          {
+            "id": "aim9m",
+            "count": 1,
+            "station": "outer",
+            "side": -1
+          },
+          {
+            "id": "aim9m",
+            "count": 1,
+            "station": "outer",
+            "side": 1
+          }
+        ],
+        "gunPodsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    ]
+  },
+  "shells": {
+    "bullet_mg34": "7ca80011fee9af667ee832590fded1afb51edda5e67f35836dc138ef367088d7",
+    "hefi_20_sprgr": "8ef1cafd0abafefa4fc8f892ce07efc283fa634db3cf887c7f9d356d323cd495",
+    "apt_20_pzgr39": "ca1f438b92656ffc4ccfb2c3a8d55a01e3b57c6a25f8a223a168f75ee309266b",
+    "hei_20_m56": "46ed1b2c9c76ad8401ac2f3271ecd00c71da07bf3a0faf1a96edb2d3766dca55",
+    "bullet_an_m2": "dce3fdbf8bf472966d7dabec5367f46cf7c35168397d91a3f3d7f7226ba397aa",
+    "bullet_mg131": "87dbb72c2b2da8087cae2b057ab8cace71b2eaa626f9d0430dba333cffe61ae2",
+    "hei_20_hispano": "f262c9718c943ec0e5cb6de0c573f3b58df0539f92d88442ca406fe6eebcbdb9",
+    "hei_23_ofz": "f75134dcb828d91778cd6e3855692c4a1153ae1444d5ab8125000a34ed6f2e21",
+    "api_23_bza": "42f65283eaa53530129c6cd7e22375e1bbbaafe6d4cd07fa1dfc5b49cb89d7dc",
+    "he_37_n37": "c2c40fd6bd5e9b800f4a9458018d37f245e8e4eedcdd1d6ef9c6f943ed929b7c",
+    "bullet_m3_50": "ee9d66c2432e077746e28fba2aed555e169a9d4b6ef482a06ad85004e457ccc3",
+    "he_30_nr30": "80f1d3d16e0c56baa964f75c47debbdbc68e8f5d69f7c732f2f2eb2e28f6b0b5",
+    "bullet_ubs_127": "49ef385b82d2e5a72d905ed4ad61ba85b2ef39c4d191c93a82a0e4e0b020ac1b",
+    "hei_20_shvak": "f598015af9f33552862e12c968e9f7f135d8de6bbacdfc58a720e4b9e3993ae8",
+    "bullet_type97_77": "26ba21832dbd3f0a02ae7db712821227235d5ce8d45a02e553442f4f2869befb",
+    "he_20_type99": "0c32673762731eb77368666d88a54e96cd2d9e6577ce8dc0efdd5bcf5561b06a",
+    "he_30_mk108": "40602815f5390a26a0299edcf6662201f199d8dbfc230619ff1e91aa76db65e7",
+    "he_30_aden": "a828612b622abce973537c70370bf14a15541ac1530dcaef91750c1b7a6c0626",
+    "apt_30_pzgr": "74ffdaf5e954a5edbb3464b6ad49c3bb6ec6b85e14e843341cbf132022fe194a",
+    "he_30_defa": "0c8d3230ceb180aa5bc5130a35fe44fdf929c1860c30a4ea0bd5c1712237234c",
+    "hei_30_gsh301": "d2bcffdfa15441a7b4514255cbc9bf8edc8ec2e0d15bb45a6ba892d0a83e49d7",
+    "api_30_pgu14": "6c92b3422495f34d824e3ba38290d98df17dc69c868837b938b9458c6a30eb17",
+    "hei_30_pgu13": "49fdcd2085f108eafdaf77a78147844cd528c91d0e235d3cec5bd3f9844d7e5c",
+    "ap_50_mk214a": "a85e48bf580489d960b95ae3d97d698c4e9096c57fa7af684e4be053dbee1818",
+    "heat_305_agm65": "0e1ac0e85966ff7539caddf47e0633647fe084a58306947dfaec8e16a2fbfffb",
+    "he_240_s24b": "54debb498768868de5fcb9aa0163623ba1903d176ec3ba6df72e0f8520578c4d",
+    "he_kh25ml": "d315563b0534a529d4e552baad1708b66f1aaa0685978b6d6b0dfd5b6f28ed12",
+    "he_kh29l": "30f883fa5892eb3559da3afa11bc8cd4afe5353ca34cf60a900dd4f206ef8d8b",
+    "he_bomb_suu65": "1d1955091dc853a492437c3e4ae84aa34122e3f552554f72a1d01341a347a920",
+    "he_bomb_rbk500": "4f405792374f36ee70b3231f919154a425cf0569926514ad9a683f6e07f08dd8",
+    "heat_64_blu97": "ad4877f500f612379ce4534366b434bcf3bcff36e78790db2a056e467bbc67a3",
+    "heat_42_ptab1m": "0b1557884be7a03270710e47c8976205e7c8539bf3c1f0e2a72ec524160a1b56",
+    "he_bomb_mk84": "903b54e6770be9798a2f95bcdfdc990f04d793ac27ca4b7567dd83a3dbacf570",
+    "he_bomb_mk82": "4637dae972a2c8238bbbd58b553d4eff66e811e32c15c488099844acd844ae26",
+    "he_127_hvar": "c0a40d85bce1fc85a2487e607e911ad6e0a31273f8127800fa8584b948bee846",
+    "he_152_rp3": "643a83b904e8f8a00fbdf9ff19a484d41aa8a69e13bff1d6048d82092bebeb9a",
+    "he_55_r4m": "3e39a3bc679a7366015dad053261c95cd04b4878204a81fc6e2196055c5b8a5f",
+    "he_70_m151": "0c8035b6442c27a6bd222d4bea277b22facb7015f834f2f399665c8c6f17a81a",
+    "heat_57_s5k": "98307532465c0a58242f78d7bd257d2dac65831d5f229f3fa0cf302644d62697",
+    "heat_80_s8kom": "d66326130723ad7015b62525163d899b2047b012efbbdda7c61ce374657809cc",
+    "heat_68_sneb": "e983033c4acf3d9733f6f716ea1e3c29a9be28c811e638865878722a8617d026",
+    "he_bomb_anm64": "c4169a9e5ab3d4af2f500491dde3fcf3a2033f5ed81bc1180e102c1d724ba363",
+    "he_bomb_anm65": "67ca0855d59bcb219efb43739e159cd4b00c0d86b4d83ceb9537df4dcc4ba6fe",
+    "he_bomb_gp250": "dff3146c73d47b087ece9f6ebff6688c989f493f794476bfb9d67dcfe54b6b85",
+    "he_bomb_mc500": "89a2d4d3fc1c17b1b6b6e7a75980ab4fcb9e4ac224532f2f76630c6e2d36ac1f",
+    "he_bomb_sc250": "b04b4bf9d1c4591246a2faa0712ddbe2252f7f855e1ea02fbacac29c10704129",
+    "he_bomb_sc500": "0e01df074c474ebdda13c63656463ec82d1055a62d1a10c7dbd13b7d08f3a4b4",
+    "he_bomb_type97_60": "fed6ef04f62aead85f4bea69db3642a6277f3fca87738718a45a4567c86294b9",
+    "he_bomb_fab100": "dc19f6f5c3aaea808e3cdd49999509b702d469b8237ebdb1f4deb0a0b05b336b",
+    "he_bomb_fab250": "0a537db6e0dfef2cde5dd070b5135bda3b55d06739703be3448bfde7bcc35c5c",
+    "he_bomb_fab500": "6c67c3044e080ea4eab781bb2c6de0d3a95ceb1bbd7e7961adddc667ea2386be",
+    "he_agm65g_wdu24": "9782e5db301942d4124402c702ef40eb84ac0bbf2a258a0f6dbfa24e417f4da5",
+    "heat_130_vikhr": "0e99a7e6690534c03a2a4450a816c9193ac0a33f563797cab6dd75d2fc02c958",
+    "he_agm12b": "e84a80fb772055a5da6122a916552274790d689630dd5ad55e5bab835ad3763a",
+    "he_agm45": "725fa51a8f3294d1bdc5325a67072665fdc15ce3f079b27f20cdbd5a69bd18de",
+    "he_agm88": "78d225c3327c9220e087f62479bb1cc367ddce3bec10d4dd716cd3cd86e78b6d",
+    "he_kh31p": "9c14ca71012ea3232b69f757b997d76a3128fc5002fbc1e539be501d82bbd4fd"
+  },
+  "storeDefinitions": {
+    "aim9b": "441e3ea490d77c1c36795ee7e5264fa76123e1a1b86ae6a8ac56dfbdaa4c4f4c",
+    "aim9l": "e0838136620c9a756dc92ba8fbcdd9504b779516be0ca9cfa04253596e2caae1",
+    "r3s": "59b7726481c4c8e35f180646b23a917b7066e67ca35a2d2c7b1da74d76f4cafd",
+    "r60m": "f489a058101580c642a839ac5e17528c759499c1c66ce737a1e13eedfce517be",
+    "r73": "46672b3154e360cb28d31bf3b626f82592d9a699013f7568b2f82d260e0f7072",
+    "r27t": "665dd84999460e1168383989ba977dce22f4b51e88e62b76006ca3b9837e65a7",
+    "magic1": "59bb3396be18445b9256205de41c76437680aef6f1bc7c25d675953a9fcf5016",
+    "aim7e": "490bd908e8a292708e159a20e8587a8187fca1403ce5b47793cba65b3e3d7ae0",
+    "aim7f": "a24392a1783a85389888232a28182139667e8f9a3fbbbbe89f4f231b9ebbb83f",
+    "aim120a": "881a3a13bd55ce9b744d20627d516b1f1398ccaffdd7ae101bdab3f76362109e",
+    "r27r": "f0ea00bc0ff025a4e8be957942c58c38d8405cec3dfb0cd51a1041a1e2523152",
+    "agm65a": "55d98db5dfd41aee6568d1f9a339f06e98a54d859b52bdd0df7285e99d4d9e35",
+    "agm65d": "c4176c5633856c344ba3434b4916572a027778704f194f33706ca58cf57d536a",
+    "lau68": "0dbd2adaf52f40c2587a9635977c7492135dc1517cc7af08aa09b5da12c28091",
+    "s24b": "e71e29299bc396f1688b1d065147805f25d2689d0e822776a5f7bcc4c5ec6a98",
+    "kh25ml": "bdcd56de64c1f895de6ef3e1a8f5e9d77a02e4e34b446a36afcef6f3b4536bdd",
+    "kh29l": "3c3382091895e785c6bb281714f46892c494f606a429989d406b6ff0a57628c6",
+    "tank600": "3a0c38fb8bb0877e9301d42c23be9e7b6821647a44be0be71417df39c7ea8989",
+    "tank120": "5cf810f6d983af114d1648a227378a5ac25e75e3447397db64a53d2726d1931b",
+    "ptb800": "a626cd9d12910303f40b48b49743a6ebe9475947bfb38d851a56cf6634795f88",
+    "cbu87": "749d0a04ede06e2a5ee17e3641834df852a78db17999173e24ef7702600622aa",
+    "rbk500": "38564ae8b122484ac0f088577c5128ed3451857a63f2417492a18ee49ffbcf84",
+    "blu97": "a738e0ee94c4fce275a35b1f4f435dc67336587e104af35d5dbd47d1bed893ce",
+    "ptab1m": "45aee6b94cb3af87806d6a04308481c44cc71a79e7ff18aca58d58a1accd28e2",
+    "gbu10": "d7caa86dbefaadc93e9fc6459003a06a4a9af317709fd21731b5217c54b1a121",
+    "gbu12": "3ea2b18dab074e3e8c410b142ea72085ab7df07169a503024f1710614341c2ca",
+    "alq131": "1a6cd64b8a1e10d6fc2a5f62eae5f26053c881bcfafff31241326f10edf217c3",
+    "sppu22": "775eb77b30fb9cde3bf821aef3d00c942ee9da0a0c2beb8a47f4430ffbc4b46c",
+    "mim72a": "af3c0f9309d94108aa0b751b30c5b09a900bcf0fc406121b5f217a8e22f8496d",
+    "m57e6": "b6f4df87f222a1401f023a4ecdcea577a08f3efe0a914cfc880b90c43320983d",
+    "m3m9": "619d65916636148fef668c8caf90e1c1a2968dd3a917ec16db09e49821ef804c",
+    "pavespike": "07dde4650d3fd15f057759468d7fc90f1863198c3bf30c3732b3c25c73351f3c",
+    "hvar": "0cfd6738084b6ac5e1f4a0be508b44a1a4bd178ab85ac308585aeff003545c6e",
+    "rp3": "281e6bb922f429d63132cddbc3f3aca8229f4a1f513b1e2e4d6fe5f1727f6c71",
+    "r4m": "3c874a169589f4ab7004c01286dd4854ea57d9cdfd26093404c2f6eafe3bff00",
+    "hydra": "2752930da3319231080f5860e38162912b0438b97aca5166797c9736beb25d14",
+    "s5k": "456fa8d527828a1198e4527cd9a42df43b7ec7e9c2fd88fda8b08cce65d318d6",
+    "s8kom": "60c63cae1d4e0ee9a71b612c63fc6536352b65bc44122ed20f17e777b7f30fd0",
+    "sneb": "8f9346c3316111744847713d99a53a323f197fe6542d97d84d174dcfa1f4b011",
+    "lau3": "600b3b0fd141d5100c3fc157c90f598223acb5b0e733525499719039133ba045",
+    "ub16": "d90b67238348915274e5d561d4ccec929e3e2e30b5b81e40c9f42264b0b64469",
+    "b8m1": "f8a82810a205ec6e2d3942d72043c390aa1d87fcb8de526953d08d902e21be8a",
+    "matra155": "b50aa438a6a94a5bd9db99d4ac102fac8d5dde4ea757044a6531699e3ffe9eb8",
+    "r4mrack": "5644ec9ccb22b8f24efb83f189abd2599f572a8483993215d33deb103da43f6a",
+    "anm64": "f53a268b57a181f3ef87b625e7757af13d6fe2afe898fdd46ae486f03bb39e4f",
+    "anm65": "f041625a564542e6feaa6fe5256b51864ece39006ed62e85a87228a5c567797b",
+    "gp250": "f7b9444602696d2a24eaf7d5749671e2a4c5053f0141d831103efff06f61a2e1",
+    "mc500": "69df6e37605ec6c04551f83125d2cffd3128c3866cd1d2b766b9c54b56d748d9",
+    "sc250": "6006d88f0c0e37bb3b3633895ba68b16b1ddf221c53c18eb875152fea0ec8707",
+    "sc500": "b3167e0677be669b25d37e3f600ad1f7ada67a348d1b26d71c1e75db4fd03d87",
+    "type97b60": "a946bf35c5373528905231dd35cfff0ec170fd898322a4e4125321fa94760587",
+    "fab100": "22eccf2fe6c504d655862f06fdb48935d2bfa4883d6644bcc2ab3068d3fe4109",
+    "fab250": "ccb16c698fad13c766161e91b3b7f97333418b15b3c7155c3587a06aea3bc8e1",
+    "fab500": "a85421a6c57aee305a3f954e271c3d12b5259d1d9657d6d5689b72399303e204",
+    "mk82": "2db33b49e30357d03b7c023ecb9f0436da3737b6dffa6ba0a18ecee168c318dc",
+    "mk84": "b385f862a174cac6b7444748115547f930b929571739f3b75d23c39e7fef964c",
+    "aim9m": "7ecffa07d544a5370d07d514483022c544f926a6dc93d6fb6731370127af7a18",
+    "r73e": "f9e31a2662add80caa26621f15934eb2d5df35b5e2eb7fe538ef5f5f6e4c78cc",
+    "r27t1": "a45a5616efaf3a7fb97547deaa0410be5576f31edfb6721e3d02a71c350822e1",
+    "r27et1": "c842dbaebc2380c4d3d7339efff9f3263ac99428ceba95d4384f86a4be426415",
+    "aim9x": "05d96604591f87f037ff9ec9cb113bc5dcbce4fa1cdef33c9cdb9dd0ab20d4ed",
+    "irist": "139dee39d38f3b4227dbc39856f7d3c10681bf9deebee9184e6f5aa082c60a76",
+    "asraam": "57bc1796bea351e62c3a587113d07f3fb0f7b0c86718a1fda4e28c1393cbd8be",
+    "mica_ir": "a11eadcfc93315469e03a0e98ef909f94cffb1ce1ff83be8329bbf46f00632c1",
+    "aim7m": "acef0d0071913b5d0dd3b9fd22724550af313569710ec660330ea0ca72457087",
+    "r27r1": "3672365bfcb4488b5f910b1983c2c97894ef79ea632cad7e14692e116a455924",
+    "r27er1": "adb21d95b4f49170bd537e21e4ff558be1e624de79b72bdafb9c66196743b520",
+    "aim120b": "696806021e5ba5caebfcdd5d8e808b8a831c92f894d444bc93591bf09a019cb0",
+    "aim120c": "3eb58e92be1ba0ee471adea4689676c8e392f4cdb42d1583a5a379398aded9c1",
+    "rvvae": "0d996cbead7e8dafd264424fa418f31b91344283ee5253994111c5e0b1b8bca8",
+    "meteor": "b1c59200cafe27f14544a2299f3c14d0bd12c9f94bd67466c584a127ac89763b",
+    "mica_em": "d3fd09d1d6ca6796b935938037b33388a35c5b2fecab1ad60728ee7deb2f5299",
+    "aim54a": "fb8f14bce72f4370ed94560951d2077acdec1d4770fd8dfe45983dbb3fe37fb0",
+    "agm65b": "79b20b89eec4d7eecd0ddc1fb7bf87875b0a33ff32e4e60ee2a08b5d4c391504",
+    "agm65g": "afb991f7aadd2c1958661d953e5d2b334e25bb43cb88ec1ebbbe1d48c1e27ecb",
+    "agm65e": "f5886ec75769a1f3c00762226dcfe7ea49cd1d76643339e649f7aa33a3770e75",
+    "kh29te": "1247b49bb25fba6b8427586234bb3d9d7e18c49720b8dc5c2a7eb2d47f5f1134",
+    "vikhr": "ab8e708444ae557a7f8496912e3546c5bf9256b7872c2f40292cb45e6a689dab",
+    "agm12b": "ba8a9ef72011d7a31966120b67ae16a4b15f555e81685cbdae4dada97bac5e78",
+    "agm45a": "3cb17243db641bcff3670f7edd8a01d34dd478b93ec75047c25a948be2694a32",
+    "agm88b": "0ca4da20f171266df90950831c0efb629c580579ca0df086c578daeea27bc765",
+    "kh31p": "93ac8f7ea92ba1f3d6b4c863715afc643e50855fb47ee07c15954dadead96b8e",
+    "sniper": "0ade5ef02aecc263d2c26ab5ed7226761762a3847f60e6e05a00533dd5945188",
+    "litening": "cea7043824fb8d8aee68d8ad009cf11e48dcb6f2180e57411d7cfe6f5e6bf6a0"
+  },
+  "addedShells": {
+    "he_bomb_samp250_game": "fbcdfd8acad80de4934ced67270c79f053556b3d7ce6cf8af20d79a4fe217ee3"
+  },
+  "addedStoreDefinitions": {
+    "samp250": "f8c40093338385af7d4cb2ed29a3f9c4582131aceefb22c93ffa9164f62792ef",
+    "r60": "2ea07313d6b4976c18fb0ecc31ace5435c4b684aa540eb1f0fb84a61664df5aa",
+    "r3r": "0c199f9ca03eca606210d7126a3c4ff7818a6b18719aac9f2492e137a9e7b4ad"
+  },
+  "oldCcipWeaponIds": [
+    "anm64",
+    "anm65",
+    "b8m1",
+    "blu97",
+    "cbu87",
+    "fab100",
+    "fab250",
+    "fab500",
+    "gbu10",
+    "gbu12",
+    "gp250",
+    "hvar",
+    "hydra",
+    "lau3",
+    "lau68",
+    "matra155",
+    "mc500",
+    "mk82",
+    "mk84",
+    "ptab1m",
+    "r4m",
+    "r4mrack",
+    "rbk500",
+    "rp3",
+    "s24b",
+    "s5k",
+    "s8kom",
+    "sc250",
+    "sc500",
+    "sneb",
+    "type97b60",
+    "ub16"
+  ],
+  "newCcipWeaponIds": [
+    "anm64",
+    "anm65",
+    "b8m1",
+    "blu97",
+    "cbu87",
+    "fab100",
+    "fab250",
+    "fab500",
+    "gbu10",
+    "gbu12",
+    "gp250",
+    "hvar",
+    "hydra",
+    "lau3",
+    "lau68",
+    "matra155",
+    "mc500",
+    "mk82",
+    "mk84",
+    "ptab1m",
+    "r4m",
+    "r4mrack",
+    "rbk500",
+    "rp3",
+    "s24b",
+    "s5k",
+    "s8kom",
+    "samp250",
+    "sc250",
+    "sc500",
+    "sneb",
+    "type97b60",
+    "ub16"
+  ],
+  "newTopLevel": {
+    "schemaVersion": {
+      "sha256": "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b",
+      "changedFromR6": false
+    },
+    "units": {
+      "sha256": "6a39fec2e99e852cd57164bcedc47850b96fbcd2914e03976db6eb9ec5e8a08b",
+      "changedFromR6": false
+    },
+    "conventions": {
+      "sha256": "b0e361ff48a007b1677b93400255634fe181d77a28346ed33d75a17b03ee9378",
+      "changedFromR6": true
+    },
+    "weaponStatus": {
+      "sha256": "eae0f3102cd60cfbb1dc2f73c21a4a7039f8974178c6ab726fb242457776a095",
+      "changedFromR6": true
+    },
+    "weaponCompatibility": {
+      "sha256": "94fd9aca1946336e94d2ddaff4782eabc8cf1a5f6afabd27d11fac582b4b2250",
+      "changedFromR6": true
+    }
+  },
+  "geometry": {
+    "modelWingCarrier": "model-hardpoints-20261026-v3",
+    "mountFitVersion": "mounted-details-v4"
+  }
+}

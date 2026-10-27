@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-25",
+  "scope": "Local source tests, not a deployed mode or completed theatres",
+  "validation": {
+    "rustFullLibrary": {
+      "passed": 186,
+      "failed": 0,
+      "durationSeconds": 113.5
+    },
+    "nodeRelatedRegression": {
+      "passed": 58,
+      "failed": 0,
+      "durationMs": 4649.48
+    },
+    "nativeServiceDomain": {
+      "passed": 5
+    },
+    "nativeServiceEngine": {
+      "passed": 4
+    },
+    "campaignRules": {
+      "passed": 6
+    },
+    "campaignActualHub": {
+      "passed": 1
+    }
+  },
+  "browser": {
+    "service": "prepared_not_run",
+    "previousSharedAirGround": "Retained earlier evidence only; does not certify new service UI"
+  },
+  "limitations": [
+    "Only C2/1.8km Korean corridor enabled",
+    "Supply/facility availability uses host flags; no completed physical logistics/runway destruction",
+    "No45–90-minute endurance or max-population/WAN/mobile certification",
+    "Release binary not rebuilt for this stage",
+    "Not deployed"
+  ],
+  "sourceSha256": {
+    "crates/server/src/frontline.rs": "9ea7c99a1656c2b9077fae0e97e5ac2787a32ada6d04926a712ef2c709c967fe",
+    "crates/server/src/frontline_air.rs": "2511afd8cec97e7d1f70178b0633f06ee31baea1137738e2f24bb54a528c7156",
+    "crates/server/src/frontline_air_service_tests.rs": "97e0395568a2c5f2804026187fa56db7cf4f41c1d8d78452c07200f70a611885",
+    "crates/server/src/frontline_air_service_domain_tests.rs": "856c470315adcf8d7a63538319f1304798b0bd80e248aa5e483baaa2ea679baf",
+    "crates/server/src/frontline_campaign.rs": "64483ec0242a92a152f53cf3a7ae6f4d1a105d44a46f42c220022c104be0415a",
+    "crates/server/src/frontline_campaign_tests.rs": "cf0bf706b72cd389a9b8ab41e170db150189a73f7d2297d1d4c7c0b71e9a0a99",
+    "crates/server/src/frontline_campaign_domain_tests.rs": "57c3ff1e8f97cb5d4118458ffd69e703836b520de1bbeb87f3f70c343cb2aa33",
+    "crates/server/src/frontline_sim.rs": "48a714110843392abce481eceb33130ef16c03aa1c208335cf54a1a6ac99c7aa",
+    "data/frontline/korea.json": "ad24477982de5eb1e6e67f6e17427707ada79e7c674cbde70e7d730dea43966f",
+    "handoff/tools/frontline_client.js": "a016b1f78d7cd4fcfd6369fba31e2300d93315821bb80ab7ea922ed31af653d4",
+    "handoff/tools/frontline_aircraft_visual.js": "bb3454d6d76083419fdc9d1caeaed65f2e1614d5354aba26e02e86ac59c0e09c"
+  }
+}

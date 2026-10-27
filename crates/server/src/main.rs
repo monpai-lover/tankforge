@@ -1,4 +1,4 @@
-//! tg-server [--port 8787] [--bind 0.0.0.0] [--data data] [--page client/web/dist/tankforge-range.html]
+//! tg-server [--port 8787] [--bind 0.0.0.0] [--data data] [--page client/web/dist/tankforge-range.html] [--start-sp 0]
 //!
 //! Open http://<this machine>:<port>/ in a browser to play; the game connects back to /ws.
 use std::net::TcpListener;
@@ -10,6 +10,7 @@ fn main() {
     let mut bind = "0.0.0.0".to_string();
     let mut data = PathBuf::from("data");
     let mut page = PathBuf::from("client/web/dist/tankforge-range.html");
+    let mut start_sp: f64 = 0.0;
     let mut args = std::env::args().skip(1);
     while let Some(a) = args.next() {
         let mut value = || args.next().unwrap_or_default();
@@ -18,6 +19,7 @@ fn main() {
             "--bind" => bind = value(),
             "--data" => data = PathBuf::from(value()),
             "--page" => page = PathBuf::from(value()),
+            "--start-sp" => start_sp = value().parse().unwrap_or(0.0),
             "-h" | "--help" => {
                 println!("tg-server [--port 8787] [--bind 0.0.0.0] [--data data] [--page client/web/dist/tankforge-range.html]");
                 return;
@@ -49,10 +51,20 @@ fn main() {
         println!("  佔點模式:{}", names.iter().map(|s| s.as_str()).collect::<Vec<_>>().join("、"));
     }
     println!("  損傷模型:{} 台車的裝甲/模組/乘員、{} 種炮彈、{} 種機槍彈", combat.targets.len(), combat.projectiles.len(), combat.bullets.len());
+    match server::load_aircraft(&data) {
+        Some(a) => println!("  飛機:{} 型（伺服器判定毀傷）", a.types.len()),
+        None => println!("  (沒有 data/aircraft/aircraft.json:線上不能出擊飛機)"),
+    }
     if !page.is_file() {
         println!("  (找不到 {},/ 不提供遊戲頁面;可直接開本機的 HTML 再連進來)", page.display());
     }
-    let lobby = Lobby::new(shells, vehicles, maps).with_combat(combat.targets, combat.projectiles, combat.bullets).with_points(points).with_missiles(server::load_missiles(&data)).with_years(server::load_years(&data));
+    let lobby = Lobby::new(shells, vehicles, maps).with_combat(combat.targets, combat.projectiles, combat.bullets).with_points(points).with_missiles(server::load_missiles(&data)).with_years(server::load_years(&data)).with_aircraft(server::load_aircraft(&data)).with_start_sp(start_sp);
+    let lobby = if data.join("frontline/korea.json").is_file() {
+        match lobby.with_frontline(&data) {
+            Ok(lobby) => lobby,
+            Err(error) => { eprintln!("前線資料載入失敗: {error}"); std::process::exit(2); }
+        }
+    } else { lobby };
     if let Err(e) = server::serve(listener, lobby, Some(page)) {
         eprintln!("{e}");
         std::process::exit(1);

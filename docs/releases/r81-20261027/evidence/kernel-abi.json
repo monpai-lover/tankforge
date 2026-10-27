@@ -1,0 +1,53 @@
+{
+  "flight": {
+    "exports": [
+      "adopt_kinematics",
+      "aero_state_len",
+      "aero_state_ptr",
+      "configure",
+      "configure_airframe",
+      "configure_control",
+      "configure_envelope",
+      "configure_gear_sequence",
+      "configure_surfaces",
+      "core_version",
+      "impulse",
+      "memory",
+      "reset",
+      "seed_control_state",
+      "set_damage",
+      "set_gear_failure",
+      "set_world",
+      "spawn",
+      "state_len",
+      "state_ptr",
+      "step",
+      "terrain_height"
+    ],
+    "coreVersion": 215,
+    "sha256": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "bytes": 33753,
+    "file": "payload/flight_core.wasm"
+  },
+  "combat": {
+    "exports": [
+      "memory",
+      "tg_alloc",
+      "tg_barrel_revision",
+      "tg_call",
+      "tg_free",
+      "tg_replay_revision",
+      "tg_surface_revision",
+      "tg_weapon_bindings_revision"
+    ],
+    "revisions": {
+      "tg_replay_revision": 1,
+      "tg_surface_revision": 1,
+      "tg_barrel_revision": 1,
+      "tg_weapon_bindings_revision": 1
+    },
+    "sha256": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32",
+    "bytes": 3856680,
+    "file": "payload/tg_design_wasm.wasm"
+  }
+}

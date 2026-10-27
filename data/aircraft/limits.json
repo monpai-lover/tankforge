@@ -1,0 +1,555 @@
+{
+  "schemaVersion": 1,
+  "revision": "airframe-limits-20261026",
+  "note": "Performance references are published comparison figures, not measured simulation maxima or structural limits. IAS/Mach/gear limits and damage rates below are explicit provisional game settings pending aircraft-manual verification. Conditions, engine ratings and variants differ; unknowns remain explicit.",
+  "rules": {
+    "structuralDamagePerSecond": 0.25,
+    "gearDamagePerSecond": 1,
+    "warningRatio": 0.92,
+    "flutterMaxRad": 0.012,
+    "flutterFullRatio": 1.12
+  },
+  "aircraft": {
+    "nf01": {
+      "performance": {
+        "maxKmh": 650,
+        "basis": "game_setting",
+        "sources": [],
+        "note": "Original fictional NF-01; comparison target, not a historical specification."
+      },
+      "structural": {
+        "iasKmh": 850,
+        "mach": 0.82,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 320,
+        "basis": "game_setting"
+      }
+    },
+    "nf02": {
+      "performance": {
+        "maxKmh": 1180,
+        "basis": "game_setting",
+        "sources": [],
+        "note": "Original fictional NF-02; comparison target, not a historical specification."
+      },
+      "structural": {
+        "iasKmh": 1350,
+        "mach": 1.1,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 450,
+        "basis": "game_setting"
+      }
+    },
+    "p51d": {
+      "performance": {
+        "maxKmh": 703,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196263/north-american-p-51d-mustang/"
+        ],
+        "note": "USAF museum: 437 mph; altitude and engine-rating condition not specified on the fact sheet."
+      },
+      "structural": {
+        "iasKmh": 900,
+        "mach": 0.82,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 320,
+        "basis": "game_setting"
+      }
+    },
+    "bf109g": {
+      "performance": {
+        "maxKmh": 630,
+        "basis": "published_reference",
+        "sources": [
+          "https://airforcemuseum.fi/museum%20objects/messerschmitt-bf-109-g-6-mt-507/"
+        ],
+        "note": "Finnish Air Force Museum G-6 figure; equipment, boost and altitude affect other published G-series figures."
+      },
+      "structural": {
+        "iasKmh": 790,
+        "mach": 0.8,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 300,
+        "basis": "game_setting"
+      }
+    },
+    "spitfire9": {
+      "performance": {
+        "maxKmh": 650,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.aeronautica.difesa.it/en/2023/05/26/spitfire-v-ix/"
+        ],
+        "note": "Italian Air Force Mk IX figure; different Merlin and wing variants have different maxima."
+      },
+      "structural": {
+        "iasKmh": 780,
+        "mach": 0.85,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 260,
+        "basis": "game_setting"
+      }
+    },
+    "fw190a8": {
+      "performance": {
+        "maxKmh": 652,
+        "basis": "published_reference",
+        "sources": [
+          "https://planesoffame.org/aircraft/plane-190A-9"
+        ],
+        "note": "Planes of Fame A-8/N page: 405 mph. Reconstruction reference, not a certification of a wartime engine/boost condition."
+      },
+      "structural": {
+        "iasKmh": 910,
+        "mach": 0.85,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 300,
+        "basis": "game_setting"
+      }
+    },
+    "yak9u": {
+      "performance": {
+        "maxKmh": 672,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.redstar.gr/en/russian-aerial-means/world-war-2-aircraft/fighters/yak-9u-vk-107-fighter.html"
+        ],
+        "note": "Published VK-107 reference; production condition and boost are uncertain. Museum exhibit figures differ."
+      },
+      "structural": {
+        "iasKmh": 720,
+        "mach": 0.78,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 300,
+        "basis": "game_setting"
+      }
+    },
+    "a6m2": {
+      "performance": {
+        "maxKmh": 533,
+        "altitudeM": 4550,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.history.navy.mil/content/history/museums/nnam/explore/collections/aircraft/a/a6m2-zero0.html"
+        ],
+        "note": "US Naval Aviation Museum: 331 mph at 14,930 ft; not an IAS or dive limit."
+      },
+      "structural": {
+        "iasKmh": 700,
+        "mach": 0.72,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 270,
+        "basis": "game_setting"
+      }
+    },
+    "f4u1d": {
+      "performance": {
+        "maxKmh": 671,
+        "basis": "published_reference",
+        "sources": [
+          "https://thelittleaviationmuseum.au/planes/vought-f4u-1d/"
+        ],
+        "note": "Published F4U-1D reference; altitude/load condition unspecified, not the later F4U-4 figure."
+      },
+      "structural": {
+        "iasKmh": 880,
+        "mach": 0.83,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 300,
+        "basis": "game_setting"
+      }
+    },
+    "mig15": {
+      "performance": {
+        "maxKmh": 1078,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196115/mikoyan-gurevich-mig-15bis/"
+        ],
+        "note": "USAF museum MiG-15bis: 670 mph; altitude unspecified."
+      },
+      "structural": {
+        "iasKmh": 1080,
+        "mach": 0.95,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 450,
+        "basis": "game_setting"
+      }
+    },
+    "f86f": {
+      "performance": {
+        "maxKmh": 1110,
+        "altitudeM": 0,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.aerospaceca.org/aircraft-collection/north-american-f-86f-sabre"
+        ],
+        "note": "Aerospace Museum of California F-86F reference at sea level."
+      },
+      "structural": {
+        "iasKmh": 1170,
+        "mach": 1.03,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 450,
+        "basis": "game_setting"
+      }
+    },
+    "me262": {
+      "performance": {
+        "maxKmh": 869,
+        "basis": "published_reference",
+        "sources": [
+          "https://airandspace.si.edu/collection-objects/messerschmitt-me-262-a-1a-schwalbe-swallow/nasm_A19600328000"
+        ],
+        "note": "Smithsonian A-1a reference: approximately 540 mph; altitude/load unspecified."
+      },
+      "structural": {
+        "iasKmh": 1000,
+        "mach": 0.86,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 400,
+        "basis": "game_setting"
+      }
+    },
+    "me262a2a": {
+      "performance": {
+        "maxKmh": 869,
+        "basis": "family_reference",
+        "sources": [
+          "https://airandspace.si.edu/collection-objects/messerschmitt-me-262-a-1a-schwalbe-swallow/nasm_A19600328000"
+        ],
+        "note": "Clean A-1a family reference only. A-2a bomb-equipped maximum has not been verified; actual load changes performance."
+      },
+      "structural": {
+        "iasKmh": 1000,
+        "mach": 0.86,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 400,
+        "basis": "game_setting"
+      }
+    },
+    "me262u4": {
+      "performance": {
+        "maxKmh": 869,
+        "basis": "family_reference",
+        "sources": [
+          "https://airandspace.si.edu/collection-objects/messerschmitt-me-262-a-1a-schwalbe-swallow/nasm_A19600328000"
+        ],
+        "note": "A-1a family reference only. Exact prototype U4/MK214 speed is unverified; do not identify this as a tested U4 maximum."
+      },
+      "structural": {
+        "iasKmh": 1000,
+        "mach": 0.86,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 400,
+        "basis": "game_setting"
+      }
+    },
+    "mig17f": {
+      "performance": {
+        "maxKmh": 1144,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Article/196057/mikoyan-gurevich-mig-17f/"
+        ],
+        "note": "USAF museum MiG-17F reference: 711 mph; altitude unspecified."
+      },
+      "structural": {
+        "iasKmh": 1150,
+        "mach": 1.15,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 450,
+        "basis": "game_setting"
+      }
+    },
+    "hunter6": {
+      "performance": {
+        "maxKmh": 1150,
+        "maxMach": 0.94,
+        "altitudeM": 0,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.baesystems.com/heritage/page/hawker-hunter"
+        ],
+        "note": "BAE Systems family performance summary at sea level; F.6 installation/configuration can differ."
+      },
+      "structural": {
+        "iasKmh": 1200,
+        "mach": 1.05,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 460,
+        "basis": "game_setting"
+      }
+    },
+    "f104g": {
+      "performance": {
+        "maxKmh": 2334,
+        "maxMach": 2.2,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.canada.ca/en/air-force/services/aircraft/canadair-starfighter.html"
+        ],
+        "note": "RCAF F-104G/CL-90 family reference; not a sea-level speed or IAS limit."
+      },
+      "structural": {
+        "iasKmh": 1550,
+        "mach": 2.3,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 480,
+        "basis": "game_setting"
+      }
+    },
+    "mig21": {
+      "performance": {
+        "maxKmh": 2175,
+        "basis": "published_reference",
+        "sources": [
+          "https://muzeumlotnictwa.pl/en/eksponaty/mikojan-guriewicz-mig-21-bis-2/"
+        ],
+        "note": "Polish Aviation Museum MiG-21bis reference; altitude unspecified."
+      },
+      "structural": {
+        "iasKmh": 1360,
+        "mach": 2.2,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      }
+    },
+    "mirage3e": {
+      "performance": {
+        "maxKmh": 2350,
+        "altitudeM": 12192,
+        "basis": "published_reference",
+        "sources": [
+          "https://yorkshireairmuseum.org/dassault-mirage-iiie/"
+        ],
+        "note": "Yorkshire Air Museum IIIE reference: 1,460 mph at 40,000 ft; source Mach rounding differs from other publications."
+      },
+      "structural": {
+        "iasKmh": 1460,
+        "mach": 2.3,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 460,
+        "basis": "game_setting"
+      }
+    },
+    "f4e": {
+      "performance": {
+        "maxKmh": 2390,
+        "basis": "published_reference",
+        "sources": [
+          "https://pimaair.org/museum-aircraft/mcdonnell-douglas-f-4e/"
+        ],
+        "note": "Pima Air & Space F-4E reference: 1,485 mph; altitude unspecified."
+      },
+      "structural": {
+        "iasKmh": 1460,
+        "mach": 2.4,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 460,
+        "basis": "game_setting"
+      }
+    },
+    "f15c": {
+      "performance": {
+        "maxMach": 2.5,
+        "qualifier": "over",
+        "basis": "published_reference",
+        "sources": [
+          "https://www.boeing.com/content/dam/boeing/boeingdotcom/history/pdf/Boeing_Products.pdf"
+        ],
+        "note": "Boeing F-15 family reference: in excess of Mach 2.5. No single km/h conversion without atmospheric conditions."
+      },
+      "structural": {
+        "iasKmh": 1750,
+        "mach": 2.6,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      }
+    },
+    "mig29": {
+      "performance": {
+        "maxMach": 2.3,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.mod.gov.rs/eng/22607/podeselon-lovacke-avijacije"
+        ],
+        "note": "Serbian Ministry of Defence MiG-29 reference; altitude/configuration unspecified."
+      },
+      "structural": {
+        "iasKmh": 1500,
+        "mach": 2.4,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      }
+    },
+    "f16v": {
+      "performance": {
+        "maxMach": 2,
+        "qualifier": "over",
+        "basis": "published_reference",
+        "sources": [
+          "https://view.ceros.com/lockheed-martin/f-16",
+          "https://www.lockheedmartin.com/en-us/products/f-16.html"
+        ],
+        "note": "Lockheed Martin Block 70/72 technical card: Mach 2+. km/h depends on altitude/temperature; not an IAS limit."
+      },
+      "structural": {
+        "iasKmh": 1470,
+        "mach": 2.2,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      }
+    },
+    "su27": {
+      "performance": {
+        "maxKmh": 2500,
+        "basis": "published_reference",
+        "sources": [
+          "https://parkpatriot.ru/o-parke/tekhnika-parka/samolyet-su-27/"
+        ],
+        "note": "Patriot military museum: maximum at altitude; separately lists 1,380 km/h near the ground."
+      },
+      "structural": {
+        "iasKmh": 1530,
+        "mach": 2.45,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      }
+    },
+    "a10a": {
+      "performance": {
+        "maxKmh": 833,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/195855/fairchild-republic-a-10a-thunderbolt-ii/"
+        ],
+        "note": "USAF museum A-10A: 450 nautical mph (833 km/h). Other USAF sheets list operating speeds; do not substitute those silently."
+      },
+      "structural": {
+        "iasKmh": 875,
+        "mach": 0.8,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 400,
+        "basis": "game_setting"
+      }
+    },
+    "su25": {
+      "performance": {
+        "maxKmh": 970,
+        "basis": "published_reference",
+        "sources": [
+          "https://aviamuseum.com.ua/en/exposition/exposition/kb-suhogo/162-su-25"
+        ],
+        "note": "Ukraine State Aviation Museum Su-25 reference; load/altitude unspecified."
+      },
+      "structural": {
+        "iasKmh": 1100,
+        "mach": 0.88,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 400,
+        "basis": "game_setting"
+      }
+    },
+    "su27skm": {
+      "performance": {
+        "maxKmh": 2500,
+        "basis": "published_reference",
+        "sources": [
+          "https://parkpatriot.ru/o-parke/tekhnika-parka/samolyet-su-27/"
+        ],
+        "note": "Patriot military museum: maximum at altitude; separately lists 1,380 km/h near the ground."
+      },
+      "structural": {
+        "iasKmh": 1530,
+        "mach": 2.45,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      },
+      "inheritedModelId": "su27",
+      "inheritanceLimitation": "Inherited source geometry/physics/structural limits; no separately measured variant data."
+    },
+    "mig29smt": {
+      "performance": {
+        "maxMach": 2.3,
+        "basis": "published_reference",
+        "sources": [
+          "https://www.mod.gov.rs/eng/22607/podeselon-lovacke-avijacije"
+        ],
+        "note": "Serbian Ministry of Defence MiG-29 reference; altitude/configuration unspecified."
+      },
+      "structural": {
+        "iasKmh": 1500,
+        "mach": 2.4,
+        "basis": "game_setting"
+      },
+      "gear": {
+        "iasKmh": 500,
+        "basis": "game_setting"
+      },
+      "inheritedModelId": "mig29",
+      "inheritanceLimitation": "Inherited source geometry/physics/structural limits; no separately measured variant data."
+    }
+  }
+}

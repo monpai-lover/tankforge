@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "status": "sampled_native_ground_tests_passed_full_routes_still_pending",
+  "executionOwner": "/root/era_roster (sole coordinated Cargo owner)",
+  "observedActualTerminal": "7 passed;0 failed;109.23seconds, unoptimized test profile",
+  "nativeSurfaceTestFunctions": {
+    "passed": 5,
+    "failed": 0
+  },
+  "relatedHttpOptionalCatalogTests": {
+    "passed": 2,
+    "failed": 0
+  },
+  "references": {
+    "taiwanMap": {
+      "path": "data/frontline/taiwan.json",
+      "bytes": 3771682,
+      "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+    },
+    "koreaMap": {
+      "path": "data/frontline/korea.json",
+      "bytes": 3326543,
+      "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+    },
+    "nativeCases": {
+      "path": "docs/air-frontline/research/taiwan-runtime-native-cases.json",
+      "bytes": 11235,
+      "sha256": "65445968b73b5a992b6c98e11f35046ebda17c889a2ed2457914385259c863fb"
+    },
+    "nativeTestModule": {
+      "path": "crates/server/src/frontline_sim_taiwan_tests.rs",
+      "bytes": 17302,
+      "sha256": "2c6834955d2e35a710c3cbb7d29ae7f8b74f5f55dad857d31b75d9a03fe83afb"
+    },
+    "successfulRun": {
+      "path": "handoff/tests/out/native-multimap-20261025/surface-http-optional-attempt2.log",
+      "bytes": 3975,
+      "sha256": "42ae8416a046d9657341407cffb5ffab36470f2cca5a6306499d34851f3667cf"
+    },
+    "priorFailedRun": {
+      "path": "handoff/tests/out/native-multimap-20261025/surface-http-optional-attempt1.log",
+      "bytes": 4408,
+      "sha256": "895a69a19558ad673a781f6a28371cf6c906508085ee3c384f3d865a4cc0bbf0"
+    }
+  },
+  "verified": {
+    "sourceHeightProbes": 129,
+    "fullNativeOutlineSourceSpawns": 60,
+    "globalOceanPoints": 3,
+    "globalDryLandPoints": 2,
+    "uphillCases": [
+      {
+        "case": "west:W0-W1:max-grade",
+        "gradePercent": 5.749917959174909,
+        "nativeProgressMeters": 8.58338647266071
+      },
+      {
+        "case": "west:W1-W2:max-grade",
+        "gradePercent": 6.259654879619103,
+        "nativeProgressMeters": 8.357909871166969
+      },
+      {
+        "case": "west:W2-W3:max-grade",
+        "gradePercent": 5.9057583521805785,
+        "nativeProgressMeters": 8.418325041434706
+      },
+      {
+        "case": "west:W3-W4:max-grade",
+        "gradePercent": 5.543155206379488,
+        "nativeProgressMeters": 8.517884236886099
+      },
+      {
+        "case": "centre:C0-C1:max-grade",
+        "gradePercent": 6.043664079625676,
+        "nativeProgressMeters": 8.391873550953022
+      },
+      {
+        "case": "centre:C1-C2:max-grade",
+        "gradePercent": 5.774784212870354,
+        "nativeProgressMeters": 8.535017473592037
+      },
+      {
+        "case": "centre:C2-C3:max-grade",
+        "gradePercent": 5.990932647913884,
+        "nativeProgressMeters": 8.411547873548301
+      },
+      {
+        "case": "centre:C3-C4:max-grade",
+        "gradePercent": 6.348894064185677,
+        "nativeProgressMeters": 8.259521620660143
+      },
+      {
+        "case": "east:E0-E1:max-grade",
+        "gradePercent": 9.22498525114161,
+        "nativeProgressMeters": 8.151135519496789
+      },
+      {
+        "case": "east:E1-E2:max-grade",
+        "gradePercent": 6.744094651967892,
+        "nativeProgressMeters": 8.395595531552429
+      },
+      {
+        "case": "east:E2-E3:max-grade",
+        "gradePercent": 6.281395913189948,
+        "nativeProgressMeters": 8.462750421970245
+      },
+      {
+        "case": "east:E3-E4:max-grade",
+        "gradePercent": 9.748567727546956,
+        "nativeProgressMeters": 8.250792521911027
+      }
+    ],
+    "registeredTurnCases": [
+      {
+        "case": "west:W0-W1:tight-turn",
+        "turnDegrees": 95.06825232526903
+      },
+      {
+        "case": "west:W1-W2:tight-turn",
+        "turnDegrees": 106.66627127165418
+      },
+      {
+        "case": "west:W2-W3:tight-turn",
+        "turnDegrees": 92.88800600357506
+      },
+      {
+        "case": "west:W3-W4:tight-turn",
+        "turnDegrees": 43.884004707352496
+      },
+      {
+        "case": "centre:C0-C1:tight-turn",
+        "turnDegrees": 114.2417068915713
+      },
+      {
+        "case": "centre:C1-C2:tight-turn",
+        "turnDegrees": 83.27569917781156
+      },
+      {
+        "case": "centre:C2-C3:tight-turn",
+        "turnDegrees": 104.75294502618507
+      },
+      {
+        "case": "centre:C3-C4:tight-turn",
+        "turnDegrees": 98.98260105206532
+      },
+      {
+        "case": "east:E0-E1:tight-turn",
+        "turnDegrees": 92.70752609368007
+      },
+      {
+        "case": "east:E1-E2:tight-turn",
+        "turnDegrees": 126.09194988932857
+      },
+      {
+        "case": "east:E2-E3:tight-turn",
+        "turnDegrees": 27.853056215971936
+      },
+      {
+        "case": "east:E3-E4:tight-turn",
+        "turnDegrees": 76.00145978080211
+      }
+    ],
+    "realWetDeckSamples": [
+      {
+        "case": "west:wet-deck",
+        "sampledRouteMeters": 70,
+        "acceptedWetOutlineFrames": 273,
+        "selectedWetPointDistanceFromGroupRepresentativeMeters": 0.0
+      },
+      {
+        "case": "centre:wet-deck",
+        "sampledRouteMeters": 70,
+        "acceptedWetOutlineFrames": 221,
+        "selectedWetPointDistanceFromGroupRepresentativeMeters": 163.04045923634965
+      },
+      {
+        "case": "east:wet-deck",
+        "sampledRouteMeters": 70,
+        "acceptedWetOutlineFrames": 268,
+        "selectedWetPointDistanceFromGroupRepresentativeMeters": 0.0
+      }
+    ],
+    "dryCentreWetTracksRejectedWhenOnlyDeckRegistrationRemoved": true,
+    "actualProductionNavigationPlannerAndDriver": true,
+    "noPoseWritesOrCollisionWaivers": true,
+    "inputThresholdsDriverAndTimeLimitsNotRelaxed": true
+  },
+  "previousFailure": {
+    "retained": true,
+    "unfixedMapSha256": "0cc7ebdf3379966abacca412049083ac2349434ab1d7a0ac9e413673c0e68a79",
+    "result": "5pass2fail; native wet outline fell in unfilled rectangular deck-joint wedges; last E3-E4 source spawn rejected",
+    "correctiveChange": "Explicit authored internal-only joint gap polygons with constrained top triangles, shared native physical/navigation boundary and solid visual-deck geometry. Numerical collinear source triangles filtered by author, not ignored at runtime. Terrain heights and road topology unchanged."
+  },
+  "reproduceOwnedNativeSurfaceSubset": "cargo test -p tg-server frontline_sim::taiwan_surface_tests --lib -j2 -- --test-threads=1 --nocapture",
+  "limitations": [
+    "These are27 sampled local vehicle cases, not complete40.755km road traversal or arbitrary-vehicle certification.",
+    "Three bridge drives cover70m each, not entire deck groups or all30bridges under vehicles. Centre representative point was dry; the test selects the nearest actually wet member of that SAME registered deck group163.04m away.",
+    "60source spawns and129height probes do not substitute for two simultaneous full60-unit Hub starts. That independent test remains owned by the domain agent.",
+    "No real-time performance certification, GPU/browser claim, ship route/bathymetry certification or VPS deployment.",
+    "Native ground retains the existing plant/contact/plate-box framework; this is not a visible-triangle combat migration."
+  ]
+}

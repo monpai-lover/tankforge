@@ -1,0 +1,13 @@
+{
+  "result": "PASS",
+  "beforeSha256": "3c579ba62c912bb1ff00250b6e64785c2f8b79cac954398dd166480957fc2b49",
+  "afterSha256": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+  "changedFields": [
+    "source.appSha256"
+  ],
+  "beforeAppSha256": "12c889a77b14317b0d86b43d593c91d18b3eb82e1d6f5bcf04b98db153eadfd8",
+  "afterAppSha256": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+  "runtimeDataExactlyEqual": true,
+  "allOtherProvenanceExactlyEqual": true,
+  "scope": "Actual production exporter output; exact recursive comparison, no inferred physical equivalence."
+}

@@ -1,0 +1,78 @@
+{
+  "source": "https://overpass-api.de/api/interpreter",
+  "attribution": "© OpenStreetMap contributors",
+  "license": "https://www.openstreetmap.org/copyright",
+  "semantics": [
+    "https://wiki.openstreetmap.org/wiki/Key:waterway",
+    "https://wiki.openstreetmap.org/wiki/Tag:natural%3Dwater"
+  ],
+  "scope": "Bounded3-front road corridor hydro inventory, not complete100x120km water coverage or a current bridge survey.",
+  "extracts": [
+    {
+      "lane": "west",
+      "boundsEN": [
+        302575.32,
+        4205961.03,
+        311276.78,
+        4225023.25
+      ],
+      "boundsSouthWestNorthEast": [
+        37.97982974516573,
+        126.74685432442195,
+        38.153363585015626,
+        126.85112527149433
+      ],
+      "file": "korea-runtime-water-west-v2-source.json.gz",
+      "query": "korea-runtime-water-west-v2.overpassql",
+      "rawBytes": 357326,
+      "rawSha256": "dea9f2bb7199f9182cd997b4b9784ba426f3c1d32d1cc6c241be9e9ce6c680b9",
+      "gzipSha256": "744536ae9b53d86b77e82ae7da4b5b216da413f00d2cac2c9f0ea09fa3d12ebb",
+      "elements": 122,
+      "timestamp": "2026-10-24T18:44:18Z"
+    },
+    {
+      "lane": "centre",
+      "boundsEN": [
+        321523.67,
+        4207182.4,
+        328974.43,
+        4228423.98
+      ],
+      "boundsSouthWestNorthEast": [
+        37.99475563604087,
+        126.96212002323601,
+        38.1875253248013,
+        127.05223376117354
+      ],
+      "file": "korea-runtime-water-centre-v2-source.json.gz",
+      "query": "korea-runtime-water-centre-v2.overpassql",
+      "rawBytes": 468865,
+      "rawSha256": "34ebd78e774d98236fefb778217e276340a4864000536c04d2dbbee10aeaa7ee",
+      "gzipSha256": "c0023d93b6c6c9a3153ef93fb726ed3df272f3b180dc93d5b8363d25b41bed95",
+      "elements": 79,
+      "timestamp": "2026-10-24T18:44:18Z"
+    },
+    {
+      "lane": "east",
+      "boundsEN": [
+        346438.83,
+        4211809.65,
+        350187.39,
+        4231741.57
+      ],
+      "boundsSouthWestNorthEast": [
+        38.04100214783473,
+        127.24575624855272,
+        38.221190402993265,
+        127.29274989937649
+      ],
+      "file": "korea-runtime-water-east-v2-source.json.gz",
+      "query": "korea-runtime-water-east-v2.overpassql",
+      "rawBytes": 292587,
+      "rawSha256": "9f7efdc20b3d35d617f399db906280c2a04cc5d8c75b97cd5790a2817d052837",
+      "gzipSha256": "e31ca83aa03fd0b3d9ef15e842672b5b0c5dcbc7b5fcf4c98b3b8415c8acf8ea",
+      "elements": 43,
+      "timestamp": "2026-10-24T18:45:21Z"
+    }
+  ]
+}

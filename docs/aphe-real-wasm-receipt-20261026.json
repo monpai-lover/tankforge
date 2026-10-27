@@ -1,0 +1,21 @@
+{
+  "result": "PASS",
+  "scope": "Rebuilt exact-surface-capable real WASM; real exported MK21417g round against real PzIV data",
+  "hit": true,
+  "burst": {
+    "armed_at_s": 0.006099998610360282,
+    "delay_s": 0.002400000113993883,
+    "detonation_id": "core/charge:0/detonation:0",
+    "explosive_kg": 0.017000000923871994,
+    "inside": true,
+    "mechanism": "delayed_aphe",
+    "pos": {
+      "x": -0.09227466583251953,
+      "y": 1.149999976158142,
+      "z": 0.10000000149011612
+    },
+    "radius": 0.9256613254547119,
+    "time_s": 0.008499998724354165
+  },
+  "fuze": "detonated"
+}

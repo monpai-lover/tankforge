@@ -1,0 +1,513 @@
+{
+  "schemaVersion": 1,
+  "pass": true,
+  "maps": [
+    {
+      "map": "korea",
+      "previousSha256": "66fa323eae0c6581a815b315319657c58367843de9b4fd1b2dc6bc7ed2c1dee6",
+      "newSha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861",
+      "bytes": 3326543,
+      "bridgeGroups": 36,
+      "onlyBridgeJointGeometryAdded": true,
+      "allHeightsRoadsTopologyAndExistingJsonValuesIdentical": true,
+      "totals": {
+        "sharedVertices": 343,
+        "polygons": 355,
+        "triangles": 748,
+        "fillAreaM2": 1458.8086464033386
+      },
+      "minimumRetainedTriangleAreaM2": 2.4234800994060493e-05,
+      "bridges": [
+        {
+          "id": "deck:329",
+          "polygons": 2,
+          "triangles": 6,
+          "areaM2": 14.62577541345204,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:488",
+          "polygons": 1,
+          "triangles": 2,
+          "areaM2": 5.093698093638267,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:712",
+          "polygons": 1,
+          "triangles": 7,
+          "areaM2": 23.338127973982797,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:803",
+          "polygons": 9,
+          "triangles": 9,
+          "areaM2": 1.201060174782099,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:881",
+          "polygons": 3,
+          "triangles": 3,
+          "areaM2": 2.2186436030455448,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:916",
+          "polygons": 15,
+          "triangles": 42,
+          "areaM2": 103.89916918151691,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:948",
+          "polygons": 31,
+          "triangles": 60,
+          "areaM2": 122.50169047611426,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1358",
+          "polygons": 5,
+          "triangles": 7,
+          "areaM2": 11.242225981811849,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1400",
+          "polygons": 9,
+          "triangles": 24,
+          "areaM2": 47.722474237408065,
+          "triangleCoverageDifferenceM2": 1.4089840405517862e-12
+        },
+        {
+          "id": "deck:1430",
+          "polygons": 3,
+          "triangles": 14,
+          "areaM2": 45.23887706787531,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1516",
+          "polygons": 32,
+          "triangles": 43,
+          "areaM2": 41.43478770064877,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1610",
+          "polygons": 6,
+          "triangles": 12,
+          "areaM2": 22.707352697364367,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1692",
+          "polygons": 49,
+          "triangles": 106,
+          "areaM2": 242.02055314219209,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1991",
+          "polygons": 3,
+          "triangles": 3,
+          "areaM2": 1.6210622324320987,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2031",
+          "polygons": 43,
+          "triangles": 89,
+          "areaM2": 186.33165504809003,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2489",
+          "polygons": 0,
+          "triangles": 0,
+          "areaM2": 0.0,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2702",
+          "polygons": 1,
+          "triangles": 1,
+          "areaM2": 0.001787819341588559,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2934",
+          "polygons": 6,
+          "triangles": 6,
+          "areaM2": 0.12717627177871377,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:3140",
+          "polygons": 2,
+          "triangles": 2,
+          "areaM2": 2.7707822161930076,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:3287",
+          "polygons": 3,
+          "triangles": 5,
+          "areaM2": 1.78117646639015,
+          "triangleCoverageDifferenceM2": 4.5297099404706387e-13
+        },
+        {
+          "id": "deck:3312",
+          "polygons": 9,
+          "triangles": 16,
+          "areaM2": 5.356868638087064,
+          "triangleCoverageDifferenceM2": 3.2873703759150885e-13
+        },
+        {
+          "id": "deck:3340",
+          "polygons": 6,
+          "triangles": 8,
+          "areaM2": 0.20298330586264932,
+          "triangleCoverageDifferenceM2": 8.004708007547379e-13
+        },
+        {
+          "id": "deck:3409",
+          "polygons": 24,
+          "triangles": 110,
+          "areaM2": 261.08609030569926,
+          "triangleCoverageDifferenceM2": 4.3415271377966747e-13
+        },
+        {
+          "id": "deck:3653",
+          "polygons": 2,
+          "triangles": 2,
+          "areaM2": 0.0024995240128239385,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4395",
+          "polygons": 3,
+          "triangles": 6,
+          "areaM2": 10.717103439241717,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4400",
+          "polygons": 7,
+          "triangles": 21,
+          "areaM2": 62.743528692554094,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4423",
+          "polygons": 4,
+          "triangles": 7,
+          "areaM2": 14.423003422674551,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4431",
+          "polygons": 8,
+          "triangles": 17,
+          "areaM2": 34.21936094158675,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4454",
+          "polygons": 6,
+          "triangles": 14,
+          "areaM2": 31.980107947939572,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4560",
+          "polygons": 3,
+          "triangles": 3,
+          "areaM2": 0.3432827284262164,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4684",
+          "polygons": 8,
+          "triangles": 10,
+          "areaM2": 11.371873392365579,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4699",
+          "polygons": 13,
+          "triangles": 15,
+          "areaM2": 9.232661172319702,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:4983",
+          "polygons": 0,
+          "triangles": 0,
+          "areaM2": 0.0,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:5119",
+          "polygons": 7,
+          "triangles": 7,
+          "areaM2": 1.1177933212731201,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:5488",
+          "polygons": 15,
+          "triangles": 44,
+          "areaM2": 101.04165101149212,
+          "triangleCoverageDifferenceM2": 6.497025140106416e-13
+        },
+        {
+          "id": "deck:5624",
+          "polygons": 16,
+          "triangles": 27,
+          "areaM2": 39.09176276174525,
+          "triangleCoverageDifferenceM2": 0.0
+        }
+      ]
+    },
+    {
+      "map": "taiwan",
+      "previousSha256": "0cc7ebdf3379966abacca412049083ac2349434ab1d7a0ac9e413673c0e68a79",
+      "newSha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499",
+      "bytes": 3771682,
+      "bridgeGroups": 30,
+      "onlyBridgeJointGeometryAdded": true,
+      "allHeightsRoadsTopologyAndExistingJsonValuesIdentical": true,
+      "totals": {
+        "sharedVertices": 213,
+        "polygons": 231,
+        "triangles": 466,
+        "fillAreaM2": 765.8457478212019
+      },
+      "minimumRetainedTriangleAreaM2": 6.100775914175127e-06,
+      "bridges": [
+        {
+          "id": "deck:15",
+          "polygons": 3,
+          "triangles": 6,
+          "areaM2": 15.320710982429844,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:96",
+          "polygons": 9,
+          "triangles": 12,
+          "areaM2": 7.857604711994718,
+          "triangleCoverageDifferenceM2": 1.7812418207086012e-12
+        },
+        {
+          "id": "deck:132",
+          "polygons": 5,
+          "triangles": 8,
+          "areaM2": 15.953351562024148,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:204",
+          "polygons": 2,
+          "triangles": 3,
+          "areaM2": 0.8613514553014975,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:249",
+          "polygons": 2,
+          "triangles": 2,
+          "areaM2": 0.13789337203399463,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:282",
+          "polygons": 3,
+          "triangles": 3,
+          "areaM2": 5.38863003624513,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:336",
+          "polygons": 1,
+          "triangles": 1,
+          "areaM2": 0.01201286419593206,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:466",
+          "polygons": 5,
+          "triangles": 5,
+          "areaM2": 2.0628481317779084,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:576",
+          "polygons": 6,
+          "triangles": 16,
+          "areaM2": 36.43422634702256,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:630",
+          "polygons": 6,
+          "triangles": 7,
+          "areaM2": 4.035648162251836,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:668",
+          "polygons": 12,
+          "triangles": 45,
+          "areaM2": 69.05677771667396,
+          "triangleCoverageDifferenceM2": 2.5832859321571302e-11
+        },
+        {
+          "id": "deck:724",
+          "polygons": 4,
+          "triangles": 5,
+          "areaM2": 4.5904970035373776,
+          "triangleCoverageDifferenceM2": 8.059775069568786e-12
+        },
+        {
+          "id": "deck:857",
+          "polygons": 1,
+          "triangles": 1,
+          "areaM2": 0.1197345725336536,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:950",
+          "polygons": 35,
+          "triangles": 67,
+          "areaM2": 131.78346467076554,
+          "triangleCoverageDifferenceM2": 6.300737709352688e-12
+        },
+        {
+          "id": "deck:1099",
+          "polygons": 9,
+          "triangles": 26,
+          "areaM2": 47.807264831221104,
+          "triangleCoverageDifferenceM2": 8.669454043541691e-13
+        },
+        {
+          "id": "deck:1186",
+          "polygons": 1,
+          "triangles": 1,
+          "areaM2": 0.0013714827928996698,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1189",
+          "polygons": 4,
+          "triangles": 5,
+          "areaM2": 1.8417795354677928,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1199",
+          "polygons": 3,
+          "triangles": 17,
+          "areaM2": 58.34071810665068,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1231",
+          "polygons": 2,
+          "triangles": 4,
+          "areaM2": 0.8666674289088405,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1331",
+          "polygons": 3,
+          "triangles": 6,
+          "areaM2": 8.235967051680078,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1390",
+          "polygons": 4,
+          "triangles": 10,
+          "areaM2": 6.289340227547149,
+          "triangleCoverageDifferenceM2": 3.544265575472494e-13
+        },
+        {
+          "id": "deck:1480",
+          "polygons": 2,
+          "triangles": 4,
+          "areaM2": 8.837491212621694,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:1622",
+          "polygons": 8,
+          "triangles": 37,
+          "areaM2": 77.54144061650223,
+          "triangleCoverageDifferenceM2": 6.30148710989431e-12
+        },
+        {
+          "id": "deck:1675",
+          "polygons": 2,
+          "triangles": 3,
+          "areaM2": 6.043826164894843,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2110",
+          "polygons": 2,
+          "triangles": 2,
+          "areaM2": 0.0028623535740811613,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2184",
+          "polygons": 2,
+          "triangles": 2,
+          "areaM2": 0.00443460868362391,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2204",
+          "polygons": 27,
+          "triangles": 55,
+          "areaM2": 102.91029403481903,
+          "triangleCoverageDifferenceM2": 6.2798655164897355e-12
+        },
+        {
+          "id": "deck:2262",
+          "polygons": 60,
+          "triangles": 93,
+          "areaM2": 135.00140568421952,
+          "triangleCoverageDifferenceM2": 0.0
+        },
+        {
+          "id": "deck:2376",
+          "polygons": 4,
+          "triangles": 9,
+          "areaM2": 6.511473073413365,
+          "triangleCoverageDifferenceM2": 1.4763745781465332e-12
+        },
+        {
+          "id": "deck:2411",
+          "polygons": 4,
+          "triangles": 11,
+          "areaM2": 11.994659819416915,
+          "triangleCoverageDifferenceM2": 5.421552096152027e-12
+        }
+      ]
+    }
+  ],
+  "nativeExecutionStatus": "pending_corrected_joint_contract",
+  "checks": [
+    "Every declaration matches >=2 actual referenced segment endpoints; no dangling endpoint declarations.",
+    "Every gap polygon lies inside its own declared shared-vertex halfWidth radius.",
+    "Only gaps: overlap with existing rectangular decks below1e-5m2.",
+    "Original polygon/height/topology unchanged by filtering numerical collinear triangle slivers.",
+    "Clockwise upward triangles have area abs(cross)/2>1e-10m2; exact union coverage differs from polygons below1e-6m2.",
+    "Typed complete JSON comparison proves only bridge.jointGeometry additions versus archived pre-joint maps."
+  ]
+}

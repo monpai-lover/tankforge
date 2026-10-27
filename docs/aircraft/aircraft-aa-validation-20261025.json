@@ -1,0 +1,137 @@
+{
+  "date": "2026-10-25",
+  "scope": "MiG17/F104 camera/optical rendering and legacy offline player ground radar fixes; full mixed mode remains incomplete",
+  "functionalBrowser": {
+    "passed": 14,
+    "failed": 0,
+    "fixturePageSha256": "e0d784492ad0d7163c3f710b82a5c9f43107baa938f5f6bde8c97c3c240eae6f",
+    "core": 212,
+    "browserClosed": true,
+    "checks": {
+      "frozen_inputs_and_bounded_page": true,
+      "actual_public_core_and_models": true,
+      "de_gepard_real_radar_initial_search": true,
+      "de_gepard_plain_R_lock_release": true,
+      "de_gepard_actual_space_R_and_sensor_track": true,
+      "de_gepard_returns_to_search": true,
+      "ru_pantsir_sm_sv_real_radar_initial_search": true,
+      "ru_pantsir_sm_sv_plain_R_lock_release": true,
+      "ru_pantsir_sm_sv_actual_space_R_and_sensor_track": true,
+      "ru_pantsir_sm_sv_returns_to_search": true,
+      "mig17_actual_native_model_and_WASM": true,
+      "mig17_native_full_gear_roundtrip_and_original_movers": true,
+      "f104_actual_cockpit_eye_combiner_and_DOM_gate": true,
+      "runtime_has_no_page_errors": true
+    }
+  },
+  "captures": {
+    "originalPass": false,
+    "succeeded": 4,
+    "attempted": 8,
+    "originalTimeoutsRetained": true,
+    "independentCentrePass": true,
+    "independentCentreSha256": "1a68ff0fb090265d23470fee5b0a90faaf4fa9f63ef755bc22fa069a0f926390",
+    "rootReviewed": [
+      "mig17-gear-half",
+      "mig17-gear-up",
+      "f104-cockpit-side-eye",
+      "f104-cockpit-outside-eye-box",
+      "f104-cockpit-centre"
+    ]
+  },
+  "cpu": {
+    "nativeMig17SourceFramesPassed": 245,
+    "nativeMig17GroundContactMaxMeters": 0.000181,
+    "groundAndAirInputRadarRegressionPassed": 30,
+    "f104CameraHudPassed": 3,
+    "collimatedOpticsPassed": 12,
+    "updaterTransactionPassed": 7,
+    "actualInstalledServerCatalogStartup": {
+      "passed": true,
+      "types": 24
+    },
+    "finalIntegratedNodeRegression": {
+      "passed": 98,
+      "failed": 0,
+      "skipped": 0,
+      "durationMs": 13795.983707,
+      "logSha256": "8c4a82d8c18a1c935d7a5a3d4383d14510d4dbeaa21c5afcadf203bd9598ef12",
+      "source": "Current app, current two repaired native records in tracked gzip chunks and regenerated profiles"
+    }
+  },
+  "limitations": [
+    "Offline ground-radar player path; does not add network ground-AA authority",
+    "Screenshots do not certify GPU/mobile performance or every fleet cockpit",
+    "Retained legacy accepted damage boxes; no formal triangle-contact migration",
+    "F104 seated-eye clearance and optics rendering are measured/model-based approximations, not historical engineering certification"
+  ],
+  "evidence": {
+    "browserResultSha256": "9d56172cfdc5545fb85f895cdcfb1e6ba3f1581adfc836fbfe47db2d46e3f532",
+    "centreResultSha256": "cce809299963eb3dc172e894481f51e8ec2417789b19ba62fa91c6c50d7ce96e"
+  },
+  "deployment": {
+    "status": "deployed_verified",
+    "url": "https://tank.monpai.site/",
+    "processId": 214362,
+    "release": {
+      "version": "20261025-aircraft-aa",
+      "oldPageSha256": "dab19f6528c6fa6ebe97bd4392c49fe785a803005a9ed95875831ae3cbd84577",
+      "oldGzipSha256": "a99769bd2acb1e75107be3c75abeba4f79a521affe13d291c158376391ffd88f",
+      "oldCatalogSha256": "7527098ac182389a9c373c3d991958b2c1f7e9b7c02b73954314c644ea0428e5",
+      "newPageSha256": "b5f58f8083bdad3bf1800b01d28355008a80b8cfa17ecbade15abe628267ab25",
+      "newPageBytes": 384373884,
+      "newGzipSha256": "b75f99998e93f063a9b2784d683300dc93531556a7130d04fa062e054cbf27e8",
+      "newCatalogSha256": "1304af0a8c4a1c5746a658fd43831e759d00af250b345541049180d82a00f49c",
+      "publicAppSha256": "af5d1cee4e7723747adef8e478b5b0cac555149d7cb38748f2fa902e6b1a5090",
+      "flightWasmSha256": "a52a939b991eee2ac7c64f2a3aabb6b5ab7f69142d4bd887e2fc12bc268d1342",
+      "mig17RecordSha256": "e553b9d081f59cfed0fda9e91e900cd5b60bd6ba42b69feb95df82af30a3b6f9",
+      "f104RecordSha256": "f55ed792976a710ae6d306a1f6c601626ca05a7c945cc86bc7032b7468e31b6f",
+      "changes": [
+        "MiG17 native animation/gear/wing pylon ownership/yaw and accepted legacy damage coordinates",
+        "F104 seated eye and cockpit generic DOM aim/nose suppression",
+        "Collimated optics rendering and true angular ring sizing",
+        "Ground radar Space+R acquisition"
+      ],
+      "excluded": "Unfinished combined-mode service/campaign/frontend and its new server binary are not deployed",
+      "functionalBrowserChecksPassed": 14,
+      "browserCaptureStatus": "Original functional14/14; first-run captures4/8 retained; independent F104 centre capture succeeded and reviewed",
+      "updaterSha256": "2f088f6e254a03e63974dc72dafff54e2f2eb5d96fe90d75366b89734c156dfb",
+      "updaterTestsPassed": 7
+    },
+    "externalHttp": {
+      "url": "https://tank.monpai.site/",
+      "servedBytes": 137040024,
+      "servedSha256": "b75f99998e93f063a9b2784d683300dc93531556a7130d04fa062e054cbf27e8",
+      "contentEncoding": "gzip",
+      "expectedSha256": "b75f99998e93f063a9b2784d683300dc93531556a7130d04fa062e054cbf27e8",
+      "seconds": 0.4022553029935807,
+      "matched": true
+    },
+    "reloadReceipt": {
+      "pageSha256": "b5f58f8083bdad3bf1800b01d28355008a80b8cfa17ecbade15abe628267ab25",
+      "catalogSha256": "1304af0a8c4a1c5746a658fd43831e759d00af250b345541049180d82a00f49c",
+      "gzipSha256": "b75f99998e93f063a9b2784d683300dc93531556a7130d04fa062e054cbf27e8",
+      "process": {
+        "pid": 214362,
+        "startTicks": "82721834"
+      }
+    },
+    "backups": [
+      "/opt/tankforge/client/web/dist/tankforge-range.html.bak-20261025031842-214007",
+      "/opt/tankforge/client/web/dist/tankforge-range.html.gz.bak-20261025031842-214007",
+      "/opt/tankforge/data/aircraft/aircraft.json.bak-20261025031842-214007"
+    ],
+    "desktopUpdaters": [
+      "/home/boyang/Desktop/TankForge_update_20261024.sh",
+      "/home/boyang/Desktop/TankForge_update_20261025.sh"
+    ],
+    "packageManifestSha256": "3da6e8956556d2b8f90a13346d6097146177bb4718d245708892b1915a88c001"
+  },
+  "localBundle": {
+    "dataBytes": 381615123,
+    "dataSha256": "73a55fd1a23068a6a517d2643a4f9b5d978107a90b26bce218fbee7ed114ef18",
+    "verification": "bundle-data-update-20261025.json",
+    "profileSha256": "4c3c2cf3056025ef97582053837e325abf5e5697a20353a983cb957a9acc3306",
+    "appSha256": "cd71c0d7df6067ee37889891e3c5e781139427fdf7cad925862826d11660d855"
+  }
+}

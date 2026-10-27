@@ -102,5 +102,25 @@
   "warhead": "heat_152_kornet",
   "guidance_lag_s": 0.2,
   "smoke": 1.2
+ },
+ {
+  "id": "pantsir_sam_saclos_est",
+  "name": "Pantsir SAM — SACLOS gameplay substitute",
+  "guidance": "saclos",
+  "mass_kg": 75,
+  "caliber_mm": 170,
+  "length_m": 3.2,
+  "span_m": 0.55,
+  "launch_speed_ms": 45,
+  "max_speed_ms": 1100,
+  "boost_s": 2.0,
+  "burn_s": 5.0,
+  "drag_k": 0.0003,
+  "max_range_m": 12000,
+  "min_range_m": 200,
+  "turn_accel_ms2": 180,
+  "hp": 30,
+  "warhead": "pantsir_sam_warhead_est",
+  "smoke": 0.8
  }
 ]

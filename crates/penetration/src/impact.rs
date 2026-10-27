@@ -118,11 +118,15 @@ pub enum CapState {
 #[serde(rename_all = "snake_case")]
 pub enum FuseState {
     Unarmed,
+    Armed,
+    Detonated,
+    Failed,
     UnresolvedLegacy,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum ChargeDisposition {
+    Contained,
     PendingP3,
     Released,
     Failed,

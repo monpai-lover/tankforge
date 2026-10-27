@@ -12,6 +12,9 @@ tg-weapon.workspace = true
 tg-armor.workspace = true
 tg-missile.workspace = true
 tg-gameplay.workspace = true
+tg-physics.workspace = true
+tg-vehicle.workspace = true
+wasmi = { version = "=2.0.0", default-features = false, features = ["std", "validate", "auto-dispatch"] }
 
 [dev-dependencies]
 sha2.workspace = true

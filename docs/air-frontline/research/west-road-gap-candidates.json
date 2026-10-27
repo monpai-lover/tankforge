@@ -1,0 +1,185 @@
+{
+  "purpose": "Find explicitly authored connection candidates between disconnected source components; not proof of a missing real bridge or a drivable path",
+  "candidates": [
+    {
+      "score": 1251.253944387487,
+      "gapMeters": 914.32,
+      "aNode": 4031984168,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.8310255,
+        38.0150115
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4211.69
+    },
+    {
+      "score": 1284.3275315117994,
+      "gapMeters": 947.29,
+      "aNode": 12069601596,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.83133010000002,
+        38.014830100000005
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4213.0
+    },
+    {
+      "score": 1285.758405649386,
+      "gapMeters": 948.71,
+      "aNode": 2651821611,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.83134330000001,
+        38.01482229999999
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4213.06
+    },
+    {
+      "score": 1303.97492449415,
+      "gapMeters": 966.66,
+      "aNode": 4031984128,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.8314815,
+        38.0146818
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4216.41
+    },
+    {
+      "score": 1320.960435899953,
+      "gapMeters": 983.18,
+      "aNode": 4031984179,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.83157800000001,
+        38.0145085
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4222.29
+    },
+    {
+      "score": 1340.0377391177863,
+      "gapMeters": 1001.3,
+      "aNode": 4031984140,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.8316209,
+        38.01423379999999
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4234.22
+    },
+    {
+      "score": 1346.5993846066176,
+      "gapMeters": 1002.46,
+      "aNode": 4031984138,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.83077870000001,
+        38.0132153
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4301.75
+    },
+    {
+      "score": 1352.2994727586258,
+      "gapMeters": 1009.46,
+      "aNode": 4031981948,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.83106840000002,
+        38.013418099999996
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4285.47
+    },
+    {
+      "score": 1362.5815618186712,
+      "gapMeters": 1022.58,
+      "aNode": 4031981960,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.83164240000002,
+        38.01388729999999
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4250.04
+    },
+    {
+      "score": 1362.81820253545,
+      "gapMeters": 1021.2,
+      "aNode": 4031984137,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.8313795,
+        38.0135872
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4270.28
+    },
+    {
+      "score": 1373.6623217378701,
+      "gapMeters": 1027.62,
+      "aNode": 4031984109,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.8306822,
+        38.01275880000001
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4325.5
+    },
+    {
+      "score": 1377.1600952441252,
+      "gapMeters": 1036.71,
+      "aNode": 4031981935,
+      "bNode": 2652412766,
+      "aLonLat": [
+        126.8317121,
+        38.013735100000005
+      ],
+      "bLonLat": [
+        126.821728,
+        38.018718799999995
+      ],
+      "distanceToOriginalBattleAreaMeters": 4255.61
+    }
+  ]
+}

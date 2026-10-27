@@ -1,0 +1,273 @@
+{
+  "resolved": [
+    {
+      "legacyShell": "bullet:mg34",
+      "sourceShell": "bullet_mg34",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "hefi_20_sprgr",
+      "sourceShell": "hefi_20_sprgr",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "apt_20_pzgr39",
+      "sourceShell": "apt_20_pzgr39",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "bullet:m61a1",
+      "sourceShell": "hei_20_m56",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "bullet:an_m2",
+      "sourceShell": "bullet_an_m2",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "bullet:mg131",
+      "sourceShell": "bullet_mg131",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "hei_20_hispano",
+      "sourceShell": "hei_20_hispano",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "hei_23_ofz",
+      "sourceShell": "hei_23_ofz",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "api_23_bza",
+      "sourceShell": "api_23_bza",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "he_37_n37",
+      "sourceShell": "he_37_n37",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "bullet:m3_50",
+      "sourceShell": "bullet_m3_50",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "he_30_nr30",
+      "sourceShell": "he_30_nr30",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "bullet:ubs_127",
+      "sourceShell": "bullet_ubs_127",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "hei_20_shvak",
+      "sourceShell": "hei_20_shvak",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "bullet:type97_77",
+      "sourceShell": "bullet_type97_77",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "he_20_type99",
+      "sourceShell": "he_20_type99",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "he_30_mk108",
+      "sourceShell": "he_30_mk108",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "he_30_aden",
+      "sourceShell": "he_30_aden",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "apt_30_pzgr",
+      "sourceShell": "apt_30_pzgr",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "he_30_defa",
+      "sourceShell": "he_30_defa",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "hei_30_gsh301",
+      "sourceShell": "hei_30_gsh301",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "api_30_pgu14",
+      "sourceShell": "api_30_pgu14",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "hei_30_pgu13",
+      "sourceShell": "hei_30_pgu13",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    },
+    {
+      "legacyShell": "ap_50_mk214a",
+      "sourceShell": "ap_50_mk214a",
+      "fields": [
+        "kind",
+        "fuse_delay_s",
+        "fuse_sensitivity_mm",
+        "explosive_mass_kg",
+        "explosive_type"
+      ]
+    }
+  ],
+  "unverified": [],
+  "invariant": "existing filler_kg TNT equivalent, incendiary flag, physical values and aircraft definitions preserved",
+  "inputSha256": "c305303787c7a14a098b02270d17c46429bfa463c8cf6412910df2a142a5fbbc",
+  "sourceSha256": "f47cf31ee6cbcd2aee3264761582bf3f7a2e787d00b67450995c87d08a696ebe",
+  "outputSha256": "ef1bf83c19a94b28686704313fdbaa7f7f5aff46bbc44ee8cd6157e7d3b2b064"
+}

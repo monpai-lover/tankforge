@@ -1,0 +1,2001 @@
+{
+  "schema": "TankForgeHitboxCoverageStatusV1",
+  "date": "2026-10-26",
+  "status": "candidate_verified_not_remote_deployed",
+  "scope": "Ballistic contact and resistance disclosure; not vehicle-to-world rigid-body collision or an assertion of every selected actor currently being registered.",
+  "baseline": {
+    "html": "intake/tank-monpai-root-20261025-identity.html",
+    "htmlSha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f",
+    "scriptSha256": "86b54c4941e17204a98be9b1bceb16e6fea1960608f6d60cc925c04a8c6b6872",
+    "originalEmbeddedVehicleCount": 46,
+    "runtimeAddedOfflineAlias": "ad_chaparral"
+  },
+  "counts": {
+    "runtimeBuiltinSelectableSpecs": 47,
+    "defaultGarageCards": 32,
+    "families": 9,
+    "nonDefaultFamilyVariants": 15,
+    "containsImportedModelGeometry": 18,
+    "beforeCandidateRegisteredPacketSpecs": 24,
+    "afterCandidateRegisteredPacketSpecs": 26,
+    "afterCandidateLegacyTriangleArmorSpecs": 1,
+    "afterCandidateLegacyPlateBoxBuiltinSpecs": 20,
+    "nativeVehicleDataFolders": 47,
+    "nativeFolderNotInActiveGarage": [
+      "fun_hexa"
+    ],
+    "activeAliasNotInNativeFolders": [
+      "ad_chaparral"
+    ],
+    "diagnosticBuildGeometryRoster": 44
+  },
+  "runtimePolicy": {
+    "unchangedCompatibilityNormalizer": "normalizeSurfacePacket -> declareUnauditedSurfaces -> plateBinder",
+    "geometricPositionPayloadsChanged": false,
+    "resistanceMetadataRewritten": true,
+    "rules": {
+      "planeDistanceM": 0.12,
+      "outlineExtensionM": 0.25,
+      "facingCosAbsMinimum": 0.8,
+      "dominantDeclaredAreaRatio": 0.6,
+      "unboundUnknownOutcome": "decoration / no_authored_armor"
+    },
+    "manifestAndCatalogHashesRecomputed": true,
+    "sourceTrustedBarrelVariantsDroppedOnRewrite": true,
+    "rawUnknownPolicy": "When retained unsupported in the raw core catalog, unsupported_surface_resistance is explicit; this is not the default normalized-runtime policy.",
+    "rawTypicalShotRegressionProven": false,
+    "reasonForCompatibilityChoice": "Preserve baseline material semantics while making geometric-contact/fold repair; broad raw semantic migration and historical armor authoring are outside this verified patch."
+  },
+  "candidate": {
+    "helper": "handoff/tools/patch_foldable_surface_packets.py",
+    "helperSha256": "061143c77a70760936efbd7760f243af2d4055661616050e125b47ca963db14d",
+    "sourcePackets": "handoff/qa/foldable-surface-packets-20261026.json",
+    "sourcePacketsSha256": "dea898a162c0fe83290d70322c9c6de0e9d378bcf9c7917ae207f2c08d77aae1",
+    "test": "handoff/tests/foldable-surface-packets.test.mjs",
+    "testSha256": "1d84eaaba79da6b17cb826b17964d0397b4b9e5c85f6a2a600632ce56fb342d2",
+    "fixture": "handoff/tests/fixtures/foldable-surface-stock-vehicles-20261026.json",
+    "fixtureSha256": "1d295773cb69bcee548fa23f2f0e6e2224f6715ea725001ba79399c60545d3fb",
+    "testsPassed": 10,
+    "testLog": "intake/foldable-surfaces-green-20261026.log",
+    "testLogSha256": "2c165d50bfb03e5f6180121170d4accced415f6c69ff6d240d63a4fc0caeca96",
+    "repairs": [
+      "Boot intake of exactly two hash-pinned source packets; exact live stock source-object ownership.",
+      "Restore rest engineering immediately before first actor registration, including a saved mid/open fold.",
+      "Keep registered engineering at rest through _definition/prepare/fresh while actual mesh instance poses move panels.",
+      "Preserve legacy folding after actor retirement and for workshop/source copies."
+    ],
+    "notClaimed": [
+      "No native-frontline triangle-scene migration.",
+      "No fully authored/historically verified armor resistance.",
+      "No activation of the two raw physical barrel-collision variants under current normalizer.",
+      "No remote deployment or visual/GPU/performance acceptance inferred from Node tests."
+    ],
+    "stagedVerifiedHelperSha256": "06ada046e9003b2fc4c0b1ace35e9c2d356ec8c3f1f0a95585dac4c97ed62103",
+    "appSha256": "8305c62f4c858dbb5fb5ae69e9fd59eb5424243e3c43be68b775df568e076937",
+    "stagedVerifiedAppSha256": "b423f2aa6cf873c3d90067bb48349e2b8c4e61afc9c26e90534e47ad3848dc82",
+    "integrationReview": {
+      "file": "docs/provenance-recovery-20261026/foldable-surface-integration-independent-review-20261026.json",
+      "sha256": "1d49b9a4f983d7a0e206b9061f870563ff4df3262dee282410a18a33b266c416",
+      "scope": "Only relocate boot packet installation after unchanged adjacent core overlays. All other app bytes match staged reviewed candidate."
+    },
+    "integratedRegressionRun": {
+      "receipt": "target-air-frontline-final-node-scope-20261026.json",
+      "receiptSha256": "c553e24f1c9d617af3ac0c88fe9a9a65bef6e55e8c8eaa1d093ae95414dee073",
+      "log": "target-air-frontline-final-node-20261026.log",
+      "logSha256": "f000c1a3b37ddcb9121865cb85ff14ef0238cc45c9a3cdf3dbbbc46b7a8d390b",
+      "passed": 501,
+      "failed": 0,
+      "includesFoldableSurfaceTests": 10,
+      "includesNativeReturnTests": 6,
+      "notRun": [
+        {
+          "reason": "Pinned original core212-before-gear.wasm fixture omitted; unchanged historical test",
+          "file": "flight_gear_sequence.test.mjs"
+        },
+        {
+          "reason": "ffmpeg unavailable; unchanged historical audio test and MP3",
+          "file": "me262-u4-audio.test.mjs"
+        }
+      ],
+      "appAndProfileUnchanged": true
+    },
+    "previousIntegratedAppSha256": "160f0fce113d93bc33f666bcd7b174704f4837943eafc6a9b50b39ce676e87b2",
+    "additionalGameplayChanges": [
+      "Accepted Return controls the garage transition; rejection preserves flight.",
+      "Delayed map catalog preserves Taiwan or an explicit user map selection.",
+      "Only real button.air-lo[data-lo] loadout buttons are handled by the loadout delegate; birth buttons preserve loadout.",
+      "Control epoch and intent sequence ownership reset at room/battle boundaries; orphan controls are ignored and same-battle checks remain.",
+      "Server rejection errors are visible in the original garage."
+    ],
+    "historyNote": "Intermediate input receipts remain preserved in the task workspace; integratedRegressionRun describes the delivered input."
+  },
+  "proceduralRemainingMissingBindings": [
+    {
+      "specId": "us_m901_itv",
+      "diagnosticManifestHash": "648116afd3d80be2e6e0d32af2e7d30eb0785e84062cd93ad75384829c4e8592",
+      "diagnosticTriangles": 74115,
+      "allDiagnosticSurfaceRoles": [
+        "audit_pending"
+      ],
+      "reviewedBindingIndexEntry": false,
+      "missing": [
+        "No HitBindingCatalogV1 admission entry or reviewedFleetSource constructor policy.",
+        "No accepted-anatomy/targetRegistrationHash-backed per-surface armor declarations for this diagnostic geometry."
+      ],
+      "retainedModuleIds": [
+        "engine",
+        "transmission",
+        "fuel_tank",
+        "missile_rack_l",
+        "missile_rack_r",
+        "launcher",
+        "tubes",
+        "launcher_drive",
+        "radio",
+        "track_l",
+        "track_r"
+      ]
+    },
+    {
+      "specId": "proto_a",
+      "diagnosticManifestHash": "f3521e67ab88fb4c11ed6bc7dbf1864c7fa244fae50fe3bdfd14cf46f876be4d",
+      "diagnosticTriangles": 70583,
+      "allDiagnosticSurfaceRoles": [
+        "audit_pending"
+      ],
+      "reviewedBindingIndexEntry": false,
+      "missing": [
+        "reviewedFleetSource explicitly incomplete_unadmitted; faceRules is empty.",
+        "Generic hand-written armor has no reviewed correspondence to fictional hull/turret constructors.",
+        "No track_l/track_r anatomy module IDs; authored wheelIds are [null,null]."
+      ],
+      "retainedModuleIds": [
+        "breech",
+        "gun_barrel",
+        "ammo_rack_l",
+        "turret_drive",
+        "engine",
+        "transmission",
+        "fuel_tank"
+      ]
+    }
+  ],
+  "newFoldableRawCoverage": {
+    "de_flakpz38t": {
+      "manifestHash": "fa4e5b85ff9800962a06cda53013eaa1788912472d04205a73b5b3ad797b0695",
+      "catalogHash": "78331426af2fcd023c7983fa67f1c05609e6f7917367b0123213058047e255fd",
+      "audit": {
+        "ambiguousTriangles": 0,
+        "declaredTriangles": 96083,
+        "historicalArmorCertification": false,
+        "physicalTriangles": 100835,
+        "status": "reviewed_subset",
+        "unknownTriangles": 4752
+      },
+      "unsupportedDeclarations": 198
+    },
+    "de_rso_pak40": {
+      "manifestHash": "f24a5c04d02ded1a125b9efb43f50e34c9baf470b47fe5c6fa45676c4eae0ed4",
+      "catalogHash": "28231e5b0f2bec7a56849620049433048c4bc835d5c90592412013b3213c24dd",
+      "audit": {
+        "ambiguousTriangles": 0,
+        "declaredTriangles": 57411,
+        "historicalArmorCertification": false,
+        "physicalTriangles": 60947,
+        "status": "reviewed_subset",
+        "unknownTriangles": 3536
+      },
+      "unsupportedDeclarations": 89
+    }
+  },
+  "workshopAndDesigns": {
+    "custom": "Rendered custom chassis/weapons and stored design:<id> objects have no stock surfaceCatalog admission; inspector MeshHitbox triangles do not grant authoritative exact damage.",
+    "fun_hexa": "Native source-folder workshop example; absent from captured data.order and data.vehicles; not a stock garage row.",
+    "geometryIndexWorkshopExamples": [
+      "workshop_xp_bmp_k64_atgm_keep",
+      "workshop_xp_bmp_k64_atgm_replace",
+      "workshop_su_t10m_oplot23_keep"
+    ],
+    "indexEvidenceScope": "44 stock captures plus workshop captures are authoring/diagnostic artifacts, not proof of active packet admission."
+  },
+  "aircraft": {
+    "nativeContact": "accepted_aircraft_skin_and_part_boxes",
+    "fullRenderedTriangleHitbox": false,
+    "armorMultiplierIsThicknessMm": false,
+    "displayModelUpgradeDoesNotImplyAuthorityHitboxUpgrade": true
+  },
+  "rows": [
+    {
+      "specId": "de_pz3_j",
+      "name": "Pz.Kpfw. III Ausf. J (L/60)",
+      "garageCardId": "de_pz3_j",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 89672,
+        "unclassifiedTriangles": 3372,
+        "unclassifiedPercent": 3.76,
+        "declaredTriangles": 86300,
+        "instances": 282,
+        "unknownDeclarations": 355,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "7a89eb4fa9de75dc803b633b9a9ab241ed1780d9298ad583e69a2a8c53d2c83b"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "b3dc12a45285f9cf95928dcee67b532f43d7e28f50e17e114b9d1d053f70fe91",
+        "triangles": 89672,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 1,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_pz4_h",
+      "name": "Pz.Kpfw. IV Ausf. H",
+      "garageCardId": "de_pz4_h",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 88936,
+        "unclassifiedTriangles": 3454,
+        "unclassifiedPercent": 3.88,
+        "declaredTriangles": 85482,
+        "instances": 319,
+        "unknownDeclarations": 490,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "36f2c61c8dde4e82edca248fbb466bec6155348318615a16024028979889146c"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "97335c40896b58e8f8939104374f1916141cbef530ef9006012e9a19631e796e",
+        "triangles": 88936,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_tiger_e",
+      "name": "Tiger I (Pz.Kpfw. VI Ausf. E)",
+      "garageCardId": "de_tiger_e",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 92828,
+        "unclassifiedTriangles": 3307,
+        "unclassifiedPercent": 3.56,
+        "declaredTriangles": 89521,
+        "instances": 312,
+        "unknownDeclarations": 425,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "f79576c30bfa5a277368e868e7c8558dafb17e1a3adc4b780a71e33ea0c7e4d5"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "0cd81a7b49d966acead110ca69daa15d08a31ea3001ec9c9cb059ad9e7883383",
+        "triangles": 92828,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 0,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_panther_g",
+      "name": "Panther Ausf. G",
+      "garageCardId": "de_panther_g",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 98888,
+        "unclassifiedTriangles": 4254,
+        "unclassifiedPercent": 4.3,
+        "declaredTriangles": 94634,
+        "instances": 298,
+        "unknownDeclarations": 77,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "03b084c9c86ab93bb8c12a92b3315ba1e7f515a59d61e74ddc72c2bcb1edfb03"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "d473d01204ecb9dc2160946308c61349f52ef5a35060c8815b18dc5d04cf7dff",
+        "triangles": 98888,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 2,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_panther_f",
+      "name": "Panther Ausf. F",
+      "garageCardId": "de_panther_g",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 98404,
+        "unclassifiedTriangles": 4202,
+        "unclassifiedPercent": 4.27,
+        "declaredTriangles": 94202,
+        "instances": 298,
+        "unknownDeclarations": 77,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "fda32cfbd3cacf439c2ca394389b3786910d83480c27a42cabf0f06390f37fb4"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "87c1fd2b7a338a4962f960551a1925ea7c8deb9accdaa3aba99d2976a8539934",
+        "triangles": 98332,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 2,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_vk3002_db",
+      "name": "VK 30.02 (DB)",
+      "garageCardId": "de_vk3002_db",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "VK 30.02 (DB): the user's own model (VK3002_DB_armor_v1_4.html, visual geometry v1.3 with v1.4 armour metadata), used with the user's permission",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      }
+    },
+    {
+      "specId": "de_sdkfz234_2",
+      "name": "Sd.Kfz. 234/2 Puma",
+      "garageCardId": "de_sdkfz234_2",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 66791,
+        "unclassifiedTriangles": 846,
+        "unclassifiedPercent": 1.27,
+        "declaredTriangles": 65945,
+        "instances": 29,
+        "unknownDeclarations": 58,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "5adf07bf4e27af7e07c205c195ded40bb431830104670150e757b60cf364ffcd"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "5abb01df55c57ac003b9120b3fe67cdcd5fdf6998448303cf53cc32c47655164",
+        "triangles": 66791,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 1,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "su_t34_1940",
+      "name": "T-34 (1940)",
+      "garageCardId": "su_t34_85",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 62455,
+        "unclassifiedTriangles": 4392,
+        "unclassifiedPercent": 7.03,
+        "declaredTriangles": 58063,
+        "instances": 216,
+        "unknownDeclarations": 1593,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "e0fa7a25920500132553a692d1aa241bf628d2a09fc381dcc7b24e1dfc42525a"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "93b1afdbfedc8e78f3f8d8d232096a4565df60bb4f45f6f2c4227dba58bfba88",
+        "triangles": 62455,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "su_t34_85",
+      "name": "T-34-85",
+      "garageCardId": "su_t34_85",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 77068,
+        "unclassifiedTriangles": 5440,
+        "unclassifiedPercent": 7.06,
+        "declaredTriangles": 71628,
+        "instances": 217,
+        "unknownDeclarations": 2283,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "f4bb4f46804d815d91c4985b2604875de5315d34b98e9c225ae4f8ef84248514"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "9c4e560a33a02705d165a98911443c39039eda105b605a658c4e46103f845600",
+        "triangles": 77068,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "su_is2",
+      "name": "IS-2 (1944)",
+      "garageCardId": "su_is2",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 94567,
+        "unclassifiedTriangles": 29470,
+        "unclassifiedPercent": 31.16,
+        "declaredTriangles": 65097,
+        "instances": 266,
+        "unknownDeclarations": 76,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "17885771210337bec743cd3cf1d41c527eed3b05ccdb1667c7ee3994723fa6e7"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "39617a5e59761dac3cb24e728e4613e831271f96c42876c7d1ca158a86d0aaf7",
+        "triangles": 94567,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "su_t10m",
+      "name": "T-10M (Oplot-MO)",
+      "garageCardId": "su_t10m",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Oplot-MO module: the user's own model (Oplot_MO_Vehicle_Module.glb), used unchanged with the user's permission",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "69323d422f34ab9a99d451b3b93573d446e41b12c084c61b370890c51d7a1a53",
+        "triangles": 272099,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "su_t10m_oplot23",
+      "name": "T-10M (Oplot23 · hypothetical custom)",
+      "garageCardId": "su_t10m",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Oplot-MO module: the user's own model (Oplot_MO_Vehicle_Module.glb), used unchanged with the user's permission",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "d7475ad6615b893e07cc71f5083ba101f5f6bb469c1227e28f4a47c87f84b08d",
+        "triangles": 141951,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "su_bmpt34",
+      "name": "BMPT-34 (1943)",
+      "garageCardId": "su_t34_85",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "BMPT-34 War Thunder CDK user mod by TunderTunder (bmpt34.grp), decoded with tools/dagor_grp.py",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "c603c880aaf716a182078b785df1efc98091c8915e607339aeceec21b49b16ae",
+        "triangles": 320463,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "su_t54",
+      "name": "T-54 (1951)",
+      "garageCardId": "su_t54",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 91507,
+        "unclassifiedTriangles": 30192,
+        "unclassifiedPercent": 32.99,
+        "declaredTriangles": 61315,
+        "instances": 253,
+        "unknownDeclarations": 207,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "78df96b2ecd3cda54405685271c3a4370921f35069e917cfb4132064c4e720cb"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "9fd147d7f6288a3a84061b2f71f12ca02c4611c7a42fd9a041fbf08e75126b5e",
+        "triangles": 91507,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 5,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "su_t72a",
+      "name": "T-72A (1979)",
+      "garageCardId": "su_t72a",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 73290,
+        "unclassifiedTriangles": 256,
+        "unclassifiedPercent": 0.35,
+        "declaredTriangles": 73034,
+        "instances": 291,
+        "unknownDeclarations": 1,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "57cf34dd8f1694e59acef7e3cbf4ae77e5624c919cf89095aa680229e0cff5fe"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "918e19380678920ebd78c86a247052910a3614fd19386c557938dc7a9007daa7",
+        "triangles": 73290,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 0,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m8",
+      "name": "M8 Greyhound",
+      "garageCardId": "us_m8",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 69652,
+        "unclassifiedTriangles": 6379,
+        "unclassifiedPercent": 9.16,
+        "declaredTriangles": 63273,
+        "instances": 31,
+        "unknownDeclarations": 172,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "51c7eac04d583ae67d1f1ce971ae017d743eca1f92a2fd23d1c8e9ab34593da2"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "9b4006543fb715710b64312396d9567ef9d34186df8487cade0c2c2a2552e102",
+        "triangles": 69652,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 6,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m10",
+      "name": "M10 GMC",
+      "garageCardId": "us_m10",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 87285,
+        "unclassifiedTriangles": 6855,
+        "unclassifiedPercent": 7.85,
+        "declaredTriangles": 80430,
+        "instances": 254,
+        "unknownDeclarations": 97,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "513ccd19984471a2bf5d6267f962aa1f92d78c8a650234e70b8eec727bd84764"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "b6de5210e9e4d2345ddde9fd8d5f339999d6e6286e7b07ba2d2b1bc528268d43",
+        "triangles": 87285,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 4,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m4a2",
+      "name": "M4A2",
+      "garageCardId": "us_m4a2",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 89729,
+        "unclassifiedTriangles": 9111,
+        "unclassifiedPercent": 10.15,
+        "declaredTriangles": 80618,
+        "instances": 257,
+        "unknownDeclarations": 225,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "287ee1e9ae825d9b4a7516114c083479010130f87fa44fcad1e32fff37af5d60"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "f5532540ee38054df38a7dc5ccbe0207f3b1a9c878cc69bafe684e982271a6a3",
+        "triangles": 89729,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 4,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m4a3_75w",
+      "name": "M4A3(75)W",
+      "garageCardId": "us_m4a3_75w",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 89093,
+        "unclassifiedTriangles": 8475,
+        "unclassifiedPercent": 9.51,
+        "declaredTriangles": 80618,
+        "instances": 257,
+        "unknownDeclarations": 182,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "bf9118bca6e7f5e4765293367a1955bb25ac904868484a8b6926eb6a59500240"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "b64feb7955773b4ea85a55b6b567c4f097f19e3de753564332d09e29840f5aa6",
+        "triangles": 89093,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 4,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m4a1_76w",
+      "name": "M4A1(76)W",
+      "garageCardId": "us_m4a1_76w",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 89581,
+        "unclassifiedTriangles": 9251,
+        "unclassifiedPercent": 10.33,
+        "declaredTriangles": 80330,
+        "instances": 257,
+        "unknownDeclarations": 138,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "bbca284b64711cd84b72c60a05822c62714a0670df894f389d36b5f7d4c1fa30"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "39b2ede00cc2fb26de84ad6f9e6cb7e2170d52f46ea8ee5ee2f7c1bdc496dc32",
+        "triangles": 89581,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 6,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m4a3_76w_hvss",
+      "name": "M4A3(76)W HVSS",
+      "garageCardId": "us_m4a3_75w",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 99737,
+        "unclassifiedTriangles": 9027,
+        "unclassifiedPercent": 9.05,
+        "declaredTriangles": 90710,
+        "instances": 281,
+        "unknownDeclarations": 189,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "945367dd6c63b8823b74c802d0a94e7317baea4d6a954b2a02c820af2ce8151b"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "660848fc323d0bc70ad6952224f0e034da654b613cb20bf8f43a85d03a621ed7",
+        "triangles": 99737,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 4,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "us_m56",
+      "name": "M56 Scorpion",
+      "garageCardId": "us_m56",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "M56 Scorpion (War Thunder) by KojfDiscord, CC BY 4.0, https://sketchfab.com/3d-models/m56-scorpion-war-thunder-2fbe0195de5c4ae19529c7978f433941",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "2e4aed3a8024b999516597cc34e8075b5f38721c359e81ce61e829dd2f35ce82",
+        "triangles": 183879,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "us_m901_itv",
+      "name": "M901 ITV（M113 TOW）",
+      "garageCardId": "us_m901_itv",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "648116afd3d80be2e6e0d32af2e7d30eb0785e84062cd93ad75384829c4e8592",
+        "triangles": 74115,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "ad_chaparral",
+      "name": "MIM-72A 小檞樹（M901 車體）",
+      "garageCardId": "us_m901_itv",
+      "entry": "offline_builtin_alias",
+      "embeddedStock": false,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": false,
+        "contactLane": "not_a_native_spec",
+        "frontlineAdmission": "offline_only_alias",
+        "registeredRenderedTriangleScene": false
+      }
+    },
+    {
+      "specId": "uk_cromwell_iv",
+      "name": "Cromwell Mk IV",
+      "garageCardId": "uk_cromwell_iv",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 80040,
+        "unclassifiedTriangles": 3560,
+        "unclassifiedPercent": 4.45,
+        "declaredTriangles": 76480,
+        "instances": 339,
+        "unknownDeclarations": 89,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "d6745830b7a935b1f308bab5f72c14d1900618c79ede8f3b5adabed0f1efde79"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "1a28dcc7be1720383ef5b617ec94a4492ee4edfc0164e754a0a8cd8a3cb05a79",
+        "triangles": 80040,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 2,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "xp_kda35",
+      "name": "35 mm 輪式試驗車",
+      "garageCardId": "xp_kda35",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "35 mm Oerlikon KDA barrel and the nose of its housing taken from 'Flakpanzer Gepard | High-Quality model' by Scout (https://sketchfab.com/scout.), CC-BY-4.0, https://sketchfab.com/3d-models/flakpanzer-gepard-high-quality-model-43746c9ec4a64f8d9a30db81b82843bd",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "ade4d54cf4ee27640a5c4c1ffd3c267591984fdc69fed0c397c81e7b09e20570",
+        "triangles": 66073,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "xp_w78",
+      "name": "78 mm 輪式試驗車",
+      "garageCardId": "xp_kda35",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 64895,
+        "unclassifiedTriangles": 4148,
+        "unclassifiedPercent": 6.39,
+        "declaredTriangles": 60747,
+        "instances": 23,
+        "unknownDeclarations": 383,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "f633802fd10927ea043c06f930576833222fd35449bf43c7f8979181f78c5fee"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "ab9142e55168743d0c1068eb3912c6663102dc1ee2d9a82d6c24437e45857aa9",
+        "triangles": 64895,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_pzjg1",
+      "name": "Panzerjäger I",
+      "garageCardId": "de_pzjg1",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 55022,
+        "unclassifiedTriangles": 3612,
+        "unclassifiedPercent": 6.56,
+        "declaredTriangles": 51410,
+        "instances": 286,
+        "unknownDeclarations": 139,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "e80eaea8734bbfa4e0e1f54f324976a18d6902690c9e9800056bffb0393a605a"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "9dc528023e08270e67b7d40491839977f82e2568dd486930ca086bee3542deae",
+        "triangles": 55406,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 5,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_flakpz38t",
+      "name": "Flakpanzer 38(t)",
+      "garageCardId": "de_flakpz38t",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "sourceManifest": "fa4e5b85ff9800962a06cda53013eaa1788912472d04205a73b5b3ad797b0695",
+        "catalogHash": "78331426af2fcd023c7983fa67f1c05609e6f7917367b0123213058047e255fd",
+        "triangles": 100835,
+        "unclassifiedTriangles": 4752,
+        "unknownDeclarations": 198,
+        "renderPositionDifferences": 0,
+        "sourceBarrelVariants": 1,
+        "runtimeBarrelVariantsActivated": false,
+        "scope": "Actual bundled renderer word equality and live original vehicle values verified by real registration tests; normalization preserves all payloads and vertex counts."
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "f4bbb1ca49d0b745dfd3d787f8366364a8dc94699c1b939d1e527d867e296bc5",
+        "triangles": 101219,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_hetzer",
+      "name": "Jagdpanzer 38(t) Hetzer",
+      "garageCardId": "de_hetzer",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 69131,
+        "unclassifiedTriangles": 6180,
+        "unclassifiedPercent": 8.94,
+        "declaredTriangles": 62951,
+        "instances": 262,
+        "unknownDeclarations": 223,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "c311b483cf1f418522a26efbfde71d5b08d76ca88d4442f0b7754fb2bbb79869"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "8d01e2d8459263a1d5d4c88f496d5e7cd8eca715f589cd13d535c1ef74aebd4f",
+        "triangles": 69515,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 0,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_hetzer_flak",
+      "name": "Hetzer 2 cm FlaK",
+      "garageCardId": "de_hetzer",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 74343,
+        "unclassifiedTriangles": 3932,
+        "unclassifiedPercent": 5.29,
+        "declaredTriangles": 70411,
+        "instances": 259,
+        "unknownDeclarations": 126,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "8bfb4ea735c5d7a1aa157bfe4e0e68b9fcf3de892a2fc896c9de8b80b30f3fe0"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "8dd8381686c18e0f4305478451d372f7f2fe3740020545a0d512d6d8649fbf45",
+        "triangles": 74727,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 1,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_rso_flak",
+      "name": "RSO 2 cm FlaK 38",
+      "garageCardId": "de_rso_flak",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 91899,
+        "unclassifiedTriangles": 4176,
+        "unclassifiedPercent": 4.54,
+        "declaredTriangles": 87723,
+        "instances": 179,
+        "unknownDeclarations": 101,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "3657a71b0ada694f2000a400a438a49ea7b8ac889cfc8606c5749d69777928b2"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "0642933126df0b6027936cf3761da0a97bb0f5dbcd47c45efd0193466bdb0ae3",
+        "triangles": 92283,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_rso_pak40",
+      "name": "RSO PaK 40",
+      "garageCardId": "de_rso_flak",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "sourceManifest": "f24a5c04d02ded1a125b9efb43f50e34c9baf470b47fe5c6fa45676c4eae0ed4",
+        "catalogHash": "28231e5b0f2bec7a56849620049433048c4bc835d5c90592412013b3213c24dd",
+        "triangles": 60947,
+        "unclassifiedTriangles": 3536,
+        "unknownDeclarations": 89,
+        "renderPositionDifferences": 0,
+        "sourceBarrelVariants": 1,
+        "runtimeBarrelVariantsActivated": false,
+        "scope": "Actual bundled renderer word equality and live original vehicle values verified by real registration tests; normalization preserves all payloads and vertex counts."
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "d098add25689f606ca931fbceeaf7d5a014030b494e9213e7ca119048c3253e9",
+        "triangles": 61331,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_gepard",
+      "name": "Flakpanzer Gepard",
+      "garageCardId": "de_gepard",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "\"Flakpanzer Gepard | High-Quality model\" by Scout (https://sketchfab.com/scout.), CC-BY-4.0 (https://creativecommons.org/licenses/by/4.0/); scaled, its placeholder colours replaced",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "db55353ec05b061ff9bee6475c0caa5ad63a114d7a7fb39f0aa7d17f28bc1d66",
+        "triangles": 204554,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "uk_cmp_portee",
+      "name": "CMP 6-pdr Portee",
+      "garageCardId": "uk_cmp_portee",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": true,
+        "afterCandidatePacketAvailable": true,
+        "contactLane": "registered_triangle_packet_with_legacy_runtime_resistance_normalization",
+        "runtimeActorRegistrationRequired": true,
+        "resistancePolicy": "existing_runtime_proximity_or_no_armor_compatibility",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "rawPacket": {
+        "triangles": 65395,
+        "unclassifiedTriangles": 3580,
+        "unclassifiedPercent": 5.47,
+        "declaredTriangles": 61815,
+        "instances": 20,
+        "unknownDeclarations": 144,
+        "renderPositionDifferences": 0,
+        "sourceManifest": "75d3e39ef413ee9da9e1e6f0c304ee4113f9f1f880dfda811b3f0991729d8976"
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "8ac6a57001a2ae5e3a734392e21a9962929febf2cd48069d4b28d9d8ec1fbad8",
+        "triangles": 65395,
+        "grantsRuntimeAdmission": false
+      },
+      "independentRuntimeAudit": {
+        "rawRegistered": true,
+        "normalizedRegistered": true,
+        "rawUnsupportedStopsPer6": 3,
+        "normalizedUnsupportedStopsPer6": 0,
+        "rawVariants": 1,
+        "normalizedVariants": 0,
+        "geometryAndInstanceBytesEquivalent": true
+      }
+    },
+    {
+      "specId": "de_aufkl_panther",
+      "name": "Aufklärungspanzer Panther",
+      "garageCardId": "de_panther_g",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Turret and gun: the user's own VK 16.02 Leopard model (VK1602_Leopard_v1_1.glb), used with the user's permission",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "0e470250e2a02d79584d36343da869fc2b5cf83b143716f3148c2f07b09f6aa5",
+        "triangles": 110531,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_vk1602",
+      "name": "VK 16.02 Leopard",
+      "garageCardId": "de_vk1602",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "VK 16.02 Leopard: the user's own model (VK1602_Leopard_v1_1.glb), used with the user's permission",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "58c20ecaa253f0e344604ae0733bfcc4b22353138ae254585db6dae5952c3f08",
+        "triangles": 239725,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_hetzer_mk103",
+      "name": "Hetzer 3 cm MK 103",
+      "garageCardId": "de_hetzer",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Hetzer 3 cm MK 103: the user's own models (flak38t-urban-gray.glb, with the interior of Hetzer_Flak_Interior_Refined.glb), used unchanged with the user's permission; original source panel geometry retained on measured folding hinges",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "381542884b3c48cc1ac20dbb4899a1ce33471ba9c39e5eb1915e38cb9d0f559e",
+        "triangles": 209963,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_hetzer_mk103_camo",
+      "name": "Hetzer 3 cm MK 103（三色迷彩）",
+      "garageCardId": "de_hetzer",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Hetzer 3 cm MK 103 (camouflage): the user's own model (flak38t-reconstruction-v2.glb), used unchanged with the user's permission; original source panel geometry retained on measured folding hinges",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "cfb495ccdb006155d1ac7f2595723584bbd9bd76869cc5519909cfb41a56e14b",
+        "triangles": 209963,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_sdkfz140_1",
+      "name": "Sd.Kfz. 140/1 Aufklärungspanzer 38(t)",
+      "garageCardId": "de_sdkfz140_1",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Sd.Kfz. 140/1: the user's own model (Sdkfz1401_Material_Refined.glb), used unchanged with the user's permission",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "513e77823542c55c7fe5ac5f5fb98c4d5bb6020ee8df11e9df9ceb53cf7cef72",
+        "triangles": 154066,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "de_hetzer_sdkfz1401",
+      "name": "Hetzer · Sd.Kfz.140/1 炮塔（假想改裝）",
+      "garageCardId": "de_hetzer",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "User-provided custom Hetzer/Sd.Kfz.140/1 conversion. Original credits and license records are in source/README.md and GLB asset.extras.",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "f3d47b89088790be5730ca1090e9a648b5234e284c76fd843a9a103b282d530b",
+        "triangles": 169162,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "xp_bmp_k64",
+      "name": "BMP-K-64",
+      "garageCardId": "xp_bmp_k64",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "BMP-K-64 common chassis: user's own BMP_K_64_ATGM.html embedded GLB; named wheel ownership and closed measured hatches; KPVT/cupola preserved from original packed BMP_K_64.glb, levelled about the original hinge",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "b9f8b99a208c1c39e47abb04ef500597aadc063456999f27f54895bf1283a5ed",
+        "triangles": 372590,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "ru_pantsir_sm_sv",
+      "name": "Pantsir-S1（SM-SV）",
+      "garageCardId": "ru_pantsir_sm_sv",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "Pantsir SM-SV — War Thunder Ninth Wave source supplied by user; source rights not established by GLB; see package source/license notes",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_triangle_armor_batches_plus_legacy_modules",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "provisional_gameplay_triangle_thickness",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "legacy_triangle_armor_batches_plus_module_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      }
+    },
+    {
+      "specId": "xp_bmp_k64_atgm",
+      "name": "BMP-K-64 ATGM（9M113）",
+      "garageCardId": "xp_bmp_k64",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "BMP-K-64 Konkurs: user's own BMP_K_64_ATGM.html embedded GLB; measured 10 degree rest pose removed; shared repaired chassis",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "96d2775ba4473187661a77ec39f7593521b40afeada6822a75b4d98053dbdc5a",
+        "triangles": 232927,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "xp_bmp_k64_kornet",
+      "name": "BMP-K-64 ATGM 套件（9M133）",
+      "garageCardId": "xp_bmp_k64",
+      "entry": "family_variant",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "BMP-K-64: the user's own model (BMP_K_64_ATGM.glb), used unchanged with the user's permission; original level weapon geometry retained; shared repaired chassis",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "ee457324e4654bfe8e378483254812b6ce581b88f1b2bd129c645a169d5c7559",
+        "triangles": 258639,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "su_att_m46",
+      "name": "AT-T 130 mm 自走炮（M-46）",
+      "garageCardId": "su_att_m46",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": true,
+      "modelSource": "AT-T with the 130 mm M-46: the user's own model (AT_T_M46_130mm_PhotoReplica.glb), used unchanged with the user's permission; original source panel geometry retained on measured folding hinges; horizontal hood shovel with both keepers, front frame and chain removed from playable geometry",
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "8dd3cb1703d5cc1602f824dba4c40616b0d7b0cdb632044a1c87028410734407",
+        "triangles": 210096,
+        "grantsRuntimeAdmission": false
+      }
+    },
+    {
+      "specId": "proto_a",
+      "name": "Prototype A (original design)",
+      "garageCardId": "proto_a",
+      "entry": "stock_garage_card",
+      "embeddedStock": true,
+      "importedModelPresent": false,
+      "modelSource": null,
+      "clientLocal": {
+        "beforeCandidatePacketAvailable": false,
+        "afterCandidatePacketAvailable": false,
+        "contactLane": "legacy_plates_and_abstract_boxes",
+        "runtimeActorRegistrationRequired": false,
+        "resistancePolicy": "legacy_authored_plates_and_module_boxes",
+        "fullHistoricallyVerifiedArmor": false
+      },
+      "nativeGround": {
+        "targetDataFolderPresent": true,
+        "contactLane": "native_legacy_plates_boxes",
+        "frontlineAdmission": "separate_tracked_ballistic_and_era_filters_not_all_folders_admitted",
+        "registeredRenderedTriangleScene": false
+      },
+      "diagnosticGeometryOnly": {
+        "manifestHash": "f3521e67ab88fb4c11ed6bc7dbf1864c7fa244fae50fe3bdfd14cf46f876be4d",
+        "triangles": 70583,
+        "grantsRuntimeAdmission": false
+      }
+    }
+  ],
+  "independentOriginal24Audit": {
+    "file": "docs/provenance-recovery-20261026/runtime-surface-normalization-independent-audit.json",
+    "sha256": "12808bf8a15a704e18dc7039618dbb2c4d886752ca0366dd8e33e2ac39671d32",
+    "allRawAndNormalizedRegistrationsPassed": true,
+    "raysPerLane": 144,
+    "rawUnsupportedStops": 68,
+    "normalizedUnsupportedStops": 0,
+    "protocolExceptions": 0,
+    "sourceBarrelVariants": 24,
+    "normalizedRuntimeBarrelVariants": 0,
+    "sampleScope": "Six front/side rays at0.5/1/1.5m per spec, each with a fresh distinct target/registered actor life. Not complete all-ammunition or all-surface authoring coverage.",
+    "geometryAndInstanceBytesEquivalent": true
+  }
+}

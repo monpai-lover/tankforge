@@ -1,0 +1,81 @@
+{
+  "method": "UTM straight-line distances to initial battle-area centroids; 700 km/h and fixed 60s take-off/climb allowance; not a flight performance or approach-path validation",
+  "revision": 2,
+  "sourceCoverageFraction": 1,
+  "allNodesAndSpawnsInsideStudy": true,
+  "allAirStartsFartherBehindThanNearestAirportForTheirTeam": true,
+  "routes": [
+    {
+      "lane": "west",
+      "anchorLonLat": [
+        126.8522202,
+        38.048831
+      ],
+      "byTeam": {
+        "blue": {
+          "nearestFieldKm": 32.105,
+          "nearestAirStartKm": 54.333,
+          "fieldArrivalSecondsAt700Plus60": 225.11,
+          "airStartArrivalSecondsAt700": 279.43
+        },
+        "red": {
+          "nearestFieldKm": 31.667,
+          "nearestAirStartKm": 56.743,
+          "fieldArrivalSecondsAt700Plus60": 222.86,
+          "airStartArrivalSecondsAt700": 291.82
+        }
+      },
+      "fieldArrivalDifferenceSeconds": 2.25
+    },
+    {
+      "lane": "centre",
+      "anchorLonLat": [
+        127.0145316,
+        38.0942737
+      ],
+      "byTeam": {
+        "blue": {
+          "nearestFieldKm": 29.204,
+          "nearestAirStartKm": 61.725,
+          "fieldArrivalSecondsAt700Plus60": 210.19,
+          "airStartArrivalSecondsAt700": 317.44
+        },
+        "red": {
+          "nearestFieldKm": 29.484,
+          "nearestAirStartKm": 53.661,
+          "fieldArrivalSecondsAt700Plus60": 211.63,
+          "airStartArrivalSecondsAt700": 275.97
+        }
+      },
+      "fieldArrivalDifferenceSeconds": 1.44
+    },
+    {
+      "lane": "east",
+      "anchorLonLat": [
+        127.2739786,
+        38.126797
+      ],
+      "byTeam": {
+        "blue": {
+          "nearestFieldKm": 30.335,
+          "nearestAirStartKm": 63.083,
+          "fieldArrivalSecondsAt700Plus60": 216.01,
+          "airStartArrivalSecondsAt700": 324.43
+        },
+        "red": {
+          "nearestFieldKm": 30.408,
+          "nearestAirStartKm": 48.084,
+          "fieldArrivalSecondsAt700Plus60": 216.38,
+          "airStartArrivalSecondsAt700": 247.29
+        }
+      },
+      "fieldArrivalDifferenceSeconds": 0.37
+    }
+  ],
+  "remaining": [
+    "Native-resolution runway grading and real take-off checks",
+    "Road/bridge connectivity and dry-ground capture zones",
+    "Air defence and adverse weather effects on routes",
+    "Era-specific speed, fuel and loadout audit"
+  ]
+}

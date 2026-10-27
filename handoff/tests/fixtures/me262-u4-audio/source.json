@@ -1,0 +1,57 @@
+{
+  "sha256": "aa293ec0579048b834650b727890686bb58e4a93b1618861ef0f21877766f185",
+  "loop": false,
+  "durationSeconds": 3.7094,
+  "level": 0.9,
+  "subjectiveAudition": "NOT RUN",
+  "source": "OPEX tanks_weapons.bank event:/ground/weapon/cannons/50mm_kwk39 FSB0#997",
+  "purpose": "Exact copy of existing embedded cue for decode/output-node regression; not a new game asset or MK214 recording.",
+  "assetPinUnchanged": "7a35444f326a3234f7bdf6ad84ff8d2a561edc00d1824740ebc236dd6bf46bd4",
+  "sourceProjectileForActualFactory": {
+    "id": "apc_50_pzgr39",
+    "name": "5 cm Pzgr. 39 (APC)",
+    "kind": "apcbc",
+    "caliber_mm": 50,
+    "mass_kg": 2.06,
+    "muzzle_velocity_ms": 835,
+    "explosive_mass_kg": 0.017,
+    "explosive_type": "petn",
+    "penetrator_material": "steel",
+    "length_mm": 185,
+    "drag_coefficient": 0.4,
+    "penetration_curve": [
+      {
+        "distance_m": 0,
+        "pen_mm": 85.5
+      },
+      {
+        "distance_m": 100,
+        "pen_mm": 82.6
+      },
+      {
+        "distance_m": 500,
+        "pen_mm": 72.3
+      },
+      {
+        "distance_m": 1000,
+        "pen_mm": 61.2
+      },
+      {
+        "distance_m": 1500,
+        "pen_mm": 51.8
+      },
+      {
+        "distance_m": 2000,
+        "pen_mm": 43.8
+      },
+      {
+        "distance_m": 2500,
+        "pen_mm": 37.1
+      }
+    ],
+    "ricochet_angle_deg": 70,
+    "normalization_deg": 4,
+    "fuse_delay_s": 0.0024,
+    "fuse_sensitivity_mm": 15
+  }
+}

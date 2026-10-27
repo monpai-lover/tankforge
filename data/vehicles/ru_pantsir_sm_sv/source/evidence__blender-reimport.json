@@ -1,0 +1,42 @@
+{
+  "passed": true,
+  "blender_version": "5.2.2 LTS",
+  "models": [
+    {
+      "lod": 0,
+      "triangles": 296201,
+      "mesh_objects": 181,
+      "dimensions_blender_xyz_m": [
+        3.4508349895477295,
+        8.722509384155273,
+        5.11213272344321
+      ],
+      "socket_count": 16,
+      "imported_actions": 4
+    },
+    {
+      "lod": 1,
+      "triangles": 169492,
+      "mesh_objects": 181,
+      "dimensions_blender_xyz_m": [
+        3.4508349895477295,
+        8.723159790039062,
+        5.115684172604233
+      ],
+      "socket_count": 16,
+      "imported_actions": 0
+    },
+    {
+      "lod": 2,
+      "triangles": 112249,
+      "mesh_objects": 181,
+      "dimensions_blender_xyz_m": [
+        3.4508349895477295,
+        8.724304676055908,
+        5.136625988408923
+      ],
+      "socket_count": 16,
+      "imported_actions": 0
+    }
+  ]
+}

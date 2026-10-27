@@ -1,0 +1,22 @@
+{
+  "id": "pantsir_sam_warhead_est",
+  "name": "SAM fragmentation substitute — game estimate",
+  "kind": "he",
+  "caliber_mm": 170,
+  "mass_kg": 20,
+  "muzzle_velocity_ms": 900,
+  "explosive_mass_kg": 5.5,
+  "explosive_type": "tnt",
+  "penetrator_material": "steel",
+  "length_mm": 600,
+  "drag_coefficient": 0.35,
+  "penetration_curve": [
+    {
+      "distance_m": 0,
+      "pen_mm": 18
+    }
+  ],
+  "ricochet_angle_deg": 70,
+  "fuse_delay_s": 0.001,
+  "fuse_sensitivity_mm": 1
+}

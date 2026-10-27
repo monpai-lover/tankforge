@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "errors": [],
+  "models": [
+    {
+      "file": "pantsir_lod0.glb",
+      "triangles": 296201,
+      "bytes": 19737300,
+      "sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+      "animations": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ]
+    },
+    {
+      "file": "pantsir_lod1.glb",
+      "triangles": 169492,
+      "bytes": 12737892,
+      "sha256": "941cbf0a862a23d5a53d98186e4c673f7d36743af26623c20a3f89b6c0e15df6",
+      "animations": []
+    },
+    {
+      "file": "pantsir_lod2.glb",
+      "triangles": 112249,
+      "bytes": 9187056,
+      "sha256": "aec2a2e13f18ad7e2e8f897d7ed389f93782aa718a11bceccbc39770651b6eb0",
+      "animations": []
+    }
+  ]
+}

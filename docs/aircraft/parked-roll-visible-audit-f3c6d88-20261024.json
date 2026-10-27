@@ -1,0 +1,1834 @@
+{
+  "schemaVersion": 1,
+  "auditId": "parked-visible-roll-f3c6d88-20261024",
+  "status": "measurement_complete_geometry_followups_open",
+  "reviewDate": "2026-10-24",
+  "scope": "All 24 delivered aircraft parked A/D actual visible roll-surface transforms. Read-only gameplay/converter audit.",
+  "base": {
+    "commit": "f3c6d88",
+    "flightCoreVersion": 212,
+    "restoredCommittedDataSha256": "56eaa206dfda19a831d1c82c869e411d1c3ba7e82d979ff6f96b13dd3a0366ee",
+    "restoredCommittedDataBytes": 377797380,
+    "chunks": [
+      {
+        "path": "handoff/bundle/data.line.gz.part00",
+        "gitBlob": "18f61e168d6ec1ccf2f0770335ac49e2cb4d9d10",
+        "sha256": "42dc9f0ff098605ed2f2cd42ddb32ca1faa1b6fc8c641b8f5308e1fdd82d5a6a"
+      },
+      {
+        "path": "handoff/bundle/data.line.gz.part01",
+        "gitBlob": "c7ad753d27806f36e6edfd22a4b8412539eaa301",
+        "sha256": "ecf191e24db720531977009bb97bc4a09f6918b2ab10ebb15e7fe4ec869eca0d"
+      },
+      {
+        "path": "handoff/bundle/data.line.gz.part02",
+        "gitBlob": "90b8db4afb66d18927650b44d85d7fc1794e5426",
+        "sha256": "4fec737ca5ca7cdd5ddbc2e6ee6922fd44b87352540a5b828806b8930ff779ba"
+      },
+      {
+        "path": "handoff/bundle/data.line.gz.part03",
+        "gitBlob": "ced57b7f086cee4802abdbfc1f74b411d8ff8664",
+        "sha256": "16dcc3b3359b3a02bea9c0a588f7a827d84550997bdf744e5496680a56f2c787"
+      },
+      {
+        "path": "handoff/bundle/data.line.gz.part04",
+        "gitBlob": "a123cb1db7096cc64ac2e420e59fe7d77d9187d9",
+        "sha256": "c275b5b73c34b83f1605da8054e37eb1eb663798481ad60fd9a6361ac8de701c"
+      }
+    ],
+    "workingDataLineExcluded": true,
+    "uncommittedMiG15ToolingExcludedAsBaseline": true,
+    "source": "Tracked gzip chunks reconstructed once; app/head obtained with git show f3c6d88. Tracked bundle matched that commit. No current uncommitted data.line used."
+  },
+  "headline": {
+    "aircraftTested": 24,
+    "nativeAircraft": 15,
+    "proceduralAircraft": 9,
+    "visibleRollDrivenMeshes": 48,
+    "actualDomAAndDReachedAircraftKeysAndPlant": 24,
+    "parkedInBothDirections": 24,
+    "fixedBodyAcrossAllSamples": 24,
+    "missingVisibleRollMeshObserved": 0,
+    "fullGeometricOrHistoricalApproval": false,
+    "meaning": "Every type received A/D and moved two actual uploaded roll meshes. This is evidence of input/pose integration, not a blanket physical hinge correctness result."
+  },
+  "method": [
+    "Eight serial browser/WebGL batches with at most three selected target aircraft/native model payloads in each; fresh browser closed after each batch. Temporary trimmed HTML deleted after each batch. One supplemental context inspects Su-25/F-4E screenshots.",
+    "Actual DOM KeyboardEvent keydown/keyup reaches delivered plane.keys and Aircraft._inputs; fixed 120 Hz flight steps run through tf.advance for 0.5 seconds per condition. A is -1 and D is +1 at accepted S25 on all 24 types. Aircraft is stationary, intact, brakes on, throttle zero, flaps up, instructor enabled, gear down.",
+    "The delivered Aircraft.pose computes control-node matrices, including sampled native clips, parent transforms and Mirage pitch/roll mixing. Only the airframe root matrix is held fixed for observation; actual control matrices are not rewritten.",
+    "Verify each c.node.mesh._src.data is the same actual Float32Array as c.data, then transform every uploaded control vertex under neutral/A/D node.world. Record full matrices, visibility, movement extrema, selected rear/front-strip mean displacement and fixed-body equality.",
+    "For native models, independently decode exact committed quantized/indexed geometry and apply the measured browser matrices. Vertex counts and selected-rear-strip deltas cross-check actual browser results; maximum observed delta discrepancy is below 0.001 m. Derived hinge axes are fitted from measured rigid transforms, not inferred from S25 alone.",
+    "Use original committed mover grouping and explicit control mixes to distinguish roll-driven surfaces from pitch-only/trim nodes. Selected global-z rear-strip metrics and whole-mesh sign ratios are diagnostics with declared sweep/balance limitations."
+  ],
+  "sourceLocations": [
+    {
+      "path": "handoff/flight/flight_core.c:208",
+      "finding": "Core 212 keeps manual roll actuator active on the ground; taxi steering is a separate use of the manual command."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:45999",
+      "finding": "Real DOM aircraft key route adds codes to plane.keys."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:35532",
+      "finding": "Aircraft._inputs converts KeyA/KeyD to -1/+1 roll input."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:33706",
+      "finding": "Native mover parts become actual uploaded controls with sampled poses and parent relationships."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:35388",
+      "finding": "Control data is uploaded and linked to per-control scene nodes."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:35634",
+      "finding": "Delivered pose applies mix, sampled native poses and procedural hinges."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:4780",
+      "finding": "Renderer mesh keeps actual submitted Float32 data under _src.data."
+    }
+  ],
+  "allTypeResults": [
+    {
+      "aircraft": "nf01",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 72,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77240004823417,
+          "ASelectedRearStripDeltaYM": 0.2001886819691458,
+          "DSelectedRearStripDeltaYM": -0.18636116097598773,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            -7.703719777548943e-34,
+            6.7562714498096086e-18
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 72,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77239828674193,
+          "ASelectedRearStripDeltaYM": -0.18636116097598773,
+          "DSelectedRearStripDeltaYM": 0.2001886819691458,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            -1.5407439555097887e-33,
+            6.7562714498096086e-18
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "nf02",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 36,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772397896445554,
+          "ASelectedRearStripDeltaYM": 0.16519831830922133,
+          "DSelectedRearStripDeltaYM": -0.16492090295961642,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            0.0,
+            6.505018130481194e-19
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 36,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772397896445554,
+          "ASelectedRearStripDeltaYM": -0.16492090295961642,
+          "DSelectedRearStripDeltaYM": 0.16519831830922133,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            0.0,
+            6.505018130481194e-19
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "p51d",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77239033440223,
+          "ASelectedRearStripDeltaYM": 0.09481320585011138,
+          "DSelectedRearStripDeltaYM": -0.08883893739959345,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9764023527652415,
+            -0.11827121987453701,
+            -0.18069411740255914
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772394290230977,
+          "ASelectedRearStripDeltaYM": -0.08883893739959345,
+          "DSelectedRearStripDeltaYM": 0.09481320585011135,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9764023478123154,
+            0.11827121997811799,
+            0.18069414409849052
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "bf109g",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772390366150123,
+          "ASelectedRearStripDeltaYM": 0.08698280663776478,
+          "DSelectedRearStripDeltaYM": -0.08112944746981589,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9710881761704242,
+            -0.13220340518770268,
+            -0.19877125989130134
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772396086268774,
+          "ASelectedRearStripDeltaYM": -0.08112944746981587,
+          "DSelectedRearStripDeltaYM": 0.08698280663776478,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9710881786488371,
+            0.13220336109215933,
+            0.19877127711120693
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "spitfire9",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 480,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77239810899008,
+          "ASelectedRearStripDeltaYM": 0.05745433528752417,
+          "DSelectedRearStripDeltaYM": -0.05437831838501583,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9302466470552901,
+            -0.15967413784247408,
+            -0.330371526234712
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 480,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772398390731624,
+          "ASelectedRearStripDeltaYM": -0.05437831838501581,
+          "DSelectedRearStripDeltaYM": 0.05745433528752419,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9302466714388141,
+            0.15967410541023075,
+            0.33037147325162564
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "fw190a8",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772395540761075,
+          "ASelectedRearStripDeltaYM": 0.09681924291753972,
+          "DSelectedRearStripDeltaYM": -0.09179931943774558,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9798450977761545,
+            -0.11928214857092667,
+            -0.16023530633522037
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77239739398341,
+          "ASelectedRearStripDeltaYM": -0.09179931943774562,
+          "DSelectedRearStripDeltaYM": 0.0968192429175397,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9798451037667899,
+            0.11928212975843364,
+            0.16023528370661957
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "yak9u",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 384,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772398387348847,
+          "ASelectedRearStripDeltaYM": 0.07269141505115481,
+          "DSelectedRearStripDeltaYM": -0.06865418996713923,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9687902281366528,
+            -0.1435295741155893,
+            -0.20210085408312745
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 384,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772397717478352,
+          "ASelectedRearStripDeltaYM": -0.06865418996713923,
+          "DSelectedRearStripDeltaYM": 0.07269141505115481,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9687902200818586,
+            0.1435296210126216,
+            0.20210085938886335
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "a6m2",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772396455232094,
+          "ASelectedRearStripDeltaYM": 0.09350460354604766,
+          "DSelectedRearStripDeltaYM": -0.08809046045332374,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9750799807751851,
+            -0.1391677732020541,
+            -0.17277546698951887
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772395672790324,
+          "ASelectedRearStripDeltaYM": -0.08809046045332374,
+          "DSelectedRearStripDeltaYM": 0.09350460354604766,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9750799825889284,
+            0.1391678014636011,
+            0.1727754339892198
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "f4u1d",
+      "geometrySource": "delivered_procedural_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "left",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772395802852515,
+          "ASelectedRearStripDeltaYM": 0.08127769051289338,
+          "DSelectedRearStripDeltaYM": -0.07582488462648862,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9621965986136316,
+            -0.2170954911722593,
+            -0.16446049169643512
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        },
+        {
+          "name": "aircraft_roll",
+          "sideFromActualGeometry": "right",
+          "vertices": 288,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772396753847964,
+          "ASelectedRearStripDeltaYM": -0.07582488462648865,
+          "DSelectedRearStripDeltaYM": 0.08127769051289338,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9621965975159787,
+            0.21709553995313668,
+            0.16446043372534813
+          ],
+          "closestNativeMeshVertexToAxisM": null,
+          "nativeDecodeCrossCheck": null
+        }
+      ]
+    },
+    {
+      "aircraft": "me262",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aileron_l",
+          "sideFromActualGeometry": "left",
+          "vertices": 189,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 20.053547611873192,
+          "ASelectedRearStripDeltaYM": 0.11253460863715048,
+          "DSelectedRearStripDeltaYM": -0.1118900496587914,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9743073682101044,
+            -0.07235631400374853,
+            0.21328318282342568
+          ],
+          "closestNativeMeshVertexToAxisM": 0.04051543642951603,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.517550959895253e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "aileron_r",
+          "sideFromActualGeometry": "right",
+          "vertices": 186,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 20.05354755171905,
+          "ASelectedRearStripDeltaYM": -0.11178718835108102,
+          "DSelectedRearStripDeltaYM": 0.11240881183111669,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.97430736506846,
+            0.07235632743094944,
+            -0.2132831926197181
+          ],
+          "closestNativeMeshVertexToAxisM": 0.04051542181491969,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.7433625376650497e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "f86f",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aileron_l",
+          "sideFromActualGeometry": "left",
+          "vertices": 240,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 17.18873205288534,
+          "ASelectedRearStripDeltaYM": 0.09208927282563825,
+          "DSelectedRearStripDeltaYM": -0.09097096136716537,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9012092675158676,
+            -0.06709865915580521,
+            0.4281584123697751
+          ],
+          "closestNativeMeshVertexToAxisM": 0.002606566907083036,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 6.2005326845193665e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "aileron_r",
+          "sideFromActualGeometry": "right",
+          "vertices": 240,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 17.188751066969164,
+          "ASelectedRearStripDeltaYM": -0.13359797768003734,
+          "DSelectedRearStripDeltaYM": 0.1349653089913453,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9193158772465853,
+            0.06831811777899593,
+            -0.38754477499442097
+          ],
+          "closestNativeMeshVertexToAxisM": 0.004061582294709282,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 5.123055979439073e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "mig15",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aileron_left",
+          "sideFromActualGeometry": "left",
+          "vertices": 24,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 14.999982354134358,
+          "ASelectedRearStripDeltaYM": 0.06594147458497046,
+          "DSelectedRearStripDeltaYM": -0.0665815715471263,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.8613836820741544,
+            0.04765142222441743,
+            0.5057148348786715
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0248451003486276,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.8453581286134195e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "aileron_right",
+          "sideFromActualGeometry": "right",
+          "vertices": 24,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 14.999975138787056,
+          "ASelectedRearStripDeltaYM": -0.06658000188287261,
+          "DSelectedRearStripDeltaYM": 0.06609269655793981,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.8629469184532115,
+            -0.03457305579504111,
+            -0.5041104241583375
+          ],
+          "closestNativeMeshVertexToAxisM": 0.024594453500941266,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.1942925093322287e-08,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "mig17f",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "roll_l",
+          "sideFromActualGeometry": "right",
+          "vertices": 1044,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 17.99998634894399,
+          "ASelectedRearStripDeltaYM": -0.013992236734723553,
+          "DSelectedRearStripDeltaYM": 0.02146687768015949,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.6660175317529297,
+            -0.015458931806804466,
+            -0.7457758837781816
+          ],
+          "closestNativeMeshVertexToAxisM": 0.04056880361747296,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.1412722850101531e-10,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "roll_r",
+          "sideFromActualGeometry": "left",
+          "vertices": 2070,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 17.999988968926857,
+          "ASelectedRearStripDeltaYM": 0.02161409210556777,
+          "DSelectedRearStripDeltaYM": -0.01417003583097987,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.6660175390817326,
+            0.015458934326648799,
+            0.745775877180938
+          ],
+          "closestNativeMeshVertexToAxisM": 0.040265145006437617,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 3.4499060205805954e-10,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "hunter6",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "control__aileron_L",
+          "sideFromActualGeometry": "left",
+          "vertices": 153,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 18.000026090171957,
+          "ASelectedRearStripDeltaYM": 0.1290098954414111,
+          "DSelectedRearStripDeltaYM": -0.12830188177371585,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9106485595848938,
+            0.05574130972131969,
+            0.4094045765700595
+          ],
+          "closestNativeMeshVertexToAxisM": 0.024873182116718795,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 3.633235878819363e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "control__aileron_R",
+          "sideFromActualGeometry": "right",
+          "vertices": 153,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 18.000022339331384,
+          "ASelectedRearStripDeltaYM": -0.128166627922268,
+          "DSelectedRearStripDeltaYM": 0.12886837519822764,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9106485459875622,
+            -0.0557412865348903,
+            -0.40940460997181455
+          ],
+          "closestNativeMeshVertexToAxisM": 0.025057416260084196,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 3.506963219823689e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "mirage3e",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 4,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "SURF_Elevon_L_Outer",
+          "sideFromActualGeometry": "left",
+          "vertices": 2829,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77248996705761,
+          "ASelectedRearStripDeltaYM": 0.2472627761581847,
+          "DSelectedRearStripDeltaYM": -0.25147542004405116,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9985857646792753,
+            0.03398985378881077,
+            0.04087982900309715
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0005886329513196353,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 5.271516556604183e-10,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "SURF_Elevon_R_Outer",
+          "sideFromActualGeometry": "right",
+          "vertices": 2829,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.77246234591289,
+          "ASelectedRearStripDeltaYM": -0.25147520372469606,
+          "DSelectedRearStripDeltaYM": 0.2472629924775395,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9985867825358322,
+            -0.03395989139024634,
+            -0.04087986694568925
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0005681071854482583,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 5.175896933273805e-10,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "mig21",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "ROLL_L",
+          "sideFromActualGeometry": "right",
+          "vertices": 432,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 23.000004924858885,
+          "ASelectedRearStripDeltaYM": -0.21754558272902305,
+          "DSelectedRearStripDeltaYM": 0.21725969418227187,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            3.009265538105056e-36,
+            1.4864207809792025e-20
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0040140033752482825,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.680625720343556e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "ROLL_R",
+          "sideFromActualGeometry": "left",
+          "vertices": 432,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 23.000004125557936,
+          "ASelectedRearStripDeltaYM": 0.21725969418227195,
+          "DSelectedRearStripDeltaYM": -0.21754558272902305,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            -0.0,
+            1.4864207809792028e-20
+          ],
+          "closestNativeMeshVertexToAxisM": 0.004281874057360707,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.5972204376631964e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "f104g",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "AILERON_L",
+          "sideFromActualGeometry": "right",
+          "vertices": 336,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.999977546924452,
+          "ASelectedRearStripDeltaYM": -0.21129900696408216,
+          "DSelectedRearStripDeltaYM": 0.20467249933340792,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            -9.62964972193618e-35,
+            -6.708468372017438e-19
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0491887593100455,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.759717536773067e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "AILERON_R",
+          "sideFromActualGeometry": "left",
+          "vertices": 336,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.99997815797035,
+          "ASelectedRearStripDeltaYM": 0.20853907468499636,
+          "DSelectedRearStripDeltaYM": -0.20892509352973618,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            1.0,
+            -0.0,
+            -6.70846837201744e-19
+          ],
+          "closestNativeMeshVertexToAxisM": 0.03635177723040549,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.9930045391802764e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "f4e",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "roll_l",
+          "sideFromActualGeometry": "right",
+          "vertices": 114,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.99994333954572,
+          "ASelectedRearStripDeltaYM": -0.33097802145328864,
+          "DSelectedRearStripDeltaYM": 0.33284514351429867,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9701421620265209,
+            -0.0004075823173576576,
+            -0.242536635037188
+          ],
+          "closestNativeMeshVertexToAxisM": 0.019593390411231728,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 2.5016295701618674e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "roll_r",
+          "sideFromActualGeometry": "left",
+          "vertices": 114,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.999946368768978,
+          "ASelectedRearStripDeltaYM": 0.33284514351429867,
+          "DSelectedRearStripDeltaYM": -0.33097802145328864,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9701421580911315,
+            0.00040756898346980264,
+            0.24253665080108144
+          ],
+          "closestNativeMeshVertexToAxisM": 0.01959339080536327,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 2.5538791081913814e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "f15c",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "roll_l",
+          "sideFromActualGeometry": "right",
+          "vertices": 66,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.99999220839965,
+          "ASelectedRearStripDeltaYM": -0.36760249429292413,
+          "DSelectedRearStripDeltaYM": 0.3719880663580333,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9805808957821961,
+            0.0011666613746718346,
+            -0.19611156449384276
+          ],
+          "closestNativeMeshVertexToAxisM": 0.16878912477744967,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.1999708449117463e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "roll_r",
+          "sideFromActualGeometry": "left",
+          "vertices": 66,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.999990614581364,
+          "ASelectedRearStripDeltaYM": 0.3719880663580333,
+          "DSelectedRearStripDeltaYM": -0.36760249429292413,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9805808938729813,
+            -0.0011666995656805235,
+            0.19611157381294114
+          ],
+          "closestNativeMeshVertexToAxisM": 0.16878912452395198,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.2762101930796632e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "f16v",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "ROLL_L",
+          "sideFromActualGeometry": "right",
+          "vertices": 678,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 23.00010886017562,
+          "ASelectedRearStripDeltaYM": -0.3828312099760182,
+          "DSelectedRearStripDeltaYM": 0.38947741804721386,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9219823145896796,
+            0.0005806959188952021,
+            -0.38723155136959975
+          ],
+          "closestNativeMeshVertexToAxisM": 0.013525550083691728,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 2.9773226106755146e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "ROLL_R",
+          "sideFromActualGeometry": "left",
+          "vertices": 678,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 22.99997544024222,
+          "ASelectedRearStripDeltaYM": 0.3894807104758019,
+          "DSelectedRearStripDeltaYM": -0.3828318292558055,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9219820520092603,
+            -0.0005808050765288564,
+            0.38723217639841956
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0135252907163562,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 2.4122088770894834e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "mig29",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "aileron_l",
+          "sideFromActualGeometry": "left",
+          "vertices": 480,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772443931797884,
+          "ASelectedRearStripDeltaYM": 0.17672766064293036,
+          "DSelectedRearStripDeltaYM": -0.18502815737641412,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9477266424067076,
+            0.05562869518228575,
+            0.31419684840052886
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0071816236136233984,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 2.827012957062891e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "aileron_r",
+          "sideFromActualGeometry": "right",
+          "vertices": 480,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 21.772420914133296,
+          "ASelectedRearStripDeltaYM": -0.16679544378278188,
+          "DSelectedRearStripDeltaYM": 0.17665359259365065,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9486542357932175,
+            -0.034623688464269664,
+            -0.3144142826092923
+          ],
+          "closestNativeMeshVertexToAxisM": 0.02504761338071602,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 2.673225529825629e-11,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "su27",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "ROLL_LEFT",
+          "sideFromActualGeometry": "right",
+          "vertices": 15,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 20.00003786116176,
+          "ASelectedRearStripDeltaYM": -0.2024731848616037,
+          "DSelectedRearStripDeltaYM": 0.19145660246630758,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9088419535584981,
+            -0.009045075962710591,
+            -0.4170425518490912
+          ],
+          "closestNativeMeshVertexToAxisM": 0.00033748407512795094,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.86384105213844e-09,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "ROLL_RIGHT",
+          "sideFromActualGeometry": "left",
+          "vertices": 15,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 20.000036627508543,
+          "ASelectedRearStripDeltaYM": 0.19952684816098687,
+          "DSelectedRearStripDeltaYM": -0.18712175946401377,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9088415361692844,
+            -0.04543826599371448,
+            0.41465940977739757
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0001441806443408112,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 1.0482152562607538e-08,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "a10a",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "roll_l",
+          "sideFromActualGeometry": "right",
+          "vertices": 6690,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.999990739159124,
+          "ASelectedRearStripDeltaYM": -0.22438535858388114,
+          "DSelectedRearStripDeltaYM": 0.25954770367741875,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9936760957271659,
+            0.11228453491205403,
+            9.04873382986798e-09
+          ],
+          "closestNativeMeshVertexToAxisM": 0.008540188647441044,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 3.2256861071111587e-10,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "roll_r",
+          "sideFromActualGeometry": "left",
+          "vertices": 6702,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 19.999990739159124,
+          "ASelectedRearStripDeltaYM": 0.22676236592709814,
+          "DSelectedRearStripDeltaYM": -0.2622980590901796,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9936760957271659,
+            -0.11228453491205406,
+            9.048733836328125e-09
+          ],
+          "closestNativeMeshVertexToAxisM": 0.011548170233212205,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.603539771608212e-13,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    },
+    {
+      "aircraft": "su25",
+      "geometrySource": "tracked_native_model",
+      "parkedBothDirections": true,
+      "fixedBodyAllSamples": true,
+      "acceptedRollActuator": {
+        "A": -1,
+        "D": 1
+      },
+      "rollDrivenMeshCount": 2,
+      "additionalNonRollElevonNodes": 0,
+      "actuationAndSelectedTrailingStripDirection": "observed",
+      "physicalHingeApproval": "not_certified",
+      "meshes": [
+        {
+          "name": "roll_l",
+          "sideFromActualGeometry": "right",
+          "vertices": 3996,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 17.999951396544436,
+          "ASelectedRearStripDeltaYM": -0.03539330480601373,
+          "DSelectedRearStripDeltaYM": 0.048867136524258926,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9815127133509044,
+            2.4089846284436334e-08,
+            -0.19139695277235969
+          ],
+          "closestNativeMeshVertexToAxisM": 0.0012594551441574707,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 0.0003537172967378738,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        },
+        {
+          "name": "roll_r",
+          "sideFromActualGeometry": "left",
+          "vertices": 4914,
+          "uploadedMeshIdentityVerified": true,
+          "measuredDeflectionDeg": 17.999951396544436,
+          "ASelectedRearStripDeltaYM": 0.04393954406491497,
+          "DSelectedRearStripDeltaYM": -0.042541839813377,
+          "pivotTranslationM": 0.0,
+          "hingeAxisBody": [
+            0.9815127133509044,
+            2.4089846256680758e-08,
+            0.19139695277235969
+          ],
+          "closestNativeMeshVertexToAxisM": 0.027016655779902064,
+          "nativeDecodeCrossCheck": {
+            "vertexCountMatches": true,
+            "rearDeltaYErrorM": 4.762590530282829e-10,
+            "source": "Exact tracked native blob, original triangle index order, measured browser world matrices"
+          }
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "id": "V01",
+      "aircraft": [
+        "mig17f",
+        "su25"
+      ],
+      "status": "suspect_geometry_or_grouping_requires_identifiable_edge_review",
+      "evidence": "Actual uploaded control meshes rotate about fixed sampled native axes, but many vertices lie on the opposite side of those swept axes from the selected rear strip. A/D selected-rear-strip means point in the expected direction while full-mesh displacement is mixed. This disagreement makes a scalar actuator or global-z rear-strip-only acceptance inadequate.",
+      "diagnosticRatiosOnly": {
+        "mig17f": [
+          {
+            "side": "right",
+            "AAbsoluteVerticalTravelOppositeExpectedFraction": 0.908629048853603
+          },
+          {
+            "side": "left",
+            "AAbsoluteVerticalTravelOppositeExpectedFraction": 0.6183905388847445
+          }
+        ],
+        "su25": [
+          {
+            "side": "right",
+            "AAbsoluteVerticalTravelOppositeExpectedFraction": 0.8157353751709274
+          },
+          {
+            "side": "left",
+            "AAbsoluteVerticalTravelOppositeExpectedFraction": 0.676871430946951
+          }
+        ]
+      },
+      "interpretationLimit": "A real surface can contain balance area ahead of a hinge; all-moving slabs and swept lines also create mixed displacements. Ratios do not establish historical incorrectness or justify simply reversing the animation sign. The native group/hinge/rest trailing edge and identifiable screenshot features must be reviewed together. No definitive sign failure is claimed here.",
+      "sourceAtF3c6d88": [
+        "handoff/tools/aircraft_glb/aircraft_types.py:1602",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1676",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1806",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1811",
+        "handoff/bundle/app.js.html:33706",
+        "handoff/bundle/app.js.html:35642"
+      ],
+      "nextAction": "Identify the actual native aileron trailing-edge row and any balance nose on each side, then compare its rotation and attachment to the fixed wing through the native clip. Preserve authored membership and avoid an unverified blanket sign flip."
+    },
+    {
+      "id": "V02",
+      "aircraft": [
+        "f86f"
+      ],
+      "status": "measured_asymmetric_hinge_fit_pending_review",
+      "evidence": "Both measured roll deflections are about 17.19 degrees, while A selected-rear-strip mean vertical travel is left +0.09209 m and right -0.13360 m. Exact committed axes/pivots are not mirror symmetric; line intersections at the outboard mesh span differ in z by about 0.142 m.",
+      "restHingeEvidence": [
+        {
+          "name": "aileron_l",
+          "coordinateFrame": "original committed aircraft model/game frame, before parked body pitch",
+          "pivotM": [
+            -4.05,
+            -0.4191,
+            -1.9623
+          ],
+          "axis": [
+            0.90121,
+            -0.04351,
+            0.43119
+          ],
+          "spanRangeXM": [
+            -5.349804639816284,
+            -2.749804735183716
+          ],
+          "hingeLineAtMeshSpanEndsM": [
+            [
+              -5.349804639816284,
+              -0.35634603602001025,
+              -2.5842002925426746
+            ],
+            [
+              -2.749804735183716,
+              -0.4818728231734629,
+              -1.3402128102926802
+            ]
+          ],
+          "endpointMethod": "Intersect the exact committed pivot/axis line with measured control mesh min/max x. These are line intersections, not a claim that these are authored hinge vertices."
+        },
+        {
+          "name": "aileron_r",
+          "coordinateFrame": "original committed aircraft model/game frame, before parked body pitch",
+          "pivotM": [
+            4.05,
+            -0.4149,
+            -1.8895
+          ],
+          "axis": [
+            0.91932,
+            0.04695,
+            -0.39071
+          ],
+          "spanRangeXM": [
+            2.749804735183716,
+            5.349804639816284
+          ],
+          "hingeLineAtMeshSpanEndsM": [
+            [
+              2.749804735183716,
+              -0.48130143549919996,
+              -1.336918426754155
+            ],
+            [
+              5.349804639816284,
+              -0.3485185138587493,
+              -2.4419155580457517
+            ]
+          ],
+          "endpointMethod": "Intersect the exact committed pivot/axis line with measured control mesh min/max x. These are line intersections, not a claim that these are authored hinge vertices."
+        }
+      ],
+      "interpretationLimit": "Triangle counts, vertex density and sampled geometry differ, so rear-strip means alone are not equal-area aerodynamic measures. The non-mirrored hinge line is concrete evidence to review, not proof that a historical differential mechanism is absent.",
+      "sourceAtF3c6d88": [
+        "handoff/tools/aircraft_glb/aircraft_types.py:976",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1158",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1245",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1260"
+      ],
+      "nextAction": "Fit/check both hinge lines against identifiable fixed-wing cutout leading edges on the same committed mesh before changing the converter. Keep the separate ongoing landing-gear work isolated."
+    },
+    {
+      "id": "V03",
+      "aircraft": [
+        "f4e",
+        "f15c"
+      ],
+      "status": "hinge_attachment_not_resolved_by_this_view",
+      "evidence": "F-4E gives mixed whole-mesh movement (about 23..25 percent of absolute A vertical travel opposite the selected trailing strip). F-15 has consistent signed vertex movement, but the closest rendered control vertex is about 0.169 m from its measured hinge line.",
+      "interpretationLimit": "Balanced area ahead of a hinge or an offset/hidden hinge mechanism can explain these numbers. The rear-above screenshots verify that surfaces move but are too coarse/dark to certify the exact fixed-wing seam. Neither metric is a standalone failure verdict.",
+      "sourceAtF3c6d88": [
+        "handoff/tools/aircraft_glb/aircraft_types.py:1602",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1676",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1797",
+        "handoff/tools/aircraft_glb/aircraft_types.py:1801"
+      ],
+      "nextAction": "Use a lit close view of each identifiable hinge seam and check native control descendants; distinguish aileron, balancing nose and any hidden linkage."
+    },
+    {
+      "id": "V04",
+      "aircraft": [
+        "mirage3e"
+      ],
+      "status": "authored_mix_explains_stationary_nodes",
+      "evidence": "Six visible elevon nodes were captured. Only the two Outer nodes have roll coefficient +/-0.38; Middle nodes have pitch 0.42 and roll 0; Inner nodes have pitch 0 and roll 0. The two Outer nodes move oppositely under A/D; the other four remain still under this input.",
+      "interpretationLimit": "The converter explicitly calls the inner pieces trim tabs. This review establishes implemented mixing, not historical validation of that trim-tab interpretation. Do not count all six nodes as failed ailerons.",
+      "sourceAtF3c6d88": [
+        "handoff/tools/aircraft_glb/aircraft_types.py:828",
+        "handoff/tools/aircraft_glb/aircraft_types.py:831",
+        "handoff/bundle/app.js.html:35634"
+      ],
+      "nextAction": "If full control-mechanism fidelity is required, validate the named parts and pitch/trim behavior against the intended Mirage 5F model; this parked A/D test does not validate them."
+    }
+  ],
+  "representativeScreenshots": [
+    {
+      "aircraft": "mig17f",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/mig17f-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "8b554378cc6a30f5babf88fa5d82046e26a212ee2f77a6080f2efa1608f41154"
+    },
+    {
+      "aircraft": "mig17f",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/mig17f-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "05e3a221ac047c86f4ffca0f89619e762e1375cbeeba7681a6a3085f091b3886"
+    },
+    {
+      "aircraft": "mig17f",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/mig17f-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "2836e43d04b0d41950d485a1bfe0d704321058496e6ada8deedec3b900ee10a0"
+    },
+    {
+      "aircraft": "mirage3e",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/mirage3e-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "7083159fcf1a5c3c86c286ccd39eb07fc121afc73b87860ab4a6d50911283469"
+    },
+    {
+      "aircraft": "mirage3e",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/mirage3e-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "1c884d4fbeb55515eef470d7a9f62e99ace133567aebcb6be1e8bc0ade2de54d"
+    },
+    {
+      "aircraft": "mirage3e",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/mirage3e-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "c71ae70d0992314d6a52249fe8e78168ad04fa7a9600b1f2f708d968bd618fea"
+    },
+    {
+      "aircraft": "f104g",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f104g-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "fa012300f69bc2789fbf9d067fdc6c3a5efe080c499fb3afd0f2d12c8894627c"
+    },
+    {
+      "aircraft": "f104g",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f104g-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "c90451331dc8078240bdc5b399decc31a42e1a850cd9972627d84ba948ebf24e"
+    },
+    {
+      "aircraft": "f104g",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f104g-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "5b495e49af68a6d41f0615ca5459d8513fecabfce58e1c2e0a14074139a9a1ef"
+    },
+    {
+      "aircraft": "f15c",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f15c-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "6781b1c2e5970e13234cc0b5ba6a57470acf971260a48500ba268d2cfc246c61"
+    },
+    {
+      "aircraft": "f15c",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f15c-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "0a6fcea102ed0fe5e517cdf9687344b1e4c0aec94cfc48795e0b77dadf23a128"
+    },
+    {
+      "aircraft": "f15c",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f15c-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "490d03e94380417b55f8633968cab80237dd022de4bb7a1d0ea598508529841a"
+    },
+    {
+      "aircraft": "a10a",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/a10a-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "ada34a0f011b5ecc7ef53475709d82041f17f176799be1a7012f37d1297c8b53"
+    },
+    {
+      "aircraft": "a10a",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/a10a-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "b81144a54e97314852591353c57197283c7ae10fbf945d77d2b8e5fed8b6e207"
+    },
+    {
+      "aircraft": "a10a",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/a10a-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "ad0b383bfbd71742b5e90b1aa52f8c96e86ac286e4c334c24a3d13a018651a1d"
+    },
+    {
+      "aircraft": "f16v",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f16v-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "c5ef9bd329acc78e5cd871cc29f831b18c85ea8a22897b6165d6e3562d46366b"
+    },
+    {
+      "aircraft": "f16v",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f16v-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "88efa508ae3cdce98efc1215390a76d2ac0c2d21f3bbfc0fc7f656167b2a9573"
+    },
+    {
+      "aircraft": "f16v",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f16v-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "c5581b54aca5179084fbec81e4181e43f96787c7f4f48f0203cce960264c7fd3"
+    },
+    {
+      "aircraft": "su25",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/su25-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "ba16872e3f2d3f964be1a051028c633dd9cc9a88d6cd7eeb08cc3fd0a8761a88"
+    },
+    {
+      "aircraft": "su25",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/su25-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "70d8914f357d6fbf065a3cbbaa48457abfd440d45af768d36f3a8f27a95171ea"
+    },
+    {
+      "aircraft": "su25",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/su25-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "1381749d421c11b384a1a41c74fd01f7d29dcfe24b09db32096637c8fbb9b1f1"
+    },
+    {
+      "aircraft": "f4e",
+      "key": "neutral",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f4e-neutral.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "5febdc8ebd1db3cfb29c4c527961a8fc20d50f9cd34a2abb5230d8e15842334c"
+    },
+    {
+      "aircraft": "f4e",
+      "key": "A",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f4e-A.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "bdb93e393475e5b172788a427f4a5f3f855f9fc7a4c3ba931f5221a1479258d5"
+    },
+    {
+      "aircraft": "f4e",
+      "key": "D",
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/f4e-D.png",
+      "exists": true,
+      "limitation": "Rear-above overview, fixed body, software WebGL; seam/hidden-linkage fidelity requires close lit views.",
+      "sha256": "1798c01b8f62fe06ccc5d4e9452626daa56f6f3b5ac7f963c1923c6954bb9afb"
+    }
+  ],
+  "artifactDirectory": "handoff/tests/out/parked-roll-f3c6d88-20261024",
+  "artifacts": [
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/baseline.json",
+      "sha256": "b66be7b7a05ce2b242794a2d1f9bf53d8b4027a31fce4481e362846ecd34b8c6"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/all-type-transforms.json",
+      "sha256": "50e81c18a78abf48d21280f04fd62f772b323caa56d91e03a0f4d2b1a103016a"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/all-type-summary.json",
+      "sha256": "d001f24e9e7e9cf819dcfc9eeb4ab0b5fc5ad2742a55455ea8222f6b1e7ec972"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/derived-hinge-and-motion.json",
+      "sha256": "3661f709d1ee83699fc33909643e150d68f99109b1aa448c5dbcbe70729dd578"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/native-roll-movers.json",
+      "sha256": "cda29a7b6466b261b6a226020fabe2e55bda9b914bf95be5fcf56280c07d4b69"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/run-summary.json",
+      "sha256": "d22cc2f526a8c2664f7549bcada7c6b140231ab8d56b11358ab62e63a439a173"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/visible-roll-probe.js",
+      "sha256": "c632bde384daf0d3ef0c505d6292d979c3e236508a304d5efb7a24c50e52ffd1"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/run-visible-roll-audit.py",
+      "sha256": "252b935c44a05539c57dde20e799899e54ecc2ccd98bfc61da939377f86083ae"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/analyze-visible-roll.py",
+      "sha256": "b36ea0554f085e35c87706669f0a0534a0ab51d901132a31de1307aff3889ec3"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/supplementary-transforms.json",
+      "sha256": "e003f1143f994b9098335c757bfaba16d5609f9d7c407550f3c893e7f6705aff"
+    },
+    {
+      "path": "handoff/tests/out/parked-roll-f3c6d88-20261024/supplementary-run-summary.json",
+      "sha256": "3cb03a9e79ddeb5129892423ac658908690f6199c443295b325a4908c9e981c6"
+    }
+  ],
+  "viewingNotes": [
+    "NF02 and MiG15 overview images in the raw artifact directory used the initial closer camera and crop wing tips; they are not listed as representative seam evidence. Their matrix/vertex records remain valid. Later overview framing was widened without changing control measurement logic.",
+    "Some native atlases are dark under the current overview lighting and normal UI overlays remain visible. Screenshots support motion review but do not resolve every seam or linkage.",
+    "The independent native-decode whole-mesh Y sign ratios are deliberately not a historical pass/fail classifier. Points ahead of a hinge can move opposite the intended trailing edge."
+  ],
+  "notValidated": [
+    "Historical type-specific hinge axes/travel limits and exact linkage geometry for every native model.",
+    "Aerodynamic roll response or generated forces with these visual meshes; the root was deliberately frozen to isolate visible movement.",
+    "Wheel/gear animation, cockpit/HUD placement, weapons/stores, collision/damage migration or deployment.",
+    "Native-group/fixed-wing seam continuity, fully lit close-up hinge contact and every aircraft control axis."
+  ],
+  "changes": "Only uniquely named audit JSON/scripts/screenshots under docs/aircraft or ignored handoff/tests/out. No gameplay/converter edits, no asset regeneration and no commits.",
+  "visuallyInspectedOverviews": {
+    "images": [
+      "mig17f-A.png",
+      "f15c-A.png",
+      "mirage3e-A.png",
+      "su25-A.png",
+      "f4e-A.png"
+    ],
+    "observation": "The actual body remains fixed and posed surfaces are visible. Swept native controls and dark/semi-distant seams prevent a definitive full hinge/partition judgment from these overviews. Supplemental Su-25 and F-4E images/transform records are retained.",
+    "verdict": "No whole-mesh-sign-ratio-only failure verdict; V01/V03 remain pending identifiable trailing-edge and native-group review."
+  }
+}

@@ -1,0 +1,141 @@
+{
+  "status": "deployed_and_external_hash_verified",
+  "recordedAtUnix": 1792871405.3151042,
+  "site": "https://tank.monpai.site/",
+  "scope": "Me262 family models/animations/cockpit/source stores; original source interiors/materials across seven aircraft families",
+  "release": {
+    "version": "20261025-me262",
+    "oldPageSha256": "b5f58f8083bdad3bf1800b01d28355008a80b8cfa17ecbade15abe628267ab25",
+    "oldGzipSha256": "b75f99998e93f063a9b2784d683300dc93531556a7130d04fa062e054cbf27e8",
+    "oldCatalogSha256": "1304af0a8c4a1c5746a658fd43831e759d00af250b345541049180d82a00f49c",
+    "newPageSha256": "a27b9fa04e95e27211f672637992fa422bb6e1353319c83d97b85757b0d446d4",
+    "newPageBytes": 387107595,
+    "newGzipSha256": "4c21dbf496d38ec376917877fbcd048c78d9a80e9d75d010ea61cbb04cdbc452",
+    "newCatalogSha256": "09697e2abac944f529d7bcffcd7db94df573df0e87749ceae970cbb9ccab4431",
+    "publicAppSha256": "ca86085ca609ecf7d7407a1c29cc747e5cd2994335be2797ef2058176f53a982",
+    "dataSha256": "7a35444f326a3234f7bdf6ad84ff8d2a561edc00d1824740ebc236dd6bf46bd4",
+    "flightWasmSha256": "2450d4ebb7f73f3a155a5bc2a312558e241a511146f81f02f922122eb232568e",
+    "flightCoreVersion": 213,
+    "updaterSha256": "cd81e4839c972ea6cd7b527b744548a59eed80c48a8dbb7933a5e9c2a3d9c4fd",
+    "updaterTestsPassed": 22,
+    "functionalBrowserChecksPassed": 22,
+    "browserCapturesPassed": 14,
+    "changes": [
+      "Me262 A1a/A2a/U4 source models, closed nose doors and removed dangling strips",
+      "Native four-axis gear sequencing, per-wheel travel and source control animations",
+      "Source cockpit sight assembly moved aft with panel mounting anchor retained",
+      "Actual source interiors/materials for seven aircraft families and source Me262 crew",
+      "Fixed source barrels and independent 24R4M/2SC250 stores with retained original racks"
+    ],
+    "excluded": "Unfinished combined-mode service/campaign/frontend and its new server binary are not deployed"
+  },
+  "receipt": {
+    "pageSha256": "a27b9fa04e95e27211f672637992fa422bb6e1353319c83d97b85757b0d446d4",
+    "catalogSha256": "09697e2abac944f529d7bcffcd7db94df573df0e87749ceae970cbb9ccab4431",
+    "gzipSha256": "4c21dbf496d38ec376917877fbcd048c78d9a80e9d75d010ea61cbb04cdbc452",
+    "process": {
+      "pid": 261588,
+      "startTicks": "83246995"
+    }
+  },
+  "external": {
+    "url": "https://tank.monpai.site/?release=20261025-me262",
+    "verifiedAtUnix": 1792871267.037063,
+    "gzipSha256": "4c21dbf496d38ec376917877fbcd048c78d9a80e9d75d010ea61cbb04cdbc452",
+    "gzipBytes": 138617366,
+    "rawSha256": "a27b9fa04e95e27211f672637992fa422bb6e1353319c83d97b85757b0d446d4",
+    "rawBytes": 387107595,
+    "headers": {
+      "Server": "nginx",
+      "Date": "Sat, 24 Oct 2026 19:47:45 GMT",
+      "Content-Type": "text/html; charset=utf-8",
+      "Content-Length": "138617366",
+      "Connection": "close",
+      "ETag": "\"8432216-6add0a3a-gz\"",
+      "Vary": "Accept-Encoding",
+      "Cache-Control": "no-cache",
+      "Content-Encoding": "gzip"
+    },
+    "passed": true
+  },
+  "sourceModels": {
+    "me262": "fd9b7acf1273d1e0c14d2be0785d8293455c1d138cf415f7afb762103c730e88",
+    "me262a2a": "57d18a8ed21112cc1399e02ad0456c07e6a5e32de2e2c11566d10e0d24031a85",
+    "me262u4": "c2160da2187238570e206198ecbe735cabbea1b89401fd7eacd10ce9ec83dad4"
+  },
+  "browser": {
+    "checksPassed": 22,
+    "capturesPassed": 14,
+    "capturesReviewedByRoot": [
+      "me262-gear-up",
+      "me262-gear-down",
+      "me262-source-interior",
+      "me262-cockpit",
+      "me262-original-stores",
+      "me262a2a-gear-up",
+      "me262a2a-gear-down",
+      "me262a2a-source-interior",
+      "me262a2a-cockpit",
+      "me262a2a-original-stores",
+      "me262u4-gear-up",
+      "me262u4-gear-down",
+      "me262u4-source-interior",
+      "me262u4-cockpit"
+    ],
+    "gpu": "Chromium SwiftShader offline functional/visual check; no GPU performance certification",
+    "evidence": "handoff/tests/out/me262-game-v2-20261025/public/browser/browser-result.json"
+  },
+  "independentSourceAudit": {
+    "proof": "handoff/aircraft_assets/me262-game-v2-20261025/verification.json",
+    "frames": 2058,
+    "clips": 14,
+    "defaultCore212ParityFloats": 1105920,
+    "fourAxisCore": 213
+  },
+  "updater": {
+    "newTestsPassed": 22,
+    "oldUpdaterRetained": true,
+    "sharedRollback": true,
+    "desktopWrappers": [
+      "/home/boyang/Desktop/TankForge_update_20261024.sh",
+      "/home/boyang/Desktop/TankForge_update_20261025.sh"
+    ]
+  },
+  "fixedModelsZip": {
+    "path": "/home/boyang/Desktop/me262_game_v2_fixed_20261025.zip",
+    "bytes": 49877115,
+    "sha256": "f95b49a170bca6534e51bf0cd518185f2d7753ac23d340ccd337e1dc4700b327",
+    "entries": [
+      "LICENSES/CREDITS_AND_LICENSES.md",
+      "README_修复说明.txt",
+      "calibration/optics-calibration.json",
+      "checksums.sha256",
+      "manifest.json",
+      "models/me262_a1a.glb",
+      "models/me262_a1a_r4m.glb",
+      "models/me262_a1a_u4.glb",
+      "models/me262_a2a_2x250.glb",
+      "verification/me262-source-ledger.json",
+      "verification/me262a2a-source-ledger.json",
+      "verification/me262u4-source-ledger.json",
+      "verification/verification.json"
+    ],
+    "originalSha256Before": "30beda948d09760f1af24f0c79314c25923765862f8e6555761dc9fc35fb5f1f",
+    "originalSha256After": "30beda948d09760f1af24f0c79314c25923765862f8e6555761dc9fc35fb5f1f",
+    "zipReadbackEveryEntryExact": true,
+    "crcAllEntriesPassed": true,
+    "containsOldEmbeddedViewer": false
+  },
+  "limitations": [
+    "Source-model internal layouts and game timing are not historical engineering certification",
+    "Legacy public online air-to-ground release remains unsupported",
+    "Native/frontline combat retains legacy component envelopes; this is not a render-triangle combat migration",
+    "Experimental mixed-mode frontend, campaign data and server binary are not deployed",
+    "Other eight imported aircraft have no independently complete internal mesh collection found; see source-interior-audit-20261025.json"
+  ],
+  "supersededBy": "../air-frontline/implementation-status.json#resumedCombinedRelease20261025",
+  "retainedInCombinedRelease": {
+    "assetPinUnchanged": "7a35444f326a3234f7bdf6ad84ff8d2a561edc00d1824740ebc236dd6bf46bd4",
+    "proof": "handoff/tests/out/combined-release-20261025/published-release.json"
+  }
+}

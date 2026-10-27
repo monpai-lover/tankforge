@@ -1,0 +1,162 @@
+{
+  "schema": "TankForgePenetrationBindingReviewV1",
+  "registrySHA256": "538650af1f06400b052ad687e0abad61e30d20cb57ba5ae1875e134c381146be",
+  "summary": [
+    {
+      "id": "de_pz3_j",
+      "overrides": 139,
+      "resolvedTriangles": 3056,
+      "originalUnknownTriangles": 3372
+    },
+    {
+      "id": "de_pz4_h",
+      "overrides": 136,
+      "resolvedTriangles": 2862,
+      "originalUnknownTriangles": 3454
+    },
+    {
+      "id": "de_tiger_e",
+      "overrides": 239,
+      "resolvedTriangles": 3055,
+      "originalUnknownTriangles": 3307
+    },
+    {
+      "id": "de_panther_g",
+      "overrides": 58,
+      "resolvedTriangles": 3470,
+      "originalUnknownTriangles": 4254
+    },
+    {
+      "id": "de_panther_f",
+      "overrides": 59,
+      "resolvedTriangles": 3490,
+      "originalUnknownTriangles": 4202
+    },
+    {
+      "id": "de_sdkfz234_2",
+      "overrides": 56,
+      "resolvedTriangles": 842,
+      "originalUnknownTriangles": 846
+    },
+    {
+      "id": "su_t34_1940",
+      "overrides": 783,
+      "resolvedTriangles": 3256,
+      "originalUnknownTriangles": 4392
+    },
+    {
+      "id": "su_t34_85",
+      "overrides": 1017,
+      "resolvedTriangles": 3660,
+      "originalUnknownTriangles": 5440
+    },
+    {
+      "id": "su_is2",
+      "overrides": 50,
+      "resolvedTriangles": 28454,
+      "originalUnknownTriangles": 29470
+    },
+    {
+      "id": "su_t54",
+      "overrides": 155,
+      "resolvedTriangles": 28708,
+      "originalUnknownTriangles": 30192
+    },
+    {
+      "id": "su_t72a",
+      "overrides": 0,
+      "resolvedTriangles": 0,
+      "originalUnknownTriangles": 256
+    },
+    {
+      "id": "us_m8",
+      "overrides": 172,
+      "resolvedTriangles": 6311,
+      "originalUnknownTriangles": 6379
+    },
+    {
+      "id": "us_m10",
+      "overrides": 93,
+      "resolvedTriangles": 6709,
+      "originalUnknownTriangles": 6855
+    },
+    {
+      "id": "us_m4a2",
+      "overrides": 157,
+      "resolvedTriangles": 7439,
+      "originalUnknownTriangles": 9111
+    },
+    {
+      "id": "us_m4a3_75w",
+      "overrides": 157,
+      "resolvedTriangles": 7439,
+      "originalUnknownTriangles": 8475
+    },
+    {
+      "id": "us_m4a1_76w",
+      "overrides": 87,
+      "resolvedTriangles": 8023,
+      "originalUnknownTriangles": 9251
+    },
+    {
+      "id": "us_m4a3_76w_hvss",
+      "overrides": 164,
+      "resolvedTriangles": 8111,
+      "originalUnknownTriangles": 9027
+    },
+    {
+      "id": "uk_cromwell_iv",
+      "overrides": 53,
+      "resolvedTriangles": 2360,
+      "originalUnknownTriangles": 3560
+    },
+    {
+      "id": "xp_w78",
+      "overrides": 371,
+      "resolvedTriangles": 4100,
+      "originalUnknownTriangles": 4148
+    },
+    {
+      "id": "de_pzjg1",
+      "overrides": 137,
+      "resolvedTriangles": 3584,
+      "originalUnknownTriangles": 3612
+    },
+    {
+      "id": "de_hetzer",
+      "overrides": 222,
+      "resolvedTriangles": 6144,
+      "originalUnknownTriangles": 6180
+    },
+    {
+      "id": "de_hetzer_flak",
+      "overrides": 123,
+      "resolvedTriangles": 3860,
+      "originalUnknownTriangles": 3932
+    },
+    {
+      "id": "de_rso_flak",
+      "overrides": 95,
+      "resolvedTriangles": 4134,
+      "originalUnknownTriangles": 4176
+    },
+    {
+      "id": "uk_cmp_portee",
+      "overrides": 132,
+      "resolvedTriangles": 3388,
+      "originalUnknownTriangles": 3580
+    },
+    {
+      "id": "de_flakpz38t",
+      "overrides": 197,
+      "resolvedTriangles": 4740,
+      "originalUnknownTriangles": 4752
+    },
+    {
+      "id": "de_rso_pak40",
+      "overrides": 83,
+      "resolvedTriangles": 3462,
+      "originalUnknownTriangles": 3536
+    }
+  ]
+}

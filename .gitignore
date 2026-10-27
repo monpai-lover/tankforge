@@ -6,11 +6,19 @@
 /client/web/dist/
 /client/web/test-results/
 /client/web/playwright-report/
+/handoff/server/dist/tankforge-page-update-*/
+/handoff/server/dist/tankforge-cockpit-update-*/
+/handoff/server/dist/
+/handoff/tests/out/
+/crates/server/handoff/tests/out/
+/handoff/bundle/app-review-next.html
 
 # Python caches
 __pycache__/
 *.py[cod]
 .venv/
+.pytest_cache/
+.cache/
 
 # Local credentials and machine configuration
 .env

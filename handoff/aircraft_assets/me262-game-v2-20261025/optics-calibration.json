@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "assemblyOffset": [
+    0,
+    0,
+    -0.12
+  ],
+  "eye": [
+    0,
+    0.925,
+    -0.195
+  ],
+  "cockpitLookDown": 0,
+  "preserveInstrumentMountForwardAnchor": true,
+  "instrumentMountNode": "REVI_InstrumentMount",
+  "mountExtensionM": 0.12,
+  "evidence": {
+    "sourceEye": [
+      0,
+      0.925,
+      -0.075
+    ],
+    "sourceCombinerCentre": [
+      0,
+      0.925,
+      0.24
+    ],
+    "sourcePanelBounds": [
+      [
+        -0.3084,
+        0.0643,
+        0.4367
+      ],
+      [
+        0.3084,
+        0.7615,
+        0.773
+      ]
+    ],
+    "correctedCombinerCentre": [
+      0,
+      0.925,
+      0.12
+    ],
+    "eyeReliefMeters": 0.315,
+    "reason": "User requested rearward complete sight assembly on pilot side of instrument panel; actual source instrument-panel and mount geometry measured",
+    "mountRule": "Translate optics/metal/pupil plane consistently; extend only original mounting bracket to keep its far anchor at original panel attachment, retain original triangle IDs/UV/material",
+    "historicalOpticsSource": "https://spitfirespares.co.uk/Website%20products%20570/Revi16B%20Waffenhandbuch.pdf",
+    "sourceLimits": "Exact installation offsets are game geometry fitting, not factory installation measurements",
+    "status": "candidate_pending_corrected_model_and_actual_game_view_review"
+  }
+}

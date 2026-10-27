@@ -1,0 +1,354 @@
+{
+  "scope": "Independent Python inventory of actual delivered raw weapon files, not normalized Rust bindings. All existing per-mount usability assertions remain unchanged.",
+  "formula": "one main gun + extra_guns + extra_turrets.guns; secondary count for machine-gun mounts; fun_hexa separately keeps its six-gun assertion.",
+  "counts": [
+    46,
+    56,
+    49
+  ],
+  "rows": [
+    {
+      "id": "de_aufkl_panther",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "73529ff2eabc20734f5fb27139c416f62cd35ea07a4298f396009e4a8760b936",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_flakpz38t",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "6745dba1dae1a36e888053d8834993a1b0c6211fa02076e2bcdf0671a6f5aaee",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_gepard",
+      "guns": 2,
+      "machineGuns": 0,
+      "weaponsSha256": "594920345104e5367b577d00504963ff35b6af2de148927a46bcbe0ede11e75c",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_hetzer",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "82c774ebb63685ce3f316fc2b8cb51b09758c3d7bfa552f71119c58f79b77230",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_hetzer_flak",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "63170171634bdfe96ad2c74a3d276d061f36d8647bb9a1edd28b93b57993fa1e",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_hetzer_mk103",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "262ec0d0346e69d022d91f9903cb0bd82b6f46ee096d8629f2a64579ff421527",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_hetzer_mk103_camo",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "c275df82ecae0a15f2c7e0147d73298dbda68313428888f38fd7b124dd1adc51",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_hetzer_sdkfz1401",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "4e216cbe214f3ecd01b4535b711c19d4152837eb22f598ba284338a728cde26e",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_panther_f",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "8596fea0ab4dc42911919fb159449ca9d64e241c67462c8660452a4cc0c2ce9b",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_panther_g",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "a761538c9b284a51ce3b1431815fb0092ac4a6b05da8d991b6e22566484caafc",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_pz3_j",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "0fd3f5f4480c6ce2916dbf06dedc93cda53300306a1a02d76b975b6cd71c3441",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_pz4_h",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "33de3f5cac49b905eb46e85c1ab6018b0c5c8334c143735328bef0f26fe1cbdb",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_pzjg1",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "28a181b44467a12c2093aafcfc126e5e51cbe19ecb391ce056d4631ea1728429",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_rso_flak",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "7917b7b2784e9caf88047b4544b043425f182019d7c5d565d66eede7cd8269db",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_rso_pak40",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "467e28c9944b9b5a011eea99755fbcf7c26bf496a8b8e078237e25832c9b0a2c",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_sdkfz140_1",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "fa3d495764d1544ff90b640a8591e9cd1373d0ec7485540561a129ee9bf64005",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_sdkfz234_2",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "207e118fc969756abe0d01d8f6acbd97967941768f58ffa068ff850d8bb32028",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_tiger_e",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "a22b33b14ee6c6a52f2bcd0f6cf9aec5b6bdccc2ddc01e558bef9a2dc699197d",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_vk1602",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "f10504f806b973af1bbe33597d0f74c7fb9e8571935fcb131ad2216b077ebee0",
+      "countsInFleet": true
+    },
+    {
+      "id": "de_vk3002_db",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "eb71da76b39e7688c3073958d224e561777cc951748d0021847bb24482bb3f8d",
+      "countsInFleet": true
+    },
+    {
+      "id": "fun_hexa",
+      "guns": 6,
+      "machineGuns": 0,
+      "weaponsSha256": "370d500b06983116fd5eed5a8a7fd56c5c446fb0ad8b77dfab952a852851b6ac",
+      "countsInFleet": false
+    },
+    {
+      "id": "proto_a",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "9d4bd7987f9b4c46416f35f67d3cca0a086011f89542052577a0394d4663be59",
+      "countsInFleet": true
+    },
+    {
+      "id": "ru_pantsir_sm_sv",
+      "guns": 5,
+      "machineGuns": 0,
+      "weaponsSha256": "bc9457e59d92a6f74682f4ab877463487221cff040605ada1b40dfff032d1b52",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_att_m46",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "93246c4a31070a37d93e7c32d516ae55634a55ed8300b02ed7bf6f3a1f2763ba",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_bmpt34",
+      "guns": 4,
+      "machineGuns": 0,
+      "weaponsSha256": "3daae2ec7dd5b9391d60235c81a4e2fd58070885af59e27f186d46f136bd07b8",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_is2",
+      "guns": 1,
+      "machineGuns": 3,
+      "weaponsSha256": "2378572716012367c8790dbe929674ee722fe2a743870e03878fef9ae6b35d21",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_t10m",
+      "guns": 2,
+      "machineGuns": 0,
+      "weaponsSha256": "c60353fcc674c4306eba5046b83c0a48d31991a6718bb2f98db8796d1a76b8d3",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_t10m_oplot23",
+      "guns": 2,
+      "machineGuns": 0,
+      "weaponsSha256": "0b4d4134a67c2bf411994b166e38eef7a504e5091727ded4e534d57aa4ec3dd2",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_t34_1940",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "2dc9cb451ceeb834e737f21cd501ae2d5e792e52d3027e83816edd8c9b5ca578",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_t34_85",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "59417edfae81a4cb031aea46ad51991fa5e0fbb50128d8a0e92c799ce0e5b314",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_t54",
+      "guns": 1,
+      "machineGuns": 3,
+      "weaponsSha256": "e9629f5fc692c173ad4357bb38c950ace2d43b3d5a531f36a41fbe87c363862d",
+      "countsInFleet": true
+    },
+    {
+      "id": "su_t72a",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "0a5260bf39c92b2fc81fd7abc322732100393816ccb6d1916810abd3def6582c",
+      "countsInFleet": true
+    },
+    {
+      "id": "uk_cmp_portee",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "bd6bd201431119e8ef0a7a889accbb0d5f96fe6988cc9205b3cf964748e50502",
+      "countsInFleet": true
+    },
+    {
+      "id": "uk_cromwell_iv",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "3fe29d8dbfcb3de65169d150759812714f33d28a4b8ffbffd6b5bd8eb9e59cec",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m10",
+      "guns": 1,
+      "machineGuns": 1,
+      "weaponsSha256": "7bbc59733eb21ed19c5a5383c48bfe1d9081bca0899f76dbdf29d39d2b46bf19",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m4a1_76w",
+      "guns": 1,
+      "machineGuns": 3,
+      "weaponsSha256": "9a27898cbaeed23f6e3772487e9e963911ddedc28efaf4cfb3ddc1a8b4c073aa",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m4a2",
+      "guns": 1,
+      "machineGuns": 3,
+      "weaponsSha256": "dd682c1daf5180959c6dbecab73796d53193a80ee3fdcb95f9a0bde02041eca8",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m4a3_75w",
+      "guns": 1,
+      "machineGuns": 3,
+      "weaponsSha256": "2d5a91992dcca2be0d392d5ed1de8cf737297b96925bb1dc6ab7842600cc9cbc",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m4a3_76w_hvss",
+      "guns": 1,
+      "machineGuns": 3,
+      "weaponsSha256": "9821a1d16eebfd0ac48a2dd648db574ce948590ec94368d961de523dfaefad8d",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m56",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "b0d70a2d8d3f883f5726025c097b440ebc002d5b93dd355bac06fa1fa7c79e3b",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m8",
+      "guns": 1,
+      "machineGuns": 2,
+      "weaponsSha256": "cc650ab3fbf02a1ba5762428792383f540c1510f8a859cfe6af316514d6591d4",
+      "countsInFleet": true
+    },
+    {
+      "id": "us_m901_itv",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "70a033c0cb5540cfb631e07f3965690ed04aeca60881c6d95f035c194889a599",
+      "countsInFleet": true
+    },
+    {
+      "id": "xp_bmp_k64",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "bf5965f005334068fd4c94d9092476e9a37a9a9accbe8ea0a6faf76cf25a090f",
+      "countsInFleet": true
+    },
+    {
+      "id": "xp_bmp_k64_atgm",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "fb1421046940eaf0fe59cdc28bbbb1c3a02e01ccc841371645d95a669853803c",
+      "countsInFleet": true
+    },
+    {
+      "id": "xp_bmp_k64_kornet",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "bbe2625c1b1ab366ea96702f511928f6b4b8a11b45114fb943701938360f8018",
+      "countsInFleet": true
+    },
+    {
+      "id": "xp_kda35",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "d927bb17cd9a91421231884e457de645d0919f95cd7e98fc74d831fdaf357c33",
+      "countsInFleet": true
+    },
+    {
+      "id": "xp_w78",
+      "guns": 1,
+      "machineGuns": 0,
+      "weaponsSha256": "28669d815d0dde51e83c9a1d50f2980f8a9c3ad904581c5fa72ff9ec02ee0a8b",
+      "countsInFleet": true
+    }
+  ],
+  "restoreReason": "Pre-recovery current tests already asserted46/56/49; older20261014 surface source asserted44/50/47 and lacked VK3002 plus Pantsir. Restore current guard, do not relax it.",
+  "missingOlderVehicles": [
+    "de_vk3002_db",
+    "ru_pantsir_sm_sv"
+  ],
+  "fixtureRecovery": {
+    "path": "data/hit-bindings/48628571dfc892feb27da516e2e804004181198e93f286e635143f77adb65de4.json",
+    "sha256": "48628571dfc892feb27da516e2e804004181198e93f286e635143f77adb65de4",
+    "bytes": 2698272,
+    "manifestHash": "57cf34dd8f1694e59acef7e3cbf4ae77e5624c919cf89095aa680229e0cff5fe",
+    "indexSha256": "9dc71ed329675b7a3c5ca9ca55a99d06e7840784a69f608721a9e42bf675fd8d",
+    "sourcePath": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\data\\hit-bindings\\48628571dfc892feb27da516e2e804004181198e93f286e635143f77adb65de4.json",
+    "classification": "test_authoring_only_not_runtime"
+  }
+}

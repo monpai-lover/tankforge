@@ -1,0 +1,1 @@
+[out:json][timeout:40];(way["waterway"~"^(river|stream|canal|drain|ditch)$"](38.0410021,127.2457562,38.2211904,127.2927499);way["natural"="water"](38.0410021,127.2457562,38.2211904,127.2927499);way["waterway"="riverbank"](38.0410021,127.2457562,38.2211904,127.2927499);rel["natural"="water"](38.0410021,127.2457562,38.2211904,127.2927499););out tags geom;

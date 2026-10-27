@@ -1,0 +1,510 @@
+{
+  "purpose": "Place proposed human tank-company staging near active fighting using 1:1 road lengths",
+  "status": "design_anchors_only_not_safe_or_playable_spawns",
+  "method": "Walk 1200m backwards/forwards along each connected cached road route from the current node road projection. Preserve road curves and do not connect missing source paths.",
+  "distanceMeters": 1200,
+  "illustrativeSpeedKmh": 20,
+  "illustrativeFirstContactMinutes": 3.6,
+  "notPerformancePrediction": "Constant travel speed only; actual acceleration, terrain, traffic, combat and final pads affect time.",
+  "battleNodePolicy": "Original broad objective centroids remain references. Actual capture footprint must be authored around verified road/dry-ground sites, not silently connected across the recorded centroid gap.",
+  "candidateGates": [
+    "Verify native terrain and a dry, clear formation pad for ten separate vehicles, with nonoverlapping footprints.",
+    "Check enemy fire/observation and protected egress. A1200m offset alone does not provide spawn safety.",
+    "Require friendly control, valid supply connection and route passability; disable contested pads and use a verified fallback.",
+    "Verify every intervening bridge and its destruction/detour state; a bridge list for a full source segment does not localize the shorter approach.",
+    "Reinforcements originate at a valid source and physically follow the accepted route to join surviving company members; no frontline reset.",
+    "Edge-of-map front indices0/4 need terminal battle/win or separately authored rear deployment; this study deliberately creates no arbitrary off-map pads."
+  ],
+  "records": [
+    {
+      "lane": "west",
+      "frontIndex": 1,
+      "battleNode": "W1",
+      "battleRoadAnchorMeters": [
+        309272.56660093245,
+        4207967.503506775
+      ],
+      "battleOriginalCentroidGapMeters": 492.1,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "W0",
+            "W1"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            309032.8293608804,
+            4207049.501624324
+          ],
+          "lonLat": [
+            126.82530216483262,
+            37.99101485637556
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            259648072,
+            259658473,
+            259658489,
+            1301729703
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "W1",
+            "W2"
+          ],
+          "status": "blocked_missing_source_path",
+          "enMeters": null,
+          "lonLat": null
+        }
+      ]
+    },
+    {
+      "lane": "west",
+      "frontIndex": 2,
+      "battleNode": "W2",
+      "battleRoadAnchorMeters": [
+        310876.78075541405,
+        4213588.962895272
+      ],
+      "battleOriginalCentroidGapMeters": 691.7,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "W1",
+            "W2"
+          ],
+          "status": "blocked_missing_source_path",
+          "enMeters": null,
+          "lonLat": null
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "W2",
+            "W3"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            310292.2333336615,
+            4212873.595481955
+          ],
+          "lonLat": [
+            126.83809353782144,
+            38.04373349995897
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            252084336,
+            259998681,
+            259998684,
+            260875995,
+            261076974,
+            261076998
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "west",
+      "frontIndex": 3,
+      "battleNode": "W3",
+      "battleRoadAnchorMeters": [
+        310810.74335992365,
+        4218980.6681329105
+      ],
+      "battleOriginalCentroidGapMeters": 14.34,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "W2",
+            "W3"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            310528.1894705979,
+            4220107.936439626
+          ],
+          "lonLat": [
+            126.83886331788825,
+            38.10893799691539
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            252084336,
+            259998681,
+            259998684,
+            260875995,
+            261076974,
+            261076998
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "W3",
+            "W4"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            310528.1894705979,
+            4220107.936439626
+          ],
+          "lonLat": [
+            126.83886331788825,
+            38.10893799691539
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            261076974
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "centre",
+      "frontIndex": 1,
+      "battleNode": "C1",
+      "battleRoadAnchorMeters": [
+        324183.908712102,
+        4213092.639425262
+      ],
+      "battleOriginalCentroidGapMeters": 299.69,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "C0",
+            "C1"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            324085.0858712287,
+            4212166.570937358
+          ],
+          "lonLat": [
+            126.99535820330676,
+            38.04015022294238
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            128945526,
+            1522325295
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "C1",
+            "C2"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            324673.4997362254,
+            4212222.798759425
+          ],
+          "lonLat": [
+            127.00204595543067,
+            38.04077081011749
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            72387965,
+            657712424
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "centre",
+      "frontIndex": 2,
+      "battleNode": "C2",
+      "battleRoadAnchorMeters": [
+        326030.01228329074,
+        4218077.6502311835
+      ],
+      "battleOriginalCentroidGapMeters": 146.21,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "C1",
+            "C2"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            326288.55290937715,
+            4217048.704736072
+          ],
+          "lonLat": [
+            127.01926836982588,
+            38.08455099908147
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            72387965,
+            657712424
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "C2",
+            "C3"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            326836.44058012584,
+            4218716.3246360235
+          ],
+          "lonLat": [
+            127.02510790843019,
+            38.099677015771626
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            629825602,
+            1312535101,
+            1312535109,
+            1312535114,
+            1312569009
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "centre",
+      "frontIndex": 3,
+      "battleNode": "C3",
+      "battleRoadAnchorMeters": [
+        325044.6415782274,
+        4222528.219289962
+      ],
+      "battleOriginalCentroidGapMeters": 626.15,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "C2",
+            "C3"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            326099.206811106,
+            4222736.114111417
+          ],
+          "lonLat": [
+            127.01572465058399,
+            38.13574289216223
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            629825602,
+            1312535101,
+            1312535109,
+            1312535114,
+            1312569009
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "C3",
+            "C4"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            326099.206811106,
+            4222736.114111417
+          ],
+          "lonLat": [
+            127.01572465058399,
+            38.13574289216223
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": []
+        }
+      ]
+    },
+    {
+      "lane": "east",
+      "frontIndex": 1,
+      "battleNode": "E1",
+      "battleRoadAnchorMeters": [
+        349787.38585979794,
+        4216521.226904859
+      ],
+      "battleOriginalCentroidGapMeters": 290.74,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "E0",
+            "E1"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            349212.8387565555,
+            4215798.527195665
+          ],
+          "lonLat": [
+            127.28080784048632,
+            38.077403158568835
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            654084368,
+            818048791
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "E1",
+            "E2"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            349212.8387565555,
+            4215798.527195665
+          ],
+          "lonLat": [
+            127.28080784048632,
+            38.077403158568835
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            600332700,
+            600600537
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "east",
+      "frontIndex": 2,
+      "battleNode": "E2",
+      "battleRoadAnchorMeters": [
+        348628.15100129717,
+        4221341.719632869
+      ],
+      "battleOriginalCentroidGapMeters": 101.37,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "E1",
+            "E2"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            348757.7926530987,
+            4220361.796677373
+          ],
+          "lonLat": [
+            127.27465525687815,
+            38.11843608362928
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            600332700,
+            600600537
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "E2",
+            "E3"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            348255.77564704383,
+            4222278.066340944
+          ],
+          "lonLat": [
+            127.26852291583317,
+            38.13561472186872
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            1323053172
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "east",
+      "frontIndex": 3,
+      "battleNode": "E3",
+      "battleRoadAnchorMeters": [
+        347496.9107521042,
+        4226306.966809953
+      ],
+      "battleOriginalCentroidGapMeters": 2.89,
+      "staging": [
+        {
+          "team": "blue",
+          "sourceSegment": [
+            "E2",
+            "E3"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            347741.81357921066,
+            4225337.400458209
+          ],
+          "lonLat": [
+            127.26200681346502,
+            38.163088203198306
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            1323053172
+          ]
+        },
+        {
+          "team": "red",
+          "sourceSegment": [
+            "E3",
+            "E4"
+          ],
+          "status": "road_distance_anchor_only",
+          "enMeters": [
+            347040.263124727,
+            4227217.6188803855
+          ],
+          "lonLat": [
+            127.25359794931651,
+            38.17990727382166
+          ],
+          "roadMetersToBattleAnchor": 1200,
+          "illustrativeMinutesAt20Kmh": 3.5999999999999996,
+          "bridgeWaysOnFullSourceSegment": [
+            990083195
+          ]
+        }
+      ]
+    }
+  ],
+  "attribution": "© OpenStreetMap contributors; ODbL1.0"
+}

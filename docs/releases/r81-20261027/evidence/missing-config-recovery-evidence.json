@@ -1,0 +1,77 @@
+{
+  "schema": "MissingConfigRecoveryEvidenceV1",
+  "result": "PASS",
+  "sourceFile": "C:/Users/24908/.codex/scratch/tankforge-airwar-online-20261025/intake/tank-monpai-root-20261025-script-1.js",
+  "sourceSha256": "86b54c4941e17204a98be9b1bceb16e6fea1960608f6d60cc925c04a8c6b6872",
+  "reason": "Three include_str inputs absent from provided source archive; existing local copies match complete current deployed JavaScript literals.",
+  "originalArchiveContainedFiles": false,
+  "releasedNativeBinaryReproductionClaim": false,
+  "rows": [
+    {
+      "file": "config/gameplay-modes.json",
+      "candidate": "C:/Users/24908/Documents/ChatGPT/tankforge/config/gameplay-modes.json",
+      "bytes": 395,
+      "sha256": "fcfde780f8dee92ca60ba5d86a98f7ae518f6b82823f4b4dd95cddb443e859a5",
+      "liveModuleLine": 11274,
+      "liveObject": {
+        "version": 2,
+        "modes": {
+          "casual": {
+            "speed": 1.15,
+            "drive": 1.25,
+            "steer": 1.25,
+            "traverse": 1.3,
+            "elevate": 1.2,
+            "fire": 1.2,
+            "show_enemy_markers": true
+          },
+          "historical": {
+            "speed": 1,
+            "drive": 1,
+            "steer": 1,
+            "traverse": 1,
+            "elevate": 1,
+            "fire": 1,
+            "show_enemy_markers": false
+          }
+        }
+      },
+      "semanticMatch": true
+    },
+    {
+      "file": "config/ammo-resupply.json",
+      "candidate": "C:/Users/24908/Documents/ChatGPT/tankforge/config/ammo-resupply.json",
+      "bytes": 87,
+      "sha256": "2847c030b035848ce03c35ca5bdd78ab9e7e5d0843c8793448e550375e2903dc",
+      "liveModuleLine": 20827,
+      "liveObject": {
+        "ammo_protocol_version": 1,
+        "resupply_seconds": 5,
+        "pose_max_age_seconds": 1
+      },
+      "semanticMatch": true
+    },
+    {
+      "file": "config/stabilizer-drives.json",
+      "candidate": "C:/Users/24908/Documents/ChatGPT/tankforge/config/stabilizer-drives.json",
+      "bytes": 179,
+      "sha256": "99aa40be41546ac6d66463a1189bd1622f046e4a0b0fd2cbbc4bfab2593e3c1c",
+      "liveModuleLine": 34047,
+      "liveObject": {
+        "none": {
+          "traverse_deg_s": 0,
+          "elevate_deg_s": 0
+        },
+        "vertical": {
+          "traverse_deg_s": 0,
+          "elevate_deg_s": 9
+        },
+        "two_plane": {
+          "traverse_deg_s": 50,
+          "elevate_deg_s": 50
+        }
+      },
+      "semanticMatch": true
+    }
+  ]
+}

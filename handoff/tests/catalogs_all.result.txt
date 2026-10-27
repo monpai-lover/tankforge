@@ -1,0 +1,33 @@
+== batch 1 de_pz3_j,de_pz4_h,de_tiger_e,de_panther_g
+@@ row {"id":"de_pz3_j","selected":"de_pz3_j","available":true,"detail":null,"unaudited":355,"shots":[["hull_side_r",30,"penetrated",""],["hull_rear",50,"penetrated",""],["turret_front",57,"penetrated",""]]}
+@@ row {"id":"de_pz4_h","selected":"de_pz4_h","available":true,"detail":null,"unaudited":490,"shots":[["hull_side_r",30,"penetrated",""],["hull_rear",20,"penetrated",""],["turret_front",50,"penetrated",""]]}
+@@ row {"id":"de_tiger_e","selected":"de_tiger_e","available":true,"detail":null,"unaudited":425,"shots":[["hull_side_r",80,"penetrated",""],["hull_rear",80,"penetrated",""],["turret_front",100,"penetrated",""]]}
+@@ row {"id":"de_panther_g","selected":"de_panther_g","available":true,"detail":null,"unaudited":77,"shots":[["hull_side_r",50,"penetrated",""],["hull_rear",40,"penetrated",""],["turret_front",100,"penetrated",""]]}
+== batch 2 de_panther_f,de_sdkfz234_2,su_t34_1940
+@@ row {"id":"de_panther_f","selected":"de_panther_f","available":true,"detail":null,"unaudited":77,"shots":[["hull_side_r",50,"penetrated",""],["hull_rear",40,"penetrated",""],["turret_front",120,"penetrated",""]]}
+@@ row {"id":"de_sdkfz234_2","selected":"de_sdkfz234_2","available":true,"detail":null,"unaudited":58,"shots":[["hull_side_r",8,"penetrated",""],["hull_rear",10,"penetrated",""],["turret_front",30,"penetrated",""]]}
+@@ row {"id":"su_t34_1940","selected":"su_t34_1940","available":true,"detail":null,"unaudited":1593,"shots":[["hull_side_r",45,"penetrated",""],["hull_rear",45,"penetrated",""],["turret_front",45,"penetrated",""]]}
+== batch 3 su_t34_85,su_is2,su_t10m,su_t10m_oplot23,su_bmpt34,su_t54
+@@ row {"id":"su_t34_85","selected":"su_t34_85","available":true,"detail":null,"unaudited":2283,"shots":[["hull_side_r",45,"penetrated",""],["hull_rear",45,"penetrated",""],["turret_front",90,"external",""]]}
+@@ row {"id":"su_is2","selected":"su_is2","available":true,"detail":null,"unaudited":76,"shots":[["hull_side_r",90,"penetrated",""],["hull_rear",60,"penetrated",""],["turret_front",100,"ricochet",""]]}
+@@ row {"id":"su_t54","selected":"su_t54","available":true,"detail":null,"unaudited":207,"shots":[["hull_side_r",79,"external",""],["hull_rear",60,"penetrated",""],["turret_front",205,"ricochet",""]]}
+== batch 4 su_t72a,us_m8,us_m10,us_m4a2,us_m4a3_75w
+@@ row {"id":"su_t72a","selected":"su_t72a","available":true,"detail":null,"unaudited":1,"shots":[["hull_side_r",80,"penetrated",""],["hull_rear",45,"penetrated",""],["turret_front",280,"penetrated",""]]}
+@@ row {"id":"us_m8","selected":"us_m8","available":true,"detail":null,"unaudited":172,"shots":[["hull_side_r",9.5,"penetrated",""],["hull_rear",9.5,"unarmoured",""],["turret_front",19.05,"penetrated",""]]}
+@@ row {"id":"us_m10","selected":"us_m10","available":true,"detail":null,"unaudited":97,"shots":[["hull_side_r",19,"penetrated",""],["hull_rear",19,"penetrated",""],["turret_front",57,"penetrated",""]]}
+@@ row {"id":"us_m4a2","selected":"us_m4a2","available":true,"detail":null,"unaudited":225,"shots":[["hull_side_r",38,"miss",""],["hull_rear",38,"penetrated",""],["turret_front",76,"penetrated",""]]}
+@@ row {"id":"us_m4a3_75w","selected":"us_m4a3_75w","available":true,"detail":null,"unaudited":182,"shots":[["hull_side_r",38,"miss",""],["hull_rear",38,"penetrated",""],["turret_front",76,"penetrated",""]]}
+== batch 5 us_m4a1_76w,us_m4a3_76w_hvss,us_m56,us_m901_itv,uk_cromwell_iv,xp_kda35,xp_w78,de_pzjg1,de_flakpz38t
+@@ row {"id":"us_m4a1_76w","selected":"us_m4a1_76w","available":true,"detail":null,"unaudited":138,"shots":[["hull_side_r",38,"external",""],["hull_rear",38,"penetrated",""],["turret_front",63.5,"penetrated",""]]}
+@@ row {"id":"us_m4a3_76w_hvss","selected":"us_m4a3_76w_hvss","available":true,"detail":null,"unaudited":189,"shots":[["hull_side_r",38,"unarmoured",""],["hull_rear",38,"penetrated",""],["turret_front",63.5,"penetrated",""]]}
+@@ row {"id":"uk_cromwell_iv","selected":"uk_cromwell_iv","available":true,"detail":null,"unaudited":89,"shots":[["hull_side_r",32,"miss",""],["hull_rear",32,"ricochet",""],["turret_front",76,"penetrated",""]]}
+@@ row {"id":"xp_w78","selected":"xp_w78","available":true,"detail":null,"unaudited":383,"shots":[["hull_side_r",12,"penetrated",""],["hull_lower_side_r",10,"penetrated",""],["hull_rear",10,"penetrated",""]]}
+@@ row {"id":"de_pzjg1","selected":"de_pzjg1","available":true,"detail":null,"unaudited":139,"shots":[["hull_side_r",13,"unarmoured",""],["hull_rear",13,"penetrated",""],["turret_front",14.5,"penetrated",""]]}
+ALLDONE
+== batch 1 de_hetzer,de_hetzer_flak,de_rso_flak,de_rso_pak40,de_gepard,uk_cmp_portee,de_aufkl_panther,de_vk1602,de_hetzer_mk103,de_hetzer_mk103_camo,de_sdkfz140_1,de_hetzer_sdkfz1401,xp_bmp_k64,xp_bmp_k64_atgm,xp_bmp_k64_kornet,su_att_m46,proto_a
+@@ row {"id":"de_hetzer","selected":"de_hetzer","available":true,"detail":null,"unaudited":223,"shots":[["hull_side_r",20,"penetrated",""],["hull_lower_side_r",20,"penetrated",""],["hull_rear",8,"penetrated",""]]}
+@@ row {"id":"de_hetzer_flak","selected":"de_hetzer_flak","available":true,"detail":null,"unaudited":126,"shots":[["hull_side_r",20,"penetrated",""],["hull_lower_side_r",20,"penetrated",""],["hull_rear",8,"penetrated",""]]}
+@@ row {"id":"de_rso_flak","selected":"de_rso_flak","available":true,"detail":null,"unaudited":101,"shots":[["hull_side_r",5,"penetrated",""],["hull_rear",5,"penetrated",""],["bed_side_r",3,"miss",""]]}
+@@ row {"id":"uk_cmp_portee","selected":"uk_cmp_portee","available":true,"detail":null,"unaudited":144,"shots":[["bonnet_side_r",2,"penetrated",""],["cab_side_r",2,"penetrated",""]]}
+== batch 2 
+ALLDONE

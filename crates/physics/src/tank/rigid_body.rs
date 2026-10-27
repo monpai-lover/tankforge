@@ -69,6 +69,11 @@ impl VehicleRigidBody {
         self.t = [0.0; 3];
     }
 
+    #[cfg(test)]
+    pub(crate) fn accumulated_force_torque(&self) -> (V3, V3) {
+        (self.f, self.t)
+    }
+
     /// Puts the hull frame's origin at `origin`, heading `yaw` (clockwise from +Z), level and still.
     pub fn place(&mut self, origin: V3, yaw: f64) {
         let (s, c) = yaw.sin_cos();

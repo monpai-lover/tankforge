@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TankForge weapon × exact-aircraft menu and model coverage",
+  "type": "object",
+  "required": ["schema", "scope", "runtimeScriptSha256", "catalogModuleSha256", "models", "weaponIndex", "counts", "evidenceSources"],
+  "properties": {
+    "schema": {"const": 1},
+    "scope": {"type": "string"},
+    "runtimeScriptSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "catalogModuleSha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "models": {"type": "object", "minProperties": 26, "maxProperties": 26, "additionalProperties": {"$ref": "#/$defs/model"}},
+    "weaponIndex": {"type": "object", "additionalProperties": {"type": "object", "required": ["name", "kind", "definition", "geometry", "availableCarriers", "unverifiedCarriers"]}},
+    "counts": {"type": "object", "required": ["models", "weapons", "pairs", "menuStationWeaponPairs"]},
+    "evidenceSources": {"type": "object"}
+  },
+  "$defs": {
+    "state": {"enum": ["available", "missing_model", "requires_adapter", "unverified", "component_only", "ground_only"]},
+    "model": {
+      "type": "object",
+      "required": ["name", "sourceMain", "variantReview", "slots", "weapons", "capabilityGaps"],
+      "properties": {
+        "name": {"type": "string"},
+        "sourceMain": {"type": ["string", "null"]},
+        "variantReview": {"type": "string"},
+        "slots": {"type": "array"},
+        "weapons": {"type": "object", "additionalProperties": {"type": "object", "required": ["state", "stations", "reason", "fitVerification"], "properties": {"state": {"$ref": "#/$defs/state"}, "reason": {"type": "string", "minLength": 1}, "stations": {"type": "array"}}}},
+        "capabilityGaps": {"type": "array", "items": {"type": "object", "required": ["id", "weapons", "state", "reason"], "properties": {"id": {"type": "string"}, "weapons": {"type": "array", "items": {"type": "string"}}, "state": {"$ref": "#/$defs/state"}, "reason": {"type": "string", "minLength": 1}}}}
+      }
+    }
+  }
+}

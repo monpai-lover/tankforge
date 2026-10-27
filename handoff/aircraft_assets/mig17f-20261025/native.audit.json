@@ -1,0 +1,7549 @@
+{
+  "archiveSha256": "99cbfaaa8bfa759e87035d7b9d33e29f635690437b27706e84e44d9eab0aae4f",
+  "glbSha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e",
+  "nativeSha256": "e553b9d081f59cfed0fda9e91e900cd5b60bd6ba42b69feb95df82af30a3b6f9",
+  "sourceTriangles": 85645,
+  "retainedTriangles": 85645,
+  "renderedTriangles": 82980,
+  "sourceParts": 55,
+  "runtimeParts": 65,
+  "movers": 14,
+  "originalBlobPrefixPreserved": true,
+  "faces": [
+    {
+      "source": "body_source_00",
+      "part": "body_source_00__source_excluded",
+      "group": "source_excluded",
+      "triangles": 8,
+      "source_faces": [
+        [
+          0,
+          8
+        ]
+      ],
+      "index_sha256": "461f1d3d5e39bf6ff92ca0681117a45cdf24808fbe12057331b31341a4e24f8d"
+    },
+    {
+      "source": "body_source_01",
+      "part": "body_source_01__wing_r",
+      "group": "wing_r",
+      "triangles": 881,
+      "source_faces": [
+        [
+          0,
+          881
+        ]
+      ],
+      "index_sha256": "020721c5f3f914c0ef83150c90e65e9fc402983c9714ffa6b6c02ae8a478bba6"
+    },
+    {
+      "source": "body_source_01",
+      "part": "body_source_01__wing_l",
+      "group": "wing_l",
+      "triangles": 670,
+      "source_faces": [
+        [
+          881,
+          670
+        ]
+      ],
+      "index_sha256": "4002d559d9e03926772b55ee1b528ca62258f407b611318b6d01973442c43a09"
+    },
+    {
+      "source": "body_source_01",
+      "part": "body_source_01__body",
+      "group": "body",
+      "triangles": 16,
+      "source_faces": [
+        [
+          1551,
+          16
+        ]
+      ],
+      "index_sha256": "ac35588ae9f39a47b1dd7a593bc6d95030298431a81761e921816e94a6ad2158"
+    },
+    {
+      "source": "body_source_02",
+      "part": "body_source_02__body",
+      "group": "body",
+      "triangles": 4333,
+      "source_faces": [
+        [
+          0,
+          4333
+        ]
+      ],
+      "index_sha256": "7367da85e30d469a152e6916c3b11a1c21ce1ce877a199e123e052fb1160c305"
+    },
+    {
+      "source": "body_source_03",
+      "part": "body_source_03__wing_r",
+      "group": "wing_r",
+      "triangles": 2279,
+      "source_faces": [
+        [
+          0,
+          2279
+        ]
+      ],
+      "index_sha256": "1afda0d175f559a350d556037ef07f20fbadf3606ad55e011c28915e9d07aba0"
+    },
+    {
+      "source": "body_source_03",
+      "part": "body_source_03__wing_l",
+      "group": "wing_l",
+      "triangles": 2080,
+      "source_faces": [
+        [
+          2279,
+          2080
+        ]
+      ],
+      "index_sha256": "a894b74f9b0ff0e4f08587d02947968feec571bb74d0d3062848f27f4a593213"
+    },
+    {
+      "source": "body_source_03",
+      "part": "body_source_03__body",
+      "group": "body",
+      "triangles": 122,
+      "source_faces": [
+        [
+          4359,
+          122
+        ]
+      ],
+      "index_sha256": "a530c3a8de1d1e9459203888021f7c5c78e5441cd51f171f57d84ba5913d2f8c"
+    },
+    {
+      "source": "body_source_04",
+      "part": "body_source_04__body",
+      "group": "body",
+      "triangles": 3231,
+      "source_faces": [
+        [
+          0,
+          3231
+        ]
+      ],
+      "index_sha256": "0ece902ec79040a5cd088aace20c5958964d42adf9daf352c7a0cc2decc1a20e"
+    },
+    {
+      "source": "body_source_05",
+      "part": "body_source_05__body",
+      "group": "body",
+      "triangles": 6538,
+      "source_faces": [
+        [
+          0,
+          6538
+        ]
+      ],
+      "index_sha256": "34c1627f2ea8ecee105aa11643a0e913f61b20eb709daef6ab9f087100d1f021"
+    },
+    {
+      "source": "body_source_11",
+      "part": "body_source_11__wing_r",
+      "group": "wing_r",
+      "triangles": 680,
+      "source_faces": [
+        [
+          0,
+          680
+        ]
+      ],
+      "index_sha256": "cb091e1e40e16ceff3160c7b33aedc012c61e844c62c3a1f2b105880a4b54df9"
+    },
+    {
+      "source": "body_source_11",
+      "part": "body_source_11__wing_l",
+      "group": "wing_l",
+      "triangles": 678,
+      "source_faces": [
+        [
+          680,
+          678
+        ]
+      ],
+      "index_sha256": "8df847549c1d73d5f6abfe5a60fb21657cb21c59b6fdf65d6c6e7cd422d9910a"
+    },
+    {
+      "source": "body_source_12",
+      "part": "body_source_12__wing_r",
+      "group": "wing_r",
+      "triangles": 736,
+      "source_faces": [
+        [
+          0,
+          736
+        ]
+      ],
+      "index_sha256": "ace6999badaa02b3ea41bd81c2a695f70ce86e7c4d6d862bfec236d9d2489ca8"
+    },
+    {
+      "source": "body_source_12",
+      "part": "body_source_12__wing_l",
+      "group": "wing_l",
+      "triangles": 729,
+      "source_faces": [
+        [
+          736,
+          729
+        ]
+      ],
+      "index_sha256": "9cd9df4810c14ee8b218df74cfe7f87ef8bd233ef23b7545408b66dc17c0bddb"
+    },
+    {
+      "source": "body_source_14",
+      "part": "body_source_14__source_excluded",
+      "group": "source_excluded",
+      "triangles": 2657,
+      "source_faces": [
+        [
+          0,
+          2657
+        ]
+      ],
+      "index_sha256": "1efd313fb62adb418c1bd827e274e899dce3d7fe563cd7419446690f7c8f81a6"
+    },
+    {
+      "source": "body_source_15",
+      "part": "body_source_15__body",
+      "group": "body",
+      "triangles": 278,
+      "source_faces": [
+        [
+          0,
+          278
+        ]
+      ],
+      "index_sha256": "6eb78e3c56d2bf83824b9d494e1a50d7541410094a1076d318959e230b798a27"
+    },
+    {
+      "source": "body_source_15",
+      "part": "body_source_15__wing_r",
+      "group": "wing_r",
+      "triangles": 310,
+      "source_faces": [
+        [
+          278,
+          310
+        ]
+      ],
+      "index_sha256": "afb9d0b98080976d1bc317495f73f2842ff4d3a0c25270d40f74389699ed23f4"
+    },
+    {
+      "source": "body_source_15",
+      "part": "body_source_15__wing_l",
+      "group": "wing_l",
+      "triangles": 310,
+      "source_faces": [
+        [
+          588,
+          310
+        ]
+      ],
+      "index_sha256": "27095d99abac62976bede0f1dea5505b87614109ad20538d14fa92a8c5472ca5"
+    },
+    {
+      "source": "cockpit_source_06",
+      "part": "cockpit_source_06__cockpit",
+      "group": "cockpit",
+      "triangles": 1374,
+      "source_faces": [
+        [
+          0,
+          1374
+        ]
+      ],
+      "index_sha256": "0e5d51e1c262fbe1f12010032d54f61fdd2391be7f6abe74be40636707df93e4"
+    },
+    {
+      "source": "cockpit_source_08",
+      "part": "cockpit_source_08__cockpit",
+      "group": "cockpit",
+      "triangles": 21845,
+      "source_faces": [
+        [
+          0,
+          21845
+        ]
+      ],
+      "index_sha256": "f48aefd58b3d46960b4f8fe87b10a3c25a233e8a5aa0ebbccc584aa460e6a365"
+    },
+    {
+      "source": "cockpit_source_09",
+      "part": "cockpit_source_09__cockpit",
+      "group": "cockpit",
+      "triangles": 5808,
+      "source_faces": [
+        [
+          0,
+          5808
+        ]
+      ],
+      "index_sha256": "ed69af34a240c25ca398e0522fcb0e5128be7ae901693cf74a89c13b331f1eda"
+    },
+    {
+      "source": "cockpit_source_10",
+      "part": "cockpit_source_10__cockpit",
+      "group": "cockpit",
+      "triangles": 3992,
+      "source_faces": [
+        [
+          0,
+          3992
+        ]
+      ],
+      "index_sha256": "aaae74820a01be3d4ca710837285380522ae638a43bbf211d7d51871217c15f1"
+    },
+    {
+      "source": "flap_l_source_03",
+      "part": "flap_l_source_03__wing_l",
+      "group": "wing_l",
+      "triangles": 1128,
+      "source_faces": [
+        [
+          0,
+          1128
+        ]
+      ],
+      "index_sha256": "1baf8261e4fbd736ae26566b2cea87874369f163a1648186167f2a127b7d518a"
+    },
+    {
+      "source": "flap_l_source_04",
+      "part": "flap_l_source_04__wing_l",
+      "group": "wing_l",
+      "triangles": 593,
+      "source_faces": [
+        [
+          0,
+          593
+        ]
+      ],
+      "index_sha256": "1c9bcfecc53f939aa5f1d02c5675415ff67e052ee86a1551314dfdba6374fe69"
+    },
+    {
+      "source": "flap_l_source_12",
+      "part": "flap_l_source_12__wing_l",
+      "group": "wing_l",
+      "triangles": 26,
+      "source_faces": [
+        [
+          0,
+          26
+        ]
+      ],
+      "index_sha256": "d3f627661e21de5a606db8c99d4fed45a8c1f0c49af2251b77c5734e92ace949"
+    },
+    {
+      "source": "flap_l_source_15",
+      "part": "flap_l_source_15__wing_l",
+      "group": "wing_l",
+      "triangles": 48,
+      "source_faces": [
+        [
+          0,
+          48
+        ]
+      ],
+      "index_sha256": "c9f137b77e8c37466d700e89a0eb598121ba77bb5ac6369ac3c9d6d25e586c37"
+    },
+    {
+      "source": "flap_r_source_03",
+      "part": "flap_r_source_03__wing_r",
+      "group": "wing_r",
+      "triangles": 1128,
+      "source_faces": [
+        [
+          0,
+          1128
+        ]
+      ],
+      "index_sha256": "79ef16b0ab519ec6d0bb768cb5edc54688e0d23c0863fe60fb716ab8fc190773"
+    },
+    {
+      "source": "flap_r_source_04",
+      "part": "flap_r_source_04__wing_r",
+      "group": "wing_r",
+      "triangles": 594,
+      "source_faces": [
+        [
+          0,
+          594
+        ]
+      ],
+      "index_sha256": "984cb0e0cc3308a511a064340ddb94be906cc69f02ddbecaaa0a42258b47c07f"
+    },
+    {
+      "source": "flap_r_source_12",
+      "part": "flap_r_source_12__wing_r",
+      "group": "wing_r",
+      "triangles": 26,
+      "source_faces": [
+        [
+          0,
+          26
+        ]
+      ],
+      "index_sha256": "4b7d9e4dc29a796c82b015639cbf4b090f2e5dd5046d8f62a4b8a8704ee8b614"
+    },
+    {
+      "source": "flap_r_source_15",
+      "part": "flap_r_source_15__wing_r",
+      "group": "wing_r",
+      "triangles": 48,
+      "source_faces": [
+        [
+          0,
+          48
+        ]
+      ],
+      "index_sha256": "9578cafb525fb1d63e9816d222861051e3365394b6a169f132d6f206b1e2c1d4"
+    },
+    {
+      "source": "gear_main_l_inner_door_source_01",
+      "part": "gear_main_l_inner_door_source_01__body",
+      "group": "body",
+      "triangles": 401,
+      "source_faces": [
+        [
+          0,
+          401
+        ]
+      ],
+      "index_sha256": "95297519fb7770c5b03cf79fbfaf0f4cf22b5bfc1e49140755a2c5de3c9323b8"
+    },
+    {
+      "source": "gear_main_l_inner_door_source_06",
+      "part": "gear_main_l_inner_door_source_06__body",
+      "group": "body",
+      "triangles": 244,
+      "source_faces": [
+        [
+          0,
+          244
+        ]
+      ],
+      "index_sha256": "90b21711a6d7ac2c7dc2c3f58459990fd7c178d55e1fb5d4a0d90cfaf55ef85b"
+    },
+    {
+      "source": "gear_main_l_leg_cover_source_01",
+      "part": "gear_main_l_leg_cover_source_01__body",
+      "group": "body",
+      "triangles": 471,
+      "source_faces": [
+        [
+          0,
+          471
+        ]
+      ],
+      "index_sha256": "3de3b12ddd74a79f3a37684d69ae6350b98594d46282eef6363984ab57beb45b"
+    },
+    {
+      "source": "gear_main_l_outer_cap_source_01",
+      "part": "gear_main_l_outer_cap_source_01__body",
+      "group": "body",
+      "triangles": 269,
+      "source_faces": [
+        [
+          0,
+          269
+        ]
+      ],
+      "index_sha256": "beba61735c89d67e8e1c9945a528f11eb26368c696db5aa7a6ca1b762a8481c0"
+    },
+    {
+      "source": "gear_main_l_source_06",
+      "part": "gear_main_l_source_06__body",
+      "group": "body",
+      "triangles": 1956,
+      "source_faces": [
+        [
+          0,
+          1956
+        ]
+      ],
+      "index_sha256": "05bf5a289ddecc9a04768e86f089d714e7a08c2c1f4e6fe49c706d5d0f8d8b7f"
+    },
+    {
+      "source": "gear_main_l_wheel_source_07",
+      "part": "gear_main_l_wheel_source_07__body",
+      "group": "body",
+      "triangles": 2340,
+      "source_faces": [
+        [
+          0,
+          2340
+        ]
+      ],
+      "index_sha256": "0c3e7ec0be045ff978f48bbcac71fffbcf4a3e7f6ba3e727254aef5870a9e3ca"
+    },
+    {
+      "source": "gear_main_r_inner_door_source_01",
+      "part": "gear_main_r_inner_door_source_01__body",
+      "group": "body",
+      "triangles": 373,
+      "source_faces": [
+        [
+          0,
+          373
+        ]
+      ],
+      "index_sha256": "baaa236f2c9b11dbc141cdb0170bee15ce0661feebdf164ad44400e31c56cbdb"
+    },
+    {
+      "source": "gear_main_r_inner_door_source_10",
+      "part": "gear_main_r_inner_door_source_10__body",
+      "group": "body",
+      "triangles": 244,
+      "source_faces": [
+        [
+          0,
+          244
+        ]
+      ],
+      "index_sha256": "6084b5fc0678718bd30a0c5cdba2ad65df67e8bcb22cb58615e1abf9574f0728"
+    },
+    {
+      "source": "gear_main_r_leg_cover_source_01",
+      "part": "gear_main_r_leg_cover_source_01__body",
+      "group": "body",
+      "triangles": 499,
+      "source_faces": [
+        [
+          0,
+          499
+        ]
+      ],
+      "index_sha256": "add25d1b443fbb553554db96f27f703c81ca3e5d1888d74468df7e5ac25f9004"
+    },
+    {
+      "source": "gear_main_r_outer_cap_source_01",
+      "part": "gear_main_r_outer_cap_source_01__body",
+      "group": "body",
+      "triangles": 269,
+      "source_faces": [
+        [
+          0,
+          269
+        ]
+      ],
+      "index_sha256": "f005d12e039f590a51a89aa8f28b64897276b8e6d5c914fbf4c277ebfcfa15d0"
+    },
+    {
+      "source": "gear_main_r_source_06",
+      "part": "gear_main_r_source_06__body",
+      "group": "body",
+      "triangles": 952,
+      "source_faces": [
+        [
+          0,
+          952
+        ]
+      ],
+      "index_sha256": "410f9b5f455e5786eaa5292fc438c659e940f8cd6e30470c2a5df84be5d09749"
+    },
+    {
+      "source": "gear_main_r_source_10",
+      "part": "gear_main_r_source_10__body",
+      "group": "body",
+      "triangles": 1295,
+      "source_faces": [
+        [
+          0,
+          1295
+        ]
+      ],
+      "index_sha256": "79d8e49cb8695694e04e0173ceea9954acea372467093005002f5a8d94c2eb6f"
+    },
+    {
+      "source": "gear_main_r_wheel_source_07",
+      "part": "gear_main_r_wheel_source_07__body",
+      "group": "body",
+      "triangles": 2340,
+      "source_faces": [
+        [
+          0,
+          2340
+        ]
+      ],
+      "index_sha256": "cbb36dae770cd1fed4cc52db1c279c0dff7a53599c27e2b86af10917a4903864"
+    },
+    {
+      "source": "gear_nose_source_01",
+      "part": "gear_nose_source_01__body",
+      "group": "body",
+      "triangles": 1046,
+      "source_faces": [
+        [
+          0,
+          1046
+        ]
+      ],
+      "index_sha256": "0876b979808894fb7ca2f5d1c1edab29bec1290835578d568a83a5ba205dc404"
+    },
+    {
+      "source": "gear_nose_source_05",
+      "part": "gear_nose_source_05__body",
+      "group": "body",
+      "triangles": 1107,
+      "source_faces": [
+        [
+          0,
+          1107
+        ]
+      ],
+      "index_sha256": "82a8818a2c57cddd26c696208736d0863e3d12a0c7059c81d70a46a57b76346a"
+    },
+    {
+      "source": "gear_nose_source_06",
+      "part": "gear_nose_source_06__body",
+      "group": "body",
+      "triangles": 900,
+      "source_faces": [
+        [
+          0,
+          900
+        ]
+      ],
+      "index_sha256": "a957346d90e01a2347f08fe943961af8f737a2f4549c326cbb4089a0b2c5a108"
+    },
+    {
+      "source": "gear_nose_source_07",
+      "part": "gear_nose_source_07__body",
+      "group": "body",
+      "triangles": 1000,
+      "source_faces": [
+        [
+          0,
+          1000
+        ]
+      ],
+      "index_sha256": "1ab81dcb5c0c63137af03662e76932d2493978688b2db0f75bf3012ca823323c"
+    },
+    {
+      "source": "gear_nose_source_09",
+      "part": "gear_nose_source_09__body",
+      "group": "body",
+      "triangles": 1215,
+      "source_faces": [
+        [
+          0,
+          1215
+        ]
+      ],
+      "index_sha256": "b1f34ce6ac5aaf5075a3f191f64c5a884d1b049b691ceec4954ec9a9cfd04dba"
+    },
+    {
+      "source": "glass_source_13",
+      "part": "glass_source_13__glass",
+      "group": "glass",
+      "triangles": 1248,
+      "source_faces": [
+        [
+          0,
+          956
+        ],
+        [
+          1096,
+          292
+        ]
+      ],
+      "index_sha256": "d520e3b8a88c14ced574f4eda94f85e0d5f0dddd3dba2883e7cbe8b508f33b4f"
+    },
+    {
+      "source": "glass_source_13",
+      "part": "glass_source_13_away",
+      "group": "glass",
+      "triangles": 106,
+      "source_faces": [
+        [
+          1388,
+          8
+        ],
+        [
+          1450,
+          98
+        ]
+      ],
+      "index_sha256": "fa1407ecf8109d9bbc9b6a8bffb04af820913fda8a347e6040864b20ef4c5837"
+    },
+    {
+      "source": "glass_source_13",
+      "part": "HUD_GLASS:glass_source_13__sight",
+      "group": "glass",
+      "triangles": 194,
+      "source_faces": [
+        [
+          956,
+          140
+        ],
+        [
+          1396,
+          54
+        ]
+      ],
+      "index_sha256": "61bc1dfdb0feb8120ab49b6a11ac78138ed4f1555ad5b293f81508d2cc055ef8"
+    },
+    {
+      "source": "pitch_l_source_02",
+      "part": "pitch_l_source_02__body",
+      "group": "body",
+      "triangles": 66,
+      "source_faces": [
+        [
+          0,
+          66
+        ]
+      ],
+      "index_sha256": "5f8ee66d6565e4533a3de7eee25f3f37753b8c18bb2015128fc078493f7bfa3e"
+    },
+    {
+      "source": "pitch_l_source_04",
+      "part": "pitch_l_source_04__body",
+      "group": "body",
+      "triangles": 902,
+      "source_faces": [
+        [
+          0,
+          902
+        ]
+      ],
+      "index_sha256": "9d88c4f4e128a2534bcc8259bbccc9e0f2db9f75b8e049d601205e1f7908948b"
+    },
+    {
+      "source": "pitch_l_source_15",
+      "part": "pitch_l_source_15__body",
+      "group": "body",
+      "triangles": 56,
+      "source_faces": [
+        [
+          0,
+          56
+        ]
+      ],
+      "index_sha256": "405bb3340963f16716a1b95449584e2e4230665ddeb0a357434675ca8735f631"
+    },
+    {
+      "source": "pitch_r_source_02",
+      "part": "pitch_r_source_02__body",
+      "group": "body",
+      "triangles": 66,
+      "source_faces": [
+        [
+          0,
+          66
+        ]
+      ],
+      "index_sha256": "13073c7f9bfe85aa832f3951b57247b7f2a00438cd380cce2efed5ac9c10eb75"
+    },
+    {
+      "source": "pitch_r_source_04",
+      "part": "pitch_r_source_04__body",
+      "group": "body",
+      "triangles": 1176,
+      "source_faces": [
+        [
+          0,
+          1176
+        ]
+      ],
+      "index_sha256": "65a143af302fd8e5d0e484b6758c3ef0b3773e34692900fe83dbd103ab7852dc"
+    },
+    {
+      "source": "pitch_r_source_15",
+      "part": "pitch_r_source_15__body",
+      "group": "body",
+      "triangles": 56,
+      "source_faces": [
+        [
+          0,
+          56
+        ]
+      ],
+      "index_sha256": "ccadd24eda6b506ad571121b2b486fc56168b996aa05320641ad027726d25f59"
+    },
+    {
+      "source": "roll_l_source_03",
+      "part": "roll_l_source_03__wing_l",
+      "group": "wing_l",
+      "triangles": 174,
+      "source_faces": [
+        [
+          0,
+          174
+        ]
+      ],
+      "index_sha256": "cb35827c14788b7c0c0a81350bc14c373c18e5aa937d0b48a37cae1e3b9a89c1"
+    },
+    {
+      "source": "roll_l_source_04",
+      "part": "roll_l_source_04__wing_l",
+      "group": "wing_l",
+      "triangles": 144,
+      "source_faces": [
+        [
+          0,
+          144
+        ]
+      ],
+      "index_sha256": "c064c6831e6372dc8761380c9202de922e44746913fcd984a193b895ad676940"
+    },
+    {
+      "source": "roll_l_source_15",
+      "part": "roll_l_source_15__wing_l",
+      "group": "wing_l",
+      "triangles": 30,
+      "source_faces": [
+        [
+          0,
+          30
+        ]
+      ],
+      "index_sha256": "e44f3fc103460cc2d338607f53acf8cc723bae87f79f1322004e9564850d3540"
+    },
+    {
+      "source": "roll_r_source_03",
+      "part": "roll_r_source_03__wing_r",
+      "group": "wing_r",
+      "triangles": 200,
+      "source_faces": [
+        [
+          0,
+          200
+        ]
+      ],
+      "index_sha256": "bea878a2626c76f6c8cc794b182c96226de4f4182cad3291fade02affd1b0430"
+    },
+    {
+      "source": "roll_r_source_04",
+      "part": "roll_r_source_04__wing_r",
+      "group": "wing_r",
+      "triangles": 460,
+      "source_faces": [
+        [
+          0,
+          460
+        ]
+      ],
+      "index_sha256": "8994d0d0da306ab8e4ab929eae898f64071906239e12d0f038b9fc65bbf53d7d"
+    },
+    {
+      "source": "roll_r_source_15",
+      "part": "roll_r_source_15__wing_r",
+      "group": "wing_r",
+      "triangles": 30,
+      "source_faces": [
+        [
+          0,
+          30
+        ]
+      ],
+      "index_sha256": "eb6b7f35e2d955397089b404180a1171565eb4b9f17089df10f960007fafdb7c"
+    },
+    {
+      "source": "yaw_source_01",
+      "part": "yaw_source_01__body",
+      "group": "body",
+      "triangles": 626,
+      "source_faces": [
+        [
+          0,
+          626
+        ]
+      ],
+      "index_sha256": "3bba3f8d3dac052addb827af949a9e27d5db2e8209eaa05e75c2d237a0563d8e"
+    },
+    {
+      "source": "yaw_source_15",
+      "part": "yaw_source_15__body",
+      "group": "body",
+      "triangles": 44,
+      "source_faces": [
+        [
+          0,
+          44
+        ]
+      ],
+      "index_sha256": "5c451ede8ffbc25a6730a85be97c6173b55dc489cb82cf97ecdca7b7e655bbf4"
+    }
+  ],
+  "connectedComponents": [
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        2.033,
+        -0.08866666666666666,
+        0.027
+      ],
+      "hi": [
+        2.047,
+        -0.004,
+        0.05433333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        2.0366666666666666,
+        -0.09033333333333333,
+        0.03266666666666666
+      ],
+      "hi": [
+        2.046333333333333,
+        -0.0036666666666666666,
+        0.04733333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        2.0326666666666666,
+        -0.09033333333333333,
+        0.033
+      ],
+      "hi": [
+        2.0433333333333334,
+        -0.004,
+        0.04733333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.008,
+        -0.20933333333333332,
+        -0.17766666666666667
+      ],
+      "hi": [
+        2.1163333333333334,
+        -0.17666666666666667,
+        -0.15533333333333332
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.0146666666666664,
+        -0.209,
+        -0.10133333333333333
+      ],
+      "hi": [
+        2.1229999999999998,
+        -0.17633333333333331,
+        -0.079
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        1.9369999999999998,
+        -0.19599999999999998,
+        0.017333333333333333
+      ],
+      "hi": [
+        1.942,
+        -0.18766666666666665,
+        0.024333333333333332
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.9769999999999999,
+        -0.19866666666666666,
+        0.052
+      ],
+      "hi": [
+        1.9863333333333333,
+        -0.18966666666666665,
+        0.057666666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.1593333333333333,
+        -0.15033333333333332,
+        0.5756666666666667
+      ],
+      "hi": [
+        1.285,
+        -0.14466666666666667,
+        0.652
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        0.868,
+        -0.16599999999999998,
+        0.4706666666666667
+      ],
+      "hi": [
+        1.091,
+        -0.135,
+        0.525
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 54,
+      "group": "wing_r",
+      "lo": [
+        0.7403333333333333,
+        -0.176,
+        0.649
+      ],
+      "hi": [
+        0.9783333333333333,
+        -0.13333333333333333,
+        0.7413333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_r",
+      "lo": [
+        0.7433333333333333,
+        -0.15666666666666665,
+        0.07633333333333334
+      ],
+      "hi": [
+        0.8683333333333333,
+        -0.09,
+        0.10766666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 48,
+      "group": "wing_r",
+      "lo": [
+        0.889,
+        -0.17366666666666666,
+        0.897
+      ],
+      "hi": [
+        1.1139999999999999,
+        -0.16599999999999998,
+        1.1226666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        0.886,
+        -0.17366666666666666,
+        0.8996666666666666
+      ],
+      "hi": [
+        1.117,
+        -0.16233333333333333,
+        1.1219999999999999
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        0.8976666666666666,
+        -0.17366666666666666,
+        0.9026666666666666
+      ],
+      "hi": [
+        1.1053333333333333,
+        -0.16233333333333333,
+        1.1166666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 42,
+      "group": "wing_r",
+      "lo": [
+        0.8916666666666666,
+        -0.17133333333333334,
+        0.8996666666666666
+      ],
+      "hi": [
+        1.1113333333333333,
+        -0.05433333333333333,
+        1.1196666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 39,
+      "group": "wing_r",
+      "lo": [
+        0.8936666666666666,
+        -0.172,
+        0.9013333333333333
+      ],
+      "hi": [
+        1.1093333333333333,
+        -0.05533333333333333,
+        1.1156666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 24,
+      "group": "wing_r",
+      "lo": [
+        0.9676666666666667,
+        -0.14133333333333334,
+        0.9826666666666667
+      ],
+      "hi": [
+        1.0353333333333332,
+        -0.032,
+        1.1493333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 12,
+      "group": "wing_r",
+      "lo": [
+        0.988,
+        -0.09333333333333332,
+        1.002
+      ],
+      "hi": [
+        1.015,
+        -0.08433333333333333,
+        1.0116666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.0213333333333332,
+        -0.14933333333333332,
+        0.996
+      ],
+      "hi": [
+        1.0233333333333332,
+        -0.11833333333333333,
+        1.008
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.018,
+        -0.063,
+        1.002
+      ],
+      "hi": [
+        1.0203333333333333,
+        -0.058666666666666666,
+        1.0096666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        1.0183333333333333,
+        -0.063,
+        1.0013333333333334
+      ],
+      "hi": [
+        1.0266666666666666,
+        -0.063,
+        1.008
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        0.9756666666666667,
+        -0.063,
+        1.0013333333333334
+      ],
+      "hi": [
+        0.985,
+        -0.058666666666666666,
+        1.0103333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        0.9843333333333333,
+        -0.15466666666666667,
+        1.0883333333333334
+      ],
+      "hi": [
+        1.0186666666666666,
+        -0.04633333333333333,
+        1.2013333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.1136666666666666,
+        -0.16466666666666666,
+        -0.011333333333333332
+      ],
+      "hi": [
+        1.2503333333333333,
+        -0.142,
+        0.16833333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.1133333333333333,
+        -0.16633333333333333,
+        -0.011333333333333332
+      ],
+      "hi": [
+        1.2333333333333334,
+        -0.145,
+        0.15666666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        0.9453333333333332,
+        -0.13533333333333333,
+        -0.016
+      ],
+      "hi": [
+        1.1223333333333334,
+        -0.12733333333333333,
+        0.09966666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        0.945,
+        -0.13833333333333334,
+        -0.016
+      ],
+      "hi": [
+        1.1223333333333334,
+        -0.13033333333333333,
+        0.09966666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        1.376,
+        -0.18333333333333332,
+        0.023
+      ],
+      "hi": [
+        1.4803333333333333,
+        -0.15333333333333332,
+        0.2553333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.5233333333333332,
+        -0.18733333333333332,
+        0.377
+      ],
+      "hi": [
+        1.5893333333333333,
+        -0.14466666666666667,
+        0.4766666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.5413333333333332,
+        -0.15166666666666667,
+        0.3783333333333333
+      ],
+      "hi": [
+        1.5763333333333334,
+        -0.14533333333333334,
+        0.42633333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        1.527,
+        -0.185,
+        0.3773333333333333
+      ],
+      "hi": [
+        1.6016666666666666,
+        -0.14733333333333332,
+        0.4756666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.47,
+        -0.187,
+        0.3853333333333333
+      ],
+      "hi": [
+        1.556,
+        -0.144,
+        0.491
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.47,
+        -0.17133333333333334,
+        0.3873333333333333
+      ],
+      "hi": [
+        1.555,
+        -0.14333333333333334,
+        0.49
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        1.4693333333333334,
+        -0.184,
+        0.38566666666666666
+      ],
+      "hi": [
+        1.553,
+        -0.147,
+        0.4973333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.187,
+        -0.18466666666666667,
+        0.3823333333333333
+      ],
+      "hi": [
+        1.5353333333333332,
+        -0.15966666666666665,
+        0.43066666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        1.1826666666666665,
+        -0.18766666666666665,
+        0.3793333333333333
+      ],
+      "hi": [
+        1.534,
+        -0.15966666666666665,
+        0.41666666666666663
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        1.1826666666666665,
+        -0.16899999999999998,
+        0.3813333333333333
+      ],
+      "hi": [
+        1.5343333333333333,
+        -0.16233333333333333,
+        0.41933333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.4689999999999999,
+        -0.18633333333333332,
+        0.38766666666666666
+      ],
+      "hi": [
+        1.482,
+        -0.16699999999999998,
+        0.529
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.4533333333333334,
+        -0.183,
+        0.38766666666666666
+      ],
+      "hi": [
+        1.4789999999999999,
+        -0.16699999999999998,
+        0.5303333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.3043333333333333,
+        -0.18466666666666667,
+        0.40166666666666667
+      ],
+      "hi": [
+        1.4529999999999998,
+        -0.14166666666666666,
+        0.538
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.3256666666666665,
+        -0.161,
+        0.4036666666666667
+      ],
+      "hi": [
+        1.4253333333333333,
+        -0.14233333333333334,
+        0.4973333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 9,
+      "group": "wing_r",
+      "lo": [
+        1.3083333333333333,
+        -0.18233333333333332,
+        0.40199999999999997
+      ],
+      "hi": [
+        1.4666666666666666,
+        -0.14466666666666667,
+        0.5363333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.3433333333333333,
+        -0.15933333333333333,
+        0.028333333333333332
+      ],
+      "hi": [
+        1.503,
+        -0.15,
+        0.09899999999999999
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        1.4053333333333333,
+        -0.161,
+        0.028333333333333332
+      ],
+      "hi": [
+        1.5026666666666666,
+        -0.153,
+        0.10733333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.1233333333333333,
+        -0.15766666666666665,
+        0.194
+      ],
+      "hi": [
+        1.171,
+        -0.13833333333333334,
+        0.238
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.121,
+        -0.155,
+        0.23033333333333333
+      ],
+      "hi": [
+        1.1316666666666666,
+        -0.13933333333333334,
+        0.24333333333333332
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.1673333333333333,
+        -0.156,
+        0.188
+      ],
+      "hi": [
+        1.179,
+        -0.13999999999999999,
+        0.19966666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.192,
+        -0.14833333333333332,
+        0.262
+      ],
+      "hi": [
+        1.2196666666666667,
+        -0.13066666666666665,
+        0.294
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        1.193,
+        -0.15066666666666667,
+        0.2623333333333333
+      ],
+      "hi": [
+        1.2203333333333333,
+        -0.13366666666666666,
+        0.29166666666666663
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.1906666666666665,
+        -0.151,
+        0.26966666666666667
+      ],
+      "hi": [
+        1.2156666666666667,
+        -0.134,
+        0.296
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_r",
+      "lo": [
+        1.1616666666666666,
+        -0.15433333333333332,
+        0.23333333333333334
+      ],
+      "hi": [
+        1.1803333333333332,
+        -0.13599999999999998,
+        0.251
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.1853333333333333,
+        -0.15333333333333332,
+        0.2593333333333333
+      ],
+      "hi": [
+        1.2033333333333334,
+        -0.13266666666666665,
+        0.2753333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.167,
+        -0.141,
+        0.236
+      ],
+      "hi": [
+        1.199,
+        -0.13799999999999998,
+        0.2713333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 24,
+      "group": "wing_r",
+      "lo": [
+        1.1226666666666667,
+        -0.16333333333333333,
+        0.18966666666666665
+      ],
+      "hi": [
+        1.1666666666666665,
+        -0.132,
+        0.23533333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.1253333333333333,
+        -0.13466666666666666,
+        0.191
+      ],
+      "hi": [
+        1.1436666666666666,
+        -0.12633333333333333,
+        0.21166666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.1286666666666667,
+        -0.16766666666666666,
+        0.19533333333333333
+      ],
+      "hi": [
+        1.139,
+        -0.123,
+        0.20466666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        1.1293333333333333,
+        -0.12333333333333332,
+        0.19566666666666666
+      ],
+      "hi": [
+        1.1403333333333332,
+        -0.12266666666666666,
+        0.20666666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.1536666666666666,
+        -0.15466666666666667,
+        0.223
+      ],
+      "hi": [
+        1.1756666666666666,
+        -0.13633333333333333,
+        0.24433333333333332
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.1506666666666667,
+        -0.15433333333333332,
+        0.22766666666666666
+      ],
+      "hi": [
+        1.1703333333333332,
+        -0.13766666666666666,
+        0.24833333333333332
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.3293333333333333,
+        -0.16599999999999998,
+        0.44466666666666665
+      ],
+      "hi": [
+        1.3793333333333333,
+        -0.14966666666666667,
+        0.5003333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.3686666666666667,
+        -0.16599999999999998,
+        0.4453333333333333
+      ],
+      "hi": [
+        1.3813333333333333,
+        -0.15033333333333332,
+        0.4553333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.3276666666666666,
+        -0.16633333333333333,
+        0.48766666666666664
+      ],
+      "hi": [
+        1.3419999999999999,
+        -0.15066666666666667,
+        0.498
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 13,
+      "group": "wing_r",
+      "lo": [
+        1.3,
+        -0.154,
+        0.42033333333333334
+      ],
+      "hi": [
+        1.3316666666666666,
+        -0.131,
+        0.45
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.3016666666666665,
+        -0.154,
+        0.42066666666666663
+      ],
+      "hi": [
+        1.3316666666666666,
+        -0.131,
+        0.44066666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_r",
+      "lo": [
+        1.327,
+        -0.16,
+        0.4453333333333333
+      ],
+      "hi": [
+        1.3446666666666667,
+        -0.14133333333333334,
+        0.46399999999999997
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.3166666666666667,
+        -0.157,
+        0.436
+      ],
+      "hi": [
+        1.335,
+        -0.13633333333333333,
+        0.45366666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.318,
+        -0.15533333333333332,
+        0.4433333333333333
+      ],
+      "hi": [
+        1.339,
+        -0.14366666666666666,
+        0.46399999999999997
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 25,
+      "group": "wing_r",
+      "lo": [
+        1.3339999999999999,
+        -0.17833333333333332,
+        0.4513333333333333
+      ],
+      "hi": [
+        1.3773333333333333,
+        -0.14066666666666666,
+        0.4933333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.3553333333333333,
+        -0.15,
+        0.4703333333333333
+      ],
+      "hi": [
+        1.3746666666666667,
+        -0.13733333333333334,
+        0.49166666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 7,
+      "group": "wing_r",
+      "lo": [
+        1.3556666666666666,
+        -0.18066666666666667,
+        0.4676666666666667
+      ],
+      "hi": [
+        1.3723333333333332,
+        -0.135,
+        0.488
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.3306666666666667,
+        -0.164,
+        0.45466666666666666
+      ],
+      "hi": [
+        1.3473333333333333,
+        -0.14666666666666667,
+        0.47533333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.3303333333333334,
+        -0.16433333333333333,
+        0.4473333333333333
+      ],
+      "hi": [
+        1.357,
+        -0.145,
+        0.4746666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.517,
+        -0.17099999999999999,
+        0.416
+      ],
+      "hi": [
+        1.5746666666666667,
+        -0.15466666666666667,
+        0.4583333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        1.5663333333333334,
+        -0.17099999999999999,
+        0.415
+      ],
+      "hi": [
+        1.5739999999999998,
+        -0.155,
+        0.42966666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        1.512,
+        -0.16899999999999998,
+        0.45166666666666666
+      ],
+      "hi": [
+        1.5246666666666666,
+        -0.153,
+        0.46199999999999997
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.5153333333333332,
+        -0.12866666666666665,
+        0.3933333333333333
+      ],
+      "hi": [
+        1.5366666666666666,
+        -0.10266666666666667,
+        0.42333333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        1.522,
+        -0.135,
+        0.39466666666666667
+      ],
+      "hi": [
+        1.5373333333333332,
+        -0.10166666666666667,
+        0.42166666666666663
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        1.517,
+        -0.13533333333333333,
+        0.39766666666666667
+      ],
+      "hi": [
+        1.5306666666666666,
+        -0.102,
+        0.41966666666666663
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 17,
+      "group": "wing_r",
+      "lo": [
+        1.5256666666666667,
+        -0.149,
+        0.41533333333333333
+      ],
+      "hi": [
+        1.545,
+        -0.13366666666666666,
+        0.43466666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.5206666666666666,
+        -0.13933333333333334,
+        0.4086666666666667
+      ],
+      "hi": [
+        1.5416666666666665,
+        -0.12266666666666666,
+        0.428
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 26,
+      "group": "wing_r",
+      "lo": [
+        1.5233333333333332,
+        -0.187,
+        0.41666666666666663
+      ],
+      "hi": [
+        1.564,
+        -0.142,
+        0.46299999999999997
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.5436666666666665,
+        -0.16833333333333333,
+        0.4453333333333333
+      ],
+      "hi": [
+        1.5653333333333332,
+        -0.14833333333333332,
+        0.46599999999999997
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.555,
+        -0.16033333333333333,
+        0.4553333333333333
+      ],
+      "hi": [
+        1.561,
+        -0.14666666666666667,
+        0.4663333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.527,
+        -0.163,
+        0.422
+      ],
+      "hi": [
+        1.5436666666666665,
+        -0.13533333333333333,
+        0.44366666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.5333333333333332,
+        -0.16333333333333333,
+        0.418
+      ],
+      "hi": [
+        1.55,
+        -0.13433333333333333,
+        0.444
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 15,
+      "group": "wing_r",
+      "lo": [
+        1.6663333333333332,
+        -0.184,
+        0.32
+      ],
+      "hi": [
+        1.7169999999999999,
+        -0.145,
+        0.353
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 9,
+      "group": "wing_r",
+      "lo": [
+        1.668,
+        -0.184,
+        0.3233333333333333
+      ],
+      "hi": [
+        1.7173333333333334,
+        -0.14666666666666667,
+        0.353
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 24,
+      "group": "wing_r",
+      "lo": [
+        1.621,
+        -0.143,
+        0.348
+      ],
+      "hi": [
+        1.6566666666666665,
+        -0.10966666666666666,
+        0.37366666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 20,
+      "group": "wing_r",
+      "lo": [
+        1.6636666666666666,
+        -0.159,
+        0.33499999999999996
+      ],
+      "hi": [
+        1.6806666666666665,
+        -0.13999999999999999,
+        0.35466666666666663
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 20,
+      "group": "wing_r",
+      "lo": [
+        1.6436666666666666,
+        -0.145,
+        0.3443333333333333
+      ],
+      "hi": [
+        1.6606666666666665,
+        -0.126,
+        0.36466666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        1.645,
+        -0.152,
+        0.3393333333333333
+      ],
+      "hi": [
+        1.674,
+        -0.12666666666666665,
+        0.362
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.7006666666666665,
+        -0.18166666666666667,
+        0.3123333333333333
+      ],
+      "hi": [
+        1.716,
+        -0.17766666666666667,
+        0.34299999999999997
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        1.71,
+        -0.18166666666666667,
+        0.33999999999999997
+      ],
+      "hi": [
+        1.7236666666666667,
+        -0.172,
+        0.3433333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        1.7016666666666667,
+        -0.17766666666666667,
+        0.31566666666666665
+      ],
+      "hi": [
+        1.7096666666666667,
+        -0.17166666666666666,
+        0.3203333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.1163333333333334,
+        -0.20933333333333332,
+        -0.178
+      ],
+      "hi": [
+        -2.008,
+        -0.17666666666666667,
+        -0.15566666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.1229999999999998,
+        -0.209,
+        -0.10166666666666667
+      ],
+      "hi": [
+        -2.0146666666666664,
+        -0.17633333333333331,
+        -0.07933333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.9423333333333332,
+        -0.195,
+        0.015333333333333332
+      ],
+      "hi": [
+        -1.9349999999999998,
+        -0.188,
+        0.023
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.9916666666666667,
+        -0.19866666666666666,
+        0.056999999999999995
+      ],
+      "hi": [
+        -1.9823333333333333,
+        -0.18966666666666665,
+        0.06233333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.285,
+        -0.15033333333333332,
+        0.576
+      ],
+      "hi": [
+        -1.1593333333333333,
+        -0.14466666666666667,
+        0.6513333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.091,
+        -0.16599999999999998,
+        0.47
+      ],
+      "hi": [
+        -0.868,
+        -0.135,
+        0.5253333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 54,
+      "group": "wing_l",
+      "lo": [
+        -0.9783333333333333,
+        -0.176,
+        0.6493333333333333
+      ],
+      "hi": [
+        -0.7403333333333333,
+        -0.13333333333333333,
+        0.7406666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -0.8683333333333333,
+        -0.15666666666666665,
+        0.07666666666666666
+      ],
+      "hi": [
+        -0.7436666666666666,
+        -0.09,
+        0.108
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -2.047,
+        -0.08866666666666666,
+        0.027
+      ],
+      "hi": [
+        -2.033,
+        -0.004,
+        0.05433333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -2.046333333333333,
+        -0.09033333333333333,
+        0.03266666666666666
+      ],
+      "hi": [
+        -2.0366666666666666,
+        -0.0036666666666666666,
+        0.04733333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -2.0433333333333334,
+        -0.09033333333333333,
+        0.033
+      ],
+      "hi": [
+        -2.0326666666666666,
+        -0.004,
+        0.04733333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.25,
+        -0.16466666666666666,
+        -0.011
+      ],
+      "hi": [
+        -1.1133333333333333,
+        -0.142,
+        0.16866666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.2333333333333334,
+        -0.16633333333333333,
+        -0.011
+      ],
+      "hi": [
+        -1.1133333333333333,
+        -0.145,
+        0.157
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -1.1223333333333334,
+        -0.13533333333333333,
+        -0.015666666666666666
+      ],
+      "hi": [
+        -0.945,
+        -0.12733333333333333,
+        0.09999999999999999
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -1.1223333333333334,
+        -0.13833333333333334,
+        -0.015666666666666666
+      ],
+      "hi": [
+        -0.945,
+        -0.13033333333333333,
+        0.09899999999999999
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -1.4803333333333333,
+        -0.18333333333333332,
+        0.02333333333333333
+      ],
+      "hi": [
+        -1.376,
+        -0.15333333333333332,
+        0.25566666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.5893333333333333,
+        -0.18733333333333332,
+        0.3773333333333333
+      ],
+      "hi": [
+        -1.5233333333333332,
+        -0.14466666666666667,
+        0.47733333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -1.6016666666666666,
+        -0.185,
+        0.377
+      ],
+      "hi": [
+        -1.527,
+        -0.14733333333333332,
+        0.476
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.556,
+        -0.187,
+        0.38566666666666666
+      ],
+      "hi": [
+        -1.47,
+        -0.144,
+        0.4933333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.5496666666666665,
+        -0.17133333333333334,
+        0.38766666666666666
+      ],
+      "hi": [
+        -1.47,
+        -0.14333333333333334,
+        0.49566666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -1.553,
+        -0.184,
+        0.386
+      ],
+      "hi": [
+        -1.4693333333333334,
+        -0.147,
+        0.49766666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -1.5353333333333332,
+        -0.18466666666666667,
+        0.3823333333333333
+      ],
+      "hi": [
+        -1.187,
+        -0.15966666666666665,
+        0.431
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.534,
+        -0.18766666666666665,
+        0.37966666666666665
+      ],
+      "hi": [
+        -1.1823333333333332,
+        -0.15966666666666665,
+        0.417
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.482,
+        -0.18633333333333332,
+        0.3873333333333333
+      ],
+      "hi": [
+        -1.4689999999999999,
+        -0.16699999999999998,
+        0.529
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.4789999999999999,
+        -0.183,
+        0.388
+      ],
+      "hi": [
+        -1.4533333333333334,
+        -0.16699999999999998,
+        0.53
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -1.4666666666666666,
+        -0.18466666666666667,
+        0.40199999999999997
+      ],
+      "hi": [
+        -1.3043333333333333,
+        -0.14166666666666666,
+        0.5376666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.503,
+        -0.15933333333333333,
+        0.028666666666666667
+      ],
+      "hi": [
+        -1.3433333333333333,
+        -0.15,
+        0.09933333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -1.5026666666666666,
+        -0.16066666666666665,
+        0.028666666666666667
+      ],
+      "hi": [
+        -1.405,
+        -0.153,
+        0.10766666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.1776666666666666,
+        -0.15566666666666665,
+        0.191
+      ],
+      "hi": [
+        -1.1196666666666666,
+        -0.141,
+        0.24366666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.1296666666666666,
+        -0.154,
+        0.23199999999999998
+      ],
+      "hi": [
+        -1.1196666666666666,
+        -0.13933333333333334,
+        0.24433333333333332
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.176,
+        -0.15466666666666667,
+        0.18833333333333332
+      ],
+      "hi": [
+        -1.1673333333333333,
+        -0.13899999999999998,
+        0.20133333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 9,
+      "group": "wing_l",
+      "lo": [
+        -1.2189999999999999,
+        -0.15133333333333332,
+        0.265
+      ],
+      "hi": [
+        -1.1893333333333334,
+        -0.13366666666666666,
+        0.29466666666666663
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.2156666666666667,
+        -0.151,
+        0.27
+      ],
+      "hi": [
+        -1.1883333333333332,
+        -0.134,
+        0.296
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -1.1803333333333332,
+        -0.15433333333333332,
+        0.23266666666666666
+      ],
+      "hi": [
+        -1.1616666666666666,
+        -0.13599999999999998,
+        0.25033333333333335
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.2033333333333334,
+        -0.15333333333333332,
+        0.259
+      ],
+      "hi": [
+        -1.1853333333333333,
+        -0.13266666666666665,
+        0.27566666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.199,
+        -0.141,
+        0.2363333333333333
+      ],
+      "hi": [
+        -1.167,
+        -0.13799999999999998,
+        0.271
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 22,
+      "group": "wing_l",
+      "lo": [
+        -1.1666666666666665,
+        -0.16333333333333333,
+        0.18866666666666665
+      ],
+      "hi": [
+        -1.1219999999999999,
+        -0.132,
+        0.23566666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.1436666666666666,
+        -0.13466666666666666,
+        0.19033333333333333
+      ],
+      "hi": [
+        -1.1253333333333333,
+        -0.12633333333333333,
+        0.212
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 7,
+      "group": "wing_l",
+      "lo": [
+        -1.141,
+        -0.16733333333333333,
+        0.195
+      ],
+      "hi": [
+        -1.1283333333333332,
+        -0.12233333333333334,
+        0.20866666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -1.1776666666666666,
+        -0.15433333333333332,
+        0.22066666666666665
+      ],
+      "hi": [
+        -1.1523333333333332,
+        -0.13733333333333334,
+        0.24566666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.3783333333333332,
+        -0.16666666666666666,
+        0.445
+      ],
+      "hi": [
+        -1.3286666666666667,
+        -0.15033333333333332,
+        0.49866666666666665
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.383,
+        -0.16599999999999998,
+        0.4423333333333333
+      ],
+      "hi": [
+        -1.3696666666666666,
+        -0.15033333333333332,
+        0.4543333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.3399999999999999,
+        -0.16633333333333333,
+        0.487
+      ],
+      "hi": [
+        -1.3293333333333333,
+        -0.15033333333333332,
+        0.5
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -1.329,
+        -0.14466666666666667,
+        0.42133333333333334
+      ],
+      "hi": [
+        -1.2993333333333332,
+        -0.131,
+        0.451
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 7,
+      "group": "wing_l",
+      "lo": [
+        -1.3296666666666666,
+        -0.154,
+        0.421
+      ],
+      "hi": [
+        -1.3016666666666665,
+        -0.13066666666666665,
+        0.4443333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -1.3246666666666667,
+        -0.154,
+        0.42466666666666664
+      ],
+      "hi": [
+        -1.298,
+        -0.13066666666666665,
+        0.446
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -1.3446666666666667,
+        -0.16,
+        0.44566666666666666
+      ],
+      "hi": [
+        -1.327,
+        -0.14133333333333334,
+        0.4633333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.3346666666666667,
+        -0.157,
+        0.4363333333333333
+      ],
+      "hi": [
+        -1.3166666666666667,
+        -0.13599999999999998,
+        0.45366666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 24,
+      "group": "wing_l",
+      "lo": [
+        -1.376,
+        -0.17866666666666667,
+        0.4513333333333333
+      ],
+      "hi": [
+        -1.3339999999999999,
+        -0.14066666666666666,
+        0.492
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.3746666666666667,
+        -0.15,
+        0.4706666666666667
+      ],
+      "hi": [
+        -1.3553333333333333,
+        -0.13733333333333334,
+        0.492
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 9,
+      "group": "wing_l",
+      "lo": [
+        -1.3723333333333332,
+        -0.18066666666666667,
+        0.4683333333333333
+      ],
+      "hi": [
+        -1.3516666666666666,
+        -0.13466666666666666,
+        0.48833333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -1.357,
+        -0.16466666666666666,
+        0.44766666666666666
+      ],
+      "hi": [
+        -1.3303333333333334,
+        -0.14333333333333334,
+        0.4746666666666666
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.5706666666666667,
+        -0.173,
+        0.422
+      ],
+      "hi": [
+        -1.5166666666666666,
+        -0.15366666666666667,
+        0.45766666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.5743333333333334,
+        -0.17099999999999999,
+        0.41633333333333333
+      ],
+      "hi": [
+        -1.5636666666666665,
+        -0.15533333333333332,
+        0.42766666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -1.5226666666666666,
+        -0.16866666666666666,
+        0.4483333333333333
+      ],
+      "hi": [
+        -1.5146666666666666,
+        -0.15333333333333332,
+        0.46266666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 23,
+      "group": "wing_l",
+      "lo": [
+        -1.5386666666666666,
+        -0.13533333333333333,
+        0.3953333333333333
+      ],
+      "hi": [
+        -1.5156666666666667,
+        -0.10033333333333333,
+        0.42466666666666664
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -1.5446666666666666,
+        -0.149,
+        0.41466666666666663
+      ],
+      "hi": [
+        -1.5256666666666667,
+        -0.13366666666666666,
+        0.435
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.5416666666666665,
+        -0.13933333333333334,
+        0.408
+      ],
+      "hi": [
+        -1.5206666666666666,
+        -0.12266666666666666,
+        0.42733333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 25,
+      "group": "wing_l",
+      "lo": [
+        -1.564,
+        -0.186,
+        0.417
+      ],
+      "hi": [
+        -1.5233333333333332,
+        -0.142,
+        0.46166666666666667
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.5653333333333332,
+        -0.16833333333333333,
+        0.44566666666666666
+      ],
+      "hi": [
+        -1.544,
+        -0.14833333333333332,
+        0.4663333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.5623333333333334,
+        -0.19,
+        0.42933333333333334
+      ],
+      "hi": [
+        -1.5333333333333332,
+        -0.149,
+        0.4653333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -1.55,
+        -0.16333333333333333,
+        0.41833333333333333
+      ],
+      "hi": [
+        -1.5256666666666667,
+        -0.13566666666666666,
+        0.4413333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 24,
+      "group": "wing_l",
+      "lo": [
+        -1.7169999999999999,
+        -0.18433333333333332,
+        0.3203333333333333
+      ],
+      "hi": [
+        -1.6663333333333332,
+        -0.145,
+        0.35333333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 26,
+      "group": "wing_l",
+      "lo": [
+        -1.6566666666666665,
+        -0.14266666666666666,
+        0.345
+      ],
+      "hi": [
+        -1.6193333333333333,
+        -0.10966666666666666,
+        0.37133333333333335
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 20,
+      "group": "wing_l",
+      "lo": [
+        -1.6806666666666665,
+        -0.159,
+        0.3353333333333333
+      ],
+      "hi": [
+        -1.6636666666666666,
+        -0.13999999999999999,
+        0.355
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 20,
+      "group": "wing_l",
+      "lo": [
+        -1.6606666666666665,
+        -0.145,
+        0.3436666666666667
+      ],
+      "hi": [
+        -1.6436666666666666,
+        -0.126,
+        0.365
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.6736666666666666,
+        -0.15633333333333332,
+        0.34099999999999997
+      ],
+      "hi": [
+        -1.6416666666666666,
+        -0.13366666666666666,
+        0.35933333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -1.674,
+        -0.152,
+        0.3396666666666667
+      ],
+      "hi": [
+        -1.645,
+        -0.12666666666666665,
+        0.36233333333333334
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -1.7186666666666666,
+        -0.17866666666666667,
+        0.33499999999999996
+      ],
+      "hi": [
+        -1.7123333333333333,
+        -0.17233333333333334,
+        0.3393333333333333
+      ]
+    },
+    {
+      "source": "body_source_01",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -1.708,
+        -0.17866666666666667,
+        0.308
+      ],
+      "hi": [
+        -1.7009999999999998,
+        -0.17033333333333334,
+        0.3173333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 80,
+      "group": "wing_r",
+      "lo": [
+        0.881,
+        -0.16899999999999998,
+        0.889
+      ],
+      "hi": [
+        1.1219999999999999,
+        -0.04433333333333333,
+        1.1296666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 1057,
+      "group": "wing_r",
+      "lo": [
+        0.6453333333333333,
+        -0.35766666666666663,
+        -3.683
+      ],
+      "hi": [
+        4.767333333333333,
+        0.21533333333333332,
+        2.229
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 193,
+      "group": "wing_r",
+      "lo": [
+        4.4896666666666665,
+        -0.3233333333333333,
+        -2.0323333333333333
+      ],
+      "hi": [
+        4.5713333333333335,
+        -0.2363333333333333,
+        -0.9339999999999999
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 81,
+      "group": "wing_r",
+      "lo": [
+        4.579666666666666,
+        -0.3406666666666667,
+        -3.3449999999999998
+      ],
+      "hi": [
+        4.672666666666666,
+        -0.27499999999999997,
+        -3.2316666666666665
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 47,
+      "group": "wing_r",
+      "lo": [
+        4.646333333333333,
+        -0.33466666666666667,
+        -3.3226666666666667
+      ],
+      "hi": [
+        4.68,
+        -0.301,
+        -3.2816666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 49,
+      "group": "wing_r",
+      "lo": [
+        2.077,
+        -0.20966666666666667,
+        -0.20099999999999998
+      ],
+      "hi": [
+        2.1839999999999997,
+        -0.18733333333333332,
+        -0.06066666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        2.0933333333333333,
+        -0.21,
+        -0.16166666666666665
+      ],
+      "hi": [
+        2.1006666666666667,
+        -0.20833333333333331,
+        -0.10099999999999999
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        0.7253333333333333,
+        0.025666666666666667,
+        0.043666666666666666
+      ],
+      "hi": [
+        0.744,
+        0.067,
+        0.7723333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 50,
+      "group": "wing_r",
+      "lo": [
+        4.753,
+        -0.3383333333333333,
+        -2.8036666666666665
+      ],
+      "hi": [
+        4.793666666666667,
+        -0.287,
+        -2.678
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 22,
+      "group": "wing_r",
+      "lo": [
+        1.5046666666666666,
+        -0.12066666666666666,
+        0.151
+      ],
+      "hi": [
+        1.7606666666666666,
+        0.03866666666666667,
+        0.416
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 20,
+      "group": "wing_r",
+      "lo": [
+        1.45,
+        -0.046,
+        0.6236666666666666
+      ],
+      "hi": [
+        1.4933333333333332,
+        -0.012,
+        0.6696666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 101,
+      "group": "wing_r",
+      "lo": [
+        0.7133333333333333,
+        -0.17633333333333331,
+        0.052
+      ],
+      "hi": [
+        0.7286666666666667,
+        0.11166666666666666,
+        0.7723333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 121,
+      "group": "wing_r",
+      "lo": [
+        0.8663333333333333,
+        -0.176,
+        0.8746666666666666
+      ],
+      "hi": [
+        1.1366666666666667,
+        -0.158,
+        1.145
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 12,
+      "group": "wing_r",
+      "lo": [
+        0.6973333333333334,
+        0.06533333333333333,
+        0.4403333333333333
+      ],
+      "hi": [
+        1.0616666666666665,
+        0.09866666666666667,
+        0.8106666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.4923333333333333,
+        -0.015333333333333332,
+        -0.18133333333333332
+      ],
+      "hi": [
+        1.7476666666666667,
+        0.029333333333333333,
+        0.066
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 29,
+      "group": "wing_r",
+      "lo": [
+        2.048,
+        -0.205,
+        -0.045
+      ],
+      "hi": [
+        2.1173333333333333,
+        -0.12166666666666666,
+        0.04066666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 24,
+      "group": "wing_r",
+      "lo": [
+        4.405,
+        -0.431,
+        -2.8233333333333333
+      ],
+      "hi": [
+        4.4399999999999995,
+        -0.346,
+        -2.6879999999999997
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 41,
+      "group": "wing_r",
+      "lo": [
+        4.0986666666666665,
+        -0.5113333333333333,
+        -2.5236666666666667
+      ],
+      "hi": [
+        4.121333333333333,
+        -0.48833333333333334,
+        -2.198
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        0.9833333333333333,
+        0.016666666666666666,
+        -0.12533333333333332
+      ],
+      "hi": [
+        1.5073333333333332,
+        0.048999999999999995,
+        0.3973333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 26,
+      "group": "wing_r",
+      "lo": [
+        1.4776666666666667,
+        -0.17633333333333331,
+        -0.15333333333333332
+      ],
+      "hi": [
+        1.5103333333333333,
+        0.051666666666666666,
+        0.7116666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 26,
+      "group": "wing_r",
+      "lo": [
+        1.4973333333333332,
+        -0.17333333333333334,
+        -0.033
+      ],
+      "hi": [
+        1.845,
+        0.027,
+        0.316
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 28,
+      "group": "wing_r",
+      "lo": [
+        1.7209999999999999,
+        -0.19599999999999998,
+        -0.173
+      ],
+      "hi": [
+        2.018,
+        0.006666666666666666,
+        0.11366666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 29,
+      "group": "wing_r",
+      "lo": [
+        1.9346666666666665,
+        -0.11499999999999999,
+        -0.20733333333333331
+      ],
+      "hi": [
+        2.0346666666666664,
+        -0.014333333333333333,
+        -0.14533333333333334
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 23,
+      "group": "wing_r",
+      "lo": [
+        0.716,
+        -0.17533333333333334,
+        0.6669999999999999
+      ],
+      "hi": [
+        0.7653333333333333,
+        -0.143,
+        0.7536666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 22,
+      "group": "wing_r",
+      "lo": [
+        0.719,
+        -0.15533333333333332,
+        0.04833333333333333
+      ],
+      "hi": [
+        0.7683333333333333,
+        -0.123,
+        0.135
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        4.110333333333333,
+        -0.49566666666666664,
+        -2.397
+      ],
+      "hi": [
+        4.116666666666666,
+        -0.3353333333333333,
+        -2.3686666666666665
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        4.104,
+        -0.49566666666666664,
+        -2.397
+      ],
+      "hi": [
+        4.110333333333333,
+        -0.3353333333333333,
+        -2.3686666666666665
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 21,
+      "group": "wing_r",
+      "lo": [
+        0.7363333333333333,
+        0.026666666666666665,
+        0.053
+      ],
+      "hi": [
+        1.462,
+        0.07433333333333333,
+        0.778
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        0.712,
+        0.07066666666666667,
+        0.7246666666666667
+      ],
+      "hi": [
+        0.9773333333333333,
+        0.11266666666666666,
+        0.7313333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.9743333333333333,
+        -0.18166666666666667,
+        -0.188
+      ],
+      "hi": [
+        2.1066666666666665,
+        -0.05433333333333333,
+        -0.004
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        0.746,
+        -0.16366666666666665,
+        0.6866666666666666
+      ],
+      "hi": [
+        0.758,
+        -0.15066666666666667,
+        0.7323333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        0.7516666666666666,
+        -0.163,
+        0.6863333333333334
+      ],
+      "hi": [
+        0.7576666666666666,
+        -0.156,
+        0.7323333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        0.7166666666666667,
+        -0.13533333333333333,
+        0.04733333333333333
+      ],
+      "hi": [
+        0.736,
+        -0.05566666666666666,
+        0.7733333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        0.7506666666666666,
+        -0.142,
+        0.06966666666666667
+      ],
+      "hi": [
+        0.761,
+        -0.13066666666666665,
+        0.11266666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        0.7493333333333333,
+        -0.14166666666666666,
+        0.06999999999999999
+      ],
+      "hi": [
+        0.755,
+        -0.13033333333333333,
+        0.11266666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        4.110333333333333,
+        -0.49566666666666664,
+        -2.3586666666666667
+      ],
+      "hi": [
+        4.116666666666666,
+        -0.3353333333333333,
+        -2.328333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        4.103666666666666,
+        -0.49566666666666664,
+        -2.3583333333333334
+      ],
+      "hi": [
+        4.110333333333333,
+        -0.3353333333333333,
+        -2.3286666666666664
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        0.712,
+        0.07033333333333333,
+        0.7033333333333333
+      ],
+      "hi": [
+        0.9543333333333333,
+        0.11233333333333333,
+        0.7106666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.496,
+        -0.04066666666666666,
+        -0.22533333333333333
+      ],
+      "hi": [
+        2.1763333333333335,
+        0.044,
+        0.43266666666666664
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.4193333333333333,
+        -0.177,
+        0.6446666666666666
+      ],
+      "hi": [
+        1.5113333333333332,
+        0.054,
+        0.7256666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        1.4929999999999999,
+        -0.024,
+        -0.19533333333333333
+      ],
+      "hi": [
+        1.9316666666666666,
+        0.037,
+        0.22833333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        1.3966666666666667,
+        -0.21166666666666667,
+        -2.586333333333333
+      ],
+      "hi": [
+        2.8446666666666665,
+        -0.08866666666666666,
+        -1.1723333333333332
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 18,
+      "group": "wing_r",
+      "lo": [
+        2.457,
+        -0.23433333333333334,
+        -2.1243333333333334
+      ],
+      "hi": [
+        2.864333333333333,
+        -0.121,
+        -1.6136666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        2.541333333333333,
+        -0.18933333333333333,
+        -2.2026666666666666
+      ],
+      "hi": [
+        2.858,
+        -0.13999999999999999,
+        -1.807
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        0.7863333333333333,
+        -0.018,
+        -0.5816666666666667
+      ],
+      "hi": [
+        1.0723333333333334,
+        0.033,
+        -0.21033333333333332
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 12,
+      "group": "wing_r",
+      "lo": [
+        0.8116666666666666,
+        -0.174,
+        -1.9516666666666667
+      ],
+      "hi": [
+        2.855,
+        0.027666666666666666,
+        -0.352
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 82,
+      "group": "wing_l",
+      "lo": [
+        -4.672666666666666,
+        -0.3406666666666667,
+        -3.3449999999999998
+      ],
+      "hi": [
+        -4.5793333333333335,
+        -0.27499999999999997,
+        -3.2316666666666665
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 47,
+      "group": "wing_l",
+      "lo": [
+        -4.68,
+        -0.33466666666666667,
+        -3.3226666666666667
+      ],
+      "hi": [
+        -4.646333333333333,
+        -0.301,
+        -3.2816666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 1048,
+      "group": "wing_l",
+      "lo": [
+        -4.767333333333333,
+        -0.35766666666666663,
+        -3.683
+      ],
+      "hi": [
+        -0.6453333333333333,
+        0.21533333333333332,
+        2.229
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 50,
+      "group": "wing_l",
+      "lo": [
+        -4.793666666666667,
+        -0.3383333333333333,
+        -2.8036666666666665
+      ],
+      "hi": [
+        -4.753,
+        -0.287,
+        -2.678
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 49,
+      "group": "wing_l",
+      "lo": [
+        -2.1839999999999997,
+        -0.20966666666666667,
+        -0.20099999999999998
+      ],
+      "hi": [
+        -2.077,
+        -0.18733333333333332,
+        -0.06066666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 1,
+      "group": "wing_l",
+      "lo": [
+        -2.1006666666666667,
+        -0.21,
+        -0.16166666666666665
+      ],
+      "hi": [
+        -2.0933333333333333,
+        -0.20833333333333331,
+        -0.10099999999999999
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -0.736,
+        -0.13533333333333333,
+        0.04733333333333333
+      ],
+      "hi": [
+        -0.7166666666666667,
+        -0.05566666666666666,
+        0.7733333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 187,
+      "group": "wing_l",
+      "lo": [
+        -4.5713333333333335,
+        -0.3233333333333333,
+        -2.0323333333333333
+      ],
+      "hi": [
+        -4.4896666666666665,
+        -0.2363333333333333,
+        -0.9339999999999999
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -4.536,
+        -0.2896666666666667,
+        -1.3599999999999999
+      ],
+      "hi": [
+        -4.529333333333333,
+        -0.2833333333333333,
+        -0.9353333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 26,
+      "group": "wing_l",
+      "lo": [
+        -1.845,
+        -0.17333333333333334,
+        -0.033
+      ],
+      "hi": [
+        -1.4973333333333332,
+        0.027,
+        0.316
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 20,
+      "group": "wing_l",
+      "lo": [
+        -1.4933333333333332,
+        -0.046,
+        0.6236666666666666
+      ],
+      "hi": [
+        -1.45,
+        -0.012,
+        0.6696666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 101,
+      "group": "wing_l",
+      "lo": [
+        -0.7286666666666667,
+        -0.17633333333333331,
+        0.052
+      ],
+      "hi": [
+        -0.7133333333333333,
+        0.11166666666666666,
+        0.7723333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 42,
+      "group": "wing_l",
+      "lo": [
+        -1.2586666666666666,
+        -0.3343333333333333,
+        0.8966666666666666
+      ],
+      "hi": [
+        -1.236,
+        -0.3133333333333333,
+        1.2223333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 24,
+      "group": "wing_l",
+      "lo": [
+        -4.4399999999999995,
+        -0.431,
+        -2.8233333333333333
+      ],
+      "hi": [
+        -4.405,
+        -0.346,
+        -2.6879999999999997
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -0.9773333333333333,
+        0.07066666666666667,
+        0.7246666666666667
+      ],
+      "hi": [
+        -0.712,
+        0.11266666666666666,
+        0.7313333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 28,
+      "group": "wing_l",
+      "lo": [
+        -2.018,
+        -0.19599999999999998,
+        -0.173
+      ],
+      "hi": [
+        -1.7209999999999999,
+        0.006666666666666666,
+        0.11366666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 29,
+      "group": "wing_l",
+      "lo": [
+        -2.0346666666666664,
+        -0.11499999999999999,
+        -0.20733333333333331
+      ],
+      "hi": [
+        -1.9346666666666665,
+        -0.014333333333333333,
+        -0.14533333333333334
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -1.2706666666666666,
+        -0.16733333333333333,
+        1.015
+      ],
+      "hi": [
+        -1.2233333333333334,
+        -0.14933333333333332,
+        1.0979999999999999
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 21,
+      "group": "wing_l",
+      "lo": [
+        -1.462,
+        0.026666666666666665,
+        0.053
+      ],
+      "hi": [
+        -0.736,
+        0.07433333333333333,
+        0.778
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 26,
+      "group": "wing_l",
+      "lo": [
+        -1.5103333333333333,
+        -0.17633333333333331,
+        -0.15333333333333332
+      ],
+      "hi": [
+        -1.4776666666666667,
+        0.051666666666666666,
+        0.7116666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.1066666666666665,
+        -0.18166666666666667,
+        -0.188
+      ],
+      "hi": [
+        -1.9743333333333333,
+        -0.05433333333333333,
+        -0.004
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -0.758,
+        -0.16366666666666665,
+        0.6866666666666666
+      ],
+      "hi": [
+        -0.746,
+        -0.15066666666666667,
+        0.7323333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -0.7576666666666666,
+        -0.163,
+        0.6863333333333334
+      ],
+      "hi": [
+        -0.7516666666666666,
+        -0.156,
+        0.7323333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -0.7606666666666666,
+        -0.142,
+        0.06966666666666667
+      ],
+      "hi": [
+        -0.7493333333333333,
+        -0.13033333333333333,
+        0.11266666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.2476666666666667,
+        -0.31866666666666665,
+        1.0633333333333332
+      ],
+      "hi": [
+        -1.2413333333333334,
+        -0.15833333333333333,
+        1.0933333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.2543333333333333,
+        -0.31866666666666665,
+        1.0633333333333332
+      ],
+      "hi": [
+        -1.2476666666666667,
+        -0.15833333333333333,
+        1.0933333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -1.5073333333333332,
+        0.016666666666666666,
+        -0.12533333333333332
+      ],
+      "hi": [
+        -0.9833333333333333,
+        0.048999999999999995,
+        0.3973333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 12,
+      "group": "wing_l",
+      "lo": [
+        -1.0616666666666665,
+        0.06533333333333333,
+        0.4403333333333333
+      ],
+      "hi": [
+        -0.6973333333333334,
+        0.09866666666666667,
+        0.8106666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 22,
+      "group": "wing_l",
+      "lo": [
+        -1.7606666666666666,
+        -0.12066666666666666,
+        0.151
+      ],
+      "hi": [
+        -1.5046666666666666,
+        0.03866666666666667,
+        0.416
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.7476666666666667,
+        -0.015333333333333332,
+        -0.18133333333333332
+      ],
+      "hi": [
+        -1.4923333333333333,
+        0.029333333333333333,
+        0.066
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 29,
+      "group": "wing_l",
+      "lo": [
+        -2.1173333333333333,
+        -0.205,
+        -0.045
+      ],
+      "hi": [
+        -2.048,
+        -0.12166666666666666,
+        0.04066666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 23,
+      "group": "wing_l",
+      "lo": [
+        -0.7653333333333333,
+        -0.17533333333333334,
+        0.6669999999999999
+      ],
+      "hi": [
+        -0.716,
+        -0.143,
+        0.7536666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -0.744,
+        0.025666666666666667,
+        0.043666666666666666
+      ],
+      "hi": [
+        -0.7253333333333333,
+        0.067,
+        0.7723333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 22,
+      "group": "wing_l",
+      "lo": [
+        -0.7683333333333333,
+        -0.15533333333333332,
+        0.04833333333333333
+      ],
+      "hi": [
+        -0.719,
+        -0.123,
+        0.135
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.2476666666666667,
+        -0.31866666666666665,
+        1.0233333333333332
+      ],
+      "hi": [
+        -1.2413333333333334,
+        -0.15833333333333333,
+        1.0533333333333332
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -1.2543333333333333,
+        -0.31866666666666665,
+        1.0233333333333332
+      ],
+      "hi": [
+        -1.2476666666666667,
+        -0.15833333333333333,
+        1.0533333333333332
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -0.9543333333333333,
+        0.07033333333333333,
+        0.7033333333333333
+      ],
+      "hi": [
+        -0.712,
+        0.11233333333333333,
+        0.7106666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.9316666666666666,
+        -0.024,
+        -0.19533333333333333
+      ],
+      "hi": [
+        -1.4929999999999999,
+        0.037,
+        0.22833333333333333
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -2.1763333333333335,
+        -0.04066666666666666,
+        -0.22533333333333333
+      ],
+      "hi": [
+        -1.496,
+        0.044,
+        0.43266666666666664
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.5113333333333332,
+        -0.177,
+        0.6446666666666666
+      ],
+      "hi": [
+        -1.4193333333333333,
+        0.054,
+        0.7256666666666667
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -2.8446666666666665,
+        -0.21166666666666667,
+        -2.586333333333333
+      ],
+      "hi": [
+        -1.3966666666666667,
+        -0.08866666666666666,
+        -1.1723333333333332
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -2.864333333333333,
+        -0.23433333333333334,
+        -2.1243333333333334
+      ],
+      "hi": [
+        -2.457,
+        -0.121,
+        -1.6136666666666666
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -2.858,
+        -0.18933333333333333,
+        -2.2026666666666666
+      ],
+      "hi": [
+        -2.541333333333333,
+        -0.13999999999999999,
+        -1.807
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 6,
+      "group": "wing_l",
+      "lo": [
+        -1.0723333333333334,
+        -0.018,
+        -0.5816666666666667
+      ],
+      "hi": [
+        -0.7863333333333333,
+        0.033,
+        -0.21033333333333332
+      ]
+    },
+    {
+      "source": "body_source_03",
+      "triangles": 12,
+      "group": "wing_l",
+      "lo": [
+        -2.855,
+        -0.174,
+        -1.9516666666666667
+      ],
+      "hi": [
+        -0.8116666666666666,
+        0.027666666666666666,
+        -0.352
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 25,
+      "group": "wing_r",
+      "lo": [
+        2.3623333333333334,
+        -0.5756666666666667,
+        -0.15866666666666665
+      ],
+      "hi": [
+        2.3896666666666664,
+        -0.5603333333333333,
+        0.044
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 25,
+      "group": "wing_r",
+      "lo": [
+        2.3103333333333333,
+        -0.5756666666666667,
+        -0.15866666666666665
+      ],
+      "hi": [
+        2.337666666666667,
+        -0.5603333333333333,
+        0.044
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 34,
+      "group": "wing_r",
+      "lo": [
+        2.296333333333333,
+        -0.5893333333333333,
+        -0.644
+      ],
+      "hi": [
+        2.4036666666666666,
+        -0.5609999999999999,
+        -0.542
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.324,
+        -0.48,
+        -0.23966666666666667
+      ],
+      "hi": [
+        2.376,
+        -0.47,
+        -0.18
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 28,
+      "group": "wing_r",
+      "lo": [
+        2.315,
+        -0.45999999999999996,
+        -0.585
+      ],
+      "hi": [
+        2.385,
+        -0.44,
+        -0.5346666666666666
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 34,
+      "group": "wing_r",
+      "lo": [
+        2.3169999999999997,
+        -0.566,
+        -0.24266666666666667
+      ],
+      "hi": [
+        2.383,
+        -0.5609999999999999,
+        -0.17733333333333332
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.33,
+        -0.48,
+        -0.5803333333333334
+      ],
+      "hi": [
+        2.37,
+        -0.45999999999999996,
+        -0.5403333333333333
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 22,
+      "group": "wing_r",
+      "lo": [
+        2.315,
+        -0.482,
+        0.12966666666666665
+      ],
+      "hi": [
+        2.385,
+        -0.44,
+        0.15033333333333332
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 22,
+      "group": "wing_r",
+      "lo": [
+        2.33,
+        -0.48,
+        -0.050333333333333334
+      ],
+      "hi": [
+        2.37,
+        -0.45999999999999996,
+        -0.010333333333333333
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 418,
+      "group": "wing_r",
+      "lo": [
+        2.3063333333333333,
+        -0.5619999999999999,
+        -0.948
+      ],
+      "hi": [
+        2.3936666666666664,
+        -0.47966666666666663,
+        0.6383333333333333
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 40,
+      "group": "wing_r",
+      "lo": [
+        2.331,
+        -0.47,
+        -0.21633333333333332
+      ],
+      "hi": [
+        2.3689999999999998,
+        -0.429,
+        -0.20433333333333334
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 25,
+      "group": "wing_l",
+      "lo": [
+        -2.337666666666667,
+        -0.5756666666666667,
+        -0.15866666666666665
+      ],
+      "hi": [
+        -2.3103333333333333,
+        -0.5603333333333333,
+        0.044
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 25,
+      "group": "wing_l",
+      "lo": [
+        -2.3896666666666664,
+        -0.5756666666666667,
+        -0.15866666666666665
+      ],
+      "hi": [
+        -2.3623333333333334,
+        -0.5603333333333333,
+        0.044
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 34,
+      "group": "wing_l",
+      "lo": [
+        -2.4036666666666666,
+        -0.5893333333333333,
+        -0.644
+      ],
+      "hi": [
+        -2.296333333333333,
+        -0.5609999999999999,
+        -0.542
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.376,
+        -0.48,
+        -0.23966666666666667
+      ],
+      "hi": [
+        -2.324,
+        -0.47,
+        -0.18
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 28,
+      "group": "wing_l",
+      "lo": [
+        -2.385,
+        -0.45999999999999996,
+        -0.585
+      ],
+      "hi": [
+        -2.315,
+        -0.44,
+        -0.5346666666666666
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 34,
+      "group": "wing_l",
+      "lo": [
+        -2.383,
+        -0.566,
+        -0.24266666666666667
+      ],
+      "hi": [
+        -2.3169999999999997,
+        -0.5609999999999999,
+        -0.17733333333333332
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.37,
+        -0.48,
+        -0.5803333333333334
+      ],
+      "hi": [
+        -2.33,
+        -0.45999999999999996,
+        -0.5403333333333333
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 22,
+      "group": "wing_l",
+      "lo": [
+        -2.385,
+        -0.482,
+        0.12966666666666665
+      ],
+      "hi": [
+        -2.315,
+        -0.44,
+        0.15033333333333332
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 22,
+      "group": "wing_l",
+      "lo": [
+        -2.37,
+        -0.48,
+        -0.050333333333333334
+      ],
+      "hi": [
+        -2.33,
+        -0.45999999999999996,
+        -0.010333333333333333
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 416,
+      "group": "wing_l",
+      "lo": [
+        -2.3936666666666664,
+        -0.5619999999999999,
+        -0.948
+      ],
+      "hi": [
+        -2.3063333333333333,
+        -0.47966666666666663,
+        0.6383333333333333
+      ]
+    },
+    {
+      "source": "body_source_11",
+      "triangles": 40,
+      "group": "wing_l",
+      "lo": [
+        -2.3689999999999998,
+        -0.47,
+        -0.21633333333333332
+      ],
+      "hi": [
+        -2.331,
+        -0.429,
+        -0.20433333333333334
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 244,
+      "group": "wing_r",
+      "lo": [
+        2.3,
+        -0.47,
+        -1.0806666666666667
+      ],
+      "hi": [
+        2.4006666666666665,
+        -0.121,
+        0.40166666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        2.341333333333333,
+        -0.47933333333333333,
+        -0.895
+      ],
+      "hi": [
+        2.3586666666666667,
+        -0.47933333333333333,
+        -0.874
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        2.3289999999999997,
+        -0.41633333333333333,
+        -0.297
+      ],
+      "hi": [
+        2.337666666666667,
+        -0.36833333333333335,
+        -0.221
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        2.3289999999999997,
+        -0.423,
+        -0.31066666666666665
+      ],
+      "hi": [
+        2.3289999999999997,
+        -0.37,
+        -0.24166666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        2.337666666666667,
+        -0.42833333333333334,
+        -0.31166666666666665
+      ],
+      "hi": [
+        2.337666666666667,
+        -0.37,
+        -0.238
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 1,
+      "group": "wing_r",
+      "lo": [
+        2.3636666666666666,
+        -0.41633333333333333,
+        -0.30133333333333334
+      ],
+      "hi": [
+        2.372333333333333,
+        -0.36633333333333334,
+        -0.238
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 6,
+      "group": "wing_r",
+      "lo": [
+        2.3636666666666666,
+        -0.42833333333333334,
+        -0.31066666666666665
+      ],
+      "hi": [
+        2.3636666666666666,
+        -0.37,
+        -0.238
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 4,
+      "group": "wing_r",
+      "lo": [
+        2.372333333333333,
+        -0.42833333333333334,
+        -0.31166666666666665
+      ],
+      "hi": [
+        2.372333333333333,
+        -0.37,
+        -0.238
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 33,
+      "group": "wing_r",
+      "lo": [
+        2.338,
+        -0.46166666666666667,
+        -0.26766666666666666
+      ],
+      "hi": [
+        2.3633333333333333,
+        -0.35466666666666663,
+        -0.209
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 24,
+      "group": "wing_r",
+      "lo": [
+        2.331,
+        -0.4323333333333333,
+        -0.13433333333333333
+      ],
+      "hi": [
+        2.3636666666666666,
+        -0.3383333333333333,
+        -0.08866666666666666
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        2.3556666666666666,
+        -0.3873333333333333,
+        -0.24366666666666667
+      ],
+      "hi": [
+        2.3556666666666666,
+        -0.36233333333333334,
+        -0.13233333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        2.344333333333333,
+        -0.3873333333333333,
+        -0.24366666666666667
+      ],
+      "hi": [
+        2.344333333333333,
+        -0.36233333333333334,
+        -0.13233333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 18,
+      "group": "wing_r",
+      "lo": [
+        2.342,
+        -0.41233333333333333,
+        -0.082
+      ],
+      "hi": [
+        2.3583333333333334,
+        -0.3753333333333333,
+        -0.06899999999999999
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 90,
+      "group": "wing_r",
+      "lo": [
+        2.3343333333333334,
+        -0.44466666666666665,
+        -0.21733333333333332
+      ],
+      "hi": [
+        2.365666666666667,
+        -0.4003333333333333,
+        -0.15333333333333332
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        2.3393333333333333,
+        -0.4383333333333333,
+        -0.182
+      ],
+      "hi": [
+        2.3393333333333333,
+        -0.40099999999999997,
+        -0.15466666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_r",
+      "lo": [
+        2.3606666666666665,
+        -0.4413333333333333,
+        -0.19
+      ],
+      "hi": [
+        2.3606666666666665,
+        -0.39866666666666667,
+        -0.15366666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 44,
+      "group": "wing_r",
+      "lo": [
+        2.3286666666666664,
+        -0.4726666666666666,
+        -0.9049999999999999
+      ],
+      "hi": [
+        2.3706666666666667,
+        -0.4693333333333333,
+        -0.864
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 3,
+      "group": "wing_r",
+      "lo": [
+        2.3289999999999997,
+        -0.4726666666666666,
+        -0.9036666666666666
+      ],
+      "hi": [
+        2.369333333333333,
+        -0.4726666666666666,
+        -0.8653333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.39499999999999996,
+        -0.291
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.382,
+        -0.2816666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 15,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.4103333333333333,
+        -0.24066666666666667
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.3853333333333333,
+        -0.21266666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.4076666666666667,
+        -0.095
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.39699999999999996,
+        -0.09333333333333332
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.4103333333333333,
+        -0.109
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.39499999999999996,
+        -0.10066666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.38,
+        -0.151
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.36966666666666664,
+        -0.14933333333333332
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 9,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.3803333333333333,
+        -0.16333333333333333
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.36766666666666664,
+        -0.15666666666666665
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 19,
+      "group": "wing_r",
+      "lo": [
+        2.3126666666666664,
+        -0.42933333333333334,
+        -0.18366666666666667
+      ],
+      "hi": [
+        2.3873333333333333,
+        -0.40599999999999997,
+        -0.16033333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 28,
+      "group": "wing_r",
+      "lo": [
+        2.3209999999999997,
+        -0.431,
+        -0.245
+      ],
+      "hi": [
+        2.3249999999999997,
+        -0.37966666666666665,
+        -0.158
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 28,
+      "group": "wing_r",
+      "lo": [
+        2.376333333333333,
+        -0.431,
+        -0.245
+      ],
+      "hi": [
+        2.38,
+        -0.37966666666666665,
+        -0.158
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 62,
+      "group": "wing_r",
+      "lo": [
+        2.3286666666666664,
+        -0.43166666666666664,
+        -0.18833333333333332
+      ],
+      "hi": [
+        2.3316666666666666,
+        -0.39266666666666666,
+        -0.08933333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 62,
+      "group": "wing_r",
+      "lo": [
+        2.368333333333333,
+        -0.43166666666666664,
+        -0.18833333333333332
+      ],
+      "hi": [
+        2.3713333333333333,
+        -0.39266666666666666,
+        -0.08933333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 238,
+      "group": "wing_l",
+      "lo": [
+        -2.4006666666666665,
+        -0.47,
+        -1.0806666666666667
+      ],
+      "hi": [
+        -2.3,
+        -0.121,
+        0.40166666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 3,
+      "group": "wing_l",
+      "lo": [
+        -2.3586666666666667,
+        -0.47933333333333333,
+        -0.895
+      ],
+      "hi": [
+        -2.341333333333333,
+        -0.47933333333333333,
+        -0.874
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 13,
+      "group": "wing_l",
+      "lo": [
+        -2.337666666666667,
+        -0.42833333333333334,
+        -0.31166666666666665
+      ],
+      "hi": [
+        -2.3289999999999997,
+        -0.37,
+        -0.23399999999999999
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 14,
+      "group": "wing_l",
+      "lo": [
+        -2.372333333333333,
+        -0.42833333333333334,
+        -0.31166666666666665
+      ],
+      "hi": [
+        -2.3636666666666666,
+        -0.37,
+        -0.23399999999999999
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 30,
+      "group": "wing_l",
+      "lo": [
+        -2.3633333333333333,
+        -0.4646666666666667,
+        -0.265
+      ],
+      "hi": [
+        -2.338,
+        -0.35466666666666663,
+        -0.209
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 24,
+      "group": "wing_l",
+      "lo": [
+        -2.3636666666666666,
+        -0.4323333333333333,
+        -0.13433333333333333
+      ],
+      "hi": [
+        -2.331,
+        -0.3383333333333333,
+        -0.08866666666666666
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -2.3556666666666666,
+        -0.3873333333333333,
+        -0.24366666666666667
+      ],
+      "hi": [
+        -2.3556666666666666,
+        -0.36233333333333334,
+        -0.13233333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -2.344333333333333,
+        -0.3873333333333333,
+        -0.24366666666666667
+      ],
+      "hi": [
+        -2.344333333333333,
+        -0.36233333333333334,
+        -0.13233333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 18,
+      "group": "wing_l",
+      "lo": [
+        -2.3583333333333334,
+        -0.41233333333333333,
+        -0.082
+      ],
+      "hi": [
+        -2.342,
+        -0.3753333333333333,
+        -0.06899999999999999
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 85,
+      "group": "wing_l",
+      "lo": [
+        -2.365666666666667,
+        -0.44466666666666665,
+        -0.216
+      ],
+      "hi": [
+        -2.3343333333333334,
+        -0.4003333333333333,
+        -0.15333333333333332
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -2.3393333333333333,
+        -0.4383333333333333,
+        -0.182
+      ],
+      "hi": [
+        -2.3393333333333333,
+        -0.40099999999999997,
+        -0.15466666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 2,
+      "group": "wing_l",
+      "lo": [
+        -2.3606666666666665,
+        -0.4383333333333333,
+        -0.182
+      ],
+      "hi": [
+        -2.3606666666666665,
+        -0.40099999999999997,
+        -0.15466666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 44,
+      "group": "wing_l",
+      "lo": [
+        -2.3706666666666667,
+        -0.4726666666666666,
+        -0.9049999999999999
+      ],
+      "hi": [
+        -2.3286666666666664,
+        -0.4693333333333333,
+        -0.864
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 4,
+      "group": "wing_l",
+      "lo": [
+        -2.3706666666666667,
+        -0.4726666666666666,
+        -0.9036666666666666
+      ],
+      "hi": [
+        -2.329333333333333,
+        -0.4726666666666666,
+        -0.8636666666666666
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.39499999999999996,
+        -0.291
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.382,
+        -0.2816666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 15,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.4103333333333333,
+        -0.24066666666666667
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.3853333333333333,
+        -0.21266666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.4076666666666667,
+        -0.095
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.39699999999999996,
+        -0.09333333333333332
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.4103333333333333,
+        -0.109
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.39499999999999996,
+        -0.10066666666666667
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 5,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.38,
+        -0.151
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.36966666666666664,
+        -0.14933333333333332
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 9,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.3803333333333333,
+        -0.16333333333333333
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.36766666666666664,
+        -0.15666666666666665
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 19,
+      "group": "wing_l",
+      "lo": [
+        -2.3873333333333333,
+        -0.42933333333333334,
+        -0.18366666666666667
+      ],
+      "hi": [
+        -2.3126666666666664,
+        -0.40599999999999997,
+        -0.16033333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 28,
+      "group": "wing_l",
+      "lo": [
+        -2.3249999999999997,
+        -0.431,
+        -0.245
+      ],
+      "hi": [
+        -2.3209999999999997,
+        -0.37966666666666665,
+        -0.158
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 28,
+      "group": "wing_l",
+      "lo": [
+        -2.38,
+        -0.431,
+        -0.245
+      ],
+      "hi": [
+        -2.376333333333333,
+        -0.37966666666666665,
+        -0.158
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 62,
+      "group": "wing_l",
+      "lo": [
+        -2.3316666666666666,
+        -0.43166666666666664,
+        -0.18833333333333332
+      ],
+      "hi": [
+        -2.3286666666666664,
+        -0.39266666666666666,
+        -0.08933333333333333
+      ]
+    },
+    {
+      "source": "body_source_12",
+      "triangles": 62,
+      "group": "wing_l",
+      "lo": [
+        -2.3713333333333333,
+        -0.43166666666666664,
+        -0.18833333333333332
+      ],
+      "hi": [
+        -2.368333333333333,
+        -0.39266666666666666,
+        -0.08933333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.516,
+        -0.239,
+        -1.2853333333333332
+      ],
+      "hi": [
+        3.1596666666666664,
+        -0.08133333333333333,
+        -0.6276666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        2.1676666666666664,
+        -0.20133333333333334,
+        -0.050666666666666665
+      ],
+      "hi": [
+        2.400333333333333,
+        -0.017333333333333333,
+        0.194
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 46,
+      "group": "wing_r",
+      "lo": [
+        0.8016666666666666,
+        -0.3363333333333333,
+        -2.772
+      ],
+      "hi": [
+        4.623666666666667,
+        0.10366666666666666,
+        1.3639999999999999
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.8256666666666668,
+        -0.2713333333333333,
+        -1.681
+      ],
+      "hi": [
+        3.521,
+        -0.10633333333333334,
+        -0.9796666666666667
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 12,
+      "group": "wing_r",
+      "lo": [
+        4.312333333333333,
+        -0.35133333333333333,
+        -3.342
+      ],
+      "hi": [
+        4.714666666666666,
+        -0.22899999999999998,
+        -2.388
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        3.2823333333333333,
+        -0.307,
+        -2.2996666666666665
+      ],
+      "hi": [
+        4.056666666666667,
+        -0.15033333333333332,
+        -1.5063333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        1.5466666666666666,
+        -0.151,
+        0.6856666666666666
+      ],
+      "hi": [
+        1.7746666666666666,
+        0.04733333333333333,
+        0.9086666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.912,
+        -0.2793333333333333,
+        -1.9366666666666665
+      ],
+      "hi": [
+        3.6926666666666668,
+        -0.12033333333333333,
+        -1.1486666666666667
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.316,
+        -0.236,
+        -1.1453333333333333
+      ],
+      "hi": [
+        2.9939999999999998,
+        -0.06233333333333333,
+        -0.46199999999999997
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        1.817,
+        -0.20933333333333332,
+        -0.744
+      ],
+      "hi": [
+        2.5526666666666666,
+        -0.028,
+        0.012
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        1.845,
+        -0.17666666666666667,
+        0.32366666666666666
+      ],
+      "hi": [
+        2.0716666666666668,
+        0.008333333333333333,
+        0.5599999999999999
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        4.164666666666666,
+        -0.3473333333333333,
+        -3.155333333333333
+      ],
+      "hi": [
+        4.593,
+        -0.21033333333333332,
+        -2.070333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 36,
+      "group": "wing_r",
+      "lo": [
+        0.993,
+        -0.3303333333333333,
+        -3.1639999999999997
+      ],
+      "hi": [
+        4.4959999999999996,
+        -0.002,
+        -0.11399999999999999
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        3.497333333333333,
+        -0.32166666666666666,
+        -2.5106666666666664
+      ],
+      "hi": [
+        4.278,
+        -0.172,
+        -1.7256666666666667
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        3.11,
+        -0.29366666666666663,
+        -2.1306666666666665
+      ],
+      "hi": [
+        3.884333333333333,
+        -0.13599999999999998,
+        -1.3373333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_r",
+      "lo": [
+        2.707,
+        -0.2533333333333333,
+        -1.4346666666666665
+      ],
+      "hi": [
+        3.3376666666666663,
+        -0.08833333333333333,
+        -0.7996666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        2.0123333333333333,
+        -0.19033333333333333,
+        0.13866666666666666
+      ],
+      "hi": [
+        2.2343333333333333,
+        0.0003333333333333333,
+        0.37066666666666664
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_r",
+      "lo": [
+        1.7006666666666665,
+        -0.172,
+        0.498
+      ],
+      "hi": [
+        1.925,
+        0.030666666666666665,
+        0.7286666666666667
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 8,
+      "group": "wing_r",
+      "lo": [
+        1.3716666666666666,
+        -0.14566666666666667,
+        0.8703333333333333
+      ],
+      "hi": [
+        1.5996666666666666,
+        0.06333333333333332,
+        1.0943333333333334
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -3.1596666666666664,
+        -0.239,
+        -1.2853333333333332
+      ],
+      "hi": [
+        -2.516,
+        -0.08133333333333333,
+        -0.6273333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -2.3993333333333333,
+        -0.20166666666666666,
+        -0.050666666666666665
+      ],
+      "hi": [
+        -2.1676666666666664,
+        -0.017333333333333333,
+        0.195
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 46,
+      "group": "wing_l",
+      "lo": [
+        -4.623666666666667,
+        -0.3363333333333333,
+        -2.772
+      ],
+      "hi": [
+        -0.8016666666666666,
+        0.10366666666666666,
+        1.3639999999999999
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -3.52,
+        -0.2713333333333333,
+        -1.681
+      ],
+      "hi": [
+        -2.8256666666666668,
+        -0.10633333333333334,
+        -0.979
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 12,
+      "group": "wing_l",
+      "lo": [
+        -4.714333333333333,
+        -0.35133333333333333,
+        -3.342
+      ],
+      "hi": [
+        -4.312333333333333,
+        -0.22899999999999998,
+        -2.3876666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -4.055666666666666,
+        -0.307,
+        -2.2996666666666665
+      ],
+      "hi": [
+        -3.282,
+        -0.15033333333333332,
+        -1.5053333333333332
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -1.7743333333333333,
+        -0.151,
+        0.6856666666666666
+      ],
+      "hi": [
+        -1.5466666666666666,
+        0.04733333333333333,
+        0.9086666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -3.6916666666666664,
+        -0.2793333333333333,
+        -1.9366666666666665
+      ],
+      "hi": [
+        -2.912,
+        -0.12033333333333333,
+        -1.1476666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.9939999999999998,
+        -0.236,
+        -1.1453333333333333
+      ],
+      "hi": [
+        -2.316,
+        -0.06233333333333333,
+        -0.46199999999999997
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -2.5526666666666666,
+        -0.20933333333333332,
+        -0.744
+      ],
+      "hi": [
+        -1.817,
+        -0.028,
+        0.012333333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -2.0709999999999997,
+        -0.17666666666666667,
+        0.32366666666666666
+      ],
+      "hi": [
+        -1.845,
+        0.008333333333333333,
+        0.5609999999999999
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -4.593,
+        -0.3473333333333333,
+        -3.155333333333333
+      ],
+      "hi": [
+        -4.164666666666666,
+        -0.21033333333333332,
+        -2.070333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 36,
+      "group": "wing_l",
+      "lo": [
+        -4.4959999999999996,
+        -0.3303333333333333,
+        -3.1639999999999997
+      ],
+      "hi": [
+        -0.993,
+        -0.002,
+        -0.11399999999999999
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -4.278,
+        -0.32166666666666666,
+        -2.5106666666666664
+      ],
+      "hi": [
+        -3.497,
+        -0.172,
+        -1.7256666666666667
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -3.884333333333333,
+        -0.29366666666666663,
+        -2.1306666666666665
+      ],
+      "hi": [
+        -3.11,
+        -0.13599999999999998,
+        -1.3376666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 16,
+      "group": "wing_l",
+      "lo": [
+        -3.3376666666666663,
+        -0.2533333333333333,
+        -1.4346666666666665
+      ],
+      "hi": [
+        -2.707,
+        -0.08833333333333333,
+        -0.7996666666666666
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -2.2343333333333333,
+        -0.19033333333333333,
+        0.13866666666666666
+      ],
+      "hi": [
+        -2.0123333333333333,
+        0.0003333333333333333,
+        0.371
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 10,
+      "group": "wing_l",
+      "lo": [
+        -1.925,
+        -0.172,
+        0.498
+      ],
+      "hi": [
+        -1.7003333333333333,
+        0.030666666666666665,
+        0.7283333333333333
+      ]
+    },
+    {
+      "source": "body_source_15",
+      "triangles": 8,
+      "group": "wing_l",
+      "lo": [
+        -1.5983333333333334,
+        -0.14566666666666667,
+        0.8703333333333333
+      ],
+      "hi": [
+        -1.3716666666666666,
+        0.06333333333333332,
+        1.0953333333333333
+      ]
+    }
+  ],
+  "contacts": [
+    {
+      "name": "gear_main_l_wheel_source_07",
+      "lo": [
+        -2.0006666666666666,
+        -1.2206666666666666,
+        -0.883
+      ],
+      "hi": [
+        -1.849,
+        -0.5656666666666667,
+        -0.22799999999999998
+      ],
+      "tireTriangles": 396,
+      "contact": [
+        -1.9248333333333334,
+        -1.2206666666666666,
+        -0.5555
+      ]
+    },
+    {
+      "name": "gear_main_r_wheel_source_07",
+      "lo": [
+        1.8476666666666666,
+        -1.2203333333333333,
+        -0.8823333333333333
+      ],
+      "hi": [
+        2.0006666666666666,
+        -0.5653333333333334,
+        -0.22733333333333333
+      ],
+      "tireTriangles": 393,
+      "contact": [
+        1.9241666666666666,
+        -1.2203333333333333,
+        -0.5548333333333333
+      ]
+    },
+    {
+      "name": "gear_nose_source_06",
+      "lo": [
+        -0.09866666666666667,
+        -1.2223333333333333,
+        2.5733333333333333
+      ],
+      "hi": [
+        0.09866666666666667,
+        -0.7433333333333333,
+        3.0526666666666666
+      ],
+      "tireTriangles": 546,
+      "contact": [
+        0.0,
+        -1.2223333333333333,
+        2.8129999999999997
+      ]
+    }
+  ],
+  "wheelTrackMeters": 3.849,
+  "wheelbaseMeters": 3.3681666666666663,
+  "spec": {
+    "canopy": [
+      [
+        -0.015,
+        0.702,
+        1.851
+      ],
+      [
+        0.427,
+        0.363,
+        0.866
+      ]
+    ],
+    "wing": [
+      [
+        0.728,
+        -0.015,
+        2.229,
+        3.638,
+        0.213
+      ],
+      [
+        1.525,
+        -0.065,
+        1.221,
+        2.576,
+        0.123
+      ],
+      [
+        2.321,
+        -0.121,
+        0.304,
+        2.402,
+        0.1
+      ],
+      [
+        3.118,
+        -0.181,
+        -0.541,
+        2.237,
+        0.088
+      ],
+      [
+        3.914,
+        -0.239,
+        -1.337,
+        2.184,
+        0.083
+      ],
+      [
+        4.711,
+        -0.297,
+        -2.171,
+        1.146,
+        0.056
+      ]
+    ],
+    "fuselage": [
+      [
+        -5.727,
+        0.012,
+        0.115
+      ],
+      [
+        -4.853,
+        0.41,
+        0.482
+      ],
+      [
+        -3.978,
+        0.512,
+        0.621
+      ],
+      [
+        -3.103,
+        0.602,
+        0.753
+      ],
+      [
+        -2.229,
+        0.668,
+        0.667
+      ],
+      [
+        -1.354,
+        0.716,
+        0.713
+      ],
+      [
+        -0.479,
+        0.731,
+        0.735
+      ],
+      [
+        0.395,
+        0.726,
+        0.76
+      ],
+      [
+        1.27,
+        0.72,
+        0.874
+      ],
+      [
+        2.145,
+        0.705,
+        0.93
+      ],
+      [
+        3.019,
+        0.637,
+        0.674
+      ],
+      [
+        3.894,
+        0.473,
+        0.558
+      ]
+    ],
+    "fuseY": -0.0011668590795987366,
+    "aileron": {
+      "x": 3.666,
+      "y": -0.253,
+      "z": -1.951,
+      "w": 1.628,
+      "d": 1.74
+    },
+    "htail": {
+      "p": [
+        0,
+        1.587,
+        0
+      ],
+      "sections": [
+        [
+          -0.017,
+          -0.016,
+          -5.914,
+          0.762,
+          0.139
+        ],
+        [
+          0.503,
+          0.007,
+          -5.593,
+          1.066,
+          0.054
+        ],
+        [
+          1.023,
+          0.007,
+          -6.155,
+          0.867,
+          0.041
+        ],
+        [
+          1.543,
+          0.007,
+          -6.734,
+          0.496,
+          0.017
+        ]
+      ]
+    },
+    "fin": {
+      "pts": [
+        [
+          0.465,
+          -3.899
+        ],
+        [
+          0.967,
+          -3.535
+        ],
+        [
+          1.469,
+          -4.39
+        ],
+        [
+          1.97,
+          -5.245
+        ],
+        [
+          2.472,
+          -6.061
+        ],
+        [
+          2.472,
+          -7.018
+        ],
+        [
+          1.97,
+          -6.876
+        ],
+        [
+          1.469,
+          -6.498
+        ],
+        [
+          0.967,
+          -6.12
+        ],
+        [
+          0.465,
+          -5.742
+        ]
+      ],
+      "rudder": {
+        "p": [
+          0,
+          0.582,
+          -5.224
+        ],
+        "pts": [
+          [
+            0,
+            0
+          ],
+          [
+            1.871,
+            0
+          ],
+          [
+            1.871,
+            -1.87
+          ],
+          [
+            0,
+            -1.87
+          ]
+        ]
+      }
+    },
+    "eye": [
+      -0.015,
+      0.8558,
+      1.9500000476837158
+    ],
+    "eyeSeated": [
+      0.0,
+      0.9200000166893005,
+      1.9500000476837158
+    ],
+    "jet": {
+      "nozzle": -5.6,
+      "y": 0.35,
+      "r": 0.36
+    },
+    "parts": {
+      "engine": [
+        [
+          -0.0,
+          0.35,
+          -3.2002
+        ],
+        [
+          0.396,
+          0.396,
+          2.1
+        ]
+      ],
+      "fuel": [
+        [
+          -0.0,
+          0.088,
+          -0.2002
+        ],
+        [
+          0.479,
+          0.334,
+          1.4
+        ]
+      ],
+      "ammo": [
+        [
+          -0.0,
+          -0.65,
+          2.0998
+        ],
+        [
+          0.42,
+          0.15,
+          0.6
+        ]
+      ]
+    },
+    "gear": {
+      "kind": "tricycle",
+      "main": {
+        "x": 1.9245,
+        "y": -0.07144265621900558,
+        "z": -0.5551666666666666,
+        "r": 0.3275,
+        "len": 0.8215573437809943,
+        "attachment": "fuselage"
+      },
+      "aux": {
+        "x": 0.0,
+        "y": -0.30000001192092896,
+        "z": 2.8129999999999997,
+        "r": 0.2395,
+        "len": 0.6828333214124043,
+        "attachment": "fuselage"
+      }
+    },
+    "muzzles": [
+      [
+        -0.3,
+        -0.589,
+        3.8821,
+        0.3,
+        0.035
+      ],
+      [
+        0.4013,
+        -0.4737,
+        3.9771,
+        0.3,
+        0.02
+      ],
+      [
+        0.175,
+        -0.477,
+        3.7497,
+        0.3,
+        0.025
+      ]
+    ],
+    "muzzleRegistration": {
+      "version": 1,
+      "method": "native gun aperture / muzzle face",
+      "points": [
+        {
+          "part": "body_source_05",
+          "sourcePoint": [
+            -0.3,
+            -0.589,
+            3.8791
+          ],
+          "surfaceDistanceM": 0.021251
+        },
+        {
+          "part": "body_source_05",
+          "sourcePoint": [
+            0.4013,
+            -0.4737,
+            3.9741
+          ],
+          "surfaceDistanceM": 0.009735
+        },
+        {
+          "part": "body_source_05",
+          "sourcePoint": [
+            0.175,
+            -0.477,
+            3.7467
+          ],
+          "surfaceDistanceM": 3.3e-05
+        }
+      ]
+    },
+    "sight": {
+      "points": [
+        [
+          -0.05333,
+          0.82633,
+          2.33733
+        ],
+        [
+          -0.05333,
+          0.82633,
+          2.341
+        ],
+        [
+          -0.05333,
+          0.83467,
+          2.315
+        ],
+        [
+          -0.05333,
+          0.838,
+          2.31767
+        ],
+        [
+          -0.05333,
+          0.87633,
+          2.273
+        ],
+        [
+          -0.05333,
+          0.87633,
+          2.27967
+        ],
+        [
+          -0.05333,
+          0.87633,
+          2.33733
+        ],
+        [
+          -0.05333,
+          0.87633,
+          2.341
+        ],
+        [
+          -0.053,
+          0.82667,
+          2.33733
+        ],
+        [
+          -0.053,
+          0.82667,
+          2.341
+        ],
+        [
+          -0.053,
+          0.83467,
+          2.315
+        ],
+        [
+          -0.053,
+          0.838,
+          2.31767
+        ],
+        [
+          -0.053,
+          0.87633,
+          2.273
+        ],
+        [
+          -0.053,
+          0.87633,
+          2.27967
+        ],
+        [
+          -0.053,
+          0.87633,
+          2.33733
+        ],
+        [
+          -0.053,
+          0.87633,
+          2.341
+        ],
+        [
+          -0.052,
+          0.881,
+          2.26833
+        ],
+        [
+          -0.052,
+          0.881,
+          2.27567
+        ],
+        [
+          -0.052,
+          0.881,
+          2.33733
+        ],
+        [
+          -0.052,
+          0.881,
+          2.341
+        ],
+        [
+          -0.05167,
+          0.88067,
+          2.26833
+        ],
+        [
+          -0.05167,
+          0.88067,
+          2.27567
+        ],
+        [
+          -0.05167,
+          0.88067,
+          2.33733
+        ],
+        [
+          -0.05167,
+          0.88067,
+          2.341
+        ],
+        [
+          -0.04867,
+          0.884,
+          2.26567
+        ],
+        [
+          -0.04867,
+          0.884,
+          2.272
+        ],
+        [
+          -0.04867,
+          0.884,
+          2.33733
+        ],
+        [
+          -0.04867,
+          0.884,
+          2.341
+        ],
+        [
+          -0.04867,
+          0.88433,
+          2.26567
+        ],
+        [
+          -0.04867,
+          0.88433,
+          2.272
+        ],
+        [
+          -0.04867,
+          0.88433,
+          2.33733
+        ],
+        [
+          -0.04867,
+          0.88433,
+          2.341
+        ],
+        [
+          -0.04433,
+          0.885,
+          2.26467
+        ],
+        [
+          -0.04433,
+          0.885,
+          2.271
+        ],
+        [
+          -0.04433,
+          0.885,
+          2.33733
+        ],
+        [
+          -0.04433,
+          0.885,
+          2.341
+        ],
+        [
+          -0.04433,
+          0.88533,
+          2.26367
+        ],
+        [
+          -0.04433,
+          0.88533,
+          2.271
+        ],
+        [
+          -0.04433,
+          0.88533,
+          2.33733
+        ],
+        [
+          -0.04433,
+          0.88533,
+          2.341
+        ],
+        [
+          -0.04333,
+          0.835,
+          2.27867
+        ],
+        [
+          -0.042,
+          0.835,
+          2.26933
+        ],
+        [
+          -0.042,
+          0.835,
+          2.289
+        ],
+        [
+          -0.037,
+          0.835,
+          2.261
+        ],
+        [
+          -0.037,
+          0.835,
+          2.29733
+        ],
+        [
+          -0.03633,
+          0.838,
+          2.27867
+        ],
+        [
+          -0.03133,
+          0.838,
+          2.26567
+        ],
+        [
+          -0.03133,
+          0.838,
+          2.29267
+        ],
+        [
+          -0.02933,
+          0.835,
+          2.25433
+        ],
+        [
+          -0.02933,
+          0.835,
+          2.30367
+        ],
+        [
+          -0.02633,
+          0.83967,
+          2.27867
+        ],
+        [
+          -0.02367,
+          0.83967,
+          2.272
+        ],
+        [
+          -0.02367,
+          0.83967,
+          2.286
+        ],
+        [
+          -0.02,
+          0.835,
+          2.25067
+        ],
+        [
+          -0.02,
+          0.835,
+          2.30667
+        ],
+        [
+          -0.01867,
+          0.838,
+          2.258
+        ],
+        [
+          -0.01867,
+          0.838,
+          2.3
+        ],
+        [
+          -0.017,
+          0.83967,
+          2.26733
+        ],
+        [
+          -0.017,
+          0.83967,
+          2.28967
+        ],
+        [
+          -0.015,
+          0.84067,
+          2.27867
+        ],
+        [
+          -0.01,
+          0.835,
+          2.25067
+        ],
+        [
+          -0.01,
+          0.835,
+          2.30667
+        ],
+        [
+          -0.00933,
+          0.83967,
+          2.26933
+        ],
+        [
+          -0.00933,
+          0.83967,
+          2.289
+        ],
+        [
+          -0.00433,
+          0.838,
+          2.261
+        ],
+        [
+          -0.00433,
+          0.838,
+          2.29733
+        ],
+        [
+          -0.00433,
+          0.83967,
+          2.275
+        ],
+        [
+          -0.00433,
+          0.83967,
+          2.28233
+        ],
+        [
+          -0.00067,
+          0.835,
+          2.25433
+        ],
+        [
+          -0.00067,
+          0.835,
+          2.30367
+        ],
+        [
+          0.005,
+          0.838,
+          2.272
+        ],
+        [
+          0.005,
+          0.838,
+          2.286
+        ],
+        [
+          0.007,
+          0.835,
+          2.261
+        ],
+        [
+          0.007,
+          0.835,
+          2.29733
+        ],
+        [
+          0.012,
+          0.835,
+          2.26933
+        ],
+        [
+          0.012,
+          0.835,
+          2.289
+        ],
+        [
+          0.01367,
+          0.835,
+          2.27867
+        ],
+        [
+          0.01433,
+          0.885,
+          2.26467
+        ],
+        [
+          0.01433,
+          0.885,
+          2.271
+        ],
+        [
+          0.01433,
+          0.885,
+          2.33733
+        ],
+        [
+          0.01433,
+          0.885,
+          2.341
+        ],
+        [
+          0.01433,
+          0.88533,
+          2.26367
+        ],
+        [
+          0.01433,
+          0.88533,
+          2.271
+        ],
+        [
+          0.01433,
+          0.88533,
+          2.33733
+        ],
+        [
+          0.01433,
+          0.88533,
+          2.341
+        ],
+        [
+          0.01867,
+          0.884,
+          2.26567
+        ],
+        [
+          0.01867,
+          0.884,
+          2.272
+        ],
+        [
+          0.01867,
+          0.884,
+          2.33733
+        ],
+        [
+          0.01867,
+          0.884,
+          2.341
+        ],
+        [
+          0.01867,
+          0.88433,
+          2.26567
+        ],
+        [
+          0.01867,
+          0.88433,
+          2.272
+        ],
+        [
+          0.01867,
+          0.88433,
+          2.33733
+        ],
+        [
+          0.01867,
+          0.88433,
+          2.341
+        ],
+        [
+          0.02167,
+          0.88067,
+          2.26833
+        ],
+        [
+          0.02167,
+          0.88067,
+          2.27567
+        ],
+        [
+          0.02167,
+          0.88067,
+          2.33733
+        ],
+        [
+          0.02167,
+          0.88067,
+          2.341
+        ],
+        [
+          0.022,
+          0.881,
+          2.26833
+        ],
+        [
+          0.022,
+          0.881,
+          2.27567
+        ],
+        [
+          0.022,
+          0.881,
+          2.33733
+        ],
+        [
+          0.022,
+          0.881,
+          2.341
+        ],
+        [
+          0.023,
+          0.82667,
+          2.33733
+        ],
+        [
+          0.023,
+          0.82667,
+          2.341
+        ],
+        [
+          0.023,
+          0.83467,
+          2.315
+        ],
+        [
+          0.023,
+          0.838,
+          2.31767
+        ],
+        [
+          0.023,
+          0.87633,
+          2.273
+        ],
+        [
+          0.023,
+          0.87633,
+          2.27967
+        ],
+        [
+          0.023,
+          0.87633,
+          2.33733
+        ],
+        [
+          0.023,
+          0.87633,
+          2.341
+        ],
+        [
+          0.02333,
+          0.82633,
+          2.33733
+        ],
+        [
+          0.02333,
+          0.82633,
+          2.341
+        ],
+        [
+          0.02333,
+          0.83467,
+          2.315
+        ],
+        [
+          0.02333,
+          0.838,
+          2.31767
+        ],
+        [
+          0.02333,
+          0.87633,
+          2.273
+        ],
+        [
+          0.02333,
+          0.87633,
+          2.27967
+        ],
+        [
+          0.02333,
+          0.87633,
+          2.33733
+        ],
+        [
+          0.02333,
+          0.87633,
+          2.341
+        ]
+      ],
+      "eye": [
+        -0.015,
+        0.8558,
+        1.9500000476837158
+      ],
+      "eyeBox": [
+        0.13,
+        0.1,
+        0.4
+      ],
+      "source": "model triangles"
+    },
+    "stations": {
+      "inner": {
+        "x": 2.3503,
+        "y": -0.562,
+        "z": -0.3395,
+        "wing": true,
+        "modelPylon": true
+      },
+      "mid": {
+        "x": 2.3503,
+        "y": -0.562,
+        "z": -0.3395,
+        "wing": true,
+        "modelPylon": true
+      },
+      "outer": {
+        "x": 2.3503,
+        "y": -0.562,
+        "z": -0.3395,
+        "wing": true,
+        "modelPylon": true
+      },
+      "row": [
+        {
+          "x": 2.3503,
+          "y": -0.562,
+          "z": -0.3395,
+          "wing": true,
+          "modelPylon": true
+        },
+        {
+          "x": 2.3503,
+          "y": -0.562,
+          "z": -0.3395,
+          "wing": true,
+          "modelPylon": true
+        }
+      ],
+      "center": {
+        "x": 0,
+        "y": -0.761,
+        "z": 0.3
+      },
+      "belly": {
+        "x": 0.472,
+        "y": -0.761,
+        "z": [
+          1.2,
+          -1.2
+        ]
+      }
+    },
+    "alignmentVersion": 1,
+    "opticsCalibration": {
+      "version": 4,
+      "assemblyOffset": [
+        0,
+        0,
+        0
+      ],
+      "ufcOffset": 0,
+      "sourceEye": [
+        0.0,
+        0.9200000166893005,
+        1.9500000476837158
+      ],
+      "eyeOffset": [
+        -0.015,
+        -0.06420001668930053,
+        0.0
+      ],
+      "opaqueSupportWarp": false,
+      "sourceGlassBounds": [
+        [
+          -0.05333333333333333,
+          0.8263333333333333,
+          2.2506666666666666
+        ],
+        [
+          0.02333333333333333,
+          0.8853333333333333,
+          2.3409999999999997
+        ]
+      ],
+      "method": "Declare existing eye at measured reflector center; no additional eye or geometry move",
+      "sourceGeometry": {
+        "glbSha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e",
+        "mesh": "glass_source_13",
+        "primitive": 0,
+        "material": 7,
+        "alphaMode": "BLEND",
+        "alpha": 0.17000000178813934,
+        "sourceFaceRanges": [
+          [
+            956,
+            140
+          ],
+          [
+            1396,
+            54
+          ]
+        ],
+        "frame": "Exact new GLB/native datum, not transformed old sight points"
+      }
+    },
+    "pylonPoints": [
+      null,
+      [
+        -2.3503333333333334,
+        -0.5619999999999999,
+        -0.3395
+      ],
+      [
+        2.3503333333333334,
+        -0.5619999999999999,
+        -0.3395
+      ]
+    ]
+  }
+}

@@ -1,0 +1,265 @@
+{
+  "scope": "F16 exact imported hardware and current menu layout; game-fitted attachment centres, not engineering certification",
+  "sourceAppSha256": "ab73c31b212b75bafc5e14f4d89b2487006e2f2f8907a0fe2cfaf74f3e25ef0d",
+  "sourceModelSha256": "2144f85ce471b772867a6380a87144f1a3f3d736c83fc56727dc040af9d858fc",
+  "sourceHardware": {
+    "inner": {
+      "upperPart": 59,
+      "lowerPart": 60,
+      "negativeXParts": [
+        70,
+        71
+      ],
+      "positiveXCenter": 1.8458,
+      "undersideY": -0.6713333333333333,
+      "longitudinalRailLength": 2.2636666666666665,
+      "crosswiseRailCount": 1,
+      "interpretation": "One longitudinal retention channel with fore/aft mechanisms per source pylon; not two parallel AAM side rails"
+    },
+    "wingtip": {
+      "positiveXPart": 61,
+      "negativeXPart": 72,
+      "outboardRailX": 4.832333333333334,
+      "storeRollDegrees": [
+        -90,
+        90
+      ],
+      "lateralSaddleMeters": 0.025
+    },
+    "midAndOuter": {
+      "midX": 3.083,
+      "outerX": 3.835,
+      "sourceVerticalPylonsPresent": false,
+      "adapters": "Added fitted supports are used at these game stations; they do not duplicate or independently occupy the inner source pylon"
+    }
+  },
+  "defaultSixAam": [
+    {
+      "id": "aim120c",
+      "station": "tip",
+      "side": -1,
+      "owner": "wing_r_out",
+      "modelHardpoint": "left_wingtip_rail",
+      "fittedMountKey": "f16v:0"
+    },
+    {
+      "id": "aim120c",
+      "station": "tip",
+      "side": 1,
+      "owner": "wing_l_out",
+      "modelHardpoint": "right_wingtip_rail",
+      "fittedMountKey": "f16v:1"
+    },
+    {
+      "id": "aim120c",
+      "station": "outer",
+      "side": -1,
+      "owner": "wing_r_out"
+    },
+    {
+      "id": "aim120c",
+      "station": "outer",
+      "side": 1,
+      "owner": "wing_l_out"
+    },
+    {
+      "id": "aim9x",
+      "station": "mid",
+      "side": -1,
+      "owner": "wing_r_out",
+      "fittedMountKey": "f16v:4"
+    },
+    {
+      "id": "aim9x",
+      "station": "mid",
+      "side": 1,
+      "owner": "wing_l_out",
+      "fittedMountKey": "f16v:5"
+    }
+  ],
+  "innerOptions": [
+    {
+      "side": -1,
+      "options": [
+        {
+          "id": "mk82",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                -1.8451666666666666,
+                -0.9013333333333334,
+                0.31896666666666673
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "left_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:2",
+              "owner": "wing_r"
+            }
+          ]
+        },
+        {
+          "id": "gbu12",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                -1.8451666666666666,
+                -0.9013333333333334,
+                0.40856666666666674
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "left_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:2",
+              "owner": "wing_r"
+            }
+          ]
+        },
+        {
+          "id": "mk84",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                -1.8451666666666666,
+                -0.9933333333333334,
+                0.4493666666666667
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "left_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:2",
+              "owner": "wing_r"
+            }
+          ]
+        },
+        {
+          "id": "cbu87",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                -1.8451666666666666,
+                -0.9648333333333333,
+                0.3293666666666667
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "left_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:2",
+              "owner": "wing_r"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "side": 1,
+      "options": [
+        {
+          "id": "mk82",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                1.8458333333333332,
+                -0.9013333333333334,
+                0.31896666666666673
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "right_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:3",
+              "owner": "wing_l"
+            }
+          ]
+        },
+        {
+          "id": "gbu12",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                1.8458333333333332,
+                -0.9013333333333334,
+                0.40856666666666674
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "right_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:3",
+              "owner": "wing_l"
+            }
+          ]
+        },
+        {
+          "id": "mk84",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                1.8458333333333332,
+                -0.9933333333333334,
+                0.4493666666666667
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "right_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:3",
+              "owner": "wing_l"
+            }
+          ]
+        },
+        {
+          "id": "cbu87",
+          "maxInCurrentMenu": 1,
+          "actual": [
+            {
+              "p": [
+                1.8458333333333332,
+                -0.9648333333333333,
+                0.3293666666666667
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "modelHardpoint": "right_inner_pylon_lower_rail",
+              "fittedMountKey": "f16v:3",
+              "owner": "wing_l"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "screenshots": {
+    "empty": "f16v-source-inner.png",
+    "loaded": "f16v-source-inner-gbu12.png"
+  },
+  "result": "All currently selectable inner stores use the original source pylon; it is naturally unoccupied in the six-AAM preset."
+}

@@ -7,6 +7,28 @@ use crate::v3::{v3, V3};
 use crate::*;
 
 #[test]
+fn eight_suspension_choices_compile_through_strict_vehicle_types_and_dispatch_actual_physics() {
+    use tg_physics::tank::{TankModel,TankOpts};
+    use tg_physics::tank::suspension_force::ForceProfile;
+    let db=db();
+    for kind in ["coil","torsion_bar","christie","leaf_bogie","volute","hvss","horstmann","hydropneumatic"] {
+        assert!(db.catalog.suspensions.contains_key(kind),"designer must expose {kind}");
+        let mut d=sample();d.suspension.kind=kind.into();let r=evaluate(&d,&db);
+        assert!(!r.issues.iter().any(|c|c.code=="D057"),"{kind} must validate");
+        let c=r.compiled.as_ref().unwrap_or_else(||panic!("{kind} must compile"));
+        let files=c.files();let v:tg_vehicle::VehicleDef=serde_json::from_value(files["vehicle.json"].clone()).unwrap();
+        assert_eq!(v.physics.suspension.kind.as_deref(),Some(kind));
+        assert_eq!(files["vehicle.json"]["physics"]["suspension"]["force_model"],"estimated_v7_reduced_vertical");
+        let tm=TankModel::from_vehicle(&c.loaded(),TankOpts::default()).unwrap();
+        assert_ne!(tm.sp.force_profile,ForceProfile::LegacyGeneric,"{kind} actual force dispatch");
+        assert_eq!(tm.sp.units[0].members.len(),if tm.sp.force_profile.is_bogie(){2}else{1});
+        let s=tm.sp.force_sample(&tm.sp.units[0],0.0,0.0,false);
+        assert!((s.spring-tm.sp.units[0].p).abs()<1e-6);
+        let json=serde_json::to_value(&db.catalog).unwrap();assert_eq!(json["suspensions"][kind]["height_control"],"fixed");
+    }
+}
+
+#[test]
 fn kinetic_core_interleaves_crew_and_reverse_exit_stack() {
     use tg_weapon::ProjectileDef;
     for far in [50.0,200.0] {

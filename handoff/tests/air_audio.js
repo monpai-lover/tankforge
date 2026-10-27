@@ -1,0 +1,26 @@
+// Which sounds play for the NF-01 (sim advanced by hand): engine/wind loops, gun loops, gear, hits.
+const tf = window.__tf, x = window.__tfx, G = tf.G;
+const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+const wait = (ms) => new Promise(r => setTimeout(r, ms));
+await tf.coreReady().catch(e => null); await x.flightCoreP;
+const S = tf.sound, started = [];
+const nameOf = (buf) => { for (const [k, v] of S.full?.buffers || []) if (v === buf) return k; return 'other'; };
+const bs = AudioBufferSourceNode.prototype.start; AudioBufferSourceNode.prototype.start = function (...a) { started.push(nameOf(this.buffer) + (this.loop ? ' [loop]' : '')); return bs.apply(this, a); };
+const count = () => { const c = {}; for (const s of started.splice(0)) if (/air|report|mg|blast/.test(s)) c[s] = (c[s] || 0) + 1; return c; };
+const run = (secs) => { for (let k = 0; k < secs * 10; k++) tf.advance(0.1, [], true); };
+tf.finishThumbs(); await frames(2); tf.startBattle(); await frames(3); S.start();
+document.querySelector('.hangar-card[data-air=nf01]').click();
+for (let i = 0; i < 40 && !G.air?.active; i++) await frames(1);
+tf.pause(true); S.setFullAudible = () => S.full?.suspend(false); S.full?.suspend(false);
+const P = G.air.plane; P.spawn(-3000, 600, -3000, Math.PI, 90, false); P.aim = [0, 0, -1];
+run(0.2); await wait(5000); run(0.3); const flight = count();
+const dbg = { listener: S.full.listener.position?.map(Math.round), plane: P.position.map(Math.round), active: S.full.active, ctx: S.ctx?.state, muted: S.muted, master: !!S.master, hasCue: !!S.full.bank.cues.air_engine_low, buf: S.full.buffers.has('air_engine_low'), air: !!G.air?.audio, mode: G.mode, crashed: P.crashed, local: !!P.root.local };
+const loops = () => [...S.full.loops.keys()].filter(k => k.startsWith('air'));
+G.air.fireAll = true; run(0.5); const firing = loops(); G.air.fireAll = false; run(0.4); const guns = count(); const after = loops();
+P.toggle('KeyG'); run(0.3); const gear = count();
+const sh = x.data.projectiles.hefi_20_sprgr, m = P.root.local, wp = (p) => [0, 1, 2].map(k => m[k] * p[0] + m[4 + k] * p[1] + m[8 + k] * p[2] + m[12 + k]);
+x.aircraftHit(wp([3, 1.5, 0]), wp([3, -1.5, 0]), sh, [0, -800, 0], { name: 'test' });
+x.aircraftHit(wp([-3, 1.5, 0]), wp([-3, -1.5, 0]), x.data.projectiles.apt_20_pzgr39, [0, -800, 0], { name: 'test' });
+run(0.2); const hit = count();
+P.damage.harm('engine', 1e3, false, () => 0.99); P.applyDamage(); run(0.3); const engineDead = { c: count(), loops: loops() };
+return { dbg, flight, firing, guns, after, gear, hit, engineDead };

@@ -1,0 +1,57 @@
+{
+  "sourceHtml": "C:\\Users\\24908\\.codex\\scratch\\tankforge-airwar-online-20261025\\intake\\tank-monpai-root-20261025-identity.html",
+  "sourceHtmlSha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f",
+  "embeddedPath": "data.vehicles.ru_pantsir_sm_sv.surfaceArmor",
+  "recoveredPath": "data/vehicles/ru_pantsir_sm_sv/surface_armor.json",
+  "bytes": 949756,
+  "sha256": "a5441a98aa8fc344daaa5e87f5535cca8b80336b5d623a33f5de9c0724bbb7b5",
+  "geometryHash": "0ae9f0bdc53351c8d95dd5eb4a52a76de96987c8ca2c6d79a55d6628cd25f157",
+  "parts": 11,
+  "vertices": 29662,
+  "triangles": 22206,
+  "sourceModel": {
+    "model": "model.json",
+    "model_sha256": "23623cbdd880ce4c",
+    "bindings": "source/imported-hitbox-bindings.json",
+    "note": "armour batches of the drawn model; thickness = provisional gameplay estimates from the package"
+  },
+  "vehicleBinding": [
+    {
+      "component": "vehicle",
+      "path": "data/vehicles/ru_pantsir_sm_sv/vehicle.json",
+      "fileSha256": "840f521c2bf69f9410b4440c8d76a4258a654e82ded17d6baf0ff32cfb5c5c25",
+      "jsonEqual": true
+    },
+    {
+      "component": "armor",
+      "path": "data/vehicles/ru_pantsir_sm_sv/armor.json",
+      "fileSha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "jsonEqual": true
+    },
+    {
+      "component": "modules",
+      "path": "data/vehicles/ru_pantsir_sm_sv/modules.json",
+      "fileSha256": "ef3379ecdddf6fa02beda8258df5a16b635cd731df90dead0f3025397a1b330b",
+      "jsonEqual": true
+    },
+    {
+      "component": "crew",
+      "path": "data/vehicles/ru_pantsir_sm_sv/crew.json",
+      "fileSha256": "0c372e700dc252631e7e66bea4b1beeada09ee4a9161950e77422425528f2ad6",
+      "jsonEqual": true
+    },
+    {
+      "component": "weapons",
+      "path": "data/vehicles/ru_pantsir_sm_sv/weapons.json",
+      "fileSha256": "bc9457e59d92a6f74682f4ab877463487221cff040605ada1b40dfff032d1b52",
+      "jsonEqual": true
+    },
+    {
+      "component": "visual",
+      "path": "data/vehicles/ru_pantsir_sm_sv/visual.json",
+      "fileSha256": "e08de44ffac24027cf1236db640585bac85b6c8292eb481def24db5e1dc5771b",
+      "jsonEqual": true
+    }
+  ],
+  "runtimeEffect": "Native load_combat reads this existing optional path and installs exact legacy triangle armor instead of the absent empty armor; runtime updater must admit explicit absent-new file."
+}

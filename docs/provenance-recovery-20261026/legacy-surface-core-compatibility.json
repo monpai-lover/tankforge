@@ -1,0 +1,64 @@
+{
+  "schema": "LegacyTriangleSurfaceCoreCompatibilityV1",
+  "upgraded": {
+    "path": "C:\\Users\\24908\\.codex\\scratch\\tankforge-airwar-online-20261025\\worktree\\online-source\\target\\wasm32-unknown-unknown\\release\\tg_design_wasm.wasm",
+    "sha256": "d5ca844a7a5d2c19980a6452cbf93ec23ca0022a51b1e466feaa8e2df543ee59"
+  },
+  "prior": {
+    "path": "C:\\Users\\24908\\.codex\\scratch\\tankforge-airwar-online-20261025\\worktree\\task\\provenance-recovery-20261026\\original-active\\surfaceCore.wasm",
+    "sha256": "f88569767f73e291a32c0a7c7b983126075f60a1c0d08f652af60cd99f78c83c"
+  },
+  "vehicle": "ru_pantsir_sm_sv",
+  "surfaceGeometryHash": "0ae9f0bdc53351c8d95dd5eb4a52a76de96987c8ca2c6d79a55d6628cd25f157",
+  "cases": [
+    {
+      "name": "front",
+      "hit": true,
+      "plate": "surf:armor_hull_front:3042",
+      "first": {
+        "x": -0.5,
+        "y": 1.2000000476837158,
+        "z": 3.93149995803833
+      },
+      "layers": 2
+    },
+    {
+      "name": "side",
+      "hit": true,
+      "plate": "surf:armor_turret_right:21411",
+      "first": {
+        "x": 1.6070003509521484,
+        "y": 2.299999952316284,
+        "z": 0.6000000238418579
+      },
+      "layers": 3
+    },
+    {
+      "name": "rotated_turret",
+      "hit": true,
+      "plate": null,
+      "first": {
+        "x": 0.9298844337463379,
+        "y": 2.299999952316284,
+        "z": 0.8600000143051147
+      },
+      "layers": 4
+    },
+    {
+      "name": "open_chassis_gap",
+      "hit": false,
+      "plate": null,
+      "first": null,
+      "layers": 0
+    }
+  ],
+  "aphe": {
+    "samples": 20,
+    "timed": 20,
+    "inside": 16,
+    "oldLost": 0,
+    "actualFillerGrams": 17,
+    "explosiveType": "petn",
+    "delay_s": 0.0024
+  }
+}

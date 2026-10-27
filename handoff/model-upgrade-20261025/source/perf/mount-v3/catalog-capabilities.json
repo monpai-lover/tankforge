@@ -1,0 +1,2722 @@
+{
+  "schema": 1,
+  "appSha256": "d5d27a26a6220d32120cfadac48217a509f64f2c00a71d78e52346861a36c0be",
+  "sources": {
+    "f15": "https://www.airmanmagazine.af.mil/ImageGallery/igphoto/2002820144/",
+    "f16": "https://www.govinfo.gov/content/pkg/FR-2025-01-06/html/2024-31697.htm",
+    "pods": "https://www.af.mil/About-Us/Fact-Sheets/Display/article/104527/sniper-pod/",
+    "a10": "https://www.af.mil/News/Article-Display/Article/129371/a-10-upgrade-effort-transforms-warthog-capabilities/"
+  },
+  "models": {
+    "nf01": {
+      "name": "NF-01 試飛機",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "row:-1",
+          "station": "row",
+          "side": -1,
+          "options": {
+            "hvar": 3
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "sc250": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "sc250": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "row:1",
+          "station": "row",
+          "side": 1,
+          "options": {
+            "hvar": 3
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "nf02": {
+      "name": "NF-02 噴射戰鬥機",
+      "sourceMain": "procedural:nf02-v1",
+      "slots": [
+        {
+          "key": "tip:-1",
+          "station": "tip",
+          "side": -1,
+          "options": {
+            "aim9l": 1,
+            "aim9x": 1,
+            "r73e": 1,
+            "aim7m": 1,
+            "aim120b": 1,
+            "agm65b": 1,
+            "vikhr": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "agm65d": 1,
+            "lau3": 1,
+            "irist": 1,
+            "aim9m": 1,
+            "r27r1": 1,
+            "aim120c": 1,
+            "agm65g": 1,
+            "agm12b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "aim120a": 1,
+            "agm65a": 1,
+            "asraam": 1,
+            "r27t1": 1,
+            "r27er1": 1,
+            "rvvae": 1,
+            "agm65e": 1,
+            "agm45a": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "aim7f": 1,
+            "mk82": 1,
+            "mica_ir": 1,
+            "r27et1": 1,
+            "aim54a": 1,
+            "meteor": 1,
+            "kh29te": 1,
+            "agm88b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "belly:-1",
+          "station": "belly",
+          "side": -1,
+          "options": {
+            "mica_em": 1,
+            "kh31p": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "belly:1",
+          "station": "belly",
+          "side": 1,
+          "options": {
+            "mica_em": 1,
+            "kh31p": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "aim7f": 1,
+            "mk82": 1,
+            "mica_ir": 1,
+            "r27et1": 1,
+            "aim54a": 1,
+            "meteor": 1,
+            "kh29te": 1,
+            "agm88b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "aim120a": 1,
+            "agm65a": 1,
+            "asraam": 1,
+            "r27t1": 1,
+            "r27er1": 1,
+            "rvvae": 1,
+            "agm65e": 1,
+            "agm45a": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "agm65d": 1,
+            "lau3": 1,
+            "irist": 1,
+            "aim9m": 1,
+            "r27r1": 1,
+            "aim120c": 1,
+            "agm65g": 1,
+            "agm12b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "tip:1",
+          "station": "tip",
+          "side": 1,
+          "options": {
+            "aim9l": 1,
+            "aim9x": 1,
+            "r73e": 1,
+            "aim7m": 1,
+            "aim120b": 1,
+            "agm65b": 1,
+            "vikhr": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "p51d": {
+      "name": "P-51D 野馬",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "row:-1",
+          "station": "row",
+          "side": -1,
+          "options": {
+            "hvar": 3
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "anm64": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "anm64": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "row:1",
+          "station": "row",
+          "side": 1,
+          "options": {
+            "hvar": 3
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "bf109g": {
+      "name": "Bf 109 G-6",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "center:0",
+          "station": "center",
+          "side": 0,
+          "options": {
+            "sc250": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "spitfire9": {
+      "name": "噴火 Mk IX",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "gp250": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "center:0",
+          "station": "center",
+          "side": 0,
+          "options": {
+            "mc500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "gp250": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "mig15": {
+      "name": "MiG-15bis",
+      "sourceMain": "437b73d043f65d073141253054c98f615300c2dae06379db7b29225ee147e0c4",
+      "slots": [
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "fab100": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "fab100": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "f86f": {
+      "name": "F-86F 軍刀",
+      "sourceMain": "151c4830621c40e9995d7a2aac57606525ded78200a18161d3aa52fecd2e06a1",
+      "slots": [
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "tank120": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "row:-1",
+          "station": "row",
+          "side": -1,
+          "options": {
+            "hvar": 4
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "anm64": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "anm64": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "row:1",
+          "station": "row",
+          "side": 1,
+          "options": {
+            "hvar": 4
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "tank120": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "f104g": {
+      "name": "F-104G 星式",
+      "sourceMain": "2a606f0ef082eac53196ed6e5c41f0aa759815cbc3b58dac7fffe63e46b26ec0",
+      "slots": [
+        {
+          "key": "tip:-1",
+          "station": "tip",
+          "side": -1,
+          "options": {
+            "aim9b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "mk82": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "mk82": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "tip:1",
+          "station": "tip",
+          "side": 1,
+          "options": {
+            "aim9b": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "mig21": {
+      "name": "MiG-21MF",
+      "sourceMain": "db84ea973ae3dbb337e4c7c711cf5c36d6e53413d9f4ee2bbfc47daf9ee94a30",
+      "slots": [
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "r3s": 1,
+            "fab250": 1,
+            "ub16": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "r3s": 1,
+            "fab250": 1,
+            "ub16": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "fw190a8": {
+      "name": "Fw 190 A-8",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "center:0",
+          "station": "center",
+          "side": 0,
+          "options": {
+            "sc500": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "yak9u": {
+      "name": "Yak-9U",
+      "sourceMain": null,
+      "slots": [],
+      "reviewCombinations": []
+    },
+    "a6m2": {
+      "name": "A6M2 零式艦戰 21 型",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "type97b60": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "type97b60": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "f4u1d": {
+      "name": "F4U-1D 海盜",
+      "sourceMain": null,
+      "slots": [
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "hvar": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "hvar": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "anm65": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "anm65": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "hvar": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "hvar": 2
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "me262": {
+      "name": "Me 262 A-1a 燕式",
+      "sourceMain": "501fa3f895703caba6e6cd03f4e3c9c5068b9c541f91b6423df5d9b985617550",
+      "slots": [
+        {
+          "key": "source_r4m:-1",
+          "station": "source_r4m",
+          "side": -1,
+          "options": {
+            "r4m": 12
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "source_r4m:1",
+          "station": "source_r4m",
+          "side": 1,
+          "options": {
+            "r4m": 12
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "hunter6": {
+      "name": "Hunter F.6 獵人",
+      "sourceMain": "4ad19bd329cf7d2bc4cc43e2afd25b2a8143efae758042a295fbb9e18c743d37",
+      "slots": [
+        {
+          "key": "row:-1",
+          "station": "row",
+          "side": -1,
+          "options": {
+            "rp3": 4
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "mc500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "mc500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "row:1",
+          "station": "row",
+          "side": 1,
+          "options": {
+            "rp3": 4
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "mig17f": {
+      "name": "MiG-17F",
+      "sourceMain": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e",
+      "slots": [
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "fab250": 1,
+            "ub16": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "fab250": 1,
+            "ub16": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "mirage3e": {
+      "name": "Mirage 5F 幻象",
+      "sourceMain": "3bfa59b7b3603c25bc44312e9fdb31b3127da2397dc97505cb4146da6c863d05",
+      "slots": [
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "magic1": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "matra155": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "matra155": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "magic1": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "f4e": {
+      "name": "F-4E 幽靈 II",
+      "sourceMain": "e03a28ce0a9ef04a4198a647e4ca22eaf85d92e0a625ddad4ad640005624a2f6",
+      "slots": [
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "agm65a": 1,
+            "aim9l": 1,
+            "gbu10": 1,
+            "agm45a": 1,
+            "agm65b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "aim9l": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "mk82": 2,
+            "lau3": 2,
+            "mk84": 1,
+            "gbu12": 2,
+            "agm12b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "belly:-1",
+          "station": "belly",
+          "side": -1,
+          "options": {
+            "aim7e": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "center:0",
+          "station": "center",
+          "side": 0,
+          "options": {
+            "pavespike": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "belly:1",
+          "station": "belly",
+          "side": 1,
+          "options": {
+            "aim7e": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "mk82": 2,
+            "lau3": 2,
+            "mk84": 1,
+            "gbu12": 2,
+            "agm12b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "aim9l": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "agm65a": 1,
+            "aim9l": 1,
+            "gbu10": 1,
+            "agm45a": 1,
+            "agm65b": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "f15c": {
+      "name": "F-15E 打擊鷹",
+      "sourceMain": "b736634797d9c94fa04967e8f06b20a40458d8349af54888d0b62de47a50c23a",
+      "slots": [
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "aim9l": 1,
+            "aim9m": 1,
+            "aim9x": 1,
+            "aim120b": 1,
+            "aim120c": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "aim9l": 2,
+            "aim9m": 2,
+            "aim120c": 2,
+            "aim9x": 2,
+            "aim120a": 2,
+            "aim120b": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "mk82": 2,
+            "gbu12": 1,
+            "gbu10": 1,
+            "cbu87": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "belly:-1",
+          "station": "belly",
+          "side": -1,
+          "options": {
+            "aim7f": 2,
+            "aim120a": 2,
+            "aim7m": 2,
+            "aim120b": 2,
+            "aim120c": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "center:0",
+          "station": "center",
+          "side": 0,
+          "options": {
+            "mk82": 2,
+            "gbu10": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "belly:1",
+          "station": "belly",
+          "side": 1,
+          "options": {
+            "aim7f": 2,
+            "aim120a": 2,
+            "aim7m": 2,
+            "aim120b": 2,
+            "aim120c": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "mk82": 2,
+            "gbu12": 1,
+            "gbu10": 1,
+            "cbu87": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "aim9l": 2,
+            "aim9m": 2,
+            "aim120c": 2,
+            "aim9x": 2,
+            "aim120a": 2,
+            "aim120b": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "aim9l": 1,
+            "aim9m": 1,
+            "aim9x": 1,
+            "aim120b": 1,
+            "aim120c": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": [
+        {
+          "name": "新增：八枚 AMRAAM",
+          "entries": [
+            [
+              "aim120c",
+              4,
+              "belly"
+            ],
+            [
+              "aim120b",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                -2.094,
+                -1.7209,
+                2.356
+              ],
+              "mount": [
+                -2.094,
+                -1.613,
+                2.356
+              ],
+              "fittedMountKey": "f15c:0"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                2.094,
+                -1.7209,
+                2.356
+              ],
+              "mount": [
+                2.094,
+                -1.613,
+                2.356
+              ],
+              "fittedMountKey": "f15c:1"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                -2.081,
+                -1.4947000000000001,
+                -2.739
+              ],
+              "mount": [
+                -2.081,
+                -1.3868,
+                -2.739
+              ],
+              "fittedMountKey": "f15c:2"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                2.081,
+                -1.4947000000000001,
+                -2.739
+              ],
+              "mount": [
+                2.081,
+                -1.3868,
+                -2.739
+              ],
+              "fittedMountKey": "f15c:3"
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.7422199850857569,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:4"
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.7422199850857569,
+                1.37751677852349
+              ],
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:5"
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -3.31717375093214,
+                -0.7422199850857569,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:6"
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                3.31717375093214,
+                -0.7422199850857569,
+                1.37751677852349
+              ],
+              "mount": [
+                3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:7"
+            }
+          ]
+        },
+        {
+          "name": "新增：GBU-12 / AIM-9X",
+          "entries": [
+            [
+              "gbu12",
+              2,
+              "inner"
+            ],
+            [
+              "aim120c",
+              4,
+              "belly"
+            ],
+            [
+              "aim9x",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "gbu12",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.927852348993288,
+                -0.9912352721849367,
+                0.31263415361670394
+              ],
+              "mount": [
+                -2.927852348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.927852348993288,
+                -0.9912352721849367,
+                0.31263415361670394
+              ],
+              "mount": [
+                2.927852348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                -2.094,
+                -1.7209,
+                2.356
+              ],
+              "mount": [
+                -2.094,
+                -1.613,
+                2.356
+              ],
+              "fittedMountKey": "f15c:0"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                2.094,
+                -1.7209,
+                2.356
+              ],
+              "mount": [
+                2.094,
+                -1.613,
+                2.356
+              ],
+              "fittedMountKey": "f15c:1"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                -2.081,
+                -1.4947000000000001,
+                -2.739
+              ],
+              "mount": [
+                -2.081,
+                -1.3868,
+                -2.739
+              ],
+              "fittedMountKey": "f15c:2"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                2.081,
+                -1.4947000000000001,
+                -2.739
+              ],
+              "mount": [
+                2.081,
+                -1.3868,
+                -2.739
+              ],
+              "fittedMountKey": "f15c:3"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:4"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:5"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -3.31717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:6"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                3.31717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:7"
+            }
+          ]
+        },
+        {
+          "name": "新增：GBU-10",
+          "entries": [
+            [
+              "gbu10",
+              2,
+              "inner"
+            ],
+            [
+              "aim9m",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "gbu10",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.927852348993288,
+                -1.0832352721849365,
+                0.3902341536167039
+              ],
+              "mount": [
+                -2.927852348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "gbu10",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.927852348993288,
+                -1.0832352721849365,
+                0.3902341536167039
+              ],
+              "mount": [
+                2.927852348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:4"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:5"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -3.31717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:6"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                3.31717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:7"
+            }
+          ]
+        },
+        {
+          "name": "新增：CBU-87",
+          "entries": [
+            [
+              "cbu87",
+              2,
+              "inner"
+            ],
+            [
+              "aim9m",
+              4,
+              "mid"
+            ]
+          ],
+          "items": [
+            {
+              "id": "cbu87",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.927852348993288,
+                -1.0547352721849366,
+                0.23343415361670392
+              ],
+              "mount": [
+                -2.927852348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "cbu87",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.927852348993288,
+                -1.0547352721849366,
+                0.23343415361670392
+              ],
+              "mount": [
+                2.927852348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:4"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:5"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -3.31717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:6"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                3.31717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.31717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "fittedMountKey": "f15c:7"
+            }
+          ]
+        }
+      ]
+    },
+    "mig29": {
+      "name": "MiG-29 9.12 支點",
+      "sourceMain": "59defc7ff57bfba306a83fdef4e33152d18f1f1ad2e60b7efe2e1bd7aff94379",
+      "slots": [
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "r73": 1,
+            "r60m": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "r73": 1,
+            "r60m": 1,
+            "b8m1": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "r27r": 1,
+            "r27t": 1,
+            "fab500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "r27r": 1,
+            "r27t": 1,
+            "fab500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "r73": 1,
+            "r60m": 1,
+            "b8m1": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "r73": 1,
+            "r60m": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "f16v": {
+      "name": "F-16V 戰隼",
+      "sourceMain": "2144f85ce471b772867a6380a87144f1a3f3d736c83fc56727dc040af9d858fc",
+      "slots": [
+        {
+          "key": "tip:-1",
+          "station": "tip",
+          "side": -1,
+          "options": {
+            "aim120c": 1,
+            "aim9m": 1,
+            "aim9x": 1,
+            "aim120b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "aim120c": 1,
+            "aim120b": 1,
+            "aim9m": 1,
+            "aim9x": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "aim9x": 1,
+            "agm65g": 1,
+            "aim9m": 1,
+            "aim120b": 1,
+            "aim120c": 1,
+            "agm88b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "mk82": 1,
+            "gbu12": 1,
+            "mk84": 1,
+            "cbu87": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "chin:1",
+          "station": "chin",
+          "side": 1,
+          "options": {
+            "sniper": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "mk82": 1,
+            "gbu12": 1,
+            "mk84": 1,
+            "cbu87": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "aim9x": 1,
+            "agm65g": 1,
+            "aim9m": 1,
+            "aim120b": 1,
+            "aim120c": 1,
+            "agm88b": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "aim120c": 1,
+            "aim120b": 1,
+            "aim9m": 1,
+            "aim9x": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "tip:1",
+          "station": "tip",
+          "side": 1,
+          "options": {
+            "aim120c": 1,
+            "aim9m": 1,
+            "aim9x": 1,
+            "aim120b": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": [
+        {
+          "name": "新增：HARM / 瞄准吊舱",
+          "entries": [
+            [
+              "agm88b",
+              2,
+              "mid"
+            ],
+            [
+              "aim120c",
+              2,
+              "tip"
+            ],
+            [
+              "aim9x",
+              2,
+              "outer"
+            ],
+            [
+              "sniper",
+              1,
+              "chin",
+              1
+            ]
+          ],
+          "items": [
+            {
+              "id": "agm88b",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -3.083,
+                -0.46459999999999996,
+                -0.825
+              ],
+              "mount": [
+                -3.083,
+                -0.3186,
+                -0.825
+              ],
+              "fittedMountKey": "f16v:4"
+            },
+            {
+              "id": "agm88b",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                3.083,
+                -0.46459999999999996,
+                -0.825
+              ],
+              "mount": [
+                3.083,
+                -0.3186,
+                -0.825
+              ],
+              "fittedMountKey": "f16v:5"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -4.7333333333333325,
+                -0.23596666666666666,
+                -1.4264999999999999
+              ],
+              "mount": [
+                -4.7333333333333325,
+                -0.12806666666666666,
+                -1.4264999999999999
+              ],
+              "fittedMountKey": "f16v:0"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                4.7333333333333325,
+                -0.2457333333333333,
+                -1.4263333333333332
+              ],
+              "mount": [
+                4.7333333333333325,
+                -0.1378333333333333,
+                -1.4263333333333332
+              ],
+              "fittedMountKey": "f16v:1"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -3.835,
+                -0.2605,
+                -0.689
+              ],
+              "mount": [
+                -3.835,
+                -0.178,
+                -0.689
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                3.835,
+                -0.2605,
+                -0.689
+              ],
+              "mount": [
+                3.835,
+                -0.178,
+                -0.689
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "sniper",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                0.72,
+                -1.285,
+                2.9911999999999996
+              ],
+              "mount": [
+                0.72,
+                -1.135,
+                2.8
+              ],
+              "fittedMountKey": "f16v:6"
+            }
+          ]
+        },
+        {
+          "name": "新增：Mk84",
+          "entries": [
+            [
+              "mk84",
+              2,
+              "inner"
+            ],
+            [
+              "aim9m",
+              2,
+              "mid"
+            ],
+            [
+              "aim120b",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "mk84",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                -1.8451666666666666,
+                -0.9933333333333334,
+                0.4493666666666667
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "fittedMountKey": "f16v:2"
+            },
+            {
+              "id": "mk84",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                1.8458333333333332,
+                -0.9933333333333334,
+                0.4493666666666667
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "fittedMountKey": "f16v:3"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -3.083,
+                -0.4011,
+                -0.825
+              ],
+              "mount": [
+                -3.083,
+                -0.3186,
+                -0.825
+              ],
+              "fittedMountKey": "f16v:4"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                3.083,
+                -0.4011,
+                -0.825
+              ],
+              "mount": [
+                3.083,
+                -0.3186,
+                -0.825
+              ],
+              "fittedMountKey": "f16v:5"
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -4.7333333333333325,
+                -0.23596666666666666,
+                -1.4264999999999999
+              ],
+              "mount": [
+                -4.7333333333333325,
+                -0.12806666666666666,
+                -1.4264999999999999
+              ],
+              "fittedMountKey": "f16v:0"
+            },
+            {
+              "id": "aim120b",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                4.7333333333333325,
+                -0.2457333333333333,
+                -1.4263333333333332
+              ],
+              "mount": [
+                4.7333333333333325,
+                -0.1378333333333333,
+                -1.4263333333333332
+              ],
+              "fittedMountKey": "f16v:1"
+            }
+          ]
+        },
+        {
+          "name": "新增：CBU87",
+          "entries": [
+            [
+              "cbu87",
+              2,
+              "inner"
+            ],
+            [
+              "aim120c",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "cbu87",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                -1.8451666666666666,
+                -0.9648333333333333,
+                0.3293666666666667
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "fittedMountKey": "f16v:2"
+            },
+            {
+              "id": "cbu87",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                1.8458333333333332,
+                -0.9648333333333333,
+                0.3293666666666667
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "fittedMountKey": "f16v:3"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -4.7333333333333325,
+                -0.23596666666666666,
+                -1.4264999999999999
+              ],
+              "mount": [
+                -4.7333333333333325,
+                -0.12806666666666666,
+                -1.4264999999999999
+              ],
+              "fittedMountKey": "f16v:0"
+            },
+            {
+              "id": "aim120c",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                4.7333333333333325,
+                -0.2457333333333333,
+                -1.4263333333333332
+              ],
+              "mount": [
+                4.7333333333333325,
+                -0.1378333333333333,
+                -1.4263333333333332
+              ],
+              "fittedMountKey": "f16v:1"
+            }
+          ]
+        },
+        {
+          "name": "精确制导完整挂载",
+          "entries": [
+            [
+              "gbu12",
+              2,
+              "inner"
+            ],
+            [
+              "sniper",
+              1,
+              "chin",
+              1
+            ],
+            [
+              "aim9x",
+              2,
+              "tip"
+            ]
+          ],
+          "items": [
+            {
+              "id": "gbu12",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                -1.8451666666666666,
+                -0.9013333333333334,
+                0.40856666666666674
+              ],
+              "mount": [
+                -1.8451666666666666,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "fittedMountKey": "f16v:2"
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                1.8458333333333332,
+                -0.9013333333333334,
+                0.40856666666666674
+              ],
+              "mount": [
+                1.8458333333333332,
+                -0.7648333333333334,
+                0.14216666666666672
+              ],
+              "fittedMountKey": "f16v:3"
+            },
+            {
+              "id": "sniper",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                0.72,
+                -1.285,
+                2.9911999999999996
+              ],
+              "mount": [
+                0.72,
+                -1.135,
+                2.8
+              ],
+              "fittedMountKey": "f16v:6"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                -4.7333333333333325,
+                -0.21056666666666668,
+                -1.4264999999999999
+              ],
+              "mount": [
+                -4.7333333333333325,
+                -0.12806666666666666,
+                -1.4264999999999999
+              ],
+              "fittedMountKey": "f16v:0"
+            },
+            {
+              "id": "aim9x",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                4.7333333333333325,
+                -0.22033333333333333,
+                -1.4263333333333332
+              ],
+              "mount": [
+                4.7333333333333325,
+                -0.1378333333333333,
+                -1.4263333333333332
+              ],
+              "fittedMountKey": "f16v:1"
+            }
+          ]
+        }
+      ]
+    },
+    "su27": {
+      "name": "Su-27UBK 側衛",
+      "sourceMain": "562a29d0ae0fbc4f251dc5120b5a30103959eff9b72b5a3116db62d25b77b0f8",
+      "slots": [
+        {
+          "key": "tip:-1",
+          "station": "tip",
+          "side": -1,
+          "options": {
+            "r73": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:-1",
+          "station": "outer",
+          "side": -1,
+          "options": {
+            "r73": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:-1",
+          "station": "mid",
+          "side": -1,
+          "options": {
+            "r27t": 1,
+            "b8m1": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:-1",
+          "station": "inner",
+          "side": -1,
+          "options": {
+            "r27r": 1,
+            "fab500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "center:0",
+          "station": "center",
+          "side": 0,
+          "options": {
+            "r27r": 2,
+            "fab500": 2
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "inner:1",
+          "station": "inner",
+          "side": 1,
+          "options": {
+            "r27r": 1,
+            "fab500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "mid:1",
+          "station": "mid",
+          "side": 1,
+          "options": {
+            "r27t": 1,
+            "b8m1": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "outer:1",
+          "station": "outer",
+          "side": 1,
+          "options": {
+            "r73": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "tip:1",
+          "station": "tip",
+          "side": 1,
+          "options": {
+            "r73": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "a10a": {
+      "name": "A-10C 雷霆 II",
+      "sourceMain": "1e4c993b5406bb942b155cbe51a81dc5650ef9b6937dae78246d6f7f50deec83",
+      "slots": [
+        {
+          "key": "p1",
+          "station": "p1",
+          "side": -1,
+          "options": {
+            "aim9l": 2,
+            "aim9m": 2,
+            "alq131": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p2",
+          "station": "p2",
+          "side": -1,
+          "options": {
+            "mk82": 1,
+            "lau68": 1,
+            "cbu87": 1,
+            "sniper": 1,
+            "litening": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p3",
+          "station": "p3",
+          "side": -1,
+          "options": {
+            "agm65a": 3,
+            "agm65b": 3,
+            "agm65d": 3,
+            "agm65g": 1,
+            "mk82": 3,
+            "lau68": 1,
+            "cbu87": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p4",
+          "station": "p4",
+          "side": -1,
+          "options": {
+            "mk84": 1,
+            "mk82": 1,
+            "tank600": 1,
+            "gbu10": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p5",
+          "station": "p5",
+          "side": -1,
+          "options": {
+            "mk82": 1,
+            "mk84": 1,
+            "gbu12": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p6",
+          "station": "p6",
+          "side": 0,
+          "options": {
+            "mk84": 1,
+            "tank600": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p7",
+          "station": "p7",
+          "side": 1,
+          "options": {
+            "mk82": 1,
+            "mk84": 1,
+            "gbu12": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p8",
+          "station": "p8",
+          "side": 1,
+          "options": {
+            "mk84": 1,
+            "mk82": 1,
+            "tank600": 1,
+            "gbu10": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p9",
+          "station": "p9",
+          "side": 1,
+          "options": {
+            "agm65a": 3,
+            "agm65b": 3,
+            "agm65d": 3,
+            "agm65g": 1,
+            "mk82": 3,
+            "lau68": 1,
+            "cbu87": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p10",
+          "station": "p10",
+          "side": 1,
+          "options": {
+            "mk82": 1,
+            "lau68": 1,
+            "cbu87": 1,
+            "sniper": 1,
+            "litening": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p11",
+          "station": "p11",
+          "side": 1,
+          "options": {
+            "aim9l": 2,
+            "aim9m": 2,
+            "alq131": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": [
+        {
+          "name": "新增：Sniper / GBU-12",
+          "entries": [
+            [
+              "sniper",
+              1,
+              "p10"
+            ],
+            [
+              "gbu12",
+              1,
+              "p5"
+            ],
+            [
+              "gbu12",
+              1,
+              "p7"
+            ],
+            [
+              "aim9m",
+              2,
+              "p1"
+            ]
+          ],
+          "items": [
+            {
+              "id": "sniper",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                6.1,
+                -0.658,
+                -0.30979999999999996
+              ],
+              "mount": null,
+              "fittedMountKey": null
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                -0.75,
+                -1.2523,
+                0.23040000000000002
+              ],
+              "mount": [
+                -0.75,
+                -1.1158000000000001,
+                -0.036
+              ],
+              "fittedMountKey": "a10a:0"
+            },
+            {
+              "id": "gbu12",
+              "count": 1,
+              "owner": "body",
+              "p": [
+                0.75,
+                -1.2506,
+                0.23040000000000002
+              ],
+              "mount": [
+                0.75,
+                -1.1141,
+                -0.036
+              ],
+              "fittedMountKey": "a10a:1"
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -7.1192,
+                -0.6565000000000001,
+                -0.551
+              ],
+              "mount": [
+                -7.4,
+                -0.246,
+                -0.551
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -7.6808000000000005,
+                -0.6565000000000001,
+                -0.551
+              ],
+              "mount": [
+                -7.4,
+                -0.246,
+                -0.551
+              ],
+              "fittedMountKey": null
+            }
+          ]
+        },
+        {
+          "name": "新增：LITENING / GBU-10",
+          "entries": [
+            [
+              "litening",
+              1,
+              "p2"
+            ],
+            [
+              "gbu10",
+              1,
+              "p4"
+            ],
+            [
+              "gbu10",
+              1,
+              "p8"
+            ],
+            [
+              "aim9m",
+              2,
+              "p11"
+            ]
+          ],
+          "items": [
+            {
+              "id": "litening",
+              "count": 1,
+              "owner": "wing_l_out",
+              "p": [
+                -6.1,
+                -0.7110000000000001,
+                -0.32499999999999996
+              ],
+              "mount": null,
+              "fittedMountKey": null
+            },
+            {
+              "id": "gbu10",
+              "count": 1,
+              "owner": "wing_l",
+              "p": [
+                -3.3,
+                -1.0625,
+                -0.069
+              ],
+              "mount": null,
+              "fittedMountKey": null
+            },
+            {
+              "id": "gbu10",
+              "count": 1,
+              "owner": "wing_r",
+              "p": [
+                3.3,
+                -1.0625,
+                -0.069
+              ],
+              "mount": null,
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                7.6808000000000005,
+                -0.6565000000000001,
+                -0.551
+              ],
+              "mount": [
+                7.4,
+                -0.246,
+                -0.551
+              ],
+              "fittedMountKey": null
+            },
+            {
+              "id": "aim9m",
+              "count": 1,
+              "owner": "wing_r_out",
+              "p": [
+                7.1192,
+                -0.6565000000000001,
+                -0.551
+              ],
+              "mount": [
+                7.4,
+                -0.246,
+                -0.551
+              ],
+              "fittedMountKey": null
+            }
+          ]
+        }
+      ]
+    },
+    "su25": {
+      "name": "Su-25 蛙足",
+      "sourceMain": "e0d9b71d05ec5b3f26fe8907064c91c0f76069ebc81f422ce2b8d3402f32c9ff",
+      "slots": [
+        {
+          "key": "p1",
+          "station": "p1",
+          "side": -1,
+          "options": {
+            "r60m": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p2",
+          "station": "p2",
+          "side": -1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "sppu22": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p3",
+          "station": "p3",
+          "side": -1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "rbk500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p4",
+          "station": "p4",
+          "side": -1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "kh29l": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p5",
+          "station": "p5",
+          "side": -1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p6",
+          "station": "p6",
+          "side": 1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p7",
+          "station": "p7",
+          "side": 1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "kh29l": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p8",
+          "station": "p8",
+          "side": 1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "rbk500": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p9",
+          "station": "p9",
+          "side": 1,
+          "options": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "sppu22": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "p10",
+          "station": "p10",
+          "side": 1,
+          "options": {
+            "r60m": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "me262a2a": {
+      "name": "Me 262 A-2a",
+      "sourceMain": "ab2bafe6b94cf0b0edc739b06c8c17b53dad174b5a473e46768b4207c2057a48",
+      "slots": [
+        {
+          "key": "source_bombs:-1",
+          "station": "source_bombs",
+          "side": -1,
+          "options": {
+            "sc250": 1
+          },
+          "incomplete": {}
+        },
+        {
+          "key": "source_bombs:1",
+          "station": "source_bombs",
+          "side": 1,
+          "options": {
+            "sc250": 1
+          },
+          "incomplete": {}
+        }
+      ],
+      "reviewCombinations": []
+    },
+    "me262u4": {
+      "name": "Me 262 A-1a/U4（试验型）",
+      "sourceMain": "122deddc160ad0070d63efa8084180dd00aacd50358b4bf3576201b642a3cad2",
+      "slots": [],
+      "reviewCombinations": []
+    }
+  },
+  "scope": "Initial spawn/layout catalog integration. Client preset indices and menu availability do not authorize an existing native server capability."
+}

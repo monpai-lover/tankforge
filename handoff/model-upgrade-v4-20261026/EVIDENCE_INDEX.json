@@ -1,0 +1,28 @@
+{
+  "authoritativeTargetAppSha256": "8e354eaa40718e7939ec36cbd44603bcb4f98ac59d5e6e12e09e9179879e1ffd",
+  "finalAcceptance": "verification/mount-v4/acceptance.json",
+  "currentChecks": [
+    "verification/mount-v4/acceptance.json",
+    "verification/mount-v4/actual-render-report.json",
+    "verification/mount-v4/all26-audit.log",
+    "verification/mount-v4/all26-geometry-findings.json",
+    "verification/mount-v4/all26-geometry.log",
+    "verification/mount-v4/all26-report.json",
+    "verification/mount-v4/coverage-export.log",
+    "verification/mount-v4/final-tests.log",
+    "verification/mount-v4/hardpoints-test-results.json",
+    "verification/mount-v4/hardpoints-tests.log",
+    "verification/mount-v4/installer-report.json",
+    "verification/mount-v4/installer-unit-tests.log",
+    "verification/mount-v4/integration-export.log",
+    "verification/mount-v4/model-upgrade-merge-report.json",
+    "verification/mount-v4/native-layout-tests.log",
+    "verification/mount-v4/native-map-build.log",
+    "verification/mount-v4/previous-render-report.json",
+    "verification/mount-v4/source-closure.json",
+    "verification/mount-v4/transform-tests.log"
+  ],
+  "actualImages": "verification/screenshots/",
+  "historicalEvidence": "verification/history/package-v2/",
+  "scope": "Actual production Aircraft/Renderer in fixed test poses; every menu station/type plus selected mixed cases, not all Cartesian loadout combinations. Local air-combat backend and deployment are not modified."
+}

@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "sourceArchive": "/home/boyang/Desktop/tankforge-flight-performance-fix.zip",
+  "archiveSha256": "c47d57026edd84e8b28a1d4137b3ae07f3feb3dd896cf6518e96ed973bf69e8f",
+  "scope": "Minimal C213 incremental helper sources; no Rust301 flight/hitbox/project replacement. Source internals remain authoritative; generated fallback layouts are model-fit approximations.",
+  "files": [
+    {
+      "path": "aircraft-render-cull.mjs",
+      "packageSource": "source/aircraft-render-cull.mjs",
+      "sha256": "49619b59fd3ebde7b8fec0562ee989623ff2889d5addb9f26598ab4e8cf884c2",
+      "bytes": 3964
+    },
+    {
+      "path": "mig17-wing.mjs",
+      "packageSource": "source/project/handoff/flight-rust/mig17-wing.mjs",
+      "sha256": "3727710ae598b9e5433c92e6a0c9e006d08f93122bbe81f7d3858c45f3391515",
+      "bytes": 7909
+    },
+    {
+      "path": "engine-layout-helper.js",
+      "packageSource": "source/engine/engine-layout-helper.js",
+      "sha256": "d25ade94e1e2629774263aca57b0802bcb3ac1ba6eb8387b2e335c6a9f965ade",
+      "bytes": 67418
+    },
+    {
+      "path": "mechanism-view.js",
+      "packageSource": "source/mechanism-view.js",
+      "sha256": "5c47fefc9bdcdd905eac3e8872e651b0fcc7f01693b1dbe2f819301f9fd139fd",
+      "bytes": 4289,
+      "packageSha256": "5130e40b8c48f2262c423125d35b1e60c786aac22574504c8f82e5bcf837cb00",
+      "packageBytes": 3643,
+      "localChanges": [
+        {
+          "id": "imported_source_gear_axis_and_panel_classification",
+          "reason": "Actual current Me262 browser evidence had empty gearRecords because its four gear_* axes were not recognized; F104 source parts also use lowercase geardoor names.",
+          "change": "Recognize gear_* and tailgear categories from type or param; split camel-case names and identify lowercase door/cover compounds; retain explicitly named door actuators/rods while hiding panels. Original full meshes remain unchanged; mixed joints retain only physically disabled exact source triangle render subsets.",
+          "regression": "handoff/tests/aircraft-mechanism-gear.test.mjs",
+          "regressionSha256": "9c6d9d778f5e48018f9bb8dc86b0db5f66a0b188272f7ab866dc49c10087ca35"
+        }
+      ]
+    },
+    {
+      "path": "mechanism-fit-runtime.js",
+      "packageSource": "source/mechanism-fit/mechanism-fit-runtime.js",
+      "sha256": "55f8b5b4a794ca355c4b25ffc436889fa2b5a3b5d635d783bfd4bc5d8953d75a",
+      "bytes": 1221880
+    }
+  ]
+}

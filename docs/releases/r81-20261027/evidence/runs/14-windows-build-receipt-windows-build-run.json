@@ -1,0 +1,36 @@
+{
+  "name": "windows-build",
+  "kind": "build",
+  "status": "PASS",
+  "exitCode": 0,
+  "before": {
+    "profile": "3c579ba62c912bb1ff00250b6e64785c2f8b79cac954398dd166480957fc2b49",
+    "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+    "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+  },
+  "after": {
+    "profile": "3c579ba62c912bb1ff00250b6e64785c2f8b79cac954398dd166480957fc2b49",
+    "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+    "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+  },
+  "log": "D:\\TankForge-validation\\agm-ground-point-20261027\\windows-build.log",
+  "logSha256": "aa6cd90c19fd14fa53dd4b9762634ec67b483c9e46c8901e3e724cc9d2dd1f17",
+  "command": [
+    "C:\\Users\\24908\\.codex\\scratch\\tankforge-rust\\cargo\\bin\\cargo.exe",
+    "build",
+    "--locked",
+    "--release",
+    "-p",
+    "tg-server"
+  ],
+  "startedAtUnix": 1793098833.7501266,
+  "elapsedSeconds": 236.78264999389648,
+  "rustSourceBefore": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+  "rustSourceAfter": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+  "scope": "Actual command recorded in command; source and input hashes captured before and after execution.",
+  "limitations": [
+    "Automated local Windows execution; no Linux service or manual browser verification."
+  ]
+}

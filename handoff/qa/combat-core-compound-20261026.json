@@ -1,0 +1,25 @@
+{
+  "sha256": "f4d81323f742f51cbb025d240cd02e62f9423de585db613b106d54f1e32e5d18",
+  "bytes": 3211930,
+  "exports": [
+    "memory",
+    "tg_alloc",
+    "tg_barrel_revision",
+    "tg_call",
+    "tg_free",
+    "tg_replay_revision",
+    "tg_surface_revision",
+    "tg_weapon_bindings_revision"
+  ],
+  "revisions": {
+    "tg_replay_revision": 1,
+    "tg_surface_revision": 1,
+    "tg_barrel_revision": 1,
+    "tg_weapon_bindings_revision": 1
+  },
+  "originalActiveSha256": "7095c82c373534c7590ca882f75005059f4f849586ad2b7154c0a5c524656c25",
+  "appSha256": "8119d010f9426de74d86a861dc26470567180b64f3c24643d79caae978655e82",
+  "preservedOriginalAssetPrefix": true,
+  "upgradedBothCombatRoutes": true,
+  "preservedLegacyTriangleGeometry": true
+}

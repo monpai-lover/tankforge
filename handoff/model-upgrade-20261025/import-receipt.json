@@ -1,0 +1,314 @@
+{
+  "archiveSha256": "aa12dddde54dfaa37aa7d0908e8009003aa7e285ee4925c93ca9c7dfa59d5b56",
+  "sourceFiles": {
+    "EVIDENCE_INDEX.json": {
+      "bytes": 2379,
+      "sha256": "e2adbf649a91ddef9a2a243a50476ba7ceed5fa24e9b1e709bcbf213e4136ddd"
+    },
+    "files.sha256.json": {
+      "bytes": 20822,
+      "sha256": "a32512e1f599b1444ccbd707da43545dc175a21dc9b2104c8323c1875df9778b"
+    },
+    "INTEGRATION_MAP.json": {
+      "bytes": 5374,
+      "sha256": "2a5c975fbc2d9d4b01bbaf54a9736617a3a84f879b9c9c588f6d16aa45f1f3e0"
+    },
+    "manifest.json": {
+      "bytes": 436,
+      "sha256": "e22ed737c592ce7caa2625507df93216adca68e695050b90bf9c4434104c0ce3"
+    },
+    "README.txt": {
+      "bytes": 3382,
+      "sha256": "964ea5ad7863002d1d7792409f2c66f26bec5c4ed201d77c4b8977e274c23c31"
+    },
+    "source/package.json": {
+      "bytes": 33,
+      "sha256": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428"
+    },
+    "source/TESTING.txt": {
+      "bytes": 666,
+      "sha256": "c9d2bf74e1a446fb9021cc029bd13c9599867023b434ee2095054438d96c83a4"
+    },
+    "source/perf/aircraft-render-cull.mjs": {
+      "bytes": 3964,
+      "sha256": "49619b59fd3ebde7b8fec0562ee989623ff2889d5addb9f26598ab4e8cf884c2"
+    },
+    "source/perf/compose-model-upgrade.py": {
+      "bytes": 3133,
+      "sha256": "c5243516517bbce2774c778239ed45cf365293ef4f9576bbc97140074621e950"
+    },
+    "source/perf/mechanism-view.js": {
+      "bytes": 6126,
+      "sha256": "233910886ab37690701f12a46fb7a245559c75cb249ab19921c0d741429a7dde"
+    },
+    "source/perf/model-upgrade-build.py": {
+      "bytes": 2281,
+      "sha256": "32c26fad21cea495359b6541a2edf1b4d572a8b7a2923f11fbe11d9cb1a86349"
+    },
+    "source/perf/model-upgrade-install.py": {
+      "bytes": 4727,
+      "sha256": "f4f4442a874f681a5a661104546ae5d6acf726c6168e526c0e891930fbd06b8a"
+    },
+    "source/perf/model-upgrade-tests.py": {
+      "bytes": 5855,
+      "sha256": "ce5801b88b175ad34cefffe23d45371de5191ae3ee71d674534c67d1919bcc27"
+    },
+    "source/perf/patch-mechanism-view.py": {
+      "bytes": 5283,
+      "sha256": "6c62de60e525b3c6162678112284aefb14d2ca3f9709c9231023dbeb1d00bb22"
+    },
+    "source/perf/patch-mig17.py": {
+      "bytes": 1503,
+      "sha256": "fdca9fd5ea4432ec5260cf684ffacd184fd2f962600fb177764e1357d0d201f6"
+    },
+    "source/perf/patch-render.py": {
+      "bytes": 8062,
+      "sha256": "ad121ecd6bc6212555d93bee90b65127b0a1678cafae6fcae1b051bf031ad0ef"
+    },
+    "source/perf/prepare-model-tests.py": {
+      "bytes": 2143,
+      "sha256": "d073924b81015fdd554c9365dcfd0bff2b53fe2270f18cafc56c3960530f5969"
+    },
+    "source/perf/all-interior/all-interior.test.mjs": {
+      "bytes": 6400,
+      "sha256": "132b0c89c2e7276c8c34091e8087c7624513c59e58ebaf07b47fb4f60f4c0ba1"
+    },
+    "source/perf/all-interior/browser-entry.mjs": {
+      "bytes": 3939,
+      "sha256": "e0d34bb8501bf3eb1212dedf3c2c0a38a4f21285568d6d79de5a5bac0915962a"
+    },
+    "source/perf/all-interior/deep-mechanisms.test.mjs": {
+      "bytes": 4701,
+      "sha256": "d4b3a28c8d6f534e13cebf8c17360c3fc528215c0fa14f7e5dfde4dbfe5f720c"
+    },
+    "source/perf/all-interior/patch.py": {
+      "bytes": 2708,
+      "sha256": "1fa61fe911581760708c4a36b569fecc62f36f70d1cf3f237868ea2dbe7231b4"
+    },
+    "source/perf/all-interior/README.md": {
+      "bytes": 3666,
+      "sha256": "be99b603e5d133a7b280d27e3a124905a2063f3579c7de31deea1d678d27de50"
+    },
+    "source/perf/damage-schematic/helper.mjs": {
+      "bytes": 12584,
+      "sha256": "0040c96db35a10a3da535345a55a8e8c310bcf03f7a92763ea8fb21e43643faa"
+    },
+    "source/perf/damage-schematic/patch.py": {
+      "bytes": 1383,
+      "sha256": "e1c766b40824e18b61d7313698e7e420b0b119ddb7a67c1782d1a2bc5ad10021"
+    },
+    "source/perf/engine/engine-layout-helper.js": {
+      "bytes": 67418,
+      "sha256": "d25ade94e1e2629774263aca57b0802bcb3ac1ba6eb8387b2e335c6a9f965ade"
+    },
+    "source/perf/engine/patch-engine.py": {
+      "bytes": 4508,
+      "sha256": "6055080e608f9c6381d1332cfa60e9ce5917e7a16dde385a0a1e1909c9e5deeb"
+    },
+    "source/perf/hardpoints/actual-layout-fixture.mjs": {
+      "bytes": 3085,
+      "sha256": "17a0983b83b80cdabecd6a21e4c07dd276e15dd9bd2dc66bf4be80e78e5dc2f1"
+    },
+    "source/perf/hardpoints/build-native-layout-map.mjs": {
+      "bytes": 3260,
+      "sha256": "ca91b9b5d1d4e2e0b6a3865cc650e3c0f683ea08cd208eecc82d667203645946"
+    },
+    "source/perf/hardpoints/catalog-audit-after.md": {
+      "bytes": 4316,
+      "sha256": "56c31c71e2242a124cb7fd937bcd380665172d5823652c60c099f29b4b288920"
+    },
+    "source/perf/hardpoints/catalog-capacity-manifest.json": {
+      "bytes": 46246,
+      "sha256": "c72f9f4ea57871c6cbff75b65ab11d43b05b88ba036fdc1c0a5ad4efddd694c1"
+    },
+    "source/perf/hardpoints/f15-native-host-map.json": {
+      "bytes": 31877,
+      "sha256": "1672e3fcb9ae95c9aee4a6caec1d918d4f5303d62877896ac91e168bf9d24425"
+    },
+    "source/perf/hardpoints/geometry-audit-build-view.mjs": {
+      "bytes": 5947,
+      "sha256": "246e05c8500c9e5ddb8799bd9f166bba61a3d704c63a8c2eb7a8dd0b18739387"
+    },
+    "source/perf/hardpoints/geometry-audit-mount-table.json": {
+      "bytes": 28098,
+      "sha256": "0039684fd7ed32cbbcaa51c424bab80edaa35c12503cb40a09711560fa1198bc"
+    },
+    "source/perf/hardpoints/helper.mjs": {
+      "bytes": 14357,
+      "sha256": "48462a029d5c56aa9846759a1d3551e6eef73e3d37930ff8c15d96e58e74b4d2"
+    },
+    "source/perf/hardpoints/measured-mounts.mjs": {
+      "bytes": 5834,
+      "sha256": "e6f4c8f53fb0dc4399ba09413fc1fa15fbd2634aff43037a060f0aba1ddf5069"
+    },
+    "source/perf/hardpoints/native-layout-adapter.mjs": {
+      "bytes": 1794,
+      "sha256": "06ed97549ceff95910a24afbdf38f0f5aa37dee3ae6879fc0378c8037df7a7ef"
+    },
+    "source/perf/hardpoints/native-layout-adapter.test.mjs": {
+      "bytes": 1702,
+      "sha256": "337417037263244cd01527e69f594b6573f4810f1f9b950d481b76f79c6b7261"
+    },
+    "source/perf/hardpoints/native-layout-map.json": {
+      "bytes": 287100,
+      "sha256": "cf0f2f5265c3fa0964c49a2d35cf4edc3f00d5b474deea89a0ee7d378f8745c1"
+    },
+    "source/perf/hardpoints/native-manifest.mjs": {
+      "bytes": 348,
+      "sha256": "43b99cc5cc0be3400af9fb46b9d9a2e30d79d647fadc8f36f8c62237b1c60077"
+    },
+    "source/perf/hardpoints/patch.py": {
+      "bytes": 3341,
+      "sha256": "0ee9938ab6581890eb10fbabd8046fc2dd9ebf42eb8eb354ea98d751828479e7"
+    },
+    "source/perf/hardpoints/README.md": {
+      "bytes": 4623,
+      "sha256": "91a8b9de4a1bed7345b1dd2cd6d6305d60ac9d202a530e0888c2298ee2c0b25f"
+    },
+    "source/perf/hardpoints/store-models-metadata.json": {
+      "bytes": 31287,
+      "sha256": "25a91fbc161c1da5dd3ade4bdef1af31401e89140bf17f02baad630b19b08743"
+    },
+    "source/perf/hardpoints/store-sockets.json": {
+      "bytes": 15022,
+      "sha256": "2389c9e2700bf461366605def0b89c93834cebc52d17755e74bceb65fb964ad5"
+    },
+    "source/perf/hardpoints/test.mjs": {
+      "bytes": 13494,
+      "sha256": "fcf073f7aca5351eca3000cee14233e715aec2aad32e8afab5ccff08eaa7cd68"
+    },
+    "source/perf/me262-sight/normalize-me262-sight.mjs": {
+      "bytes": 8455,
+      "sha256": "b42efd111621553854073c1a56fab6bb9f00ee22d99dcfd92a2a1cf19b8c9a32"
+    },
+    "source/perf/me262-sight/patch-me262-sight.py": {
+      "bytes": 1976,
+      "sha256": "875eef470a36adb6dd32c854e8e2f03ca49d68d5e1c4f41981856089e5c9dbb8"
+    },
+    "source/perf/me262-sight/sight-placement.test.mjs": {
+      "bytes": 4911,
+      "sha256": "a6b49afb5b8b5b28acdd912b3e69b7d89f758be2c381f9bd2be1a0db2502bfaa"
+    },
+    "source/perf/mechanism-fit/mechanism-fit-runtime.js": {
+      "bytes": 1221880,
+      "sha256": "55f8b5b4a794ca355c4b25ffc436889fa2b5a3b5d635d783bfd4bc5d8953d75a"
+    },
+    "source/perf/mechanism-fit/patch-mechanism-fit.py": {
+      "bytes": 1292,
+      "sha256": "9ee064adde304f5bdef308cd5606bde83eb80185d00889a993d04ae9af10e0d2"
+    },
+    "source/perf/mount-v3/analyze-jets.py": {
+      "bytes": 4963,
+      "sha256": "d25aba760ffe6037cd12c615a3d7a3ffc101dcd674f30749ef06468debabc7b4"
+    },
+    "source/perf/mount-v3/audit-jets.mjs": {
+      "bytes": 7063,
+      "sha256": "44dee7f635682e0f331f1d2c30064a0df20a57b1db8640b9b084508a52dec2e4"
+    },
+    "source/perf/mount-v3/build-fit-profiles.py": {
+      "bytes": 3510,
+      "sha256": "43515ef54a94be6105533282b81ae2613ad27fc6a8abc7f1ac238935772694da"
+    },
+    "source/perf/mount-v3/calibrate-clearance.py": {
+      "bytes": 4499,
+      "sha256": "821b16006f26521808cf18716b63dcd5d88b0ba83b734660cf5f5c090e956aa1"
+    },
+    "source/perf/mount-v3/catalog-capabilities.json": {
+      "bytes": 63665,
+      "sha256": "7678a6ddfeff1c09b7345fea39f018678aa813a3d0455f9fc4246efbb7d1fac5"
+    },
+    "source/perf/mount-v3/catalog.mjs": {
+      "bytes": 5864,
+      "sha256": "2dc0fb980964a14cecc83a9f304111bd95046b79d014c448e83d448df8846673"
+    },
+    "source/perf/mount-v3/clearance-table.json": {
+      "bytes": 96896,
+      "sha256": "e7c5424172b376c45c411ed10eae1ae728d002bcd281f6c1fa7ee846f4562030"
+    },
+    "source/perf/mount-v3/details.mjs": {
+      "bytes": 17862,
+      "sha256": "dbfe90cbe80b367fe09c5504ce61fb57f5e9e52cad518c2049ad7c9af79012ee"
+    },
+    "source/perf/mount-v3/details.test.mjs": {
+      "bytes": 10919,
+      "sha256": "dcf6bc3a8ad0b95e8fe959ece420c22b5c559d70d44acc218889fde93b02e51d"
+    },
+    "source/perf/mount-v3/export-integration.mjs": {
+      "bytes": 3106,
+      "sha256": "906fee95d18ce9a437cd16b9a7869f57c89252978db9d63d6e0e6979e40ae65c"
+    },
+    "source/perf/mount-v3/fit-profiles.json": {
+      "bytes": 63141,
+      "sha256": "2ad72bce63112e77c4fe4be9a8dff5b625d3bdbb9a24a04b428fd69dc3e8cccf"
+    },
+    "source/perf/mount-v3/fitted-mounts.mjs": {
+      "bytes": 32328,
+      "sha256": "4d01bcddcb7ab6c893073aaf122a84a07e39841f9ef29aaa70e048acccd858a2"
+    },
+    "source/perf/mount-v3/mount-collision-map.json": {
+      "bytes": 723075,
+      "sha256": "4a79b3dba07a29706297fe40c0901e2a4a87e5f2daa019a70e727a3f6f2a2c0c"
+    },
+    "source/perf/mount-v3/neighbour-clearance.json": {
+      "bytes": 1156,
+      "sha256": "c3de7ad44f6529bf51b2147996303a5e35b8ed8e04a3c4fdec4b7db32b12a5b5"
+    },
+    "source/perf/mount-v3/patch.py": {
+      "bytes": 10310,
+      "sha256": "7fc4715e734b95ddccae2036ceed3b4768fb4ecccbae33dd4aba1c3f6b3e8096"
+    },
+    "source/perf/mount-v3/README.md": {
+      "bytes": 2488,
+      "sha256": "34e5512f80dcaa5bd6719e8dddecddbdd3537334b45f7180a3275fa5f0575437"
+    },
+    "source/perf/mount-v3/refine-store-clearance.py": {
+      "bytes": 3282,
+      "sha256": "211527a8ab06b1a74961a067101e31dfb0b44bb9d0624d1f7f7f15aa4546a155"
+    },
+    "source/perf/mount-v3/store-definitions.json": {
+      "bytes": 27044,
+      "sha256": "9c1a10de67a2fb388d6e843442e341dcd2d34a6a9f84d081a0b9f213934afeba"
+    },
+    "source/perf/mount-v3/support-contact-fits.json": {
+      "bytes": 580,
+      "sha256": "8fab004e9e6d0badef97ec4f83c4aaff2032e9f5e64088607397bac53b1ea554"
+    },
+    "source/perf/o-mode/o-mode.test.mjs": {
+      "bytes": 6028,
+      "sha256": "7b22e40fbc74ff0de70003bf97c26c0b1c136956608ecde3c440bb4a36f4e28e"
+    },
+    "source/perf/o-mode/README.md": {
+      "bytes": 1881,
+      "sha256": "c065e309f0cbdf770d7d4881c4263bf46645450c3ebc08f62c3f483f9bdb2804"
+    },
+    "source/perf/all-interior/deep-audit/interior-before.mjs": {
+      "bytes": 34992,
+      "sha256": "bcbc92c2e91548dfc45f4eec22fd363003a32e287ea14fd77ba9ca207c0d1d6e"
+    },
+    "source/work/tankforge-live-flight-patch/source/client/web/src/collision/meshHitbox.js": {
+      "bytes": 17618,
+      "sha256": "11ffb38d1d21c3f31565f699458517b907f94127d512ae5fc2090cf98c2ec666"
+    },
+    "source/work/tankforge-live-flight-patch/source/client/web/src/gfx/math.js": {
+      "bytes": 5778,
+      "sha256": "3d39c873b70feb7411bffaa2e4c0aef18e322ccd77cc3adefdd61548a22f9ebc"
+    },
+    "source/work/tankforge-live-flight-patch/source/handoff/flight-rust/aircraft-hitbox.mjs": {
+      "bytes": 19765,
+      "sha256": "7e15d870115ece25c288ce6d992ae021a4e49b052be0be92021ca321572096e1"
+    },
+    "source/work/tankforge-live-flight-patch/source/handoff/flight-rust/interior.mjs": {
+      "bytes": 43433,
+      "sha256": "8fceb6a7bfa74c2520cdab8941883ae5a248790276dd0069d8d22a0acc7492d2"
+    },
+    "source/work/tankforge-live-flight-patch/source/handoff/flight-rust/mig17-wing.mjs": {
+      "bytes": 7909,
+      "sha256": "3727710ae598b9e5433c92e6a0c9e006d08f93122bbe81f7d3858c45f3391515"
+    },
+    "source/work/tankforge-live-flight-patch/source/handoff/tests/fixtures/live-aircraft.mjs": {
+      "bytes": 4288,
+      "sha256": "4bde47e01d27fa515c7839c9acd14c8609777476fb6adad798b4d92f7081516d"
+    }
+  },
+  "scope": "Preserved submitted model modules and integration evidence. Archive instructions are reference material, not repository policy."
+}

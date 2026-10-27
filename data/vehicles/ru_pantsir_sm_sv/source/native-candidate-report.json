@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "status": "existing_binary_incompatible_with_current_schema",
+  "binary_sha256": "07421c8df3121d32cd5472b9ebd156688be14730075084eb5fea1bf005abcb26",
+  "binary_source_parity": "not established; existing binary diagnostic only",
+  "exit_code": 1,
+  "output": "[ERROR] L003 vehicles/ru_pantsir_sm_sv: C:\\Users\\24908\\Downloads\\Pantsir_TankForge_LowPoly\\integration\\tools\\native-candidate-h4tulori\\vehicles\\ru_pantsir_sm_sv\\modules.json: unknown variant `launcher`, expected one of `engine`, `transmission`, `fuel_tank`, `ammo_rack`, `gun_breech`, `gun_barrel`, `turret_drive`, `horizontal_drive`, `vertical_drive`, `radio`, `track`, `aps_gun`, `aps_radar` at line 244 column 22\n1 error(s), 0 warning(s)\n",
+  "authority_scope": "No live combat, WASM or native registration performed"
+}

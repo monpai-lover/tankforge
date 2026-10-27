@@ -1,0 +1,19 @@
+{
+  "passed": true,
+  "checked": [
+    {
+      "part_id": "armor_hull_roof",
+      "material": "track_R",
+      "role": "running_gear",
+      "thickness_mm": null,
+      "armor_zone": null
+    },
+    {
+      "part_id": "armor_turret_rear",
+      "material": "optic_blue",
+      "role": "optics",
+      "thickness_mm": null,
+      "armor_zone": null
+    }
+  ]
+}

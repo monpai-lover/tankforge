@@ -1,0 +1,840 @@
+{
+  "schema": "TankForgeServerBuildSourceSnapshotV1",
+  "capturedAt": "2026-10-14T01:25:35.391Z",
+  "binary": {
+    "path": "target/release/tg-server.exe",
+    "bytes": 2557440,
+    "sha256": "9bd524ecbfa2127e7440c7cee0ea0119df8df8ff2eeed672fe785e55164cb6f6",
+    "modifiedAt": "2026-10-14T01:14:33.365Z"
+  },
+  "buildLog": {
+    "path": "target/server-full-release-build-20261014-r1.log",
+    "bytes": 3291,
+    "sha256": "cd029d23ae63f8fbb142a0a145229859eff025f2ce0e70b0572f8383910033bc"
+  },
+  "verification": "Fresh completed release log, executable in build window, all source mtimes precede executable; all current source hashes captured and rechecked",
+  "sources": [
+    {
+      "path": "Cargo.lock",
+      "bytes": 7151,
+      "sha256": "b36d8fee45a4fddc858c8d6203e6dbe957dd9dfafff629c8e52258a46da9dba0",
+      "mtimeMs": 1791903646177.4006
+    },
+    {
+      "path": "Cargo.toml",
+      "bytes": 1274,
+      "sha256": "d4fcc7625a0013c19f1074a26e195caf067da257426deee0951a1332c1790220",
+      "mtimeMs": 1791874976679.4695
+    },
+    {
+      "path": "config/ammo-resupply.json",
+      "bytes": 87,
+      "sha256": "2847c030b035848ce03c35ca5bdd78ab9e7e5d0843c8793448e550375e2903dc",
+      "mtimeMs": 1791830442314.242
+    },
+    {
+      "path": "config/gameplay-modes.json",
+      "bytes": 395,
+      "sha256": "fcfde780f8dee92ca60ba5d86a98f7ae518f6b82823f4b4dd95cddb443e859a5",
+      "mtimeMs": 1791830442315.2422
+    },
+    {
+      "path": "config/stabilizer-drives.json",
+      "bytes": 179,
+      "sha256": "99aa40be41546ac6d66463a1189bd1622f046e4a0b0fd2cbbc4bfab2593e3c1c",
+      "mtimeMs": 1791830442316.2444
+    },
+    {
+      "path": "crates/armor/Cargo.toml",
+      "bytes": 144,
+      "sha256": "bc3306a0b73c758f529721abb12146a4f2e236948d3e58a5ae09291820f4617b",
+      "mtimeMs": 1791830442317.4949
+    },
+    {
+      "path": "crates/armor/src/lib.rs",
+      "bytes": 9665,
+      "sha256": "2efc3a3d232cd85502ab29db408cc7fc3b2ff439a58ab0ad1f2121b910353526",
+      "mtimeMs": 1791830442317.4949
+    },
+    {
+      "path": "crates/ballistics/Cargo.toml",
+      "bytes": 153,
+      "sha256": "ef36ca1ebda6d0b7ba0295bd0fb02a60a1b5f8cd9b68777e136a22332eb04c7c",
+      "mtimeMs": 1791830442318.5193
+    },
+    {
+      "path": "crates/ballistics/src/lib.rs",
+      "bytes": 7119,
+      "sha256": "e1cb45ffde3eb13944bb82a75362decad360d9ca056e5f11519f872318b4930f",
+      "mtimeMs": 1791830442319.5225
+    },
+    {
+      "path": "crates/combat/Cargo.toml",
+      "bytes": 339,
+      "sha256": "8ad60af4975d906e3388b15019b4baca331e03d14b81855912df30ff5b952df8",
+      "mtimeMs": 1791883083782.8108
+    },
+    {
+      "path": "crates/combat/src/causes.rs",
+      "bytes": 1887,
+      "sha256": "d98d5f6fa8a0a46cc6a9bfae406296edba312cc46da3abfc6cf65ee92848c083",
+      "mtimeMs": 1791874976717.4214
+    },
+    {
+      "path": "crates/combat/src/geometry/barrel_scene_tests.rs",
+      "bytes": 11897,
+      "sha256": "3de637915e5fa6acb4910d9666814672481b984a5e710c516028ed4f87ed2f4a",
+      "mtimeMs": 1791926515651.7632
+    },
+    {
+      "path": "crates/combat/src/geometry/bvh.rs",
+      "bytes": 12432,
+      "sha256": "6b64ce6e514265e961b5ca9a82c5df9115048ae12e48bc6a9c62d5707b439453",
+      "mtimeMs": 1791874976717.9504
+    },
+    {
+      "path": "crates/combat/src/geometry/combat_scene.rs",
+      "bytes": 51171,
+      "sha256": "d57e0bb35e5e62b88ddfe089748e318f0b76e53e63a9f0ad6ba073a6cd646157",
+      "mtimeMs": 1791928469438.071
+    },
+    {
+      "path": "crates/combat/src/geometry/manifest.rs",
+      "bytes": 19015,
+      "sha256": "f374c032454f5431b0687a6a3ab80ef51f399e0afa1f67c713e9dcc34b9ea53e",
+      "mtimeMs": 1791893489787.8853
+    },
+    {
+      "path": "crates/combat/src/geometry/mod.rs",
+      "bytes": 23195,
+      "sha256": "92e6f2dbd17b8d7ce7958b847061af93eb9a3278fe081047951f1c17225cf132",
+      "mtimeMs": 1791894074844.0132
+    },
+    {
+      "path": "crates/combat/src/geometry/ray.rs",
+      "bytes": 9912,
+      "sha256": "5b6b17c6991cb9a19ee3894654f75dcbafdb3bf13e4d48c18d345d2fe3379541",
+      "mtimeMs": 1791888622262.163
+    },
+    {
+      "path": "crates/combat/src/geometry/surface.rs",
+      "bytes": 35877,
+      "sha256": "79ca6e9142a1957207cd6b87ab4c438b6ba99c3b16360a1c42f8beb1ea0ea97d",
+      "mtimeMs": 1791916665346.7954
+    },
+    {
+      "path": "crates/combat/src/geometry/tests.rs",
+      "bytes": 80099,
+      "sha256": "b68c59f1ac41a0d92ac933f71d9924ef9a27e4536c371ed411ff50dfc87677bb",
+      "mtimeMs": 1791927239778.963
+    },
+    {
+      "path": "crates/combat/src/impact_report.rs",
+      "bytes": 2124,
+      "sha256": "a4e058c1d033949f1e4ebd358ff0c54e19b3f3167adf2690da5eda5f2b7c4a6a",
+      "mtimeMs": 1791830442321.3098
+    },
+    {
+      "path": "crates/combat/src/lib.rs",
+      "bytes": 104620,
+      "sha256": "e68c93c1882d5cfa5cff34a4edf881f931c7aa4d908c83ef48eb0dd6099b5578",
+      "mtimeMs": 1791917917904.7341
+    },
+    {
+      "path": "crates/combat/src/near_burst.rs",
+      "bytes": 17472,
+      "sha256": "9667791ce160f96337b77c6e044ea324cc361d2c5a78ac293d4f2cd99bb70bd2",
+      "mtimeMs": 1791917917904.7341
+    },
+    {
+      "path": "crates/combat/src/replay_evidence.rs",
+      "bytes": 7171,
+      "sha256": "9131b77c4fd0bdd9bd34e60145c175c1d5bf7525be08b26a74a54d5462f8fc37",
+      "mtimeMs": 1791886962311.4355
+    },
+    {
+      "path": "crates/combat/src/tests.rs",
+      "bytes": 116407,
+      "sha256": "783f016831ced19687697f768897d78e7459a1bc3a24a3e233a63d32f94409f6",
+      "mtimeMs": 1791917917907.1533
+    },
+    {
+      "path": "crates/combat/src/weapon_damage.rs",
+      "bytes": 27923,
+      "sha256": "e54724b5e66fbc3f2d7ff8e96a85b00177a435c04927c86da8bcbffe40d3da7f",
+      "mtimeMs": 1791830442323.4465
+    },
+    {
+      "path": "crates/combat/src/weapon_mg.rs",
+      "bytes": 6686,
+      "sha256": "82972104f50648f1364252e5749c79a2bd8bab64cf00a74772b6aab509c7ddaa",
+      "mtimeMs": 1791830442323.9749
+    },
+    {
+      "path": "crates/damage/Cargo.toml",
+      "bytes": 177,
+      "sha256": "107cb6baaa74813cd03d63becfb61c8dec8e24b687c1f8a389716a0811be8ab3",
+      "mtimeMs": 1791830442325.0327
+    },
+    {
+      "path": "crates/damage/src/lib.rs",
+      "bytes": 38582,
+      "sha256": "cccf78353b94c41a508e91e2ba127095c299f9f5ebc45c826a299e5f0f8b7e06",
+      "mtimeMs": 1791830442325.574
+    },
+    {
+      "path": "crates/damage/src/module_state.rs",
+      "bytes": 4655,
+      "sha256": "84b142c2235137518282a1f06a185f4507529ef076c408e0a12927e082d1af1f",
+      "mtimeMs": 1791830442326.1094
+    },
+    {
+      "path": "crates/design-wasm/Cargo.toml",
+      "bytes": 326,
+      "sha256": "a8ba7961f2a2ed301962899880b388f90f8e6c9b09c12409a89279797fa2a1a5",
+      "mtimeMs": 1791830442327.1836
+    },
+    {
+      "path": "crates/design-wasm/src/geometry_diagnostic.rs",
+      "bytes": 9445,
+      "sha256": "54d627c652b4c8940a47e4deb5d595e28ee7c8efbed24163caa65c7ff380501a",
+      "mtimeMs": 1791874976723.469
+    },
+    {
+      "path": "crates/design-wasm/src/lib.rs",
+      "bytes": 32768,
+      "sha256": "e7cd31340a174a8186b43d1bde9e38bb126268d16ee717186b4bcdb06cda3501",
+      "mtimeMs": 1791924420443.3877
+    },
+    {
+      "path": "crates/design-wasm/src/surface_runtime.rs",
+      "bytes": 54019,
+      "sha256": "b7f71b596b5f8c47363e64a48a7db3feb19422cd6d5a7dd5669a6e3681576dc5",
+      "mtimeMs": 1791928451694.751
+    },
+    {
+      "path": "crates/design-wasm/src/surface_runtime_multi_tests.rs",
+      "bytes": 22013,
+      "sha256": "29cd21f4b470313879b96c881f20f9f1e99aece6829f4728634bfe5c561b4364",
+      "mtimeMs": 1791927495314.304
+    },
+    {
+      "path": "crates/design/Cargo.toml",
+      "bytes": 399,
+      "sha256": "9c9564cc13f00aee4011a7c12bd52c1cb76e9fe7ac13bb82cbcf6ee2ba476926",
+      "mtimeMs": 1791830442328.7917
+    },
+    {
+      "path": "crates/design/src/accept.rs",
+      "bytes": 4118,
+      "sha256": "de88e4b748b598149646a9d9bf538934d81c12f42b682f410c3492a00e7a9d4c",
+      "mtimeMs": 1791830442329.3347
+    },
+    {
+      "path": "crates/design/src/armor.rs",
+      "bytes": 10684,
+      "sha256": "18642344d361546c739688d94a10bbd5c6ee70ec1fee4705b08382251782af57",
+      "mtimeMs": 1791830442329.8933
+    },
+    {
+      "path": "crates/design/src/catalog.rs",
+      "bytes": 5496,
+      "sha256": "d0b13a310040eca66d75ae1c9144bb5c063c60aba04971d3a9c58dcc4a8de307",
+      "mtimeMs": 1791910747648.5627
+    },
+    {
+      "path": "crates/design/src/compile.rs",
+      "bytes": 17696,
+      "sha256": "efc0e8b4b60fb7d526c0cab36ea82e983f1fdd2fd0918898d3aad69dd67df3f7",
+      "mtimeMs": 1791911113848.6665
+    },
+    {
+      "path": "crates/design/src/drive.rs",
+      "bytes": 5100,
+      "sha256": "dec82fb3d8d39549fd0394e8ef3e6f599ebdf5287f7c97c7bdaee5a25289432e",
+      "mtimeMs": 1791876890117.5254
+    },
+    {
+      "path": "crates/design/src/eval.rs",
+      "bytes": 42197,
+      "sha256": "9a5bd113be23b310488a7b2149eb08ff79898fba8d1b09fb01fb71d3ab231d9e",
+      "mtimeMs": 1791830442332.013
+    },
+    {
+      "path": "crates/design/src/gun.rs",
+      "bytes": 7842,
+      "sha256": "35114f4d3da9cef006ae04f46b51f15c2e07e469ffa36e7a3518809c00015cf4",
+      "mtimeMs": 1791830442333.021
+    },
+    {
+      "path": "crates/design/src/layout.rs",
+      "bytes": 16468,
+      "sha256": "fab657a6050c0ae8a46e94fbef4c58d0c8d425a4b957816cd7fc6cf58bc17833",
+      "mtimeMs": 1791830442333.9597
+    },
+    {
+      "path": "crates/design/src/lib.rs",
+      "bytes": 4006,
+      "sha256": "5c60eede35b8cbc360dc1dd2685a7fb24da193a3fd9a9bf3055e9c5b6c146d4f",
+      "mtimeMs": 1791830442334.4658
+    },
+    {
+      "path": "crates/design/src/mesh.rs",
+      "bytes": 21034,
+      "sha256": "502bbab65ef1dae7eaa1d2f94b5bca939e6653a7a653280a873a4f0f147a2eb7",
+      "mtimeMs": 1791830442334.4658
+    },
+    {
+      "path": "crates/design/src/model.rs",
+      "bytes": 11550,
+      "sha256": "ef46a41d48644f89ca48d9f0d9392512ecd0763b8a0e1935f9d21d6eb1e68199",
+      "mtimeMs": 1791830442335.474
+    },
+    {
+      "path": "crates/design/src/shells.rs",
+      "bytes": 5713,
+      "sha256": "86de8a4862c706460da396b6c49968b9abd48276e139d62c0cd7b05794dcb155",
+      "mtimeMs": 1791830442335.474
+    },
+    {
+      "path": "crates/design/src/tests.rs",
+      "bytes": 28973,
+      "sha256": "e99932c81324b950bb3ae0ddf97b9453584cb56876812a5e472abe3f3cbffae7",
+      "mtimeMs": 1791910660844.1404
+    },
+    {
+      "path": "crates/design/src/trace.rs",
+      "bytes": 54420,
+      "sha256": "b4e2c2ac6ff59c395048fe1bdbae02f8f035ee37d329c7ad68d8313ca9933221",
+      "mtimeMs": 1791830442337.4712
+    },
+    {
+      "path": "crates/design/src/v3.rs",
+      "bytes": 7061,
+      "sha256": "d20c7f26f2a34fea69904765194be5d1c7f0abb4aedcec6e77a7439c554730b5",
+      "mtimeMs": 1791830442337.4712
+    },
+    {
+      "path": "crates/design/src/validate.rs",
+      "bytes": 29866,
+      "sha256": "611a6eab685e10f268774ac1174f957a9646897f1f634c1c515fbcfe07b37485",
+      "mtimeMs": 1791830442338.4717
+    },
+    {
+      "path": "crates/gameplay/Cargo.toml",
+      "bytes": 148,
+      "sha256": "2637674a8fb2a87895e204faadab9bc40210d1f273ae98dd22172c5cee30c486",
+      "mtimeMs": 1791830442338.4717
+    },
+    {
+      "path": "crates/gameplay/src/lib.rs",
+      "bytes": 6436,
+      "sha256": "90342508f8683ef3d950544062e2a723fda1dfbf1d5ad07926fdd8d35465911a",
+      "mtimeMs": 1791830442339.474
+    },
+    {
+      "path": "crates/missile/Cargo.toml",
+      "bytes": 147,
+      "sha256": "fea46a1caa64f6bfc60ed1a5b3456086f5feac9aa8b21fffb178a97e5f9a1eee",
+      "mtimeMs": 1791830442340.4746
+    },
+    {
+      "path": "crates/missile/src/def.rs",
+      "bytes": 10049,
+      "sha256": "7f3a8f8ae497c8f79fc9203be130040cd127eb6759aa26f2fff1160d3ad9e07f",
+      "mtimeMs": 1791830442341.4758
+    },
+    {
+      "path": "crates/missile/src/lib.rs",
+      "bytes": 471,
+      "sha256": "cfecaf0cd8e73c10fa8deaaae674dadf53f830c10c4f8f080ab9bbdf7f786c29",
+      "mtimeMs": 1791830442341.4758
+    },
+    {
+      "path": "crates/missile/src/terrain.rs",
+      "bytes": 2984,
+      "sha256": "86a8ab47972e41ded831aa3535396a6e6ac67e9c2b2d7a5816c51166676e5037",
+      "mtimeMs": 1791830442342.4739
+    },
+    {
+      "path": "crates/missile/src/tests.rs",
+      "bytes": 32711,
+      "sha256": "a0282216d97cdf8630d7c2a8ae5d32986ccb8f1e66de36b889d7b71eff495a7b",
+      "mtimeMs": 1791830442342.4739
+    },
+    {
+      "path": "crates/missile/src/v.rs",
+      "bytes": 3767,
+      "sha256": "49a4d928e23b46f586b8c8fbbbd98714275a724e3e8b60ce4bbf97dbbb1f6c79",
+      "mtimeMs": 1791830442343.4746
+    },
+    {
+      "path": "crates/missile/src/world.rs",
+      "bytes": 44014,
+      "sha256": "e3442880b1c2058a143589f32ffa432dd253bf83567bd463c842b20573f08eb8",
+      "mtimeMs": 1791831601427.9612
+    },
+    {
+      "path": "crates/penetration/Cargo.toml",
+      "bytes": 203,
+      "sha256": "735465aafb223eaf16dd6a2df9adc84ea53aefe50535f7183865933820ff8b24",
+      "mtimeMs": 1791830442344.4744
+    },
+    {
+      "path": "crates/penetration/src/impact.rs",
+      "bytes": 29041,
+      "sha256": "ae45e9ae887b2dd8ad79ae44dd4184a4d6a68c649c9f0fd792511ab6d2be0bcc",
+      "mtimeMs": 1791830442345.4744
+    },
+    {
+      "path": "crates/penetration/src/impact_tests.rs",
+      "bytes": 11825,
+      "sha256": "deba1697378f60d756dfe1b06ca8d802da8fca4cdfbb3d7753eae609915b15d3",
+      "mtimeMs": 1791830442346.4731
+    },
+    {
+      "path": "crates/penetration/src/lib.rs",
+      "bytes": 11634,
+      "sha256": "68a599655c4357b392af53962fca5c2dd47fef9b190f406913455a97ba01086b",
+      "mtimeMs": 1791830442346.4731
+    },
+    {
+      "path": "crates/penetration/src/stack.rs",
+      "bytes": 22101,
+      "sha256": "5cb79dffd06729d3021a32b5a697e969c4c2ca5e52cd5c26f258dece96426c97",
+      "mtimeMs": 1791830442347.4746
+    },
+    {
+      "path": "crates/physics/Cargo.toml",
+      "bytes": 236,
+      "sha256": "412d0dc286bebcb05f3a46f8887e70c65a37d81bea2b2639d95bf3b62b7cf950",
+      "mtimeMs": 1791830442348.4739
+    },
+    {
+      "path": "crates/physics/src/gameplay.rs",
+      "bytes": 6072,
+      "sha256": "29995423097cd8aea62ad5a416c7b5c714e8ce0aa344be54c406bd2229bb137f",
+      "mtimeMs": 1791883797566.3264
+    },
+    {
+      "path": "crates/physics/src/lib.rs",
+      "bytes": 27723,
+      "sha256": "fad77c59e38272489510a11dd48a6c8256563d4f1eca58a4cb7d04d2143b8897",
+      "mtimeMs": 1791830442350.06
+    },
+    {
+      "path": "crates/physics/src/tank/lockstep.json",
+      "bytes": 9161,
+      "sha256": "ff832cd73e9496a4f6d918dff38b8a67789dadabc30d741f7c282773ba8e70ed",
+      "mtimeMs": 1791911341814.4817
+    },
+    {
+      "path": "crates/physics/src/tank/math.rs",
+      "bytes": 1156,
+      "sha256": "181a8883d151c359890924db423f02a9759e9df0557d58827e789191293ba022",
+      "mtimeMs": 1791830442351.06
+    },
+    {
+      "path": "crates/physics/src/tank/mod.rs",
+      "bytes": 21765,
+      "sha256": "5ba0f21ea6edd66a6eade7f5b465a38b13d69041d76f4699c35ef9ec3ce0ea56",
+      "mtimeMs": 1791911113845.6665
+    },
+    {
+      "path": "crates/physics/src/tank/obstacle.rs",
+      "bytes": 6412,
+      "sha256": "4756b69300bb1ab4f1803a8b6685e443d45dae319c482a784d4c8e472e51a997",
+      "mtimeMs": 1791900426627.191
+    },
+    {
+      "path": "crates/physics/src/tank/powertrain.rs",
+      "bytes": 9188,
+      "sha256": "0ccf68188aee3ef8ed9291c1d624e424ba6b4e5253e469d605e349f4c71614c8",
+      "mtimeMs": 1791889591842.1042
+    },
+    {
+      "path": "crates/physics/src/tank/rigid_body.rs",
+      "bytes": 10252,
+      "sha256": "b0b5a48d87285de3a544ccdfd01480fcb029f4cde773d1ab02ede5a53332e9dd",
+      "mtimeMs": 1791830442354.2888
+    },
+    {
+      "path": "crates/physics/src/tank/road_wheel.rs",
+      "bytes": 6851,
+      "sha256": "ed83df03b2902bc8b1eb764e71fab352670742cd31496e3cab8e07105272a29a",
+      "mtimeMs": 1791830442355.2905
+    },
+    {
+      "path": "crates/physics/src/tank/running_gear_dynamics.rs",
+      "bytes": 14421,
+      "sha256": "8d61196dd6207cd8da539cf951d82e9daf52573502a852414bcf298e05300592",
+      "mtimeMs": 1791830442355.2905
+    },
+    {
+      "path": "crates/physics/src/tank/suspension.rs",
+      "bytes": 14009,
+      "sha256": "410e52477b9d71152d71f509bd4a649b6f51ae08c1a3ec027f1235ddf0cfd5a4",
+      "mtimeMs": 1791911113844.6663
+    },
+    {
+      "path": "crates/physics/src/tank/suspension_force.rs",
+      "bytes": 7491,
+      "sha256": "255cea45e5417fc41cd32fab94072bf4f9ab0df21d52da9021f386845cbf6140",
+      "mtimeMs": 1791911113843.6663
+    },
+    {
+      "path": "crates/physics/src/tank/suspension_force_tests.rs",
+      "bytes": 10623,
+      "sha256": "d3e408c889a3c11837620f67a200685a210fdb361e4a4b58221f46ccd1411252",
+      "mtimeMs": 1791911408641.6978
+    },
+    {
+      "path": "crates/physics/src/tank/terrain.rs",
+      "bytes": 10457,
+      "sha256": "0fc4f8730a3c56783dbce9250647e04972b3e434212487ae304617e0612a3605",
+      "mtimeMs": 1791900460676.1904
+    },
+    {
+      "path": "crates/physics/src/tank/tests.rs",
+      "bytes": 48708,
+      "sha256": "eda8361e6076556077c6a00c38410dd69140d1a0b6f7d1ed0a6520923797fc07",
+      "mtimeMs": 1791910486428.8254
+    },
+    {
+      "path": "crates/physics/src/tank/track_chain.rs",
+      "bytes": 13558,
+      "sha256": "f8ed6c1e134692d855f84a3bfcf3162cb1664443fe229ed6372ae3885ad7e6b7",
+      "mtimeMs": 1791904577985.4421
+    },
+    {
+      "path": "crates/physics/src/tank/track_contact.rs",
+      "bytes": 14014,
+      "sha256": "8364aad1594b99ff6b41c0d58f6fba7f6b794d5178ac73427e2b4c2de068726c",
+      "mtimeMs": 1791830442358.2886
+    },
+    {
+      "path": "crates/physics/src/tank/track_drive.rs",
+      "bytes": 9175,
+      "sha256": "369904d526a093f69c98e18a5ef6687da69b331721a16ff0af8d79314b4145fd",
+      "mtimeMs": 1791890721729.2974
+    },
+    {
+      "path": "crates/physics/src/tank/track_path.rs",
+      "bytes": 14032,
+      "sha256": "cd8cac67305472013780d694e66979ce2b12b0e8b49fca06601e38c70a6f189b",
+      "mtimeMs": 1791830442358.2886
+    },
+    {
+      "path": "crates/physics/src/terra.rs",
+      "bytes": 5471,
+      "sha256": "23c2d3b7e414292577e3034adf37e68c581cce3216749233d23bbcd32bb715af",
+      "mtimeMs": 1791830442359.2886
+    },
+    {
+      "path": "crates/physics/tests/fixtures/suspension-force-v7.json",
+      "bytes": 110353,
+      "sha256": "75b73f1bcc84dc318c22fa7e13ac12aaa4d989f6559619f13f5f24f7eb5fe840",
+      "mtimeMs": 1791911340859.8179
+    },
+    {
+      "path": "crates/physics/tests/fixtures/track-source-t72a.json",
+      "bytes": 8112,
+      "sha256": "6a578deda36ce0181b3a2ff775cf78b3568064813812ce687fc92750d99dbedc",
+      "mtimeMs": 1791904483327.9104
+    },
+    {
+      "path": "crates/replay/Cargo.toml",
+      "bytes": 225,
+      "sha256": "49aef4ba70139ef9f8f235de4e31883973bf793fd34da95e2891058713fde637",
+      "mtimeMs": 1791830442360.2886
+    },
+    {
+      "path": "crates/replay/src/lib.rs",
+      "bytes": 7792,
+      "sha256": "4b1e52cc90755f4caf94f34fc96ef35d9bc8a732e8e6875f4e10ee8455f28003",
+      "mtimeMs": 1791830442361.2883
+    },
+    {
+      "path": "crates/server/Cargo.toml",
+      "bytes": 411,
+      "sha256": "8865d85bf8882cbfe81048fd4fd742bdcbfa29eb41e0b82fae4dafdb04d70a52",
+      "mtimeMs": 1791903545078.309
+    },
+    {
+      "path": "crates/server/src/ammo.rs",
+      "bytes": 13661,
+      "sha256": "749686b0d72882e111b1d774a13e79cede7877f13db631cc9f1fe6ae8af031b8",
+      "mtimeMs": 1791830442362.2886
+    },
+    {
+      "path": "crates/server/src/ammo_tests.rs",
+      "bytes": 83370,
+      "sha256": "12d0d6366ef710601e168f8e5de8dcbfcf0eb00ca7765a1b9f6d04a710807597",
+      "mtimeMs": 1791874976725.1738
+    },
+    {
+      "path": "crates/server/src/blast_events.rs",
+      "bytes": 6495,
+      "sha256": "ef3c868af306fe549bba5f5036897cd740cc038e8661b5c4bc41d8dac69fefc8",
+      "mtimeMs": 1791901798678.2944
+    },
+    {
+      "path": "crates/server/src/blast_tests.rs",
+      "bytes": 26055,
+      "sha256": "d66fb82fee44669126c90a5f6da6a84d6e98e83d239bd71c70a3fd48fd0a0333",
+      "mtimeMs": 1791902225736.34
+    },
+    {
+      "path": "crates/server/src/gameplay.rs",
+      "bytes": 2490,
+      "sha256": "b5760a5923dcd9a4b49a57afb7b120cc0fdc7fb42e467e8fbcbd98dad407bafa",
+      "mtimeMs": 1791830442363.2886
+    },
+    {
+      "path": "crates/server/src/gameplay_tests.rs",
+      "bytes": 63316,
+      "sha256": "d5ab69c4d1ebd2f45b30961d0f3fa803c16854c10f139f47d0acb1336d6ad481",
+      "mtimeMs": 1791830442364.2883
+    },
+    {
+      "path": "crates/server/src/lib.rs",
+      "bytes": 434,
+      "sha256": "d301b370c63c01cc07d1f2096595ebf68fc86bbb14ead23e204f5a38da051ee6",
+      "mtimeMs": 1791830442365.2886
+    },
+    {
+      "path": "crates/server/src/lobby.rs",
+      "bytes": 211098,
+      "sha256": "7b9164388d7b0c1e0e7390bc154d5ef55bd143c22d5af4e7949c6e1858fb0a09",
+      "mtimeMs": 1791906304275.0286
+    },
+    {
+      "path": "crates/server/src/main.rs",
+      "bytes": 3437,
+      "sha256": "1ff1cf76392576975af9be77a509a4cb9b2ace02811c235bbbad7b17f06a816e",
+      "mtimeMs": 1791885314942.2437
+    },
+    {
+      "path": "crates/server/src/missiles.rs",
+      "bytes": 28251,
+      "sha256": "06b86a07e44c04836af8c6580d4d7d0d31a644feab296c5c881a4dacd8ece807",
+      "mtimeMs": 1791830442366.2883
+    },
+    {
+      "path": "crates/server/src/replay_receipts.rs",
+      "bytes": 17992,
+      "sha256": "52c02cd3799b26919bca5a942aec25888f7cc28bcf580c14d522ac5959edbadc",
+      "mtimeMs": 1791905130756.2925
+    },
+    {
+      "path": "crates/server/src/replay_tests.rs",
+      "bytes": 35773,
+      "sha256": "8d9204a44fe37abe66020b2c9762acb8a3291e997c2e0598d847dd657de7d2ea",
+      "mtimeMs": 1791935673679.4714
+    },
+    {
+      "path": "crates/server/src/server.rs",
+      "bytes": 18335,
+      "sha256": "57933ba88170f911ff5c7409cc87ae0b5b702bdc7e8bee6dfaf8f155baf47eb4",
+      "mtimeMs": 1791830442367.7139
+    },
+    {
+      "path": "crates/server/src/shot_flight.rs",
+      "bytes": 10391,
+      "sha256": "cd911f9820f3db4b8d2870108baadb314e8368bbe4ce54e6165440e1f9fc00dc",
+      "mtimeMs": 1791890962368.128
+    },
+    {
+      "path": "crates/server/src/surface_scene.rs",
+      "bytes": 28072,
+      "sha256": "186a9743703bf853cba58b1faf2c2e3d3c253cf0e6f341a48188d929fd4b2330",
+      "mtimeMs": 1791936101351.479
+    },
+    {
+      "path": "crates/server/src/surface_tests.rs",
+      "bytes": 27489,
+      "sha256": "fbb7430dc6306affe3379820f0bfc57729ee4f2bb62ecf4fa83bb01faa57cf98",
+      "mtimeMs": 1791907193080.7078
+    },
+    {
+      "path": "crates/server/src/track_authority.rs",
+      "bytes": 20752,
+      "sha256": "1c80636087200b3028bca9ed5d20ff6b57ed18d084ddcec630dcac88890bbdf2",
+      "mtimeMs": 1791916665846.346
+    },
+    {
+      "path": "crates/server/src/track_authority_tests.rs",
+      "bytes": 22011,
+      "sha256": "ddd60bb8fd01e5d634d026b8c8a97694346c448fa8dc37e967f977b94f69c4e1",
+      "mtimeMs": 1791908941209.2537
+    },
+    {
+      "path": "crates/server/src/track_frames.rs",
+      "bytes": 17956,
+      "sha256": "0f2fd1f45b2f0e38ef06f47eb8b96adf7c507dbe5c4b9e970429b2af0e0fd2ff",
+      "mtimeMs": 1791908941199.0916
+    },
+    {
+      "path": "crates/server/src/ws.rs",
+      "bytes": 8776,
+      "sha256": "b0a9db5a57db54d878f2f4869d2fc03bb077d46ba6281f907708cda690e13300",
+      "mtimeMs": 1791830442368.7266
+    },
+    {
+      "path": "crates/server/tests/coast_capture.rs",
+      "bytes": 582,
+      "sha256": "1856c2a701e75e9f4fcc7275b4d94417b6fbe0f813b7e712e0640637379be9c8",
+      "mtimeMs": 1791830442368.7266
+    },
+    {
+      "path": "crates/server/tests/socket.rs",
+      "bytes": 10119,
+      "sha256": "18a0b7fdf078d4d21d7783701fc0226a29ebdae899500a0aef98b07b2ab65ffe",
+      "mtimeMs": 1791830442369.7239
+    },
+    {
+      "path": "crates/shared/Cargo.toml",
+      "bytes": 118,
+      "sha256": "a776ed2138569371a34d9e57564368871861a99f71856ea56d42b646f0b5936e",
+      "mtimeMs": 1791830442370.7249
+    },
+    {
+      "path": "crates/shared/src/lib.rs",
+      "bytes": 4561,
+      "sha256": "f89fb9cc7767c0c97832941042e713a15fc0eb2aeae6cecb8e75b951883b6bee",
+      "mtimeMs": 1791830442370.7249
+    },
+    {
+      "path": "crates/sim-slice/Cargo.toml",
+      "bytes": 420,
+      "sha256": "11803748012c34a5dc2fe3762a6a269b0f2b0086f5389a7132c27effe06fde59",
+      "mtimeMs": 1791830442371.7234
+    },
+    {
+      "path": "crates/sim-slice/src/impact_tests.rs",
+      "bytes": 13347,
+      "sha256": "8e1fcf72c9448a17e144c97741099338367c765ca5bf6c011d45ec9fc54d6253",
+      "mtimeMs": 1791830442372.7234
+    },
+    {
+      "path": "crates/sim-slice/src/lib.rs",
+      "bytes": 18334,
+      "sha256": "97cb5795444d17aadf91823f72af3ea1a184564e0ea693e440c298b603f27eb5",
+      "mtimeMs": 1791830442372.7234
+    },
+    {
+      "path": "crates/sim-slice/src/main.rs",
+      "bytes": 622,
+      "sha256": "61dda10e2dfd1da8459fed50816c2f873e00cfc941e9152cf8d69358367a529b",
+      "mtimeMs": 1791830442373.7239
+    },
+    {
+      "path": "crates/tools/Cargo.toml",
+      "bytes": 205,
+      "sha256": "a3b99dc9f37b83f3cd6f9b753e7df417525a538a4baeae93d2acb7e01fc892c4",
+      "mtimeMs": 1791830442373.7239
+    },
+    {
+      "path": "crates/tools/src/bin/design.rs",
+      "bytes": 7429,
+      "sha256": "660c03bbf36ab578dabf23c8dadc0d94ec32630030be83ee2a14d19202d7203e",
+      "mtimeMs": 1791830442374.724
+    },
+    {
+      "path": "crates/tools/src/bin/validate.rs",
+      "bytes": 999,
+      "sha256": "62d2a078c08d64aa0cf09170fe3ea43e6cbc668d82396dee040a4f70dd6d8059",
+      "mtimeMs": 1791830442375.7246
+    },
+    {
+      "path": "crates/vehicle/Cargo.toml",
+      "bytes": 282,
+      "sha256": "d42d8885ab92bf569e5c3a9d97de370ac1d9f7e4d200f35aaffd1d23c507c0aa",
+      "mtimeMs": 1791830442375.7246
+    },
+    {
+      "path": "crates/vehicle/src/files.rs",
+      "bytes": 21900,
+      "sha256": "40ada91c99e750955497040c5280ec5ec3c627c3113d12dab72abb4d30eb65af",
+      "mtimeMs": 1791911113846.667
+    },
+    {
+      "path": "crates/vehicle/src/lib.rs",
+      "bytes": 180,
+      "sha256": "ca15ef075d3a26cd8f6f45be32ec42a46d786d747a15564c0e171218ea8a25c3",
+      "mtimeMs": 1791830442376.725
+    },
+    {
+      "path": "crates/vehicle/src/load.rs",
+      "bytes": 4108,
+      "sha256": "e213d4e8100fb5ada8d5d70e416dd6ba3d73c82dbc409b7fd43e789dbd302f5c",
+      "mtimeMs": 1791830442377.7217
+    },
+    {
+      "path": "crates/vehicle/src/validate.rs",
+      "bytes": 50903,
+      "sha256": "c69ae7b965cfd341066d5c9530ab500d36ccf92843f2e8d3a21aba6fed6c61b7",
+      "mtimeMs": 1791830442377.7217
+    },
+    {
+      "path": "crates/vehicle/tests/t72a_autoloader.rs",
+      "bytes": 3877,
+      "sha256": "109c420cc0d39a82a555f463273e2eae28ef370dfd725218755db9f7de5c25d7",
+      "mtimeMs": 1791830442378.7234
+    },
+    {
+      "path": "crates/vehicle/tests/workshop_audio_identity.rs",
+      "bytes": 2613,
+      "sha256": "b5c7177c2155198cbd257d381e9666bdbba9d6dfd9370a4d29cba139d3f916ad",
+      "mtimeMs": 1791876856282.89
+    },
+    {
+      "path": "crates/vehicle/tests/workshop_rangefinder.rs",
+      "bytes": 3100,
+      "sha256": "68ff1e17e43b7917ddfe8682daf7d9d880b12ae676b61a4339ad2fdf1a89881e",
+      "mtimeMs": 1791830442378.7234
+    },
+    {
+      "path": "crates/weapon/Cargo.toml",
+      "bytes": 145,
+      "sha256": "998083c520041c2e740a4ca464c7e590f6e8991d1d6478656d1f109dfd2f6357",
+      "mtimeMs": 1791830442379.725
+    },
+    {
+      "path": "crates/weapon/src/design.rs",
+      "bytes": 7373,
+      "sha256": "8894b64f433f1eff7844e6263fb783e1ee7d9edbba4ee557c5259567eb424d12",
+      "mtimeMs": 1791830442380.725
+    },
+    {
+      "path": "crates/weapon/src/fire.rs",
+      "bytes": 3481,
+      "sha256": "91326af210883006c2916c333e9d13eb2d3124a2e4a7c543616868f4813d4002",
+      "mtimeMs": 1791830442380.725
+    },
+    {
+      "path": "crates/weapon/src/lib.rs",
+      "bytes": 6517,
+      "sha256": "839479411ed2810011dda81b0b2bbf2348a2348719cd0171f6e97a96e88f59fa",
+      "mtimeMs": 1791830442381.7234
+    },
+    {
+      "path": "crates/weapon/src/loading.rs",
+      "bytes": 10396,
+      "sha256": "27a404d64565353942a2d17306225a9d1b3a4049ad1b31a373e8637621d4862c",
+      "mtimeMs": 1791830442381.7234
+    },
+    {
+      "path": "crates/weapon/src/mg.rs",
+      "bytes": 9529,
+      "sha256": "e82c63007c583fb378b532fbcef3d7fe44524ddfb5a093a0ce4066e4ffa97f7a",
+      "mtimeMs": 1791830442382.7317
+    },
+    {
+      "path": "crates/weapon/src/turret.rs",
+      "bytes": 9552,
+      "sha256": "441c2eb41542bd651724a6928edb5176b18b52704d0a6c90e2e9597daae1450b",
+      "mtimeMs": 1791830442382.7317
+    }
+  ]
+}

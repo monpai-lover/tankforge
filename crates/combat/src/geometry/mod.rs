@@ -1,5 +1,6 @@
 //! X1 geometry diagnostics. Audit-pending manifests do not authorize gameplay damage.
 pub mod bvh;
+pub mod combat_scene;
 pub mod manifest;
 pub mod ray;
 pub mod surface;
@@ -15,6 +16,19 @@ pub const MAX_TRIANGLES: usize = 1_000_000;
 pub const MAX_CROSSINGS: usize = 262_144;
 pub const MAX_OCCUPANCY_TRIANGLE_TESTS: u64 = 8_000_000;
 pub const MAX_OCCUPANCY_PREDICATE_PRODUCTS: u64 = 16_000_000;
+#[cfg(test)]
+std::thread_local! {
+    static SURFACE_TRIANGLE_VISITS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+    static SURFACE_KEY_COMPARISONS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+#[cfg(test)]
+pub(crate) fn surface_triangle_visits_for_test() -> u64 {
+    SURFACE_TRIANGLE_VISITS.with(std::cell::Cell::get)
+}
+#[cfg(test)]
+pub(crate) fn surface_key_comparisons_for_test() -> u64 {
+    SURFACE_KEY_COMPARISONS.with(std::cell::Cell::get)
+}
 #[derive(Clone, Debug, Default, serde::Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct QueryStats {
@@ -48,6 +62,7 @@ pub struct StoreMemoryStats {
 pub struct SceneMemoryStats {
     pub instances: usize,
     pub instance_array_bytes: usize,
+    pub surface_index_array_bytes: usize,
     pub tlas_nodes: usize,
     pub tlas_array_bytes: usize,
     pub query_array_bytes: usize,
@@ -156,8 +171,10 @@ fn world_bounds(local: Bounds, m: &Affine) -> Result<Bounds, String> {
     Ok(b)
 }
 pub struct Geometry {
+    manifest_file_hash: String,
     pub manifest: HitMeshManifestV1,
     instances: Vec<Instance>,
+    range_surface_ordinals: Vec<Vec<usize>>,
     tlas: Bvh,
     stack: Vec<u32>,
     candidates: Vec<u32>,
@@ -170,6 +187,12 @@ pub struct Geometry {
 impl Geometry {
     pub fn register(bytes: &[u8], expected: &str, store: &MeshStore) -> Result<Self, String> {
         let manifest = HitMeshManifestV1::load(bytes, expected)?;
+        // Manifest validation pins unique surface keys and complete, nonempty
+        // mesh ranges. Index once per mesh/range, never per instance or burst.
+        let surface_ordinals:HashMap<_,_>=manifest.surfaces.iter().enumerate().map(|(i,s)|(s.key.as_str(),i)).collect();
+        let range_surface_ordinals=manifest.meshes.iter().map(|mesh|mesh.ranges.iter()
+            .map(|range|surface_ordinals.get(range.surface_key.as_str()).copied().ok_or("surface missing"))
+            .collect::<Result<Vec<_>,_>>()).collect::<Result<Vec<_>,_>>()?;
         let mut instances = Vec::with_capacity(manifest.mesh_instances.len());
         for (mi, m) in manifest.meshes.iter().enumerate() {
             let mesh = store
@@ -209,8 +232,10 @@ impl Geometry {
         }
         let tlas = Bvh::build(&instances.iter().map(|i| i.bounds).collect::<Vec<_>>())?;
         Ok(Self {
+            manifest_file_hash: expected.into(),
             manifest,
             instances,
+            range_surface_ordinals,
             tlas,
             stack: Vec::new(),
             candidates: Vec::new(),
@@ -220,6 +245,44 @@ impl Geometry {
             occupancy_contacts: Vec::new(),
             query_stats: QueryStats::default(),
         })
+    }
+    pub fn manifest_file_hash(&self)->&str {&self.manifest_file_hash}
+    /// Only an extent for candidate/travel bounds; never proof of a contact.
+    pub fn bounds(&self)->Option<Bounds>{self.tlas.nodes.first().map(|n|n.bounds)}
+    #[cfg(test)]
+    pub(crate) fn visit_surface_triangles(&self,mut visit:impl FnMut(&str,&manifest::Surface,[Point;3]))->Result<(),String>{
+        self.visit_surface_triangles_selected(|_,_|Some(()),|instance,surface,(),vertices|visit(instance,surface,vertices))
+    }
+    /// Select complete instance/surface ranges before transforming vertices.
+    /// Selection only limits candidate construction; exact occlusion traces
+    /// continue to consume the full registered geometry, including unknowns.
+    pub(crate) fn visit_surface_triangles_selected<T:Copy>(&self,
+        mut select:impl FnMut(&str,&manifest::Surface)->Option<T>,
+        mut visit:impl FnMut(&str,&manifest::Surface,T,[Point;3]))->Result<(),String>{
+        let mut work=0u64;
+        for instance in &self.instances {
+            let mesh=&self.manifest.meshes[instance.mesh_record];
+            let ordinals=self.range_surface_ordinals.get(instance.mesh_record)
+                .filter(|indices|indices.len()==mesh.ranges.len()).ok_or("registered surface ranges changed")?;
+            for (range,ordinal) in mesh.ranges.iter().zip(ordinals) {
+                // The diagnostic manifest is publicly readable. An unregistered
+                // membership/order edit cannot silently reuse another surface's
+                // ordinal; only a fresh registration can rebuild this identity.
+                let surface=self.manifest.surfaces.get(*ordinal)
+                    .filter(|surface|surface.key==range.surface_key).ok_or("registered surface membership changed")?;
+                // Preserve the existing manifest-wide work rejection even for
+                // rejected ranges; the filter does not admit oversized scenes.
+                work=work.checked_add(range.count as u64).ok_or("anatomy surface work limit")?;
+                if work>MAX_OCCUPANCY_TRIANGLE_TESTS {return Err("anatomy surface work limit".into());}
+                let Some(selected)=select(&instance.record.key,surface) else {continue;};
+                for triangle in range.first..range.first+range.count {
+                    #[cfg(test)]
+                    SURFACE_TRIANGLE_VISITS.with(|count| count.set(count.get() + 1));
+                    let vertices=instance.mesh.data.triangle(triangle as usize).map(|p|transform(&instance.affine.forward,p));
+                    visit(&instance.record.key,surface,selected,vertices);
+                }
+            }
+        }Ok(())
     }
     pub fn refit(&mut self, updates: &[(String, [f64; 16])]) -> Result<(), String> {
         let mut changes = Vec::with_capacity(updates.len());
@@ -553,6 +616,8 @@ impl Geometry {
         SceneMemoryStats {
             instances: self.instances.len(),
             instance_array_bytes: self.instances.capacity() * std::mem::size_of::<Instance>(),
+            surface_index_array_bytes: self.range_surface_ordinals.capacity() * std::mem::size_of::<Vec<usize>>()
+                + self.range_surface_ordinals.iter().map(|indices|indices.capacity()*std::mem::size_of::<usize>()).sum::<usize>(),
             tlas_nodes: self.tlas.nodes.len(),
             tlas_array_bytes: bvh_array_bytes(&self.tlas),
             query_array_bytes: (self.stack.capacity()

@@ -40,6 +40,10 @@ mod gameplay_tests;
 mod ammo_tests;
 
 #[cfg(test)]
+#[path = "frontline_lobby_tests.rs"]
+mod frontline_lobby_tests;
+
+#[cfg(test)]
 #[path = "replay_tests.rs"]
 mod replay_tests;
 
@@ -86,6 +90,17 @@ const MID_M: f64 = 1100.0;
 /// (after the reference's server/match/seatToken.ts: the seat is held, not the socket).
 pub const RESUME_GRACE: f64 = 20.0;
 pub const FULL_HP: f64 = 100.0;
+/// Spawn points (War Thunder-like, the user's choice): earned by kills, assists and captures, spent
+/// on an aircraft (its loadout's cost, crate::aircraft::spawn_cost). Balance settings.
+pub const KILL_SP: f64 = 120.0;
+pub const ASSIST_SP: f64 = 50.0;
+pub const CAPTURE_SP: f64 = 80.0;
+/// How long a hit on a player counts toward an assist when someone else finishes it (s).
+const ASSIST_WINDOW: f64 = 60.0;
+/// An aircraft's round or missile: how long after it left it can still be reported as a hit (s).
+const AIR_SHOT_LIFE: f64 = 8.0;
+/// The fastest an aircraft may move between two states (m/s).
+const AIR_MAX_SPEED: f64 = 1000.0;
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
@@ -118,6 +133,10 @@ impl Shell {
 #[derive(Clone, Debug, Deserialize)]
 #[serde(tag = "t", rename_all = "snake_case")]
 pub enum ClientMsg {
+    /// Versioned combined-world protocol; legacy vehicle messages never control these units.
+    Frontline { version: u32, command: crate::frontline::Command },
+    /// Transport resynchronization is read-only; it never reconnects or takes control.
+    FrontlineWireReset { version: u32 },
     /// resume: the token of a seat this client held before its connection dropped.
     Hello {
         name: String,
@@ -168,6 +187,9 @@ pub enum ClientMsg {
         #[serde(default)]
         shot: Option<WireShot>,
     },
+    /// Where this player's high-explosive shell `seq` burst without striking a vehicle (ground,
+    /// building), in world metres: its blast and fragments reach vehicles nearby.
+    Burst { seq: u32, at: [f64; 3] },
     /// A machine-gun bullet that struck another vehicle (bullets are not relayed one by one).
     MgHit { #[serde(default)] seq: Option<u32>, #[serde(default)] instance: Option<String>, target: u32, gun: String, shot: WireShot },
     /// Field repair of the player's own broken modules; the fire extinguisher.
@@ -201,6 +223,25 @@ pub enum ClientMsg {
     Guide { id: u32, sight: [f64; 3], aim: [f64; 3] },
     /// The player's own missile struck something the server does not know of (a building).
     MissileEnd { id: u32 },
+    /// From the deploy screen: into battle in an aircraft (its loadout by index), paid in spawn points.
+    DeployAir {
+        aircraft: String,
+        #[serde(default)]
+        loadout: u32,
+        #[serde(default)]
+        spawn: u32,
+    },
+    /// `n` rounds of the aircraft's gun `gun` since the last report (o, d: the gun's line in the world).
+    AirFire { seq: u32, gun: String, n: u32, o: [f64; 3], d: [f64; 3] },
+    /// An air-to-air missile leaves the aircraft (its own guidance runs on the shooter's client).
+    AirLaunch { seq: u32, weapon: String, o: [f64; 3], d: [f64; 3], #[serde(default)] target: Option<u32> },
+    /// A round (of the aircraft burst `seq`, or of the tank shot / MG discharge `seq`) through the enemy
+    /// aircraft `target`: a -> b in the target's frame as the shooter saw it, at relative speed `speed`.
+    AirHit { seq: u32, target: u32, a: [f64; 3], b: [f64; 3], speed: f64 },
+    /// The shooter's missile `seq` burst beside the enemy aircraft `target` (at: in the target's frame).
+    AirBurst { seq: u32, target: u32, at: [f64; 3] },
+    /// The aircraft released countermeasures (flares / chaff): told to the others' missiles.
+    AirCm { kind: String },
     /// The player's active protection: on or off, its rate of fire.
     Aps {
         enabled: bool,
@@ -254,6 +295,10 @@ pub struct Member {
     pub deaths: u32,
     pub hp: f64,
     pub alive: bool,
+    /// Spawn points, and the aircraft flown now (empty in a vehicle).
+    pub sp: f64,
+    #[serde(skip_serializing_if = "String::is_empty")]
+    pub aircraft: String,
 }
 
 #[derive(Clone, Debug, Serialize, PartialEq)]
@@ -307,6 +352,7 @@ pub struct SnapPlayer {
 #[derive(Clone, Debug, Serialize, PartialEq)]
 #[serde(tag = "t", rename_all = "snake_case")]
 pub enum ServerMsg {
+    Frontline { version: u32, message: crate::frontline::Update },
     /// token: this player's secret for taking the seat back after a dropped connection.
     Welcome { id: u32, name: String, maps: Vec<String>, token: String, gameplay_rules_version: u32, ammo_protocol_version: u32 },
     Rooms { rooms: Vec<RoomInfo> },
@@ -368,6 +414,15 @@ pub enum ServerMsg {
     Chat { from: u32, name: String, text: String },
     Error { msg: String },
     Pong { at: f64 },
+    /// Into battle in an aircraft: its type and loadout, the spawn point, the spawn points left.
+    AirSpawned { id: u32, aircraft: String, loadout: u32, spawn: u32, sp: f64 },
+    AirFired { from: u32, seq: u32, gun: String, n: u32, o: [f64; 3], d: [f64; 3] },
+    AirLaunched { from: u32, seq: u32, weapon: String, o: [f64; 3], d: [f64; 3], #[serde(skip_serializing_if = "Option::is_none")] target: Option<u32> },
+    /// The server's resolution of a hit on an aircraft: its parts after it (crate::aircraft snapshot).
+    AirDamage { target: u32, from: u32, state: Value, killed: Vec<String>, down: bool, kind: String },
+    AirCm { from: u32, kind: String },
+    /// Spawn points changed: now `sp`, by `delta`, why (kill, assist, capture, spawn).
+    Points { sp: f64, delta: f64, why: String },
 }
 
 pub type Out = Vec<(u32, ServerMsg)>;
@@ -469,6 +524,45 @@ pub struct Player {
     launch_receipts: HashMap<u32, LaunchReceipt>,
     sequences: VecDeque<u32>,
     retired_seq: Option<u32>,
+    /// Spawn points, and the aircraft this player flies now (None in a vehicle or on the deploy screen).
+    pub sp: f64,
+    pub air: Option<AirSeat>,
+    /// Who hit this player and when (for assists).
+    hit_by: VecDeque<(u32, f64)>,
+}
+
+/// An aircraft in battle: its type and loadout, its damage, the rounds and missiles left, what it
+/// fired lately (each burst and missile a proof its hits must name).
+#[derive(Clone, Debug)]
+pub struct AirSeat {
+    pub kind: String,
+    pub loadout: u32,
+    pub damage: crate::aircraft::AirDamage,
+    pub guns: HashMap<String, AirGun>,
+    pub missiles: HashMap<String, u32>,
+    fired: VecDeque<AirFired>,
+    last_launch: f64,
+    last_cm: f64,
+    seed: u64,
+}
+
+#[derive(Clone, Debug)]
+pub struct AirGun {
+    pub ammo: u32,
+    pub rpm: f64,
+    pub shells: Vec<String>,
+    last: f64,
+}
+
+#[derive(Clone, Debug)]
+struct AirFired {
+    seq: u32,
+    at: f64,
+    gun: Option<String>,
+    weapon: Option<String>,
+    n: u32,
+    used: u32,
+    o: [f64; 3],
 }
 
 impl Player {
@@ -533,6 +627,7 @@ pub struct Room {
 
 #[derive(Default)]
 pub struct Lobby {
+    frontline: Option<crate::frontline::FrontlineHub>,
     replay_event_serial:u64,
     missile_discharges:HashMap<(u32,u32),tg_combat::replay_evidence::ReplayDischarge>,
     pub players: BTreeMap<u32, Player>,
@@ -563,6 +658,10 @@ pub struct Lobby {
     token_seed: u64,
     /// Hits refused because the target was nowhere near where the shooter could have seen it.
     pub rejected_hits: u64,
+    /// The aircraft types (data/aircraft/aircraft.json); None: no aircraft online.
+    air: Option<std::sync::Arc<crate::aircraft::AirData>>,
+    /// Spawn points every player has when a battle starts (tg-server --start-sp; 0 by default).
+    start_sp: f64,
 }
 
 fn clean_name(s: &str, fallback: &str) -> String {
@@ -587,6 +686,7 @@ fn interest(tick: u64, me: Option<[f64; 3]>, p: Option<&Player>) -> bool {
     let Some(p) = p else { return false };
     let every = match (me, p.last_pos) {
         _ if !p.alive => 4,
+        _ if p.air.is_some() => 1,
         (Some(a), Some((b, _))) => {
             let d = ((a[0] - b[0]).powi(2) + (a[2] - b[2]).powi(2)).sqrt();
             if d <= NEAR_M {
@@ -669,9 +769,55 @@ impl Lobby {
         self.players.get(&id).and_then(|p| p.room).and_then(|r| self.rooms.get(&r)).and_then(|r| r.era)
     }
 
+    pub fn with_start_sp(mut self, sp: f64) -> Self {
+        self.start_sp = if sp.is_finite() { sp.max(0.0) } else { 0.0 };
+        self
+    }
+
+    pub fn with_aircraft(mut self, data: Option<crate::aircraft::AirData>) -> Self {
+        self.air = data.map(std::sync::Arc::new);
+        self
+    }
+
     pub fn with_points(mut self, points: HashMap<String, Vec<CapPoint>>) -> Self {
         self.map_points = points;
         self
+    }
+
+    /// Explicit runtime assets keep map rendering and native ground queries on the same source.
+    pub fn with_frontline(mut self, data: &std::path::Path) -> Result<Self, String> {
+        self.frontline = Some(crate::frontline::FrontlineHub::new(data)?);
+        Ok(self)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn set_frontline_round_timing_for_test(&mut self, round_seconds:f64, intermission_seconds:f64)->Result<(),String>{
+        self.frontline.as_mut().ok_or("Frontline unavailable")?.set_round_timing_for_test(round_seconds,intermission_seconds)
+    }
+
+    #[cfg(test)]
+    pub(crate) fn use_frontline_c2_scene_for_test(&mut self)->Result<(),String>{
+        self.frontline.as_mut().ok_or("Frontline unavailable")?.use_c2_test_scene()
+    }
+
+    pub fn frontline_map(&self, name: &str) -> Option<&str> {
+        self.frontline.as_ref()?.map_source(name)
+    }
+
+    pub fn frontline_map_options(&self) -> Option<String> {
+        serde_json::to_string(&serde_json::json!({"maps":self.frontline.as_ref()?.map_options()})).ok()
+    }
+
+    pub fn frontline_timing_snapshot(&self)->Vec<Value>{
+        self.frontline.as_ref().map(|hub|hub.timing_snapshot()).unwrap_or_default()
+    }
+
+    fn in_frontline(&self, id: u32) -> bool {
+        self.frontline.as_ref().is_some_and(|hub| hub.contains(id))
+    }
+
+    fn frontline_messages(updates: Vec<(u32, crate::frontline::Update)>) -> Out {
+        updates.into_iter().map(|(to, message)| (to, ServerMsg::Frontline { version: 1, message })).collect()
     }
 
     /// The missiles, launchers and active protection systems, and the ground they fly over.
@@ -693,7 +839,7 @@ impl Lobby {
         let token = self.new_token(id);
         self.players.insert(
             id,
-            Player { replay:Default::default(), replay_discharge_serial:0, replay_ammo_total:None, pending_replay_status:None, deployment_spawn:None, ammo_racks_dirty:false, ammo_dirty: false, ammo_compatible: false, life: 0, ammo_plan: None, ammo: None, discharge_receipts: HashMap::new(), supply_since: None, supply_progress: 0.0, aps_desired_enabled: true, accepted_aps_pose: None, aps_pose_valid: false, aps_pose_automatic_until: None, aps_pose_request_t: None, aps_pose_observed_t: None, aps_pose_needs_request: false, aps_pose_transport_reset: false, aps_pending_pose_ack: None, aps_reload_until: None, aps_reload_remaining: 0.0, aps_reload_updated_at: 0.0, gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None },
+            Player { replay:Default::default(), replay_discharge_serial:0, replay_ammo_total:None, pending_replay_status:None, deployment_spawn:None, ammo_racks_dirty:false, ammo_dirty: false, ammo_compatible: false, life: 0, ammo_plan: None, ammo: None, discharge_receipts: HashMap::new(), supply_since: None, supply_progress: 0.0, aps_desired_enabled: true, accepted_aps_pose: None, aps_pose_valid: false, aps_pose_automatic_until: None, aps_pose_request_t: None, aps_pose_observed_t: None, aps_pose_needs_request: false, aps_pose_transport_reset: false, aps_pending_pose_ack: None, aps_reload_until: None, aps_reload_remaining: 0.0, aps_reload_updated_at: 0.0, gameplay_compatible: false, id, name: name.clone(), room: None, team: Team::Blue, slot: 0, vehicle: String::new(), ready: false, hp: FULL_HP, alive: true, kills: 0, deaths: 0, state: None, last_pos: None, trail: VecDeque::new(), rtts: VecDeque::new(), token: token.clone(), away: None, grace_until: 0.0, died_at: 0.0, fired: VecDeque::new(), combat: None, last_attacker: None, mg_window: (0.0, 0), rounds: None, missiles_left: HashMap::new(), last_launch: f64::NEG_INFINITY, launch_receipts: HashMap::new(), sequences: VecDeque::new(), retired_seq: None, sp: 0.0, air: None, hit_by: VecDeque::new() },
         );
         (id, vec![(id, ServerMsg::Welcome { id, name, maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION }), (id, self.room_list())])
     }
@@ -713,7 +859,8 @@ impl Lobby {
     }
 
     pub fn disconnect(&mut self, id: u32) -> Out {
-        let out = self.leave(id);
+        let mut out = self.leave(id);
+        if let Some(hub) = self.frontline.as_mut() { out.extend(Self::frontline_messages(hub.leave(id))); }
         self.players.remove(&id);
         out
     }
@@ -721,6 +868,10 @@ impl Lobby {
     /// The connection dropped: in a battle the seat (vehicle, damage, score) is held for a while
     /// for a reconnect; anywhere else the player leaves at once.
     pub fn drop_link(&mut self, id: u32, now: f64) -> Out {
+        if self.in_frontline(id) {
+            if let Some(p) = self.players.get_mut(&id) { p.away = Some(now); }
+            return Self::frontline_messages(self.frontline.as_mut().unwrap().disconnect(id, now));
+        }
         let in_battle = self.players.get(&id).and_then(|p| p.room).and_then(|r| self.rooms.get(&r)).is_some_and(|r| r.playing);
         if !in_battle {
             return self.disconnect(id);
@@ -761,12 +912,14 @@ impl Lobby {
         p.aps_pose_transport_reset=true;p.aps_pose_request_t=None;p.aps_pose_observed_t=None;p.aps_pending_pose_ack=None;
         p.trail.clear();
         p.grace_until = now + SPAWN_GRACE;
+        let frontline_name = p.name.clone();
         let mut out = vec![(old, ServerMsg::Welcome { id: old, name: p.name.clone(), maps: self.maps.clone(), token, gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION })];
         if let Some(room) = p.room {
             out.extend(self.room_changed(room));
         } else {
             out.push((old, self.room_list()));
         }
+        if let Some(hub) = self.frontline.as_mut() { hub.set_nickname(old, frontline_name); out.extend(Self::frontline_messages(hub.resume(old, now))); }
         Some((old, out))
     }
 
@@ -791,7 +944,7 @@ impl Lobby {
 
     /// Lets go of the seats whose connection has been gone longer than RESUME_GRACE.
     pub fn sweep(&mut self, now: f64) -> Out {
-        let gone: Vec<u32> = self.players.values().filter(|p| p.away.is_some_and(|t| now - t > RESUME_GRACE)).map(|p| p.id).collect();
+        let gone: Vec<u32> = self.players.values().filter(|p| !self.in_frontline(p.id) && p.away.is_some_and(|t| now - t > RESUME_GRACE)).map(|p| p.id).collect();
         let mut out = Vec::new();
         for id in gone {
             out.extend(self.disconnect(id));
@@ -816,7 +969,7 @@ impl Lobby {
 
     fn member(&self, id: u32) -> Option<Member> {
         let p = self.players.get(&id)?;
-        Some(Member { id, name: p.name.clone(), team: p.team, slot: p.slot, vehicle: p.vehicle.clone(), ready: p.ready, kills: p.kills, deaths: p.deaths, hp: p.hp, alive: p.alive })
+        Some(Member { id, name: p.name.clone(), team: p.team, slot: p.slot, vehicle: p.vehicle.clone(), ready: p.ready, kills: p.kills, deaths: p.deaths, hp: p.hp, alive: p.alive, sp: p.sp, aircraft: p.air.as_ref().map(|a| a.kind.clone()).unwrap_or_default() })
     }
 
     fn detail(&self, room: u32) -> Option<RoomDetail> {
@@ -1060,6 +1213,7 @@ impl Lobby {
             p.last_pos = None;
             p.trail.clear();
             p.ammo = None; p.deployment_spawn=None; p.supply_since = None; p.supply_progress = 0.0;
+            p.air = None;
         }
     }
 
@@ -1116,7 +1270,27 @@ impl Lobby {
         }
         if !now.is_finite() { return Self::err(id, "Invalid trusted clock"); }
         self.now = self.now.max(now);
+        if self.in_frontline(id) && !matches!(&msg, ClientMsg::Frontline { .. } | ClientMsg::FrontlineWireReset { .. } | ClientMsg::Hello { .. } | ClientMsg::Ping { .. } | ClientMsg::List) {
+            return Self::err(id, "前線對局請使用前線控制介面");
+        }
         match msg {
+            ClientMsg::FrontlineWireReset { version } => {
+                if version != crate::frontline_wire::VERSION { return Self::err(id, "Unsupported frontline wire version"); }
+                let snapshot=self.frontline.as_ref().and_then(|hub|hub.snapshot_for(id));
+                match snapshot {
+                    Some(message)=>vec![(id,ServerMsg::Frontline{version:1,message})],
+                    None=>Self::err(id,"No connected frontline membership to resynchronize"),
+                }
+            }
+            ClientMsg::Frontline { version, command } => {
+                if version != 1 { return Self::err(id, "前線協定版本不同，請更新遊戲"); }
+                let p = &self.players[&id];
+                if !p.gameplay_compatible || !p.ammo_compatible { return Self::err(id, UPDATE_NEEDED); }
+                if p.room.is_some() { return Self::err(id, "請先離開原來的房間"); }
+                let Some(hub) = self.frontline.as_mut() else { return Self::err(id, "伺服器尚未載入前線地圖"); };
+                hub.set_nickname(id, p.name.clone());
+                Self::frontline_messages(hub.handle(id, command, now))
+            }
             ClientMsg::Hello { name, gameplay_rules_version, ammo_protocol_version, .. } => {
                 let fallback = format!("車長{id}");
                 let p = self.players.get_mut(&id).expect("player");
@@ -1125,10 +1299,12 @@ impl Lobby {
                 p.ammo_compatible = crate::ammo::compatible(&ammo_protocol_version);
                 if !p.ammo_compatible { return Self::err(id, AMMO_UPDATE_NEEDED); }
                 if !p.gameplay_compatible { return Self::err(id, UPDATE_NEEDED); }
+                let frontline_name = p.name.clone();
                 let mut out = vec![(id, ServerMsg::Welcome { id, name: p.name.clone(), maps: self.maps.clone(), token: p.token.clone(), gameplay_rules_version: GAMEPLAY_RULES_VERSION, ammo_protocol_version: AMMO_PROTOCOL_VERSION })];
                 if let Some(room) = p.room {
                     out.extend(self.room_changed(room));
                 }
+                if let Some(hub) = self.frontline.as_mut() { hub.set_nickname(id, frontline_name); out.extend(Self::frontline_messages(hub.resume(id, now))); }
                 out
             }
             ClientMsg::List => vec![(id, self.room_list())],
@@ -1162,6 +1338,8 @@ impl Lobby {
                     p.ready = false;
                     p.kills = 0;
                     p.deaths = 0;
+                    p.sp = 0.0;
+                    p.air = None;
                 }
                 out.extend(self.room_changed(rid));
                 out
@@ -1198,6 +1376,8 @@ impl Lobby {
                     p.ready = false;
                     p.kills = 0;
                     p.deaths = 0;
+                    p.sp = 0.0;
+                    p.air = None;
                 }
                 out.extend(self.room_changed(room));
                 if playing {
@@ -1290,8 +1470,9 @@ impl Lobby {
                     }
                     r.world = Some(w);
                 }
+                let start_sp = self.start_sp;
                 for m in &members {
-                    if let Some(p) = self.players.get_mut(m) { p.reset_shots(); }
+                    if let Some(p) = self.players.get_mut(m) { p.reset_shots(); p.sp = start_sp; p.air = None; }
                     if deploy {
                         self.bench(*m);
                     } else {
@@ -1361,7 +1542,8 @@ impl Lobby {
                 if let Some((last, at)) = p.last_pos {
                     let dt = (now - at).max(0.02);
                     let d = ((pos[0] - last[0]).powi(2) + (pos[2] - last[2]).powi(2)).sqrt();
-                    if now > p.grace_until && d / dt > self.rooms[&room].gameplay.max_speed() {
+                    let limit = if p.air.is_some() { AIR_MAX_SPEED } else { self.rooms[&room].gameplay.max_speed() };
+                    if now > p.grace_until && d / dt > limit {
                         // a jump no vehicle can drive: keep the last good state
                         return Vec::new();
                     }
@@ -1393,6 +1575,7 @@ impl Lobby {
                 Some(shot) if self.can_resolve(target) => self.combat_hit(id, Some(seq), None, None, target, &shot, now),
                 _ => self.hit(id, seq, target, &result, plate, now),
             },
+            ClientMsg::Burst { seq, at } => self.burst(id, seq, at, now),
             ClientMsg::MgHit { seq, instance, target, gun, shot } => {
                 if !self.can_resolve(target) {
                     return Vec::new();
@@ -1466,6 +1649,18 @@ impl Lobby {
                 out.extend(self.room_changed(room));
                 out
             }
+            ClientMsg::DeployAir { aircraft, loadout, spawn } => self.deploy_air(id, &aircraft, loadout, spawn, now),
+            ClientMsg::AirFire { seq, gun, n, o, d } => self.air_fire(id, seq, &gun, n, o, d, now),
+            ClientMsg::AirLaunch { seq, weapon, o, d, target } => self.air_launch(id, seq, &weapon, o, d, target, now),
+            ClientMsg::AirHit { seq, target, a, b, speed } => self.air_hit(id, seq, target, a, b, speed, now),
+            ClientMsg::AirBurst { seq, target, at } => self.air_burst(id, seq, target, at, now),
+            ClientMsg::AirCm { kind } => {
+                let Some(p) = self.players.get_mut(&id) else { return Vec::new() };
+                let (Some(room), Some(a)) = (p.room, p.air.as_mut()) else { return Vec::new() };
+                if !p.alive || now - a.last_cm < 0.1 || !(kind == "flares" || kind == "chaff") { return Vec::new(); }
+                a.last_cm = now;
+                self.to_room(room, ServerMsg::AirCm { from: id, kind }).into_iter().filter(|(to, _)| *to != id).collect()
+            }
             ClientMsg::Launch { seq, scope, instance, missile, ammo, o, d } => self.discharge_launch(id, scope, seq, instance.as_deref(), &missile, &ammo, o, d, now),
             ClientMsg::Guide { id: mid, sight, aim } => {
                 let Some(room) = self.players.get(&id).and_then(|p| if p.alive { p.room } else { None }) else { return Vec::new() };
@@ -1523,6 +1718,253 @@ impl Lobby {
     }
 
     /// A shooter reports what its shot `seq` did to `target`.
+    /// Into battle in an aircraft from the deploy screen, paying its loadout's spawn points.
+    fn deploy_air(&mut self, id: u32, kind: &str, loadout: u32, spawn: u32, now: f64) -> Out {
+        let Some(data) = self.air.clone() else { return Self::err(id, "伺服器沒有飛機資料") };
+        let p = &self.players[&id];
+        let Some(room) = p.room else { return Vec::new() };
+        let Some(r) = self.rooms.get(&room) else { return Vec::new() };
+        if !r.playing || !r.deploy { return Self::err(id, "現在不能出擊（飛機只能在出擊選擇的房間）"); }
+        if p.alive { return Vec::new(); }
+        if now - p.died_at < RESPAWN_DELAY { return Self::err(id, "還不能出擊"); }
+        if !r.points.is_empty() && r.tickets[p.team as usize] <= 0.0 { return Self::err(id, "我方兵力已耗盡"); }
+        let Some(t) = data.types.get(kind) else { return Self::err(id, "沒有這種飛機") };
+        // Client lineup filtering is only presentation: forged requests must also be rejected
+        // before charging spawn points or replacing the previous (possibly downed) aircraft seat.
+        if let Some([a, b]) = r.era {
+            if !t.year.is_some_and(|year| (1900..=2100).contains(&year) && (a..=b).contains(&year)) {
+                return Self::err(id, &format!("這個房間只能用 {a}–{b} 年的機型"));
+            }
+        }
+        let Some(lo) = t.loadouts.iter().find(|l| l.index == loadout) else { return Self::err(id, "沒有這個掛載") };
+        let cost = crate::aircraft::spawn_cost(&lo.class);
+        if p.sp + 1e-9 < cost { return Self::err(id, &format!("重生點數不足：需要 {cost:.0}，現有 {:.0}", p.sp)); }
+        let guns = t.guns.iter().map(|g| (g.id.clone(), AirGun { ammo: g.ammo, rpm: g.rpm, shells: g.shells.clone(), last: now })).collect();
+        let missiles = lo.stores.iter().filter(|(w, _)| data.missiles.contains_key(*w)).map(|(w, n)| (w.clone(), *n)).collect();
+        let seat = AirSeat { kind: kind.into(), loadout, damage: crate::aircraft::AirDamage::new(t), guns, missiles, fired: VecDeque::new(), last_launch: f64::NEG_INFINITY, last_cm: f64::NEG_INFINITY, seed: shot_seed(id, (now * 1000.0) as u32) };
+        let p = self.players.get_mut(&id).expect("player");
+        p.sp -= cost;
+        let sp = p.sp;
+        p.air = Some(seat);
+        p.vehicle = format!("air:{kind}");
+        p.alive = true;
+        p.hp = FULL_HP;
+        p.grace_until = now + SPAWN_GRACE + 3.0;
+        p.last_pos = None;
+        p.trail.clear();
+        p.combat = None;
+        p.ammo = None;
+        p.state = None;
+        p.hit_by.clear();
+        p.last_attacker = None;
+        p.reset_spawn_shots();
+        let spawn = spawn.min(15);
+        let mut out = self.to_room(room, ServerMsg::AirSpawned { id, aircraft: kind.into(), loadout, spawn, sp });
+        out.push((id, ServerMsg::Points { sp, delta: -cost, why: "spawn".into() }));
+        out.extend(self.room_changed(room));
+        out
+    }
+
+    /// `n` rounds of gun `gun`: no more than it holds, nor faster than its rate allows.
+    #[allow(clippy::too_many_arguments)]
+    fn air_fire(&mut self, id: u32, seq: u32, gun: &str, n: u32, o: [f64; 3], d: [f64; 3], now: f64) -> Out {
+        let Some(p) = self.players.get_mut(&id) else { return Vec::new() };
+        let Some(room) = p.room else { return Vec::new() };
+        let near = p.last_pos.is_some_and(|(q, _)| (0..3).map(|k| (q[k] - o[k]).powi(2)).sum::<f64>().sqrt() < 150.0);
+        let length: f64 = d.iter().map(|x| x * x).sum();
+        let finite = o.iter().chain(d.iter()).all(|x| x.is_finite());
+        let (alive, used) = (p.alive, p.sequence_used(seq));
+        let Some(a) = p.air.as_mut() else { return Vec::new() };
+        let Some(g) = a.guns.get_mut(gun) else { return Vec::new() };
+        if !alive || used || !finite || (length.sqrt() - 1.0).abs() > 0.05 || !near || n == 0 || n > 120 || n > g.ammo { return Vec::new(); }
+        // the rate: what the gun fires since its last report, with a margin for the report's timing
+        let budget = (now - g.last).max(0.0) * g.rpm / 60.0 * 1.5 + 6.0;
+        if n as f64 > budget { return Vec::new(); }
+        g.ammo -= n;
+        g.last = now;
+        a.fired.push_back(AirFired { seq, at: now, gun: Some(gun.into()), weapon: None, n, used: 0, o });
+        while a.fired.front().is_some_and(|f| now - f.at > AIR_SHOT_LIFE + 2.0) { a.fired.pop_front(); }
+        let cap = self.rooms[&room].gameplay.sequence_capacity();
+        p.remember_sequence(seq, cap);
+        self.to_room(room, ServerMsg::AirFired { from: id, seq, gun: gun.into(), n, o, d }).into_iter().filter(|(to, _)| *to != id).collect()
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn air_launch(&mut self, id: u32, seq: u32, weapon: &str, o: [f64; 3], d: [f64; 3], target: Option<u32>, now: f64) -> Out {
+        let Some(p) = self.players.get_mut(&id) else { return Vec::new() };
+        let Some(room) = p.room else { return Vec::new() };
+        let near = p.last_pos.is_some_and(|(q, _)| (0..3).map(|k| (q[k] - o[k]).powi(2)).sum::<f64>().sqrt() < 150.0);
+        let (alive, used) = (p.alive, p.sequence_used(seq));
+        let Some(a) = p.air.as_mut() else { return Vec::new() };
+        if !alive || used || !near || !o.iter().chain(d.iter()).all(|x| x.is_finite()) || now - a.last_launch < 0.5 { return Vec::new(); }
+        let Some(left) = a.missiles.get_mut(weapon).filter(|n| **n > 0) else { return Self::err(id, "沒有這種飛彈可發射") };
+        *left -= 1;
+        a.last_launch = now;
+        a.fired.push_back(AirFired { seq, at: now, gun: None, weapon: Some(weapon.into()), n: 1, used: 0, o });
+        let cap = self.rooms[&room].gameplay.sequence_capacity();
+        p.remember_sequence(seq, cap);
+        self.to_room(room, ServerMsg::AirLaunched { from: id, seq, weapon: weapon.into(), o, d, target }).into_iter().filter(|(to, _)| *to != id).collect()
+    }
+
+    /// The enemy aircraft `target`, in the same battle and still flying.
+    fn air_target_ok(&self, id: u32, target: u32) -> Option<u32> {
+        let s = self.players.get(&id)?;
+        let t = self.players.get(&target)?;
+        let room = s.room?;
+        (t.room == Some(room) && target != id && t.team != s.team && t.alive && t.air.as_ref().is_some_and(|a| !a.damage.down()) && self.rooms.get(&room).is_some_and(|r| r.playing)).then_some(room)
+    }
+
+    /// Where the target was then and the shooter's origin then: within reach of the round in the time.
+    fn air_reach_ok(&self, target: u32, from: [f64; 3], fired_at: f64, speed: f64, now: f64) -> bool {
+        let Some(t) = self.players.get(&target) else { return false };
+        let at = trail_at(&t.trail, now - self.one_way(target)).or(t.last_pos.map(|(q, _)| q));
+        let Some(q) = at else { return false };
+        let dist = (0..3).map(|k| (q[k] - from[k]).powi(2)).sum::<f64>().sqrt();
+        dist <= speed * (now - fired_at + 0.6) + 250.0
+    }
+
+    /// A round through an enemy aircraft: an aircraft's burst or a vehicle's shot, the server's damage.
+    #[allow(clippy::too_many_arguments)]
+    fn air_hit(&mut self, id: u32, seq: u32, target: u32, a: [f64; 3], b: [f64; 3], speed: f64, now: f64) -> Out {
+        let Some(room) = self.air_target_ok(id, target) else { return Vec::new() };
+        let Some(data) = self.air.clone() else { return Vec::new() };
+        let local_ok = a.iter().chain(b.iter()).all(|x| x.is_finite() && x.abs() <= 80.0) && speed.is_finite() && speed > 0.0 && speed <= 3000.0;
+        if !local_ok { return Vec::new(); }
+        // Keep the exact admitted round through proof spending. Reducing it to
+        // just filler mass would turn APHE into a contact-fuzed aircraft blast.
+        enum AdmittedRound {
+            Aircraft(crate::aircraft::AirShell),
+            Ground(tg_weapon::ProjectileDef),
+        }
+        let shooter = &self.players[&id];
+        let (round, mass, muzzle, fired_at, from, n_used, kind) = if let Some(s) = shooter.air.as_ref() {
+            let Some(f) = s.fired.iter().find(|f| f.seq == seq && f.gun.is_some() && f.used < f.n && now - f.at <= AIR_SHOT_LIFE) else { return Vec::new() };
+            let g = &s.guns[f.gun.as_ref().unwrap()];
+            let shell_id = &g.shells[(f.used as usize) % g.shells.len().max(1)];
+            let Some(sh) = data.shells.get(shell_id) else { return Vec::new() };
+            (AdmittedRound::Aircraft(sh.clone()),sh.mass_kg,sh.speed_ms,f.at,f.o,f.used,"air")
+        } else {
+            let Some(f) = shooter.fired.iter().find(|f| f.seq == seq && !f.used && now - f.at <= SHOT_LIFE) else { return Vec::new() };
+            let def = if f.kind == WeaponKind::MachineGun { self.bullets.get(&f.shell) } else { self.projectiles.get(&f.shell) };
+            let Some(def) = def else { return Vec::new() };
+            let from = shooter.trail.back().map(|(_, q)| *q).unwrap_or([0.0; 3]);
+            (AdmittedRound::Ground(def.clone()),def.mass_kg as f64,def.muzzle_velocity_ms as f64,f.at,from,0,"ground")
+        };
+        if speed > muzzle + 2.0 * AIR_MAX_SPEED { return Vec::new(); }
+        if !self.air_reach_ok(target, from, fired_at, muzzle, now) {
+            self.rejected_hits += 1;
+            return Vec::new();
+        }
+        // the proof spent: one round of the burst, the vehicle's shot once
+        let p = self.players.get_mut(&id).expect("shooter");
+        if let Some(s) = p.air.as_mut() {
+            if let Some(f) = s.fired.iter_mut().find(|f| f.seq == seq && f.gun.is_some()) { f.used += 1; }
+        } else if let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && !f.used) {
+            f.used = true;
+        }
+        let seed = shot_seed(id, seq) ^ ((n_used as u64) << 32) ^ self.players[&target].air.as_ref().map(|a| a.seed).unwrap_or(1);
+        let mut rng = crate::aircraft::Rng::new(seed);
+        let t = self.players.get_mut(&target).expect("target");
+        let seat = t.air.as_mut().expect("aircraft");
+        let energy=0.5*mass*speed*speed;
+        let hit=match &round {
+            AdmittedRound::Aircraft(shell)=>seat.damage.hit_shell(a,b,energy,shell,&mut rng),
+            AdmittedRound::Ground(projectile)=>seat.damage.hit_projectile(a,b,energy,projectile,&mut rng),
+        };
+        let Some(hit)=hit else {return Vec::new()};
+        self.air_damage_out(room, id, target, hit.killed, kind, now)
+    }
+
+    /// The shooter's missile `seq` burst at `at` (the target's frame) beside the enemy aircraft.
+    fn air_burst(&mut self, id: u32, seq: u32, target: u32, at: [f64; 3], now: f64) -> Out {
+        let Some(room) = self.air_target_ok(id, target) else { return Vec::new() };
+        let Some(data) = self.air.clone() else { return Vec::new() };
+        let shooter = &self.players[&id];
+        let Some(s) = shooter.air.as_ref() else { return Vec::new() };
+        let Some(f) = s.fired.iter().find(|f| f.seq == seq && f.weapon.is_some() && f.used == 0) else { return Vec::new() };
+        let Some(m) = data.missiles.get(f.weapon.as_ref().unwrap()) else { return Vec::new() };
+        let dist = at.iter().map(|x| x * x).sum::<f64>().sqrt();
+        if !at.iter().all(|x| x.is_finite()) || dist > m.fuse_m + 15.0 || now - f.at > m.life_s + 1.0 { return Vec::new(); }
+        let (fired_at, from) = (f.at, f.o);
+        if !self.air_reach_ok(target, from, fired_at, m.max_speed_ms, now) {
+            self.rejected_hits += 1;
+            return Vec::new();
+        }
+        let tnt = m.tnt_kg;
+        if let Some(f) = self.players.get_mut(&id).and_then(|p| p.air.as_mut()).and_then(|s| s.fired.iter_mut().find(|f| f.seq == seq && f.weapon.is_some())) { f.used = 1; }
+        let mut rng = crate::aircraft::Rng::new(shot_seed(id, seq) ^ 0x5eed);
+        let seat = self.players.get_mut(&target).and_then(|t| t.air.as_mut()).expect("aircraft");
+        let mut killed = Vec::new();
+        seat.damage.blast(at, tnt, &mut rng, &mut killed);
+        self.air_damage_out(room, id, target, killed, "missile", now)
+    }
+
+    /// The damage told to the room; down: a kill (spawn points to the shooter, assists to the others).
+    fn air_damage_out(&mut self, room: u32, from: u32, target: u32, killed: Vec<String>, kind: &str, now: f64) -> Out {
+        let t = self.players.get_mut(&target).expect("target");
+        t.hit_by.push_back((from, now));
+        while t.hit_by.front().is_some_and(|(_, at)| now - at > ASSIST_WINDOW) { t.hit_by.pop_front(); }
+        t.last_attacker = Some(from);
+        let seat = t.air.as_ref().expect("aircraft");
+        let (state, down) = (seat.damage.snapshot(), seat.damage.down());
+        let mut out = self.to_room(room, ServerMsg::AirDamage { target, from, state, killed, down, kind: kind.into() });
+        if down {
+            out.extend(self.air_down(room, target, from, now));
+        }
+        out
+    }
+
+    /// An aircraft down: a death, the kill and its spawn points, the assists.
+    fn air_down(&mut self, room: u32, target: u32, from: u32, now: f64) -> Out {
+        let t = self.players.get_mut(&target).expect("target");
+        if !t.alive { return Vec::new(); }
+        t.alive = false;
+        t.hp = 0.0;
+        t.died_at = now;
+        let helpers: Vec<u32> = t.hit_by.iter().filter(|(who, at)| *who != from && *who != target && now - at <= ASSIST_WINDOW).map(|(who, _)| *who).collect::<HashSet<_>>().into_iter().collect();
+        self.count_death(target);
+        let mut out = Vec::new();
+        if from != target {
+            if let Some(p) = self.players.get_mut(&from) {
+                p.kills += 1;
+                p.sp += KILL_SP;
+                out.push((from, ServerMsg::Points { sp: p.sp, delta: KILL_SP, why: "kill".into() }));
+            }
+        }
+        for h in helpers {
+            if let Some(p) = self.players.get_mut(&h) {
+                p.sp += ASSIST_SP;
+                out.push((h, ServerMsg::Points { sp: p.sp, delta: ASSIST_SP, why: "assist".into() }));
+            }
+        }
+        out.extend(self.room_changed(room));
+        out
+    }
+
+    /// The aircraft's own fires on the server's clock (a burning aircraft goes down by itself).
+    fn advance_aircraft(&mut self, dt: f64, now: f64) -> Broadcast {
+        let ids: Vec<u32> = self.players.values().filter(|p| p.alive && p.air.as_ref().is_some_and(|a| a.damage.fire > 0.0 || a.damage.dead("cooling"))).map(|p| p.id).collect();
+        let mut out: Broadcast = Vec::new();
+        for id in ids {
+            let Some(room) = self.players[&id].room else { continue };
+            let seat = self.players.get_mut(&id).unwrap().air.as_mut().unwrap();
+            seat.seed = seat.seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            let mut rng = crate::aircraft::Rng::new(seat.seed);
+            let rev = seat.damage.revision;
+            seat.damage.step(dt, &mut rng);
+            if seat.damage.revision / 10 == rev / 10 && !seat.damage.down() { continue; }
+            let from = self.players[&id].last_attacker.unwrap_or(id);
+            let seat = self.players[&id].air.as_ref().unwrap();
+            let (state, down) = (seat.damage.snapshot(), seat.damage.down());
+            let members = self.rooms[&room].members.clone();
+            out.push((members.clone(), ServerMsg::AirDamage { target: id, from, state, killed: Vec::new(), down, kind: "fire".into() }));
+            if down {
+                for (to, m) in self.air_down(room, id, from, now) { out.push((vec![to], m)); }
+            }
+        }
+        out
+    }
+
     fn hit(&mut self, id: u32, seq: u32, target: u32, result: &str, plate: Option<String>, now: f64) -> Out {
         let (room, team) = {
             let p = &self.players[&id];
@@ -1559,6 +2001,7 @@ impl Lobby {
             self.count_death(target);
             if let Some(p) = self.players.get_mut(&id) {
                 p.kills += 1;
+                p.sp += KILL_SP;
             }
         }
         let shown = if killed { "kill" } else if through { "pen" } else { result };
@@ -1779,7 +2222,9 @@ impl Lobby {
                 let Some(def) = def else { return Vec::new() };
                 let discharge=f.replay.clone();
                 f.used = true;
-                (def.clone(), shot_seed(id, seq), Some(discharge))
+                let seed = shot_seed(id, seq);
+                let def = if kind == WeaponKind::MachineGun { crate::server::belt_round(def, seed) } else { def.clone() };
+                (def, seed, Some(discharge))
             }
             (None, Some(g)) => {
                 if self.own_weapon(id, instance, Some(g), None, None, WeaponKind::MachineGun).is_err() { return Vec::new(); }
@@ -1788,12 +2233,53 @@ impl Lobby {
                 if p.mg_window.1 >= self.rooms[&room].gameplay.legacy_mg_window() { return Vec::new(); }
                 let Some(def) = self.bullets.get(g) else { return Vec::new() };
                 p.mg_window.1 += 1;
-                (def.clone(), shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32), None)
+                let seed = shot_seed(id, 1_000_000 + p.mg_window.1 + (now * 20.0) as u32);
+                (crate::server::belt_round(def, seed), seed, None)
             }
             _ => return Vec::new(),
         };
         let mg = gun.is_some();
         self.commit_damage(room,target,replay_receipts::Mutation::Shot{attacker:id,shot:tg_combat::Shot{shell,origin:o,dir:d.normalized(),speed_ms:shot.speed,distance_m:shot.dist,seed,turret_yaw:shot.yaw},discharge,mg},now)
+    }
+
+    /// The shooter's HE shell `seq` burst at `at` (world) without striking a vehicle: the server's
+    /// splash model on every enemy vehicle in reach. The shell must be one this player fired
+    /// recently and not yet resolved, carry filler, and have been able to fly that far.
+    fn burst(&mut self, id: u32, seq: u32, at: [f64; 3], now: f64) -> Out {
+        let Some(shooter) = self.players.get(&id) else { return Vec::new() };
+        let (Some(room), team) = (shooter.room, shooter.team) else { return Vec::new() };
+        if !at.iter().all(|x| x.is_finite()) || !self.rooms.get(&room).map(|r| r.playing).unwrap_or(false) {
+            return Vec::new();
+        }
+        let p = self.players.get_mut(&id).expect("player");
+        let Some(f) = p.fired.iter_mut().find(|f| f.seq == seq && f.kind == WeaponKind::Cannon && !f.used && now - f.at <= SHOT_LIFE) else { return Vec::new() };
+        let Some(shell) = self.projectiles.get(&f.shell).cloned() else { return Vec::new() };
+        if !matches!(shell.kind, tg_weapon::ProjectileKind::He | tg_weapon::ProjectileKind::Hesh | tg_weapon::ProjectileKind::Heat | tg_weapon::ProjectileKind::HeatFs) {
+            return Vec::new();
+        }
+        let tnt = crate::he_effects::tnt_kg(&shell);
+        let o = f.replay.origin;
+        let flown = ((at[0] - o[0]).powi(2) + (at[1] - o[1]).powi(2) + (at[2] - o[2]).powi(2)).sqrt();
+        let reach = shell.muzzle_velocity_ms.max(1.0) as f64 * (now - f.at).max(0.0) * 1.2 + 40.0;
+        if !(tnt > 0.0) || flown > reach {
+            if flown > reach { self.rejected_hits += 1; }
+            return Vec::new();
+        }
+        f.used = true;
+        let radius = (12.0 + 8.0 * (tnt as f64).cbrt()).min(60.0) + 4.0;
+        let targets: Vec<u32> = self.players.values().filter(|t| t.id != id && t.room == Some(room) && t.team != team && t.alive && t.combat.is_some() && self.targets.contains_key(&t.vehicle))
+            .filter(|t| t.state.as_ref().and_then(crate::missiles::pose_of).is_some_and(|ps| ((ps.pos[0] - at[0]).powi(2) + (ps.pos[2] - at[2]).powi(2)).sqrt() <= radius + 6.0)).map(|t| t.id).collect();
+        let mut out = Vec::new();
+        for target in targets {
+            let t = &self.players[&target];
+            let Some(pose) = t.state.as_ref().and_then(crate::missiles::pose_of) else { continue };
+            let yaw = t.state.as_ref().map(crate::missiles::yaws_of).and_then(|y| y.first().copied()).unwrap_or(0.0) as f32;
+            let l = pose.local_point(at);
+            let local = Vec3::new(l[0] as f32, l[1] as f32, l[2] as f32);
+            let seed = shot_seed(id, seq) ^ ((target as u64) << 32);
+            out.extend(self.commit_damage(room, target, replay_receipts::Mutation::Burst { attacker: id, at: local, shell: shell.clone(), yaw, seed }, now));
+        }
+        out
     }
 
     /// The shooter's one-way delay: half the median of the round trips it reported (s).
@@ -1883,10 +2369,14 @@ impl Lobby {
         self.now = now; self.last_tick = now;
         self.tick += 1;
         let mut out = Vec::new();
+        if let Some(hub) = self.frontline.as_mut() {
+            out.extend(hub.tick(now).into_iter().map(|(to, message)| (to, ServerMsg::Frontline { version: 1, message })));
+        }
         if self.tick % 5 == 0 {
             out.extend(self.conquest(CONQUEST_DT));
         }
         self.advance_aps_reload(now);
+        out.extend(self.advance_aircraft(1.0 / 20.0, now));
         let skies = self.step_missiles(1.0 / 20.0, &mut out);
         self.resupply_at(now, &mut out);
         for r in self.rooms.values().filter(|r| r.playing) {
@@ -2169,6 +2659,7 @@ impl Lobby {
                 p.alive = true;
                 p.reset_shots();
                 p.supply_since=None; p.supply_progress=0.0; p.ammo=None;
+                p.air = None;
             }
         }
         let board: Vec<Member> = members.iter().filter_map(|m| self.member(*m)).collect();
@@ -2185,12 +2676,14 @@ impl Lobby {
         let rooms: Vec<u32> = self.rooms.values().filter(|r| r.playing && !r.points.is_empty()).map(|r| r.id).collect();
         for room in rooms {
             let members = self.rooms[&room].members.clone();
-            let on_field: Vec<(Team, [f64; 3])> = members
+            let with_ids: Vec<(u32, Team, [f64; 3])> = members
                 .iter()
                 .filter_map(|m| self.players.get(m))
-                .filter(|p| p.alive)
-                .filter_map(|p| p.state.as_ref().and_then(pos_of).map(|pos| (p.team, pos)))
+                .filter(|p| p.alive && p.air.is_none())
+                .filter_map(|p| p.state.as_ref().and_then(pos_of).map(|pos| (p.id, p.team, pos)))
                 .collect();
+            let on_field: Vec<(Team, [f64; 3])> = with_ids.iter().map(|(_, t, p)| (*t, *p)).collect();
+            let mut captured: Vec<u32> = Vec::new();
             let r = self.rooms.get_mut(&room).expect("room");
             for pt in r.points.iter_mut() {
                 let inside = |t: Team| on_field.iter().filter(|(team, pos)| *team == t && (pos[0] - pt.x).hypot(pos[2] - pt.z) <= pt.r).count() as u32;
@@ -2215,10 +2708,15 @@ impl Lobby {
                 if before * pt.progress <= 0.0 && before != 0.0 {
                     pt.owner = None;
                 }
+                let was = pt.owner;
                 if pt.progress >= 1.0 {
                     pt.owner = Some(Team::Blue);
                 } else if pt.progress <= -1.0 {
                     pt.owner = Some(Team::Red);
+                }
+                if pt.owner.is_some() && pt.owner != was {
+                    let team = pt.owner.unwrap();
+                    captured.extend(with_ids.iter().filter(|(_, t, pos)| *t == team && (pos[0] - pt.x).hypot(pos[2] - pt.z) <= pt.r).map(|(id, _, _)| *id));
                 }
             }
             let held = |t: Team| r.points.iter().filter(|p| p.owner == Some(t)).count() as f64;
@@ -2227,6 +2725,12 @@ impl Lobby {
             r.tickets[1] = (r.tickets[1] - BLEED * (blue - red).max(0.0) * dt).max(0.0);
             let msg = ServerMsg::Capture { points: r.points.clone(), tickets: r.tickets };
             out.push((members.clone(), msg));
+            for id in captured {
+                if let Some(p) = self.players.get_mut(&id) {
+                    p.sp += CAPTURE_SP;
+                    out.push((vec![id], ServerMsg::Points { sp: p.sp, delta: CAPTURE_SP, why: "capture".into() }));
+                }
+            }
             let tickets = r.tickets;
             if tickets[0] <= 0.0 || tickets[1] <= 0.0 {
                 let winner = if tickets[0] > tickets[1] { Team::Blue } else { Team::Red };
@@ -3498,4 +4002,280 @@ mod tests {
         assert_eq!(l.players[&a].rounds,Some(cap-1));
     }
 
+
+    // ---- aircraft online (crate::aircraft): spawn points, guns and missiles, the server's damage
+
+    fn air_data() -> crate::aircraft::AirData {
+        let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/aircraft/aircraft.json");
+        serde_json::from_str(&std::fs::read_to_string(path).unwrap()).unwrap()
+    }
+    /// a (blue) and b (red) on the deploy screen of a started battle, with aircraft data.
+    fn air_room(l: Lobby) -> (Lobby, u32, u32) {
+        air_room_era(l, None)
+    }
+    fn air_room_era(l: Lobby, era: Option<[u32; 2]>) -> (Lobby, u32, u32) {
+        let mut l = l.with_aircraft(Some(air_data()));
+        let (a, _) = connect_compatible(&mut l);
+        let (b, _) = connect_compatible(&mut l);
+        l.handle(a, ClientMsg::Create { name: "air".into(), map: "range".into(), max: 8, deploy: true, era, gameplay_mode: json!("historical"), gameplay_rules_version: json!(GAMEPLAY_RULES_VERSION) }, 0.0);
+        let room = *l.rooms.keys().next().unwrap();
+        l.handle(b, ClientMsg::Join { room }, 0.0);
+        if l.players[&b].team == l.players[&a].team { l.handle(b, ClientMsg::Team { team: Team::Red }, 0.0); l.handle(a, ClientMsg::Team { team: Team::Blue }, 0.0); }
+        l.handle(a, ClientMsg::Start, 0.0);
+        (l, a, b)
+    }
+    fn fly(l: &mut Lobby, id: u32, kind: &str, loadout: u32, pos: [f64; 3], now: f64) -> Out {
+        l.players.get_mut(&id).unwrap().sp = 1000.0;
+        let out = l.handle(id, ClientMsg::DeployAir { aircraft: kind.into(), loadout, spawn: 0 }, now);
+        l.handle(id, ClientMsg::State { s: json!({ "pos": pos, "air": { "type": kind } }) }, now);
+        out
+    }
+    fn air_damage(out: &Out) -> Vec<(u32, bool)> {
+        out.iter().filter_map(|(_, m)| if let ServerMsg::AirDamage { target, down, .. } = m { Some((*target, *down)) } else { None }).collect()
+    }
+
+    #[test]
+    fn aircraft_era_forged_modern_deploy_preserves_points_and_downed_seat() {
+        let (mut l, a, _) = air_room_era(lobby(), Some([1950, 1953]));
+        let accepted = fly(&mut l, a, "f86f", 0, [0.0, 2000.0, 0.0], 10.0);
+        assert!(accepted.iter().any(|(_, m)| matches!(m, ServerMsg::AirSpawned { .. })));
+        // Keep an existing destroyed seat, including its spent ammunition, on the deploy screen.
+        let p = l.players.get_mut(&a).unwrap();
+        p.alive = false; p.hp = 0.0; p.died_at = 10.0; p.sp = 432.0;
+        let seat = p.air.as_mut().unwrap();
+        seat.damage.broken = true;
+        for gun in seat.guns.values_mut() { gun.ammo = 7; }
+        let before = (p.sp, p.vehicle.clone(), p.alive, p.hp, p.life, format!("{:?}", p.air));
+        let out = l.handle(a, wire(json!({"t":"deploy_air","aircraft":"f16v","loadout":0,"spawn":0})), 20.0);
+        assert!(matches!(msgs_to(&out, a)[0], ServerMsg::Error { msg } if msg.contains("1950–1953")), "{out:?}");
+        assert!(!out.iter().any(|(_, m)| matches!(m, ServerMsg::AirSpawned { .. } | ServerMsg::Points { .. })));
+        let p = &l.players[&a];
+        assert_eq!((p.sp, p.vehicle.clone(), p.alive, p.hp, p.life, format!("{:?}", p.air)), before);
+    }
+
+    #[test]
+    fn aircraft_era_f86_deploy_accepts_both_inclusive_year_boundaries() {
+        for era in [[1950, 1952], [1952, 1953], [1952, 1952]] {
+            let (mut l, a, _) = air_room_era(lobby(), Some(era));
+            assert_eq!(l.air.as_ref().unwrap().types["f86f"].year, Some(1952));
+            l.players.get_mut(&a).unwrap().sp = 500.0;
+            let cost = crate::aircraft::spawn_cost(&l.air.as_ref().unwrap().types["f86f"].loadouts[0].class);
+            let out = l.handle(a, wire(json!({"t":"deploy_air","aircraft":"f86f","loadout":0,"spawn":0})), 10.0);
+            assert!(out.iter().any(|(_, m)| matches!(m, ServerMsg::AirSpawned { aircraft, .. } if aircraft == "f86f")), "{era:?}: {out:?}");
+            assert_eq!(l.players[&a].sp, 500.0 - cost);
+            assert!(l.players[&a].alive);
+            assert_eq!(l.players[&a].air.as_ref().unwrap().kind, "f86f");
+        }
+    }
+
+    #[test]
+    fn aircraft_era_unknown_and_invalid_years_cannot_deploy() {
+        for year in [None, Some(0), Some(2101)] {
+            let (mut l, a, _) = air_room_era(lobby(), Some([1900, 2100]));
+            let mut data = air_data();
+            data.types.get_mut("nf01").unwrap().year = year;
+            l = l.with_aircraft(Some(data));
+            l.players.get_mut(&a).unwrap().sp = 1000.0;
+            let out = l.handle(a, wire(json!({"t":"deploy_air","aircraft":"nf01","loadout":0,"spawn":0})), 10.0);
+            assert!(matches!(msgs_to(&out, a)[0], ServerMsg::Error { msg } if msg.contains("1900–2100")), "{year:?}: {out:?}");
+            assert_eq!(l.players[&a].sp, 1000.0);
+            assert!(!l.players[&a].alive && l.players[&a].air.is_none());
+        }
+    }
+
+    #[test]
+    fn aircraft_era_unrestricted_room_accepts_legacy_catalog_without_years() {
+        let (mut l, a, _) = air_room(lobby());
+        let mut json: Value = serde_json::from_str(include_str!("../../../data/aircraft/aircraft.json")).unwrap();
+        for entry in json["types"].as_object_mut().unwrap().values_mut() { entry.as_object_mut().unwrap().remove("year"); }
+        let legacy: crate::aircraft::AirData = serde_json::from_value(json).unwrap();
+        assert!(legacy.types.values().all(|t| t.year.is_none()));
+        l = l.with_aircraft(Some(legacy));
+        l.players.get_mut(&a).unwrap().sp = 1000.0;
+        let out = l.handle(a, wire(json!({"t":"deploy_air","aircraft":"f16v","loadout":0,"spawn":0})), 10.0);
+        assert!(out.iter().any(|(_, m)| matches!(m, ServerMsg::AirSpawned { aircraft, .. } if aircraft == "f16v")), "{out:?}");
+        assert!(l.players[&a].sp < 1000.0 && l.players[&a].alive);
+    }
+
+    #[test]
+    fn an_aircraft_costs_its_loadouts_spawn_points() {
+        let (mut l, a, _) = air_room(lobby());
+        let out = l.handle(a, ClientMsg::DeployAir { aircraft: "p51d".into(), loadout: 0, spawn: 0 }, 10.0);
+        assert!(matches!(msgs_to(&out, a)[0], ServerMsg::Error { msg } if msg.contains("重生點數不足")), "{out:?}");
+        l.players.get_mut(&a).unwrap().sp = 500.0;
+        // a bomb load (ground class, 450) and then guns only (200)
+        let out = l.handle(a, ClientMsg::DeployAir { aircraft: "p51d".into(), loadout: 1, spawn: 0 }, 10.0);
+        assert!(out.iter().any(|(_, m)| matches!(m, ServerMsg::AirSpawned { aircraft, .. } if aircraft == "p51d")));
+        assert!((l.players[&a].sp - 50.0).abs() < 1e-9 && l.players[&a].alive && l.players[&a].air.is_some());
+        assert!(l.member(a).unwrap().aircraft == "p51d");
+    }
+
+    #[test]
+    fn rounds_through_a_wing_bring_the_aircraft_down_and_pay_the_shooter() {
+        let (mut l, a, b) = air_room(lobby());
+        fly(&mut l, a, "f4e", 0, [0.0, 2000.0, 0.0], 10.0);
+        fly(&mut l, b, "p51d", 0, [0.0, 2000.0, 300.0], 10.0);
+        let wing = l.air.as_ref().unwrap().types["p51d"].parts.iter().find(|p| p.id == "wing_l").unwrap().c;
+        let (a0, b0) = ([wing[0], wing[1] + 4.0, wing[2]], [wing[0], wing[1] - 4.0, wing[2]]);
+        let sp0 = l.players[&a].sp;
+        let mut down = false;
+        for burst in 0..10u32 {
+            let t = 11.0 + burst as f64;
+            l.handle(a, ClientMsg::State { s: json!({ "pos": [0.0, 2000.0, 0.0] }) }, t);
+            l.handle(b, ClientMsg::State { s: json!({ "pos": [0.0, 2000.0, 300.0] }) }, t);
+            l.handle(a, ClientMsg::AirFire { seq: burst + 1, gun: "air_m61_0".into(), n: 60, o: [0.0, 2000.0, 0.0], d: [0.0, 0.0, 1.0] }, t);
+            for _ in 0..20 {
+                let out = l.handle(a, ClientMsg::AirHit { seq: burst + 1, target: b, a: a0, b: b0, speed: 1100.0 }, t + 0.3);
+                if air_damage(&out).iter().any(|(t, d)| *t == b && *d) { down = true; }
+            }
+            if down { break; }
+        }
+        assert!(down, "{:?}", l.players[&b].air.as_ref().unwrap().damage.snapshot());
+        assert!(!l.players[&b].alive && l.players[&a].kills == 1 && l.players[&a].sp >= sp0 + KILL_SP - 1e-9);
+    }
+
+    #[test]
+    fn hits_need_a_burst_that_fired_rounds_enough_and_a_target_within_reach() {
+        let (mut l, a, b) = air_room(lobby());
+        fly(&mut l, a, "p51d", 0, [0.0, 2000.0, 0.0], 10.0);
+        fly(&mut l, b, "f15c", 0, [0.0, 2000.0, 300.0], 10.0);
+        // .50 calibre through the F-15C's left wing: three rounds do not bring it down
+        let w = l.air.as_ref().unwrap().types["f15c"].parts.iter().find(|p| p.id == "wing_l").unwrap().c;
+        let line = ([w[0], w[1] + 4.0, w[2]], [w[0], w[1] - 4.0, w[2]]);
+        // no burst 7 was fired
+        assert!(air_damage(&l.handle(a, ClientMsg::AirHit { seq: 7, target: b, a: line.0, b: line.1, speed: 1000.0 }, 11.0)).is_empty());
+        // a burst of 3: three hits, not a fourth
+        l.handle(a, ClientMsg::AirFire { seq: 1, gun: "air_m2_0".into(), n: 3, o: [0.0, 2000.0, 0.0], d: [0.0, 0.0, 1.0] }, 11.0);
+        let n = (0..5).filter(|_| !air_damage(&l.handle(a, ClientMsg::AirHit { seq: 1, target: b, a: line.0, b: line.1, speed: 1000.0 }, 11.2)).is_empty()).count();
+        assert_eq!(n, 3);
+        // more rounds than the gun's rate allows: refused
+        assert!(l.handle(a, ClientMsg::AirFire { seq: 2, gun: "air_m2_0".into(), n: 120, o: [0.0, 2000.0, 0.0], d: [0.0, 0.0, 1.0] }, 11.21).is_empty());
+        assert_eq!(l.players[&a].air.as_ref().unwrap().guns["air_m2_0"].ammo, 313 - 3);
+        // the target 20 km away: no round could have reached it
+        l.handle(b, ClientMsg::State { s: json!({ "pos": [0.0, 2000.0, 300.0] }) }, 12.0);
+        l.handle(a, ClientMsg::AirFire { seq: 3, gun: "air_m2_0".into(), n: 10, o: [0.0, 2000.0, 0.0], d: [0.0, 0.0, 1.0] }, 12.0);
+        l.players.get_mut(&b).unwrap().trail.clear();
+        l.players.get_mut(&b).unwrap().last_pos = Some(([19000.0, 2000.0, 0.0], 12.0));
+        assert!(air_damage(&l.handle(a, ClientMsg::AirHit { seq: 3, target: b, a: line.0, b: line.1, speed: 1000.0 }, 12.1)).is_empty());
+        assert!(l.rejected_hits >= 1);
+    }
+
+    #[test]
+    fn a_missile_burst_beside_it_once_and_only_from_a_missile_carried() {
+        let (mut l, a, b) = air_room(lobby());
+        // the MiG-29's first loadout carries R-27R and R-73
+        fly(&mut l, a, "mig29", 1, [0.0, 3000.0, 0.0], 10.0);
+        fly(&mut l, b, "f15c", 0, [0.0, 3000.0, 3000.0], 10.0);
+        let carried: Vec<String> = l.players[&a].air.as_ref().unwrap().missiles.keys().cloned().collect();
+        assert!(carried.iter().any(|w| w == "r27r"), "{carried:?}");
+        assert!(matches!(msgs_to(&l.handle(a, ClientMsg::AirLaunch { seq: 1, weapon: "aim120c".into(), o: [0.0, 3000.0, 0.0], d: [0.0, 0.0, 1.0], target: Some(b) }, 11.0), a)[0], ServerMsg::Error { .. }));
+        let out = l.handle(a, ClientMsg::AirLaunch { seq: 2, weapon: "r27r".into(), o: [0.0, 3000.0, 0.0], d: [0.0, 0.0, 1.0], target: Some(b) }, 11.0);
+        assert!(out.iter().any(|(to, m)| *to == b && matches!(m, ServerMsg::AirLaunched { .. })));
+        l.handle(b, ClientMsg::State { s: json!({ "pos": [0.0, 3000.0, 3000.0] }) }, 15.0);
+        let first = l.handle(a, ClientMsg::AirBurst { seq: 2, target: b, at: [0.0, 0.5, -1.0] }, 15.0);
+        assert!(air_damage(&first).iter().any(|(t, d)| *t == b && *d), "{:?}", air_damage(&first));
+        // the same missile again: nothing
+        assert!(air_damage(&l.handle(a, ClientMsg::AirBurst { seq: 2, target: b, at: [0.0, 0.5, -1.0] }, 15.1)).is_empty());
+    }
+
+    #[test]
+    fn a_vehicles_shell_through_an_aircraft_is_the_servers_damage_too() {
+        let data = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let c = crate::server::load_combat(&data);
+        let base = Lobby::new(HashMap::new(), ["su_t34_85".to_string()].into_iter().collect(), vec!["range".into()]).with_combat(c.targets, c.projectiles, c.bullets);
+        let (mut l, a, b) = air_room(base);
+        l.handle(a, ClientMsg::Deploy { ammo_mix: None, vehicle: "su_t34_85".into(), spawn: 0, rounds: None }, 10.0);
+        l.handle(a, ClientMsg::State { s: state(0.0) }, 10.0);
+        fly(&mut l, b, "p51d", 0, [0.0, 300.0, 600.0], 10.0);
+        l.handle(a, ClientMsg::Fire { scope: l.ammo_scope(a), seq: 1, instance: None, o: [0.0; 3], d: [0.0, 0.6, 0.8], shell: "he_85_o365k".into() }, 11.0);
+        let accepted = l.players[&a].fired.iter().any(|f| f.seq == 1);
+        let out = l.handle(a, ClientMsg::AirHit { seq: 1, target: b, a: [0.0, 4.0, 0.0], b: [0.0, -4.0, 0.0], speed: 700.0 }, 11.8);
+        assert!(accepted && !air_damage(&out).is_empty(), "accepted {accepted}: {out:?}");
+        // that shell once only
+        assert!(air_damage(&l.handle(a, ClientMsg::AirHit { seq: 1, target: b, a: [0.0, 4.0, 0.0], b: [0.0, -4.0, 0.0], speed: 700.0 }, 11.9)).is_empty());
+    }
+
+    fn legacy_fuze_target(l:&mut Lobby,id:u32) {
+        let mut ty=l.air.as_ref().unwrap().types["f15c"].clone();
+        let original=ty.parts[0].clone();
+        ty.parts=[("front",[0.0,0.0,-1.0]),("middle",[0.0,0.0,0.0]),
+            ("rear",[0.0,0.0,1.0]),("off_axis",[0.5,0.0,-1.0])].into_iter()
+            .map(|(id,c)| {let mut p=original.clone();p.id=id.into();p.c=c;p.h=[0.1;3];
+                p.hp=10000.0;p.armor=Some(0.7);p.fire=None;p.detach=false;p.parent=None;p.blast_k=Some(1.0);p}).collect();
+        ty.skin=vec![crate::aircraft::BoxDef{c:[0.0;3],h:[1.0,1.0,1.3]}];
+        l.players.get_mut(&id).unwrap().air.as_mut().unwrap().damage=crate::aircraft::AirDamage::new(&ty);
+    }
+
+    #[test]
+    fn aircraft_fuze_legacy_room_mk214_aphe_keeps_kinetic_path_and_single_round_proof() {
+        let (mut l,a,b)=air_room(lobby());
+        let data_path=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/aircraft/frontline.json");
+        let catalog:Value=serde_json::from_slice(&std::fs::read(data_path).unwrap()).unwrap();
+        let definitions:HashMap<String,tg_weapon::ProjectileDef>=serde_json::from_value(catalog["shells"].clone()).unwrap();
+        let mut data=air_data();data.hydrate_projectiles(&definitions);l=l.with_aircraft(Some(data));
+        fly(&mut l,a,"me262u4",0,[0.0,2000.0,0.0],10.0);
+        fly(&mut l,b,"f15c",0,[0.0,2000.0,300.0],10.0);legacy_fuze_target(&mut l,b);
+        let before=l.players[&b].air.as_ref().unwrap().damage.snapshot();
+        let fired=l.handle(a,ClientMsg::AirFire{seq:1,gun:"air_mk214a_0".into(),n:1,
+            o:[0.0,2000.0,0.0],d:[0.0,0.0,1.0]},11.0);
+        assert!(fired.iter().any(|(_,m)|matches!(m,ServerMsg::AirFired{..})),"{fired:?}");
+        assert_eq!(l.players[&a].air.as_ref().unwrap().guns["air_mk214a_0"].ammo,31);
+        for (seq,speed) in [(9,835.0),(1,4000.0)] {
+            assert!(air_damage(&l.handle(a,ClientMsg::AirHit{seq,target:b,a:[0.0,0.0,-2.0],
+                b:[0.0,0.0,2.0],speed},11.2)).is_empty());
+            assert_eq!(l.players[&b].air.as_ref().unwrap().damage.snapshot(),before);
+            assert_eq!(l.players[&a].air.as_ref().unwrap().fired[0].used,0);
+        }
+        let out=l.handle(a,ClientMsg::AirHit{seq:1,target:b,a:[0.0,0.0,-2.0],b:[0.0,0.0,2.0],speed:835.0},11.3);
+        assert!(!air_damage(&out).is_empty());
+        let damage=&l.players[&b].air.as_ref().unwrap().damage;
+        assert_eq!(damage.parts[3].hp,10000.0,"APHE must not blast an off-axis part at uncalibrated skin");
+        assert!(damage.parts[..3].iter().all(|p|p.hp<10000.0));
+        let after=damage.snapshot();
+        assert_eq!(l.players[&a].air.as_ref().unwrap().fired[0].used,1);
+        assert!(air_damage(&l.handle(a,ClientMsg::AirHit{seq:1,target:b,a:[0.0,0.0,-2.0],
+            b:[0.0,0.0,2.0],speed:835.0},11.4)).is_empty());
+        assert_eq!(l.players[&b].air.as_ref().unwrap().damage.snapshot(),after);
+    }
+
+    #[test]
+    fn aircraft_fuze_legacy_room_ground_aphe_uses_its_actual_projectile_kind() {
+        let data=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        let c=crate::server::load_combat(&data);
+        let base=Lobby::new(HashMap::new(),["su_t34_85".to_string()].into_iter().collect(),vec!["range".into()])
+            .with_combat(c.targets,c.projectiles,c.bullets);
+        let (mut l,a,b)=air_room(base);
+        l.handle(a,ClientMsg::Deploy{ammo_mix:None,vehicle:"su_t34_85".into(),spawn:0,rounds:None},10.0);
+        l.handle(a,ClientMsg::State{s:state(0.0)},10.0);
+        fly(&mut l,b,"f15c",0,[0.0,300.0,600.0],10.0);legacy_fuze_target(&mut l,b);
+        l.handle(a,ClientMsg::Fire{scope:l.ammo_scope(a),seq:1,instance:None,o:[0.0;3],
+            d:[0.0,0.6,0.8],shell:"aphe_85_br365".into()},11.0);
+        assert!(l.players[&a].fired.iter().any(|f|f.seq==1&&!f.used));
+        let out=l.handle(a,ClientMsg::AirHit{seq:1,target:b,a:[0.0,0.0,-2.0],b:[0.0,0.0,2.0],speed:700.0},11.8);
+        assert!(!air_damage(&out).is_empty());
+        let damage=&l.players[&b].air.as_ref().unwrap().damage;
+        assert_eq!(damage.parts[3].hp,10000.0,"ground APHE must not become aircraft contact HE");
+        assert!(damage.parts[..3].iter().all(|p|p.hp<10000.0));
+        assert!(l.players[&a].fired.iter().find(|f|f.seq==1).unwrap().used);
+        assert!(air_damage(&l.handle(a,ClientMsg::AirHit{seq:1,target:b,a:[0.0,0.0,-2.0],
+            b:[0.0,0.0,2.0],speed:700.0},11.9)).is_empty());
+    }
+
+    #[test]
+    fn a_resent_burst_or_launch_counts_once() {
+        let (mut l, a, b) = air_room(lobby());
+        fly(&mut l, a, "mig29", 1, [0.0, 3000.0, 0.0], 10.0);
+        fly(&mut l, b, "f15c", 0, [0.0, 3000.0, 3000.0], 10.0);
+        let fire = ClientMsg::AirFire { seq: 5, gun: "air_gsh301_0".into(), n: 10, o: [0.0, 3000.0, 0.0], d: [0.0, 0.0, 1.0] };
+        let first = l.handle(a, fire.clone(), 11.0);
+        let again = l.handle(a, fire, 11.5);
+        assert!(first.iter().any(|(_, m)| matches!(m, ServerMsg::AirFired { .. })) && again.is_empty());
+        assert_eq!(l.players[&a].air.as_ref().unwrap().guns["air_gsh301_0"].ammo, 150 - 10);
+        let launch = ClientMsg::AirLaunch { seq: 6, weapon: "r27r".into(), o: [0.0, 3000.0, 0.0], d: [0.0, 0.0, 1.0], target: Some(b) };
+        let left = l.players[&a].air.as_ref().unwrap().missiles["r27r"];
+        let first = l.handle(a, launch.clone(), 12.0);
+        let again = l.handle(a, launch, 13.0);
+        assert!(first.iter().any(|(_, m)| matches!(m, ServerMsg::AirLaunched { .. })) && !again.iter().any(|(_, m)| matches!(m, ServerMsg::AirLaunched { .. })));
+        assert_eq!(l.players[&a].air.as_ref().unwrap().missiles["r27r"], left - 1);
+    }
 }

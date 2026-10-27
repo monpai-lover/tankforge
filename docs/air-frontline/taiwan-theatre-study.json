@@ -1,0 +1,1772 @@
+{
+  "schemaVersion": 1,
+  "studyId": "taiwan_strait_real_scale_options_2026_10_24",
+  "createdAtUtc": "2026-10-24T12:52:59.926210+00:00",
+  "status": "full_main_island_scope_selected_design_evidence_only",
+  "implementationStatus": "User scope selected: entire Taiwan main island plus retained mainland coast/Penghu/Kinmen/Matsu at1:1. No deployable runtime map, game-mode implementation, complete DEM import, sea nav graph or current-force deployment plan produced by this research.",
+  "canonicalInputs": [
+    "docs/air-frontline-design-2026-10-24.json",
+    "docs/air-frontline/combined-mode-design.json"
+  ],
+  "preservedUserRequirements": {
+    "maps": [
+      "Korean38th-line first",
+      "Taiwan Strait second; remains mandatory"
+    ],
+    "scale": "1:1. Latest explicit Taiwan scope is the entire Taiwan main island; selected broad theatre also retains mainland coast/Penghu/Kinmen/Matsu. Do not shrink distances or substitute previous partial-island options.",
+    "conflict": "Fictional two-team deployments and targets on real geography; no mapping of current real forces",
+    "eras": "Era-separated rooms with shared allowed aircraft pool and era-specific weapons/sensors/ground units/AA",
+    "roundMinutes": [
+      45,
+      90
+    ],
+    "playersPerTeam": [
+      8,
+      12
+    ],
+    "company": {
+      "playerTank": 1,
+      "aiTanks": 9,
+      "aiPlatoons": 3,
+      "aiPerPlatoon": 3
+    },
+    "persistentCompany": "Owned surviving AI continues last task while owner flies; surviving AI tank may be taken over without recreating damage/ammo/position.",
+    "roleSwitch": "Friendly deployment area or vehicle loss.",
+    "airSpawns": "Airport starts nearer selected combat front; airborne starts farther in the rear. Do not use teleporting forward air spawns to cancel map distances.",
+    "logistics": "Light facility/transport-dependent service; no per-shot base stock accounting. Normal airport service10–20seconds when operational.",
+    "mobile": "Same accepted world and entities; reduce rendering/network detail, do not delete companies or ships."
+  },
+  "scopeInterpretation": {
+    "latestUserAnswer": "include full taiwan",
+    "selectedExtentId": "full_taiwan_strait",
+    "meaning": "Whole Taiwan main island; retained mainland coast/Penghu/Kinmen/Matsu make one real-scale cross-strait world. Nearby islands inside bounds are geography, not a demand to include all remote territories.",
+    "previousChoices": "Four partial/local alternatives are preserved for comparison only and do not remain pending selection. No further extent question is needed.",
+    "geographyVersusScenario": "Coasts, terrain, geographic airport points and distance calculations use sources. Team ownership, aviation use, deployment pockets, objectives, existing fronts/beachheads and standby transports are explicitly fictional game fixtures.",
+    "coverageVersusDensity": "Whole-world terrain coverage does not imply spreading16–24human players and their companies evenly over the entire theatre."
+  },
+  "distanceMethod": {
+    "ellipsoid": "WGS84",
+    "implementation": "pyproj.Geod.inv and polygon_area_perimeter",
+    "pyprojVersion": "3.7.1",
+    "input": "Airport reference points from retained public-domain OurAirports snapshot; bounds are explicitly proposed design selections.",
+    "rounding": "Routes3decimals km, times2decimals minutes, extents2decimals km. This precision is calculation precision, not source positional accuracy.",
+    "speedAssumptionsKmh": [
+      500,
+      700,
+      900
+    ],
+    "speedMeaning": "Illustrative groundspeed only, not certified aircraft cruise or combat performance; actual game aircraft physics, fuel endurance, era/load and wind control sortie viability."
+  },
+  "options": [
+    {
+      "id": "full_taiwan_strait",
+      "nameZh": "完整台湾本岛＋大陆沿海＋澎湖／金门／马祖",
+      "selectionStatus": "selected_by_user_include_full_taiwan",
+      "selected": true,
+      "bounds": [
+        117.8,
+        21.65,
+        122.35,
+        26.5
+      ],
+      "boundsOrder": "westLongitude,southLatitude,eastLongitude,northLatitude",
+      "crs": "EPSG:4326",
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 462.68,
+        "heightAtMiddleLongitudeKm": 537.18,
+        "geodesicPolygonAreaKm2": 248547.8,
+        "landAreaKm2": null,
+        "note": "Geodesic edge-centre distances and full bounds area including ocean; not island dimensions or land area."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": true
+      },
+      "mainland": "大陆沿海真实地域，涵盖已研究的厦门、泉州与福州沿海；所属设施和战役部队为架空，不复现当前军事部署。",
+      "taiwanMainIsland": "完整台湾本岛，包含北部、西部、南端、中央山地及花莲／台东东岸。",
+      "islands": "保留澎湖、金门、马祖；范围内的绿岛、兰屿及其他近岸岛屿采用实际地理。",
+      "notImpliedByFullTaiwan": "不自动扩展为全部行政附属或争议远方岛屿；东沙、太平／南沙及范围外其他远域不在这张地图。",
+      "airportIds": [
+        "ZSAM",
+        "ZSQZ",
+        "ZSFZ",
+        "RCBS",
+        "RCFG",
+        "RCMT",
+        "RCQC",
+        "RCWA",
+        "RCCM",
+        "RCTP",
+        "RCSS",
+        "RCMQ",
+        "RCKU",
+        "RCNN",
+        "RCKH",
+        "RCKW",
+        "RCFN",
+        "RCYU",
+        "RCGI",
+        "RCLY"
+      ],
+      "routeIds": [
+        "ZSQZ_RCQC",
+        "RCQC_RCKU",
+        "RCQC_RCMQ",
+        "ZSQZ_RCMQ",
+        "ZSQZ_RCKU",
+        "ZSAM_RCBS",
+        "ZSAM_RCQC",
+        "RCQC_RCNN",
+        "ZSAM_RCNN",
+        "ZSFZ_RCTP",
+        "ZSFZ_RCFG",
+        "RCFG_RCTP",
+        "RCTP_RCKH",
+        "RCTP_RCKW",
+        "RCTP_RCYU",
+        "RCYU_RCFN",
+        "RCFN_RCKH",
+        "ZSAM_RCKH",
+        "ZSFZ_RCYU",
+        "RCQC_RCKH"
+      ],
+      "gameplay": "全岛及海峡地形保持1:1并分块加载，每局选择一个主陆地战区与相邻海运／空中支援任务；8–12人每队总量不变，不平均分散到整座岛。",
+      "fictionalFrontRequirement": "60分钟局开局已有架空地面接触面／桥头堡、受控部署区及近海待命实体增援。它们是初始剧情状态，不是现实地理发现或现实军事部署。远距海运按实际航程执行，不把坦克跨水开行或瞬送。",
+      "advantages": [
+        "完整满足用户include full taiwan；旧局部范围只作成本／航程对照。",
+        "北西南东与离岛都能在同一地理世界中作为不同战局的任务地区。",
+        "保持真实航程、中央山地遮蔽／航线约束与有效海陆分离。"
+      ],
+      "tradeoffs": [
+        "约463×537公里，必须使用地形流式加载、分层细节、远区实体调度与坐标精度管理。",
+        "桃园到高雄约291公里，700公里／小时直飞约25分钟；远处机场不是即时空中支援。",
+        "完整世界不意味着每局所有城市／机场都成为争夺目标；每局焦点部署需维持公平往返时间与玩家密度。"
+      ],
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSAM_RCKH",
+        "referencePointSpanKm": 314.526,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 509.49,
+        "notNavigableRoute": true,
+        "meaning": "Geographic-span arithmetic only; airports lie on land. A real game ship ETA must use a coastline-avoiding water-only route, draft/slope checks and loading/unloading time."
+      }
+    },
+    {
+      "id": "central_strait",
+      "nameZh": "中部台海：泉州—澎湖—嘉义／台中",
+      "bounds": [
+        118.25,
+        23.15,
+        121.0,
+        25.15
+      ],
+      "airportIds": [
+        "ZSQZ",
+        "RCBS",
+        "RCQC",
+        "RCKU",
+        "RCMQ"
+      ],
+      "routeIds": [
+        "ZSQZ_RCQC",
+        "RCQC_RCKU",
+        "RCQC_RCMQ",
+        "ZSQZ_RCMQ",
+        "ZSQZ_RCKU"
+      ],
+      "mainland": "泉州／晋江沿海及其陆地区域；厦门高崎机场在西界外。",
+      "taiwanMainIsland": "嘉义与台中一带的西部本岛及部分内陆；不是全台湾。",
+      "islands": "澎湖及金门。",
+      "gameplay": "以台湾西部的一处连续陆地战线为主要坦克连战场，澎湖提供第二个独立岛屿战场／补给节点；大陆侧为可见可飞的实际地域与另一组后方设施。具体阵营控制与据点完全架空。",
+      "advantages": [
+        "同时保留大陆、澎湖和台湾本岛，台海主题完整。",
+        "澎湖与嘉义间约79公里，可形成比全海峡更短的真实空中支援航段。",
+        "较扩展南部方案少约三成矩形面积，便于先验证分块地形与海陆交通。"
+      ],
+      "tradeoffs": [
+        "晋江到本岛机场214–235公里，700公里／小时下仍需约18–20分钟直飞。",
+        "主地图面积不等于活跃单位覆盖面积；坦克战必须集中在选定陆地战线。",
+        "金门可保留真实地形作为次要岛屿，不应把金门近岸短程战替代台湾本岛主战场。"
+      ],
+      "recommended": false,
+      "boundsOrder": "westLongitude,southLatitude,eastLongitude,northLatitude",
+      "crs": "EPSG:4326",
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 279.49,
+        "heightAtMiddleLongitudeKm": 221.52,
+        "geodesicPolygonAreaKm2": 61916.16,
+        "landAreaKm2": null,
+        "note": "Width is geodesic west/east edge-centre distance; height is geodesic north/south edge-centre distance. Area includes ocean. Bounds select real geography; not the entire island."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "fictionalFrontRequirement": "For immediate tank play, start with a fictional already-established opposed ground front on a selected land component; exact beachheads, teams and forces are not real-world data. A60min main-island scenario cannot wait for a complete long cross-strait voyage from a distant original shore.",
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSQZ_RCQC",
+        "referencePointSpanKm": 172.126,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 278.82,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    },
+    {
+      "id": "northern_strait",
+      "nameZh": "北部台海：福州—马祖—桃园／新竹",
+      "bounds": [
+        119.05,
+        24.35,
+        121.65,
+        26.35
+      ],
+      "airportIds": [
+        "ZSFZ",
+        "RCFG",
+        "RCMT",
+        "RCTP",
+        "RCSS"
+      ],
+      "routeIds": [
+        "ZSFZ_RCTP",
+        "ZSFZ_RCFG",
+        "RCFG_RCTP"
+      ],
+      "mainland": "福州沿海及其陆地区域。",
+      "taiwanMainIsland": "台湾北部西岸，包含桃园与新竹区域，并包含台北松山机场；不含台湾中南部。",
+      "islands": "马祖列岛；不含澎湖与金门。",
+      "gameplay": "以北台湾的一处架空连续陆地战线为主，马祖作为独立小岛补给／侦察目标。主战线不用跨海连成一条坦克路线。",
+      "advantages": [
+        "范围约262×222公里，是三个含台湾本岛跨海峡备选中较窄的东西向范围。",
+        "福州与桃园机场约183公里，700公里／小时下约16分钟直飞。",
+        "大陆、岛屿、本岛三层结构仍保留。"
+      ],
+      "tradeoffs": [
+        "马祖机场跑道较短，不能默认支持全部喷气机；南竿约1579米、北竿数据约1150米，必须按载荷／机型验证。",
+        "马祖到桃园仍约175公里，马祖不是显著缩短本岛航渡的居中跳板。",
+        "大陆海岸与本岛仍被海隔开，必须另设架空陆地接触面才能提供开局坦克作战。"
+      ],
+      "recommended": false,
+      "boundsOrder": "westLongitude,southLatitude,eastLongitude,northLatitude",
+      "crs": "EPSG:4326",
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 261.72,
+        "heightAtMiddleLongitudeKm": 221.56,
+        "geodesicPolygonAreaKm2": 57987.7,
+        "landAreaKm2": null,
+        "note": "Width is geodesic west/east edge-centre distance; height is geodesic north/south edge-centre distance. Area includes ocean. Bounds select real geography; not the entire island."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "fictionalFrontRequirement": "For immediate tank play, start with a fictional already-established opposed ground front on a selected land component; exact beachheads, teams and forces are not real-world data. A60min main-island scenario cannot wait for a complete long cross-strait voyage from a distant original shore.",
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSFZ_RCTP",
+        "referencePointSpanKm": 183.058,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 296.53,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    },
+    {
+      "id": "expanded_central_south",
+      "nameZh": "中南部台海：厦门／泉州—金门—澎湖—嘉义／台南",
+      "bounds": [
+        117.9,
+        22.65,
+        121.0,
+        25.25
+      ],
+      "airportIds": [
+        "ZSAM",
+        "ZSQZ",
+        "RCBS",
+        "RCQC",
+        "RCKU",
+        "RCMQ",
+        "RCNN"
+      ],
+      "routeIds": [
+        "ZSAM_RCBS",
+        "ZSAM_RCQC",
+        "RCQC_RCKU",
+        "RCQC_RCNN",
+        "ZSAM_RCNN"
+      ],
+      "mainland": "厦门与泉州的沿海及陆地区域。",
+      "taiwanMainIsland": "台湾西部自台中向嘉义、台南及南侧部分区域；高雄国际机场在南界外，不含整个台湾。",
+      "islands": "金门、澎湖、望安、七美等范围内实际岛屿。",
+      "gameplay": "提供最大的跨岛战役空间，以一个本岛陆地战区为主、一个岛屿战区为辅，轮换而非让8–12名玩家每队同时铺满全部区域。",
+      "advantages": [
+        "保留厦门、金门、澎湖和台湾本岛的较完整台海辨识度。",
+        "多个真实机场候选，较适合后续不同年代和不同战役布局复用。",
+        "近岸短海运与远距海运可在同一真实地理框架下对比。"
+      ],
+      "tradeoffs": [
+        "约316×288公里，海陆分块、渲染与传输预算高于另外两项。",
+        "厦门至台南约276公里，700公里／小时下约24分钟单程；早期喷气机往返与战斗燃油余量更受约束。",
+        "厦门至金门约27公里只代表机场点间距离，不能用这个数字暗示两岸本岛很近或船舶可直穿岸线。"
+      ],
+      "recommended": false,
+      "boundsOrder": "westLongitude,southLatitude,eastLongitude,northLatitude",
+      "crs": "EPSG:4326",
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 315.55,
+        "heightAtMiddleLongitudeKm": 287.97,
+        "geodesicPolygonAreaKm2": 90873.01,
+        "landAreaKm2": null,
+        "note": "Width is geodesic west/east edge-centre distance; height is geodesic north/south edge-centre distance. Area includes ocean. Bounds select real geography; not the entire island."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "fictionalFrontRequirement": "For immediate tank play, start with a fictional already-established opposed ground front on a selected land component; exact beachheads, teams and forces are not real-world data. A60min main-island scenario cannot wait for a complete long cross-strait voyage from a distant original shore.",
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSAM_RCBS",
+        "referencePointSpanKm": 26.757,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 43.34,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    },
+    {
+      "id": "compact_xiamen_kinmen",
+      "nameZh": "厦门—金门局部（不含台湾本岛）",
+      "bounds": [
+        117.95,
+        24.28,
+        118.55,
+        24.75
+      ],
+      "boundsOrder": "westLongitude,southLatitude,eastLongitude,northLatitude",
+      "crs": "EPSG:4326",
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 60.81,
+        "heightAtMiddleLongitudeKm": 52.06,
+        "geodesicPolygonAreaKm2": 3165.54,
+        "landAreaKm2": null,
+        "note": "Real-scale local subregion including mainland coast, Xiamen island, Kinmen and nearby water; not the full Taiwan Strait."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": false,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "airportIds": [
+        "ZSAM",
+        "RCBS"
+      ],
+      "routeIds": [
+        "ZSAM_RCBS"
+      ],
+      "mainland": "厦门周边大陆海岸、厦门岛与实际跨岛道路；并非所有海上岛屿之间都有道路。",
+      "taiwanMainIsland": "完全不含台湾本岛；必须在地图选择和地图说明中明确。",
+      "islands": "厦门岛、金门与范围内邻近岛屿；不含澎湖、马祖。",
+      "gameplay": "以一个架空既有岛屿陆地接触面为坦克连主战区，短距离海运连接独立陆地区域。真实民用港口只是地理参考；游戏运输设施、所属与桥头堡为架空。",
+      "advantages": [
+        "约61×52公里，真实尺度下较容易适配45–90分钟一局。",
+        "厦门高崎至金门机场参考点约26.76公里，700公里／小时下直飞约2.29分钟。",
+        "两座实际机场候选与可验证的民用海上交通关系，为后续海陆交通原型提供依据。"
+      ],
+      "tradeoffs": [
+        "没有台湾本岛，不能称为覆盖两岸本岛的完整海峡地图；需要用户知情选择。",
+        "高速喷气机短时间接近边界，需设计真实范围内的后方空域与转弯空间；不能压缩机场与空中出生距离规则。",
+        "海运较短仍需要实体承运、装卸与登陆设施，不代表坦克可跨水驾驶或凭空到达。"
+      ],
+      "recommended": false,
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan",
+      "fictionalFrontRequirement": "For immediate tank play, author an already-established fictional local land front; the compact map still contains separate land components connected only by valid sea transport or actual bridges.",
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSAM_RCBS",
+        "referencePointSpanKm": 26.757,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 43.34,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      }
+    }
+  ],
+  "airportCandidates": [
+    {
+      "id": "RCBS",
+      "name": "Kinmen Airport",
+      "latitude": 24.4279,
+      "longitude": 118.359001,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "06",
+          "endB": "24",
+          "lengthMApprox": 3000.1,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "ASP"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCFG",
+      "name": "Matsu Nangan Airport",
+      "latitude": 26.159656,
+      "longitude": 119.958376,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "03",
+          "endB": "21",
+          "lengthMApprox": 1578.9,
+          "widthMApprox": 29.9,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCKU",
+      "name": "Chiayi Airport",
+      "latitude": 23.462577,
+      "longitude": 120.390544,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "18",
+          "endB": "36",
+          "lengthMApprox": null,
+          "widthMApprox": null,
+          "surfaceSourceCode": "UNK"
+        },
+        {
+          "endA": "18L",
+          "endB": "36R",
+          "lengthMApprox": 1617.6,
+          "widthMApprox": 22.6,
+          "surfaceSourceCode": "ASP"
+        },
+        {
+          "endA": "18R",
+          "endB": "36L",
+          "lengthMApprox": 3050.1,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCMQ",
+      "name": "Taichung International Airport / Ching Chuang Kang Air Base",
+      "latitude": 24.2647,
+      "longitude": 120.621002,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "18",
+          "endB": "36",
+          "lengthMApprox": 3657.6,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCMT",
+      "name": "Matsu Beigan Airport",
+      "latitude": 26.22414,
+      "longitude": 120.002679,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "03",
+          "endB": "21",
+          "lengthMApprox": 1150.0,
+          "widthMApprox": 29.9,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCNN",
+      "name": "Tainan International Airport / Tainan Air Base",
+      "latitude": 22.950399,
+      "longitude": 120.206001,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "18L",
+          "endB": "36R",
+          "lengthMApprox": 3050.1,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CON"
+        },
+        {
+          "endA": "18R",
+          "endB": "36L",
+          "lengthMApprox": 3050.1,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCQC",
+      "name": "Penghu Magong Airport",
+      "latitude": 23.568701,
+      "longitude": 119.627998,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "02",
+          "endB": "20",
+          "lengthMApprox": 3000.1,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCSS",
+      "name": "Taipei Songshan International Airport",
+      "latitude": 25.067244,
+      "longitude": 121.552822,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "10",
+          "endB": "28",
+          "lengthMApprox": 2605.1,
+          "widthMApprox": 60.0,
+          "surfaceSourceCode": "ASP"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCTP",
+      "name": "Taiwan Taoyuan International Airport",
+      "latitude": 25.0777,
+      "longitude": 121.233002,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "05L",
+          "endB": "23R",
+          "lengthMApprox": 3660.0,
+          "widthMApprox": 60.0,
+          "surfaceSourceCode": "CON"
+        },
+        {
+          "endA": "05R",
+          "endB": "23L",
+          "lengthMApprox": 3350.1,
+          "widthMApprox": 60.0,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "ZSAM",
+      "name": "Xiamen Gaoqi International Airport",
+      "latitude": 24.543889,
+      "longitude": 118.127454,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "05",
+          "endB": "23",
+          "lengthMApprox": 3400.0,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "ASP"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "ZSFZ",
+      "name": "Fuzhou Changle International Airport",
+      "latitude": 25.929254,
+      "longitude": 119.672524,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "03",
+          "endB": "21",
+          "lengthMApprox": 3600.0,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CONC"
+        },
+        {
+          "endA": "04",
+          "endB": "22",
+          "lengthMApprox": 3600.0,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "CONC"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "ZSQZ",
+      "name": "Quanzhou Jinjiang International Airport",
+      "latitude": 24.795855,
+      "longitude": 118.588599,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "03",
+          "endB": "21",
+          "lengthMApprox": 2599.9,
+          "widthMApprox": 50.0,
+          "surfaceSourceCode": "ASP"
+        }
+      ],
+      "status": "geographic_candidate_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "era-specific fictional footprint; real airport construction date does not dictate fictional fixture without disclosure",
+        "actual usable runway mesh and collision surface",
+        "takeoff/landing distance at allowed aircraft mass and atmosphere",
+        "slope, obstacles, taxiway access and repairable runway segments",
+        "friendly control, light logistics, service-zone validity and spawn separation"
+      ]
+    },
+    {
+      "id": "RCKH",
+      "name": "Kaohsiung International Airport",
+      "latitude": 22.577101,
+      "longitude": 120.349998,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "09",
+          "endB": "27",
+          "lengthMApprox": 3150.1,
+          "widthMApprox": 60.0,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCKW",
+      "name": "Hengchun Airport",
+      "latitude": 22.0411,
+      "longitude": 120.730003,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "14",
+          "endB": "32",
+          "lengthMApprox": 1699.9,
+          "widthMApprox": 29.9,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCFN",
+      "name": "Taitung Airport",
+      "latitude": 22.754856,
+      "longitude": 121.101794,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "04",
+          "endB": "22",
+          "lengthMApprox": 2438.1,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "PEM"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCYU",
+      "name": "Hualien Chiashan Airport",
+      "latitude": 24.023163,
+      "longitude": 121.617991,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "03",
+          "endB": "21",
+          "lengthMApprox": 2749.9,
+          "widthMApprox": 45.1,
+          "surfaceSourceCode": "PEM"
+        },
+        {
+          "endA": "03R",
+          "endB": "21L",
+          "lengthMApprox": 2744.7,
+          "widthMApprox": 22.9,
+          "surfaceSourceCode": "ASP"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCGI",
+      "name": "Lüdao Airport",
+      "latitude": 22.673901,
+      "longitude": 121.466003,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "17",
+          "endB": "35",
+          "lengthMApprox": 992.1,
+          "widthMApprox": 22.9,
+          "surfaceSourceCode": "ASP"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCLY",
+      "name": "Lanyu Airport",
+      "latitude": 22.027000427246094,
+      "longitude": 121.53500366210938,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "13",
+          "endB": "31",
+          "lengthMApprox": 1174.1,
+          "widthMApprox": 24.1,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCWA",
+      "name": "Wang'an Airport",
+      "latitude": 23.369108,
+      "longitude": 119.503598,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [
+        {
+          "endA": "02",
+          "endB": "20",
+          "lengthMApprox": 929.9,
+          "widthMApprox": 23.2,
+          "surfaceSourceCode": "CON"
+        }
+      ],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    },
+    {
+      "id": "RCCM",
+      "name": "Qimei Airport",
+      "latitude": 23.213127,
+      "longitude": 119.417539,
+      "source": "ourairports_csv_snapshot",
+      "runwaysFromCommunitySnapshot": [],
+      "status": "geographic_reference_only_not_validated_game_airfield",
+      "eligibilityRequired": [
+        "dated official runway geometry and explicit fictional-era fixture",
+        "actual aircraft type/mass/fuel takeoff and landing viability",
+        "slope/obstacles/taxiway/contact mesh and local runway repair validation",
+        "friendly ownership, functional light logistics and accepted service-zone validity"
+      ],
+      "shortFieldRule": "Island/short fields are geographic reference points only; never grant every jet a spawn because an airport is listed."
+    }
+  ],
+  "computedReferenceRoutes": [
+    {
+      "id": "ZSQZ_RCQC",
+      "fromAirport": "ZSQZ",
+      "toAirport": "RCQC",
+      "distanceKm": 172.126,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 20.66,
+        "700": 14.75,
+        "900": 11.48
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCQC_RCKU",
+      "fromAirport": "RCQC",
+      "toAirport": "RCKU",
+      "distanceKm": 78.76,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 9.45,
+        "700": 6.75,
+        "900": 5.25
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCQC_RCMQ",
+      "fromAirport": "RCQC",
+      "toAirport": "RCMQ",
+      "distanceKm": 127.139,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 15.26,
+        "700": 10.9,
+        "900": 8.48
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSQZ_RCMQ",
+      "fromAirport": "ZSQZ",
+      "toAirport": "RCMQ",
+      "distanceKm": 214.18,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 25.7,
+        "700": 18.36,
+        "900": 14.28
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSQZ_RCKU",
+      "fromAirport": "ZSQZ",
+      "toAirport": "RCKU",
+      "distanceKm": 235.277,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 28.23,
+        "700": 20.17,
+        "900": 15.69
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSAM_RCBS",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCBS",
+      "distanceKm": 26.757,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 3.21,
+        "700": 2.29,
+        "900": 1.78
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSAM_RCQC",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCQC",
+      "distanceKm": 186.968,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 22.44,
+        "700": 16.03,
+        "900": 12.46
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCQC_RCNN",
+      "fromAirport": "RCQC",
+      "toAirport": "RCNN",
+      "distanceKm": 90.481,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 10.86,
+        "700": 7.76,
+        "900": 6.03
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSAM_RCNN",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCNN",
+      "distanceKm": 275.766,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 33.09,
+        "700": 23.64,
+        "900": 18.38
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSFZ_RCTP",
+      "fromAirport": "ZSFZ",
+      "toAirport": "RCTP",
+      "distanceKm": 183.058,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 21.97,
+        "700": 15.69,
+        "900": 12.2
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSFZ_RCFG",
+      "fromAirport": "ZSFZ",
+      "toAirport": "RCFG",
+      "distanceKm": 38.34,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 4.6,
+        "700": 3.29,
+        "900": 2.56
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCFG_RCTP",
+      "fromAirport": "RCFG",
+      "toAirport": "RCTP",
+      "distanceKm": 175.372,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 21.04,
+        "700": 15.03,
+        "900": 11.69
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCTP_RCKH",
+      "fromAirport": "RCTP",
+      "toAirport": "RCKH",
+      "distanceKm": 291.198,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 34.94,
+        "700": 24.96,
+        "900": 19.41
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCTP_RCKW",
+      "fromAirport": "RCTP",
+      "toAirport": "RCKW",
+      "distanceKm": 340.207,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 40.82,
+        "700": 29.16,
+        "900": 22.68
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCTP_RCYU",
+      "fromAirport": "RCTP",
+      "toAirport": "RCYU",
+      "distanceKm": 123.147,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 14.78,
+        "700": 10.56,
+        "900": 8.21
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCYU_RCFN",
+      "fromAirport": "RCYU",
+      "toAirport": "RCFN",
+      "distanceKm": 150.049,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 18.01,
+        "700": 12.86,
+        "900": 10.0
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCFN_RCKH",
+      "fromAirport": "RCFN",
+      "toAirport": "RCKH",
+      "distanceKm": 79.732,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 9.57,
+        "700": 6.83,
+        "900": 5.32
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "ZSAM_RCKH",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCKH",
+      "distanceKm": 314.526,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 37.74,
+        "700": 26.96,
+        "900": 20.97
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "ZSFZ_RCYU",
+      "fromAirport": "ZSFZ",
+      "toAirport": "RCYU",
+      "distanceKm": 288.376,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 34.61,
+        "700": 24.72,
+        "900": 19.23
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCQC_RCKH",
+      "fromAirport": "RCQC",
+      "toAirport": "RCKH",
+      "distanceKm": 132.41,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 15.89,
+        "700": 11.35,
+        "900": 8.83
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    }
+  ],
+  "airfieldDataDiscrepancies": [
+    {
+      "airport": "RCTP",
+      "issue": "Community runway snapshot lists05R/23L10991ft≈3350m; official transport source describes3800m.",
+      "decision": "Do not import snapshot runway length as authority. Resolve official dated aerodrome geometry for the intended fictional era and fixture before implementation."
+    },
+    {
+      "airport": "ZSFZ",
+      "issue": "Community current snapshot includes two runway records, while older official documents describe one and a second under development.",
+      "decision": "Pin a dated source and fictional-era fixture. Do not mix different construction phases or infer a historical airport layout from current CSV."
+    }
+  ],
+  "roundAndTransitImplications": {
+    "centralExamples": [
+      "Jinjiang→Penghu172.13km≈14.75min at700km/h.",
+      "Penghu→Chiayi78.76km≈6.75min at700km/h.",
+      "Jinjiang→Taichung214.18km≈18.36min at700km/h; direct return alone makes≈36.7min before takeoff/combat/landing."
+    ],
+    "earlyJetConstraint": "500km/h illustrative groundspeed raises Jinjiang→Taichung one-way travel to25.70min.45min rounds must not assume a distant early-jet base can support many full return sorties. Use eligible closer airfields/fictional ground deployments within the real map or select a different combat sector; validate fuel before publishing.",
+    "seaborneExamples": {
+      "assumedGameTransportSpeedKnots": 20,
+      "assumedGameTransportSpeedKmh": 37.04,
+      "conversion": "1kn=1.852km/h; elapsed minutes=routeKm/37.04×60",
+      "notARealShipSpecification": true,
+      "distanceKmToOneWayMinutes": {
+        "10": 16.2,
+        "20": 32.4,
+        "30": 48.6,
+        "40": 64.79,
+        "80": 129.59,
+        "150": 242.98,
+        "200": 323.97,
+        "250": 404.97
+      },
+      "interpretation": "Explicit game-design sea-leg examples, not measured routes between named actual ports. Valid coastline-avoiding routes, loading/unloading and manoeuvring add time. At20kn a60min round covers at most37.04km without those overheads; a200km leg takes≈324min."
+    },
+    "gameplayInference": "User selected the full Taiwan main-island theatre. At1:1, large cross-strait sea passages exceed a45–90min round under the explicit20kn example; begin with fictional existing ground fronts and physically nearby/underway reinforcements, retain actual long voyages, and concentrate combat within one campaign focus region. Compact/local alternatives are historical comparisons only.",
+    "sixtyMinuteFixtureRule": "Selected full-island map: begin with fictional existing ground fronts/beachheads and physical nearshore standby transports with explicit time0positions/cargo. A20kn vessel covers only37.04km per hour before loading/unloading; strategic200km passage takes≈324min. Initial standby locations do not imply a full strait crossing happened inside this match. All later motion preserves geography and entity continuity.",
+    "fullIslandExamples": [
+      {
+        "routeId": "RCTP_RCKH",
+        "distanceKm": 291.198,
+        "minutesAt700Kmh": 24.96
+      },
+      {
+        "routeId": "RCTP_RCKW",
+        "distanceKm": 340.207,
+        "minutesAt700Kmh": 29.16
+      },
+      {
+        "routeId": "RCTP_RCYU",
+        "distanceKm": 123.147,
+        "minutesAt700Kmh": 10.56
+      },
+      {
+        "routeId": "RCYU_RCFN",
+        "distanceKm": 150.049,
+        "minutesAt700Kmh": 12.86
+      },
+      {
+        "routeId": "RCFN_RCKH",
+        "distanceKm": 79.732,
+        "minutesAt700Kmh": 6.83
+      },
+      {
+        "routeId": "ZSAM_RCKH",
+        "distanceKm": 314.526,
+        "minutesAt700Kmh": 26.96
+      },
+      {
+        "routeId": "ZSFZ_RCYU",
+        "distanceKm": 288.376,
+        "minutesAt700Kmh": 24.72
+      },
+      {
+        "routeId": "RCQC_RCKH",
+        "distanceKm": 132.41,
+        "minutesAt700Kmh": 11.35
+      }
+    ],
+    "fuelAndReliefGate": "At500km/h illustrative groundspeed, Taoyuan→Kaohsiung takes≈34.94min one way before climb/combat/return. Each era must use a valid closer controlled field for routine local support, with farther airborne deployment as previously agreed. Direct east/west reference lines across central mountains require terrain clearance; never treat the straight line as a guaranteed low-altitude route."
+  },
+  "groundAndMaritimeFrontDesign": {
+    "frontlineModel": "Maintain one ground-front graph per physically connected land component. A ground front does not stretch as a traversable line over sea. Strategic objectives may connect components only through explicit transport operations.",
+    "suggestedStartState": "For the selected full-island theatre, time0contains opposing fictional companies and owned deployment pockets on a chosen continuous main-island ground sector, with optional adjacent island/sea objectives. Existing beachheads and nearby standby reinforcement ships are authored initial game state, not current real positions. No exact real deployment/attack locations are selected in this study.",
+    "activeSectorBudget": "Begin with one primary10–25km-scale contiguous land sector and one optional secondary island sector; terrain extent remains full1:1. Concentrate existing human/company budgets instead of inventing unlimited active formations over the entire bounding box.",
+    "transportLifecycle": [
+      "Ground company moves along accepted land route to a friendly embark staging area.",
+      "Carrier capacity and permissible vehicle mass determine which surviving tank entities can embark.",
+      "Embarked tank entities retain owner/life/ammo/damage and cannot drive/fire as separate ground tanks.",
+      "Carrier follows a sea graph with coast/land exclusion, water depth/draft clearance, turning radius and valid ports.",
+      "Disembark only at an authored accessible friendly port or validated temporary landing facility with a supported ramp/contact mesh.",
+      "Disembarked entities rejoin the destination land graph; enemy control or destroyed access blocks new deployment until restored.",
+      "Transport destruction has explicit accepted cargo casualty/recovery rules; a lost company cannot silently reappear at its destination."
+    ],
+    "beachheads": "Fictional initial lodgments or captured ports establish actual owned deployable areas. Port capture alone does not flip an island; companies still contest local roads/objectives and need a functioning supply connection. Temporary facilities must be visibly authored and physically usable.",
+    "longVoyagePolicy": "Prefer some initial convoys already at sea with documented initial positions/cargo and visible ETA. Later departures may not finish this round; no hidden instant crossing. If an off-map strategic arrival queue is later used, label it as external theatre supply rather than a simulated completed voyage.",
+    "localSupply": "Ground trucks on the destination landmass connect functioning port/depot/field service nodes to owned sectors. Losing bridges, ramps or depots interrupts valid routes and limits service availability.",
+    "bridges": "Destructible bridges and temporary bridges apply to surveyed local land/water gaps with valid banks, load and slope; they never span the strait as a tank road.",
+    "commandAndIntel": "Move/Attack/Defend commands check the correct land/sea multimodal graph. Tactical-map enemy markers follow discovery/shared intel/stale-position rules; transport routes cannot read omniscient enemy positions.",
+    "entityBudget": "Ships, embarked cargo, mobile tanks and remote sectors remain in the same accepted simulation. Use authoritative coarse remote simulation and render LOD only after defining event invariants; never delete units merely because a mobile client cannot draw them."
+  },
+  "realDataPipeline": {
+    "landElevation": {
+      "candidate": "Copernicus GLO30 public COG",
+      "proof": "research/taiwan-dem-availability.json",
+      "interpretation": "Native representative tile successfully read3600×3600float32EPSG4326 at1arc-second. This proves sample coverage only, not complete selected-option coverage. DSM includes vegetation/buildings; roads/runways need validated terrain shaping and mesh evidence.",
+      "fullCoverageGate": "36one-degree candidate cells intersect selected full-map bounds;23keys are present in downloaded publicGLO30tileList. Availability inventory is retained in research/taiwan-dem-availability.json. Only representative N23E119 data was actually read. Classify13nonlisted cells using proper coastline/ocean mask; do not declare complete terrain coverage before required land/void/datum checks and actual per-tile import."
+    },
+    "coastlineAndRoads": {
+      "candidate": "Processed OSM coastlines/water/land polygons plus dated regional OSM roads/bridges/ports extracts",
+      "required": "Do not use height==0 alone as the sea mask. Validate topological island separation, coastline continuity, bridge level/layer/access and road surface continuity with source DEM. A port tag is a geographic lead, not a verified loading terminal."
+    },
+    "bathymetry": {
+      "candidate": "GEBCO2026subset plus TID grid",
+      "nativeIntervalArcseconds": 15,
+      "approximateCellMAt24N": {
+        "northSouth": 461.5,
+        "eastWest": 423.9
+      },
+      "status": "Source availability researched; no bathymetry subset downloaded and no navigable route certified.",
+      "limitation": "≈0.4–0.46km cells cannot prove a tank landing ramp, harbour shoal or individual ship draft clearance. Require finer compatible data or explicitly authored, tested local shoreline/port bathymetry. Copernicus ocean zeros are not seafloor."
+    },
+    "metricWorld": {
+      "proposal": "Select local metric frame after extent selection; WGS84 geodesic distances remain the measurement reference. AEQD centred on the chosen extent is a candidate.",
+      "required": "Quantify scale error over full117.80–122.35E/21.65–26.50N theatre; do not mix UTM50/51 eastings or degrees as metres. Define a stable global origin/axes, local metric conversion, vertical datum, water reference and floating-render-origin conversion."
+    },
+    "performance": "Hundreds of kilometres require streamed/LOD terrain, origin precision strategy and far-field simulation. Keep active-front geometry/collision precise while preserving actual travel distances. Prototype frame/network budgets before promising all named facilities fully modelled.",
+    "streamingFullTheatre": {
+      "coverage": "Full bounds are represented in the world/strategic map; streamed render/detail assets load around cameras, units, predicted flight corridors and campaign objectives.",
+      "candidateChunkPlan": "Prototype hierarchical terrain cells, e.g.16km base cells with finer native-derived contact geometry near accepted interactions and coarser visual LOD at distance; this is an unbenchmarked design candidate.",
+      "precision": "Use a stable global/geodetic authority plus documented local metric frames and floating camera/render origins; preserve deterministic coordinate conversion across server/native/WASM/replay. Quantify projection scale error across the full≈463×537km extent.",
+      "physics": "Streaming visibility must not determine whether terrain/sea/bridges exist to accepted motion. Authoritative queries need valid terrain everywhere reachable and exact validated surfaces where vehicles interact; unsafe data holes block publication.",
+      "budget": "Benchmark realistic16–24total human participants, company AI, aircraft, transports and remote simulation across the full world. Optimise renderer/mobile detail without deleting accepted entities or splitting a company into anonymous counters.",
+      "supplyContinuity": "Ship cargo and nearshore standby reinforcements keep owner/life/ammo/damage and visible positions/ETA; carriers follow validated sea corridors. Local friendly port/depot supply links support the active sector while full-crossing strategic routes retain their long time cost."
+    }
+  },
+  "recommendedDecision": {
+    "extent": "full_taiwan_strait",
+    "status": "selected_by_explicit_user_answer",
+    "userAnswer": "include full taiwan",
+    "selectionMeaning": "Entire Taiwan main island plus retained mainland coast/Penghu/Kinmen/Matsu,1:1; do not re-ask partial extent choices.",
+    "implementationFocusRecommendation": "Maintain the full streamed world and rotate one primary combined-arms sector per round. Exact fictional deployments, airport fixtures and ports remain authoring decisions subject to real terrain validation.",
+    "resolvedQuestions": [
+      "Taiwan main island coverage is full, not partial or absent.",
+      "Previous compact/partial alternatives are comparison only."
+    ],
+    "remainingDesignFacts": [
+      "60min rounds require fictional existing ground fronts and nearshore standby physical reinforcements; long ocean transit stays long.",
+      "Nearer-airfield/farther-airborne spawn rules, era eligibility and real fuel validation remain required."
+    ]
+  },
+  "acceptanceBeforeImplementation": [
+    "Implement selected full_taiwan_strait bounds, verify entire Taiwan main island remains present, retain mainland coast/Penghu/Kinmen/Matsu, and never switch back to a partial comparison option without user steering.",
+    "All candidate airfields receive dated source geometry, era-specific fixture labels, takeoff/landing/fuel checks and nearer-field/farther-airborne spawn validation.",
+    "Full selected bounds have tile inventory, license/datum/checksum provenance, coastline mask and representative source-to-engine coordinate checks.",
+    "The selected land-component ground-sector route graph is connected, bridges are typed/validated, and no land-route edge crosses open water; main-island options include a main-island ground sector.",
+    "At least one complete transport embark→sea transit→disembark→owned-company continuation is demonstrated with preserved life/ammo/damage; time0 standby ships and fictional beachheads are clearly distinguished from dynamic reinforcement voyages.",
+    "Accepted terrain/contact, runway/bridge repairs, AI/player damage, intel and company ownership obey existing source-matched native/WASM/replay requirements.",
+    "A45min and90min fixture each demonstrate meaningful ground play and air support for their permitted early/late-era roster without time/distance compression.",
+    "Demonstrate whole-island terrain streaming and strategic map while a16–24human combined fixture retains an active focused battle, physical distant companies/ships and correct nearshore standby versus new strategic transport ETAs."
+  ],
+  "sources": [
+    {
+      "id": "ourairports",
+      "kind": "data-maintainer_primary",
+      "url": "https://ourairports.com/data/",
+      "dataUrls": [
+        "https://davidmegginson.github.io/ourairports-data/airports.csv",
+        "https://davidmegginson.github.io/ourairports-data/runways.csv"
+      ],
+      "supports": "Community airport/runway inventory and coordinate-based planning; public domain; updated nightly; no accuracy or fitness guarantee. Snapshot hashes and Last-Modified retained in research/taiwan-airports-source.json."
+    },
+    {
+      "id": "caa_airport_inventory",
+      "kind": "official_primary",
+      "url": "https://www.caa.gov.tw/Article.aspx?a=982&lang=2",
+      "supports": "Official civil-airport directory includes Penghu, Kinmen, Taichung, Chiayi, Tainan, Taoyuan, Songshan and Matsu. Does not establish jet eligibility or historical availability."
+    },
+    {
+      "id": "xiamen_operator",
+      "kind": "airport_operator_primary",
+      "url": "https://www.arport.com.cn/gywm/gywm.aspx",
+      "supports": "Operator describes Gaoqi airport and a3400m runway, consistent with community snapshot after feet conversion. Geographic modelling reference only."
+    },
+    {
+      "id": "jinjiang_government_record",
+      "kind": "official_primary_historical_record",
+      "url": "https://swt.fujian.gov.cn/xxgk/jgzn/jgcs/kaglc/kagk/201508/t20150831_2444008.htm",
+      "supports": "2015 record describes2600m Jinjiang runway; current operational details are not inferred from this old record."
+    },
+    {
+      "id": "chiayi_eaip",
+      "kind": "official_primary",
+      "url": "https://ais.caa.gov.tw/eaip/AIRAC%20AIP%20AMDT%2003-26_2026_08_06/eAIP/RC-AD%202%20RCKU%20%E5%98%89%E7%BE%A9CHIAYI-zh-TW.html",
+      "supports": "CAA aerodrome page lists3050×45m main runway; runway use requires per-fixture validation."
+    },
+    {
+      "id": "nangan_eaip",
+      "kind": "official_primary",
+      "url": "https://ais.caa.gov.tw/eaip/AIRAC%20AIP%20AMDT%2003-26_2026_08_06/eAIP/RC-AD%202%20RCFG%20%E9%A6%AC%E7%A5%96-%E5%8D%97%E7%AB%BFMATSU-NANGAN-zh-TW.html",
+      "supports": "CAA lists1579×30m runway. A real listed airport is not automatically a general jet spawn."
+    },
+    {
+      "id": "taoyuan_official_education",
+      "kind": "official_primary",
+      "url": "https://transport-curation.nat.gov.tw/TIAC/FlightTips01.html",
+      "supports": "Official transport exhibition explains3660m/3800m Taoyuan runways. Community snapshot differs for the south runway, so source discrepancy must be resolved before geometry authoring."
+    },
+    {
+      "id": "copernicus_dsm",
+      "kind": "official_primary",
+      "url": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+      "supports": "Copernicus DEM is a DSM containing buildings/infrastructure/vegetation, not a guaranteed bare-earth road or runway contact surface."
+    },
+    {
+      "id": "copernicus_cog_maintainer",
+      "kind": "data-maintainer_primary",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/readme.html",
+      "supports": "Public COG tile naming/grid1arc-second at these latitudes; ocean zero values are not seabed depths. Tile N23E119 actually downloaded/read; proof in research/taiwan-dem-availability.json."
+    },
+    {
+      "id": "osm_coastline",
+      "kind": "data-maintainer_primary",
+      "url": "https://osmdata.openstreetmap.de/data/coastlines.html",
+      "supports": "Processed OSM coastline lines; use corresponding water/land polygons plus validated coastal mesh for land/sea masks."
+    },
+    {
+      "id": "osm_license",
+      "kind": "data-maintainer_primary",
+      "url": "https://www.openstreetmap.org/copyright",
+      "supports": "OSM attribution and ODbL obligations; preserve source revisions and derived database provenance."
+    },
+    {
+      "id": "gebco_grid",
+      "kind": "data-maintainer_primary",
+      "url": "https://www.gebco.net/data-products/gridded-bathymetry-data",
+      "supports": "Current GEBCO2026 grid is15arc-second ocean/land elevation; subset download, Type Identifier grid and attribution available. Broad seafloor only; shallow-water datum/source quality differs."
+    },
+    {
+      "id": "gebco_terms",
+      "kind": "data-maintainer_primary",
+      "url": "https://www.gebco.net/data-products-gridded-bathymetry-data/gebco2026-grid",
+      "supports": "Public-domain grid with attribution; mixed/interpolated underlying measurements and explicit no-navigation limitation. Fine beach/port water-depth validation is not proved."
+    },
+    {
+      "id": "kinmen_local_transport",
+      "kind": "official_primary",
+      "url": "https://lieyu.kinmen.gov.tw/cp.aspx?n=A6488ABECB4F8E7D",
+      "supports": "Local-government transport directory identifies Shuitou–Xiamen Wutong/Shijing civil ferry connections. Confirms maritime separation and transport relation only; does not prove a tank transport terminal or loading ramp."
+    },
+    {
+      "id": "civil_ferry_operator",
+      "kind": "transport_operator_primary",
+      "url": "https://www.darong.com.tw/faq.aspx",
+      "supports": "Operator states Shuitou–Wutong civil passenger ferry transit about30–40min depending on ship. Civil ferry time/capacity is not imported as a tank-carrier specification."
+    },
+    {
+      "id": "official_island_description",
+      "kind": "official_primary",
+      "url": "https://www.ey.gov.tw/state/4447F4A951A1EC45/094b1d53-de8d-4393-bde6-ab092969cce4",
+      "supports": "ExecutiveYuan/MOI2025-05-28land summary describes Taiwan main-island length394km and maximum width144km. Not the map rectangle dimensions."
+    },
+    {
+      "id": "official_boundary_geometry",
+      "kind": "official_data_provider_primary",
+      "url": "https://data.gov.tw/dataset/7442",
+      "downloadIndex": "https://maps.nlsc.gov.tw/pro/download.jsp",
+      "supports": "NLSC official county boundary archive actually downloaded/read. Actual archive member COUNTY_MOI_1090820.shp is2020-08-20; source/version/checksum and19main-island ring-envelope verification embedded. OpenGovernmentDataLicensev1."
+    },
+    {
+      "id": "southern_tip_official",
+      "kind": "official_primary",
+      "url": "https://www.ktnp.gov.tw/News_Content2.aspx?n=5C28A0E32DF925F9&s=12B50A42609AF1D8&sms=C88B5251F308CE96",
+      "supports": "KentingNationalPark identifies Taiwan main-island southernmost point nearEluanbi and gives21°53′59″N120°50′00″E, inside selected bounds."
+    },
+    {
+      "id": "northern_tip_official",
+      "kind": "official_primary",
+      "url": "https://www.taiwan.net.tw/m1.aspx?id=732&sNo=0001016",
+      "supports": "TourismAdministration identifies FuguiCape as the northern tip; visitor-page coordinate is a POI reference rather than surveyed coastline vertex."
+    },
+    {
+      "id": "matsu_extent_official",
+      "kind": "official_primary",
+      "url": "https://www.forest.gov.tw/file/79614",
+      "supports": "Officially hosted MatsuGeoparkGGNapplication lists archipelago extremes around119°54′04″–120°30′08″E and25°56′04″–26°23′08″N; selected bounds include that envelope."
+    }
+  ],
+  "supportingFiles": [
+    "research/taiwan-airports-source.json",
+    "research/taiwan-distance-options.json",
+    "research/taiwan-dem-availability.json"
+  ],
+  "selectedExtentId": "full_taiwan_strait",
+  "updatedAtUtc": "2026-10-24T13:17:40.586372+00:00",
+  "fullIslandGeographicVerification": {
+    "officialPolygonProof": {
+      "status": "official_polygon_extent_downloaded_and_verified",
+      "datasetPage": "https://data.gov.tw/dataset/7442",
+      "downloadIndex": "https://maps.nlsc.gov.tw/pro/download.jsp",
+      "downloadUrl": "https://maps.nlsc.gov.tw/download/%E7%B8%A3%E5%B8%82%E7%95%8C%E7%B7%9A%28TWD97%E7%B6%93%E7%B7%AF%E5%BA%A6%29.zip",
+      "bytes": 3708666,
+      "sha256": "0c6fca34a92b92ef3e9a41957e403cb89e814bb64942ca7c7e51c746f913d49d",
+      "downloadedAtUtc": "2026-10-24T13:14:26.988905+00:00",
+      "actualDatasetMember": "COUNTY_MOI_1090820.shp",
+      "actualSourceVersion": "2020-08-20 from archive name; download page lists update2025-11-18 but this archive member remains1090820. Do not mislabel geometry as2025survey.",
+      "license": "Open Government Data License,version1.0 per official dataset page",
+      "sourceCrs": "EPSG:3824 TWD97 geographic GRS80",
+      "measurementCrs": "EPSG:4326 after pyproj Transformer(always_xy=True)",
+      "countyRecordCount": 22,
+      "method": "For each of19main-island county/city records, select the polygon ring with greatest absolute WGS84 geodesic area; exclude Penghu,Kinmen,Lienchiang county records. Check combined vertex extrema lie within selected theatre. This bounds evidence is not a modern sea/land collision mesh or a topological coastline union.",
+      "chosenCountyRingCount": 19,
+      "mainIslandCountyOuterRingEnvelopeWgs84": [
+        120.02690556700009,
+        21.895599675000085,
+        122.007494458,
+        25.300305479000087
+      ],
+      "mainIslandEnvelopeDimensionsKm": {
+        "eastWestAtMiddleLatitude": 202.14795908020523,
+        "northSouthAtMiddleLongitude": 377.0802724118878
+      },
+      "selectedTheatreBoundsWgs84": [
+        117.8,
+        21.65,
+        122.35,
+        26.5
+      ],
+      "allSelectedMainIslandRingVerticesInsideTheatre": true,
+      "countyRings": [
+        {
+          "county": "宜蘭縣",
+          "largestRingAreaKm2": 2192.563,
+          "vertexCount": 14304,
+          "boundsWgs84": [
+            121.31765886400001,
+            24.309426208000048,
+            121.96602789100007,
+            24.98843581600005
+          ]
+        },
+        {
+          "county": "彰化縣",
+          "largestRingAreaKm2": 1244.705,
+          "vertexCount": 6469,
+          "boundsWgs84": [
+            120.2203552200001,
+            23.78561319000005,
+            120.68394791600008,
+            24.207186205000085
+          ]
+        },
+        {
+          "county": "南投縣",
+          "largestRingAreaKm2": 4098.543,
+          "vertexCount": 17400,
+          "boundsWgs84": [
+            120.61549033900008,
+            23.43541038300009,
+            121.34969556100009,
+            24.24587331300006
+          ]
+        },
+        {
+          "county": "雲林縣",
+          "largestRingAreaKm2": 1373.207,
+          "vertexCount": 8468,
+          "boundsWgs84": [
+            120.11443117800002,
+            23.50432005600004,
+            120.73615724500007,
+            23.86622234500004
+          ]
+        },
+        {
+          "county": "基隆市",
+          "largestRingAreaKm2": 136.019,
+          "vertexCount": 4758,
+          "boundsWgs84": [
+            121.62678621100008,
+            25.05247269700004,
+            121.8081727760001,
+            25.176565305000054
+          ]
+        },
+        {
+          "county": "臺北市",
+          "largestRingAreaKm2": 269.88,
+          "vertexCount": 8473,
+          "boundsWgs84": [
+            121.45714093900006,
+            24.960502697000038,
+            121.66593430800003,
+            25.21017520500004
+          ]
+        },
+        {
+          "county": "新北市",
+          "largestRingAreaKm2": 2336.357,
+          "vertexCount": 23551,
+          "boundsWgs84": [
+            121.28268039500006,
+            24.67319375900007,
+            122.007494458,
+            25.300305479000087
+          ]
+        },
+        {
+          "county": "臺中市",
+          "largestRingAreaKm2": 2240.189,
+          "vertexCount": 10346,
+          "boundsWgs84": [
+            120.45655266000006,
+            23.998557382000058,
+            121.45200501700003,
+            24.44148940900004
+          ]
+        },
+        {
+          "county": "臺南市",
+          "largestRingAreaKm2": 2258.99,
+          "vertexCount": 9628,
+          "boundsWgs84": [
+            120.02690556700009,
+            22.887506100000053,
+            120.6562675780001,
+            23.413741868000045
+          ]
+        },
+        {
+          "county": "桃園市",
+          "largestRingAreaKm2": 1217.443,
+          "vertexCount": 15371,
+          "boundsWgs84": [
+            120.98202546100003,
+            24.586456827000063,
+            121.47998818300005,
+            25.12361560700009
+          ]
+        },
+        {
+          "county": "苗栗縣",
+          "largestRingAreaKm2": 1827.03,
+          "vertexCount": 8460,
+          "boundsWgs84": [
+            120.62185385400005,
+            24.28851612400007,
+            121.26263296700006,
+            24.741091053000048
+          ]
+        },
+        {
+          "county": "嘉義市",
+          "largestRingAreaKm2": 59.729,
+          "vertexCount": 1932,
+          "boundsWgs84": [
+            120.38915221400009,
+            23.439557556000068,
+            120.509371515,
+            23.518429800000035
+          ]
+        },
+        {
+          "county": "嘉義縣",
+          "largestRingAreaKm2": 2012.247,
+          "vertexCount": 12286,
+          "boundsWgs84": [
+            120.11805319100006,
+            23.21478445200006,
+            120.95751490300006,
+            23.63591295300006
+          ]
+        },
+        {
+          "county": "高雄市",
+          "largestRingAreaKm2": 2997.269,
+          "vertexCount": 12474,
+          "boundsWgs84": [
+            120.1746653780001,
+            22.46847671900008,
+            121.0490304430001,
+            23.471713519000048
+          ]
+        },
+        {
+          "county": "臺東縣",
+          "largestRingAreaKm2": 3521.357,
+          "vertexCount": 16271,
+          "boundsWgs84": [
+            120.73905203100003,
+            22.22980814500005,
+            121.49609509200002,
+            23.443813754000075
+          ]
+        },
+        {
+          "county": "花蓮縣",
+          "largestRingAreaKm2": 4606.046,
+          "vertexCount": 18768,
+          "boundsWgs84": [
+            120.98656461900009,
+            23.09778067600007,
+            121.77405669200004,
+            24.37055273900006
+          ]
+        },
+        {
+          "county": "新竹市",
+          "largestRingAreaKm2": 124.464,
+          "vertexCount": 4027,
+          "boundsWgs84": [
+            120.87452940000003,
+            24.71259658700007,
+            121.03353589200006,
+            24.854813765000138
+          ]
+        },
+        {
+          "county": "新竹縣",
+          "largestRingAreaKm2": 1411.785,
+          "vertexCount": 15069,
+          "boundsWgs84": [
+            120.92522125600004,
+            24.427375744000138,
+            121.41232290700006,
+            24.94638910400007
+          ]
+        },
+        {
+          "county": "屏東縣",
+          "largestRingAreaKm2": 2798.635,
+          "vertexCount": 8919,
+          "boundsWgs84": [
+            120.42281525200008,
+            21.895599675000085,
+            120.90418495100005,
+            22.885178108000048
+          ]
+        }
+      ],
+      "limitation": "Main-island county largest rings establish an envelope with generous padding. Nearby small islets and changing shoreline require later dated high-resolution coastal data. Do not use remote county parts to enlarge full Taiwan into SouthChinaSea or disputed distant territory."
+    },
+    "islandDimensionsFromOfficialDescription": {
+      "lengthKm": 394,
+      "maximumWidthKm": 144,
+      "sourceId": "official_island_description",
+      "interpretation": "Official island shape summary; differs from axis-aligned island envelope≈202×377km and the selected whole-theatre rectangle≈463×537km. These are different measurements, not a terrain scaling mismatch."
+    },
+    "sourceScopeRule": "Largest-ring main-island county envelope is not the total jurisdiction bbox; remote county parts are intentionally not used to expand this theatre."
+  },
+  "activeCampaignFocus": {
+    "world": "full_taiwan_strait remains one1:1world and strategic map in all Taiwan rounds; focus regions are not replacement cropped maps.",
+    "perRound": "Choose one primary continuous land sector roughly10–25km across and at most one secondary adjacent island/sea objective set for the existing8–12human players per team. Keep both tank-command and aircraft roles in that same player budget.",
+    "possibleRotationRegions": [
+      {
+        "id": "northwest",
+        "labelZh": "北部／西北部本岛",
+        "geographicReferences": [
+          "桃园",
+          "新竹",
+          "台北周边"
+        ],
+        "meaning": "A broad future authoring region, not selected real force positions or attack targets."
+      },
+      {
+        "id": "central_west",
+        "labelZh": "中西部本岛",
+        "geographicReferences": [
+          "台中",
+          "嘉义"
+        ],
+        "meaning": "Broad authoring choice preserving contiguous real roads and mountain boundaries."
+      },
+      {
+        "id": "southwest",
+        "labelZh": "西南部本岛",
+        "geographicReferences": [
+          "台南",
+          "高雄"
+        ],
+        "meaning": "Separate future fixture option within same whole-island world."
+      },
+      {
+        "id": "east",
+        "labelZh": "东部本岛",
+        "geographicReferences": [
+          "花莲",
+          "台东"
+        ],
+        "meaning": "Terrain-clearance and road-continuity constraints require source study before fixture acceptance."
+      },
+      {
+        "id": "strait_islands",
+        "labelZh": "澎湖／金门／马祖与相邻海域",
+        "geographicReferences": [
+          "澎湖",
+          "金门",
+          "马祖"
+        ],
+        "meaning": "Physically disconnected land graphs and explicit ship transport; not a land bridge."
+      }
+    ],
+    "deployment": "Offer eligible owned fields/deployment areas relevant to the current mission focus; show real travel ETA. Nearby field start and farther-rear airborne start stay as agreed. Voluntary long flights remain physically possible within the world and do not receive hidden transit shortcuts.",
+    "focusTransition": "Prefer selecting focus at round creation. If later objectives advance, move companies/ships physically over valid routes; do not teleport vehicles or re-create a company at a newly chosen distant focus.",
+    "distantContinuity": "Owned companies continue last tasks while owners fly. Remote units remain identifiable life/ammo/damage entities; regional scheduling and network interest filtering must not despawn, duplicate, refill or automatically transport them.",
+    "missionDesign": "Team marks/tasks concentrate action; reveal enemy locations only through agreed discovery/shared/stale-intel rules. Full island visibility does not reveal live enemy truth."
+  }
+}

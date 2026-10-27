@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "userReference": "image(9).png",
+  "identifiedAircraft": "f16v",
+  "identifiedComponent": "source inner wing pylon and longitudinal suspension locks",
+  "confidence": "High confidence visual source-component match",
+  "matchingFeatures": [
+    "Long narrow upper pylon with an open lower channel",
+    "Pale longitudinal suspension assembly below the pylon",
+    "Dark round-ended lower stem with a circular opening"
+  ],
+  "comparison": {
+    "f16SourceInner": "Matches the uploaded component silhouette and lower circular stem",
+    "mig21SourceInner": "Different box-shaped carrier with broad end housings"
+  },
+  "interpretation": "The visible fore/aft locks belong to one longitudinal store attachment. They are not two transverse AAM rails.",
+  "existingLoadout": "The six-AAM layout uses wingtip, outer and mid stations, leaving the source inner bomb station empty.",
+  "verificationImage": "F16_Source_Inner_Pylon_GBU12.png",
+  "verifiedAppSha256": "8e354eaa40718e7939ec36cbd44603bcb4f98ac59d5e6e12e09e9179879e1ffd",
+  "sourceMain": "2144f85ce471b772867a6380a87144f1a3f3d736c83fc56727dc040af9d858fc",
+  "runtimeBindings": [
+    "left_inner_pylon_lower_rail",
+    "right_inner_pylon_lower_rail"
+  ],
+  "verificationLoadout": [
+    ["gbu12", 2, "inner"]
+  ],
+  "verificationScope": "Production Aircraft/Renderer source-pylon attachment in a static model fixture; backend combat state is outside this visual identification."
+}

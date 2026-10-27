@@ -1,0 +1,1023 @@
+{
+  "schema_version": 1,
+  "audit_date": "2026-10-25",
+  "scope": "Source inventory of eight imported aircraft reported by parent with zero native internal groups; no model/importer/renderer changes.",
+  "package": {
+    "path": "/home/boyang/Desktop/TankForge_8_Aircraft_20261023.zip",
+    "bytes": 460244209,
+    "files": 232,
+    "glbs": 8,
+    "blends": 8,
+    "whole_zip_sha256": null,
+    "hash_note": "Individual retained source files fingerprinted; whole 460MB ZIP not rehashed in bounded audit."
+  },
+  "method": [
+    "Read-only GLB nodes/meshes/materials/extras, primitive triangle counts, scene reachability and selected actual world-space bounds.",
+    "In-memory libzstd decompression and Blender DNA parsing: compare all mesh-object names and instantiated triangle totals, nonzero restrictflag and unmatched/orphan geometry. No Blender execution or output conversion.",
+    "Inspected production importer and package converter/manifests as source text; no package script execution."
+  ],
+  "totals": {
+    "aircraft": 8,
+    "mesh_nodes": 498,
+    "triangles": 1082408,
+    "explicit_drop_triangles": 135360,
+    "blend_mesh_objects_missing_from_glb": 0,
+    "blend_restricted_mesh_objects": 0
+  },
+  "importer": {
+    "path": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tools/aircraft_glb/aircraft_types.py",
+    "function": "pack8_build",
+    "line": 1677,
+    "roles": [
+      "glass",
+      "cockpit",
+      "control",
+      "wing_l",
+      "wing_r",
+      "body"
+    ],
+    "fallback_role": "body",
+    "internal_branch": false,
+    "module_kinds": {},
+    "extras_internal_role_consumed": false,
+    "measurement": "pack8_measure explicitly derives estimated engine/fuel damage boxes from nozzle/fuselage dimensions; not anatomical source geometry.",
+    "gather_path": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tools/aircraft_glb/convert.py",
+    "gather_line": 132,
+    "reader_path": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tools/aircraft_glb/gltf.py",
+    "reader_note": "Gather visits default-scene mesh nodes; skips classifier None. Reader also skips degenerate transforms/nontriangle primitives. No orphan source mesh nodes found.",
+    "package_converter_member": "TankForge_Aircraft_Pack/tools/convert_tankforge.py",
+    "package_converter_line": 206,
+    "package_filter": "non-MESH, hide_render, tf_preview_only",
+    "export_loss_finding": "All master mesh objects and triangle counts match paired GLBs; no evidence of complete hidden internal models dropped during export."
+  },
+  "aircraft": [
+    {
+      "runtime_id": "f15c",
+      "asset_id": "f15e",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f15e/model.glb",
+        "bytes": 28328852,
+        "sha256": "b736634797d9c94fa04967e8f06b20a40458d8349af54888d0b62de47a50c23a"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f15e/master.blend",
+        "bytes": 26544841,
+        "sha256": "8ab8a5baee671b5f1c9fa9e6b8690e0adb75a92ddd4e11e74a082f349a890e2e"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f15e/manifest.json",
+        "bytes": 20304,
+        "sha256": "937ce4927506d4a8dc33358d195a8420824b4e359466c02682ebc453d6cf9478"
+      },
+      "manifest_original_source": {
+        "filename": "f-15e_strike_eagle_-_fighter_jet_-_free.glb",
+        "bytes": 29008540,
+        "sha256": "d8fbe2d534d8bb4f120e9f25a63e6b6ef67bb59ca9c9383dc1268ec15b3fce31",
+        "triangles": 41808,
+        "asset": {
+          "extras": {
+            "author": "bohmerang (https://sketchfab.com/bohmerang)",
+            "license": "CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)",
+            "source": "https://sketchfab.com/3d-models/f-15e-strike-eagle-fighter-jet-free-fff7d75490474e9b964d90cc031c8d01",
+            "title": "F-15E Strike Eagle - Fighter Jet - Free"
+          },
+          "generator": "Sketchfab-16.28.0",
+          "version": "2.0"
+        }
+      },
+      "counts": {
+        "glb_nodes": 72,
+        "glb_mesh_nodes": 38,
+        "unique_meshes": 38,
+        "triangles": 45595,
+        "blend_objects": 77,
+        "blend_mesh_objects": 38,
+        "blend_mesh_datablocks": 38,
+        "blend_triangles": 45595
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 31,
+          "triangles": 41099
+        },
+        "cockpit": {
+          "mesh_nodes": 2,
+          "triangles": 3946
+        },
+        "wing_l": {
+          "mesh_nodes": 2,
+          "triangles": 69
+        },
+        "wing_r": {
+          "mesh_nodes": 2,
+          "triangles": 69
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 412
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/f-15c_eagle_usa.glb",
+        "bytes": 2133512,
+        "sha256": "5ee96cf0a1d385c4a39550768a5f0476b2f7c8723bc280236df91e7b302429a5",
+        "nodes": 9,
+        "mesh_nodes": 3,
+        "triangles": 3528,
+        "matches_manifest_source_sha256": false
+      },
+      "drop": {
+        "nodes": [],
+        "triangles": 0
+      },
+      "local_detail": [],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Original body consolidation includes duct-floor detail; no full semantic internal modules or explicit drop list."
+    },
+    {
+      "runtime_id": "a10a",
+      "asset_id": "a10c",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/a10c/model.glb",
+        "bytes": 22020408,
+        "sha256": "1e4c993b5406bb942b155cbe51a81dc5650ef9b6937dae78246d6f7f50deec83"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/a10c/master.blend",
+        "bytes": 14137543,
+        "sha256": "10714be8bd43fa4765aae7d81ac7b39c2cf2b4779e66e503f43fb24c6c57fe80"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/a10c/manifest.json",
+        "bytes": 27095,
+        "sha256": "60507b97e3de4888b79ff2692794bb0515131f34ce0c1ba231c3b458c339c366"
+      },
+      "manifest_original_source": {
+        "filename": "a-10c_thunderbolt_ii.glb",
+        "sha256": "f0e26d0b66b2445783775d201099a59308b53dd0b8ec5a7bdc8676ead76dab0b",
+        "bytes": 33330352,
+        "triangles": 356747,
+        "asset": {
+          "extras": {
+            "author": "VTX (https://sketchfab.com/VTX_car)",
+            "license": "CC-BY-NC-SA-4.0 (http://creativecommons.org/licenses/by-nc-sa/4.0/)",
+            "source": "https://sketchfab.com/3d-models/a-10c-thunderbolt-ii-687b5c82dec9468c95f569378cedf909",
+            "title": "A-10C Thunderbolt II"
+          },
+          "generator": "Sketchfab-0.13.0",
+          "version": "2.0"
+        }
+      },
+      "counts": {
+        "glb_nodes": 98,
+        "glb_mesh_nodes": 78,
+        "unique_meshes": 78,
+        "triangles": 271996,
+        "blend_objects": 103,
+        "blend_mesh_objects": 78,
+        "blend_mesh_datablocks": 78,
+        "blend_triangles": 271996
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "cockpit": {
+          "mesh_nodes": 9,
+          "triangles": 24851
+        },
+        "body": {
+          "mesh_nodes": 68,
+          "triangles": 243153
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 3992
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/a-10a_thunderbolt_ii_usa.glb",
+        "bytes": 1834076,
+        "sha256": "392f8eadfc47665e779a964cbd72809ce50230d2fe685ed6cd29d2af2b8fcc54",
+        "nodes": 9,
+        "mesh_nodes": 3,
+        "triangles": 4484,
+        "matches_manifest_source_sha256": false
+      },
+      "drop": {
+        "nodes": [
+          {
+            "name": "body_source_00",
+            "triangles": 32
+          },
+          {
+            "name": "body_source_01",
+            "triangles": 1918
+          },
+          {
+            "name": "body_source_03",
+            "triangles": 2
+          },
+          {
+            "name": "body_source_04",
+            "triangles": 34
+          },
+          {
+            "name": "body_source_06",
+            "triangles": 4658
+          },
+          {
+            "name": "body_source_11",
+            "triangles": 6913
+          },
+          {
+            "name": "body_source_12",
+            "triangles": 6913
+          },
+          {
+            "name": "body_source_13",
+            "triangles": 6408
+          },
+          {
+            "name": "body_source_14",
+            "triangles": 6408
+          },
+          {
+            "name": "body_source_15",
+            "triangles": 6408
+          },
+          {
+            "name": "body_source_17",
+            "triangles": 3795
+          },
+          {
+            "name": "body_source_18",
+            "triangles": 3776
+          },
+          {
+            "name": "body_source_21",
+            "triangles": 1622
+          },
+          {
+            "name": "body_source_42",
+            "triangles": 3906
+          }
+        ],
+        "triangles": 52793
+      },
+      "local_detail": [
+        {
+          "nodes": [
+            "A10C_AHCP",
+            "A10C_MFCD_L_BEZEL",
+            "A10C_MFCD_L_SCREEN",
+            "A10C_MFCD_R_BEZEL",
+            "A10C_MFCD_R_SCREEN",
+            "A10C_UFC"
+          ],
+          "triangles_each": [
+            1776,
+            1634,
+            12,
+            1634,
+            12,
+            2292
+          ],
+          "tf_group": "cockpit",
+          "component_role": "cockpit_reconstruction",
+          "generated": true
+        }
+      ],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Six generated cockpit reconstruction objects (7360 triangles) already classify cockpit. Dropped anonymous assemblies mainly lie beneath the wing/airframe; exact individual identities are not certified."
+    },
+    {
+      "runtime_id": "f4e",
+      "asset_id": "f4e",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f4e/model.glb",
+        "bytes": 13929516,
+        "sha256": "e03a28ce0a9ef04a4198a647e4ca22eaf85d92e0a625ddad4ad640005624a2f6"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f4e/master.blend",
+        "bytes": 11997161,
+        "sha256": "10131a124209dec1039ad98e7acc44a1de17855c06cdd541e246c731e063cef9"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f4e/manifest.json",
+        "bytes": 27792,
+        "sha256": "a8576c2b297b8e1b37acfce79dc6cc7f3cfae0ecc5078aaa02506dc45a68f885"
+      },
+      "manifest_original_source": {
+        "filename": "f-4e_phantom_ii.glb",
+        "bytes": 12820868,
+        "sha256": "bd2157cd1bbd72c8262e900481e1ccfc44d6c0e29bbba8d6e06aeedbfb43f81d",
+        "triangles": 45960,
+        "asset": {
+          "extras": {
+            "author": "Kenny3D89 (https://sketchfab.com/Kenny3D89)",
+            "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+            "source": "https://sketchfab.com/3d-models/f-4e-phantom-ii-414342cad1e84b20aadace5de69c9569",
+            "title": "F-4E Phantom II"
+          },
+          "generator": "Sketchfab-0.13.0",
+          "version": "2.0"
+        }
+      },
+      "counts": {
+        "glb_nodes": 117,
+        "glb_mesh_nodes": 60,
+        "unique_meshes": 60,
+        "triangles": 51946,
+        "blend_objects": 122,
+        "blend_mesh_objects": 60,
+        "blend_mesh_datablocks": 60,
+        "blend_triangles": 51946
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 53,
+          "triangles": 45904
+        },
+        "cockpit": {
+          "mesh_nodes": 2,
+          "triangles": 4416
+        },
+        "wing_l": {
+          "mesh_nodes": 2,
+          "triangles": 286
+        },
+        "wing_r": {
+          "mesh_nodes": 2,
+          "triangles": 286
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 1054
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/f-4f_with_agm-65d_maverick.glb",
+        "bytes": 18589592,
+        "sha256": "69fe5864b4da3d48a731ef30ea7966e0ef4f14e6833f65a8c40c444bd9f524fb",
+        "nodes": 33,
+        "mesh_nodes": 31,
+        "triangles": 216276,
+        "matches_manifest_source_sha256": false
+      },
+      "drop": {
+        "nodes": [],
+        "triangles": 0
+      },
+      "local_detail": [
+        {
+          "node": "auxiliary_intake_door_l_source_geometry",
+          "triangles": 53
+        },
+        {
+          "node": "auxiliary_intake_door_r_source_geometry",
+          "triangles": 53
+        },
+        {
+          "node": "body_source_m1_c104",
+          "parent": "auxiliary_intake_l_original_jack_ram",
+          "triangles": 12
+        },
+        {
+          "node": "body_source_m1_c171",
+          "parent": "auxiliary_intake_l_original_jack_sleeve",
+          "triangles": 54
+        },
+        {
+          "node": "body_source_m1_c234",
+          "parent": "auxiliary_intake_r_original_jack_ram",
+          "triangles": 12
+        },
+        {
+          "node": "body_source_m1_c172",
+          "parent": "auxiliary_intake_r_original_jack_sleeve",
+          "triangles": 54
+        }
+      ],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Source-preserved intake and gear-bay hydraulic mechanisms remain body/control. Concrete local classification target; not a full engine/fuel/crew set."
+    },
+    {
+      "runtime_id": "su27",
+      "asset_id": "su27ubk",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/su27ubk/model.glb",
+        "bytes": 19993412,
+        "sha256": "562a29d0ae0fbc4f251dc5120b5a30103959eff9b72b5a3116db62d25b77b0f8"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/su27ubk/master.blend",
+        "bytes": 19183185,
+        "sha256": "20a8362d925d4cfc65452d8cdc29ab4eea0355df38bc730eaa6ec3110f1980e3"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/su27ubk/manifest.json",
+        "bytes": 221622,
+        "sha256": "fd411bd66817f732307608d0f5a66be603f2ab7569dc116afa4219c1047a67cc"
+      },
+      "manifest_original_source": {
+        "filename": "sukhoi_su-27ubk.glb",
+        "bytes": 8046212,
+        "triangles": 54422,
+        "sha256": "bd7542aa9349526afbe88a44419727b8ae537e7c021f90f2ba3579d41b247799",
+        "author": "Rhine_Lab_Muelsyse (https://sketchfab.com/Rhine_Lab_Muelsyse)",
+        "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+        "source": "https://sketchfab.com/3d-models/sukhoi-su-27ubk-b9be5ba6296d4e6dab5bf0049f961fa4",
+        "title": "Sukhoi Su-27UBK"
+      },
+      "counts": {
+        "glb_nodes": 66,
+        "glb_mesh_nodes": 45,
+        "unique_meshes": 45,
+        "triangles": 54422,
+        "blend_objects": 66,
+        "blend_mesh_objects": 45,
+        "blend_mesh_datablocks": 45,
+        "blend_triangles": 54422
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 26,
+          "triangles": 39818
+        },
+        "cockpit": {
+          "mesh_nodes": 4,
+          "triangles": 9463
+        },
+        "wing_l": {
+          "mesh_nodes": 8,
+          "triangles": 3505
+        },
+        "wing_r": {
+          "mesh_nodes": 5,
+          "triangles": 985
+        },
+        "glass": {
+          "mesh_nodes": 2,
+          "triangles": 651
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/sukhoi_su-27m_ussr.glb",
+        "bytes": 2324512,
+        "sha256": "1aa7e257fbcf74919fbc5c07ae0b0672f960d429cda85bb42b3b364aaf144a3e",
+        "nodes": 9,
+        "mesh_nodes": 3,
+        "triangles": 4344,
+        "matches_manifest_source_sha256": false
+      },
+      "drop": {
+        "nodes": [
+          {
+            "name": "AAM_wings_Material #73_0",
+            "triangles": 144
+          },
+          {
+            "name": "BOMB1_Material #73_0",
+            "triangles": 392
+          },
+          {
+            "name": "BOMB2_Material #73_0",
+            "triangles": 392
+          },
+          {
+            "name": "BOMB3_Material #73_0",
+            "triangles": 784
+          },
+          {
+            "name": "ECM_Material #73_0",
+            "triangles": 1280
+          }
+        ],
+        "triangles": 2992
+      },
+      "local_detail": [
+        {
+          "node": "hull_original_internal_bay_floors_source00",
+          "triangles": 38,
+          "tf_group": "body",
+          "source_object": "hull_Material #25_0",
+          "source_mesh": 0,
+          "original_bay_floor_relief": true
+        }
+      ],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Source-preserved original internal bay floor (38 triangles) remains body. Dropped explicitly named AAM/BOMB/ECM are external stores/equipment."
+    },
+    {
+      "runtime_id": "mig17f",
+      "asset_id": "mig17f",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/mig17f/model.glb",
+        "bytes": 6246656,
+        "sha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/mig17f/master.blend",
+        "bytes": 6533794,
+        "sha256": "470ddc008c4ae0402e050bb47ced9a9b01d4847bbd96ff4de39ef729e1e4ab1f"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/mig17f/manifest.json",
+        "bytes": 27040,
+        "sha256": "4f9eafc7f5708eb15e64b1caf54452978739c81d21e9c47525ce1c6e161b8ffa"
+      },
+      "manifest_original_source": {
+        "filename": "mig-17_war_thunder.glb",
+        "bytes": 9950232,
+        "sha256": "c3f46adc70e57f87a2fe07bb15430a8a022154d36050c16d019ca51ea583ee39",
+        "triangles": 121494,
+        "asset": {
+          "extras": {
+            "author": "KojfDiscord (https://sketchfab.com/KojfDiscord)",
+            "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+            "source": "https://sketchfab.com/3d-models/mig-17-war-thunder-792f036520e44b92a39adbdc0e262d6c",
+            "title": "MiG-17 (War Thunder)"
+          },
+          "generator": "Sketchfab-17.8.0",
+          "version": "2.0"
+        }
+      },
+      "counts": {
+        "glb_nodes": 70,
+        "glb_mesh_nodes": 55,
+        "unique_meshes": 55,
+        "triangles": 85645,
+        "blend_objects": 75,
+        "blend_mesh_objects": 55,
+        "blend_mesh_datablocks": 55,
+        "blend_triangles": 85645
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 36,
+          "triangles": 46449
+        },
+        "cockpit": {
+          "mesh_nodes": 4,
+          "triangles": 33019
+        },
+        "wing_l": {
+          "mesh_nodes": 7,
+          "triangles": 2143
+        },
+        "wing_r": {
+          "mesh_nodes": 7,
+          "triangles": 2486
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 1548
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/mig-17_war_thunder.glb",
+        "bytes": 9950232,
+        "sha256": "c3f46adc70e57f87a2fe07bb15430a8a022154d36050c16d019ca51ea583ee39",
+        "nodes": 18,
+        "mesh_nodes": 16,
+        "triangles": 121494,
+        "matches_manifest_source_sha256": true
+      },
+      "drop": {
+        "nodes": [
+          {
+            "name": "body_source_00",
+            "triangles": 8
+          },
+          {
+            "name": "body_source_14",
+            "triangles": 2657
+          }
+        ],
+        "triangles": 2665
+      },
+      "local_detail": [],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "body_source_14 is documented old store. body_source_00 contains only 8 thin triangles, not evidence of full internals. New importer preserves excluded faces in source_excluded ledger/blob."
+    },
+    {
+      "runtime_id": "mig21",
+      "asset_id": "mig21mf",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/mig21mf/model.glb",
+        "bytes": 10794832,
+        "sha256": "db84ea973ae3dbb337e4c7c711cf5c36d6e53413d9f4ee2bbfc47daf9ee94a30"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/mig21mf/master.blend",
+        "bytes": 10501022,
+        "sha256": "d56e033fa58e8014b6e7d278ce55ebe4a45e299a9b090407f104b3175d9eb680"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/mig21mf/manifest.json",
+        "bytes": 189869,
+        "sha256": "76a8ddcdf56dcd203e0cc19bcab0f7ffaea26c563c7ca86293383f4f427e9476"
+      },
+      "manifest_original_source": {
+        "filename": "gdr_mig-21mf_3_custom_war_thunder.glb",
+        "bytes": 16374420,
+        "triangles": 200452,
+        "sha256": "7921e344ea7f71d3fd74949f9c082c8f8f8015c1c4e2cd1b1c4631068738d702",
+        "author": "KojfDiscord (https://sketchfab.com/KojfDiscord)",
+        "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+        "source": "https://sketchfab.com/3d-models/gdr-mig-21mf-3-custom-war-thunder-f0c8e57c17e84c9ca4a1965ac2c0dfeb",
+        "title": "GDR MiG-21MF (#3 Custom) (War Thunder)"
+      },
+      "counts": {
+        "glb_nodes": 86,
+        "glb_mesh_nodes": 64,
+        "unique_meshes": 64,
+        "triangles": 126883,
+        "blend_objects": 86,
+        "blend_mesh_objects": 64,
+        "blend_mesh_datablocks": 64,
+        "blend_triangles": 126883
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 32,
+          "triangles": 65382
+        },
+        "cockpit": {
+          "mesh_nodes": 3,
+          "triangles": 23315
+        },
+        "wing_l": {
+          "mesh_nodes": 14,
+          "triangles": 18644
+        },
+        "wing_r": {
+          "mesh_nodes": 14,
+          "triangles": 18774
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 768
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/gdr_mig-21mf_3_custom_war_thunder.glb",
+        "bytes": 16374420,
+        "sha256": "7921e344ea7f71d3fd74949f9c082c8f8f8015c1c4e2cd1b1c4631068738d702",
+        "nodes": 26,
+        "mesh_nodes": 24,
+        "triangles": 200452,
+        "matches_manifest_source_sha256": true
+      },
+      "drop": {
+        "nodes": [
+          {
+            "name": "wing_l_source21",
+            "triangles": 5865
+          },
+          {
+            "name": "wing_l_source22",
+            "triangles": 5865
+          },
+          {
+            "name": "wing_r_source20",
+            "triangles": 5865
+          },
+          {
+            "name": "wing_r_source23",
+            "triangles": 5865
+          }
+        ],
+        "triangles": 23460
+      },
+      "local_detail": [
+        {
+          "node": "bay_cover_left_source07",
+          "parent": "GEAR_BAY_DOOR_LEFT",
+          "triangles": 939
+        },
+        {
+          "node": "bay_cover_right_source14",
+          "parent": "GEAR_BAY_DOOR_RIGHT",
+          "triangles": 965
+        }
+      ],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Four dropped identical underwing assemblies measure 0.31x0.31x2.10m each; placement supports external stores, exact type not certified. Bay covers are gear mechanisms."
+    },
+    {
+      "runtime_id": "su25",
+      "asset_id": "su25",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/su25/model.glb",
+        "bytes": 11362776,
+        "sha256": "e0d9b71d05ec5b3f26fe8907064c91c0f76069ebc81f422ce2b8d3402f32c9ff"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/su25/master.blend",
+        "bytes": 11335678,
+        "sha256": "da83b2dd936b23273564ba5d5c3b7a5f684509b399b0e52297133a27feb3e200"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/su25/manifest.json",
+        "bytes": 187598,
+        "sha256": "01eee3d6c0c927b1b006935f989ca10ea4c1aacedc90a69790ddeaa891b026f7"
+      },
+      "manifest_original_source": {
+        "filename": "su-25_4_custom_war_thunder.glb",
+        "bytes": 24083604,
+        "sha256": "76ff4d056d0cadec877518a56ab0d636c942090283322e57246617edc5d9b775",
+        "triangles": 402782,
+        "asset": {
+          "extras": {
+            "author": "KojfDiscord (https://sketchfab.com/KojfDiscord)",
+            "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+            "source": "https://sketchfab.com/3d-models/su-25-4-custom-war-thunder-23f5460a34364fa2ae95f4d5eec0a518",
+            "title": "Su-25 (#4 Custom) (War Thunder)"
+          },
+          "generator": "Sketchfab-17.14.0",
+          "version": "2.0"
+        }
+      },
+      "counts": {
+        "glb_nodes": 102,
+        "glb_mesh_nodes": 81,
+        "unique_meshes": 81,
+        "triangles": 237782,
+        "blend_objects": 107,
+        "blend_mesh_objects": 81,
+        "blend_mesh_datablocks": 81,
+        "blend_triangles": 237782
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 64,
+          "triangles": 186874
+        },
+        "cockpit": {
+          "mesh_nodes": 3,
+          "triangles": 40075
+        },
+        "wing_l": {
+          "mesh_nodes": 6,
+          "triangles": 4392
+        },
+        "wing_r": {
+          "mesh_nodes": 7,
+          "triangles": 4697
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 1744
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/su-25_4_custom_war_thunder.glb",
+        "bytes": 24083604,
+        "sha256": "76ff4d056d0cadec877518a56ab0d636c942090283322e57246617edc5d9b775",
+        "nodes": 41,
+        "mesh_nodes": 39,
+        "triangles": 402782,
+        "matches_manifest_source_sha256": true
+      },
+      "drop": {
+        "nodes": [
+          {
+            "name": "body_source_02",
+            "triangles": 7334
+          },
+          {
+            "name": "body_source_03",
+            "triangles": 7334
+          },
+          {
+            "name": "body_source_04",
+            "triangles": 5313
+          },
+          {
+            "name": "body_source_05",
+            "triangles": 5312
+          },
+          {
+            "name": "body_source_06",
+            "triangles": 5313
+          },
+          {
+            "name": "body_source_07",
+            "triangles": 5313
+          }
+        ],
+        "triangles": 35919
+      },
+      "local_detail": [],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Dropped anonymous paired assemblies sit beneath/outboard at x about +/-2.4..3.94m; not automatically internal modules."
+    },
+    {
+      "runtime_id": "f16v",
+      "asset_id": "f16v",
+      "model_glb": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f16v/model.glb",
+        "bytes": 15043184,
+        "sha256": "2144f85ce471b772867a6380a87144f1a3f3d736c83fc56727dc040af9d858fc"
+      },
+      "master_blend": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f16v/master.blend",
+        "bytes": 14516076,
+        "sha256": "8c33fc5f6f9009293b9903ff78eb90416562720686983665cf7601386dab7497"
+      },
+      "manifest": {
+        "path": "/tmp/claude-1002/-home-boyang/0edd1a47-a04c-4bee-980f-8e8752ea5062/scratchpad/pkg/pack8/TankForge_Aircraft_Pack/aircraft/f16v/manifest.json",
+        "bytes": 31587,
+        "sha256": "6230b4c632d190c692bd01a12671febbd1d60f86f17bfff11e9be739a0a0197f"
+      },
+      "manifest_original_source": {
+        "filename": "roc_f-16v_war_thunder_heavy_cavalry.glb",
+        "bytes": 24923584,
+        "triangles": 318869,
+        "sha256": "68d74b599c5c44860a6122a3dec8406204daf9a8d98b6b21cfd8d24fac859d29",
+        "author": "KojfDiscord (https://sketchfab.com/KojfDiscord)",
+        "license": "CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+        "source": "https://sketchfab.com/3d-models/roc-f-16v-war-thunder-heavy-cavalry-77ff7059b2b146049e83b80ac1bed375",
+        "title": "ROC F-16V (War Thunder) Heavy Cavalry"
+      },
+      "counts": {
+        "glb_nodes": 96,
+        "glb_mesh_nodes": 77,
+        "unique_meshes": 77,
+        "triangles": 208139,
+        "blend_objects": 96,
+        "blend_mesh_objects": 77,
+        "blend_mesh_datablocks": 77,
+        "blend_triangles": 208139
+      },
+      "blend_mesh_names_absent_from_glb": [],
+      "blend_mesh_restrictflag_nonzero": [],
+      "blend_collections": [
+        "Scene Collection"
+      ],
+      "glb_orphan_mesh_nodes": [],
+      "source_roles": {
+        "body": {
+          "mesh_nodes": 37,
+          "triangles": 109316
+        },
+        "cockpit": {
+          "mesh_nodes": 7,
+          "triangles": 60067
+        },
+        "wing_l": {
+          "mesh_nodes": 16,
+          "triangles": 18044
+        },
+        "wing_r": {
+          "mesh_nodes": 16,
+          "triangles": 17912
+        },
+        "glass": {
+          "mesh_nodes": 1,
+          "triangles": 2800
+        }
+      },
+      "desktop_raw_reference": {
+        "path": "/home/boyang/Desktop/roc_f-16v_war_thunder_heavy_cavalry.glb",
+        "bytes": 24923584,
+        "sha256": "68d74b599c5c44860a6122a3dec8406204daf9a8d98b6b21cfd8d24fac859d29",
+        "nodes": 38,
+        "mesh_nodes": 36,
+        "triangles": 318869,
+        "matches_manifest_source_sha256": true
+      },
+      "drop": {
+        "nodes": [
+          {
+            "name": "body_source04",
+            "triangles": 3381
+          },
+          {
+            "name": "wing_l_source34",
+            "triangles": 7075
+          },
+          {
+            "name": "wing_r_source35",
+            "triangles": 7075
+          }
+        ],
+        "triangles": 17531
+      },
+      "local_detail": [
+        {
+          "nodes": [
+            "F16_Left_MFD_4x4_in",
+            "F16_Right_MFD_4x4_in",
+            "F16V_Center_Pedestal_Display_6x8_in"
+          ],
+          "triangles_each": [
+            2,
+            2,
+            2
+          ],
+          "tf_group": "cockpit",
+          "role": "static illustrative displays"
+        }
+      ],
+      "complete_separate_internal_module_set_identified": false,
+      "conclusion": "Three illustrative cockpit display planes total 6 triangles and already classify cockpit. Dropped belly/underwing assemblies are external by placement; exact store type not certified."
+    }
+  ],
+  "updated_mig17": {
+    "package_path": "/home/boyang/Desktop/TankForge_MiG17_模型動畫包_20261025.zip",
+    "bytes": 24588409,
+    "files": 38,
+    "source_glb": {
+      "path": "/home/boyang/Desktop/worldbox/tankforge-mig17-20261025/handoff/tests/out/mig17-animation-pack-20261025/source/aircraft/mig17f/model.glb",
+      "bytes": 6246656,
+      "sha256": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e"
+    },
+    "counts": {
+      "nodes": 70,
+      "mesh_nodes": 55,
+      "triangles": 85645
+    },
+    "native_record": {
+      "path": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/aircraft_assets/mig17f-20261025/native.json",
+      "sha256": "e553b9d081f59cfed0fda9e91e900cd5b60bd6ba42b69feb95df82af30a3b6f9"
+    },
+    "importer": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tools/aircraft_glb/import_mig17_animation_pack.py",
+    "internal_layout_line": 269,
+    "note": "Existing accepted engine/fuel/ammo boxes transformed to new datum, not anatomical reconstruction. Excluded original triangles remain in source_excluded ledger/blob."
+  },
+  "next_targets": [
+    {
+      "priority": 1,
+      "target": "Existing seven separate true-internal records",
+      "action": "Use root-owned actual renderer hookup, independently verified by root; this source audit does not re-certify those models."
+    },
+    {
+      "priority": 2,
+      "target": "f4e",
+      "action": "Source-faithful local separation of intake/bay mechanisms, retaining exact source nodes/faces; do not call it complete anatomy."
+    },
+    {
+      "priority": 3,
+      "target": "su27",
+      "action": "Source-faithful bay floor/structure classification; retain 38-triangle floor face provenance."
+    },
+    {
+      "priority": 4,
+      "target": "Full internals for these eight",
+      "action": "Acquire additional source geometry or explicitly author approximate modules with damage bindings; do not present estimated damage boxes as full original internals."
+    }
+  ],
+  "limitations": [
+    "No GPU/browser/pixel inspection, Cargo build, asset conversion or gameplay certification.",
+    "No complete semantically separated engine/fuel/ammo/radar/crew module set identified. Anonymous body meshes may contain undeclared local detail; names cannot prove every internal surface absent.",
+    "Anonymous dropped assemblies are not fully item-identified. Measured placement supports external-store interpretations; not engineering certification.",
+    "Cockpit detail and landing-gear bay detail are distinct from complete aircraft internals.",
+    "First four Desktop raw reference assets/variants differ from actual pack source. Matching raw original F15E/A10C/F4E/Su27UBK author GLBs were not found outside retained processed package in bounded search.",
+    "Zero native internal groups is parent-provided audit scope, not a new catalog/render integration run.",
+    "Individual hashes identify local retained files; no historical equipment or licensing certification."
+  ],
+  "primary_format_reference": "https://github.com/blender/blender/blob/main/source/blender/blenloader_core/BLO_core_bhead.hh"
+}

@@ -1,0 +1,5533 @@
+{
+  "schemaVersion": 1,
+  "title": "Combined-mode era roster and capability audit",
+  "asOf": "2026-10-24",
+  "phase": "design_research_only",
+  "gameplayImplementationStarted": false,
+  "summaryZh": [
+    "年代必须限制整套载具、弹药、挂载与传感器；双方共享同一年代池。",
+    "当前存在F-15E、A-10C、MiG-21MF、HunterF4/F6等旧ID/模型/能力混搭，已保留明确修复项和合适年代候选，未从最终模式删掉。",
+    "最小有来源支持的早期组合是MiG-15bis/F-86F配T-34-85/M4A3(76)W HVSS；现代飞机继续作为现代房要求。",
+    "全部已有雷达继续保留用户指定的Space+R高速准星格斗扫描；这是游戏辅助，不授予现代雷达或导弹兼容性。"
+  ],
+  "baseline": {
+    "designWorktree": "/home/boyang/Desktop/worldbox/tankforge-air-frontline",
+    "designCommitAtAssignment": "64693fa",
+    "designGameBase": "6799e22/core211",
+    "authoritativeAircraftWorktree": "/home/boyang/Desktop/worldbox/tankforge-jet-fixes",
+    "authoritativeAircraftCommit": "f3c6d883410a4ec56686bf702bec8aebb0716634",
+    "authoritativeAircraftRelease": "core212",
+    "appSha256": "870d6dd5de881627c0fa56aede4ae9da888dc32b0703dfd0074cb133a3ed313a",
+    "groundCatalogSource": "design worktree data/vehicles + data/projectiles + data/missiles.json; dates are catalog claims until primary-audited",
+    "readOnlySources": [
+      "AGENTS.md",
+      "docs/air-frontline/combined-mode-design.json",
+      "docs/air-frontline-design-2026-10-24.json",
+      "../tankforge-jet-fixes/handoff/bundle/app.js.html",
+      "../tankforge-jet-fixes/handoff/bundle/data.line.gz.part*",
+      "data/aircraft/aircraft.json",
+      "data/vehicles/*/{vehicle,weapons}.json",
+      "data/projectiles/*.json",
+      "data/missiles.json"
+    ],
+    "counts": {
+      "flyableAircraftSlots": 24,
+      "realNamedAircraftSlots": 22,
+      "importedAircraftModels": 15,
+      "aircraftStoreDefinitions": 82,
+      "groundVehicleDefinitions": 47,
+      "groundProjectileDefinitions": 91,
+      "nativeGroundMissileDefinitions": 5
+    },
+    "trackedEmbeddedDataSha256": "56eaa206dfda19a831d1c82c869e411d1c3ba7e82d979ff6f96b13dd3a0366ee",
+    "ignoredDecodedCacheSha256": "3819b2cc13774a682170e72388392abc8a67901b9e27e50618a8f554713d3a18",
+    "embeddedDataNote": "Ignored decoded cache differs from tracked gzip aggregate; all imported source identities and source hashes were independently compared to tracked compressed data. Use tracked gzip evidence for this study."
+  },
+  "auditMeaning": {
+    "verified_airframe_or_vehicle_candidate": "A primary source corroborates the named family/variant and a relevant service-by date. It is a candidate, not a claim that every current store, physics estimate or sensor has historical certification.",
+    "held_or_pending": "Preserve in final requirement and explicit expansion list; resolve the recorded identity, date or implementation debt before enabling a strict historical profile.",
+    "proposed_room_snapshot": "A gameplay design cutoff and explicit profile whitelist, not a claim of a real Korean/Taiwan war or first service in that year. Countries do not determine team eligibility.",
+    "unknown_dates": "null/pending is never replaced by a guessed year or an automatic allow.",
+    "older_airframes": "A later snapshot can retain a specifically whitelisted older profile; do not use introductionYear>=roomStart as the sole eligibility rule.",
+    "evidence_limits": "Search results from official sources were read; some official pages reject direct opens with403. No secondary source is promoted to primary proof. No physics/radar range numbers are certified by this study."
+  },
+  "findings": [
+    {
+      "id": "era-ui-null-bypass",
+      "priority": "P0",
+      "status": "reproduced_from_actual_constructor_and_filter",
+      "evidence": [
+        "handoff/bundle/app.js.html:35006 fighterType() keeps f as fighter but does not copy era onto the returned type.",
+        "handoff/bundle/app.js.html:38826 airOnlineLineup() reads T.era and permits !year."
+      ],
+      "reproduction": {
+        "type": "f16v",
+        "T.fighter.era": "2018",
+        "T.era": null,
+        "roomEra": [
+          1950,
+          1953
+        ],
+        "computedYear": null,
+        "legacyUiAllows": true
+      },
+      "scope": "An isolated execution of the actual fighterType function and lineup predicate reproduces UI eligibility. This is not evidence that the server accepts the sortie.",
+      "remedy": "Use stable, server-owned eraProfileId eligibility; fail closed on unknown profile, and obtain display dates from the same profile. Do not fix this only by changing a label."
+    },
+    {
+      "id": "f15c-is-f15e",
+      "priority": "P1",
+      "status": "held_for_profile_reconciliation",
+      "legacy_id": "f15c",
+      "actual_model": "F-15E Strike Eagle",
+      "display": "F-15E 打擊鷹",
+      "local_year": "1988",
+      "current_conflict": "AIR_RADARS uses AN/APG-63 and generic Eagle configuration. The imported asset/source and display are E; training delivery1988 must not be conflated with IOC1989.",
+      "sources": [
+        "usaf-f15e",
+        "usaf-f15c"
+      ],
+      "remedy": "Retain legacy ID for compatibility, add an explicit F-15E configuration profile with matched radar, cockpit, crew, weapons and operational date. Keep E as a pending candidate for1995 and modern rooms; do not silently substitute an F-15C1979 profile."
+    },
+    {
+      "id": "a10a-is-a10c",
+      "priority": "P1",
+      "status": "held_for_profile_reconciliation",
+      "legacy_id": "a10a",
+      "actual_model": "A-10C Thunderbolt II",
+      "display": "A-10C 雷霆 II",
+      "local_year": "2007",
+      "current_conflict": "AIR_EQUIP comment/config still identifies A-10A/Pave Penny; no C targeting pod, digital datalink or GPS-guided store definition is provided by changing the display.",
+      "sources": [
+        "usaf-a10c"
+      ],
+      "remedy": "Keep A-10C as an explicit modern-room requirement. Audit C avionics/pod/store integration and separate an A-10A profile only if a matching representation/configuration is provided. Pave Penny alone is not a laser designator or a C targeting pod."
+    },
+    {
+      "id": "mig21-mf-with-early-gun",
+      "priority": "P1",
+      "status": "held_for_profile_reconciliation",
+      "legacy_id": "mig21",
+      "actual_model": "MiG-21MF",
+      "display": "MiG-21MF",
+      "local_year": "1970",
+      "current_conflict": "Current gun tuple is nr30×1/130rounds, early two-station presets and gyro-only AIR_EQUIP with no AIR_RADARS entry. MF museum data specifies GSh-23L/200, four wing stations and Safir-21 radar.",
+      "sources": [
+        "vhu-mig21mf"
+      ],
+      "remedy": "Retain MF model and provide a matched MF profile, cannon feed/ammo, four usable wing stations and documented radar. Add the user-requested Space+R game ACM when that real radar is implemented. Reconcile the prior user-requested130round setting explicitly rather than silently treating it as historical MF equipment. Pending candidate for1976 and later rooms."
+    },
+    {
+      "id": "hunter6-model-is-f4",
+      "priority": "P1",
+      "status": "held_for_profile_reconciliation",
+      "legacy_id": "hunter6",
+      "actual_model": "Hunter F.4",
+      "display": "Hunter F.6 獵人",
+      "local_year": "1956",
+      "current_conflict": "Embedded source.title and cg_why both say F.4; package is Desktop/Hunter_F4_TankForge.zip. F.6 display, engine/airframe and loadout limits cannot be certified by an F.4 source mesh.",
+      "sources": [
+        "raf-hunter6"
+      ],
+      "remedy": "Choose and document a matched F.4 profile/flight model, or a verified F.6 representation. Retain Hunter candidate for the postwar room and later; do not delete the existing aircraft or invent F.4 service dates from F.6 evidence."
+    },
+    {
+      "id": "mirage3e-is-5f",
+      "priority": "P1",
+      "status": "restricted_identity_confirmed_equipment_pending",
+      "legacy_id": "mirage3e",
+      "actual_model": "Mirage 5F",
+      "display": "Mirage 5F 幻象",
+      "local_year": "1972",
+      "current_conflict": "Legacy key is not MirageIIIE. No radar is configured, which agrees with the simplified radarless Mirage5 concept. Current lcos/ccip flags and Magic1 preset still need a5F/date-matched sight and store clearance.",
+      "sources": [
+        "dassault-mirage5"
+      ],
+      "remedy": "Use an explicit Mirage5F profile; retain in1976 and later candidate pools. Do not import Cyrano/SARH/HMD capability from MirageIIIE/Mirage2000; verify the local1972 milestone and exact Magic1 equipment date."
+    },
+    {
+      "id": "su27-is-export-two-seat",
+      "priority": "P1",
+      "status": "identity_confirmed_date_and_loadout_pending",
+      "legacy_id": "su27",
+      "actual_model": "Su-27UBK",
+      "display": "Su-27UBK 側衛",
+      "local_year": "1992",
+      "current_conflict": "N001/HMS and domestic r27r/r27t/r73 IDs are used; existing export r27r1/r27t1/r73e definitions are distinct. No evidence of an RVV-AE-compatible modernization of this UBK was found.",
+      "sources": [
+        "pla-su27ubk"
+      ],
+      "remedy": "Keep UBK in the1995 pending expansion and modern requirement pool. Obtain exact delivery/configuration and export missile evidence; do not turn it into Su-27SM/Su-30MK2 by adding an active missile. A current photo proves service-by2018, not initial1992 service."
+    },
+    {
+      "id": "sam-proxies",
+      "priority": "P1",
+      "status": "explicit_visual_and_configuration_debt",
+      "evidence": [
+        "AD_SAMS.chaparral uses M901/M113-family hull instead of M730/M548.",
+        "AD_SAMS.kubRadar and kubLauncher use xp_bmp_k64 wheeled hull instead of the actual tracked carriers.",
+        "AD_SAMS.pantsir implements a Pantsir-S1-like suite; ru_pantsir_sm_sv asset is labelled SM-SV and native missile is explicitly a SACLOS gameplay substitute."
+      ],
+      "sources": [
+        "redstone-chaparral",
+        "vhu-kub"
+      ],
+      "remedy": "Give each complete SAM system a separate era profile, including carrier/radar/missile. Keep later systems as candidate requirements pending matched models/configuration; never date an attached system from its borrowed chassis meta.year."
+    },
+    {
+      "id": "year-tags-are-not-service",
+      "priority": "P1",
+      "status": "catalog_audit_confirmed",
+      "evidence": [
+        "Ground catalog includes original/fictional prototypes and game conversions with ordinary years.",
+        "WEAPON_STATUS labels legacy_existing, secondary and game_test_platform; these are not primary historical capability or in-service-date proof.",
+        "AIR_STORE_DEFS numbers and AIR_RADARS ranges are explicitly game estimates."
+      ],
+      "remedy": "Separate provenance, historical release, integration compatibility and implemented functionality. A successful test verifies behavior, not the historical date of that behavior."
+    }
+  ],
+  "roomProposals": [
+    {
+      "id": "early_jet_1953",
+      "label": "早期喷气1953",
+      "status": "proposal_for_review_not_enabled",
+      "snapshot_year": 1953,
+      "teams_share_identical_profiles": true,
+      "verified_airframe_candidates": [
+        "mig15",
+        "f86f"
+      ],
+      "pending_airframe_candidates": [],
+      "verified_ground_family_candidates": [
+        "su_t34_85",
+        "us_m4a3_76w_hvss"
+      ],
+      "pending_ground_candidates": [
+        "de_flakpz38t"
+      ],
+      "sensor_and_store_policy": [
+        "Gyro/optical gunsights only; Sabre ranging assistance is distinct from search radar.",
+        "Initial audited air profiles can be guns-only. Existing anm64/hvar/fab100 remain ground-attack candidates pending exact block/store clearance.",
+        "Optical gun AAA; no radar or SAM shortcut."
+      ],
+      "explicit_denials": [
+        "All guided AAM/AGM/SAM",
+        "HunterF6/MiG-21MF/F-104G/F-4E and later types",
+        "CCIP/CCRP/HMD/AESA/modern thermal sensors"
+      ],
+      "notes": [
+        "Smallest source-backed combined-mode seed. F-86F family is verified; exact F-25 block and tank/rocket/bomb combinations still need clearance evidence.",
+        "T-54(1951) is not automatically a Korean War historical unit merely because its local year is1951. Fictional conflict can add it only through an explicit verified profile."
+      ]
+    },
+    {
+      "id": "postwar_1965",
+      "label": "战后喷气1965",
+      "status": "proposal_for_review_not_enabled",
+      "snapshot_year": 1965,
+      "teams_share_identical_profiles": true,
+      "verified_airframe_candidates": [
+        "mig15",
+        "f86f",
+        "mig17f",
+        "f104g"
+      ],
+      "pending_airframe_candidates": [
+        "hunter6"
+      ],
+      "verified_ground_family_candidates": [
+        "su_t34_85",
+        "us_m4a3_76w_hvss"
+      ],
+      "pending_ground_candidates": [
+        "su_t54",
+        "us_m56",
+        "de_flakpz38t"
+      ],
+      "sensor_and_store_policy": [
+        "F-104G retains documented early pulse-radar class plus requested game ACM; no modern look-down/HMD/ARH inference.",
+        "aim9b is a dated component candidate for a clearance-verified F-104G profile. Earlier gun-only jets receive no missile retrofit by default.",
+        "No CCIP for gyro-only MiG-15bis/F-86/Hunter/MiG-17 simply because the common HUD renderer can draw it."
+      ],
+      "explicit_denials": [
+        "All AMRAAM/AIM-9L/M/X and modern guided ground weapons",
+        "F-4E1967+, MiG-21MF1970s+, Mirage5F1970s+",
+        "Kub/Chaparral/Gepard/Pantsir"
+      ],
+      "notes": [
+        "Hunter remains a required pending candidate: resolve F4 model versus F6 performance first.",
+        "MiG-17F asset suffix/first-service date is pending;1965 is a conservative candidate cutoff, not an assertion that every local store was then cleared."
+      ]
+    },
+    {
+      "id": "supersonic_1976",
+      "label": "超音速1976",
+      "status": "proposal_for_review_not_enabled",
+      "snapshot_year": 1976,
+      "teams_share_identical_profiles": true,
+      "verified_airframe_candidates": [
+        "f104g",
+        "f4e",
+        "mirage3e"
+      ],
+      "pending_airframe_candidates": [
+        "mig21",
+        "hunter6"
+      ],
+      "verified_ground_family_candidates": [],
+      "pending_ground_candidates": [
+        "su_t54",
+        "us_m56",
+        "de_gepard"
+      ],
+      "sensor_and_store_policy": [
+        "Mirage is5F and has no search radar; exact LCOS/CCIP/reticle and Magic1 clearance pending.",
+        "F-4E early/late equipment profiles must separate; current AIR_LOADOUTS mixes AIM-9L, Maverick, PaveSpike and laser bombs across dates.",
+        "AIM-9L1976 production and AGM-65A1972 acceptance are component lower bounds, not automatic1976 platform clearance.",
+        "Kub1967/Chaparral1969 are dated SAM candidates for rear objectives after visual/system-profile repair, not pre1965 fallback."
+      ],
+      "explicit_denials": [
+        "AMRAAM/AIM-9M/X/AGM-65D/G",
+        "MiG-29/Su-25/F-15E/Su-27UBK/A-10C/F-16V",
+        "Modern AESA/HMD/MAWS and future thermal upgrades"
+      ],
+      "notes": [
+        "Use fixed selected configurations rather than all presets.",
+        "Gepard family is dated1976 but local1A1 package requires modification-date review before1976 release."
+      ]
+    },
+    {
+      "id": "cold_war_1986",
+      "label": "冷战1986",
+      "status": "proposal_for_review_not_enabled",
+      "snapshot_year": 1986,
+      "teams_share_identical_profiles": true,
+      "verified_airframe_candidates": [
+        "f4e",
+        "mig29",
+        "su25"
+      ],
+      "pending_airframe_candidates": [
+        "mig21",
+        "mirage3e",
+        "hunter6"
+      ],
+      "verified_ground_family_candidates": [
+        "su_t72a",
+        "us_m901_itv",
+        "de_gepard"
+      ],
+      "pending_ground_candidates": [
+        "su_t54",
+        "de_flakpz38t"
+      ],
+      "sensor_and_store_policy": [
+        "MiG-299.12 retains N019, early IR/laser and helmet aiming; no R-77/AESA/modern datalink upgrade.",
+        "Su-25 retains its documented baseline attack configuration once Klen/sight/Kh store audit is complete; do not borrow Su-25T/Vikhr fit.",
+        "AGM-65D becomes an operational component candidate inFebruary1986; carrier-specific authorization still required.",
+        "T-72A1979 profile retains TPD-K1 laser and existing22round AZ load; no ERA/thermal/gun-launched ATGM or later APFSDS.",
+        "Gepard and paired Kub radar/launcher are rear-defense candidates; frontline pressure remains guns/short-range by design."
+      ],
+      "explicit_denials": [
+        "F-15E (IOC1989), Su-27UBK (local1992 pending), A-10C2007, F-16V2010s+",
+        "AIM-120 all variants and AGM-65G",
+        "Pantsir and fictional advanced carriers"
+      ],
+      "notes": [
+        "This is the largest useful first Cold War candidate pool supported by local models. Verified vehicle family does not certify exact ammunition issue dates.",
+        "Do not replace the actual A-10C model by an unannounced A-10A1977 historical profile; add a matched A variant only as explicit work."
+      ]
+    },
+    {
+      "id": "post_cold_war_1995",
+      "label": "后冷战1995",
+      "status": "proposal_for_review_not_enabled",
+      "snapshot_year": 1995,
+      "teams_share_identical_profiles": true,
+      "verified_airframe_candidates": [
+        "f4e",
+        "mig29",
+        "su25"
+      ],
+      "pending_airframe_candidates": [
+        "f15c",
+        "su27",
+        "mig21",
+        "mirage3e"
+      ],
+      "verified_ground_family_candidates": [
+        "su_t72a",
+        "us_m901_itv",
+        "de_gepard"
+      ],
+      "pending_ground_candidates": [
+        "su_t54"
+      ],
+      "sensor_and_store_policy": [
+        "F-15E is a required pending addition after E radar/crew/loadout reconciliation, using operational date1989 rather than family1979 or training1988.",
+        "Su-27UBK is a required pending addition after verifying initial delivery, N001 fit and export missile subtype. No R-77 assumption.",
+        "AIM-120A1991 candidate only on a compatible, separately dated carrier profile;120B/120C exact dates remain pending.",
+        "TOW baseline remains separate from TOW2/tandem/top-attack or thermal upgrades."
+      ],
+      "explicit_denials": [
+        "A-10C2007 and F-16V/APG-83",
+        "Generic120C lot treated as1991 weapon",
+        "Pantsir-SM-SV date inferred from borrowed chassis"
+      ],
+      "notes": [
+        "Pending does not remove these aircraft from the final mode: each has a remediation item and stays in the expansion target.",
+        "Retention of older types is a room-balance decision; no rule that an older aircraft disappears merely because its introduction date is outside a lower bracket bound."
+      ]
+    },
+    {
+      "id": "modern_2022",
+      "label": "现代2022",
+      "status": "proposal_for_review_not_enabled",
+      "snapshot_year": 2022,
+      "teams_share_identical_profiles": true,
+      "verified_airframe_candidates": [
+        "f16v",
+        "mig29",
+        "su25"
+      ],
+      "pending_airframe_candidates": [
+        "a10a",
+        "f15c",
+        "su27"
+      ],
+      "verified_ground_family_candidates": [
+        "su_t72a",
+        "us_m901_itv",
+        "de_gepard"
+      ],
+      "pending_ground_candidates": [
+        "ru_pantsir_sm_sv"
+      ],
+      "sensor_and_store_policy": [
+        "F-16V/APG-83 belongs here as a modern configuration; ROCAF2021 operational-wing evidence supports conservative2022 candidate use.",
+        "A-10C and F-15E remain required modern candidates pending complete matched avionics/targeting/store profiles.",
+        "Modern room does not mean every missile on every aircraft: f16v may use only source-backed compatible lots; base MiG-299.12/Su-27UBK do not gain R-77 automatically.",
+        "Older T-72A can remain an explicitly selected legacy ground profile, but no implicit T-72B3/thermal/late ammo update.",
+        "Pantsir-SM-SV is a pending distinct modern profile; resolve the S1/SM-SV model and guidance substitution and gate its use to rear-defense budgets."
+      ],
+      "explicit_denials": [
+        "nf01/nf02 as unlabelled history aircraft",
+        "Meteor/MICA/IRIS-T/ASRAAM/Phoenix assigned solely because they exist in the test catalog",
+        "All unverified custom/prototype ground platforms as historical line units"
+      ],
+      "notes": [
+        "Modern aircraft are part of the final combined-mode requirement. This first study flags integration work instead of silently dropping them.",
+        "There is no existing modern NATO MBT/real production IFV/APC roster in this47vehicle catalog. Both teams can initially share T-72A, but broader modern ground diversity requires new audited assets."
+      ]
+    }
+  ],
+  "requiredFinalAircraftCoverage": {
+    "allExistingRealSlots": [
+      "a10a",
+      "a6m2",
+      "bf109g",
+      "f104g",
+      "f15c",
+      "f16v",
+      "f4e",
+      "f4u1d",
+      "f86f",
+      "fw190a8",
+      "hunter6",
+      "me262",
+      "mig15",
+      "mig17f",
+      "mig21",
+      "mig29",
+      "mirage3e",
+      "p51d",
+      "spitfire9",
+      "su25",
+      "su27",
+      "yak9u"
+    ],
+    "modernMustRemainInScope": [
+      "f16v",
+      "a10a",
+      "f15c",
+      "su27"
+    ],
+    "ww2ReservePool": {
+      "ids": [
+        "p51d",
+        "f4u1d",
+        "bf109g",
+        "fw190a8",
+        "spitfire9",
+        "yak9u",
+        "a6m2",
+        "me262"
+      ],
+      "status": "existing assets retained; optional separate1945room needs its own primary audit; not silently added to every jet snapshot"
+    },
+    "remediationProfiles": [
+      {
+        "legacyId": "hunter6",
+        "target": "HunterF4 or matchedF6, explicit choice",
+        "candidateRoom": "postwar_1965"
+      },
+      {
+        "legacyId": "mig21",
+        "target": "MiG-21MF with matched radar/gun/fourstations",
+        "candidateRoom": "supersonic_1976"
+      },
+      {
+        "legacyId": "mirage3e",
+        "target": "radarlessMirage5F, dated sight and stores",
+        "candidateRoom": "supersonic_1976"
+      },
+      {
+        "legacyId": "f15c",
+        "target": "F-15E operational configuration",
+        "candidateRoom": "post_cold_war_1995"
+      },
+      {
+        "legacyId": "su27",
+        "target": "Su-27UBK with dated export integration",
+        "candidateRoom": "post_cold_war_1995_pending_date_verification"
+      },
+      {
+        "legacyId": "a10a",
+        "target": "A-10C matched PrecisionEngagement configuration",
+        "candidateRoom": "modern_2022"
+      }
+    ]
+  },
+  "aircraftCatalog": [
+    {
+      "id": "p51d",
+      "name": "P-51D 野馬",
+      "year_label": "1944",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "m2",
+          6,
+          1880,
+          800
+        ],
+        []
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "anm64",
+        "hvar"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "hvar",
+              6,
+              "row"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bf109g",
+      "name": "Bf 109 G-6",
+      "year_label": "1943",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "mg131",
+          2,
+          600,
+          900
+        ],
+        [
+          "mg151",
+          1,
+          200,
+          700
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "sc250"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "sc250",
+              1,
+              "center"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "spitfire9",
+      "name": "噴火 Mk IX",
+      "year_label": "1943",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "m2",
+          2,
+          500,
+          800
+        ],
+        [
+          "hispano",
+          2,
+          240,
+          600
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "gp250",
+        "mc500"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "mc500",
+              1,
+              "center"
+            ],
+            [
+              "gp250",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mig15",
+      "name": "MiG-15bis",
+      "year_label": "1950",
+      "radar": null,
+      "equipment": {
+        "gyro": true,
+        "vws": "rita"
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "nr23",
+          2,
+          160,
+          800
+        ],
+        [
+          "n37",
+          1,
+          40,
+          400
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "MiG-15bis (Soviet '23'), the user's remake",
+          "author": "Pixel / stefan.lengyel1 (source model, Mig-15 low poly), the user (remake)",
+          "license": "CC BY 4.0 (source)",
+          "package": "Desktop/MiG15bis_TankForge_Complete.zip"
+        },
+        "sourceHashes": {
+          "main": "437b73d043f65d073141253054c98f615300c2dae06379db7b29225ee147e0c4"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_airframe_candidate",
+      "sources": [
+        "nmusaf-mig15bis",
+        "nmusaf-sights"
+      ],
+      "preset_store_ids": [
+        "fab100"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f86f",
+      "name": "F-86F 軍刀",
+      "year_label": "1952",
+      "radar": null,
+      "equipment": {
+        "gyro": true,
+        "vws": "betty"
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "m3",
+          6,
+          1800,
+          1200
+        ],
+        []
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "F-86F-25 Sabre, the user's animated landing-gear update",
+          "author": "KojfDiscord (source model), the user (remake and gear)",
+          "license": "see the package (CREDITS.txt)",
+          "package": "Desktop/f86_gear_update.zip"
+        },
+        "sourceHashes": {
+          "main": "151c4830621c40e9995d7a2aac57606525ded78200a18161d3aa52fecd2e06a1"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_airframe_family_candidate_exact_block_pending",
+      "sources": [
+        "nmusaf-korea-sabre",
+        "nmusaf-armament"
+      ],
+      "preset_store_ids": [
+        "anm64",
+        "hvar",
+        "tank120"
+      ],
+      "preset_summary": [
+        {
+          "name": "500 磅炸彈",
+          "stores": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "hvar",
+              8,
+              "row"
+            ]
+          ]
+        },
+        {
+          "name": "副油箱",
+          "stores": [
+            [
+              "tank120",
+              2,
+              "outer"
+            ]
+          ]
+        },
+        {
+          "name": "炸彈／副油箱",
+          "stores": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ],
+            [
+              "tank120",
+              2,
+              "outer"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f104g",
+      "name": "F-104G 星式",
+      "year_label": "1960",
+      "radar": {
+        "name": "NASARR F15A-41B",
+        "range": 30,
+        "az": 45,
+        "el": 30,
+        "pd": false,
+        "acm": true
+      },
+      "equipment": {
+        "radar": "f104g",
+        "lcos": true,
+        "ccip": true,
+        "aoa": "us",
+        "vws": "betty",
+        "altWarn": true
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "m61",
+          1,
+          725,
+          6000
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "F-104G Starfighter, the user's TankForge package",
+          "author": "42manako (source model, German F-104G), the user (package)",
+          "license": "CC BY 4.0 (source)",
+          "package": "Desktop/F104G_TankForge_Complete.zip"
+        },
+        "sourceHashes": {
+          "main": "2a606f0ef082eac53196ed6e5c41f0aa759815cbc3b58dac7fffe63e46b26ec0"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_service_by1964_candidate_exact_equipment_pending",
+      "sources": [
+        "bundeswehr-f104g"
+      ],
+      "preset_store_ids": [
+        "aim9b",
+        "mk82"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "aim9b",
+              2,
+              "tip"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "mk82",
+              2,
+              "inner"
+            ],
+            [
+              "aim9b",
+              2,
+              "tip"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mig21",
+      "name": "MiG-21MF",
+      "year_label": "1970",
+      "radar": null,
+      "equipment": {
+        "gyro": true,
+        "aoa": "ussr",
+        "vws": "rita",
+        "altWarn": true
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "nr30",
+          1,
+          130,
+          850
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "MiG-21MF",
+          "author": "KojfDiscord (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "db84ea973ae3dbb337e4c7c711cf5c36d6e53413d9f4ee2bbfc47daf9ee94a30"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "held_for_profile_reconciliation",
+      "sources": [
+        "vhu-mig21mf"
+      ],
+      "preset_store_ids": [
+        "fab250",
+        "r3s",
+        "ub16"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "r3s",
+              2,
+              "inner"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "ub16",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fw190a8",
+      "name": "Fw 190 A-8",
+      "year_label": "1944",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "mg131",
+          2,
+          950,
+          900
+        ],
+        [
+          "mg151",
+          4,
+          780,
+          700
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "sc500"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "sc500",
+              1,
+              "center"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yak9u",
+      "name": "Yak-9U",
+      "year_label": "1944",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "ubs",
+          2,
+          340,
+          800
+        ],
+        [
+          "shvak",
+          1,
+          120,
+          700
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [],
+      "preset_summary": []
+    },
+    {
+      "id": "a6m2",
+      "name": "A6M2 零式艦戰 21 型",
+      "year_label": "1941",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "type97",
+          2,
+          1000,
+          700
+        ],
+        [
+          "type99",
+          2,
+          120,
+          490
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "type97b60"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "type97b60",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f4u1d",
+      "name": "F4U-1D 海盜",
+      "year_label": "1944",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "m2",
+          6,
+          2400,
+          800
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "procedural",
+        "note": "No imported model record in current15-model bundle."
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "anm65",
+        "hvar"
+      ],
+      "preset_summary": [
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "anm65",
+              2,
+              "inner"
+            ],
+            [
+              "hvar",
+              4,
+              "mid"
+            ],
+            [
+              "hvar",
+              4,
+              "outer"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "me262",
+      "name": "Me 262 A-1a 燕式",
+      "year_label": "1944",
+      "radar": null,
+      "equipment": {},
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "mk108",
+          4,
+          360,
+          650
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "Me 262 A-1a 'Yellow 7', the user's remake",
+          "author": "Helijah (source model), the user (remake)",
+          "license": "see the package (CREDITS_AND_LICENSES.md)",
+          "package": "Desktop/me262_remake_complete.zip"
+        },
+        "sourceHashes": {
+          "main": "62db7eb76e6c159edf50869beab606b2830c496895c2b084fb6f8f37c37f4a20"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "ww2_candidate_not_primary_audited_in_this_jet_first_pass",
+      "sources": [],
+      "preset_store_ids": [
+        "r4mrack"
+      ],
+      "preset_summary": [
+        {
+          "name": "R4M 火箭",
+          "stores": [
+            [
+              "r4mrack",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "hunter6",
+      "name": "Hunter F.6 獵人",
+      "year_label": "1956",
+      "radar": null,
+      "equipment": {
+        "gyro": true,
+        "vws": "betty"
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "aden",
+          4,
+          600,
+          1400
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "Hawker Hunter F.4 (RAF, TF004), the user's remake",
+          "author": "manilov.ap (source model), the user (remake)",
+          "license": "CC BY 4.0 (source)",
+          "package": "Desktop/Hunter_F4_TankForge.zip"
+        },
+        "sourceHashes": {
+          "main": "4ad19bd329cf7d2bc4cc43e2afd25b2a8143efae758042a295fbb9e18c743d37",
+          "internals": "093c96b3f2f417e4b14d6c70b3137f5f3baa4e47bae837782f160a5f3aac5e4f"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "held_for_profile_reconciliation",
+      "sources": [
+        "raf-hunter6"
+      ],
+      "preset_store_ids": [
+        "mc500",
+        "rp3"
+      ],
+      "preset_summary": [
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "rp3",
+              8,
+              "row"
+            ]
+          ]
+        },
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "mc500",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mig17f",
+      "name": "MiG-17F",
+      "year_label": "1953",
+      "radar": null,
+      "equipment": {
+        "gyro": true,
+        "vws": "rita"
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "n37",
+          1,
+          40,
+          400
+        ],
+        [
+          "nr23",
+          2,
+          160,
+          850
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "MiG-17",
+          "author": "KojfDiscord (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "5efa5c406e77ce78208da31e3a9455af4108c68c947619ab004e462878b0176e"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_type_candidate_exact_suffix_date_pending",
+      "sources": [
+        "nmusaf-mig17f"
+      ],
+      "preset_store_ids": [
+        "fab250",
+        "ub16"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "ub16",
+              2,
+              "inner"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mirage3e",
+      "name": "Mirage 5F 幻象",
+      "year_label": "1972",
+      "radar": null,
+      "equipment": {
+        "lcos": true,
+        "ccip": true,
+        "aoa": "us",
+        "vws": "betty",
+        "altWarn": true
+      },
+      "countermeasures": null,
+      "gun_defs": [
+        [
+          "defa",
+          2,
+          250,
+          1250
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "Dassault Mirage 5F, the user's remake",
+          "author": "KojfDiscord (source parts), the user (remake)",
+          "license": "see the package (CC BY 4.0 source parts)",
+          "package": "Desktop/mirage5f_viewer.html (the GLB it embeds)"
+        },
+        "sourceHashes": {
+          "main": "3bfa59b7b3603c25bc44312e9fdb31b3127da2397dc97505cb4146da6c863d05"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_service_by1976_candidate_sight_and_stores_pending",
+      "sources": [
+        "dassault-mirage5"
+      ],
+      "preset_store_ids": [
+        "magic1",
+        "matra155"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "magic1",
+              2,
+              "outer"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "matra155",
+              2,
+              "inner"
+            ],
+            [
+              "magic1",
+              2,
+              "outer"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f4e",
+      "name": "F-4E 幽靈 II",
+      "year_label": "1967",
+      "radar": {
+        "name": "AN/APQ-120",
+        "range": 45,
+        "az": 60,
+        "el": 45,
+        "pd": false,
+        "acm": true
+      },
+      "equipment": {
+        "radar": "f4e",
+        "rwr": true,
+        "lcos": true,
+        "ccip": true,
+        "ccrp": true,
+        "vws": "betty",
+        "aoa": "us",
+        "altWarn": true
+      },
+      "countermeasures": {
+        "flares": 30,
+        "chaff": 30
+      },
+      "gun_defs": [
+        [
+          "m61",
+          1,
+          640,
+          6000
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "F-4E Phantom II",
+          "author": "Kenny3D89 (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "e03a28ce0a9ef04a4198a647e4ca22eaf85d92e0a625ddad4ad640005624a2f6"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_service_by1969_candidate_exact_block_pending",
+      "sources": [
+        "usaf-f4e-service"
+      ],
+      "preset_store_ids": [
+        "agm12b",
+        "agm45a",
+        "agm65a",
+        "agm65b",
+        "aim7e",
+        "aim9l",
+        "gbu10",
+        "gbu12",
+        "lau3",
+        "mk82",
+        "mk84",
+        "pavespike"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "aim7e",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "agm65a",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ],
+            [
+              "pavespike",
+              1,
+              "center"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "lau3",
+              4,
+              "inner"
+            ],
+            [
+              "aim9l",
+              2,
+              "outer"
+            ]
+          ]
+        },
+        {
+          "name": "重炸彈",
+          "stores": [
+            [
+              "mk84",
+              2,
+              "inner"
+            ],
+            [
+              "aim7e",
+              4,
+              "belly"
+            ]
+          ]
+        },
+        {
+          "name": "雷射炸彈",
+          "stores": [
+            [
+              "gbu12",
+              4,
+              "inner"
+            ],
+            [
+              "gbu10",
+              2,
+              "outer"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ],
+            [
+              "pavespike",
+              1,
+              "center"
+            ]
+          ]
+        },
+        {
+          "name": "犢牛／百舌鳥",
+          "stores": [
+            [
+              "agm12b",
+              2,
+              "inner"
+            ],
+            [
+              "agm45a",
+              2,
+              "outer"
+            ],
+            [
+              "aim7e",
+              4,
+              "belly"
+            ]
+          ]
+        },
+        {
+          "name": "電視小牛 B",
+          "stores": [
+            [
+              "agm65b",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f15c",
+      "name": "F-15E 打擊鷹",
+      "year_label": "1988",
+      "radar": {
+        "name": "AN/APG-63",
+        "range": 80,
+        "az": 60,
+        "el": 60,
+        "pd": true,
+        "acm": true
+      },
+      "equipment": {
+        "radar": "f15c",
+        "rwr": true,
+        "lcos": true,
+        "ccip": true,
+        "ccrp": true,
+        "vws": "betty",
+        "aoa": "us",
+        "altWarn": true
+      },
+      "countermeasures": {
+        "flares": 60,
+        "chaff": 60
+      },
+      "gun_defs": [
+        [
+          "m61",
+          1,
+          940,
+          6000
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "F-15E Strike Eagle",
+          "author": "bohmerang (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY-NC-SA 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "b736634797d9c94fa04967e8f06b20a40458d8349af54888d0b62de47a50c23a"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "held_for_profile_reconciliation",
+      "sources": [
+        "usaf-f15e",
+        "usaf-f15c"
+      ],
+      "preset_store_ids": [
+        "aim120a",
+        "aim120b",
+        "aim120c",
+        "aim7f",
+        "aim7m",
+        "aim9l",
+        "aim9m",
+        "mk82"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "aim7f",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ]
+        },
+        {
+          "name": "AMRAAM",
+          "stores": [
+            [
+              "aim120a",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "mk82",
+              2,
+              "center"
+            ],
+            [
+              "aim9l",
+              2,
+              "outer"
+            ],
+            [
+              "aim7f",
+              2,
+              "belly"
+            ]
+          ]
+        },
+        {
+          "name": "空戰（7M／9M）",
+          "stores": [
+            [
+              "aim7m",
+              4,
+              "belly"
+            ],
+            [
+              "aim9m",
+              4,
+              "mid"
+            ]
+          ]
+        },
+        {
+          "name": "AMRAAM（120B／C）",
+          "stores": [
+            [
+              "aim120b",
+              2,
+              "belly"
+            ],
+            [
+              "aim120c",
+              2,
+              "mid"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "mig29",
+      "name": "MiG-29 9.12 支點",
+      "year_label": "1983",
+      "radar": {
+        "name": "N019 Rubin",
+        "range": 70,
+        "az": 67,
+        "el": 50,
+        "pd": true,
+        "acm": true
+      },
+      "equipment": {
+        "radar": "mig29",
+        "rwr": true,
+        "hms": true,
+        "lcos": true,
+        "ccip": true,
+        "ccrp": true,
+        "vws": "rita",
+        "aoa": "ussr",
+        "altWarn": true
+      },
+      "countermeasures": {
+        "flares": 30,
+        "chaff": 30
+      },
+      "gun_defs": [
+        [
+          "gsh301",
+          1,
+          150,
+          1650
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "MiG-29 Ukrainian Falcons, the user's remake",
+          "author": "42manako (source model), the user (remake)",
+          "license": "CC BY 4.0 (source)",
+          "package": "Desktop/mig29_viewer.html (the GLB it embeds; the zip was truncated)"
+        },
+        "sourceHashes": {
+          "main": "59defc7ff57bfba306a83fdef4e33152d18f1f1ad2e60b7efe2e1bd7aff94379"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_early_variant_candidate_exact_weapon_subtypes_pending",
+      "sources": [
+        "nmusaf-mig29a"
+      ],
+      "preset_store_ids": [
+        "b8m1",
+        "fab500",
+        "r27r",
+        "r27t",
+        "r60m",
+        "r73"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "r27r",
+              2,
+              "inner"
+            ],
+            [
+              "r73",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ]
+        },
+        {
+          "name": "近戰",
+          "stores": [
+            [
+              "r27t",
+              2,
+              "inner"
+            ],
+            [
+              "r60m",
+              2,
+              "mid"
+            ],
+            [
+              "r60m",
+              2,
+              "outer"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "f16v",
+      "name": "F-16V 戰隼",
+      "year_label": "2018",
+      "radar": {
+        "name": "AN/APG-83 SABR",
+        "range": 90,
+        "az": 60,
+        "el": 60,
+        "pd": true,
+        "acm": true
+      },
+      "equipment": {
+        "radar": "f16v",
+        "rwr": true,
+        "hms": true,
+        "lcos": true,
+        "ccip": true,
+        "ccrp": true,
+        "vws": "betty",
+        "aoa": "us",
+        "altWarn": true
+      },
+      "countermeasures": {
+        "flares": 30,
+        "chaff": 60
+      },
+      "gun_defs": [
+        [
+          "m61",
+          1,
+          511,
+          6000
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "ROCAF F-16V Viper",
+          "author": "KojfDiscord (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "2144f85ce471b772867a6380a87144f1a3f3d736c83fc56727dc040af9d858fc"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_modern_variant_candidate_operator_weapon_profile_pending",
+      "sources": [
+        "lm-f16v",
+        "mnd-f16v2018",
+        "mnd-f16v2021"
+      ],
+      "preset_store_ids": [
+        "agm65g",
+        "aim120b",
+        "aim120c",
+        "aim9m",
+        "aim9x",
+        "gbu12",
+        "mk82"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "aim120c",
+              2,
+              "tip"
+            ],
+            [
+              "aim120c",
+              2,
+              "outer"
+            ],
+            [
+              "aim9x",
+              2,
+              "mid"
+            ]
+          ]
+        },
+        {
+          "name": "空戰（9M／120B）",
+          "stores": [
+            [
+              "aim9m",
+              2,
+              "tip"
+            ],
+            [
+              "aim120b",
+              2,
+              "outer"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "agm65g",
+              2,
+              "mid"
+            ],
+            [
+              "mk82",
+              2,
+              "inner"
+            ],
+            [
+              "aim9x",
+              2,
+              "tip"
+            ]
+          ]
+        },
+        {
+          "name": "精準炸彈",
+          "stores": [
+            [
+              "gbu12",
+              2,
+              "inner"
+            ],
+            [
+              "aim120c",
+              2,
+              "tip"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "su27",
+      "name": "Su-27UBK 側衛",
+      "year_label": "1992",
+      "radar": {
+        "name": "N001 Myech",
+        "range": 80,
+        "az": 60,
+        "el": 50,
+        "pd": true,
+        "acm": true
+      },
+      "equipment": {
+        "radar": "su27",
+        "rwr": true,
+        "hms": true,
+        "lcos": true,
+        "ccip": true,
+        "ccrp": true,
+        "vws": "rita",
+        "aoa": "ussr",
+        "altWarn": true
+      },
+      "countermeasures": {
+        "flares": 48,
+        "chaff": 48
+      },
+      "gun_defs": [
+        [
+          "gsh301",
+          1,
+          150,
+          1650
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "Su-27UBK",
+          "author": "Rhine_Lab_Muelsyse (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "562a29d0ae0fbc4f251dc5120b5a30103959eff9b72b5a3116db62d25b77b0f8"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "identity_confirmed_initial_date_and_loadout_pending",
+      "sources": [
+        "pla-su27ubk"
+      ],
+      "preset_store_ids": [
+        "b8m1",
+        "fab500",
+        "r27r",
+        "r27t",
+        "r73"
+      ],
+      "preset_summary": [
+        {
+          "name": "空戰",
+          "stores": [
+            [
+              "r27r",
+              2,
+              "inner"
+            ],
+            [
+              "r27t",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ],
+            [
+              "r27r",
+              2,
+              "center"
+            ]
+          ]
+        },
+        {
+          "name": "對地",
+          "stores": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "fab500",
+              2,
+              "center"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a10a",
+      "name": "A-10C 雷霆 II",
+      "year_label": "2007",
+      "radar": null,
+      "equipment": {
+        "rwr": true,
+        "lcos": true,
+        "ccip": true,
+        "aoa": "us",
+        "pavePenny": true,
+        "vws": "betty",
+        "altWarn": true
+      },
+      "countermeasures": {
+        "flares": 120,
+        "chaff": 240
+      },
+      "gun_defs": [
+        [
+          "gau8",
+          1,
+          1174,
+          3900
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "A-10C Thunderbolt II",
+          "author": "VTX (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY-NC-SA 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "1e4c993b5406bb942b155cbe51a81dc5650ef9b6937dae78246d6f7f50deec83"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "held_for_profile_reconciliation",
+      "sources": [
+        "usaf-a10c"
+      ],
+      "preset_store_ids": [
+        "agm65a",
+        "agm65b",
+        "agm65d",
+        "agm65g",
+        "aim9l",
+        "aim9m",
+        "alq131",
+        "cbu87",
+        "lau68",
+        "mk82",
+        "mk84",
+        "tank600"
+      ],
+      "preset_summary": [
+        {
+          "name": "對地（小牛）",
+          "stores": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "lau68",
+              1,
+              "p2"
+            ],
+            [
+              "agm65d",
+              3,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p5"
+            ],
+            [
+              "mk82",
+              1,
+              "p7"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "agm65d",
+              3,
+              "p9"
+            ],
+            [
+              "lau68",
+              1,
+              "p10"
+            ]
+          ]
+        },
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "mk82",
+              1,
+              "p2"
+            ],
+            [
+              "mk82",
+              3,
+              "p3"
+            ],
+            [
+              "mk84",
+              1,
+              "p4"
+            ],
+            [
+              "mk84",
+              1,
+              "p8"
+            ],
+            [
+              "mk82",
+              3,
+              "p9"
+            ],
+            [
+              "mk82",
+              1,
+              "p10"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "lau68",
+              1,
+              "p2"
+            ],
+            [
+              "lau68",
+              1,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "lau68",
+              1,
+              "p9"
+            ],
+            [
+              "lau68",
+              1,
+              "p10"
+            ],
+            [
+              "aim9l",
+              2,
+              "p11"
+            ]
+          ]
+        },
+        {
+          "name": "電視小牛",
+          "stores": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "agm65a",
+              3,
+              "p3"
+            ],
+            [
+              "agm65a",
+              3,
+              "p9"
+            ],
+            [
+              "aim9l",
+              2,
+              "p11"
+            ]
+          ]
+        },
+        {
+          "name": "集束（干擾）",
+          "stores": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "cbu87",
+              1,
+              "p2"
+            ],
+            [
+              "cbu87",
+              1,
+              "p3"
+            ],
+            [
+              "tank600",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p5"
+            ],
+            [
+              "mk82",
+              1,
+              "p7"
+            ],
+            [
+              "tank600",
+              1,
+              "p8"
+            ],
+            [
+              "cbu87",
+              1,
+              "p9"
+            ],
+            [
+              "cbu87",
+              1,
+              "p10"
+            ],
+            [
+              "alq131",
+              1,
+              "p11"
+            ]
+          ]
+        },
+        {
+          "name": "小牛 B／G",
+          "stores": [
+            [
+              "aim9m",
+              2,
+              "p1"
+            ],
+            [
+              "agm65b",
+              3,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "agm65g",
+              1,
+              "p9"
+            ],
+            [
+              "aim9m",
+              2,
+              "p11"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "su25",
+      "name": "Su-25 蛙足",
+      "year_label": "1981",
+      "radar": null,
+      "equipment": {
+        "rwr": true,
+        "lcos": true,
+        "ccip": true,
+        "ccrp": true,
+        "aoa": "ussr",
+        "altWarn": true,
+        "vws": "rita",
+        "pod": "klenps",
+        "podMount": [
+          0,
+          -0.25,
+          7.6
+        ]
+      },
+      "countermeasures": {
+        "flares": 192,
+        "chaff": 64
+      },
+      "gun_defs": [
+        [
+          "gsh302",
+          1,
+          250,
+          3000
+        ]
+      ],
+      "catalog_year_is_historical_proof": false,
+      "model_evidence": {
+        "kind": "imported",
+        "source": {
+          "title": "Su-25",
+          "author": "KojfDiscord (source model), the user (pack: movers, clips, cockpit)",
+          "license": "CC BY 4.0",
+          "package": "Desktop/TankForge_8_Aircraft_20261023.zip"
+        },
+        "sourceHashes": {
+          "main": "e0d9b71d05ec5b3f26fe8907064c91c0f76069ebc81f422ce2b8d3402f32c9ff"
+        },
+        "evidence": "tracked gzip embedded aircraftModels"
+      },
+      "historical_audit_status": "verified_airframe_candidate_equipment_pending",
+      "sources": [
+        "rostec-su25"
+      ],
+      "preset_store_ids": [
+        "b8m1",
+        "fab250",
+        "fab500",
+        "kh25ml",
+        "kh29l",
+        "ptb800",
+        "r60m",
+        "rbk500",
+        "s24b",
+        "sppu22"
+      ],
+      "preset_summary": [
+        {
+          "name": "炸彈",
+          "stores": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "fab250",
+              1,
+              "p2"
+            ],
+            [
+              "fab500",
+              1,
+              "p3"
+            ],
+            [
+              "fab500",
+              1,
+              "p4"
+            ],
+            [
+              "fab500",
+              1,
+              "p7"
+            ],
+            [
+              "fab500",
+              1,
+              "p8"
+            ],
+            [
+              "fab250",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ]
+        },
+        {
+          "name": "火箭",
+          "stores": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "b8m1",
+              1,
+              "p2"
+            ],
+            [
+              "b8m1",
+              1,
+              "p3"
+            ],
+            [
+              "b8m1",
+              1,
+              "p4"
+            ],
+            [
+              "b8m1",
+              1,
+              "p7"
+            ],
+            [
+              "b8m1",
+              1,
+              "p8"
+            ],
+            [
+              "b8m1",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ]
+        },
+        {
+          "name": "雷射飛彈",
+          "stores": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "s24b",
+              1,
+              "p2"
+            ],
+            [
+              "kh25ml",
+              1,
+              "p3"
+            ],
+            [
+              "kh29l",
+              1,
+              "p4"
+            ],
+            [
+              "fab250",
+              1,
+              "p5"
+            ],
+            [
+              "fab250",
+              1,
+              "p6"
+            ],
+            [
+              "kh29l",
+              1,
+              "p7"
+            ],
+            [
+              "kh25ml",
+              1,
+              "p8"
+            ],
+            [
+              "s24b",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ]
+        },
+        {
+          "name": "集束與機砲莢艙",
+          "stores": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "sppu22",
+              1,
+              "p2"
+            ],
+            [
+              "rbk500",
+              1,
+              "p3"
+            ],
+            [
+              "ptb800",
+              1,
+              "p4"
+            ],
+            [
+              "rbk500",
+              1,
+              "p5"
+            ],
+            [
+              "rbk500",
+              1,
+              "p6"
+            ],
+            [
+              "ptb800",
+              1,
+              "p7"
+            ],
+            [
+              "rbk500",
+              1,
+              "p8"
+            ],
+            [
+              "sppu22",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nf01",
+      "historical_audit_status": "fictional_test_platform_only",
+      "model_evidence": {
+        "kind": "procedural"
+      },
+      "era_rooms": [],
+      "note": "Retain for development/offline testing; do not use as an unlabelled history-room capability bypass."
+    },
+    {
+      "id": "nf02",
+      "historical_audit_status": "fictional_test_platform_only",
+      "model_evidence": {
+        "kind": "procedural"
+      },
+      "era_rooms": [],
+      "note": "Retain for development/offline testing; do not use as an unlabelled history-room capability bypass."
+    }
+  ],
+  "groundCatalog": [
+    {
+      "id": "de_aufkl_panther",
+      "name": "Aufklärungspanzer Panther",
+      "meta_year": 1943,
+      "meta_class": "light",
+      "based_on": "Aufklärungspanzer Panther: the Panther hull with the VK 16.02 Leopard's turret and the 5 cm KwK 39/1 L/60",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk39_1",
+          "ammo": [
+            "apc_50_pzgr39",
+            "he_50_sprgr38",
+            "apcr_50_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 4b",
+        "levels": [
+          {
+            "magnification": 2.4,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "de_flakpz38t",
+      "name": "Flakpanzer 38(t)",
+      "meta_year": 1943,
+      "meta_class": "spaa",
+      "based_on": "Flakpanzer 38(t) Ausf. L (Sd.Kfz. 140) with the 2 cm FlaK 38",
+      "main_and_extra_guns": [
+        {
+          "id": "flak38_20",
+          "ammo": [
+            "hefi_20_sprgr",
+            "apt_20_pzgr39",
+            "apcr_20_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Flakvisier 38",
+        "levels": [
+          {
+            "magnification": 1.0,
+            "fov_deg": 45.0
+          },
+          {
+            "magnification": 3.0,
+            "fov_deg": 15.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_gepard",
+      "name": "Flakpanzer Gepard",
+      "meta_year": 1976,
+      "meta_class": "spaa",
+      "based_on": "Flakpanzer Gepard 1A1: Leopard 1 chassis, twin 35 mm Oerlikon KDA, search and tracking radars",
+      "main_and_extra_guns": [
+        {
+          "id": "kda_35_gepard",
+          "ammo": [
+            "hei_35_kda",
+            "apds_35_kda"
+          ]
+        },
+        {
+          "id": "kda_35_gepard",
+          "ammo": [
+            "hei_35_kda",
+            "apds_35_kda"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "PERI (Gepard)",
+        "levels": [
+          {
+            "magnification": 1.5,
+            "fov_deg": 50.0
+          },
+          {
+            "magnification": 6.0,
+            "fov_deg": 12.0
+          }
+        ]
+      },
+      "stabilizer": "two_plane",
+      "sources": [
+        "bundeswehr-gepard"
+      ],
+      "audit_status": "verified_vehicle_family_candidate_exact_ammo_and_fit_pending"
+    },
+    {
+      "id": "de_hetzer",
+      "name": "Jagdpanzer 38(t) Hetzer",
+      "meta_year": 1944,
+      "meta_class": "tank_destroyer",
+      "based_on": "Jagdpanzer 38(t) Hetzer with the 7.5 cm PaK 39 L/48",
+      "main_and_extra_guns": [
+        {
+          "id": "pak39_75_l48",
+          "ammo": [
+            "apcbc_75_pzgr39",
+            "he_75_sprgr34"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Sfl.Z.F. 1a",
+        "levels": [
+          {
+            "magnification": 5.0,
+            "fov_deg": 8.0
+          },
+          {
+            "magnification": 10.0,
+            "fov_deg": 4.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_hetzer_flak",
+      "name": "Hetzer 2 cm FlaK",
+      "meta_year": 1945,
+      "meta_class": "spaa",
+      "based_on": "Bergepanzer 38(t) Hetzer with a 2 cm FlaK 38 in the open compartment",
+      "main_and_extra_guns": [
+        {
+          "id": "flak38_20",
+          "ammo": [
+            "hefi_20_sprgr",
+            "apt_20_pzgr39",
+            "apcr_20_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Flakvisier 38",
+        "levels": [
+          {
+            "magnification": 1.0,
+            "fov_deg": 45.0
+          },
+          {
+            "magnification": 3.0,
+            "fov_deg": 15.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "de_hetzer_mk103",
+      "name": "Hetzer 3 cm MK 103",
+      "meta_year": 1945,
+      "meta_class": "spaa",
+      "based_on": "Hetzer chassis with an open fighting compartment and the 3 cm MK 103 on a pedestal",
+      "main_and_extra_guns": [
+        {
+          "id": "mk103_30",
+          "ammo": [
+            "he_30_mgesch",
+            "apt_30_pzgr",
+            "apcr_30_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Flakvisier 38",
+        "levels": [
+          {
+            "magnification": 1.0,
+            "fov_deg": 45.0
+          },
+          {
+            "magnification": 3.0,
+            "fov_deg": 15.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "de_hetzer_mk103_camo",
+      "name": "Hetzer 3 cm MK 103（三色迷彩）",
+      "meta_year": 1945,
+      "meta_class": "spaa",
+      "based_on": "Hetzer chassis with an open fighting compartment and the 3 cm MK 103 on a pedestal",
+      "main_and_extra_guns": [
+        {
+          "id": "mk103_30",
+          "ammo": [
+            "he_30_mgesch"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Flakvisier 38",
+        "levels": [
+          {
+            "magnification": 1.0,
+            "fov_deg": 45.0
+          },
+          {
+            "magnification": 3.0,
+            "fov_deg": 15.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "de_hetzer_sdkfz1401",
+      "name": "Hetzer · Sd.Kfz.140/1 炮塔（假想改裝）",
+      "meta_year": 0,
+      "meta_class": "spaa",
+      "based_on": "Custom Hetzer chassis with transplanted Sd.Kfz.140/1 Hanglafette 38 turret",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk38_20",
+          "ammo": [
+            "hefi_20_sprgr",
+            "apt_20_pzgr39",
+            "apcr_20_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 3a",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "de_panther_f",
+      "name": "Panther Ausf. F",
+      "meta_year": 1945,
+      "meta_class": "medium",
+      "based_on": "Panzerkampfwagen V Panther Ausf. F with the Schmalturm and 7.5 cm KwK 44/1 L/70",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk44_1_75_l70",
+          "ammo": [
+            "apcbc_75_pzgr39_42",
+            "he_75_sprgr42",
+            "apcr_75_pzgr40_42"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 13 + EM 1.32 m R",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 28.0
+          },
+          {
+            "magnification": 5.0,
+            "fov_deg": 14.0
+          }
+        ],
+        "rangefinder": {
+          "time_s": 3.0,
+          "error_pct": 2.0,
+          "max_range_m": 4000
+        }
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "de_panther_g",
+      "name": "Panther Ausf. G",
+      "meta_year": 1944,
+      "meta_class": "medium",
+      "based_on": "Panzerkampfwagen V Panther Ausf. G",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk42_75_l70",
+          "ammo": [
+            "apcbc_75_pzgr39_42",
+            "he_75_sprgr42",
+            "apcr_75_pzgr40_42"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 12a",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 28.0
+          },
+          {
+            "magnification": 5.0,
+            "fov_deg": 14.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_pz3_j",
+      "name": "Pz.Kpfw. III Ausf. J (L/60)",
+      "meta_year": 1942,
+      "meta_class": "medium",
+      "based_on": "Panzerkampfwagen III Ausf. J with 5 cm KwK 39 L/60",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk39_50_l60",
+          "ammo": [
+            "apc_50_pzgr39",
+            "he_50_sprgr38",
+            "apcr_50_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 5e",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_pz4_h",
+      "name": "Pz.Kpfw. IV Ausf. H",
+      "meta_year": 1943,
+      "meta_class": "medium",
+      "based_on": "Panzerkampfwagen IV Ausf. H with 7.5 cm KwK 40 L/48",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk40_75_l48",
+          "ammo": [
+            "apcbc_75_pzgr39",
+            "he_75_sprgr34",
+            "apcr_75_pzgr40",
+            "heat_75_gr38c"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 5f",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_pzjg1",
+      "name": "Panzerjäger I",
+      "meta_year": 1940,
+      "meta_class": "tank_destroyer",
+      "based_on": "Panzerjäger I: 4.7 cm PaK(t) on the Panzer I Ausf. B chassis",
+      "main_and_extra_guns": [
+        {
+          "id": "pak36t_47",
+          "ammo": [
+            "apcbc_47_pak36t",
+            "he_47_pak36t"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Sfl.Z.F.",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 24.0
+          },
+          {
+            "magnification": 5.0,
+            "fov_deg": 12.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_rso_flak",
+      "name": "RSO 2 cm FlaK 38",
+      "meta_year": 1944,
+      "meta_class": "spaa",
+      "based_on": "Raupenschlepper Ost with the 2 cm FlaK 38 on its pedestal in the bed",
+      "main_and_extra_guns": [
+        {
+          "id": "flak38_20",
+          "ammo": [
+            "hefi_20_sprgr",
+            "apt_20_pzgr39",
+            "apcr_20_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Flakvisier 38",
+        "levels": [
+          {
+            "magnification": 1.0,
+            "fov_deg": 45.0
+          },
+          {
+            "magnification": 3.0,
+            "fov_deg": 15.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_rso_pak40",
+      "name": "RSO PaK 40",
+      "meta_year": 1943,
+      "meta_class": "tank_destroyer",
+      "based_on": "7.5 cm PaK 40/4 auf Raupenschlepper Ost (Sfl.), the armoured cab and the PaK 40 on a turntable",
+      "main_and_extra_guns": [
+        {
+          "id": "pak40_75",
+          "ammo": [
+            "apcbc_75_pzgr39",
+            "he_75_sprgr34",
+            "apcr_75_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "ZF 3x8",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 8.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_sdkfz140_1",
+      "name": "Sd.Kfz. 140/1 Aufklärungspanzer 38(t)",
+      "meta_year": 1944,
+      "meta_class": "light",
+      "based_on": "Aufklärungspanzer 38(t) (Sd.Kfz. 140/1) with the Hängelafette 38: 2 cm KwK 38 and MG 42",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk38_20",
+          "ammo": [
+            "hefi_20_sprgr",
+            "apt_20_pzgr39",
+            "apcr_20_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 3a",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_sdkfz234_2",
+      "name": "Sd.Kfz. 234/2 Puma",
+      "meta_year": 1944,
+      "meta_class": "armored_car",
+      "based_on": "Schwerer Panzerspähwagen (5 cm) Sd.Kfz. 234/2 'Puma', 8x8, with the 5 cm KwK 39/1 L/60",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk39_1",
+          "ammo": [
+            "apc_50_pzgr39",
+            "he_50_sprgr38",
+            "apcr_50_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 4b",
+        "levels": [
+          {
+            "magnification": 2.4,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_tiger_e",
+      "name": "Tiger I (Pz.Kpfw. VI Ausf. E)",
+      "meta_year": 1944,
+      "meta_class": "heavy",
+      "based_on": "Panzerkampfwagen VI Tiger Ausf. E, late production (cast cupola, steel-rimmed wheels)",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk36_88_l56",
+          "ammo": [
+            "apcbc_88_l56",
+            "he_88_sprgr",
+            "apcr_88_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 9b",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 23.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "de_vk1602",
+      "name": "VK 16.02 Leopard",
+      "meta_year": 1943,
+      "meta_class": "light",
+      "based_on": "VK 16.02 Leopard reconnaissance tank (1942-43 design) with the 5 cm KwK 39/1 L/60",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk39_1",
+          "ammo": [
+            "apc_50_pzgr39",
+            "he_50_sprgr38",
+            "apcr_50_pzgr40"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 4b",
+        "levels": [
+          {
+            "magnification": 2.4,
+            "fov_deg": 25.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "de_vk3002_db",
+      "name": "VK 30.02 (DB)",
+      "meta_year": 1942,
+      "meta_class": "medium",
+      "based_on": "VK 30.02 (DB), Daimler-Benz's 1942 design for the Panther competition, with the 7.5 cm KwK 42 L/70",
+      "main_and_extra_guns": [
+        {
+          "id": "kwk42_75_l70",
+          "ammo": [
+            "apcbc_75_pzgr39_42",
+            "he_75_sprgr42",
+            "apcr_75_pzgr40_42"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TZF 12",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 28.0
+          },
+          {
+            "magnification": 5.0,
+            "fov_deg": 14.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "fun_hexa",
+      "name": "六炮怪 (workshop example)",
+      "meta_year": null,
+      "meta_class": null,
+      "based_on": "workshop build on proto_a",
+      "main_and_extra_guns": [
+        {
+          "id": "gun_custom_75_l48",
+          "ammo": [
+            "ap_custom_75_l48"
+          ]
+        },
+        {
+          "id": "gun_custom_75_l48",
+          "ammo": [
+            "ap_custom_75_l48"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "工坊瞄準鏡",
+        "levels": [
+          {
+            "magnification": 3,
+            "fov_deg": 16
+          },
+          {
+            "magnification": 6,
+            "fov_deg": 8
+          }
+        ],
+        "rangefinder": {
+          "time_s": 1.8,
+          "error_pct": 3,
+          "max_range_m": 3000
+        }
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "proto_a",
+      "name": "Prototype A (original design)",
+      "meta_year": 0,
+      "meta_class": "prototype",
+      "based_on": "original design",
+      "main_and_extra_guns": [
+        {
+          "id": "gun_75",
+          "ammo": [
+            "ap_75_generic"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Prototype sight",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 18.0
+          },
+          {
+            "magnification": 6.0,
+            "fov_deg": 9.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "ru_pantsir_sm_sv",
+      "name": "Pantsir-S1（SM-SV）",
+      "meta_year": 2019,
+      "meta_class": "spaa",
+      "based_on": "User-supplied Pantsir SM-SV visual model",
+      "main_and_extra_guns": [
+        {
+          "id": "pantsir_30mm_l1",
+          "ammo": [
+            "pantsir_30_he_est",
+            "pantsir_30_ap_est"
+          ]
+        },
+        {
+          "id": "pantsir_30mm_l2",
+          "ammo": [
+            "pantsir_30_he_est",
+            "pantsir_30_ap_est"
+          ]
+        },
+        {
+          "id": "pantsir_30mm_r1",
+          "ammo": [
+            "pantsir_30_he_est",
+            "pantsir_30_ap_est"
+          ]
+        },
+        {
+          "id": "pantsir_30mm_r2",
+          "ammo": [
+            "pantsir_30_he_est",
+            "pantsir_30_ap_est"
+          ]
+        },
+        {
+          "id": "pantsir_12_tube_est",
+          "ammo": [
+            "pantsir_sam_warhead_est"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Provisional electro-optical game sight",
+        "levels": [
+          {
+            "magnification": 3,
+            "fov_deg": 24
+          },
+          {
+            "magnification": 8,
+            "fov_deg": 8
+          }
+        ]
+      },
+      "stabilizer": "two_plane",
+      "sources": [],
+      "audit_status": "modern_variant_and_guidance_mismatch_pending"
+    },
+    {
+      "id": "su_att_m46",
+      "name": "AT-T 130 mm 自走炮（M-46）",
+      "meta_year": 1960,
+      "meta_class": "spg",
+      "based_on": "AT-T heavy artillery tractor with a 130 mm M-46 field gun mounted on its bed (an improvised self-propelled gun)",
+      "main_and_extra_guns": [
+        {
+          "id": "m46_130",
+          "ammo": [
+            "apcbc_130_br482b",
+            "he_130_of482m"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "OP4M-35",
+        "levels": [
+          {
+            "magnification": 5.5,
+            "fov_deg": 11.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "su_bmpt34",
+      "name": "BMPT-34 (1943)",
+      "meta_year": 1943,
+      "meta_class": "spaa",
+      "based_on": "BMPT-34 (obr. 1943) War Thunder CDK user mod by TunderTunder: T-34 chassis, open-topped turret with two 25 mm 72-K guns and a pair of heavy rockets",
+      "main_and_extra_guns": [
+        {
+          "id": "72k_25",
+          "ammo": [
+            "apt_25_br132p",
+            "hefi_25_ozr132"
+          ]
+        },
+        {
+          "id": "72k_25",
+          "ammo": [
+            "apt_25_br132p",
+            "hefi_25_ozr132"
+          ]
+        },
+        {
+          "id": "tt250_rail_r",
+          "ammo": [
+            "he_420_tt250"
+          ]
+        },
+        {
+          "id": "tt250_rail_l",
+          "ammo": [
+            "he_420_tt250"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "K-8T",
+        "levels": [
+          {
+            "magnification": 1.9,
+            "fov_deg": 30.0
+          },
+          {
+            "magnification": 3.8,
+            "fov_deg": 15.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "su_is2",
+      "name": "IS-2 (1944)",
+      "meta_year": 1944,
+      "meta_class": "heavy",
+      "based_on": "IS-2, 1944 production with the straight glacis and 122 mm D-25T",
+      "main_and_extra_guns": [
+        {
+          "id": "d25t_122",
+          "ammo": [
+            "aphe_122_br471",
+            "he_122_of471"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TSh-17",
+        "levels": [
+          {
+            "magnification": 4.0,
+            "fov_deg": 16.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "su_t10m",
+      "name": "T-10M (Oplot-MO)",
+      "meta_year": 1962,
+      "meta_class": "heavy",
+      "based_on": "T-10M (Object 272) fitted with the Oplot-MO anti-missile machine-gun complex",
+      "main_and_extra_guns": [
+        {
+          "id": "m62_t2_122",
+          "ammo": [
+            "aphe_122_br472",
+            "apds_122_3bm11",
+            "heatfs_122_3bk9",
+            "he_122_of472"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "T2S-29-14",
+        "levels": [
+          {
+            "magnification": 3.1,
+            "fov_deg": 22.0
+          },
+          {
+            "magnification": 7.9,
+            "fov_deg": 8.5
+          }
+        ]
+      },
+      "stabilizer": "two_plane",
+      "sources": [],
+      "audit_status": "prototype_conversion_or_special_fit_requires_explicit_evidence"
+    },
+    {
+      "id": "su_t10m_oplot23",
+      "name": "T-10M (Oplot23 · hypothetical custom)",
+      "meta_year": 1962,
+      "meta_class": "heavy",
+      "based_on": "T-10M Oplot-MO platform with a hypothetical GSh-6-23-informed six-barrel 23×115 mm installation",
+      "main_and_extra_guns": [
+        {
+          "id": "m62_t2_122",
+          "ammo": [
+            "aphe_122_br472",
+            "apds_122_3bm11",
+            "heatfs_122_3bk9",
+            "he_122_of472"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "T2S-29-14",
+        "levels": [
+          {
+            "magnification": 3.1,
+            "fov_deg": 22.0
+          },
+          {
+            "magnification": 7.9,
+            "fov_deg": 8.5
+          }
+        ]
+      },
+      "stabilizer": "two_plane",
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "su_t34_1940",
+      "name": "T-34 (1940)",
+      "meta_year": 1940,
+      "meta_class": "medium",
+      "based_on": "T-34 model 1940 with the welded turret and the 76 mm L-11",
+      "main_and_extra_guns": [
+        {
+          "id": "l11_76",
+          "ammo": [
+            "aphe_76_br350a_l11",
+            "he_76_of350_l11"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TOD-6",
+        "levels": [
+          {
+            "magnification": 2.5,
+            "fov_deg": 26.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "su_t34_85",
+      "name": "T-34-85",
+      "meta_year": 1944,
+      "meta_class": "medium",
+      "based_on": "T-34-85 with 85 mm ZiS-S-53, 1944 production",
+      "main_and_extra_guns": [
+        {
+          "id": "zis_s_53_85",
+          "ammo": [
+            "aphe_85_br365",
+            "he_85_o365k",
+            "apcr_85_br365p"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TSh-16",
+        "levels": [
+          {
+            "magnification": 4.0,
+            "fov_deg": 16.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [
+        "tankmuseum-t3485"
+      ],
+      "audit_status": "verified_vehicle_family_candidate_exact_ammo_and_fit_pending"
+    },
+    {
+      "id": "su_t54",
+      "name": "T-54 (1951)",
+      "meta_year": 1951,
+      "meta_class": "medium",
+      "based_on": "T-54 model 1951 with 100 mm D-10T",
+      "main_and_extra_guns": [
+        {
+          "id": "d10t_100",
+          "ammo": [
+            "apbc_100_br412",
+            "he_100_of412"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TSh-2-22",
+        "levels": [
+          {
+            "magnification": 3.5,
+            "fov_deg": 18.0
+          },
+          {
+            "magnification": 7.0,
+            "fov_deg": 9.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "su_t72a",
+      "name": "T-72A (1979)",
+      "meta_year": 1979,
+      "meta_class": "medium",
+      "based_on": "T-72A obr 1979, 2A46-1 and fitted AZ carousel",
+      "main_and_extra_guns": [
+        {
+          "id": "2a46_1_125",
+          "ammo": [
+            "apfsds_125_3bm22",
+            "heatfs_125_3bk14",
+            "he_125_3of26"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "TPD-K1",
+        "levels": [
+          {
+            "magnification": 8,
+            "fov_deg": 9
+          }
+        ],
+        "rangefinder": {
+          "kind": "laser",
+          "time_s": 1,
+          "error_pct": 0.2,
+          "max_range_m": 4000
+        }
+      },
+      "stabilizer": "two_plane",
+      "sources": [
+        "victorymuseum-t72"
+      ],
+      "audit_status": "verified_vehicle_family_candidate_exact_ammo_and_fit_pending"
+    },
+    {
+      "id": "uk_cmp_portee",
+      "name": "CMP 6-pdr Portee",
+      "meta_year": 1942,
+      "meta_class": "tank_destroyer",
+      "based_on": "Chevrolet C60L 3-ton 4x4 (Canadian Military Pattern) portee carrying the Ordnance QF 6-pounder",
+      "main_and_extra_guns": [
+        {
+          "id": "qf6pdr_mk2",
+          "ammo": [
+            "ap_57_mk7",
+            "apcbc_57_mk9",
+            "he_57_mk10"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "Telescope No. 22C",
+        "levels": [
+          {
+            "magnification": 1.9,
+            "fov_deg": 23.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "uk_cromwell_iv",
+      "name": "Cromwell Mk IV",
+      "meta_year": 1944,
+      "meta_class": "medium",
+      "based_on": "Cruiser Mk VIII Cromwell IV (A27M) with QF 75 mm",
+      "main_and_extra_guns": [
+        {
+          "id": "qf_75_mk5",
+          "ammo": [
+            "apcbc_75_m61",
+            "he_75_m48"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "No. 50 x3",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 13.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m10",
+      "name": "M10 GMC",
+      "meta_year": 1942,
+      "meta_class": "td",
+      "based_on": "3-inch Gun Motor Carriage M10",
+      "main_and_extra_guns": [
+        {
+          "id": "m7_3in",
+          "ammo": [
+            "apcbc_76_m62",
+            "he_76_m42a1",
+            "apcr_76_m93"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M70G",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 12.3
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m4a1_76w",
+      "name": "M4A1(76)W",
+      "meta_year": 1944,
+      "meta_class": "medium",
+      "based_on": "Medium Tank M4A1(76)W: the cast hull, T23 turret, VVSS",
+      "main_and_extra_guns": [
+        {
+          "id": "m1a1_76",
+          "ammo": [
+            "apcbc_76_m62",
+            "he_76_m42a1",
+            "apcr_76_m93"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M71D",
+        "levels": [
+          {
+            "magnification": 5.0,
+            "fov_deg": 13.0
+          }
+        ]
+      },
+      "stabilizer": "vertical",
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m4a2",
+      "name": "M4A2",
+      "meta_year": 1943,
+      "meta_class": "medium",
+      "based_on": "Medium Tank M4A2 (welded hull, 47-degree glacis) with the 75 mm M3",
+      "main_and_extra_guns": [
+        {
+          "id": "m3_75",
+          "ammo": [
+            "apcbc_75_m61_m3",
+            "he_75_m48",
+            "ap_75_m72"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M70F",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 12.3
+          }
+        ]
+      },
+      "stabilizer": "vertical",
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m4a3_75w",
+      "name": "M4A3(75)W",
+      "meta_year": 1944,
+      "meta_class": "medium",
+      "based_on": "Medium Tank M4A3(75)W, late production with the vision cupola",
+      "main_and_extra_guns": [
+        {
+          "id": "m3_75",
+          "ammo": [
+            "apcbc_75_m61_m3",
+            "he_75_m48",
+            "ap_75_m72"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M70F",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 12.3
+          }
+        ]
+      },
+      "stabilizer": "vertical",
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m4a3_76w_hvss",
+      "name": "M4A3(76)W HVSS",
+      "meta_year": 1945,
+      "meta_class": "medium",
+      "based_on": "Medium Tank M4A3(76)W HVSS",
+      "main_and_extra_guns": [
+        {
+          "id": "m1a2_76",
+          "ammo": [
+            "apcbc_76_m62",
+            "he_76_m42a1",
+            "apcr_76_m93"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M71D",
+        "levels": [
+          {
+            "magnification": 5.0,
+            "fov_deg": 13.0
+          }
+        ]
+      },
+      "stabilizer": "vertical",
+      "sources": [
+        "usarmy-korean-sherman"
+      ],
+      "audit_status": "verified_vehicle_family_candidate_exact_ammo_and_fit_pending"
+    },
+    {
+      "id": "us_m56",
+      "name": "M56 Scorpion",
+      "meta_year": 1953,
+      "meta_class": "td",
+      "based_on": "90 mm Self-Propelled Gun M56 'Scorpion' (airborne anti-tank gun)",
+      "main_and_extra_guns": [
+        {
+          "id": "m54_90mm",
+          "ammo": [
+            "apc_90_m318",
+            "heat_90_m348",
+            "he_90_m71",
+            "apcr_90_m304"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M186",
+        "levels": [
+          {
+            "magnification": 4.0,
+            "fov_deg": 10.0
+          },
+          {
+            "magnification": 8.0,
+            "fov_deg": 5.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m8",
+      "name": "M8 Greyhound",
+      "meta_year": 1943,
+      "meta_class": "armored_car",
+      "based_on": "Light Armored Car M8 (6x6) with the 37 mm gun M6 in the M23A1 open turret",
+      "main_and_extra_guns": [
+        {
+          "id": "m6_37mm",
+          "ammo": [
+            "apcbc_37_m51",
+            "he_37_m63",
+            "ap_37_m74"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M70D",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 12.3
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "existing_real_vehicle_candidate_not_primary_audited_this_pass"
+    },
+    {
+      "id": "us_m901_itv",
+      "name": "M901 ITV（M113 TOW）",
+      "meta_year": 1979,
+      "meta_class": "tank_destroyer",
+      "based_on": "M113A1 armoured personnel carrier with the M27 TOW launcher ('hammerhead') of the M901 Improved TOW Vehicle",
+      "main_and_extra_guns": [
+        {
+          "id": "m220_tow",
+          "ammo": [
+            "heat_152_tow"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "M27 TOW sight",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 22.0
+          },
+          {
+            "magnification": 13.0,
+            "fov_deg": 4.4
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [
+        "redstone-m901"
+      ],
+      "audit_status": "verified_vehicle_family_candidate_exact_ammo_and_fit_pending"
+    },
+    {
+      "id": "xp_bmp_k64",
+      "name": "BMP-K-64",
+      "meta_year": 1964,
+      "meta_class": "armored_car",
+      "based_on": "BMP-K-64: a fictional 8x8 armoured personnel carrier prototype",
+      "main_and_extra_guns": [
+        {
+          "id": "kpvt_145",
+          "ammo": [
+            "api_145_b32",
+            "apit_145_bzt44",
+            "apcr_145_bs41"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "PP-61",
+        "levels": [
+          {
+            "magnification": 2.6,
+            "fov_deg": 23.0
+          },
+          {
+            "magnification": 6.0,
+            "fov_deg": 6.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "xp_bmp_k64_atgm",
+      "name": "BMP-K-64 ATGM（9M113）",
+      "meta_year": 1974,
+      "meta_class": "tank_destroyer",
+      "based_on": "BMP-K-64: a fictional 8x8 armoured personnel carrier prototype",
+      "main_and_extra_guns": [
+        {
+          "id": "9p135_konkurs",
+          "ammo": [
+            "heat_135_konkurs"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "9Sh119",
+        "levels": [
+          {
+            "magnification": 2.6,
+            "fov_deg": 23.0
+          },
+          {
+            "magnification": 6.0,
+            "fov_deg": 6.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "xp_bmp_k64_kornet",
+      "name": "BMP-K-64 ATGM 套件（9M133）",
+      "meta_year": 1994,
+      "meta_class": "tank_destroyer",
+      "based_on": "BMP-K-64: a fictional 8x8 armoured personnel carrier prototype",
+      "main_and_extra_guns": [
+        {
+          "id": "9p163_kornet",
+          "ammo": [
+            "heat_152_kornet"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "1P45 + thermal",
+        "levels": [
+          {
+            "magnification": 2.6,
+            "fov_deg": 23.0
+          },
+          {
+            "magnification": 8.0,
+            "fov_deg": 6.0
+          }
+        ]
+      },
+      "stabilizer": null,
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "xp_kda35",
+      "name": "35 mm 輪式試驗車",
+      "meta_year": 1982,
+      "meta_class": "armored_car",
+      "based_on": "4x4 wheeled prototype from the user's four-view render, armed with a 35 mm Oerlikon KDA L/90 in the middle of the turret front",
+      "main_and_extra_guns": [
+        {
+          "id": "kda_35",
+          "ammo": [
+            "apcbche_35",
+            "hei_35_kda",
+            "apds_35_kda",
+            "apfsds_35_pmc287",
+            "heatfs_35"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "periscope sight",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 20.0
+          },
+          {
+            "magnification": 8.0,
+            "fov_deg": 7.5
+          }
+        ]
+      },
+      "stabilizer": "two_plane",
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    },
+    {
+      "id": "xp_w78",
+      "name": "78 mm 輪式試驗車",
+      "meta_year": 1982,
+      "meta_class": "armored_car",
+      "based_on": "4x4 wheeled prototype from the user's four-view render, armed with a 78 mm low-recoil gun firing fin-stabilised sabot",
+      "main_and_extra_guns": [
+        {
+          "id": "xp_78_lr",
+          "ammo": [
+            "apfsds_78_xp",
+            "heatfs_78_xp",
+            "he_78_xp"
+          ]
+        }
+      ],
+      "sight": {
+        "name": "periscope sight",
+        "levels": [
+          {
+            "magnification": 3.0,
+            "fov_deg": 20.0
+          },
+          {
+            "magnification": 8.0,
+            "fov_deg": 7.5
+          }
+        ]
+      },
+      "stabilizer": "two_plane",
+      "sources": [],
+      "audit_status": "fictional_or_custom_platform_not_service_roster"
+    }
+  ],
+  "weaponAudit": {
+    "datedComponentMilestones": [
+      {
+        "id": "aim9b",
+        "minimum_milestone": {
+          "year": 1956,
+          "kind": "USAF_inventory"
+        },
+        "sources": [
+          "usaf-sidewinder"
+        ],
+        "rule": "No pre1956 room; retain rear-aspect/early seeker limitations; carrier clearance still required."
+      },
+      {
+        "id": "aim9l",
+        "minimum_milestone": {
+          "year": 1976,
+          "kind": "production_and_delivery"
+        },
+        "sources": [
+          "usaf-sidewinder"
+        ],
+        "rule": "Not a1967 F-4E default merely because the airframe exists. Exact operator integration/room snapshot still required."
+      },
+      {
+        "id": "aim9m",
+        "minimum_milestone": {
+          "year": 1983,
+          "kind": "deliveries"
+        },
+        "sources": [
+          "usaf-sidewinder"
+        ],
+        "rule": "Cannot replace earlier B/L on every Sidewinder-capable carrier."
+      },
+      {
+        "id": "aim120a",
+        "minimum_milestone": {
+          "year": 1991,
+          "kind": "operational_AMRAAM_family_and_displayed_A"
+        },
+        "sources": [
+          "nmusaf-amraam"
+        ],
+        "rule": "Require carrier radar/computer and datalink integration. Never allow in1986 snapshot."
+      },
+      {
+        "id": "agm65a",
+        "minimum_milestone": {
+          "year": 1972,
+          "month": 8,
+          "kind": "first_acceptance"
+        },
+        "sources": [
+          "usaf-maverick"
+        ],
+        "rule": "No earlier room. TV seeker is not IIR; exact carriage remains separate."
+      },
+      {
+        "id": "agm65d",
+        "minimum_milestone": {
+          "year": 1986,
+          "month": 2,
+          "kind": "IOC"
+        },
+        "sources": [
+          "usaf-maverick"
+        ],
+        "rule": "Use operational1986 gate, not first-delivery1983, for frontline profiles."
+      },
+      {
+        "id": "agm65g",
+        "minimum_milestone": {
+          "year": 1989,
+          "kind": "operational_deliveries"
+        },
+        "sources": [
+          "usaf-maverick"
+        ],
+        "rule": "No1986 room; must match aircraft subtype/station and seeker/warhead."
+      }
+    ],
+    "all82StoreDefinitions": [
+      {
+        "id": "aim9b",
+        "name": "AIM-9B 響尾蛇",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "aim9b",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "aim9l",
+        "name": "AIM-9L 響尾蛇",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "aim9l",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "r3s",
+        "name": "R-3S",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "variant_warning": "Current definition/family label is not an exact historical lot/mark; no invented service year."
+      },
+      {
+        "id": "r60m",
+        "name": "R-60M",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "r60m",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r73",
+        "name": "R-73",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "r73e",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r27t",
+        "name": "R-27T",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "r27t1",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "magic1",
+        "name": "R.550 Magic",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "variant_warning": "Current definition/family label is not an exact historical lot/mark; no invented service year."
+      },
+      {
+        "id": "aim7e",
+        "name": "AIM-7E 麻雀",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": "aim7m",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "aim7f",
+        "name": "AIM-7F 麻雀",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": "aim7m",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "aim120a",
+        "name": "AIM-120A AMRAAM",
+        "kind": "aam",
+        "guidance": "arh",
+        "model": "aim120b",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "r27r",
+        "name": "R-27R",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": "r27r1",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "agm65a",
+        "name": "AGM-65A 小牛",
+        "kind": "agm",
+        "guidance": "tv",
+        "model": "agm65b",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "agm65d",
+        "name": "AGM-65D 小牛（熱像）",
+        "kind": "agm",
+        "guidance": "iir",
+        "model": "agm65d",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "lau68",
+        "name": "LAU-68 火箭莢艙",
+        "kind": "pod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "s24b",
+        "name": "S-24B 240 mm 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "kh25ml",
+        "name": "Kh-25ML 雷射導引飛彈",
+        "kind": "agm",
+        "guidance": "laser",
+        "model": "kh25ml",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "kh29l",
+        "name": "Kh-29L 雷射導引飛彈",
+        "kind": "agm",
+        "guidance": "laser",
+        "model": "kh29l",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "tank600",
+        "name": "600 加侖副油箱",
+        "kind": "tank",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "tank120",
+        "name": "120 加侖副油箱",
+        "kind": "tank",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "ptb800",
+        "name": "PTB-800 副油箱",
+        "kind": "tank",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "cbu87",
+        "name": "CBU-87 集束炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "rbk500",
+        "name": "RBK-500 集束炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "blu97",
+        "name": "BLU-97/B 子彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "ptab1m",
+        "name": "PTAB-1M 子彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "gbu10",
+        "name": "GBU-10 雷射導引炸彈",
+        "kind": "bomb",
+        "guidance": "laser",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "gbu12",
+        "name": "GBU-12 雷射導引炸彈",
+        "kind": "bomb",
+        "guidance": "laser",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "alq131",
+        "name": "AN/ALQ-131 電子干擾莢艙",
+        "kind": "ecm",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "sppu22",
+        "name": "SPPU-22 機砲莢艙",
+        "kind": "gunpod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "mim72a",
+        "name": "MIM-72A 小檞樹",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "m57e6",
+        "name": "57E6（Pantsir）",
+        "kind": "aam",
+        "guidance": "command",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "m3m9",
+        "name": "3M9（2K12 立方體）",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "pavespike",
+        "name": "AN/ASQ-153 Pave Spike 吊艙",
+        "kind": "sensorpod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "hvar",
+        "name": "5 吋 HVAR 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "rp3",
+        "name": "RP-3 60 磅火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r4m",
+        "name": "R4M 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "hydra",
+        "name": "2.75 吋 FFAR 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "s5k",
+        "name": "S-5K 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "s8kom",
+        "name": "S-8KOM 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "sneb",
+        "name": "SNEB 68 mm 火箭",
+        "kind": "rocket",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "lau3",
+        "name": "LAU-3/A 火箭莢艙",
+        "kind": "pod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "ub16",
+        "name": "UB-16-57 火箭莢艙",
+        "kind": "pod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "b8m1",
+        "name": "B-8M1 火箭莢艙",
+        "kind": "pod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "matra155",
+        "name": "Matra 155 火箭莢艙",
+        "kind": "pod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r4mrack",
+        "name": "R4M 火箭架",
+        "kind": "pod",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "anm64",
+        "name": "AN-M64 500 磅炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "anm65",
+        "name": "AN-M65 1000 磅炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "gp250",
+        "name": "250 磅 GP 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "mc500",
+        "name": "500 磅 MC 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "sc250",
+        "name": "SC 250 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "sc500",
+        "name": "SC 500 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "type97b60",
+        "name": "九七式六番 60 kg 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "fab100",
+        "name": "FAB-100 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "fab250",
+        "name": "FAB-250M-54 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "fab500",
+        "name": "FAB-500M-62 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "mk82",
+        "name": "Mk 82 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "mk84",
+        "name": "Mk 84 炸彈",
+        "kind": "bomb",
+        "guidance": null,
+        "model": null,
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "aim9m",
+        "name": "AIM-9M 響尾蛇",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "aim9m",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "r73e",
+        "name": "R-73E（出口型）",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "r73e",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r27t1",
+        "name": "R-27T1（出口型）",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "r27t1",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r27et1",
+        "name": "R-27ET1（出口型）",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "r27et1",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "aim9x",
+        "name": "AIM-9X 響尾蛇",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "aim9x",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "irist",
+        "name": "IRIS-T",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "irist",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "asraam",
+        "name": "ASRAAM",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "asraam",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "mica_ir",
+        "name": "MICA IR",
+        "kind": "aam",
+        "guidance": "ir",
+        "model": "mica_ir",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "aim7m",
+        "name": "AIM-7M 麻雀",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": "aim7m",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r27r1",
+        "name": "R-27R1（出口型）",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": "r27r1",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "r27er1",
+        "name": "R-27ER1（出口型）",
+        "kind": "aam",
+        "guidance": "sarh",
+        "model": "r27er1",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "aim120b",
+        "name": "AIM-120B AMRAAM",
+        "kind": "aam",
+        "guidance": "arh",
+        "model": "aim120b",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "aim120c",
+        "name": "AIM-120C（C 族外形）",
+        "kind": "aam",
+        "guidance": "arh",
+        "model": "aim120c",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "variant_warning": "Current definition/family label is not an exact historical lot/mark; no invented service year."
+      },
+      {
+        "id": "rvvae",
+        "name": "RVV-AE（出口型）",
+        "kind": "aam",
+        "guidance": "arh",
+        "model": "rvvae",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "meteor",
+        "name": "Meteor",
+        "kind": "aam",
+        "guidance": "arh",
+        "model": "meteor",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "mica_em",
+        "name": "MICA EM",
+        "kind": "aam",
+        "guidance": "arh",
+        "model": "mica_em",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "aim54a",
+        "name": "AIM-54A 不死鳥",
+        "kind": "aam",
+        "guidance": "aim54",
+        "model": "aim54a",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "agm65b",
+        "name": "AGM-65B 小牛（電視放大）",
+        "kind": "agm",
+        "guidance": "tv",
+        "model": "agm65b",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "agm65g",
+        "name": "AGM-65G 小牛（熱像、重彈頭）",
+        "kind": "agm",
+        "guidance": "iir",
+        "model": "agm65g",
+        "historical_gate_status": "dated_component_carrier_integration_still_required"
+      },
+      {
+        "id": "agm65e",
+        "name": "AGM-65E 小牛（雷射）",
+        "kind": "agm",
+        "guidance": "laser",
+        "model": "agm65e",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "kh29te",
+        "name": "Kh-29TE（電視，出口型）",
+        "kind": "agm",
+        "guidance": "tv",
+        "model": "kh29te",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "vikhr",
+        "name": "Vikhr 風格（雷射駕束）",
+        "kind": "agm",
+        "guidance": "beam",
+        "model": "vikhr",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "agm12b",
+        "name": "AGM-12B 犢牛（無線電指令）",
+        "kind": "agm",
+        "guidance": "radio",
+        "model": "agm12b",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "agm45a",
+        "name": "AGM-45A 百舌鳥",
+        "kind": "agm",
+        "guidance": "arm",
+        "model": "agm45a",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending"
+      },
+      {
+        "id": "agm88b",
+        "name": "AGM-88B 高速反輻射",
+        "kind": "agm",
+        "guidance": "arm",
+        "model": "agm88b",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      },
+      {
+        "id": "kh31p",
+        "name": "Kh-31P 反輻射",
+        "kind": "agm",
+        "guidance": "arm",
+        "model": "kh31p",
+        "historical_gate_status": "exact_variant_date_and_carrier_integration_pending",
+        "current_roster_use": "No real carrier profile verified here; retain definitions, use only explicitly labelled test platform until documented integration."
+      }
+    ],
+    "nativeMissiles": [
+      {
+        "id": "bgm71a_tow",
+        "name": "BGM-71A TOW",
+        "guidance": "saclos",
+        "status": "variant_fit_and_release_date_pending",
+        "note": "Native ground missile authority is distinct from browser AIR_STORE_DEFS; both must reference the same approved profile."
+      },
+      {
+        "id": "tt250_rocket",
+        "name": "TT-250 tank torpedo",
+        "guidance": "none",
+        "status": "fictional_test_or_custom_only",
+        "note": "Native ground missile authority is distinct from browser AIR_STORE_DEFS; both must reference the same approved profile."
+      },
+      {
+        "id": "9m113_konkurs",
+        "name": "9M113 Konkurs",
+        "guidance": "saclos",
+        "status": "variant_fit_and_release_date_pending",
+        "note": "Native ground missile authority is distinct from browser AIR_STORE_DEFS; both must reference the same approved profile."
+      },
+      {
+        "id": "9m133_kornet",
+        "name": "9M133 Kornet",
+        "guidance": "saclos",
+        "status": "variant_fit_and_release_date_pending",
+        "note": "Native ground missile authority is distinct from browser AIR_STORE_DEFS; both must reference the same approved profile."
+      },
+      {
+        "id": "pantsir_sam_saclos_est",
+        "name": "Pantsir SAM — SACLOS gameplay substitute",
+        "guidance": "saclos",
+        "status": "variant_fit_and_release_date_pending",
+        "note": "Native ground missile authority is distinct from browser AIR_STORE_DEFS; both must reference the same approved profile."
+      }
+    ],
+    "groundAmmoProfiles": [
+      {
+        "vehicle": "su_t34_85",
+        "existing": [
+          "aphe_85_br365",
+          "he_85_o365k",
+          "apcr_85_br365p"
+        ],
+        "policy": "Candidate85mm APHE/HE baseline; exact APCR issue/variant date must be verified rather than inherited from universal ammo menu."
+      },
+      {
+        "vehicle": "us_m4a3_76w_hvss",
+        "existing": [
+          "apcbc_76_m62",
+          "he_76_m42a1",
+          "apcr_76_m93"
+        ],
+        "policy": "CandidateM62/HE baseline; do not infer plentiful M93 HVAP from vehicle year. Exact allocation is a gameplay choice after component availability audit."
+      },
+      {
+        "vehicle": "su_t54",
+        "existing": [
+          "apbc_100_br412",
+          "he_100_of412"
+        ],
+        "policy": "No stabilizer, laser, thermal or later HEAT/APFSDS inherited from T-55/T-62. Verify exact1951 profile/date."
+      },
+      {
+        "vehicle": "su_t72a",
+        "existing": [
+          "apfsds_125_3bm22",
+          "heatfs_125_3bk14",
+          "he_125_3of26"
+        ],
+        "policy": "Fixed existing nominal ammunition only after acceptance-date check. Preserve22round AZ/noERA/noATGM implementation; no later3BM42/3BM60 substitution."
+      },
+      {
+        "vehicle": "de_gepard",
+        "existing": [
+          "hei_35_kda",
+          "apds_35_kda"
+        ],
+        "policy": "Do not add AHEAD/proximity/programmable ammunition because other35mm models exist; exact1A1/1A2 fit remains pending."
+      },
+      {
+        "vehicle": "us_m901_itv",
+        "existing": [
+          "heat_152_tow"
+        ],
+        "missile": "bgm71a_tow",
+        "policy": "Baselinewire-guidedTOW only after a carrier/ammo-matched profile; no TOW2/tandem/topattack/thermal upgrade by room year alone."
+      }
+    ]
+  },
+  "sensorAndAssistancePolicy": {
+    "spaceR_ACM": {
+      "preserve": true,
+      "scope": "All currently radar-equipped aircraft, and additional radar-equipped profiles once implemented. No radar is invented on radarless airframes.",
+      "classification": "User-requested game assistance, not a historical avionics feature claim.",
+      "current_aircraft_ids": [
+        "nf02",
+        "f104g",
+        "f4e",
+        "f15c",
+        "mig29",
+        "su27",
+        "f16v"
+      ],
+      "constraints": [
+        "Use actual profile sensor range/visibility/terrain/clutter restrictions.",
+        "Do not add pulse-Doppler/look-down, HMD cueing, continuous-wave illumination or active missile integration.",
+        "No carrier compatibility is inferred from ACM.",
+        "Space+R remains the chord; do not replace it or disable it on early radar profiles."
+      ]
+    },
+    "otherAssistance": "Current early-jet English/Russian voice warnings are documented game assistance. Keep assistance separate from factual hardware claims.",
+    "sightRules": [
+      "A fixed/gyro sight is not automatically a real CCIP/CCRP or radar solution.",
+      "Bomb impact ring requires airborne state, a usable selected/carried bomb and an approved fire-control profile; no ring on ground or without bombs.",
+      "Correctly projected collimated reticle geometry can be shared across aircraft, but displayed symbology/computation must use each approved equipment profile.",
+      "PavePenny is a laser spot tracker, not a designator; Klen-PS is distinct from a modern TV/IR targeting pod."
+    ],
+    "countermeasures": "Year/tag, an ECM pod slot or MAWS flag must not grant every era flare/chaff/HMD/datalink capability. Exact dispenser/RWR upgrade state needs profile evidence.",
+    "groundAirDefense": [
+      {
+        "system": "Gepard",
+        "source": "bundeswehr-gepard",
+        "status": "real_family_verified_local1A1_date_pending",
+        "era_rule": "Not before1976 family service; do not retroactively use1A2/thermal/ammunition features."
+      },
+      {
+        "system": "Chaparral/MIM72A",
+        "source": "redstone-chaparral",
+        "status": "chronology_verified_visual_carrier_pending",
+        "era_rule": "Not before1969 battalion milestone; exactearlyseeker/opticalconstraints and M730 model still require verification."
+      },
+      {
+        "system": "Kub/1S91+2P25+3M9",
+        "source": "vhu-kub",
+        "status": "chronology_verified_carrier_and_subtype_pending",
+        "era_rule": "Not before1967family; require correct linked radar illumination and matching missile variant; no autonomous fire when required illumination is lost."
+      },
+      {
+        "system": "Pantsir-S1/SM-SV",
+        "status": "modern_mixed_variant_pending",
+        "era_rule": "Hold exact profile until model/radar/missile/guidance reconciliation. Never present SACLOS gameplay substitute as proven SM-SV engineering behavior."
+      }
+    ]
+  },
+  "serverPolicyProposal": {
+    "oneAuthoritativePolicy": true,
+    "requestFields": [
+      "scenarioId",
+      "roomSnapshotId",
+      "vehicleId",
+      "eraProfileId",
+      "configurationHash",
+      "loadoutId or exact validated stores",
+      "companyTemplateId where applicable"
+    ],
+    "allowFormula": "whitelistedProfile && evidenceReviewed && modelIdentityMatches && allWeaponsAllowed && allSensorsAllowed && allCarrierIntegrationsAllowed && implementedAuthoritatively",
+    "applyTo": [
+      "player ground and air deployment",
+      "company AI initial composition and replacement",
+      "surviving company tank takeover",
+      "role switching and aircraft sorties",
+      "airfield resupply/rearm",
+      "AI air patrol/strike/bomber spawns",
+      "AI gunAA/SAM/radar formations",
+      "editor/custom loadouts before acceptance",
+      "reconnect/latejoin/replay validation"
+    ],
+    "failClosed": [
+      "unknown profile or unknown weapon subtype",
+      "client-supplied year/capability flags",
+      "game_test_platform and fictional prototype in an unlabelled history profile",
+      "unverified modern retrofit silently inferred from a family ID"
+    ],
+    "immutableProfileIdentity": "Accepted vehicle life retains its profile/configuration hash. Takeover, replenishment or owner flying must not silently upgrade weapons/sensors; existing ammo/damage/life identity remains authoritative.",
+    "sameTeamPool": "Both teams receive the identical scenario profile list; team markings and readiness distinguish sides. Nationality labels do not gate teams.",
+    "scopeLimit": "Design contract only. This study changes no existing game configuration, authoritative server, aircraft IDs or deployed release."
+  },
+  "missingRosterWork": [
+    "Primary audit and exact source-fit profiles for remaining WWII ground/air reserve assets; do not delete them.",
+    "HunterF4 versusF6 profile/representation decision and aircraft performance reconciliation.",
+    "MiG-21MF matching gun, stations, radar and permitted missile subtypes; preserve user assistance policy.",
+    "F-15E APG-70/crew and exact dated weapon configuration; A-10C full modern avionics/pod profile.",
+    "Su-27UBK first delivery/configuration and domestic/export missile distinction; no undocumented ARH retrofit.",
+    "Period-matched artillery/supply/engineer/bridge units and infantry are not yet supplied by the47vehicle historical roster.",
+    "Broader real production IFV/APC and modern MBT variety require new audited assets; fictionalxp platforms stay explicitly labelled development content.",
+    "Correct physical carriers and complete native/network integration for Chaparral/Kub/Pantsir before calling rear-defense systems authoritative.",
+    "Primary dates/clearance for AIM7E/F/M,120B/C exactlot,Magic1,R3S,R60M,R73,R27 variants,Kh25/29,pods,clusters and ground ammo beyond the verified component milestones.",
+    "Airfield/AI balance trials per snapshot after the authoritative gating contract is implemented."
+  ],
+  "verificationPerformed": [
+    "Read current core212 app declarations and all15 embedded model source identities/hashes, without changing them.",
+    "Compared all15 imported source identities and sourceHashes against tracked compressed data, separately from the ignored decoded cache; metadata differences: none.",
+    "Extracted22 real named aircraft plus2fictional slots;82store definitions;47ground vehicle weapon/sight records;91ground projectile filenames;5native ground missile definitions.",
+    "Reproduced missingT.era UI eligibility using the actual fighterType constructor and lineup predicate in an isolated Node context.",
+    "Cross-checked stated milestones against the listed primary museum/manufacturer/service sources.",
+    "No gameplay, GPU/cockpit/flight/online authority behavior was tested by this design study."
+  ],
+  "sources": [
+    {
+      "id": "nmusaf-mig15bis",
+      "title": "NMUSAF: MiG-15bis",
+      "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196115/USAFmuseum/mikoyan-gurevich-mig-15bis/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "MiG-15bis production began in1950; the variant fought in Korea.",
+        "Two23mm and one37mm cannon; bombs/rockets are described."
+      ],
+      "limits": "Does not certify the exact FAB-100 station/fuze mix in this asset."
+    },
+    {
+      "id": "nmusaf-korea-sabre",
+      "title": "NMUSAF: Korean air superiority lecture transcript",
+      "url": "https://www.nationalmuseum.af.mil/Portals/7/documents/transcripts/korea_air_superiority_transcript.pdf",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "The F-86F entered service in mid1952; distinguishes its wing from earlier Sabres."
+      ],
+      "limits": "F-86F family evidence; exact F-25 serial, modification state and external-store clearance still need a block-matched manual."
+    },
+    {
+      "id": "nmusaf-sights",
+      "title": "NMUSAF: MiG-15 pilot and ASP-3N gunsight",
+      "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196387/USAFmuseum/mig-15-pilot/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "MiG-15bis ASP-3N computes angular lead but does not have the Sabre ranging radar."
+      ],
+      "limits": "A ranging radar is not a search/intercept radar; this does not authorize SARH missiles or a BVR display."
+    },
+    {
+      "id": "nmusaf-armament",
+      "title": "NMUSAF: F-86 versus MiG-15 armament",
+      "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196388/USAFmuseum/f-86-sabre-vs-mig-15-armament/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Sabre has six Browning M3 .50cal guns; MiG-15 has two23mm and one37mm cannon."
+      ],
+      "limits": "Gun families only; game ballistics remain estimates."
+    },
+    {
+      "id": "nmusaf-mig17f",
+      "title": "NMUSAF: MiG-17F",
+      "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Article/196057/mikoyan-gurevich-mig-17f/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "MiG-17 family operational in1952; no Korean War service in the quantity described.",
+        "MiG-17F exhibit has VK-1F, cannon and unguided bombs/rocket pods."
+      ],
+      "limits": "1952 is a family statement, not independently verified first service of the F suffix. The local1953 label is not promoted to historical proof."
+    },
+    {
+      "id": "raf-hunter6",
+      "title": "RAF Museum: Hunter F6A",
+      "url": "https://www.rafmuseum.org.uk/research/collections/hawker-siddeley-hunter-f6a/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Hunter F6 entered RAF service October1956, with four30mm ADEN cannon and bombs/rockets.",
+        "F6A later modifications strengthened wings for greater external loads."
+      ],
+      "limits": "Does not establish that the local F4 mesh is an F6, nor date exact F4 clearances."
+    },
+    {
+      "id": "bundeswehr-f104g",
+      "title": "Bundeswehr: history of Tactical Air Wing74",
+      "url": "https://www.bundeswehr.de/de/organisation/luftwaffe/aktuelles/60-jahre-taktisches-luftwaffengeschwader-74-5083276",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "This unit received F-104G in May1964."
+      ],
+      "limits": "A conservative service-by1964 anchor, not a claim that the type first entered service that year. Exact NASARR and stores require a matching manual."
+    },
+    {
+      "id": "dassault-mirage5",
+      "title": "Dassault: Mirage5 origins and operational experience",
+      "url": "https://www.dassault-aviation.com/en/passion/aircraft/military-dassault-aircraft/mirage-5/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Mirage5 replaced the MirageIIIE nose radar with navigation/attack equipment.",
+        "Mirage5 first flew in1967; French Mirage5F operational units participated in the April1976 weapons competition."
+      ],
+      "limits": "The page does not date the local1972 service label, Magic1 integration, or validate the current CCIP/LCOS implementation."
+    },
+    {
+      "id": "usaf-f4e-service",
+      "title": "USAF: General Howell EstesIII biography",
+      "url": "https://www.af.mil/About-Us/Biographies/Display/Article/107122/general-howell-m-estes-iii/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Documents F-4E operational assignment at Korat in1969–1970."
+      ],
+      "limits": "Conservative evidence for a1970s room, not first delivery or a particular F-4E block/avionics clearance."
+    },
+    {
+      "id": "vhu-mig21mf",
+      "title": "Slovak Ministry of Defence Military History Institute: MiG-21MF",
+      "url": "https://www.vhu.sk/mig-21mf/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "MiG-21MF deliveries to Czechoslovakia began August1971.",
+        "The MF has a Safir-21 radar, R-13-300 engine, GSh-23L twin23mm cannon with200rounds and four wing stores stations.",
+        "Describes K-13S/K-13T carriage and a1974 museum airframe."
+      ],
+      "limits": "Does not support converting local r3s into every K-13 variant, or establish a modern pulse-Doppler mode. Older F-13 description on this page must not be applied to the MF."
+    },
+    {
+      "id": "nmusaf-mig29a",
+      "title": "NMUSAF: MiG-29A",
+      "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/197174/AFmuseum/mikoyan-gurevich-mig-29a/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Deliveries started in1983.",
+        "Early MiG-29 has N019 Doppler radar, IR sensor, laser rangefinder and helmet aiming.",
+        "One30mm GSh-301 cannon and six missiles: AA-10/AA-11/AA-8 families; unguided ground stores also described."
+      ],
+      "limits": "Supports the early9.12 candidate, not later MiG-29M/SMT AESA/ARH capability, exact R-27T export subtype or historical missile introduction dates. Game radar distances are not calibrated to this text."
+    },
+    {
+      "id": "rostec-su25",
+      "title": "Rostec: Ulan-Ude plant80year history",
+      "url": "https://rostec.ru/media/news/ulan-udenskiy-aviatsionnyy-zavod-80-let-na-vysote/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Su-25 began reaching troops in1981; Su-25UB trainer production began1986."
+      ],
+      "limits": "Airframe/date corroboration, not Klen-PS envelopes or exact Kh-25/Kh-29/cluster-store clearances."
+    },
+    {
+      "id": "usaf-f15e",
+      "title": "USAF: F-15E Strike Eagle",
+      "url": "https://www.af.mil/News/Article/104499/f-15e-strike-eagle/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "First production E delivered for training April1988; IOC September1989.",
+        "E has two crew; the fact sheet describes air-to-ground role, APG-70 and LANTIRN, and AIM-9/AIM-120 carriage."
+      ],
+      "limits": "Current fact sheet spans upgrades; it does not date each missile/block integration or justify modern equipment on a1988 training aircraft."
+    },
+    {
+      "id": "usaf-f15c",
+      "title": "USAF: F-15 Eagle",
+      "url": "https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104501/f-15-eagle/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "F-15C/D entered inventory in1979; MSIP upgrades have separate chronology.",
+        "The fact sheet distinguishes the F-15E APG-70/LANTIRN ground-attack suite from earlier Eagles."
+      ],
+      "limits": "Do not use C service dates or C avionics under the local f15c key when its model/display is E."
+    },
+    {
+      "id": "usaf-a10c",
+      "title": "127th Wing: A-10 ThunderboltII",
+      "url": "https://www.127wg.ang.af.mil/About-127th-Wing/Fact-Sheets/Article/3665798/air-force-a-10-thunderbolt-ii/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "A-10C IOC September2007; earlier A-10A first production delivery1975.",
+        "Precision Engagement added cockpit/fire-control/stores changes, SADL, targeting-pod integration and GPS-guided weapons."
+      ],
+      "limits": "Does not imply those systems are implemented locally or that the C asset can be backdated to A-10A1977."
+    },
+    {
+      "id": "lm-f16v",
+      "title": "Lockheed Martin: F-16V first flight",
+      "url": "https://news.lockheedmartin.com/2015-10-20-F-16V-Takes-Flight",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "F-16V first flight16October2015 used APG-83 AESA; modern cockpit/mission computer are part of the V configuration."
+      ],
+      "limits": "First flight is not IOC. Do not backdate this configuration to F-16A/C family service."
+    },
+    {
+      "id": "mnd-f16v2018",
+      "title": "Taiwan Ministry of National Defense: F-16V2018 trial flight",
+      "url": "https://www.mnd.gov.tw/en/Publication/75915",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Air Force Command acknowledged F-16V trial flights in December2018."
+      ],
+      "limits": "Proves2018 test activity, not operational readiness for a full2018 frontline pool."
+    },
+    {
+      "id": "mnd-f16v2021",
+      "title": "Taiwan Navy journal: multidomain operations",
+      "url": "https://navy.mnd.gov.tw/Files/Paper/6-%E5%BE%9E%E7%BE%8E%E8%BB%8D%E5%A4%9A%E9%A0%98%E5%9F%9F%E4%BD%9C%E6%88%B0.pdf",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "The government military journal records an F-16V wing forming in November2021."
+      ],
+      "limits": "Supports a conservative2022 candidate room. It is not exact block-specific proof for all game weapons."
+    },
+    {
+      "id": "pla-su27ubk",
+      "title": "China Military Online: Su-27UBK sortie photographs",
+      "url": "https://eng.chinamil.com.cn/MEDIA/PhotosChina/9380693_3.html",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Explicitly identifies an operational Chinese Su-27UBK on13December2018."
+      ],
+      "limits": "Confirms variant/operator and service-by2018 only. Does not prove the local1992 label, N001 exact subvariant, R-77 integration or export missile subtype dates."
+    },
+    {
+      "id": "usaf-sidewinder",
+      "title": "USAF: AIM-9 Sidewinder",
+      "url": "https://www.af.mil/About-Us/Fact-Sheets/Display/Article/104557/aim-9-sidewinder/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "AIM-9B entered inventory in1956 and has close-range/rear-aspect limitations.",
+        "AIM-9L production/delivery began1976; all-aspect capability is distinguished.",
+        "AIM-9M deliveries began1983; AIM-9X is a separate imaging/helmet-compatible subtype."
+      ],
+      "limits": "Missile availability is necessary but not sufficient for aircraft integration. No exact AIM-9X IOC inferred here."
+    },
+    {
+      "id": "nmusaf-amraam",
+      "title": "NMUSAF: AIM-120 AMRAAM",
+      "url": "https://www.nationalmuseum.af.mil/Visit/Museum-Exhibits/Fact-Sheets/Display/Article/196742/AFmuseum/hughes-aim-120-amraam/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "AMRAAM became operational in1991; AIM-120A is the displayed subtype.",
+        "Long-range use includes launch-aircraft data updates before terminal active guidance."
+      ],
+      "limits": "Do not treat1991 as service date for120B or generic120C, or grant missiles without compatible avionics."
+    },
+    {
+      "id": "usaf-maverick",
+      "title": "USAF: AGM-65 Maverick",
+      "url": "https://www.af.mil/News/Article-Display/Article/104577/agm-65-maverick/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "AGM-65A acceptance August1972.",
+        "AGM-65D first delivery October1983 but IOC February1986.",
+        "Operational G deliveries began1989; TV, IIR and laser variants differ."
+      ],
+      "limits": "Missile service dates do not prove F-4E/F-16V/A-10C subtype clearance or station count."
+    },
+    {
+      "id": "tankmuseum-t3485",
+      "title": "The Tank Museum: T-34/85",
+      "url": "https://tankmuseum.org/tank-nuts/tank-collection/t-34-85/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "WWII T-34/85 has85mm ZiS-53, twoDT machineguns and fivecrew.",
+        "The museum separates Soviet/Czech/Polish production configurations."
+      ],
+      "limits": "Supports vehicle family, not a1944 vehicle with every postwar ammunition/sight substitution."
+    },
+    {
+      "id": "usarmy-korean-sherman",
+      "title": "US Army Press: Armies in Retreat",
+      "url": "https://www.armyupress.army.mil/Portals/7/Research%20and%20Books/2023/ArmiesRetrt-HeckMills-2023.pdf",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Documents M4A3(76)W HVSS in Korean War service."
+      ],
+      "limits": "Vehicle family/period corroboration, not a full M93 HVAP issue or exact ammunition allocation record."
+    },
+    {
+      "id": "victorymuseum-t72",
+      "title": "Victory Museum: T-72",
+      "url": "https://victorymuseum.ru/encyclopedia/technic/bronetankovaya-tekhnika/osnovnoy-boevoy-tank-t-72-sssr-/",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "T-72A production1979–1985;125mm gun, threecrew, autoloader and TPD-K1 laser rangefinding.",
+        "Describes later changes separately, including1982 correction equipment and later reactive armour."
+      ],
+      "limits": "Do not inherit later T-72B/ERA, thermal cameras, gun-launched missiles or late ammunition. Exact3BM22/3BK14/3OF26 acceptance dates remain unverified in this study."
+    },
+    {
+      "id": "bundeswehr-gepard",
+      "title": "Bundeswehr: Gepard",
+      "url": "https://www.bundeswehr.de/de/meldungen/flugabwehrkanonenpanzer-gepard-5400072",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "Gepard used from1976–2010; twin35mm guns, search and tracking radar.",
+        "The article illustrates1A2 and describes all-weather radar use."
+      ],
+      "limits": "Family1976 date does not certify local1A1 or1A2 modification date. No automatic AHEAD/proximity-round or thermal grant."
+    },
+    {
+      "id": "redstone-m901",
+      "title": "US Army Redstone:1979 installation history",
+      "url": "https://history.redstone.army.mil/ihist-1979.html",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "First M901 Improved TOW Vehicle entered inventory late1979."
+      ],
+      "limits": "Does not date local BGM-71A station/sight version or authorize TOW2, tandem/top-attack or thermal upgrades."
+    },
+    {
+      "id": "redstone-chaparral",
+      "title": "US Army Redstone:1969 installation history",
+      "url": "https://history.redstone.army.mil/ihist-1969.html",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "First tactical Chaparral battalion activated May1969."
+      ],
+      "limits": "System chronology only; local M901-based visual substitute is not an actual M730 carrier."
+    },
+    {
+      "id": "vhu-kub",
+      "title": "Slovak Military History Institute collection publication:2K12Kub",
+      "url": "https://www.vhu.sk/data/att/b0a/17566.eb88b7.pdf",
+      "publisher_class": "primary: manufacturer, armed service, government military museum or collection owner",
+      "checked": "2026-10-24",
+      "supported_facts": [
+        "2K12 adopted by Soviet Army in1967 and Czechoslovakia in1973; museum describes a2P25M1 launcher."
+      ],
+      "limits": "Does not validate local fictional wheeled carrier, exact3M9 subvariant, game engagement ranges or authoritative online missile integration."
+    }
+  ]
+}

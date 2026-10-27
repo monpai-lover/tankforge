@@ -15,6 +15,7 @@
 //!   reset_target                                             -> {}
 //!   shells    {caliber_mm, length_cal}                       -> [ProjectileDef]
 //!   combat_target    {def: TargetDef}                        -> {modules, crew} (registers a data vehicle by def.id)
+//!   combat_weapon_bindings {key}                            -> normalized weapon/module binding metadata
 //!   combat_new       {key}                                   -> {state, caps}
 //!   combat_shoot     {key, state, shot: Shot}                -> Report (tg-combat)
 //!   combat_splash    {key, state, at, kg, yaw, seed}         -> Report
@@ -38,6 +39,7 @@ use tg_design::v3::V3;
 use tg_design::layout::{BoxKind, PlacedBox};
 use tg_design::{accept_submission, evaluate_with, Body, Catalog, Db, VehicleDesign};
 mod geometry_diagnostic;
+mod surface_runtime;
 
 #[derive(serde::Deserialize)]
 struct FitBox {
@@ -57,6 +59,7 @@ struct State {
     /// Missiles, rockets and active protection in an offline battle (crates/missile).
     missiles: tg_missile::World,
     geometry: geometry_diagnostic::Diagnostics,
+    surfaces:surface_runtime::SurfaceRuntime,
 }
 
 thread_local! {
@@ -67,6 +70,12 @@ thread_local! {
 /// Explicit capability: legacy saved modules omit this export.
 #[no_mangle]
 pub extern "C" fn tg_replay_revision()->u32 {1}
+#[no_mangle]
+pub extern "C" fn tg_surface_revision()->u32 {1}
+#[no_mangle]
+pub extern "C" fn tg_barrel_revision()->u32 {1}
+#[no_mangle]
+pub extern "C" fn tg_weapon_bindings_revision()->u32 {1}
 
 #[no_mangle]
 pub extern "C" fn tg_alloc(len: usize) -> *mut u8 {
@@ -102,7 +111,7 @@ pub fn handle(req: &Value) -> Result<Value, String> {
         let materials = field(req, "materials")?;
         let catalog: Catalog = field(req, "catalog")?;
         let terrains = field(req, "terrains")?;
-        STATE.with(|s| *s.borrow_mut() = Some(State { db: Db::new(materials, catalog, terrains, vec![]), design: None, target: TargetState::default(), targets: HashMap::new(), missiles: tg_missile::World::new(Vec::new()), geometry: geometry_diagnostic::Diagnostics::default() }));
+        STATE.with(|s| *s.borrow_mut() = Some(State { db: Db::new(materials, catalog, terrains, vec![]), design: None, target: TargetState::default(), targets: HashMap::new(), missiles: tg_missile::World::new(Vec::new()), geometry: geometry_diagnostic::Diagnostics::default(),surfaces:surface_runtime::SurfaceRuntime::default() }));
         return Ok(json!({}));
     }
     STATE.with(|s| {
@@ -252,16 +261,34 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                 let def: TargetDef = field(req, "def")?;
                 let id = def.id.clone();
                 let t = Target::new(def, &st.db.material_list);
-                let out = json!({"modules": t.def.modules.len(), "crew": t.def.crew.len(), "modules_def": t.def.modules, "binding_errors": t.binding_errors});
+                st.surfaces.verify_target_registration(&id,&t)?;
+                let out = json!({"modules": t.def.modules.len(), "crew": t.def.crew.len(), "modules_def": t.def.modules, "binding_errors": t.binding_errors,"registration_hash":t.registration_hash()});
                 st.targets.insert(id, t);
                 Ok(out)
             }
             op if op.starts_with("combat_geometry_") => st.geometry.call(op,req),
+            op if op.starts_with("combat_surface_")&&op!="combat_surface_shoot"&&op!="combat_surface_near_burst"=>{let target=req["key"].as_str().and_then(|key|st.targets.get(key));st.surfaces.call(op,req,target)},
             op if op.starts_with("combat_") => {
                 let key: String = field(req, "key")?;
                 let t = st.targets.get(&key).ok_or_else(|| format!("no combat target '{}'", key))?;
                 let state = || -> Result<CombatState, String> { if req.get("state").map(|v| v.is_null()).unwrap_or(true) { Ok(t.fresh_state()) } else { field(req, "state") } };
                 match op {
+                    "combat_weapon_bindings"=>{
+                        let modules=t.def.modules.iter().enumerate().map(|(index,module)|json!({
+                            "index":index,"id":module.id,"kind":module.kind,"weapon_group":module.weapon_group,
+                            "turret_index":module.turret_index,"external":module.external})).collect::<Vec<_>>();
+                        Ok(json!({"schema":"CombatWeaponBindingsV1","revision":1,"bindings":t.weapon_bindings,
+                            "modules":modules,"binding_errors":t.binding_errors}))
+                    },
+                    "combat_near_burst"|"combat_surface_near_burst"=>{
+                        let at=field(req,"at")?;let shell=field(req,"shell")?;let yaw=field(req,"yaw")?;let seed=match &req["seed"]{Value::String(v)=>v.parse::<u64>().map_err(|_|"invalid near-burst seed")?,v=>v.as_u64().ok_or("invalid near-burst seed")?};let context:Option<tg_combat::causes::DamageContext>=field(req,"context")?;
+                        let before=state()?;st.surfaces.verify_state(&key,&before)?;
+                        let include_pressure=match req.get("include_pressure"){None=>true,Some(v)=>v.as_bool().ok_or("invalid near-burst pressure policy")?};
+                        let report=if op=="combat_surface_near_burst"{st.surfaces.near_burst(&key,t,&before,at,&shell,yaw,seed,context.as_ref(),include_pressure)?}else if include_pressure{tg_combat::near_burst::evaluate(t,&before,at,&shell,yaw,seed,context.as_ref(),None)?}else{tg_combat::near_burst::evaluate_casing(t,&before,at,&shell,yaw,seed,context.as_ref(),None)?};
+                        st.surfaces.observe_report(&key,&report.state);
+                        Ok(serde_json::to_value(report).map_err(|e|e.to_string())?)
+                    },
+                    "combat_surface_shoot"=>{let shot=field(req,"shot")?;let end=field(req,"end")?;let context:Option<tg_combat::causes::DamageContext>=field(req,"context")?;st.surfaces.shoot(&key,t,&state()?,&shot,end,context.as_ref())},
                     "combat_new" => {
                         let s = t.fresh_state();
                         Ok(json!({"caps": tg_combat::caps(t, &s), "state": s}))
@@ -270,7 +297,9 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                         let shot: tg_combat::Shot = field(req, "shot")?;
                         let context:Option<tg_combat::causes::DamageContext>=if req.get("context").is_some(){field(req,"context")?}else{None};
                         if context.as_ref().is_some_and(|c|!c.valid()){return Err("invalid replay context".into());}
-                        let report=match context.as_ref(){Some(c)=>tg_combat::shoot_context(t,&state()?,&shot,c),None=>tg_combat::shoot(t,&state()?,&shot)};
+                        let before=state()?;st.surfaces.verify_state(&key,&before)?;
+                        let report=match context.as_ref(){Some(c)=>tg_combat::shoot_context(t,&before,&shot,c),None=>tg_combat::shoot(t,&before,&shot)};
+                        st.surfaces.observe_report(&key,&report.state);
                         Ok(serde_json::to_value(report).unwrap_or(Value::Null))
                     }
                     "combat_splash" => {
@@ -278,16 +307,23 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                         let kg: f32 = field(req, "kg")?;
                         let yaw: f32 = field(req, "yaw").unwrap_or(0.0);
                         let seed: u64 = field(req, "seed").unwrap_or(1);
-                        Ok(serde_json::to_value(tg_combat::splash(t, &state()?, at, kg, yaw, seed)).unwrap_or(Value::Null))
+                        let before=state()?;st.surfaces.verify_state(&key,&before)?;
+                        let report=tg_combat::splash(t,&before,at,kg,yaw,seed);st.surfaces.observe_report(&key,&report.state);
+                        Ok(serde_json::to_value(report).unwrap_or(Value::Null))
                     }
                     "combat_advance" => {
                         let mut s = state()?;
                         let dt: f32 = field(req, "dt")?;
+                        st.surfaces.verify_advance(&key,&s,dt)?;let before=s.clone();
                         let seed: u64 = field(req, "seed").unwrap_or(1);
                         let context:Option<tg_combat::causes::DamageContext>=if req.get("context").is_some(){field(req,"context")?}else{None};
                         if context.as_ref().is_some_and(|c|!c.valid()){return Err("invalid replay context".into());}
-                        if let Some(c)=context {let result=tg_combat::advance_context(t,&mut s,dt,seed,&c.event_id);Ok(json!({"caps":tg_combat::caps(t,&s),"events":result.events,"state":s,"cause_transitions":result.transitions,"death_cause":result.death_cause}))}
-                        else {let events=tg_combat::advance(t,&mut s,dt,seed);Ok(json!({"caps": tg_combat::caps(t, &s), "events": events, "state": s}))}
+                        st.surfaces.verify_advance_context(&key,context.as_ref(),dt)?;
+                        if let Some(c)=context {let result=tg_combat::advance_context(t,&mut s,dt,seed,&c.event_id);
+                            st.surfaces.observe_advance(&key,&before,&s,&result.events,&c.event_id)?;
+                            Ok(json!({"caps":tg_combat::caps(t,&s),"events":result.events,"state":s,"cause_transitions":result.transitions,"death_cause":result.death_cause,"shape_transition":st.surfaces.pending(&key)}))}
+                        else {let events=tg_combat::advance(t,&mut s,dt,seed);st.surfaces.observe_advance(&key,&before,&s,&events,"core_repair")?;
+                            Ok(json!({"caps": tg_combat::caps(t, &s), "events": events, "state": s,"shape_transition":st.surfaces.pending(&key)}))}
                     }
                     "combat_ammo" => {
                         let mut s = state()?;
@@ -297,7 +333,9 @@ pub fn handle(req: &Value) -> Result<Value, String> {
                     }
                     "combat_repair" | "combat_extinguish" => {
                         let mut s = state()?;
+                        st.surfaces.verify_state(&key,&s)?;
                         let ok = if op == "combat_repair" { tg_combat::start_repair(t, &mut s) } else { tg_combat::extinguish(&mut s) };
+                        if op=="combat_repair"{st.surfaces.observe_repair_start(&key,&s,ok)?;}
                         Ok(json!({"ok": ok, "caps": tg_combat::caps(t, &s), "state": s}))
                     }
                     _ => Err(format!("unknown op '{}'", op)),
@@ -340,6 +378,106 @@ pub unsafe extern "C" fn tg_call(ptr: *const u8, len: usize) -> *const u8 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn binding_api_data(path:&str)->Value {
+        let root=std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
+        serde_json::from_slice(&std::fs::read(root.join(path)).unwrap()).unwrap()
+    }
+    fn binding_api_definition(id:&str)->TargetDef {
+        let mut def=tg_combat::target_from_files(id,&binding_api_data(&format!("vehicles/{id}/vehicle.json")),
+            serde_json::from_value(binding_api_data(&format!("vehicles/{id}/armor.json"))).unwrap(),
+            serde_json::from_value(binding_api_data(&format!("vehicles/{id}/modules.json"))).unwrap(),
+            serde_json::from_value(binding_api_data(&format!("vehicles/{id}/crew.json"))).unwrap());
+        def.weapons=binding_api_data(&format!("vehicles/{id}/weapons.json"));
+        def.ammo_capacity=tg_combat::ammo_capacity(&def.weapons);def.machine_guns=binding_api_data("machine_guns.json");
+        let visual=binding_api_data(&format!("vehicles/{id}/visual.json"));
+        def.visual=json!({"mg_anchors":visual.get("mg_anchors").cloned().unwrap_or_else(||json!({})),
+            "mg_variants":visual.get("mg_variants").cloned().unwrap_or_else(||json!({}))});def
+    }
+    fn binding_api_register(def:&TargetDef)->Value {
+        handle(&json!({"op":"init","materials":binding_api_data("materials.json"),
+            "catalog":binding_api_data("design_catalog.json"),"terrains":binding_api_data("terrains.json")})).unwrap();
+        let old=handle(&json!({"op":"combat_target","def":def})).unwrap();
+        let keys=old.as_object().unwrap().keys().map(String::as_str).collect::<Vec<_>>();
+        assert_eq!(keys,vec!["binding_errors","crew","modules","modules_def","registration_hash"],"existing target response remains exactly the same schema");old
+    }
+    fn binding_api_metadata(id:&str)->Value {
+        let def=binding_api_definition(id);let old=binding_api_register(&def);
+        let metadata=handle(&json!({"op":"combat_weapon_bindings","key":id})).unwrap();
+        assert_eq!(metadata["schema"],"CombatWeaponBindingsV1");assert_eq!(metadata["revision"],1);
+        STATE.with(|cell|{let guard=cell.borrow();let target=&guard.as_ref().unwrap().targets[id];
+            assert_eq!(metadata["bindings"],serde_json::to_value(&target.weapon_bindings).unwrap(),"actual normalized binding table is exposed without reinterpretation");
+            assert_eq!(metadata["binding_errors"],serde_json::to_value(&target.binding_errors).unwrap());
+            let modules=metadata["modules"].as_array().unwrap();assert_eq!(modules.len(),target.def.modules.len());
+            for (i,(row,module)) in modules.iter().zip(&target.def.modules).enumerate(){
+                assert_eq!(row["index"],i);assert_eq!(row["id"],module.id);assert_eq!(row["kind"],serde_json::to_value(module.kind).unwrap());
+                assert_eq!(row["weapon_group"],serde_json::to_value(&module.weapon_group).unwrap());
+                assert_eq!(row["turret_index"],serde_json::to_value(module.turret_index).unwrap());
+                assert_eq!(row["external"],serde_json::to_value(module.external).unwrap());
+            }});
+        assert_eq!(handle(&json!({"op":"combat_weapon_bindings","key":id,"state":{"invalid":"unused"}})).unwrap(),metadata,"metadata does not consult supplied health or caps");
+        assert_eq!(serde_json::to_vec(&handle(&json!({"op":"combat_target","def":def})).unwrap()).unwrap(),serde_json::to_vec(&old).unwrap(),"query does not change the original registration response or hash");metadata
+    }
+    fn binding_api_critical(metadata:&Value,key:&str,expected:&[(&str,&str)]) {
+        assert!(metadata["bindings"][key]["binding_error"].is_null(),"{key}: {}",metadata["bindings"][key]);
+        let rows=metadata["bindings"][key]["critical"].as_array().unwrap().iter().map(|index|{
+            let row=&metadata["modules"][index.as_u64().unwrap() as usize];(row["id"].as_str().unwrap(),row["kind"].as_str().unwrap())}).collect::<Vec<_>>();
+        assert_eq!(rows.as_slice(),expected,"{key}");
+    }
+    #[test]
+    fn weapon_bindings_api_t72_main_and_coax_preserve_registration() {
+        assert_eq!(tg_weapon_bindings_revision(),1);
+        let metadata=binding_api_metadata("su_t72a");
+        binding_api_critical(&metadata,"gun:0:0",&[("breech","gun_breech"),("gun_barrel","gun_barrel")]);
+        binding_api_critical(&metadata,"mg:coax_pkt",&[("mg:coax_pkt:receiver","machine_gun"),("mg:coax_pkt:barrel","machine_gun")]);
+        assert_eq!(metadata["bindings"]["mg:coax_pkt"]["kind"],"machine_gun");
+    }
+    #[test]
+    fn weapon_bindings_api_hetzer_main_and_roof_mg_preserve_registration() {
+        let metadata=binding_api_metadata("de_hetzer");
+        binding_api_critical(&metadata,"gun:0:0",&[("breech","gun_breech"),("gun_barrel","gun_barrel")]);
+        binding_api_critical(&metadata,"mg:roof_mg34",&[("mg:roof_mg34:receiver","machine_gun"),("mg:roof_mg34:barrel","machine_gun")]);
+        assert_eq!(metadata["bindings"]["mg:roof_mg34"]["secondary_id"],"roof_mg34");
+    }
+    #[test]
+    fn weapon_bindings_api_t10_main_and_aps_keep_actual_module_kinds() {
+        let metadata=binding_api_metadata("su_t10m");
+        binding_api_critical(&metadata,"gun:0:0",&[("breech","gun_breech"),("gun_barrel","gun_barrel")]);
+        binding_api_critical(&metadata,"gun:1:0",&[("oplot_gun","aps_gun")]);
+        assert_eq!(metadata["bindings"]["gun:1:0"]["turret_index"],1);assert_eq!(metadata["bindings"]["gun:1:0"]["gun_index"],0);
+    }
+    #[test]
+    fn weapon_bindings_api_oplot23_keeps_named_aps_without_inventing_tube_roles() {
+        let metadata=binding_api_metadata("su_t10m_oplot23");
+        binding_api_critical(&metadata,"gun:1:0",&[("oplot_gun","aps_gun")]);
+        assert_eq!(metadata["bindings"]["gun:1:0"]["model_id"],"oplot23_gsh6_23_custom");
+        assert!(!metadata.to_string().contains("physical_tube"));
+    }
+    #[test]
+    fn weapon_bindings_api_mixed_duplicate_guns_and_launchers_are_independent_rows() {
+        let metadata=binding_api_metadata("su_bmpt34");
+        binding_api_critical(&metadata,"gun:0:0",&[("cannon_breech_01","gun_breech"),("gun_barrel_01","gun_barrel")]);
+        binding_api_critical(&metadata,"gun:0:1",&[("cannon_breech_02","gun_breech"),("gun_barrel_02","gun_barrel")]);
+        binding_api_critical(&metadata,"gun:0:2",&[("launcher_tt250_rail_r","launcher")]);
+        binding_api_critical(&metadata,"gun:0:3",&[("launcher_tt250_rail_l","launcher")]);
+        assert_eq!(metadata["bindings"]["gun:0:0"]["model_id"],metadata["bindings"]["gun:0:1"]["model_id"]);
+        assert_eq!(metadata["bindings"]["gun:0:2"]["kind"],"missile");assert_eq!(metadata["bindings"]["gun:0:3"]["kind"],"missile");
+    }
+    #[test]
+    fn weapon_bindings_api_unknown_associations_remain_explicit_core_errors() {
+        let mut def=binding_api_definition("su_t72a");def.weapons["damage"]=json!({"critical":["missing_physical_module"]});
+        let old=binding_api_register(&def);let metadata=handle(&json!({"op":"combat_weapon_bindings","key":def.id})).unwrap();
+        assert!(metadata["bindings"]["gun:0:0"]["binding_error"].as_str().unwrap().contains("missing_physical_module"));
+        assert_eq!(metadata["binding_errors"],old["binding_errors"]);assert_eq!(metadata["bindings"]["gun:0:0"]["critical"],json!([]));
+        def.weapons=Value::Null;binding_api_register(&def);
+        let legacy=handle(&json!({"op":"combat_weapon_bindings","key":def.id})).unwrap();
+        assert_eq!(legacy["bindings"],json!({}));assert_eq!(legacy["binding_errors"],json!({}));
+    }
+    #[test]
+    fn weapon_bindings_api_unknown_target_cannot_fall_back_to_another_registration() {
+        binding_api_register(&binding_api_definition("su_t72a"));
+        assert!(handle(&json!({"op":"combat_weapon_bindings","key":"unregistered_target"})).unwrap_err().contains("no combat target"));
+    }
 
     #[test]
     fn combat_target_returns_idempotent_normalized_modules_and_instance_caps() {

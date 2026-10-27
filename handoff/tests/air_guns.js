@@ -1,0 +1,22 @@
+// The NF-01 in level flight 300 m behind a range target: a 1 s burst from all guns; hits and replay.
+const tf = window.__tf, x = window.__tfx, G = tf.G;
+const frames = (n) => new Promise(r => { let k = 0; const f = () => (++k >= n ? r() : requestAnimationFrame(f)); requestAnimationFrame(f); });
+await tf.coreReady().catch(e => null); await x.flightCoreP;
+tf.finishThumbs();
+document.querySelector('.hangar-card[data-air=nf01]').click();
+for (let i = 0; i < 40 && !G.air?.active; i++) await frames(1);
+tf.pause(true);
+const P = G.air.plane, e = G.enemies.find(q => q.id === (window.__TGT || 'de_pz3_j')); x.reviveRangeEnemy(e);
+const o = e.veh.body.origin(), heading = e.heading + Math.PI, back = 300;
+const sx = o[0] - Math.sin(heading) * back, sz = o[2] - Math.cos(heading) * back;
+P.spawn(sx, o[1] + 2.2, sz, heading, 85, false);
+P.state.instructor = true; P.aim = [Math.sin(heading), -0.004, Math.cos(heading)];
+tf.advance(0.2, [], false);
+let hits = 0, reps = []; const so = e.combat.shoot.bind(e.combat); e.combat.shoot = (...a) => { const r = so(...a); if (r) { hits++; reps.push(r.outcome); } return r; };
+const before = G.air.guns.map(g => g.ammo);
+G.air.fireAll = true; for (let k = 0; k < 60; k++) tf.advance(1 / 60, [], false); G.air.fireAll = false;
+const shotsInAir = G.shots.length, bullets = G.bullets.length;
+for (let k = 0; k < 120; k++) tf.advance(1 / 60, [], k % 30 === 0);
+const hc = x.hitcam;
+await pyShot('after');
+return { fired: G.air.guns.map((g, i) => [g.id, before[i] - g.ammo]), shotsInAir, bullets, hits, outcomes: [...new Set(reps)], replay: hc.cur ? { events: hc.cur.session.events.length, title: hc.cur.rep?.title } : null, target: { alive: e.alive, crew: e.caps?.crew_alive + '/' + e.caps?.crew_total }, hud: document.querySelector('#air-hud .air-flags')?.textContent };

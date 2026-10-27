@@ -1,0 +1,278 @@
+{
+  "scope": "Full original air/map/AI/HUD goal plus the user-added player tank companies and shared ground/air role switching; no playable mode completion established.",
+  "phase": "local_shared_ground_air_foundation_verification",
+  "newModeImplemented": false,
+  "requirements": [
+    {
+      "id": "ground_aileron_feedback",
+      "requirement": "A/D moves visible roll surfaces, including on the ground, across the aircraft roster",
+      "status": "Core212 fix deployed; all24types actual parked DOM A/D and48 uploaded roll meshes verified; physical hinge fidelity followups remain",
+      "evidence": [
+        "ad5ec15 flight core 212 ground-command change",
+        "surface-aerodynamics.test.mjs all-24-type parked actuator regression",
+        "f3c6d88 deployed source-matched core 212",
+        "Verified repair/docs/aircraft/parked-roll-visible-audit-f3c6d88-20261024.json: actual DOM/core/mesh path with fixed body and24 screenshots"
+      ],
+      "remaining": "F86 nonmirrored native hinge, swept/control-group edge review for MiG17/Su25/F4/F15 and any actual geometry repair; no blanket historical hinge approval"
+    },
+    {
+      "id": "dedicated_mode",
+      "requirement": "A dedicated combined ground/air frontline scenario with player tank companies, pilots and both ground/air AI",
+      "status": "Actual separate local ground/air foundation integrated in commit08719fd; complete requested combined mode remains incomplete",
+      "evidence": [
+        "combined-mode-design.json",
+        "server-entity-contract.json: actual DeployScreen online-air skeleton preserved; complete shared combined battle remains missing",
+        "crates/server/src/frontline.rs",
+        "crates/server/src/frontline_sim.rs",
+        "handoff/tools/frontline_client.js",
+        "crates/server/src/frontline_air.rs",
+        "crates/server/src/flight_runtime.rs",
+        "08719fd951464f07ff3d2cccfaff1c52cf45fcdd"
+      ],
+      "remaining": "Service/logistics, infantry/support, complete theatres, full avionics/weapons and full population/browser acceptance remain required"
+    },
+    {
+      "id": "korean_map",
+      "requirement": "Playable real-data Korean theatre at 1:1 scale",
+      "status": "Real shared native/rendered Korean terrain; C2 and1.8km ground corridor plus two authored game-expanded airfields/rear-air starts enabled",
+      "evidence": [
+        "research/korea-geography-manifest.json: four source tiles, complete study coverage",
+        "research/korea-rivers-source.json.gz and projected river layer",
+        "korea-review.html: 100×120km metric study",
+        "data/frontline/korea.json",
+        "research/export_runtime_korea.py",
+        "handoff/tests/out/frontline-browser-20261024/result.json: shared-terrain/native-pose functional assertions",
+        "data/frontline/korea.json: authored B-E/R-W2600m game-expanded runway grading"
+      ],
+      "remaining": "Complete connected ground fronts, bridge/passability systems, complete theatre tiles/LOD and full Korean acceptance; B-E/R-W2600m grading is game construction, not real airport expansion certification"
+    },
+    {
+      "id": "taiwan_map",
+      "requirement": "Playable real-data Taiwan Strait theatre at1:1 scale including the entire Taiwan main island",
+      "status": "Full-main-island coverage confirmed; scope/airport/transit study in progress, runtime not implemented",
+      "remaining": "Whole-island terrain/coast/sea routes, airports, physical maritime transport and fictional initial fronts; actual map and game integration",
+      "evidence": [
+        "taiwan-theatre-study.json"
+      ]
+    },
+    {
+      "id": "airfield_services",
+      "requirement": "Airfields repair and replenish accepted gun/store ammo and fuel",
+      "status": "rules drafted; user selected 10–20 seconds routine service; not implemented",
+      "remaining": "Team-owned zones, physical landing/service gates, local runway/facility damage, abstract supply availability and accepted per-vehicle refill/repair events"
+    },
+    {
+      "id": "hud",
+      "requirement": "Upper-left ammunition counts and fuel endurance",
+      "status": "Implemented locally with prior23 HUD/resource Node and72 actual HUD browser checks; shared-air server now owns finite guns/stores/fuel",
+      "remaining": "Actual airfield-service linkage and complete mixed browser/mobile gameplay validation",
+      "evidence": [
+        "handoff/tools/air_hud_inventory.js",
+        "handoff/tools/aircraft_resources.js",
+        "handoff/tests/out/air-hud-browser-20261024/summary.json",
+        "crates/server/src/frontline_air.rs: accepted resource views"
+      ]
+    },
+    {
+      "id": "spawn_choice",
+      "requirement": "Airborne or airfield start; airborne farther behind",
+      "status": "Actual accepted runway and farther rear airborne starts implemented for the shared mode; independent UnitRef/life, spatial air-start admission and safe stale-input handling",
+      "evidence": [
+        "research/layout-distance-checks.json: all initial air starts farther back than nearest field by team/lane",
+        "crates/server/src/frontline_air.rs: runway/rear-air spawn and occupancy admission",
+        "crates/server/src/frontline_domain_tests.rs"
+      ],
+      "remaining": "Complete era/type take-off and landing tests, approach protection/fallback and all-airport acceptance; B-E/R-W runway expansion is explicitly fictional gameplay construction"
+    },
+    {
+      "id": "ground_variety",
+      "requirement": "Opposing ground armies with tanks, IFVs/APCs, artillery, air defence, logistics and visible infantry",
+      "status": "Actual native autonomous tracked tank companies run on both sides; player10-tank company also implemented. Other force types remain missing",
+      "remaining": "Visible infantry, IFVs/APCs, artillery, air defence, logistics/support/engineers, transport and their accepted weapon/service systems",
+      "evidence": [
+        "crates/server/src/frontline_sim.rs: primary-cannon ground adapter"
+      ]
+    },
+    {
+      "id": "multi_front",
+      "requirement": "Multiple ground fronts advance through actual AI fighting; player air support affects outcomes",
+      "status": "One C2 objective has actual native AI ground movement/combat/capture and same-world aircraft gun/bomb/rocket contacts; multiple fronts remain incomplete",
+      "remaining": "Connect other routes/fronts and validate supply, reinforcements, retreat and sustained player-air support",
+      "evidence": [
+        "research/korea-road-connectivity-study.json",
+        "research/west-connector-native-study.json",
+        "research/korea-ground-staging-study.json",
+        "data/frontline/korea.json: only centre:C2-local-test enabled",
+        "crates/server/src/frontline.rs",
+        "crates/server/src/frontline_sim.rs: shared direct/blast contacts"
+      ]
+    },
+    {
+      "id": "air_superiority",
+      "requirement": "Players and air AI contest air superiority and support friendly ground forces",
+      "status": "Basic shared-world independent aircraft plants, autonomous air AI and player sorties now run alongside ground units; full mission systems remain incomplete",
+      "remaining": "Patrol/interception/strike/recon tactics, air-AI replenishment, real perception/FoW and full radar/seeker/guided/CCIP integration",
+      "evidence": [
+        "crates/server/src/frontline_air.rs: independent plants and basic AI"
+      ]
+    },
+    {
+      "id": "era_rooms",
+      "requirement": "Fictional conflicts split by era, preventing early jets versus modern aircraft",
+      "status": "Both ground and aircraft metadata enforce the same selected25-year room window server-side; complete historical catalog remains unimplemented",
+      "remaining": "Source-backed variant/weapon/store/sensor/ground-unit eligibility shared by both teams beyond metadata year alone",
+      "evidence": [
+        "era-roster-study.json: source-supported candidate profiles and remediation paths",
+        "Reproduced missing T.era UI eligibility bug; server bypass not claimed",
+        "030e8cb aircraft era admission fix",
+        "crates/server/src/frontline.rs: native vehicle era gate",
+        "crates/server/src/frontline_air.rs:25-year metadata window"
+      ]
+    },
+    {
+      "id": "rounds",
+      "requirement": "45–90 minute rounds, reset at end, 8–12 players per team",
+      "status": "Ground prototype has a45-minute timeout, once-loss readiness and room cleanup; automatic next round and full population/endurance acceptance remain incomplete",
+      "remaining": "Automatic clean next-round reset, full45–90-minute/endurance/result rules, maximum8–12 humans/team and worst-case population/load verification",
+      "evidence": [
+        "crates/server/src/frontline.rs",
+        "crates/server/src/frontline_domain_tests.rs"
+      ]
+    },
+    {
+      "id": "respawn_economy",
+      "requirement": "Same aircraft can sortie repeatedly; losses consume team readiness, no personal currency",
+      "status": "Shared mode uses no personal currency; native ground/air unit-life losses charge team readiness once. Aircraft return reuses surviving inventory without cloning; new aircraft may sortie after accepted loss",
+      "remaining": "Airfield10–20s service and full repeat-sortie endurance, physical replacements and reset acceptance",
+      "evidence": [
+        "crates/server/src/frontline_domain_tests.rs: once-loss/readiness and no-clone ownership cases",
+        "crates/server/src/frontline.rs: owned-aircraft reuse, once-life loss and deployment gates"
+      ]
+    },
+    {
+      "id": "intelligence",
+      "requirement": "Detected contacts shared, stale moving targets retain only last-known position",
+      "status": "confirmed; no new-mode implementation",
+      "remaining": "Per-team discovery and age/confidence, map/overlay consistency, sensor limits, no stale-marker missile guidance"
+    },
+    {
+      "id": "platforms",
+      "requirement": "Desktop priority; mobile has simplified visuals and complete gameplay",
+      "status": "Actual local desktop shared ground/air client and ground visual LOD implemented. New release probe:33 entities at19.997Hz; observer JSON1.633277MB/s",
+      "remaining": "Bandwidth reduction, maximum8–12 humans/team and persistent-unit rendering/network budgets, WAN/VPS verification and complete mobile gameplay/performance",
+      "evidence": [
+        "handoff/tools/frontline_lod.js",
+        "handoff/tests/out/frontline-browser-20261024/tick-probe.json",
+        "handoff/tests/out/frontline-air-browser-20261025/mixed-tick-probe.json"
+      ]
+    },
+    {
+      "id": "research_and_review",
+      "requirement": "Research references and detailed user design discussion before implementation",
+      "status": "Source-backed design/research retained; actual shared ground/air foundation implemented locally and bounded verification underway",
+      "evidence": [
+        "Primary-source registry, DEM documentation, Korean archive/heritage and official WT references in design JSON",
+        "Seven newly answered preferences recorded alongside earlier decisions",
+        "Offline interactive geography/layout review with provenance and distance calculations",
+        "era-roster-study.json: primary-source variant/weapon audit",
+        "server-entity-contract.json: source-checked integration contract",
+        "taiwan-theatre-study.json: real extent/transit alternatives, now expanded to whole Taiwan by user choice",
+        "096f2cf ground/HUD feature commit",
+        "08719fd951464f07ff3d2cccfaff1c52cf45fcdd shared-air foundation"
+      ],
+      "remaining": "Complete unresolved design/roster/theatre requirements and full mixed-mode runtime acceptance"
+    },
+    {
+      "id": "player_tank_companies",
+      "requirement": "A ground player directly drives one command tank and commands nine AI tanks arranged in three platoons through map orders",
+      "status": "Implemented in actual local server/client: one player tank plus nine AI in three platoons, authoritative map orders and native movement/fire/ammo/damage",
+      "evidence": [
+        "combined-mode-design.json",
+        "review-controls.js offline command preview",
+        "server-entity-contract.json: unit ownership, survivor takeover, physical replacements and actual client/server acceptance gates",
+        "crates/server/src/frontline.rs",
+        "crates/server/src/frontline_domain_tests.rs",
+        "handoff/tests/out/frontline-browser-20261024/result.json"
+      ],
+      "remaining": "Full reinforcement/logistics/infantry interaction and maximum-population performance; final browser screenshot capture remains failed despite14/14 functional assertions"
+    },
+    {
+      "id": "combined_role_switch",
+      "requirement": "After returning to a friendly deployment zone or losing the current vehicle, select tank/company or aircraft in the same battle",
+      "status": "Same-battle ground Return then aircraft deployment and company orders while flying are implemented; company ownership/native state, control epochs, stale-input rejection and reconnect are preserved",
+      "remaining": "Complete browser role-flow validation, service/repair and all air/ground lifecycle/projectile/endurance transitions",
+      "evidence": [
+        "crates/server/src/frontline_domain_tests.rs: native damaged/depleted survivor preserves life/pose/ammo/damage/reload",
+        "crates/server/src/frontline_lobby_tests.rs",
+        "crates/server/src/frontline_domain_tests.rs: actual shared role/ownership/resource cases"
+      ]
+    },
+    {
+      "id": "destructible_infrastructure",
+      "requirement": "Destructible bridges with engineer repair/temporary crossings; runway damage causes local temporary closure and engineer recovery accelerated by supply escort",
+      "status": "Confirmed; terrain/road screening available, no live geometry/path/recovery implementation",
+      "remaining": "Shared visible/physical deck and runway damage, real blocked routes, engineer work, validated alternate crossings and immutable damage/repair evidence"
+    },
+    {
+      "id": "light_logistics",
+      "requirement": "Facilities and transport affect airport service availability; no per-round airfield inventory ledger; normal service 10–20 seconds",
+      "status": "Confirmed; replaces earlier proposed strict airport stock accounting",
+      "remaining": "Accepted abstract supply/facility state, real convoys/engineering effects, capped per-vehicle refill and service UI"
+    },
+    {
+      "id": "physical_company_replacements",
+      "requirement": "Missing company members are replenished in batches at a friendly deployment source. Reinforcement vehicles physically follow a valid route to rejoin; no instant frontline refill.",
+      "status": "Confirmed; navigation/deployment reservation and arrival not implemented",
+      "remaining": "Accepted vacancies/batches, source eligibility, physical routes, interruption and late-arrival handling"
+    },
+    {
+      "id": "orders_while_flying",
+      "requirement": "While flying, the owner can issue simplified move/attack/defend map orders to the same company, while directly controlling only one vehicle.",
+      "status": "Actual server-authorised company orders remain available during accepted aircraft control; existing company continues AI execution in the same world",
+      "remaining": "Final actual-browser role/order acceptance and long-duration AI tactics/population validation",
+      "evidence": [
+        "crates/server/src/frontline.rs: Order ownership independent of controlled role"
+      ]
+    },
+    {
+      "id": "friendly_damage_policy",
+      "requirement": "Default friendly damage off with vehicle collision and ballistic blocking retained",
+      "status": "Native ground and aircraft gun/bomb/rocket direct and blast contacts retain friendly damage suppression and ballistic blocking; direct explosion accounting reviewed",
+      "remaining": "Full guided/secondary-effects policy and physical aircraft collision/obstruction parity remain unimplemented or unverified",
+      "evidence": [
+        "crates/server/src/frontline_sim_adapter_tests.rs: native allied blocking/no-damage regression",
+        "crates/server/src/frontline_sim.rs: direct-target blast exclusion and allied ballistic blocking"
+      ]
+    },
+    {
+      "id": "ai_autobattle_spectator",
+      "requirement": "Single-human choice to watch two AI mixed ground/air teams fight; no other human or controlled player vehicle needed",
+      "status": "Actual single observer starts a no-human-vehicle battle with20 native AI tanks plus2 autonomous aircraft in one accepted world",
+      "evidence": [
+        "ai-spectator-design.json",
+        "crates/server/src/frontline_domain_tests.rs: both teams advance along actual road over8 simulated seconds",
+        "handoff/tests/out/frontline-browser-20261024/result.json: solo observer and movement assertions",
+        "crates/server/src/frontline_air.rs",
+        "handoff/tests/out/frontline-air-browser-20261025/mixed-tick-probe.json"
+      ],
+      "remaining": "Air-AI replenishment/long-term tactics, infantry/support/service, complete maps, spectator/team FoW separation and measured final population"
+    }
+  ],
+  "implementationProgress": {
+    "updatedDate": "2026-10-25",
+    "phase": "local_shared_ground_air_foundation_verification",
+    "featureCommit": "08719fd951464f07ff3d2cccfaff1c52cf45fcdd",
+    "implementationStarted": true,
+    "fullCombinedModeImplemented": false,
+    "deployedToVps": false,
+    "implementedStage": "Shared native ground/air foundation now runs in one local battle: independent flight WASM212 Store per aircraft,24 source-derived type profiles, accepted80/48-float telemetry, solo20 tanks+2 AI aircraft, player runway/rear-air starts, persistent company orders while flying, finite gun/bomb/rocket resources and shared accepted contacts/damage. Full requested mode remains incomplete.",
+    "runtimeMapLimit": "Only Korean C2 and its1.8km ground corridor are enabled. B-E/R-W source-site game expansions have explicitly authored2600m rotated runway/terrain surfaces; this is gameplay construction, not certification of real airport expansion. Complete Korean/Taiwan theatres remain unfinished.",
+    "validationSummary": "Historical ground/HUD evidence retained. New stage:167 tests passed in one full Rust lib run; review fixes and3 additions then passed28 targeted frontline tests (170 unique, not a single170-test full run). Node51 passed together, then15 relevant checks passed after the receive/pose fix with1 addition (52 unique, not a single52-test run). Release33 entities (30 ground+3 independent aircraft) advanced240 ticks in12.001792111s=19.9970135943Hz; each flight core advanced11.999902s. Observer JSON1.633277MB/s excludes transport. Final actual one-browser/three-scenario functional harness passed11/11; captures skipped after the retained prior SwiftShader timeout, so no capture or device-performance pass claim.",
+    "details": "implementation-status.json",
+    "publicRuntime": "Online/VPS remains the earlier f3c6d88 radar/core212 release; local ground/HUD096f2cf and shared-air08719fd have not been deployed.",
+    "historicalGroundHudFeatureCommit": "096f2cffc9e4bb76029d9db5514ec86327a3726c",
+    "historicalGroundHudValidationSummary": "152 Rust lib;23 HUD/resource Node +3 input/LOD Node +14 existing Node;72/72 actual HUD browser checks. Ground browser14/14 functional assertions true, whole harness false after final60s screenshot timeout. Local release30 units about20Hz,1.51MB/s/observer JSON; no maximum-population/WAN/mobile certification.",
+    "clientPoseFixCommit": "422db6b758e18f62c4c7a53f774b83ec5f0c257a",
+    "verificationReport": "docs/air-frontline/shared-air-ground-verification-2026-10-25.json"
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "codecVersion": 2,
+  "headerBytes": 41,
+  "producer": "Actual frontline_wire.rs encode_value Rust code compiled by standalone rustc harness; Update serialize adapter not yet crate-linked",
+  "validChain": [
+    "full.bin",
+    "delta.bin",
+    "repeat.bin",
+    "empty.bin",
+    "delta2.bin",
+    "reset.bin"
+  ],
+  "expected": "expected.json",
+  "negative": [
+    "truncated.bin",
+    "wrong-base.bin",
+    "cross-battle.bin",
+    "unknown-string.bin",
+    "nonfinite.bin"
+  ],
+  "files": {
+    "cross-battle.bin": {
+      "bytes": 300,
+      "sha256": "0467615b5b6c68b06d45a96706a744ead03dceea7ca354e97d2076585a071c77"
+    },
+    "delta.bin": {
+      "bytes": 300,
+      "sha256": "31621c4817adf65d814cf968f1bc3cd4d6cc7bc49d775fa3a3e27b5430ca72b3"
+    },
+    "delta2.bin": {
+      "bytes": 48,
+      "sha256": "dab3c5390dad711814e83be62300e68150d6b95914181f51ffe51adf1b7fc199"
+    },
+    "empty.bin": {
+      "bytes": 53,
+      "sha256": "67f6dfd9deab68d0967a4fecb1061f3fa8d08f04e6b90a08a78a7ccbb682e5cc"
+    },
+    "expected.json": {
+      "bytes": 18438,
+      "sha256": "3ce18ecdce64db2b9d58cadf034a727118652ceff31cdd562affd0ddb3126aab"
+    },
+    "full.bin": {
+      "bytes": 1482,
+      "sha256": "43eef6fe99c0494c243ef1297dcd193f3d021a66a14880f64334cf13ab0547aa"
+    },
+    "nonfinite.bin": {
+      "bytes": 50,
+      "sha256": "099e5e99bca4bb09021ae6e29aeef385d4b204ce0bbee2b687347d3182736d00"
+    },
+    "repeat.bin": {
+      "bytes": 48,
+      "sha256": "5c70aa93b6fd10e68ab6daf7afa803e52f912bde94ced2ae527b70e5da066be2"
+    },
+    "reset.bin": {
+      "bytes": 1488,
+      "sha256": "55a32d3a727b86f52f76cbdc668ed5679268e777fa716220bab63eddbf853138"
+    },
+    "truncated.bin": {
+      "bytes": 299,
+      "sha256": "0a69c3fd01b35def024cb5585892550c5a71b5d2a4b77f2a0485fdddd5eefdda"
+    },
+    "unknown-string.bin": {
+      "bytes": 43,
+      "sha256": "f9d89e1c0f4fba9fefadb06fe86725dd8d8d704954d8671260e3e2cfa713e12f"
+    },
+    "wrong-base.bin": {
+      "bytes": 300,
+      "sha256": "6a35009414758404c5b618658760d12a85748834759105541e1aca5c0263e021"
+    }
+  },
+  "source": {
+    "crates/server/src/frontline_wire.rs": "0fd8546a246dcab70254f135cc0a09c49d70cf8756f7c567713961890e679378",
+    "crates/server/src/frontline_wire_tests.rs": "6bcea405d74587b0256b54213f1e2c1281355b0dad495df05ef63a524720ca8c"
+  }
+}

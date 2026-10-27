@@ -1,0 +1,96 @@
+{
+  "passed": true,
+  "mode": "file URL; browser forced offline",
+  "data": {
+    "initial": {
+      "ready": true,
+      "mode": "exterior",
+      "lod": 0,
+      "triangles": 296201,
+      "meshes": 188,
+      "armorMeshes": 11,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.11213272344321,
+        8.722509384155273
+      ],
+      "yaw": 0,
+      "elevation": 0,
+      "explode": 0,
+      "missilesRemaining": 12,
+      "cannonBursts": 0,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 0,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    },
+    "counts": [
+      296201,
+      169492,
+      112249,
+      296201
+    ],
+    "missile": true,
+    "cannon": true,
+    "reset": {
+      "ready": true,
+      "mode": "exterior",
+      "lod": 0,
+      "triangles": 296201,
+      "meshes": 188,
+      "armorMeshes": 11,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.11213272344321,
+        8.722509384155273
+      ],
+      "yaw": 0,
+      "elevation": 0,
+      "explode": 0,
+      "missilesRemaining": 12,
+      "cannonBursts": 0,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 0,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    }
+  },
+  "errors": [],
+  "network": []
+}

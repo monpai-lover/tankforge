@@ -2,6 +2,367 @@ use super::*;
 use tg_armor::ArmorKind;
 use tg_weapon::CurvePoint;
 
+#[path = "near_burst_tests.rs"]
+mod near_burst_regressions;
+
+#[path = "near_burst_budget_tests.rs"]
+mod near_burst_budget_regressions;
+
+fn near_burst_wall(mm:f32,behind:Option<f32>)->Target {
+    let mut def=box_tank(false).def;def.turret=None;def.modules.clear();
+    def.crew=vec![crew(CrewRole::Driver,[0.,1.,0.])];
+    def.plates=vec![plate("wall",ArmorZone::HullSide,mm,[-0.5,1.,0.],[-1.,0.,0.],[0.,0.,1.],3.,3.)];
+    if let Some(mm)=behind {def.plates.push(plate("main",ArmorZone::HullSide,mm,[-0.3,1.,0.],[-1.,0.,0.],[0.,0.,1.],3.,3.));}
+    Target::new(def,&rha())
+}
+fn near_burst_shell()->ProjectileDef {
+    let root=std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    serde_json::from_slice(&std::fs::read(root.join("data/projectiles/he_420_tt250.json")).unwrap()).unwrap()
+}
+#[test]
+fn near_burst_closed_thin_armour_is_defeated_by_actual_casing_paths_not_primary_pressure(){
+    let thin=near_burst_wall(15.,None);let thick=near_burst_wall(250.,None);let layered=near_burst_wall(1.,Some(250.));
+    let shell=near_burst_shell();let at=Vec3::new(-1.,1.,0.);
+    let r=near_burst::evaluate(&thin,&thin.fresh_state(),at,&shell,0.,4,None,None).unwrap();
+    assert!(r.state.crew[0]<100.,"a real close casing path must defeat thin armor: {:?}",r.fragments.iter().filter(|f|f.hit.is_some()).collect::<Vec<_>>());
+    assert!(r.fragments.iter().any(|f|f.kind=="burst"&&f.hit.as_deref()==Some("crew:0")&&f.damage>0.));
+    assert!(!r.fragments.iter().any(|f|f.kind=="blast"&&f.hit.as_deref()==Some("crew:0")),"sealed crew have no evidenced air path");
+    for t in [thick,layered] {let r=near_burst::evaluate(&t,&t.fresh_state(),at,&shell,0.,4,None,None).unwrap();assert_eq!(r.state.crew[0],100.,"each intervening armor layer must resist a single physical fragment");}
+}
+#[test]
+fn near_burst_casing_mass_and_representative_weight_never_become_one_oversized_fragment(){
+    let t=near_burst_wall(250.,None);let shell=near_burst_shell();
+    let r=near_burst::evaluate(&t,&t.fresh_state(),Vec3::new(-1.,1.,0.),&shell,0.,4,None,None).unwrap();
+    let mut masses=std::collections::BTreeMap::new();
+    for f in &r.fragments {if f.kind!="burst"{continue;}let p=f.provenance.physical.as_ref().expect("individual mass and energy required");p.validate().unwrap();if let Some(budget)=f.budget{budget.validate().unwrap();assert!((p.energy_j-budget.input_j).abs()<1e-4);}assert!(p.mass_kg<=0.200001,"numerical budget cannot enlarge one fragment");masses.entry(f.provenance.fragment_id.clone()).or_insert(p.mass_kg*f.provenance.weight);}
+    assert!(!masses.is_empty());assert!(masses.values().sum::<f64>()<=(shell.mass_kg-shell.explosive_mass_kg)as f64+1e-4);
+    assert!(r.fragments.len()<=256);assert!(r.impact_events.len()<=64);
+    assert!(r.events.iter().any(|e|e=="unknown_pressure_boundary"));
+}
+#[test]
+fn near_burst_invalid_charge_rejects_and_zero_filler_cannot_create_fragments(){
+    let t=near_burst_wall(1.,None);let mut shell=near_burst_shell();let at=Vec3::new(-1.,1.,0.);
+    shell.explosive_mass_kg=0.;let r=near_burst::evaluate(&t,&t.fresh_state(),at,&shell,0.,4,None,None).unwrap();assert!(r.bursts.is_empty()&&r.fragments.is_empty());assert_eq!(r.state.crew,t.fresh_state().crew);
+    for kg in [-1.,f32::NAN,f32::INFINITY,251.] {shell.explosive_mass_kg=kg;assert!(near_burst::evaluate(&t,&t.fresh_state(),at,&shell,0.,4,None,None).is_err());}
+}
+#[test]
+fn near_burst_is_deterministic_and_global_open_top_does_not_open_a_sealed_driver(){
+    let mut def=near_burst_wall(250.,None).def;def.open_top=true;let t=Target::new(def,&rha());let shell=near_burst_shell();let at=Vec3::new(-1.,1.,0.);
+    let a=near_burst::evaluate(&t,&t.fresh_state(),at,&shell,0.,4,None,None).unwrap();let b=near_burst::evaluate(&t,&t.fresh_state(),at,&shell,0.,4,None,None).unwrap();
+    assert_eq!(serde_json::to_value(a.clone()).unwrap(),serde_json::to_value(b).unwrap());assert_eq!(a.state.crew[0],100.);
+}
+#[test]
+fn near_burst_seeded_sampling_has_no_permanently_empty_central_cone(){
+    let t=near_burst_wall(1.,None);let shell=near_burst_shell();let mut damaged=false;
+    for seed in 1..=128 {let r=near_burst::evaluate(&t,&t.fresh_state(),Vec3::new(-10.,1.,0.),&shell,0.,seed,None,None).unwrap();damaged|=r.state.crew[0]<100.;}
+    assert!(damaged,"a centered 0.28 m crew at 10 m has positive solid angle; changing seeds must sample that cone");
+}
+#[test]
+fn near_burst_fragment_cursor_never_reenters_already_crossed_paired_wall(){
+    let(t,scene)=surface_combat_fixture_engine_at(0.025);let before=t.fresh_state();let shell=near_burst_shell();
+    for seed in 1..=8 {let r=near_burst::evaluate(&t,&before,Vec3::new(0.5,0.,-0.1),&shell,0.,seed,None,Some(&scene)).unwrap();assert_eq!(r.state.modules,before.modules,"an anatomy contact inside already crossed wall cannot rewind the physical cursor");}
+}
+
+// A visible frame with a real aperture, two faces of the same authored wall,
+// and a modeled engine beyond it. Legacy planes and boxes deliberately disagree.
+fn surface_combat_fixture() -> (Target, geometry::combat_scene::CombatScene) {
+    surface_combat_fixture_engine_at(0.8)
+}
+fn surface_combat_fixture_engine_at(engine_z:f32) -> (Target, geometry::combat_scene::CombatScene) {
+    use serde_json::{json, Value};
+    use geometry::{manifest::sha256, Geometry, MeshStore};
+    let mut def = box_tank(false).def;
+    def.id = "surface-fixture".into(); def.turret = None; def.crew.clear();
+    def.plates = vec![plate("front", ArmorZone::HullUpperFront, 20., [0.,0.,-0.4], [0.,0.,-1.], [1.,0.,0.], 1.,1.)];
+    def.modules = vec![module("engine", ModuleKind::Engine, [5.,0.,0.8], [0.2,0.2,0.2], 160.)];
+    let target=Target::new(def,&rha());
+    let mut positions:Vec<[f32;3]>=vec![]; let mut triangles:Vec<[u32;3]>=vec![];
+    let mut quad=|x0:f32,x1:f32,y0:f32,y1:f32,z:f32| {
+        let n=positions.len() as u32;
+        positions.extend([[x0,y0,z],[x1,y0,z],[x1,y1,z],[x0,y1,z]]);
+        triangles.extend([[n,n+2,n+1],[n,n+3,n+2]]);
+    };
+    for z in [0.,0.05] {quad(-1.,-0.2,-1.,1.,z);quad(0.2,1.,-1.,1.,z);quad(-0.2,0.2,-1.,-0.2,z);quad(-0.2,0.2,0.2,1.,z);}
+    quad(0.3,0.7,-0.2,0.2,engine_z);
+    let mut payload=b"THMESH1\0".to_vec();
+    for n in [1,positions.len() as u32,triangles.len() as u32,positions.len() as u32*12,triangles.len() as u32*12,0] {payload.extend(n.to_le_bytes());}
+    for p in &positions {for v in p {payload.extend(v.to_le_bytes());}}
+    for t in &triangles {for v in t {payload.extend(v.to_le_bytes());}}
+    let mut store=MeshStore::default();let ph=sha256(&payload);let mesh=store.install(&payload,&ph).unwrap();
+    let ident=[1f32,0.,0.,0.,0.,1.,0.,0.,0.,0.,1.,0.,0.,0.,0.,1.].map(f32::to_bits);
+    let z="0".repeat(64);
+    let mut declarations=vec![];let mut ranges=vec![];let mut surfaces=vec![];
+    for (key,first,count,role,side) in [("outer",0,8,"armor","outer"),("inner",8,8,"armor","inner"),("engine",16,2,"module","none")] {
+        let mut d=json!({"meshKey":"mesh","first":first,"count":count,"sourceKey":"fixture-source","partId":key,"material":{},"role":role,"topology":{"kind":"open_sheet"},"armorBinding":{"status":if role=="armor"{"declared"}else{"none"},"armorRefs":if role=="armor"{vec!["front"]}else{vec![]},"layerKey":if role=="armor"{Some("wall")}else{None},"boundarySide":side,"thicknessSource":if role=="armor"{"authored_engineering"}else{"none"},"pairing":"same_material_region"},"moduleRef":if role=="module"{Some("engine")}else{None},"crewSlot":null,"contactEligible":true,"fuseEligible":true,"resistancePolicy":if role=="armor"{"authored_thickness"}else{"module"},"declaration":{"revision":"fixture-v1","basis":"test"},"owners":[]});
+        let dh=sha256(&serde_json::to_vec(&d).unwrap());let dk=format!("decl:{dh}");d["key"]=json!(dk);d["declaration"]["contentHash"]=json!(dh);
+        declarations.push(d);
+        ranges.push(json!({"first":first,"count":count,"sourceKey":"fixture-source","surfaceKey":key,"solidKey":null,"bindingKey":null}));
+        surfaces.push(json!({"key":key,"role":role,"topology":"open_sheet","winding":"emitted","responseRef":dk,"armorLayerKey":if role=="armor"{Some("wall")}else{None},"moduleKey":if role=="module"{Some("engine")}else{None},"crewKey":null,"fuseEligible":true,"contactEligible":true}));
+    }
+    let mut m=json!({"schema":"HitMeshManifestV1","format":"THMESH1","endianness":"LE","generator":{"revision":"test","sha256":z},"buildRecipeHash":z,"specId":target.def.id,"buildHash":z,"renderGeometryHash":z,"anatomyDataHash":z,"sources":{"assets":[]},"meshes":[{"key":"mesh","payloadHash":ph,"positionsHash":mesh.data.position_hash,"renderBufferHash":z,"vertexCount":positions.len(),"triangleCount":triangles.len(),"bounds":mesh.data.bounds,"ranges":ranges,"bvh":null}],"assemblies":[{"key":"root","parent":null,"baseTransformBits":ident,"pivot":[0,0,0],"joint":{},"allowedMotionFields":[]}],"meshInstances":[{"key":"instance","meshKey":"mesh","assemblyKey":"root","sourceKey":"fixture-source","worldBits":ident,"instanceBits":ident,"materialFeature":{},"activityPolicy":"static_fixture"}],"bindings":[{"key":"wall"},{"key":"engine"}],"surfaces":surfaces,"audits":{"certification":"audit_pending_diagnostic","triangleCoverage":triangles.len(),"unclassifiedPhysicalTriangles":0,"degenerateCount":0,"boundaryEdges":0,"nonmanifoldEdges":0,"missingBindings":0,"ambiguousBindings":0,"renderPositionDifferences":0,"topologyPending":false,"declaredOpenBoundaries":null,"shaderDeformation":"none","activity":"static_fixture"}});
+    m["manifestHash"]=json!(sha256(&serde_json::to_vec(&m).unwrap()));
+    let anatomy=json!({"armor":target.def.plates,"modules":target.def.modules,"crew":target.def.crew,"weapons":target.def.weapons});
+    let anatomy_hash=sha256(&serde_json::to_vec(&anatomy).unwrap());
+    m.as_object_mut().unwrap().remove("manifestHash");m["anatomyDataHash"]=json!(anatomy_hash);m["manifestHash"]=json!(sha256(&serde_json::to_vec(&m).unwrap()));
+    let mb=serde_json::to_vec(&m).unwrap();let mh=sha256(&mb);let geo=Geometry::register(&mb,&mh,&store).unwrap();
+    let mut c=json!({"schema":"HitBindingCatalogV1","specId":target.def.id,"manifestHash":mh,"buildHash":z,"anatomyHash":z,"sourceGeneratorHash":z,"geometryBytesChanged":0,"declarations":declarations,"layers":[{"key":"wall","armorRef":"front","authoredThicknessMm":20.,"authoredMaterial":target.def.plates[0].material,"chargePolicy":"once_per_material_region","historicalMeasurement":false}],"instances":[{"instanceKey":"instance","assemblyKey":"root","materialFeature":{}}],"articulations":[],"audit":{}});
+    c["acceptedAnatomy"]=anatomy;c["anatomyHash"]=json!(anatomy_hash);c["targetRegistrationHash"]=json!(target.registration_hash());c["catalogHash"]=json!(sha256(&serde_json::to_vec(&c).unwrap()));let cb=serde_json::to_vec(&c).unwrap();
+    let context=geometry::surface::QueryContext{entity_id:"actor".into(),spawn_epoch:1,build_hash:z,pose_revision:7,geometry_revision:0,shape_hash:None};
+    let scene=geometry::combat_scene::CombatScene::new(geo,&mh,&cb,&sha256(&cb),&target,context).unwrap();
+    let _:Value=c;(target,scene)
+}
+fn surface_shot(x:f32)->Shot {Shot{shell:shell(ProjectileKind::Ap,10.,0.1,150.,0.),origin:Vec3::new(x,0.,-1.),dir:Vec3::new(0.,0.,1.),speed_ms:800.,distance_m:0.,seed:1,turret_yaw:0.}}
+
+// One shared physical shoe mesh, independently owned by the two running-gear
+// sides. Abstract module boxes deliberately sit far away from the visible metal.
+fn instance_gear_fixture(change: impl FnOnce(&mut serde_json::Value)) -> Result<(Target, geometry::combat_scene::CombatScene), String> {
+    instance_gear_fixture_kind("track_link",change)
+}
+fn instance_gear_fixture_kind(kind: &str,change: impl FnOnce(&mut serde_json::Value)) -> Result<(Target, geometry::combat_scene::CombatScene), String> {
+    instance_gear_fixture_options(kind,false,change)
+}
+fn instance_gear_fixture_options(kind: &str,duplicate:bool,change: impl FnOnce(&mut serde_json::Value)) -> Result<(Target, geometry::combat_scene::CombatScene), String> {
+    use serde_json::json;
+    use geometry::{manifest::sha256, Geometry, MeshStore};
+    let mut def = box_tank(false).def;
+    def.id = "instance-gear".into(); def.turret = None; def.plates.clear(); def.crew.clear();
+    def.modules = vec![module("track_l", ModuleKind::Track, [-20.,0.,0.], [0.1;3], 120.), module("track_r", ModuleKind::Track, [20.,0.,0.], [0.1;3], 120.), module("engine", ModuleKind::Engine, [0.,20.,0.], [0.1;3],160.)];
+    if duplicate {def.modules.push(def.modules[0].clone());}
+    let target = Target::new(def, &rha());
+    let positions = [[-0.5f32,-0.5,0.],[0.5,-0.5,0.],[0.,0.5,0.]];
+    let mut payload = b"THMESH1\0".to_vec();
+    for n in [1u32,3,1,36,12,0] { payload.extend(n.to_le_bytes()); }
+    for p in positions { for x in p { payload.extend(x.to_le_bytes()); } }
+    for n in [0u32,2,1] { payload.extend(n.to_le_bytes()); }
+    let mut store=MeshStore::default();let ph=sha256(&payload);let mesh=store.install(&payload,&ph).unwrap();
+    let ident=[1f32,0.,0.,0.,0.,1.,0.,0.,0.,0.,1.,0.,0.,0.,0.,1.].map(f32::to_bits);let z="0".repeat(64);
+    let mut d=json!({"meshKey":"shoe","first":0,"count":1,"sourceKey":"authored-shoe","partId":"shoe","material":{},"role":"module","armorBinding":{"status":"none","armorRefs":[],"layerKey":null},"moduleRef":null,"crewSlot":null,"contactEligible":true,"fuseEligible":false,"resistancePolicy":"no_authored_armor","declaration":{"revision":"test","basis":"authored_running_gear_instance_side"},"owners":[]});
+    let dh=sha256(&serde_json::to_vec(&d).unwrap());let dk=format!("decl:{dh}");d["key"]=json!(dk);d["declaration"]["contentHash"]=json!(dh);
+    let instances: Vec<_>=[(-1,-2f32,"track_l"),(1,2f32,"track_r")].into_iter().map(|(side,x,_)| {let mut world=ident;world[12]=x.to_bits();json!({"key":format!("shoe:{side}"),"meshKey":"shoe","assemblyKey":"root","sourceKey":"authored-shoe","worldBits":world,"instanceBits":ident,"materialFeature":{"status":"declared_identity","kind":kind,"side":side,"index":0},"activityPolicy":"static_fixture"})}).collect();
+    let anatomy=json!({"armor":target.def.plates,"modules":target.def.modules,"crew":target.def.crew,"weapons":target.def.weapons});let ah=sha256(&serde_json::to_vec(&anatomy).unwrap());
+    let mut m=json!({"schema":"HitMeshManifestV1","format":"THMESH1","endianness":"LE","generator":{"revision":"fixture","sha256":z},"buildRecipeHash":z,"specId":"instance-gear","buildHash":z,"renderGeometryHash":z,"anatomyDataHash":ah,"sources":{"assets":[]},"meshes":[{"key":"shoe","payloadHash":ph,"positionsHash":mesh.data.position_hash,"renderBufferHash":z,"vertexCount":3,"triangleCount":1,"bounds":mesh.data.bounds,"ranges":[{"first":0,"count":1,"sourceKey":"authored-shoe","sourceTriangleFirst":0,"surfaceKey":"shoe-surface","solidKey":null,"bindingKey":null}],"bvh":null}],"assemblies":[{"key":"root","parent":null,"baseTransformBits":ident,"pivot":[0,0,0],"joint":{},"allowedMotionFields":[]}],"meshInstances":instances,"bindings":[],"surfaces":[{"key":"shoe-surface","role":"module","topology":"decorative_surface","winding":"emitted","responseRef":dk,"armorLayerKey":null,"moduleKey":null,"crewKey":null,"fuseEligible":false,"contactEligible":true}],"audits":{"certification":"audit_pending_diagnostic","triangleCoverage":1,"unclassifiedPhysicalTriangles":0,"degenerateCount":0,"boundaryEdges":3,"nonmanifoldEdges":0,"missingBindings":0,"ambiguousBindings":0,"renderPositionDifferences":0,"topologyPending":false,"declaredOpenBoundaries":null,"shaderDeformation":"none","activity":"static_fixture"}});
+    m["manifestHash"]=json!(sha256(&serde_json::to_vec(&m).unwrap()));let mh=sha256(&serde_json::to_vec(&m).unwrap());
+    let instance_rows:Vec<_>=m["meshInstances"].as_array().unwrap().iter().map(|i|{let side=i["materialFeature"]["side"].as_i64().unwrap();json!({"instanceKey":i["key"],"assemblyKey":i["assemblyKey"],"materialFeature":i["materialFeature"],"responseOverrides":[{"responseRef":dk,"sourceKey":"authored-shoe","moduleRef":if side<0{"track_l"}else{"track_r"},"ownerSide":side,"policy":"registered_module_kind"}]})}).collect();
+    let mut c=json!({"schema":"HitBindingCatalogV1","specId":"instance-gear","manifestHash":mh,"buildHash":z,"anatomyHash":ah,"acceptedAnatomy":anatomy,"targetRegistrationHash":target.registration_hash(),"sourceGeneratorHash":z,"geometryBytesChanged":0,"declarations":[d],"layers":[],"instances":instance_rows});
+    change(&mut c);
+    let mut changed=c["declarations"][0].clone();changed.as_object_mut().unwrap().remove("key");changed["declaration"].as_object_mut().unwrap().remove("contentHash");
+    let dh=sha256(&serde_json::to_vec(&changed).unwrap());let changed_key=format!("decl:{dh}");changed["key"]=json!(changed_key);changed["declaration"]["contentHash"]=json!(dh);c["declarations"][0]=changed;
+    m["surfaces"][0]["responseRef"]=json!(changed_key);
+    for row in c["instances"].as_array_mut().unwrap(){if let Some(overrides)=row["responseOverrides"].as_array_mut(){for o in overrides{if o["responseRef"]==dk{o["responseRef"]=json!(changed_key);}}}}
+    m.as_object_mut().unwrap().remove("manifestHash");m["manifestHash"]=json!(sha256(&serde_json::to_vec(&m).unwrap()));let mb=serde_json::to_vec(&m).unwrap();let mh=sha256(&mb);c["manifestHash"]=json!(mh);
+    c["catalogHash"]=json!(sha256(&serde_json::to_vec(&c).unwrap()));let cb=serde_json::to_vec(&c).unwrap();
+    let geo=Geometry::register(&mb,&mh,&store)?;
+    let context=geometry::surface::QueryContext{entity_id:"gear-actor".into(),spawn_epoch:1,build_hash:z,pose_revision:1,geometry_revision:0,shape_hash:None};
+    let scene=geometry::combat_scene::CombatScene::new(geo,&mh,&cb,&sha256(&cb),&target,context)?;
+    Ok((target,scene))
+}
+#[test]
+fn surface_instance_gear_hit_damages_only_visible_owned_side() {
+    let (t,scene)=instance_gear_fixture(|_|{}).unwrap();let st=t.fresh_state();
+    for (x,index) in [(-2.,0usize),(2.,1)] {
+        let r=shoot_surface(&t,&st,&surface_shot(x),&scene,Vec3::new(x,0.,1.),None).unwrap();
+        assert!(r.hit);assert!(r.state.modules[index]<st.modules[index]);assert_eq!(r.state.modules[1-index],st.modules[1-index]);assert_eq!(r.state.modules[2],st.modules[2]);
+        assert!(r.geometry_contacts.iter().any(|c|c["instanceId"]==format!("shoe:{}",if index==0{-1}else{1})));assert!(r.layers.is_empty());
+    }
+    let miss=shoot_surface(&t,&st,&surface_shot(0.),&scene,Vec3::new(0.,0.,1.),None).unwrap();assert!(!miss.hit);assert_eq!(miss.state.modules,st.modules);
+}
+#[test]
+fn surface_instance_gear_blast_resolves_same_instance_owner() {
+    let(_t,scene)=instance_gear_fixture(|_|{}).unwrap();
+    for (x,index) in [(-2.,0usize),(2.,1)] {
+        let found=scene.exposed_anatomy(Vec3::new(x,0.,-0.1),1.).unwrap();
+        assert_eq!(found.len(),1);assert_eq!(found[0].0,EvKind::Module(index));
+    }
+}
+#[test]
+fn surface_instance_gear_registration_rejects_forged_or_missing_side_owner() {
+    for kind in ["track_shoe","", "engine"] {assert!(instance_gear_fixture_kind(kind,|_|{}).is_err(),"undeclared instance kind {kind}");}
+    for change in 0..7 {
+        let r=instance_gear_fixture(|c|match change {
+            0=>c["instances"][0]["responseOverrides"]=serde_json::json!([]),
+            1=>c["instances"][0]["responseOverrides"][0]["moduleRef"]=serde_json::json!("track_r"),
+            2=>c["instances"][0]["responseOverrides"][0]["moduleRef"]=serde_json::json!("engine"),
+            3=>c["instances"][0]["responseOverrides"][0]["sourceKey"]=serde_json::json!("foreign"),
+            4=>c["instances"][0]["materialFeature"]["side"]=serde_json::json!(1),
+            5=>{let row=c["instances"][0].clone();c["instances"].as_array_mut().unwrap().push(row);},
+            _=>{c["instances"].as_array_mut().unwrap().pop();},
+        });assert!(r.is_err(),"forged mapping {change} was accepted");
+    }
+}
+#[test]
+fn surface_instance_gear_rejects_duplicate_module_owner() {
+    assert!(instance_gear_fixture_options("track_link",true,|_|{}).is_err(),"duplicate registered module identifiers cannot select the first match silently");
+}
+#[test]
+fn surface_instance_gear_rejects_second_anatomy_owner() {
+    assert!(instance_gear_fixture(|c|c["declarations"][0]["crewSlot"]=serde_json::json!({"index":0,"role":"driver"})).is_err(),"a module declaration cannot silently discard a crew owner");
+}
+#[test]
+fn surface_combat_aperture_and_finite_segment_never_fall_back_to_plane() {
+    let(t,scene)=surface_combat_fixture();let st=t.fresh_state();let shot=surface_shot(0.);
+    assert!(shoot(&t,&st,&shot).hit,"legacy plane must expose the regression");
+    let r=shoot_surface(&t,&st,&shot,&scene,Vec3::new(0.,0.,1.),None).unwrap();
+    assert!(!r.hit);assert_eq!(r.state.modules,st.modules);assert!(r.layers.is_empty());
+    let shot=surface_shot(0.5);let r=shoot_surface(&t,&st,&shot,&scene,Vec3::new(0.5,0.,-0.1),None).unwrap();assert!(!r.hit);
+}
+#[test]
+fn surface_combat_continuation_hits_visible_engine_and_charges_paired_wall_once() {
+    let(t,scene)=surface_combat_fixture();let st=t.fresh_state();
+    let r=shoot_surface(&t,&st,&surface_shot(0.5),&scene,Vec3::new(0.5,0.,1.),None).unwrap();
+    assert!(r.hit);assert_eq!(r.layers.len(),1,"inner wall cannot charge armor twice");
+    assert!(r.state.modules[0]<st.modules[0],"visible engine, not the old box at x=5, must receive energy");
+    assert_eq!(r.geometry_contacts[0]["poseRevision"],7);
+    assert!(r.geometry_contacts.iter().any(|c|!c["responseRef"].is_null()&&(c["point"][2].as_f64().unwrap()-0.8).abs()<1e-6));
+    assert!((r.impact.unwrap().z-0.).abs()<1e-6,"old plane at z=-0.4 is not the contact");
+    assert!((r.impact_events[0].exit_position.z-0.05).abs()<1e-6,"the modeled inner face, not an invented thickness offset, is the transit exit");
+}
+#[test]
+fn surface_combat_fragment_never_uses_old_module_box_or_crew_sphere() {
+    let(t,scene)=surface_combat_fixture();let st=t.fresh_state();
+    let mut w=work(&t,&st,0.);w.scene=Some(&scene);
+    // A fragment outside the rendered aperture meets no engine triangles even
+    // though the abstract box is centered directly on this ray.
+    w.fragment(Vec3::new(5.,0.,0.),Vec3::new(0.,0.,1.),100_000.,"spall",1.);
+    assert_eq!(w.st.modules,st.modules);
+    w.fragment(Vec3::new(0.5,0.,0.1),Vec3::new(0.,0.,1.),100_000.,"spall",1.);
+    assert!(w.st.modules[0]<st.modules[0]);
+    assert!(w.rep.geometry_contacts.iter().any(|c|c["physicalRole"]=="module"),"fragment damage must retain the same measured contact identity");
+}
+#[test]
+fn surface_combat_impact_requires_incoming_contact_before_bounded_internal_continuation() {
+    let(t,scene)=surface_combat_fixture();let st=t.fresh_state();let shot=surface_shot(0.5);
+    let miss=shoot_surface_impact(&t,&st,&shot,&scene,Vec3::new(0.5,0.,-0.1),None).unwrap();
+    assert!(!miss.hit);assert_eq!(miss.state.modules,st.modules);
+    let hit=shoot_surface_impact(&t,&st,&shot,&scene,Vec3::new(0.5,0.,0.1),None).unwrap();
+    assert!(hit.state.modules[0]<st.modules[0],"a proven armor impact owns a bounded internal continuation beyond the incoming step");
+    let shot=surface_shot(0.);let miss=shoot_surface_impact(&t,&st,&shot,&scene,Vec3::new(0.,0.,0.1),None).unwrap();assert!(!miss.hit);
+}
+#[test]
+fn surface_combat_chemical_path_uses_modeled_inner_face_and_impact_clock_starts_at_contact() {
+    let(t,scene)=surface_combat_fixture();let st=t.fresh_state();let mut shot=surface_shot(0.5);
+    shot.shell=shell(ProjectileKind::Heat,10.,0.1,150.,0.01);
+    let r=shoot_surface(&t,&st,&shot,&scene,Vec3::new(0.5,0.,1.),None).unwrap();
+    assert!(r.path.iter().any(|p|(p.z-0.05).abs()<1e-6),"jet origin must use the measured inner face");
+    let r=shoot_surface(&t,&st,&surface_shot(0.5),&scene,Vec3::new(0.5,0.,1.),None).unwrap();
+    assert_eq!(r.impact_events[0].transition.entry.elapsed_s,0.,"incoming ballistic flight already owns the time before first contact");
+}
+#[test]
+fn surface_combat_blast_damage_uses_actual_anatomy_and_surface_occlusion() {
+    let(t,scene)=surface_combat_fixture();let st=t.fresh_state();
+    let mut w=work(&t,&st,0.);w.scene=Some(&scene);
+    w.blast_inside(Vec3::new(5.,0.,0.8),0.1);
+    assert_eq!(w.st.modules,st.modules,"a legacy box inside the radius cannot damage an absent modeled engine");
+    w.blast_inside(Vec3::new(0.5,0.,0.3),0.1);
+    assert!(w.st.modules[0]<st.modules[0],"exposed actual engine triangles must receive the blast");
+    let mut w=work(&t,&st,0.);w.scene=Some(&scene);
+    w.blast_inside(Vec3::new(0.5,0.,-0.3),0.1);
+    assert_eq!(w.st.modules,st.modules,"the modeled armor frame occludes this path, even within the damage radius");
+}
+#[test]
+fn surface_combat_same_key_replacement_must_not_reuse_anatomy() {
+    let(t,scene)=surface_combat_fixture();
+    for change in 0..4 {
+        let mut def=t.def.clone();
+        match change {0=>def.modules[0].max_health*=2.,1=>def.modules[0].kind=ModuleKind::FuelTank,2=>def.crew.push(crew(CrewRole::Driver,[0.,0.,0.5])),_=>def.weapons=serde_json::json!({"altered_reload_seconds":0.01})};
+        let other=Target::new(def,&rha());
+        assert!(!scene.accepts(&other),"an unchanged actor key cannot keep the old anatomy claim after change {change}");
+    }
+}
+#[test]
+fn surface_combat_registered_target_mutation_invalidates_accepted_anatomy() {
+    let(t,scene)=surface_combat_fixture();
+    for change in 0..4 {
+        let mut changed=t.clone();
+        match change {0=>changed.def.plates[0].thickness_mm*=2.,1=>changed.def.modules[0].max_health*=2.,2=>changed.def.crew.push(crew(CrewRole::Driver,[0.,0.,0.5])),_=>changed.def.weapons=serde_json::json!({"altered_reload_seconds":0.01})};
+        assert!(!scene.accepts(&changed),"public registered definition mutation cannot retain accepted anatomy after change {change}");
+    }
+}
+#[test]
+fn surface_registration_hash_uses_numeric_value_not_json_integer_spelling() {
+    let mut a=box_tank(false).def;
+    a.machine_guns=serde_json::from_str("[{\"reload_s\":8.0,\"bullet_mass_g\":64.0}]").unwrap();
+    let mut b=a.clone();b.machine_guns=serde_json::json!([{"reload_s":8,"bullet_mass_g":64}]);
+    assert_eq!(Target::new(a,&rha()).registration_hash(),Target::new(b,&rha()).registration_hash(),"native file 8.0 and browser JSON 8 are the same engineering number");
+}
+fn real_t72_surface_fixture() -> (Target,geometry::combat_scene::CombatScene,serde_json::Value) {
+    use serde_json::Value;
+    use geometry::{manifest::sha256,Geometry,MeshStore,surface::QueryContext,combat_scene::CombatScene};
+    let root=std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let read=|p:&str|std::fs::read(root.join(p)).unwrap();
+    let value=|p:&str|serde_json::from_slice::<Value>(&read(p)).unwrap();
+    let v=value("data/vehicles/su_t72a/vehicle.json");
+    let mut def=target_from_files("player:su_t72a",&v,serde_json::from_slice(&read("data/vehicles/su_t72a/armor.json")).unwrap(),serde_json::from_slice(&read("data/vehicles/su_t72a/modules.json")).unwrap(),serde_json::from_slice(&read("data/vehicles/su_t72a/crew.json")).unwrap());
+    def.weapons=value("data/vehicles/su_t72a/weapons.json");def.ammo_capacity=ammo_capacity(&def.weapons);def.machine_guns=value("data/machine_guns.json");
+    let visual=value("data/vehicles/su_t72a/visual.json");def.visual=serde_json::json!({"mg_anchors":visual["mg_anchors"],"mg_variants":visual["mg_variants"]});
+    let t=Target::new(def,&serde_json::from_slice::<Vec<Material>>(&read("data/materials.json")).unwrap());
+    let index=value("data/hit-meshes/bindings-v1-index.json");let e=index["entries"].as_array().unwrap().iter().find(|e|e["specId"]=="su_t72a").unwrap();
+    let mb=read(&format!("data/hit-meshes/{}",e["manifestFile"].as_str().unwrap()));let m:Value=serde_json::from_slice(&mb).unwrap();
+    let mut store=MeshStore::default();for mesh in m["meshes"].as_array().unwrap(){let h=mesh["payloadHash"].as_str().unwrap();store.install(&read(&format!("data/hit-meshes/{h}.bin")),h).unwrap();}
+    let geo=Geometry::register(&mb,e["manifestHash"].as_str().unwrap(),&store).unwrap();
+    let cb=read(&format!("data/hit-bindings/{}",e["bindingCatalogFile"].as_str().unwrap()));
+    let context=QueryContext{entity_id:"player:1".into(),spawn_epoch:2,build_hash:m["buildHash"].as_str().unwrap().into(),pose_revision:1,geometry_revision:0,shape_hash:None};
+    let scene=CombatScene::new(geo,&sha256(&mb),&cb,e["bindingCatalogHash"].as_str().unwrap(),&t,context).unwrap();
+    (t,scene,m)
+}
+#[test]
+fn surface_combat_real_t72_he_wheel_impact_has_exact_blast_exposure() {
+    let(t,scene,_)=real_t72_surface_fixture();
+    let root=std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let shell:ProjectileDef=serde_json::from_slice(&std::fs::read(root.join("data/projectiles/he_100_of412.json")).unwrap()).unwrap();
+    let index=t.def.modules.iter().position(|m|m.id=="track_r").unwrap();
+    for z in [0.97,0.99,1.,1.01,1.03] {
+        let shot=Shot{shell:shell.clone(),origin:Vec3::new(4.,0.4,z),dir:Vec3::new(-1.,0.,0.),speed_ms:800.,distance_m:0.,seed:1,turret_yaw:0.};
+        let end=Vec3::new(-4.,0.4,z);assert!(!scene.crossings(shot.origin,end).unwrap().is_empty());
+        let st=t.fresh_state();let report=shoot_surface(&t,&st,&shot,&scene,end,None).unwrap_or_else(|e|panic!("real HE wheel boundary z={z}: {e}"));
+        assert!(report.state.modules[index]<st.modules[index],"direct HE wheel impact z={z} must expose that real track surface: {:?}",report.events);
+    }
+}
+#[test]
+fn surface_combat_real_t72_catalog_native_registration_and_damage() {
+    use serde_json::Value;
+    let(t,scene,m)=real_t72_surface_fixture();
+    let root=std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");let read=|p:&str|std::fs::read(root.join(p)).unwrap();
+    // A real cast-turret transit through the visible breech.
+    let shot=Shot{shell:shell(ProjectileKind::Ap,10.,0.1,1000.,0.),origin:Vec3::new(3.,1.86,0.62),dir:Vec3::new(-1.,0.,0.),speed_ms:800.,distance_m:0.,seed:1,turret_yaw:0.};
+    let report=shoot_surface(&t,&t.fresh_state(),&shot,&scene,Vec3::new(-3.,1.86,0.62),None).unwrap();
+    assert!(!report.geometry_contacts.is_empty());
+    assert!(report.geometry_contacts.iter().all(|c|c["buildHash"]==m["buildHash"]&&c["poseRevision"]==1&&c["spawnEpoch"]==2));
+    assert!(!report.events.iter().any(|e|e=="rejected_impact_contact"));
+    assert!(!report.layers.is_empty(),"the actual casting must resolve authored resistance");
+    assert!(report.modules.iter().any(|m|m.kind==ModuleKind::GunBreech&&m.damage>0.),"actual modeled breech damage is required, not registration alone: {:?}",report.events);
+    fn bounded(v:&Value)->bool{match v {Value::String(s)=>s.len()<=256,Value::Array(a)=>a.iter().all(bounded),Value::Object(m)=>m.values().all(bounded),_=>true}}
+    assert!(bounded(&serde_json::to_value(&report.geometry_contacts).unwrap()),"geometry receipts must fit the actual V3 nested-string limits");
+    // Actual rendered wheel rays, formerly unsupported contacts despite an
+    // intact visible wheel. A finite side segment must damage only that gear.
+    let track=|side:i8|t.track_side.iter().position(|s|*s==side).unwrap();
+    for side in [-1i8,1] {
+        let x=side as f32;
+        let shot=Shot{shell:shell(ProjectileKind::Ap,75.,6.8,150.,0.),origin:Vec3::new(4.*x,0.46,2.02),dir:Vec3::new(-x,0.,0.),speed_ms:800.,distance_m:0.,seed:1,turret_yaw:0.};
+        let fresh=t.fresh_state();let r=shoot_surface(&t,&fresh,&shot,&scene,Vec3::new(1.18*x,0.46,2.02),None).unwrap();
+        assert!(r.state.modules[track(side)]<fresh.modules[track(side)],"actual side {side} wheel must resolve its Track owner: {:?}",r.events);
+        assert_eq!(r.state.modules[track(-side)],fresh.modules[track(-side)]);
+        assert!(!r.events.iter().any(|e|e=="unsupported_surface_resistance"));
+    }
+    // The two sides share a single shoe payload. Build two finite segments from
+    // real source vertices and emitted instance matrices, independent of boxes.
+    for side in [-1i8,1] {
+        let instance=m["meshInstances"].as_array().unwrap().iter().find(|i|i["materialFeature"]["kind"]=="track_link"&&i["materialFeature"]["side"]==side).unwrap();
+        let mesh=m["meshes"].as_array().unwrap().iter().find(|mesh|mesh["key"]==instance["meshKey"]).unwrap();
+        let payload=read(&format!("data/hit-meshes/{}.bin",mesh["payloadHash"].as_str().unwrap()));
+        let local:[geometry::ray::Point;3]=std::array::from_fn(|v|std::array::from_fn(|k|{let o=32+(v*3+k)*4;f32::from_le_bytes(payload[o..o+4].try_into().unwrap())as f64}));
+        let matrix=|key:&str|std::array::from_fn(|k|f32::from_bits(instance[key][k].as_u64().unwrap()as u32)as f64);
+        let world=geometry::ray::multiply(matrix("worldBits"),matrix("instanceBits"));let p=local.map(|p|geometry::ray::transform(&world,p));
+        let center:geometry::ray::Point=std::array::from_fn(|k|p[0][k]*0.25+p[1][k]*0.25+p[2][k]*0.5);
+        let n=geometry::ray::cross(geometry::ray::sub(p[1],p[0]),geometry::ray::sub(p[2],p[0]));let length=geometry::ray::dot(n,n).sqrt();
+        let vec=|p:geometry::ray::Point|Vec3::new(p[0]as f32,p[1]as f32,p[2]as f32);
+        let a=vec(std::array::from_fn(|k|center[k]+n[k]/length*0.05));let b=vec(std::array::from_fn(|k|center[k]-n[k]/length*0.05));
+        let shot=Shot{shell:shell(ProjectileKind::Ap,75.,6.8,150.,0.),origin:a,dir:(b-a).normalized(),speed_ms:800.,distance_m:0.,seed:1,turret_yaw:0.};
+        let fresh=t.fresh_state();let r=shoot_surface(&t,&fresh,&shot,&scene,b,None).unwrap();
+        assert!(r.state.modules[track(side)]<fresh.modules[track(side)],"actual shared shoe side {side} must resolve instance override: {:?}",r.events);
+        assert_eq!(r.state.modules[track(-side)],fresh.modules[track(-side)]);
+    }
+}
+
 #[test]
 fn zero_kinetic_energy_does_not_damage_crew() {
     let mut t = box_tank(false);
@@ -422,7 +783,7 @@ fn weapon_bindings_every_fleet_and_workshop_mount_is_usable() {
             counts.2 += map.keys().filter(|k| k.starts_with("mg:")).count();
         } else { assert_eq!(map.keys().filter(|k| k.starts_with("gun:")).count(), 6); }
     }
-    assert_eq!(counts, (44, 50, 47));
+    assert_eq!(counts, (46, 56, 49));
 }
 
 #[test]
@@ -846,6 +1207,7 @@ fn crew(role: CrewRole, p: [f32; 3]) -> Crew {
 
 fn narrow_turret_module(kind: ModuleKind) -> Target {
     Target::new(TargetDef {
+        surfaces:None,
         id: "narrow_turret".into(), plates: vec![],
         modules: vec![module("narrow", kind, [0.0, 1.0, 0.0], [0.1, 0.1, 1.0], 100.0)],
         crew: vec![], turret: Some(TurretGeom { pivot: Vec3::new(0.0, 0.5, 0.0), size: Vec3::new(2.0, 1.0, 2.0) }),
@@ -855,7 +1217,7 @@ fn narrow_turret_module(kind: ModuleKind) -> Target {
 
 fn work<'a>(t: &'a Target, st: &TargetState, yaw: f32) -> Work<'a> {
     let rep = shoot(t, st, &Shot { origin: Vec3::new(20.0, 20.0, 20.0), dir: Vec3::new(0.0, 1.0, 0.0), ..side_shot(ap(), 1) });
-    Work { context:None,t, p: t.posed(yaw), st: st.clone(), rng: Rng::new(1), rep,
+    Work { scene:None,context:None,t, p: t.posed(yaw), st: st.clone(), rng: Rng::new(1), rep,
         mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] }
 }
 
@@ -1192,7 +1554,7 @@ fn box_tank(open_top: bool) -> Target {
         crew(CrewRole::Commander, [-0.45, 2.3, -0.6]),
         crew(CrewRole::Loader, [0.45, 2.0, -0.2]),
     ];
-    let def = TargetDef { id: "box".into(), plates, modules, crew, turret: Some(TurretGeom { pivot: Vec3::new(0.0, 1.8, 0.0), size: Vec3::new(2.0, 0.9, 2.4) }), open_top, ammo_capacity: 0, weapons: serde_json::Value::Null, machine_guns: serde_json::Value::Null, visual: serde_json::Value::Null };
+    let def = TargetDef {surfaces:None, id: "box".into(), plates, modules, crew, turret: Some(TurretGeom { pivot: Vec3::new(0.0, 1.8, 0.0), size: Vec3::new(2.0, 0.9, 2.4) }), open_top, ammo_capacity: 0, weapons: serde_json::Value::Null, machine_guns: serde_json::Value::Null, visual: serde_json::Value::Null };
     Target::new(def, &rha())
 }
 
@@ -1293,6 +1655,110 @@ fn aphe_through_thin_plate_does_not_start_its_fuse() {
     assert!(r.bursts.iter().all(|b| !b.inside || r.layers.iter().any(|l| l.thickness_mm >= 15.0 && l.passed)));
 }
 
+fn delayed_aphe_target(kind: Option<ModuleKind>) -> Target {
+    let mut def = box_tank(false).def;
+    def.modules.clear();
+    def.crew.clear();
+    if let Some(kind) = kind {
+        def.modules.push(module("fuse_test_stop", kind,
+            [0.9, 1.15, 0.1], [0.1, 0.1, 0.1], 1000.0));
+    }
+    Target::new(def, &rha())
+}
+
+#[test]
+fn delayed_aphe_armed_shell_stopped_inside_keeps_one_timed_detonation() {
+    let target = delayed_aphe_target(Some(ModuleKind::Engine));
+    let mut round = shell(ProjectileKind::Aphe, 50.0, 2.06, 65.0, 0.017);
+    round.fuse_delay_s = 0.02;
+    let report = shoot(&target, &target.fresh_state(), &side_shot(round, 4));
+    let stop = report.impact_events.iter()
+        .find(|e| e.transition.layer_id.contains("module:fuse_test_stop")).unwrap();
+    assert_eq!(stop.transition.output.remaining_pen_mm, 0.0);
+    assert_eq!(report.bursts.len(), 1, "armed stopped shell lost/duplicated filler burst");
+    let burst = &report.bursts[0];
+    assert!(burst.inside);
+    assert!((burst.pos-stop.exit_position).length() < 1e-5);
+    assert!((burst.explosive_kg-0.017).abs() < 1e-6);
+    let evidence = serde_json::to_value(&report).unwrap();
+    let burst = &evidence["bursts"][0];
+    let time = burst["time_s"].as_f64().expect("record actual APHE detonation time");
+    let armed = burst["armed_at_s"].as_f64().unwrap();
+    assert!((time-armed-0.02).abs() < 1e-6);
+    assert_eq!(burst["mechanism"], "delayed_aphe");
+    assert_eq!(burst["detonation_id"], "core/charge:0/detonation:0");
+    assert_eq!(evidence["impact_state"]["fuse"], "detonated");
+    assert_eq!(evidence["impact_state"]["charge"]["disposition"], "released");
+    assert!(evidence["fragments"].as_array().unwrap().iter()
+        .filter(|f| f["kind"] == "burst")
+        .all(|f| f["start_s"].as_f64() == Some(time)));
+}
+
+#[test]
+fn delayed_aphe_fuse_uses_current_residual_speed_after_internal_contact() {
+    let target = delayed_aphe_target(Some(ModuleKind::GunBreech));
+    let mut round = aphe();
+    round.fuse_delay_s = 0.003;
+    let report = shoot(&target, &target.fresh_state(), &side_shot(round, 8));
+    let contact = report.impact_events.iter()
+        .find(|e| e.transition.layer_id.contains("module:fuse_test_stop")).unwrap();
+    assert!(contact.transition.output.remaining_pen_mm > 0.0);
+    let data = serde_json::to_value(&report).unwrap();
+    let burst = &data["bursts"][0];
+    let time = burst["time_s"].as_f64().expect("fuse time is physical evidence");
+    let armed = burst["armed_at_s"].as_f64().unwrap();
+    assert!((time-armed-0.003).abs() < 1e-6);
+    let after = &contact.transition.output;
+    let remaining = (time-after.elapsed_s) as f32;
+    assert!(remaining > 0.0);
+    let expected = contact.exit_position+after.velocity_m_s*remaining;
+    assert!((report.bursts[0].pos-expected).length() < 1e-4,
+        "burst drifted from residual velocity: {:?} expected {:?}", report.bursts[0].pos, expected);
+}
+
+#[test]
+fn delayed_aphe_overpenetration_keeps_armed_exit_without_inventing_outside_burst() {
+    let target = delayed_aphe_target(None);
+    let mut round = shell(ProjectileKind::Aphe, 85.0, 9.2, 220.0, 0.048);
+    round.fuse_delay_s = 0.02;
+    let report = shoot(&target, &target.fresh_state(), &side_shot(round, 6));
+    assert!(report.events.iter().any(|e| e == "overpenetration"));
+    assert!(report.bursts.is_empty(), "unknown future world collisions cannot be extrapolated");
+    let data = serde_json::to_value(&report).unwrap();
+    assert_eq!(data["impact_state"]["fuse"], "armed");
+    assert_eq!(data["impact_state"]["charge"]["disposition"], "contained");
+    assert!(report.events.iter().any(|e| e == "aphe_armed_exit_continuation_unresolved"));
+}
+
+#[test]
+fn delayed_aphe_unarmed_thin_plate_and_solid_shot_never_release_filler() {
+    let mut def = delayed_aphe_target(None).def;
+    for plate in &mut def.plates { plate.thickness_mm = 5.0; }
+    let target = Target::new(def, &rha());
+    for round in [aphe(), ap()] {
+        let report = shoot(&target, &target.fresh_state(), &side_shot(round, 9));
+        assert!(report.bursts.is_empty());
+        let data = serde_json::to_value(&report).unwrap();
+        assert_eq!(data["impact_state"]["fuse"], "unarmed");
+    }
+}
+
+#[test]
+fn delayed_aphe_destructive_shatter_marks_fuze_failed_without_burst() {
+    let def = delayed_aphe_target(None).def;
+    let mut materials = rha();
+    materials[0].hardness_bhn = 400.0;
+    let target = Target::new(def, &materials);
+    let mut round = aphe();
+    round.shatter_angle_deg = 0.0;
+    let report = shoot(&target, &target.fresh_state(), &side_shot(round, 4));
+    assert_eq!(report.outcome, Outcome::Shattered);
+    assert!(report.bursts.is_empty());
+    let data = serde_json::to_value(&report).unwrap();
+    assert_eq!(data["impact_state"]["fuse"], "failed");
+    assert_eq!(data["impact_state"]["charge"]["disposition"], "failed");
+}
+
 #[test]
 fn he_bursts_outside_heavy_armour_but_wrecks_the_track_it_lands_on() {
     let t = box_tank(false);
@@ -1348,7 +1814,7 @@ fn engine_block_shields_what_is_behind_it() {
     let t = box_tank(false);
     let mut st = t.fresh_state();
     let p = t.posed(0.0);
-    let mut w = Work { context:None,t: &t, p, st: st.clone(), rng: Rng::new(1), rep: shoot(&t, &st, &side_shot(ap(), 1)), mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] };
+    let mut w = Work { scene:None,context:None,t: &t, p, st: st.clone(), rng: Rng::new(1), rep: shoot(&t, &st, &side_shot(ap(), 1)), mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] };
     w.rep.fragments.clear();
     // a fragment straight through the engine towards the rear wall stops in the block
     w.fragment(Vec3::new(0.0, 1.0, -0.8), Vec3::new(0.0, 0.0, -1.0), 8000.0, "spall", 4.0);
@@ -1602,15 +2068,36 @@ fn folding_hull_side_armor_changes_shell_and_splash_protection_without_reindexin
     let lowered_hit = shoot(&folded, &state, &shot);
     assert_eq!(raised_hit.plate.as_deref(), Some("fold_side"));
     assert_ne!(lowered_hit.plate.as_deref(), Some("fold_side"));
-    let blast_at = Vec3::new(2.4, 1.6, 0.0);
-    // Keep the burst outside the lowered wall's 2.3 m tip, and close enough to reach the
-    // gunner: 0.68 kg only reaches 2.67 m of open crew, short of this 2.91 m line.
+    // The old low burst-to-gunner ray still crosses the fixed lower hull side
+    // at y=1.758 m, below its 1.8 m top. Folding the upper flap cannot open it.
+    let low_at = Vec3::new(2.4, 1.6, 0.0);
+    let fixed_side = upright.def.plates.iter().position(|p| p.id == "hull_side_r").unwrap();
+    for target in [&upright, &folded] {
+        let w = work(target, &state, 0.0);
+        let delta = target.def.crew[2].pos - low_at;
+        let first = w.events(low_at, delta.normalized(), delta.length() * 1.001, true)
+            .into_iter().find(|e| !matches!(e.kind, EvKind::Decoration)).unwrap();
+        assert_eq!(first.kind, EvKind::Plate(fixed_side), "folding the upper flap retains lower-hull protection");
+    }
+    // Use the unchanged outboard loader station for the actual upper opening:
+    // the raised flap crosses this ray at y=2.108 m; the lowered flap and fixed
+    // hull both lie below it. The breech is behind this station, not on its ray.
+    let exposed_station = 4;
+    assert_eq!(upright.def.crew[exposed_station].role, CrewRole::Loader);
+    let blast_at = Vec3::new(2.4, 2.2, -0.2);
     let blast_kg = 1.2;
-    assert!((upright.def.crew[2].pos - blast_at).length() < outside_radius_m(blast_kg) * 1.4);
+    assert!((upright.def.crew[exposed_station].pos - blast_at).length() < outside_radius_m(blast_kg) * 1.4);
+    for (target, expected) in [(&upright, EvKind::Plate(idx)), (&folded, EvKind::Crew(exposed_station))] {
+        let w = work(target, &state, 0.0);
+        let delta = target.def.crew[exposed_station].pos - blast_at;
+        let first = w.events(blast_at, delta.normalized(), delta.length() * 1.001, true)
+            .into_iter().find(|e| !matches!(e.kind, EvKind::Decoration)).unwrap();
+        assert_eq!(first.kind, expected, "the actual posed upper wall alone controls this station's exposure");
+    }
     let raised_blast = splash(&upright, &state, blast_at, blast_kg, 0.0, 31);
     let lowered_blast = splash(&folded, &state, blast_at, blast_kg, 0.0, 31);
-    assert!(!raised_blast.crew.iter().any(|c| c.index == 2 && c.damage > 0.0));
-    assert!(lowered_blast.crew.iter().any(|c| c.index == 2 && c.damage > 0.0));
+    assert!(!raised_blast.crew.iter().any(|c| c.index == exposed_station && c.damage > 0.0));
+    assert!(lowered_blast.crew.iter().any(|c| c.index == exposed_station && c.damage > 0.0));
     let mut narrow = upright.def.clone();
     narrow.plates = vec![narrow.plates.last().unwrap().clone()];
     narrow.modules.clear(); narrow.crew.clear(); narrow.turret = None;
@@ -1639,4 +2126,204 @@ fn every_data_vehicle_is_a_target() {
         n += 1;
     }
     assert!(n >= 10);
+}
+
+
+#[test]
+fn surface_delayed_aphe_mk214_uses_accepted_triangles_and_armed_stop() {
+    let (target,scene)=surface_combat_fixture();
+    let root=std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..");
+    let catalog:serde_json::Value=serde_json::from_slice(&std::fs::read(root.join("data/aircraft/frontline.json")).unwrap()).unwrap();
+    let round:ProjectileDef=serde_json::from_value(catalog["shells"]["ap_50_mk214a"].clone()).unwrap();
+    assert!((round.explosive_mass_kg-0.017).abs()<1e-6);
+    assert_eq!(round.explosive_type,"petn");
+    let shot=Shot{shell:round,origin:Vec3::new(0.5,0.,-1.),dir:Vec3::new(0.,0.,1.),
+        speed_ms:500.,distance_m:2500.,seed:4,turret_yaw:0.};
+    let before=target.fresh_state();
+    let report=shoot_surface_impact(&target,&before,&shot,&scene,Vec3::new(0.5,0.,0.1),None).unwrap();
+    assert!(report.hit);
+    assert!((report.impact.unwrap().z-0.).abs()<1e-5,"must hit the visible wall, not its legacy z=-0.4 plane");
+    let engine=report.impact_events.iter().find(|e|e.transition.layer_id.contains("module:engine")).unwrap();
+    assert!((engine.entry_position.x-0.5).abs()<1e-5,"must use the visible engine surface, not its abstract x=5 box");
+    assert_eq!(engine.transition.output.remaining_pen_mm,0.);
+    assert_eq!(report.bursts.len(),1,"armed stopped MK214 filler must release exactly once");
+    let burst=&report.bursts[0];assert!(burst.inside);
+    assert!((burst.pos-engine.exit_position).length()<1e-5);
+    assert!((burst.explosive_kg-0.017).abs()<1e-6);
+    assert!((burst.time_s.unwrap()-burst.armed_at_s.unwrap()-0.0024).abs()<1e-7);
+    assert!(report.primary_geometry_contacts.len()>=3);
+    assert_eq!(report.impact_state.as_ref().unwrap().fuse,impact::FuseState::Detonated);
+    assert!(report.fragments.iter().filter(|f|f.kind=="burst").all(|f|f.provenance.start_s==burst.time_s));
+    let mut gap=shot.clone();gap.origin.x=0.;
+    let miss=shoot_surface_impact(&target,&before,&gap,&scene,Vec3::new(0.,0.,0.1),None).unwrap();
+    assert!(!miss.hit&&miss.bursts.is_empty(),"the real aperture cannot become a legacy plane hit or an invented APHE burst");
+}
+
+
+// Retained handoff legacy triangle/API regressions; surface recovery does not remove coverage.
+fn pantsir_from_data() -> Target {
+    let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data/vehicles/ru_pantsir_sm_sv");
+    let read = |f: &str| std::fs::read_to_string(root.join(f)).unwrap();
+    let mut t = weapon_target("ru_pantsir_sm_sv").def;
+    t.surfaces = Some(serde_json::from_str(&read("surface_armor.json")).unwrap());
+    let t = Target::new(t, &rha());
+    assert!(t.surface_error.is_none(), "{:?}", t.surface_error);
+    t
+}
+
+#[test]
+fn pantsir_triangle_armour_from_its_model() {
+    let t = pantsir_from_data();
+    assert!(t.def.plates.is_empty());
+    assert_eq!(t.surf.as_ref().unwrap().triangle_count, 22206);
+    let shot = |o: [f32; 3], d: [f32; 3], yaw: f32, shell: ProjectileDef| shoot(&t, &t.fresh_state(), &Shot { shell, origin: Vec3::new(o[0], o[1], o[2]), dir: Vec3::new(d[0], d[1], d[2]).normalized(), speed_ms: 900.0, distance_m: 500.0, seed: 5, turret_yaw: yaw });
+    let ap30 = || shell(ProjectileKind::Apcbc, 30.0, 0.4, 60.0, 0.0);
+    // the hull's front at the driver's height: its 20 mm skin, met where the model's triangles are
+    let r = shot([-0.5, 1.2, 40.0], [0.0, 0.0, -1.0], 0.0, ap30());
+    let first = &r.layers[0];
+    assert!(first.plate.starts_with("surf:armor_hull_front:"), "{first:?}");
+    assert_eq!(first.thickness_mm, 20.0);
+    assert!(first.point.z > 2.5 && first.point.z < 4.2, "front skin at {:?}", first.point);
+    // the turret's side from the right (12 mm front, 10 mm sides)
+    let side = shot([40.0, 2.3, 0.6], [-1.0, 0.0, 0.0], 0.0, ap30());
+    let turret_layer = side.layers.iter().find(|l| l.plate.contains("turret")).expect("the turret's side");
+    assert_eq!(turret_layer.zone, ArmorZone::TurretSide);
+    // turned a quarter round, its front faces that shot
+    let turned = shot([40.0, 2.3, 0.86], [-1.0, 0.0, 0.0], std::f32::consts::FRAC_PI_2, ap30());
+    let tl = turned.layers.iter().find(|l| l.plate.contains("turret")).expect("the turned turret");
+    assert_eq!(tl.zone, ArmorZone::TurretFront, "{:?}", turned.layers.iter().map(|l| (&l.plate, l.zone)).collect::<Vec<_>>());
+    // a 12.7 mm round (20 mm of penetration) does not get through the 20 mm front at its slope
+    let mg = shot([-0.5, 1.2, 40.0], [0.0, 0.0, -1.0], 0.0, shell(ProjectileKind::Ap, 12.7, 0.048, 20.0, 0.0));
+    assert!(!mg.layers[0].passed || mg.layers[0].required_mm <= 20.5, "{:?}", mg.layers[0]);
+    // the cost: a hundred shots across the 22,206 triangles
+    let t0 = std::time::Instant::now();
+    for k in 0..100 { let _ = shot([-1.2 + k as f32 * 0.024, 1.4, 40.0], [0.0, -0.05, -1.0], 0.0, ap30()); }
+    eprintln!("pantsir: 100 shots in {:?}", t0.elapsed());
+}
+
+#[test]
+fn surface_armour_hole_in_the_skin_is_not_filled() {
+    let t = surface_tank(Some(0), None);
+    // through the middle cell of the right side (left out): no right wall on the way in
+    let r = shoot(&t, &t.fresh_state(), &side_shot(ap(), 7));
+    assert!(r.layers.iter().all(|l| !l.plate.starts_with("surf:hull_side_r:")), "{:?}", r.layers.iter().map(|l| &l.plate).collect::<Vec<_>>());
+    // beside the hole the wall is there
+    let mut s = side_shot(ap(), 7);
+    s.origin.z = 2.5;
+    let r = shoot(&t, &t.fresh_state(), &s);
+    assert!(r.layers[0].plate.starts_with("surf:hull_side_r:"));
+}
+
+#[test]
+fn surface_armour_rejects_a_changed_geometry() {
+    let mut def = surface_tank(None, None).def;
+    if let Some(s) = def.surfaces.as_mut() { s.geometry_hash = "0".repeat(64); }
+    let t = Target::new(def, &rha());
+    assert!(t.surface_error.as_deref().unwrap_or("").contains("hash"));
+    assert!(t.surf.is_none());
+}
+
+#[test]
+fn surface_armour_side_shot_meets_the_models_wall() {
+    let t = surface_tank(None, None);
+    let r = shoot(&t, &t.fresh_state(), &side_shot(ap(), 7));
+    assert_eq!(r.outcome, Outcome::Penetrated);
+    assert!(r.plate.as_deref().unwrap().starts_with("surf:hull_side_r:"), "{:?}", r.plate);
+    let first = &r.layers[0];
+    assert_eq!(first.thickness_mm, 20.0);
+    assert!(first.angle_deg < 1.0 && (first.point.x - 1.5).abs() < 1e-3, "{first:?}");
+    // the spall stays inside the hull's skin
+    for f in r.fragments.iter().filter(|f| f.kind == "spall") {
+        assert!(f.to.x <= 1.5 + 0.02 && f.to.x >= -1.5 - 0.02 && f.to.z.abs() <= 3.02 && f.to.y >= 0.38 && f.to.y <= 2.82, "spall left the hull: {:?}", f.to);
+    }
+}
+
+#[test]
+fn surface_armour_turret_turns_with_its_yaw() {
+    let t = surface_tank(None, None);
+    let front = |yaw: f32| shoot(&t, &t.fresh_state(), &Shot { shell: ap(), origin: Vec3::new(0.0, 2.4, 30.0), dir: Vec3::new(0.0, 0.0, -1.0), speed_ms: 700.0, distance_m: 500.0, seed: 3, turret_yaw: yaw });
+    let r0 = front(0.0);
+    assert_eq!(r0.layers[0].zone, ArmorZone::TurretFront);
+    assert_eq!(r0.layers[0].thickness_mm, 60.0);
+    let r1 = front(std::f32::consts::FRAC_PI_2);
+    assert_eq!(r1.layers[0].zone, ArmorZone::TurretSide, "{:?}", r1.layers[0]);
+    assert!((r1.layers[0].point.z - 0.9).abs() < 1e-3, "turned turret's side at 0.9 m: {:?}", r1.layers[0].point);
+}
+
+#[test]
+fn surface_armour_two_skins_of_one_part_are_one_wall() {
+    // a second skin 5 mm inside the right side (a doubled panel): one 20 mm wall, not two
+    let t = surface_tank(None, Some((0, 0.005)));
+    let r = shoot(&t, &t.fresh_state(), &side_shot(ap(), 7));
+    assert_eq!(r.layers.iter().filter(|l| l.plate.starts_with("surf:hull_side_r:")).count(), 1);
+}
+
+fn surface_box(lo: [f32; 3], hi: [f32; 3], parts: &[(&str, ArmorZone, f32)], turret: bool, holed: Option<usize>, extra_skin: Option<(usize, f32)>, pos: &mut Vec<[f32; 3]>, tris: &mut Vec<[u32; 4]>, defs: &mut Vec<surface_armor::SurfacePartDef>) {
+    // faces: +x, -x, +y, -y, +z, -z: (axis, sign)
+    let faces = [(0, 1.0f32), (0, -1.0), (1, 1.0), (1, -1.0), (2, 1.0), (2, -1.0)];
+    for (f, &(axis, sign)) in faces.iter().enumerate() {
+        let (name, zone, mm) = parts[f];
+        let part = defs.len() as u32;
+        defs.push(surface_armor::SurfacePartDef { id: name.into(), zone, material: "rha".into(), thickness_mm: mm, turret });
+        let (a1, a2) = ((axis + 1) % 3, (axis + 2) % 3);
+        let mut emit = |depth: f32, cells: &[(usize, usize)], n: usize| {
+            for &(i, j) in cells {
+                let corner = |di: usize, dj: usize| -> [f32; 3] {
+                    let mut p = [0.0; 3];
+                    p[axis] = if sign > 0.0 { hi[axis] - depth } else { lo[axis] + depth };
+                    p[a1] = lo[a1] + (hi[a1] - lo[a1]) * (i + di) as f32 / n as f32;
+                    p[a2] = lo[a2] + (hi[a2] - lo[a2]) * (j + dj) as f32 / n as f32;
+                    p
+                };
+                let base = pos.len() as u32;
+                for (di, dj) in [(0, 0), (1, 0), (1, 1), (0, 1)] { pos.push(corner(di, dj)); }
+                tris.push([base, base + 1, base + 2, part]);
+                tris.push([base, base + 2, base + 3, part]);
+            }
+        };
+        if holed == Some(f) {
+            let cells: Vec<(usize, usize)> = (0..3).flat_map(|i| (0..3).map(move |j| (i, j))).filter(|&c| c != (1, 1)).collect();
+            emit(0.0, &cells, 3);
+        } else {
+            emit(0.0, &[(0, 0)], 1);
+        }
+        if let Some((sf, depth)) = extra_skin { if sf == f { emit(depth, &[(0, 0)], 1); } }
+    }
+}
+
+fn surface_tank(holed: Option<usize>, extra_skin: Option<(usize, f32)>) -> Target {
+    let (mut pos, mut tris, mut parts) = (vec![], vec![], vec![]);
+    let hull = [("hull_side_r", ArmorZone::HullSide, 20.0), ("hull_side_l", ArmorZone::HullSide, 20.0), ("hull_roof", ArmorZone::HullRoof, 10.0), ("hull_floor", ArmorZone::HullFloor, 10.0), ("hull_front", ArmorZone::HullUpperFront, 40.0), ("hull_rear", ArmorZone::HullRear, 15.0)];
+    surface_box([-1.5, 0.4, -3.0], [1.5, 2.0, 3.0], &hull, false, holed, extra_skin, &mut pos, &mut tris, &mut parts);
+    let turret = [("turret_side_r", ArmorZone::TurretSide, 30.0), ("turret_side_l", ArmorZone::TurretSide, 30.0), ("turret_roof", ArmorZone::TurretRoof, 15.0), ("turret_floor", ArmorZone::Other, 15.0), ("turret_front", ArmorZone::TurretFront, 60.0), ("turret_rear", ArmorZone::TurretRear, 20.0)];
+    surface_box([-0.9, 2.0, -1.0], [0.9, 2.8, 1.0], &turret, true, None, None, &mut pos, &mut tris, &mut parts);
+    let (positions, triangles, geometry_hash) = surface_armor::encode(&pos, &tris);
+    let mut def = box_tank(false).def;
+    def.plates.clear();
+    def.surfaces = Some(surface_armor::SurfaceArmorDef { schema: 1, geometry_hash, parts, positions, triangles, source: serde_json::Value::Null });
+    let t = Target::new(def, &rha());
+    assert!(t.surface_error.is_none(), "{:?}", t.surface_error);
+    t
+}
+
+#[test]
+fn weapon_bindings_explicit_shared_part_under_one_group_fires_and_fails_together() {
+    // the Pantsir's twin 2A38M: each side one breech module for its two barrels, named on both mounts
+    let t=pantsir_from_data();
+    let c=weapon_caps_json(&t,&t.fresh_state());
+    for key in ["gun:0:0","gun:0:1","gun:0:2","gun:0:3","gun:0:4"] {
+        assert_eq!(c[key]["can_fire"],true,"{key}: {}",c[key]["reason"]);
+    }
+    let i=t.def.modules.iter().position(|m| m.id=="cannon_left_breech").unwrap();
+    let mut st=t.fresh_state(); st.modules[i]=0.0;
+    let c=weapon_caps_json(&t,&st);
+    assert_eq!(c["gun:0:0"]["can_fire"],false);
+    assert_eq!(c["gun:0:1"]["can_fire"],false);
+    assert_eq!(c["gun:0:2"]["can_fire"],true);
+    // the same parts named under different groups stay ambiguous
+    let mut def=t.def.clone();
+    def.weapons["extra_guns"][0]["gun"]["weapon_group"]="cannon_x".into();
+    let t2=Target::new(def,&rha());
+    let c=weapon_caps_json(&t2,&t2.fresh_state());
+    assert!(c["gun:0:0"]["reason"].as_str().unwrap().contains("ambiguous"));
 }

@@ -1,0 +1,14 @@
+MiG-17 (source variant unspecified), retained in TankForge's existing mig17f slot.
+
+Source model: MiG-17 (War Thunder), KojfDiscord
+Author: https://sketchfab.com/KojfDiscord
+Source: https://sketchfab.com/3d-models/mig-17-war-thunder-792f036520e44b92a39adbdc0e262d6c
+License stated in the supplied model manifest: CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+
+User archive: TankForge_MiG17_模型動畫包_20261025.zip
+Archive SHA256: 99cbfaaa8bfa759e87035d7b9d33e29f635690437b27706e84e44d9eab0aae4f
+
+TankForge changes: reversible source-face grouping/exclusions, measured model-frame
+metadata, source gear phase samples, physical surface-input registration, and
+source-matched accepted approximate damage-box export. See the repair report.

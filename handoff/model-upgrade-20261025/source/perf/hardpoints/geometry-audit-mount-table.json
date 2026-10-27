@@ -1,0 +1,901 @@
+{
+  "schema": 1,
+  "provenance": "Exact decoded source mesh connected components; installation points use component X/Z centroid and lower Y surface, inferred mount centers rather than registered author sockets. All source parts/triangles untouched.",
+  "models": {
+    "f4e": {
+      "sourceMain": "e03a28ce0a9ef04a4198a647e4ca22eaf85d92e0a625ddad4ad640005624a2f6",
+      "version": 2,
+      "posScale": 0.00033898305084745765,
+      "parts": 62,
+      "bindings": [
+        {
+          "stationAlias": "mid",
+          "hardwareKey": "wing_rail_inner",
+          "spatialSide": -1,
+          "point": [
+            -1.8496610169491525,
+            -0.7759322033898306,
+            1.8628813559322035
+          ],
+          "sourcePartIndex": 6,
+          "sourcePartName": "body_source_geometry",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 16207,
+            "triangles": 20086,
+            "pos": 5736,
+            "idx": 216432
+          },
+          "componentIndex": 61,
+          "componentTriangles": 100,
+          "componentBounds": {
+            "min": [
+              -1.9047457627118645,
+              -0.7759322033898306,
+              0.5261016949152543
+            ],
+            "max": [
+              -1.7945762711864408,
+              -0.6467796610169492,
+              3.1996610169491526
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "mid",
+          "hardwareKey": "wing_rail_inner",
+          "spatialSide": 1,
+          "point": [
+            1.8496610169491525,
+            -0.7759322033898306,
+            1.8628813559322035
+          ],
+          "sourcePartIndex": 6,
+          "sourcePartName": "body_source_geometry",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 16207,
+            "triangles": 20086,
+            "pos": 5736,
+            "idx": 216432
+          },
+          "componentIndex": 67,
+          "componentTriangles": 100,
+          "componentBounds": {
+            "min": [
+              1.7945762711864408,
+              -0.7759322033898306,
+              0.5261016949152543
+            ],
+            "max": [
+              1.9047457627118645,
+              -0.6467796610169492,
+              3.1996610169491526
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "mid",
+          "hardwareKey": "wing_rail_outer",
+          "spatialSide": -1,
+          "point": [
+            -2.333389830508475,
+            -0.776271186440678,
+            1.8845762711864409
+          ],
+          "sourcePartIndex": 6,
+          "sourcePartName": "body_source_geometry",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 16207,
+            "triangles": 20086,
+            "pos": 5736,
+            "idx": 216432
+          },
+          "componentIndex": 58,
+          "componentTriangles": 100,
+          "componentBounds": {
+            "min": [
+              -2.3884745762711868,
+              -0.776271186440678,
+              0.5477966101694915
+            ],
+            "max": [
+              -2.278305084745763,
+              -0.6474576271186441,
+              3.22135593220339
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "mid",
+          "hardwareKey": "wing_rail_outer",
+          "spatialSide": 1,
+          "point": [
+            2.333389830508475,
+            -0.776271186440678,
+            1.8845762711864409
+          ],
+          "sourcePartIndex": 6,
+          "sourcePartName": "body_source_geometry",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 16207,
+            "triangles": 20086,
+            "pos": 5736,
+            "idx": 216432
+          },
+          "componentIndex": 65,
+          "componentTriangles": 100,
+          "componentBounds": {
+            "min": [
+              2.278305084745763,
+              -0.776271186440678,
+              0.5477966101694915
+            ],
+            "max": [
+              2.3884745762711868,
+              -0.6474576271186441,
+              3.22135593220339
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        }
+      ],
+      "caveats": [
+        "Only active confirmed stations should be rebound; extra source rails are not permission for additional weapon capacity."
+      ]
+    },
+    "f104g": {
+      "sourceMain": "2a606f0ef082eac53196ed6e5c41f0aa759815cbc3b58dac7fffe63e46b26ec0",
+      "version": 2,
+      "posScale": 0.000333889816360601,
+      "parts": 231,
+      "bindings": [
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "wing_pylon",
+          "spatialSide": -1,
+          "point": [
+            -1.9118530884808014,
+            -0.671118530884808,
+            -0.2787979966611019
+          ],
+          "sourcePartIndex": 195,
+          "sourcePartName": "plyon__156",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 2402,
+            "triangles": 1908,
+            "pos": 3052420,
+            "idx": 3083648
+          },
+          "componentIndex": 1,
+          "componentTriangles": 372,
+          "componentBounds": {
+            "min": [
+              -1.9465776293823038,
+              -0.671118530884808,
+              -1.2958263772954925
+            ],
+            "max": [
+              -1.877128547579299,
+              -0.264440734557596,
+              0.7382303839732888
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "wing_pylon",
+          "spatialSide": 1,
+          "point": [
+            1.9118530884808014,
+            -0.671118530884808,
+            -0.2787979966611019
+          ],
+          "sourcePartIndex": 196,
+          "sourcePartName": "plyon__156",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 2406,
+            "triangles": 1910,
+            "pos": 3095096,
+            "idx": 3126376
+          },
+          "componentIndex": 0,
+          "componentTriangles": 372,
+          "componentBounds": {
+            "min": [
+              1.877128547579299,
+              -0.671118530884808,
+              -1.2958263772954925
+            ],
+            "max": [
+              1.9465776293823038,
+              -0.264440734557596,
+              0.7382303839732888
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "tip",
+          "hardwareKey": "wingtip_rail",
+          "spatialSide": -1,
+          "point": [
+            -3.3198664440734555,
+            -0.5709515859766278,
+            -0.6913188647746242
+          ],
+          "sourcePartIndex": 195,
+          "sourcePartName": "plyon__156",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 2402,
+            "triangles": 1908,
+            "pos": 3052420,
+            "idx": 3083648
+          },
+          "componentIndex": 4,
+          "componentTriangles": 490,
+          "componentBounds": {
+            "min": [
+              -3.4163606010016694,
+              -0.5709515859766278,
+              -2.130550918196995
+            ],
+            "max": [
+              -3.223372287145242,
+              -0.4313856427378965,
+              0.7479131886477463
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "tip",
+          "hardwareKey": "wingtip_rail",
+          "spatialSide": 1,
+          "point": [
+            3.3198664440734555,
+            -0.5709515859766278,
+            -0.6913188647746242
+          ],
+          "sourcePartIndex": 196,
+          "sourcePartName": "plyon__156",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 2406,
+            "triangles": 1910,
+            "pos": 3095096,
+            "idx": 3126376
+          },
+          "componentIndex": 1,
+          "componentTriangles": 486,
+          "componentBounds": {
+            "min": [
+              3.223372287145242,
+              -0.5709515859766278,
+              -2.130550918196995
+            ],
+            "max": [
+              3.4163606010016694,
+              -0.4313856427378965,
+              0.7479131886477463
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        }
+      ],
+      "caveats": [
+        "Only active confirmed stations should be rebound; extra source rails are not permission for additional weapon capacity."
+      ]
+    },
+    "mig21": {
+      "sourceMain": "db84ea973ae3dbb337e4c7c711cf5c36d6e53413d9f4ee2bbfc47daf9ee94a30",
+      "version": 2,
+      "posScale": 0.0003333333333333333,
+      "parts": 70,
+      "bindings": [
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "inner_wing_rail",
+          "spatialSide": 1,
+          "point": [
+            1.988,
+            -0.4023333333333333,
+            0.0034999999999999476
+          ],
+          "sourcePartIndex": 51,
+          "sourcePartName": "wing_l_source05",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 3106,
+            "triangles": 2381,
+            "pos": 1919556,
+            "idx": 1959936
+          },
+          "componentIndex": 47,
+          "componentTriangles": 285,
+          "componentBounds": {
+            "min": [
+              1.9323333333333332,
+              -0.4023333333333333,
+              -1.038
+            ],
+            "max": [
+              2.0436666666666667,
+              -0.23433333333333334,
+              1.045
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "inner_wing_rail",
+          "spatialSide": -1,
+          "point": [
+            -1.9855,
+            -0.4023333333333333,
+            0.0034999999999999476
+          ],
+          "sourcePartIndex": 60,
+          "sourcePartName": "wing_r_source05",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 3119,
+            "triangles": 2381,
+            "pos": 2047608,
+            "idx": 2088160
+          },
+          "componentIndex": 47,
+          "componentTriangles": 285,
+          "componentBounds": {
+            "min": [
+              -2.041333333333333,
+              -0.4023333333333333,
+              -1.038
+            ],
+            "max": [
+              -1.9296666666666666,
+              -0.23433333333333334,
+              1.045
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "outer",
+          "hardwareKey": "outer_wing_rail",
+          "spatialSide": 1,
+          "point": [
+            2.447166666666667,
+            -0.4023333333333333,
+            -0.7305
+          ],
+          "sourcePartIndex": 51,
+          "sourcePartName": "wing_l_source05",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 3106,
+            "triangles": 2381,
+            "pos": 1919556,
+            "idx": 1959936
+          },
+          "componentIndex": 0,
+          "componentTriangles": 285,
+          "componentBounds": {
+            "min": [
+              2.3913333333333333,
+              -0.4023333333333333,
+              -1.772
+            ],
+            "max": [
+              2.503,
+              -0.23433333333333334,
+              0.311
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "outer",
+          "hardwareKey": "outer_wing_rail",
+          "spatialSide": -1,
+          "point": [
+            -2.4455,
+            -0.4023333333333333,
+            -0.7305
+          ],
+          "sourcePartIndex": 60,
+          "sourcePartName": "wing_r_source05",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 3119,
+            "triangles": 2381,
+            "pos": 2047608,
+            "idx": 2088160
+          },
+          "componentIndex": 0,
+          "componentTriangles": 285,
+          "componentBounds": {
+            "min": [
+              -2.501333333333333,
+              -0.4023333333333333,
+              -1.772
+            ],
+            "max": [
+              -2.3896666666666664,
+              -0.23433333333333334,
+              0.311
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        }
+      ],
+      "caveats": [
+        "Only active confirmed stations should be rebound; extra source rails are not permission for additional weapon capacity."
+      ]
+    },
+    "f16v": {
+      "sourceMain": "2144f85ce471b772867a6380a87144f1a3f3d736c83fc56727dc040af9d858fc",
+      "version": 2,
+      "posScale": 0.0003333333333333333,
+      "parts": 76,
+      "bindings": [
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "inner_pylon_lower_rail",
+          "spatialSide": 1,
+          "point": [
+            1.8458333333333332,
+            -0.6713333333333333,
+            0.14216666666666672
+          ],
+          "sourcePartIndex": 60,
+          "sourcePartName": "wing_l_source31",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 5499,
+            "triangles": 3469,
+            "pos": 3635220,
+            "idx": 3706712
+          },
+          "componentIndex": 0,
+          "componentTriangles": 98,
+          "componentBounds": {
+            "min": [
+              1.7796666666666665,
+              -0.6713333333333333,
+              -0.9896666666666666
+            ],
+            "max": [
+              1.912,
+              -0.5286666666666666,
+              1.274
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "inner_pylon_lower_rail",
+          "spatialSide": -1,
+          "point": [
+            -1.8451666666666666,
+            -0.6713333333333333,
+            0.14216666666666672
+          ],
+          "sourcePartIndex": 71,
+          "sourcePartName": "wing_r_source30",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 5487,
+            "triangles": 3469,
+            "pos": 3872092,
+            "idx": 3943428
+          },
+          "componentIndex": 0,
+          "componentTriangles": 98,
+          "componentBounds": {
+            "min": [
+              -1.9113333333333333,
+              -0.6713333333333333,
+              -0.9896666666666666
+            ],
+            "max": [
+              -1.779,
+              -0.5286666666666666,
+              1.274
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "tip",
+          "hardwareKey": "wingtip_rail",
+          "spatialSide": 1,
+          "point": [
+            4.7333333333333325,
+            -0.09433333333333332,
+            -1.4263333333333332
+          ],
+          "sourcePartIndex": 61,
+          "sourcePartName": "wing_l_source32",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 2102,
+            "triangles": 1384,
+            "pos": 3727528,
+            "idx": 3754856
+          },
+          "componentIndex": 1,
+          "componentTriangles": 68,
+          "componentBounds": {
+            "min": [
+              4.656666666666666,
+              -0.09433333333333332,
+              -2.421
+            ],
+            "max": [
+              4.81,
+              0.05533333333333333,
+              -0.43166666666666664
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "tip",
+          "hardwareKey": "wingtip_rail",
+          "spatialSide": -1,
+          "point": [
+            -4.7333333333333325,
+            -0.09466666666666666,
+            -1.4264999999999999
+          ],
+          "sourcePartIndex": 72,
+          "sourcePartName": "wing_r_source32",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 2128,
+            "triangles": 1384,
+            "pos": 3964244,
+            "idx": 3991908
+          },
+          "componentIndex": 1,
+          "componentTriangles": 68,
+          "componentBounds": {
+            "min": [
+              -4.81,
+              -0.09466666666666666,
+              -2.421333333333333
+            ],
+            "max": [
+              -4.656666666666666,
+              0.05533333333333333,
+              -0.43166666666666664
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        }
+      ],
+      "caveats": [
+        "Only active confirmed stations should be rebound; extra source rails are not permission for additional weapon capacity."
+      ]
+    },
+    "su27": {
+      "sourceMain": "562a29d0ae0fbc4f251dc5120b5a30103959eff9b72b5a3116db62d25b77b0f8",
+      "version": 2,
+      "posScale": 0.00042643923240938164,
+      "parts": 51,
+      "bindings": [
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "underengine_pylon",
+          "spatialSide": -1,
+          "point": [
+            -1.1326226012793177,
+            -1.6170575692963751,
+            0.20660980810234542
+          ],
+          "sourcePartIndex": 47,
+          "sourcePartName": "SopIFMI_Material #25_0",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 511,
+            "triangles": 512,
+            "pos": 1035792,
+            "idx": 1042440
+          },
+          "componentIndex": 0,
+          "componentTriangles": 256,
+          "componentBounds": {
+            "min": [
+              -1.2136460554371002,
+              -1.6170575692963751,
+              -1.0136460554371
+            ],
+            "max": [
+              -1.0515991471215351,
+              -1.2878464818763327,
+              1.426865671641791
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "body"
+        },
+        {
+          "stationAlias": "inner",
+          "hardwareKey": "underengine_pylon",
+          "spatialSide": 1,
+          "point": [
+            1.1707889125799573,
+            -1.6170575692963751,
+            0.20660980810234542
+          ],
+          "sourcePartIndex": 47,
+          "sourcePartName": "SopIFMI_Material #25_0",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 511,
+            "triangles": 512,
+            "pos": 1035792,
+            "idx": 1042440
+          },
+          "componentIndex": 1,
+          "componentTriangles": 256,
+          "componentBounds": {
+            "min": [
+              1.0899786780383796,
+              -1.6170575692963751,
+              -1.0136460554371
+            ],
+            "max": [
+              1.251599147121535,
+              -1.2878464818763327,
+              1.426865671641791
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "body"
+        },
+        {
+          "stationAlias": "mid",
+          "hardwareKey": "innerwing_pylon",
+          "spatialSide": 1,
+          "point": [
+            4.2980810234541575,
+            -0.623454157782516,
+            -0.9680170575692963
+          ],
+          "sourcePartIndex": 42,
+          "sourcePartName": "SopDIFR_Material #73_0",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 460,
+            "triangles": 568,
+            "pos": 1012116,
+            "idx": 1018096
+          },
+          "componentIndex": 0,
+          "componentTriangles": 284,
+          "componentBounds": {
+            "min": [
+              4.232835820895522,
+              -0.623454157782516,
+              -2.1411513859275053
+            ],
+            "max": [
+              4.363326226012793,
+              -0.38166311300639655,
+              0.20511727078891256
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "mid",
+          "hardwareKey": "innerwing_pylon",
+          "spatialSide": -1,
+          "point": [
+            -4.293390191897654,
+            -0.6243070362473347,
+            -0.9321961620469084
+          ],
+          "sourcePartIndex": 42,
+          "sourcePartName": "SopDIFR_Material #73_0",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 460,
+            "triangles": 568,
+            "pos": 1012116,
+            "idx": 1018096
+          },
+          "componentIndex": 1,
+          "componentTriangles": 284,
+          "componentBounds": {
+            "min": [
+              -4.3586353944562894,
+              -0.6243070362473347,
+              -2.1053304904051173
+            ],
+            "max": [
+              -4.228144989339019,
+              -0.382089552238806,
+              0.24093816631130063
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "outer",
+          "hardwareKey": "outerwing_pylon",
+          "spatialSide": -1,
+          "point": [
+            -5.746055437100213,
+            -0.4157782515991471,
+            -1.649040511727079
+          ],
+          "sourcePartIndex": 40,
+          "sourcePartName": "SopDFR_Material #73_0",
+          "sourcePartGroup": "wing_l",
+          "sourcePartSignature": {
+            "vertices": 187,
+            "triangles": 224,
+            "pos": 1004468,
+            "idx": 1006904
+          },
+          "componentIndex": 0,
+          "componentTriangles": 164,
+          "componentBounds": {
+            "min": [
+              -5.810660980810234,
+              -0.4157782515991471,
+              -3.121535181236674
+            ],
+            "max": [
+              -5.681449893390192,
+              -0.24434968017057568,
+              -0.176545842217484
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_l"
+        },
+        {
+          "stationAlias": "outer",
+          "hardwareKey": "outerwing_pylon",
+          "spatialSide": 1,
+          "point": [
+            5.757356076759061,
+            -0.41194029850746267,
+            -1.649040511727079
+          ],
+          "sourcePartIndex": 41,
+          "sourcePartName": "SopDFR_Material #73_0",
+          "sourcePartGroup": "wing_r",
+          "sourcePartSignature": {
+            "vertices": 194,
+            "triangles": 224,
+            "pos": 1008248,
+            "idx": 1010772
+          },
+          "componentIndex": 0,
+          "componentTriangles": 164,
+          "componentBounds": {
+            "min": [
+              5.692963752665245,
+              -0.41194029850746267,
+              -3.121535181236674
+            ],
+            "max": [
+              5.821748400852878,
+              -0.24008528784648187,
+              -0.176545842217484
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "wing_r"
+        },
+        {
+          "stationAlias": "center",
+          "hardwareKey": "fore_centerline_pylon",
+          "spatialSide": 0,
+          "point": [
+            0.009594882729211086,
+            -0.7748400852878464,
+            2.5430703624733475
+          ],
+          "sourcePartIndex": 45,
+          "sourcePartName": "SopIFCA_Material #73_0",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 254,
+            "triangles": 256,
+            "pos": 1026036,
+            "idx": 1029340
+          },
+          "componentIndex": 0,
+          "componentTriangles": 256,
+          "componentBounds": {
+            "min": [
+              -0.07121535181236674,
+              -0.7748400852878464,
+              1.322814498933902
+            ],
+            "max": [
+              0.09040511727078891,
+              -0.4456289978678038,
+              3.763326226012793
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "body"
+        },
+        {
+          "stationAlias": "center",
+          "hardwareKey": "aft_centerline_pylon",
+          "spatialSide": 0,
+          "point": [
+            0.009594882729211086,
+            -0.7748400852878464,
+            -1.8633262260127932
+          ],
+          "sourcePartIndex": 46,
+          "sourcePartName": "SopIFCB_Material #73_0",
+          "sourcePartGroup": "body",
+          "sourcePartSignature": {
+            "vertices": 260,
+            "triangles": 256,
+            "pos": 1030876,
+            "idx": 1034256
+          },
+          "componentIndex": 0,
+          "componentTriangles": 256,
+          "componentBounds": {
+            "min": [
+              -0.07121535181236674,
+              -0.7748400852878464,
+              -3.083582089552239
+            ],
+            "max": [
+              0.09040511727078891,
+              -0.4456289978678038,
+              -0.6430703624733475
+            ]
+          },
+          "confidence": "authored suspension/rail identity high; centroid attachment inference requires renderer review",
+          "proposedOwner": "body"
+        }
+      ],
+      "caveats": [
+        "Current generic inner station is mapped here to actual underengine hardware. Update owner to body if accepted. Do not bind three aliases to two real wing stations. Wingtip remains original because no isolated source rail confirmed."
+      ]
+    }
+  }
+}

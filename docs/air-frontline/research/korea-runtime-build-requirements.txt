@@ -1,0 +1,4 @@
+# Offline geography authoring / source proof only; not a server runtime dependency.
+numpy>=1.24,<3
+pyproj==3.7.1
+shapely==2.1.2

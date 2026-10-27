@@ -1,0 +1,18 @@
+{
+  "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E120_00_DEM/Copernicus_DSM_COG_10_N23_00_E120_00_DEM.tif",
+  "boundsWgs84": [
+    120.36986111111112,
+    23.435138888888886,
+    120.41986111111112,
+    23.485138888888887
+  ],
+  "shape": [
+    180,
+    180
+  ],
+  "sourceResolutionDegrees": [
+    0.0002777777777777778,
+    0.0002777777777777778
+  ],
+  "readMethod": "Actual native1arcsecond GLO30 airport window; not runway surface or obstacle clearance certificate"
+}

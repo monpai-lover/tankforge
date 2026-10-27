@@ -1,5 +1,28 @@
 # TankForge
 
+## 当前版本：R8.1（2026-10-27）
+
+当前航空／前线客户端入口是 `handoff/bundle/app.js.html`，资源保存在同目录的
+`head.html` 和五个连续 `data.line.gz.part00..04`。本次同步包含原生对地制导武器、
+空战及挂载流程、弹道回放、渲染表面命中、悬挂与履带等本地已验收源码，保留各项数据和来源说明。
+
+从仓库直接重建本次交付的单文件页面（只需 Python 3；输出文件必须不存在）：
+
+```sh
+python -c "from pathlib import Path; Path('client/web/dist').mkdir(parents=True, exist_ok=True)"
+python tools/rebuild_current_handoff.py --output client/web/dist/tankforge-r81.html
+cargo run --locked --release -p tg-server -- --data data --page client/web/dist/tankforge-r81.html
+```
+
+浏览器打开 `http://127.0.0.1:8787/`。重建器流式拼装仓库资源并验证与本次交付相同的
+HTML 哈希；前端和原生服务端需使用同一版本。默认对地操作是空格捕获、右键发射。
+
+当前版本说明、复现测试命令和验证边界见 [R8.1 同步记录](docs/releases/r81-20261027/README.md)。
+下方原有 `client/web` 的 `npm run build` 是较早客户端入口，不能代替上述当前页面的重建。
+历史部署包装脚本和记录保留原字节；其中带本机路径的封存流程不作为跨平台构建入口。
+
+## 早期源码工具和历史说明
+
 以下 PowerShell 指令從儲存庫根目錄執行。`npm test` 的聯機整合測試必須先取得
 當前 Rust 實際處理器產生的 receipt；環境變數使用絕對路徑，切到 `client/web`
 後仍有效。缺少 receipt、來源標籤缺漏或來源內容過期都會失敗；修改伺服器、

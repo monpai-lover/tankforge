@@ -1,0 +1,42 @@
+{
+  "authoritativeTargetAppSha256": "d5d27a26a6220d32120cfadac48217a509f64f2c00a71d78e52346861a36c0be",
+  "finalAcceptance": "verification/mount-v3/acceptance.json",
+  "currentChecks": [
+    "verification/hardpoints/test-results.json",
+    "verification/model-upgrade-merge-report.json",
+    "verification/mount-v3/acceptance.json",
+    "verification/mount-v3/details-test-report.json",
+    "verification/mount-v3/details-tests.log",
+    "verification/mount-v3/final-tests.log",
+    "verification/mount-v3/full-qa/full-report.json",
+    "verification/mount-v3/hardpoint-tests.log",
+    "verification/mount-v3/installer-tests.log",
+    "verification/mount-v3/jets-audit/geometry-findings.json",
+    "verification/mount-v3/jets-audit/report.json",
+    "verification/mount-v3/neighbour-clearance.json",
+    "verification/mount-v3/portable-tests.log",
+    "verification/o-mode/o-mode-test-results.json"
+  ],
+  "actualImages": "verification/screenshots/",
+  "historicalEvidence": [
+    "verification/history/model-final-O-tests.log",
+    "verification/history/model-final-mount-tests.log",
+    "verification/history/model-upgrade-acceptance.json",
+    "verification/history/model-final-interior-tests.log",
+    "verification/history/all-interior/all-interior-test-results.json",
+    "verification/history/all-interior/deep-upgrade-report.json",
+    "verification/history/all-interior/catalog-audit.json",
+    "verification/history/visual-next/full-report.json",
+    "verification/history/visual-next/geometry-source-equivalence.json",
+    "verification/history/visual-next/report.json",
+    "verification/history/o-mode/o-mode-tests.log",
+    "verification/history/me262-sight/placement-numerical-results.json",
+    "verification/history/hardpoints/geometry-audit-candidate-envelope-overlap.json",
+    "verification/history/hardpoints/geometry-audit-mixed-store-intersections.json",
+    "verification/history/hardpoints/catalog-audit.json",
+    "verification/history/hardpoints/geometry-audit-final-mixed-browser-report.json",
+    "verification/history/all-interior/deep-audit/full-tests.log",
+    "verification/history/mount-v3/full-qa/full-report-all26.json"
+  ],
+  "scope": "Evidence describes the frozen package; local integration requires local validation. The current acceptance records 26 catalog entries, 18 jet entries, 135 states and 99 nonempty near-LOD geometry cases."
+}

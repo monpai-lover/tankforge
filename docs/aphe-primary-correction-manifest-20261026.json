@@ -1,0 +1,55 @@
+{
+  "scope": "Three exact75mmPzgr39-family explosive material corrections; no mass/fuze/penetration changes; original compressed assets untouched",
+  "sourcePdfSha256": "3f402900ffea30ed1e10d1f307ac141f87efc5d0fe76bf189771bfbc12445efb",
+  "appInputSha256": "2a200f46c677d32ca29cb03779322de50cd288234792bf16d8c226db8fe42cee",
+  "appOutputSha256": "d8fb54f02f9900faee4ec4f454fdeaa4f42d6430e84259c4aca7160fe30b4ce3",
+  "corrections": [
+    {
+      "id": "apcbc_75_pzgr39",
+      "field": "explosive_type",
+      "before": "petn",
+      "after": "hexogen",
+      "rawMassKgPreserved": 0.017,
+      "source": "https://www.ibiblio.org/hyperwar/USA/ref/TM/pdfs/TM9-1985-3-German.pdf",
+      "printedPages": [
+        398,
+        399
+      ],
+      "catalogSourceSha256": "91d99b77d4f6de6c98215f5b67e726344cc5663d015ceacb2cead2b46a40fbbb",
+      "candidateSha256": "6fcaeebb72cffcfccefd7e1e7565b14f70003e0d51368829bf50487f99b2cb36"
+    },
+    {
+      "id": "apcbc_75_pzgr39_l43",
+      "field": "explosive_type",
+      "before": "petn",
+      "after": "hexogen",
+      "rawMassKgPreserved": 0.017,
+      "source": "https://www.ibiblio.org/hyperwar/USA/ref/TM/pdfs/TM9-1985-3-German.pdf",
+      "printedPages": [
+        398,
+        399
+      ],
+      "catalogSourceSha256": "a498025fbbf83d46e607efcfb4981664d8d4ac892c9999501eed1f0f011ca2b1",
+      "candidateSha256": "b61af5f2c29b288ee677ccdf0c5f9321eb926d3c4c5f9268057b844b130ea161"
+    },
+    {
+      "id": "apcbc_75_pzgr39_42",
+      "field": "explosive_type",
+      "before": "petn",
+      "after": "hexogen",
+      "rawMassKgPreserved": 0.017,
+      "source": "https://www.ibiblio.org/hyperwar/USA/ref/TM/pdfs/TM9-1985-3-German.pdf",
+      "printedPages": [
+        423
+      ],
+      "catalogSourceSha256": "35363f7902063ba78ec8ea248825b7767d7eb930e2aedca2064ab945e93be8dc",
+      "candidateSha256": "2a7521b984874205821ca4a3742b549f3b3df5426d128b8413b7220e0664d59b"
+    }
+  ],
+  "limitations": [
+    "hexogen is the existing game RDX enum, not an exact RDX/wax mixture model",
+    "17g raw mass preserved; primary scan masses vary and are not merged across variants",
+    "50mm and88mm ambiguous variant/material values are preserved",
+    "Profile exporter must call the identical overlay after loading the pinned data and before derived shells"
+  ]
+}

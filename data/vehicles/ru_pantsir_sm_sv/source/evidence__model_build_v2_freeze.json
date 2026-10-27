@@ -1,0 +1,246 @@
+{
+  "status": "STAGING_ASSETS_FROZEN",
+  "files": [
+    {
+      "file": "assets_v2/compare_lod1_3quarter.png",
+      "bytes": 962995,
+      "sha256": "5d7516454ca9a3bca44b5808bab23cac7e337451a357c4e254366871c6136612",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_lod1_front.png",
+      "bytes": 850010,
+      "sha256": "ced7e0f61b5c722b5e7a42a85f5be437022f9dc5438b89adc57e45b4bdd1ec89",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_lod1_side.png",
+      "bytes": 898153,
+      "sha256": "faf94821e8d941325a316ee5699197679ac422d11881532bcb48c25f31d3320c",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_lod2_3quarter.png",
+      "bytes": 964911,
+      "sha256": "7bc964d87d3ba14005d544f56a3a9489a60c06c71bb13a54062898fb13169e83",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_lod2_front.png",
+      "bytes": 855639,
+      "sha256": "da8cdd3a891cb73cc0e984cdbc009d09297eea0e92f4786ca7bce9513df97ebc",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_lod2_side.png",
+      "bytes": 896540,
+      "sha256": "f8a04ba9f364cc02837e65193290fad7ee2bbe2be41026f7c0a386f976691187",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_new_3quarter.png",
+      "bytes": 982824,
+      "sha256": "5cc0cf786656028d9399e099b91700719629a593524f2e33cff8c869e444caad",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_new_front.png",
+      "bytes": 871747,
+      "sha256": "a09626d293ed0c968d05b4c363dfb9c5e4458741ceef075bf8f73c55dc615130",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_new_side.png",
+      "bytes": 909921,
+      "sha256": "72b3add986fc55c594217077b1c660dd22c06aafa055d12ae7d8b2cee80804e8",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_source_3quarter.png",
+      "bytes": 982515,
+      "sha256": "1ff0acdf1cb931fb10b5da575f5ce0f6e5646448f514c94868d523b210b5d0c9",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_source_front.png",
+      "bytes": 872228,
+      "sha256": "a99db0142c2ee75b2a90f5859db7e3f0e594b10a25c10a166ee1158c24a7ae3c",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/compare_source_side.png",
+      "bytes": 909938,
+      "sha256": "7488061dd89487eabc8f636bcb8e69f6f1af693d4bb6f3a7643e27a3fd68cecb",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/pantsir_lod0.glb",
+      "bytes": 19737300,
+      "sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/pantsir_lod1.glb",
+      "bytes": 12737892,
+      "sha256": "941cbf0a862a23d5a53d98186e4c673f7d36743af26623c20a3f89b6c0e15df6",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/pantsir_lod2.glb",
+      "bytes": 9187056,
+      "sha256": "aec2a2e13f18ad7e2e8f897d7ed389f93782aa718a11bceccbc39770651b6eb0",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/pantsir_master.blend",
+      "bytes": 28278716,
+      "sha256": "796a781c36021cb16da38f88ff27f8bedea7aa39e5ef2dc819ebccc6332a8840",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/preview_internals.png",
+      "bytes": 1374833,
+      "sha256": "af97c7ee9da4e1c2b1675918037ece0752bdc0561a89fa9f7af8f0528a339c57",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/preview_lod0.png",
+      "bytes": 1690722,
+      "sha256": "bf3d1142d714130a4c93b299bd5e353e3f52a14fbcf55750357a3de261a29992",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/scene_manifest.json",
+      "bytes": 224581,
+      "sha256": "f4909e524e710078f72f4d0cc3782a9bb7b8ca070ce73f9f78f6a7f2d68d7a1a",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/source_reference.glb",
+      "bytes": 18801604,
+      "sha256": "86a6b268cd26fafd95b7ba8667076f7e255d933d086b44d314de2e7433cbd3a0",
+      "debug_only": true
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_0.jpg",
+      "bytes": 59799,
+      "sha256": "ba4cc9653a3e784b37431a3d93c4581f58421bb50af6f2657b50e47001e95fef",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_12.png",
+      "bytes": 354723,
+      "sha256": "e7f35f668ae3a5dd8a6bb0c83532d7edab0ed44d3cecfc08f0d9b254308fe5d7",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_15.jpg",
+      "bytes": 344062,
+      "sha256": "d3820fbb55bd3ddb0bf0d211cbfd24629b84e224e60767c6b6b04a5bba4340ef",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_18.jpg",
+      "bytes": 22026,
+      "sha256": "511fecb07fd3c0206840e7d73721e54b44a54179a870d2d24782e34cd118795a",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_21.jpg",
+      "bytes": 2904,
+      "sha256": "c5618c27c6f505568b629597c3ed3acdd6298c397ae675607a902667ddace6cf",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_24.jpg",
+      "bytes": 360946,
+      "sha256": "c8e19faadf5ba31ac49bd7105208f73fd666e5120dc42606c8eb998afe8f10a9",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_27.png",
+      "bytes": 125579,
+      "sha256": "154d48c2e874d1c097b4212eb110bc4fe8bf0fda61a5cc95f5aafb34d9fa07b5",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_3.png",
+      "bytes": 395539,
+      "sha256": "24e1634ab4fd6b066beeb0a0a5286d64ef94a2ad3698ffdea6104ec338648dc0",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_6.png",
+      "bytes": 46298,
+      "sha256": "80917c42b6ec01023e981cd0728ef3f7b8831b1e4fad0e63052c262272bc9a13",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_diffuse_9.jpg",
+      "bytes": 99609,
+      "sha256": "709b09fccdf050b406789fa1b54d739e952d3edaef9e50b437573ed8d80fb2e1",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_11.png",
+      "bytes": 408438,
+      "sha256": "4457a1bf8268dd0743b402d58c1a24f0b7c5c01e56143d1a5bc419892d9800e0",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_14.png",
+      "bytes": 281,
+      "sha256": "482b710b2e0500976528dbe3e64673e8ad4ae1087b020dc3bfe81aaaa0db7e2e",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_17.png",
+      "bytes": 441842,
+      "sha256": "74df914ccce6a5f2bf655f03bebba95190007b10ff3fcc2a0f84ede6ce9daf83",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_2.png",
+      "bytes": 314464,
+      "sha256": "fd3800c1b2e3a9355adc6fc59c2af538f5caf0745819aaecfa7950f6f3009e6e",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_20.png",
+      "bytes": 31661,
+      "sha256": "e4eade2f8a41806ff8567f44b5107d310034f7fb97cabe4ab60e85094aa79ee6",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_23.png",
+      "bytes": 4310,
+      "sha256": "35e5457f718eaced31b4e5cdf5dc39d89bf17924447b5d0f759bcfb0fd11dd06",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_26.png",
+      "bytes": 595341,
+      "sha256": "63e1c02ff2042219fcac1b6b3f7e37b313e81f382e19b15f00e7a85c8f42d492",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_5.png",
+      "bytes": 353054,
+      "sha256": "b47f619f6779da6cb42273b1753ddf5baa41bc75221418d31bb420fa6e84e762",
+      "debug_only": false
+    },
+    {
+      "file": "assets_v2/textures/source_normal_8.png",
+      "bytes": 26795,
+      "sha256": "1435530b73ad0c46a75447a248985c09b6344ec03db280e0664572203bca2073",
+      "debug_only": false
+    }
+  ],
+  "verification": [
+    "build_asset_v2.py --validate PASS",
+    "root staging validator PASS",
+    "independent fidelity_audit_v2.json strict main geometry PASS",
+    "all16 socket world positions identical across3LODs; model_build_v2_world_validation.json"
+  ],
+  "policy": "LOD0 source-near-exact; balanced167250 ext; distant110869 ext. All V1 geometry removed from staged package. Source_reference.glb is debug-only; exclude from release."
+}

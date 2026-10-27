@@ -1,0 +1,16 @@
+[
+  {
+    "key": "designCore",
+    "bytes": 3143569,
+    "sha256": "7095c82c373534c7590ca882f75005059f4f849586ad2b7154c0a5c524656c25",
+    "path": "C:\\Users\\24908\\.codex\\scratch\\tankforge-airwar-online-20261025\\worktree\\task\\provenance-recovery-20261026\\original-active\\designCore.wasm",
+    "sourceHtml": "intake/tank-monpai-root-20261025-identity.html"
+  },
+  {
+    "key": "surfaceCore",
+    "bytes": 2124470,
+    "sha256": "f88569767f73e291a32c0a7c7b983126075f60a1c0d08f652af60cd99f78c83c",
+    "path": "C:\\Users\\24908\\.codex\\scratch\\tankforge-airwar-online-20261025\\worktree\\task\\provenance-recovery-20261026\\original-active\\surfaceCore.wasm",
+    "sourceHtml": "intake/tank-monpai-root-20261025-identity.html"
+  }
+]

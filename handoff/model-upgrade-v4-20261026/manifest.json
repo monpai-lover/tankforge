@@ -1,0 +1,8 @@
+{
+  "format": "tankforge-model-context-multi-v1",
+  "payload_sha256": "3d548e0f1a767ecfb85ab074114e70b5402a339b831f967d31453139dbfcb6f5",
+  "base_app_sha256": "e75dff32e6c19240263ce61186106ed406f683bbb1963582117b365c80126344",
+  "target_app_sha256": "8e354eaa40718e7939ec36cbd44603bcb4f98ac59d5e6e12e09e9179879e1ffd",
+  "hunks": 94,
+  "scope": "aircraft geometry, interiors, catalog and mount orientation; accepted native position authority preserved; two reviewed native store-render orientation hooks"
+}

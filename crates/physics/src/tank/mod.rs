@@ -42,6 +42,7 @@ use powertrain::Powertrain;
 use rigid_body::{VehicleRigidBody, GRAVITY};
 use running_gear_dynamics::RunningGearModel;
 use std::sync::Arc;
+use std::time::Instant;
 use road_wheel::{si, support_under_mode, GearGeometry};
 use serde::{Deserialize, Serialize};
 use suspension::{SuspensionOpts, SuspensionState, SuspensionSystem};
@@ -233,14 +234,66 @@ pub fn place(tm: &TankModel, t: &mut Tank, terrain: &dyn Ground, x: f64, z: f64,
 
 /// One step of `dt` (split into the model's substeps).
 pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt: f64) -> TankInfo {
+    step_internal(tm, t, input, terrain, dt, None)
+}
+
+/// Optional cumulative diagnostics. This is never replicated or used to choose
+/// a timestep, contact, iteration count, force or authoritative state.
+#[derive(Clone, Copy, Debug, Default, Serialize)]
+pub struct TankStepTimings {
+    pub calls: u64,
+    pub substeps: u64,
+    pub sample_ground_ns: u64,
+    pub obstacles_ns: u64,
+    pub inertia_suspension_ns: u64,
+    pub rigid_contacts_ns: u64,
+    pub powertrain_ns: u64,
+    pub friction_prepare_ns: u64,
+    pub friction_solve_ns: u64,
+    pub integrate_pose_ns: u64,
+    pub report_ns: u64,
+}
+
+pub fn step_with_timings(
+    tm: &TankModel,
+    t: &mut Tank,
+    input: Input,
+    terrain: &dyn Ground,
+    dt: f64,
+    timings: &mut TankStepTimings,
+) -> TankInfo {
+    step_internal(tm, t, input, terrain, dt, Some(timings))
+}
+
+fn step_internal(
+    tm: &TankModel,
+    t: &mut Tank,
+    input: Input,
+    terrain: &dyn Ground,
+    dt: f64,
+    mut timings: Option<&mut TankStepTimings>,
+) -> TankInfo {
     let n = tm.substeps;
+    if let Some(stats) = timings.as_deref_mut() {
+        stats.calls += 1;
+        stats.substeps += n as u64;
+    }
     let h = dt / n as f64;
     let u0 = dot(t.body.v, t.body.ez);
     let mut solved = Vec::new();
     for _ in 0..n {
+        let started = timings.as_ref().map(|_| Instant::now());
         tm.ct.sample_ground(&mut t.cs, &t.body, terrain);
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.sample_ground_ns += start.elapsed().as_nanos() as u64;
+        }
         // walls, buildings, other vehicles: the track belts and the hull are solid against them
+        let started = timings.as_ref().map(|_| Instant::now());
         apply_obstacles(&tm.collide, &mut t.body, &t.obstacles, h);
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.obstacles_ns += start.elapsed().as_nanos() as u64;
+        }
+        let started = timings.as_ref().map(|_| Instant::now());
         let speed = len(t.body.v);
         if speed > 0.01 {
             let drag = scale(t.body.v, -0.5 * AIR_RHO * tm.pt.cd_a * speed);
@@ -248,42 +301,88 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
         }
         t.body.integrate_velocity(h);
         let side_load = tm.sp.apply(&mut t.ss, &mut t.body, &t.cs.prof, h, t.broken);
-        let extra = tm.ct.apply_rigid_contacts(&mut t.cs, &mut t.body, terrain, h, &tm.sp, &t.ss, t.broken);
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.inertia_suspension_ns += start.elapsed().as_nanos() as u64;
+        }
+        let started = timings.as_ref().map(|_| Instant::now());
+        let extra =
+            tm.ct
+                .apply_rigid_contacts(&mut t.cs, &mut t.body, terrain, h, &tm.sp, &t.ss, t.broken);
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.rigid_contacts_ns += start.elapsed().as_nanos() as u64;
+        }
 
         // drive: targets, engine, steering, brakes
+        let started = timings.as_ref().map(|_| Instant::now());
         let u = dot(t.body.v, t.body.ez);
         let mid = terrain.surface(t.body.pos[0], t.body.pos[2]);
         let pf = terra::pressure_factor(mid.soil.as_ref(), tm.ground_pressure as f32) as f64;
-        let roll_mult = 1.0 + (mid.rolling_mult as f64 - 1.0) * pf * (0.35 + 0.65 * t.rut.clamp(0.0, 1.0));
+        let roll_mult =
+            1.0 + (mid.rolling_mult as f64 - 1.0) * pf * (0.35 + 0.65 * t.rut.clamp(0.0, 1.0));
         let roll_total = tm.pt.rolling_force(roll_mult, side_load[0] + side_load[1]);
         let grade = tm.mass * GRAVITY * t.body.ez[1];
-        let env = DriveEnv { u, resist: roll_total + 0.5 * AIR_RHO * tm.pt.cd_a * u * u, grade };
+        let env = DriveEnv {
+            u,
+            resist: roll_total + 0.5 * AIR_RHO * tm.pt.cd_a * u * u,
+            grade,
+        };
         drive_step(&tm.pt, tm.mass, &mut t.ds, input, &env, h);
         t.ds.motor.broken = t.broken;
         // rolling losses hold each track back (never past standing still)
         for i in 0..2 {
             let b = &mut t.ds.belts[i];
             let dv = tm.pt.rolling_force(roll_mult, side_load[i]) * h / b.m;
-            b.v = if b.v.abs() <= dv { 0.0 } else { b.v - dv * sign(b.v) };
+            b.v = if b.v.abs() <= dv {
+                0.0
+            } else {
+                b.v - dv * sign(b.v)
+            };
+        }
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.powertrain_ns += start.elapsed().as_nanos() as u64;
         }
 
+        let started = timings.as_ref().map(|_| Instant::now());
         let mut contacts = track_contacts(&tm.ct, &t.cs, &t.body, &tm.sp, &t.ss, terrain, t.broken);
         contacts.extend(extra);
-        solve_friction(&mut contacts, &mut t.body, &mut t.ds.belts, t.ds.brakes, h, 10, Some(&mut t.ds.motor), &mut t.cs.response_pool);
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.friction_prepare_ns += start.elapsed().as_nanos() as u64;
+        }
+        let started = timings.as_ref().map(|_| Instant::now());
+        solve_friction(
+            &mut contacts,
+            &mut t.body,
+            &mut t.ds.belts,
+            t.ds.brakes,
+            h,
+            10,
+            Some(&mut t.ds.motor),
+            &mut t.cs.response_pool,
+        );
         let mo = t.ds.motor;
         t.ds.drive = [mo.f_mean / 2.0 + mo.f_steer, mo.f_mean / 2.0 - mo.f_steer];
         t.ds.load = if mo.pushing && t.ds.f_eng > 0.0 {
-            (mo.f_mean.abs() / t.ds.f_eng + (mo.f_steer * (t.ds.belts[0].v - t.ds.belts[1].v)).abs() / tm.pt.power).min(1.0)
+            (mo.f_mean.abs() / t.ds.f_eng
+                + (mo.f_steer * (t.ds.belts[0].v - t.ds.belts[1].v)).abs() / tm.pt.power)
+                .min(1.0)
         } else {
             0.0
         };
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.friction_solve_ns += start.elapsed().as_nanos() as u64;
+        }
+        let started = timings.as_ref().map(|_| Instant::now());
         t.body.integrate_position(h);
         tm.sp.sync_pose(&mut t.ss, &t.body, t.broken);
         for i in 0..2 {
             t.travel[i] += t.ds.belts[i].v * h;
         }
         solved = contacts;
+        if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+            stats.integrate_pose_ns += start.elapsed().as_nanos() as u64;
+        }
     }
+    let started = timings.as_ref().map(|_| Instant::now());
     t.contacts = solved;
 
     let b = &t.body;
@@ -329,6 +428,9 @@ pub fn step(tm: &TankModel, t: &mut Tank, input: Input, terrain: &dyn Ground, dt
         w,
         r,
     };
+    if let (Some(stats), Some(start)) = (timings.as_deref_mut(), started) {
+        stats.report_ns += start.elapsed().as_nanos() as u64;
+    }
     t.info
 }
 
@@ -427,8 +529,8 @@ pub fn reconstruct_running_gear(tm: &TankModel, t: &mut Tank, terrain: &dyn Grou
     for (i, s) in sp.stations.iter().enumerate() {
         let sup = support_under_mode(sp.window, &t.cs.prof[si(s.side)], s, t.broken[si(s.side)]);
         let h = t.body.world_point([s.x, s.y, s.z])[1];
-        let x = (sup + s.r + if t.broken[si(s.side)] { 0.0 } else { sp.thickness } - h) / up_y;
-        t.ss.grounded[i] = x >= -sp.rebound;
+        let x = sup.map(|sup| (sup + s.r + if t.broken[si(s.side)] { 0.0 } else { sp.thickness } - h) / up_y).unwrap_or(-sp.rebound);
+        t.ss.grounded[i] = sup.is_some() && x >= -sp.rebound;
         t.ss.comp[i] = x.clamp(-sp.rebound, sp.travel + 0.03);
         if let Some(rg) = &mut t.body.running_gear { rg.q[i] = t.ss.comp[i]; rg.qv[i] = 0.0; rg.normal_impulse[i] = 0.0; }
     }

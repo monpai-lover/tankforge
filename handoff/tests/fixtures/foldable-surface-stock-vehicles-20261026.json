@@ -1,0 +1,144 @@
+{
+  "sourceHtmlSha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f",
+  "sourceJsonPaths": [
+    "data.vehicles.de_flakpz38t.vehicle",
+    "data.vehicles.de_rso_pak40.vehicle"
+  ],
+  "scope": "Exact active vehicle values. Current native source adds suspension kind/force_model fields that also change generated visual support geometry; those native metadata additions are not part of the preserved active HTML. Other armor/modules/crew/weapons/visual companions were independently JSON-compared equal.",
+  "vehicles": {
+    "de_flakpz38t": {
+      "id": "de_flakpz38t",
+      "name": "Flakpanzer 38(t)",
+      "schema_version": 1,
+      "model": "model.glb",
+      "meta": {
+        "nation": "germany",
+        "class": "spaa",
+        "year": 1943,
+        "outline": "traced",
+        "based_on": "Flakpanzer 38(t) Ausf. L (Sd.Kfz. 140) with the 2 cm FlaK 38",
+        "notes": "Rebuilt to the reference model supplied with the request (hull and compartment proportions, wheel stations, the FlaK 38's layout), cross-checked against the four-view drawing. The upper walls of the compartment are hinged flaps that fold down (key I); the FlaK 38 traverses all round."
+      },
+      "files": {
+        "armor": "armor.json",
+        "weapons": "weapons.json",
+        "engine": "engine.json",
+        "crew": "crew.json",
+        "modules": "modules.json",
+        "visual": "visual.json"
+      },
+      "hull": {
+        "size_m": [
+          2.15,
+          1.4,
+          5.3
+        ],
+        "mass_kg": 9800,
+        "center_of_mass": [
+          0,
+          0.95,
+          -0.2
+        ]
+      },
+      "turret": {
+        "size_m": [
+          2.2,
+          1.3,
+          2.4
+        ],
+        "ring_diameter_m": 0.9,
+        "position_m": [
+          0,
+          1.02,
+          -1.5
+        ],
+        "open_top": true
+      },
+      "physics": {
+        "track_width_m": 0.29,
+        "track_length_m": 3,
+        "suspension": {
+          "kind": "leaf_bogie",
+          "force_model": "estimated_v7_reduced_vertical",
+          "travel_m": 0.14,
+          "stiffness": 100000,
+          "damping": 8000
+        },
+        "rolling_resistance": 0.04,
+        "sprocket_radius_m": 0.26,
+        "drivetrain_efficiency": 0.82,
+        "max_brake_decel_ms2": 6,
+        "max_turn_rate_deg_s": 30,
+        "max_reverse_speed_ms": 2,
+        "min_turn_radius_m": 0
+      }
+    },
+    "de_rso_pak40": {
+      "id": "de_rso_pak40",
+      "name": "RSO PaK 40",
+      "schema_version": 1,
+      "model": "model.glb",
+      "meta": {
+        "nation": "germany",
+        "class": "tank_destroyer",
+        "year": 1943,
+        "outline": "traced",
+        "based_on": "7.5 cm PaK 40/4 auf Raupenschlepper Ost (Sfl.), the armoured cab and the PaK 40 on a turntable",
+        "notes": "Rebuilt from the three-view drawing supplied with the request (3 m scale bar: 362 px per metre). Steyr 1500A V8 of 85 hp, 17 km/h on the road; the gun fires forward over the cab. The two driving covers open with I; full-open firing permits360-degree traverse. The retained parked arc, transition centering, front-cover hinge stops and per-bearing depression table are engineering clearance adaptations to this model."
+      },
+      "files": {
+        "armor": "armor.json",
+        "weapons": "weapons.json",
+        "engine": "engine.json",
+        "crew": "crew.json",
+        "modules": "modules.json",
+        "visual": "visual.json"
+      },
+      "hull": {
+        "size_m": [
+          1.99,
+          1.62,
+          4.06
+        ],
+        "mass_kg": 5900,
+        "center_of_mass": [
+          0,
+          0.95,
+          0.1
+        ]
+      },
+      "turret": {
+        "size_m": [
+          1.6,
+          1.1,
+          2.2
+        ],
+        "ring_diameter_m": 0.9,
+        "position_m": [
+          0,
+          0.95,
+          -0.85
+        ],
+        "open_top": true
+      },
+      "physics": {
+        "track_width_m": 0.34,
+        "track_length_m": 2.2,
+        "suspension": {
+          "kind": "leaf_bogie",
+          "force_model": "estimated_v7_reduced_vertical",
+          "travel_m": 0.12,
+          "stiffness": 90000,
+          "damping": 7000
+        },
+        "rolling_resistance": 0.05,
+        "sprocket_radius_m": 0.2,
+        "drivetrain_efficiency": 0.8,
+        "max_brake_decel_ms2": 5,
+        "max_turn_rate_deg_s": 28,
+        "max_reverse_speed_ms": 1.5,
+        "min_turn_radius_m": 0
+      }
+    }
+  }
+}

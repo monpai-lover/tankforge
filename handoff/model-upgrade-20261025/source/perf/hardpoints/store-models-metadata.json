@@ -1,0 +1,1027 @@
+{
+  "aim9b": {
+    "label": "AIM-9B",
+    "category": "AAM",
+    "family": "sidewinder_b",
+    "guidance_class": "IR_EARLY",
+    "length_m": 2.83,
+    "diameter_m": 0.127,
+    "span_m": 0.56,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "US_SIDEWINDER"
+    ],
+    "notes": "B-specific length and fin envelope not verified; small front fins / rollerons estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim9l": {
+    "label": "AIM-9L",
+    "category": "AAM",
+    "family": "sidewinder_l",
+    "guidance_class": "IR",
+    "length_m": 2.87,
+    "diameter_m": 0.127,
+    "span_m": 0.5588,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_SIDEWINDER",
+      "US_9M_ART"
+    ],
+    "notes": "L/M share nominal shell here; control-fin positions estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim9m": {
+    "label": "AIM-9M",
+    "category": "AAM",
+    "family": "sidewinder_l",
+    "guidance_class": "IR",
+    "length_m": 2.87,
+    "diameter_m": 0.127,
+    "span_m": 0.5588,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_9M_ART"
+    ],
+    "notes": "L/M intentionally share exterior geometry; separate material label and catalog identity.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim9x": {
+    "label": "AIM-9X (Block I exterior)",
+    "category": "AAM",
+    "family": "sidewinder_x",
+    "guidance_class": "IIR",
+    "length_m": 3.02,
+    "diameter_m": 0.127,
+    "span_m": 0.45,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_9X"
+    ],
+    "notes": "No Block II/II+ capabilities implied.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim7m": {
+    "label": "AIM-7M",
+    "category": "AAM",
+    "family": "sparrow",
+    "guidance_class": "SARH",
+    "length_m": 3.64,
+    "diameter_m": 0.203,
+    "span_m": 1.0,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_SPARROW"
+    ],
+    "notes": "Family envelope; M small detail interpretation, fin outline estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim120b": {
+    "label": "AIM-120B",
+    "category": "AAM",
+    "family": "amraam",
+    "guidance_class": "ARH",
+    "length_m": 3.655,
+    "diameter_m": 0.1778,
+    "span_m": 0.5334,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_AMRAAM",
+      "US_AMRAAM_ART",
+      "NAVAIR_AMRAAM"
+    ],
+    "notes": "Uncropped A/B 21-inch span from NAVAIR. Local fin chords are visual estimates.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim120c": {
+    "label": "AIM-120C (cropped-fin)",
+    "category": "AAM",
+    "family": "amraam_c",
+    "guidance_class": "ARH",
+    "length_m": 3.655,
+    "diameter_m": 0.1778,
+    "span_m": 0.4826,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_AMRAAM",
+      "US_AMRAAM_ART",
+      "NAVAIR_AMRAAM"
+    ],
+    "notes": "C/D 19-inch span from NAVAIR; C-family cropped-fin exterior, not a specific C sub-block. Fin chords estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aim54a": {
+    "label": "AIM-54A",
+    "category": "AAM",
+    "family": "phoenix",
+    "guidance_class": "SARH_TO_ARH",
+    "length_m": 3.96,
+    "diameter_m": 0.38,
+    "span_m": 0.92,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_PHOENIX"
+    ],
+    "notes": "Exterior game asset; mid-course / terminal distinction belongs in host simulation.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "r60m": {
+    "label": "R-60M",
+    "category": "AAM",
+    "family": "r60",
+    "guidance_class": "IR",
+    "length_m": 2.138,
+    "diameter_m": 0.12,
+    "span_m": 0.39,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "ROE family context does not establish R-60M dimensions; external size and fins provisional.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "r73e": {
+    "label": "R-73E",
+    "category": "AAM",
+    "family": "r73",
+    "guidance_class": "IR",
+    "length_m": 2.9,
+    "diameter_m": 0.17,
+    "span_m": 0.51,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "Catalogue p.118, export E. Small front vanes and tail shape estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "r27r1": {
+    "label": "R-27R1",
+    "category": "AAM",
+    "family": "r27r",
+    "guidance_class": "SARH_UPDATE",
+    "length_m": 4.08,
+    "diameter_m": 0.23,
+    "span_m": 0.97,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "Catalogue p.119; span refers to horizontal stabiliser, not forward control-wing span.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "r27t1": {
+    "label": "R-27T1",
+    "category": "AAM",
+    "family": "r27t",
+    "guidance_class": "IR",
+    "length_m": 3.8,
+    "diameter_m": 0.23,
+    "span_m": 0.97,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "Catalogue p.119; shorter optical nose, not a radar seeker.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "r27er1": {
+    "label": "R-27ER1",
+    "category": "AAM",
+    "family": "r27er",
+    "guidance_class": "SARH_UPDATE",
+    "length_m": 4.775,
+    "diameter_m": 0.26,
+    "span_m": 0.97,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "Catalogue p.119; enlarged rear section; front body remains approximately 0.23 m.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "r27et1": {
+    "label": "R-27ET1",
+    "category": "AAM",
+    "family": "r27et",
+    "guidance_class": "IR",
+    "length_m": 4.49,
+    "diameter_m": 0.26,
+    "span_m": 0.97,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "Catalogue p.119; enlarged rear section plus optical head.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "rvvae": {
+    "label": "RVV-AE",
+    "category": "AAM",
+    "family": "rvv",
+    "guidance_class": "ARH",
+    "length_m": 3.6,
+    "diameter_m": 0.2,
+    "span_m": 0.7,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "Catalogue p.120 export model. Lattice controls are open geometry, not opaque fins.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "irist": {
+    "label": "IRIS-T",
+    "category": "AAM",
+    "family": "irist",
+    "guidance_class": "IIR",
+    "length_m": 2.936,
+    "diameter_m": 0.127,
+    "span_m": 0.447,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "SAAB_IRIST"
+    ],
+    "notes": "Length/diameter from Saab. Fin span and local profile estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "asraam": {
+    "label": "ASRAAM",
+    "category": "AAM",
+    "family": "asraam",
+    "guidance_class": "IIR",
+    "length_m": 2.9,
+    "diameter_m": 0.166,
+    "span_m": 0.45,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "MBDA_ASRAAM"
+    ],
+    "notes": "Manufacturer L/D. Tail-fin span estimated. No invented front canards.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "meteor": {
+    "label": "Meteor (full-fin)",
+    "category": "AAM",
+    "family": "meteor",
+    "guidance_class": "ARH_SUSTAINED",
+    "length_m": 3.7,
+    "diameter_m": 0.178,
+    "span_m": 0.6,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "MBDA_METEOR"
+    ],
+    "notes": "MBDA p.2 full-fin profile; span and intake cross sections visually estimated.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "mica_em": {
+    "label": "MICA EM (legacy)",
+    "category": "AAM",
+    "family": "mica_em",
+    "guidance_class": "ARH",
+    "length_m": 3.1,
+    "diameter_m": 0.16,
+    "span_m": 0.48,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "MBDA_MICA"
+    ],
+    "notes": "2022 legacy brochure, not MICA NG. Long-chord strakes, radar radome.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "mica_ir": {
+    "label": "MICA IR (legacy)",
+    "category": "AAM",
+    "family": "mica_ir",
+    "guidance_class": "IIR",
+    "length_m": 3.1,
+    "diameter_m": 0.16,
+    "span_m": 0.48,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "MBDA_MICA"
+    ],
+    "notes": "Legacy IR branch; optical dome differs from EM.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm12b": {
+    "label": "AGM-12B Bullpup A",
+    "category": "AGM",
+    "family": "bullpup",
+    "guidance_class": "RADIO_COMMAND",
+    "length_m": 3.2,
+    "diameter_m": 0.305,
+    "span_m": 0.94,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "US_BULLPUP"
+    ],
+    "notes": "Do not confuse AGM-12B / Bullpup A with larger AGM-12C / Bullpup B.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm45a": {
+    "label": "AGM-45A Shrike",
+    "category": "AGM",
+    "family": "shrike",
+    "guidance_class": "PASSIVE_RF_EARLY",
+    "length_m": 3.05,
+    "diameter_m": 0.203,
+    "span_m": 0.914,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "US_SHRIKE"
+    ],
+    "notes": "Archive identity available; fin chord and envelope provisional.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm65b": {
+    "label": "AGM-65B Maverick",
+    "category": "AGM",
+    "family": "maverick_tv",
+    "guidance_class": "TV",
+    "length_m": 2.4892,
+    "diameter_m": 0.3048,
+    "span_m": 0.7112,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_MAVERICK",
+      "US_MAV_ART"
+    ],
+    "notes": "Family external envelope. Optics detail estimated; no image-based seeker simulation included.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm65d": {
+    "label": "AGM-65D Maverick",
+    "category": "AGM",
+    "family": "maverick_ir",
+    "guidance_class": "IIR",
+    "length_m": 2.4892,
+    "diameter_m": 0.3048,
+    "span_m": 0.7112,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_MAVERICK",
+      "US_MAV_ART"
+    ],
+    "notes": "Shared shell with B/G; IR visual material, not a performance model.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm65g": {
+    "label": "AGM-65G Maverick",
+    "category": "AGM",
+    "family": "maverick_ir",
+    "guidance_class": "IIR",
+    "length_m": 2.4892,
+    "diameter_m": 0.3048,
+    "span_m": 0.7112,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_MAVERICK",
+      "US_MAV_ART"
+    ],
+    "notes": "Shared external envelope; G-specific internal differences not represented.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm65e": {
+    "label": "AGM-65E Maverick",
+    "category": "AGM",
+    "family": "maverick_laser",
+    "guidance_class": "SAL",
+    "length_m": 2.4892,
+    "diameter_m": 0.3048,
+    "span_m": 0.7112,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_MAVERICK",
+      "US_MAV_ART"
+    ],
+    "notes": "Laser branch, not TV/IIR. Laser nose window is a visual reconstruction.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "agm88b": {
+    "label": "AGM-88B HARM",
+    "category": "AGM",
+    "family": "harm",
+    "guidance_class": "PASSIVE_RF",
+    "length_m": 4.17,
+    "diameter_m": 0.254,
+    "span_m": 1.12,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "US_HARM"
+    ],
+    "notes": "Rounded public family dimensions. Not AARGM or AARGM-ER.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "kh25ml": {
+    "label": "Kh-25ML",
+    "category": "AGM",
+    "family": "kh25",
+    "guidance_class": "SAL",
+    "length_m": 3.705,
+    "diameter_m": 0.275,
+    "span_m": 0.755,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "KH25"
+    ],
+    "notes": "Subtype dimensions and local fin shapes provisional; original ML drawing not verified.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "kh29l": {
+    "label": "Kh-29L",
+    "category": "AGM",
+    "family": "kh29l",
+    "guidance_class": "SAL",
+    "length_m": 3.9,
+    "diameter_m": 0.38,
+    "span_m": 1.1,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "ROE p.122 lists L as 3.900 m; alternative publications round differently.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "kh29te": {
+    "label": "Kh-29TE",
+    "category": "AGM",
+    "family": "kh29tv",
+    "guidance_class": "TV",
+    "length_m": 3.875,
+    "diameter_m": 0.38,
+    "span_m": 1.1,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "ROE p.122 TE specific length; not silently relabeled T.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "kh31p": {
+    "label": "Kh-31P",
+    "category": "AGM",
+    "family": "kh31",
+    "guidance_class": "PASSIVE_RF",
+    "length_m": 4.7,
+    "diameter_m": 0.36,
+    "span_m": 0.914,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "ROE2005"
+    ],
+    "notes": "ROE p.123. Four side intake housings. No PD or anti-ship A features inferred.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "vikhr": {
+    "label": "Vikhr / 9A4172-style",
+    "category": "AGM",
+    "family": "vikhr",
+    "guidance_class": "LASER_BEAM_GAME",
+    "length_m": 2.75,
+    "diameter_m": 0.13,
+    "span_m": 0.38,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "VIKHR"
+    ],
+    "notes": "Flying exterior estimate, not verified 9M127-1 plan. Span is deployed visual estimate.",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "lau7": {
+    "label": "LAU-7",
+    "category": "RACK",
+    "family": "rail",
+    "guidance_class": "NONE",
+    "length_m": 2.794,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "LAU7"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "lau117": {
+    "label": "LAU-117",
+    "category": "RACK",
+    "family": "maverick_rail",
+    "guidance_class": "NONE",
+    "length_m": 2.3876,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "documented_envelope",
+    "source_ids": [
+      "LAU117"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "lau127": {
+    "label": "LAU-127-style",
+    "category": "RACK",
+    "family": "rail",
+    "guidance_class": "NONE",
+    "length_m": 2.75,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "LAU127"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "lau88": {
+    "label": "LAU-88-style triple carrier",
+    "category": "RACK",
+    "family": "triple",
+    "guidance_class": "NONE",
+    "length_m": 2.0,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "LAU88"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "lau105": {
+    "label": "LAU-105-style twin carrier",
+    "category": "RACK",
+    "family": "twin_us",
+    "guidance_class": "NONE",
+    "length_m": 2.4,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "LAU105"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "apu60": {
+    "label": "APU-60-2-style twin carrier",
+    "category": "RACK",
+    "family": "twin_ru",
+    "guidance_class": "NONE",
+    "length_m": 1.75,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "APU60"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "aku58": {
+    "label": "AKU-58-style carrier",
+    "category": "RACK",
+    "family": "heavy",
+    "guidance_class": "NONE",
+    "length_m": 2.65,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "AKU58"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "apu8": {
+    "label": "APU-8-style eight tubes",
+    "category": "RACK",
+    "family": "tubes",
+    "guidance_class": "NONE",
+    "length_m": 2.95,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "APU8"
+    ],
+    "notes": "外觀與遊戲掛點，不是實際機械安裝圖；未核驗特定機型站位。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "asm_lau117_mav": {
+    "label": "LAU-117 + AGM-65D",
+    "category": "ASSEMBLY",
+    "family": "assembly",
+    "guidance_class": "VISUAL_ASSEMBLY",
+    "length_m": 2.4892,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "visual_assembly",
+    "source_ids": [
+      "LAU117",
+      "US_MAVERICK"
+    ],
+    "notes": "獨立可分離武器節點；僅示範外觀掛載，不是特定飛機站位認證。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "asm_lau88_triple": {
+    "label": "LAU-88-style + 3 × AGM-65B",
+    "category": "ASSEMBLY",
+    "family": "assembly",
+    "guidance_class": "VISUAL_ASSEMBLY",
+    "length_m": 2.4892,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "LAU88",
+      "US_MAVERICK"
+    ],
+    "notes": "三聯外觀示範；不表示任意機型或 G 型可用此組合。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "asm_twin_sidewinder": {
+    "label": "Twin carrier + 2 × AIM-9M",
+    "category": "ASSEMBLY",
+    "family": "assembly",
+    "guidance_class": "VISUAL_ASSEMBLY",
+    "length_m": 2.87,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "LAU105",
+      "US_9M_ART"
+    ],
+    "notes": "LAU-105 風格雙聯視覺示範，未核驗原廠圖紙。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  },
+  "asm_twin_r60": {
+    "label": "Twin carrier + 2 × R-60M",
+    "category": "ASSEMBLY",
+    "family": "assembly",
+    "guidance_class": "VISUAL_ASSEMBLY",
+    "length_m": 2.138,
+    "diameter_m": null,
+    "span_m": null,
+    "dimension_status": "provisional_envelope",
+    "source_ids": [
+      "APU60",
+      "ROE2005"
+    ],
+    "notes": "APU-60-2 風格雙聯示範；掛架局部尺寸估算。",
+    "integration": {
+      "model_ready": true,
+      "game_simulation_implemented": false,
+      "aircraft_station_compatibility": "unverified_disabled",
+      "fine_geometry": "estimated",
+      "source_drawings_embedded": false,
+      "physics_parameters_provided": false
+    },
+    "compatibility": "unverified_disabled"
+  }
+}

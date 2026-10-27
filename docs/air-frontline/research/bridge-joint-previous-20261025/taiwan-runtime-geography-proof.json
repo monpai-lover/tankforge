@@ -1,0 +1,1398 @@
+{
+  "sourceMapSha256": "0cc7ebdf3379966abacca412049083ac2349434ab1d7a0ac9e413673c0e68a79",
+  "functionalScope": "Real source topology/projection/canonical height and authored geometric support checks only; no native tank/aircraft execution.",
+  "pass": true,
+  "checks": {
+    "whole_confirmed_geographic_scope_retained": {
+      "pass": true,
+      "detail": null
+    },
+    "three_front_scene_15_objectives_6_sources_60_slots": {
+      "pass": true,
+      "detail": null
+    },
+    "retained_source_grid_and_polygon_hashes_match": {
+      "pass": true,
+      "detail": {
+        "files": 29
+      }
+    },
+    "cached_roads_raw_hash_matches": {
+      "pass": true,
+      "detail": null
+    },
+    "cached_water_raw_hash_matches": {
+      "pass": true,
+      "detail": null
+    },
+    "23_real_source_tiles_read_no_missing_coarse_land_cells": {
+      "pass": true,
+      "detail": null
+    },
+    "native30m_patches_cover_all_three_fronts_and_both_fields": {
+      "pass": true,
+      "detail": null
+    },
+    "all_height_samples_finite": {
+      "pass": true,
+      "detail": null
+    },
+    "projection_roundtrip_and_real_scale": {
+      "pass": true,
+      "detail": {
+        "maximumLocal1000mScaleErrorPercent": 0.05182553098759257,
+        "maximumRoundtripDegrees": 2.842170943040401e-14
+      }
+    },
+    "every_enabled_road_edge_is_actual_source_adjacency": {
+      "pass": true,
+      "detail": {
+        "actualSourceEdges": 856
+      }
+    },
+    "all_three_backbones_are_through_paths_without_retraced_spurs": {
+      "pass": true,
+      "detail": null
+    },
+    "every_production_road_has_exact_source_segment_endpoint_registration": {
+      "pass": true,
+      "detail": null
+    },
+    "all_objectives_are_actual_source_road_nodes": {
+      "pass": true,
+      "detail": null
+    },
+    "all_water_polygons_and_upward_render_triangles_valid": {
+      "pass": true,
+      "detail": null
+    },
+    "canonical5m_road_grade_within_authored_bounds": {
+      "pass": true,
+      "detail": {
+        "maximumAlongPercent": 9.748567727546956,
+        "maximumCrossPercent": 2.6867327916014174
+      }
+    },
+    "all_registered_route_footprints_inside_retained_hydro_coverage": {
+      "pass": true,
+      "detail": null
+    },
+    "all_10x4m_route_footprint_wet_probes_have_real_deck_core_and_clearance": {
+      "pass": true,
+      "detail": {
+        "wetProbes": 2983,
+        "minimumClearanceMeters": 2.9773896935338158,
+        "failures": []
+      }
+    },
+    "six_authored_pads_are_dry_inside_source_hydro_coverage": {
+      "pass": true,
+      "detail": null
+    },
+    "all60_slots_use_canonical_height_and_fit_pad_cores": {
+      "pass": true,
+      "detail": null
+    },
+    "all_six_pad_entries_are_on_registered_actual_roads": {
+      "pass": true,
+      "detail": null
+    },
+    "no_cross_strait_ground_edge_or_invented_sea_transport": {
+      "pass": true,
+      "detail": null
+    },
+    "two_native_source_airfields_and_two_farther_rear_starts": {
+      "pass": true,
+      "detail": null
+    },
+    "RCMQ_runway_canonical_flat_core": {
+      "pass": true,
+      "detail": null
+    },
+    "RCKU_runway_canonical_flat_core": {
+      "pass": true,
+      "detail": null
+    },
+    "actual_taiwan_and_existing_canonical_sampler_agree": {
+      "pass": true,
+      "detail": {
+        "probes": 129,
+        "maximumDifferenceMeters": 0.0
+      }
+    }
+  },
+  "passedChecks": 25,
+  "totalChecks": 25,
+  "failures": [],
+  "routeProofs": [
+    {
+      "id": "west:W0-W1",
+      "maximumAlongGradePercent": 5.749917959174909,
+      "maximumCrossGradePercent": 0.7370455941335544,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          37584.991,
+          7.7048000000000005,
+          -1103.126
+        ],
+        "end": [
+          37583.2145,
+          7.4401111104693864,
+          -1098.87925
+        ],
+        "gradePercent": 5.749917959174909
+      }
+    },
+    {
+      "id": "west:W1-W2",
+      "maximumAlongGradePercent": 6.259654879619103,
+      "maximumCrossGradePercent": 1.2928482691394592,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          37403.55100000001,
+          6.910790510752986,
+          -572.365
+        ],
+        "end": [
+          37402.2295,
+          6.607166589623775,
+          -567.698
+        ],
+        "gradePercent": 6.259654879619103
+      }
+    },
+    {
+      "id": "west:W2-W3",
+      "maximumAlongGradePercent": 5.9057583521805785,
+      "maximumCrossGradePercent": 1.3872107271560263,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          36548.31,
+          8.148934682839558,
+          4829.4805
+        ],
+        "end": [
+          36545.8645,
+          8.42376592823957,
+          4833.4397500000005
+        ],
+        "gradePercent": 5.9057583521805785
+      }
+    },
+    {
+      "id": "west:W3-W4",
+      "maximumAlongGradePercent": 5.543155206379488,
+      "maximumCrossGradePercent": 1.9247579401216168,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          36448.913250000005,
+          9.631323622896339,
+          7404.77425
+        ],
+        "end": [
+          36450.56050000001,
+          9.372125563196729,
+          7409.1505
+        ],
+        "gradePercent": 5.543155206379488
+      }
+    },
+    {
+      "id": "centre:C0-C1",
+      "maximumAlongGradePercent": 6.043664079625676,
+      "maximumCrossGradePercent": 1.7160525173055878,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          43730.973,
+          11.4602998797254,
+          -2698.154
+        ],
+        "end": [
+          43735.00125,
+          11.729115876085542,
+          -2696.268
+        ],
+        "gradePercent": 6.043664079625676
+      }
+    },
+    {
+      "id": "centre:C1-C2",
+      "maximumAlongGradePercent": 5.774784212870354,
+      "maximumCrossGradePercent": 1.2894720787526424,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          42963.28675,
+          9.584869875490428,
+          633.5007499999999
+        ],
+        "end": [
+          42962.8625,
+          9.861630149523334,
+          638.2745
+        ],
+        "gradePercent": 5.774784212870354
+      }
+    },
+    {
+      "id": "centre:C2-C3",
+      "maximumAlongGradePercent": 5.990932647913884,
+      "maximumCrossGradePercent": 1.4779687464741793,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          43841.712499999994,
+          12.223639205660469,
+          2576.085
+        ],
+        "end": [
+          43837.223249999995,
+          12.506863292157336,
+          2577.567
+        ],
+        "gradePercent": 5.990932647913884
+      }
+    },
+    {
+      "id": "centre:C3-C4",
+      "maximumAlongGradePercent": 6.348894064185677,
+      "maximumCrossGradePercent": 1.6791995942591849,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          42831.471,
+          15.973203060531247,
+          5630.06675
+        ],
+        "end": [
+          42833.602,
+          15.678893698513201,
+          5634.1835
+        ],
+        "gradePercent": 6.348894064185677
+      }
+    },
+    {
+      "id": "east:E0-E1",
+      "maximumAlongGradePercent": 9.22498525114161,
+      "maximumCrossGradePercent": 2.3269373059453273,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          51380.358,
+          96.65209606924928,
+          -366.87
+        ],
+        "end": [
+          51378.572,
+          97.04389167078116,
+          -363.01666666666665
+        ],
+        "gradePercent": 9.22498525114161
+      }
+    },
+    {
+      "id": "east:E1-E2",
+      "maximumAlongGradePercent": 6.744094651967892,
+      "maximumCrossGradePercent": 2.6867327916014174,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          51756.114,
+          163.3770021737419,
+          1946.856
+        ],
+        "end": [
+          51757.012,
+          163.64066461343455,
+          1950.661
+        ],
+        "gradePercent": 6.744094651967892
+      }
+    },
+    {
+      "id": "east:E2-E3",
+      "maximumAlongGradePercent": 6.281395913189948,
+      "maximumCrossGradePercent": 1.3076623276772386,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          51566.728,
+          161.49025984830507,
+          2736.8720000000003
+        ],
+        "end": [
+          51564.91650000001,
+          161.18785390023402,
+          2741.3325
+        ],
+        "gradePercent": 6.281395913189948
+      }
+    },
+    {
+      "id": "east:E3-E4",
+      "maximumAlongGradePercent": 9.748567727546956,
+      "maximumCrossGradePercent": 1.199395225880091,
+      "sampleSpacingMeters": 5,
+      "worstProbe": {
+        "start": [
+          50592.644499999995,
+          56.275675141211835,
+          5233.706
+        ],
+        "end": [
+          50592.39325,
+          55.8099264900257,
+          5238.477
+        ],
+        "gradePercent": 9.748567727546956
+      }
+    }
+  ],
+  "nativeExecutionStatus": "pending_independent_native_adapter_tests",
+  "heightProbes": [
+    {
+      "id": "west:W0-W1:slope-a",
+      "pos": [
+        37584.991,
+        7.7048000000000005,
+        -1103.126
+      ]
+    },
+    {
+      "id": "west:W0-W1:slope-b",
+      "pos": [
+        37583.2145,
+        7.4401111104693864,
+        -1098.87925
+      ]
+    },
+    {
+      "id": "west:W1-W2:slope-a",
+      "pos": [
+        37403.55100000001,
+        6.910790510752986,
+        -572.365
+      ]
+    },
+    {
+      "id": "west:W1-W2:slope-b",
+      "pos": [
+        37402.2295,
+        6.607166589623775,
+        -567.698
+      ]
+    },
+    {
+      "id": "west:W2-W3:slope-a",
+      "pos": [
+        36548.31,
+        8.148934682839558,
+        4829.4805
+      ]
+    },
+    {
+      "id": "west:W2-W3:slope-b",
+      "pos": [
+        36545.8645,
+        8.42376592823957,
+        4833.4397500000005
+      ]
+    },
+    {
+      "id": "west:W3-W4:slope-a",
+      "pos": [
+        36448.913250000005,
+        9.631323622896339,
+        7404.77425
+      ]
+    },
+    {
+      "id": "west:W3-W4:slope-b",
+      "pos": [
+        36450.56050000001,
+        9.372125563196729,
+        7409.1505
+      ]
+    },
+    {
+      "id": "centre:C0-C1:slope-a",
+      "pos": [
+        43730.973,
+        11.4602998797254,
+        -2698.154
+      ]
+    },
+    {
+      "id": "centre:C0-C1:slope-b",
+      "pos": [
+        43735.00125,
+        11.729115876085542,
+        -2696.268
+      ]
+    },
+    {
+      "id": "centre:C1-C2:slope-a",
+      "pos": [
+        42963.28675,
+        9.584869875490428,
+        633.5007499999999
+      ]
+    },
+    {
+      "id": "centre:C1-C2:slope-b",
+      "pos": [
+        42962.8625,
+        9.861630149523334,
+        638.2745
+      ]
+    },
+    {
+      "id": "centre:C2-C3:slope-a",
+      "pos": [
+        43841.712499999994,
+        12.223639205660469,
+        2576.085
+      ]
+    },
+    {
+      "id": "centre:C2-C3:slope-b",
+      "pos": [
+        43837.223249999995,
+        12.506863292157336,
+        2577.567
+      ]
+    },
+    {
+      "id": "centre:C3-C4:slope-a",
+      "pos": [
+        42831.471,
+        15.973203060531247,
+        5630.06675
+      ]
+    },
+    {
+      "id": "centre:C3-C4:slope-b",
+      "pos": [
+        42833.602,
+        15.678893698513201,
+        5634.1835
+      ]
+    },
+    {
+      "id": "east:E0-E1:slope-a",
+      "pos": [
+        51380.358,
+        96.65209606924928,
+        -366.87
+      ]
+    },
+    {
+      "id": "east:E0-E1:slope-b",
+      "pos": [
+        51378.572,
+        97.04389167078116,
+        -363.01666666666665
+      ]
+    },
+    {
+      "id": "east:E1-E2:slope-a",
+      "pos": [
+        51756.114,
+        163.3770021737419,
+        1946.856
+      ]
+    },
+    {
+      "id": "east:E1-E2:slope-b",
+      "pos": [
+        51757.012,
+        163.64066461343455,
+        1950.661
+      ]
+    },
+    {
+      "id": "east:E2-E3:slope-a",
+      "pos": [
+        51566.728,
+        161.49025984830507,
+        2736.8720000000003
+      ]
+    },
+    {
+      "id": "east:E2-E3:slope-b",
+      "pos": [
+        51564.91650000001,
+        161.18785390023402,
+        2741.3325
+      ]
+    },
+    {
+      "id": "east:E3-E4:slope-a",
+      "pos": [
+        50592.644499999995,
+        56.275675141211835,
+        5233.706
+      ]
+    },
+    {
+      "id": "east:E3-E4:slope-b",
+      "pos": [
+        50592.39325,
+        55.8099264900257,
+        5238.477
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot0",
+      "pos": [
+        37426.48527967677,
+        8.706,
+        -767.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot1",
+      "pos": [
+        37448.48527967677,
+        8.706,
+        -767.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot2",
+      "pos": [
+        37470.48527967677,
+        8.706,
+        -767.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot3",
+      "pos": [
+        37426.48527967677,
+        8.706,
+        -743.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot4",
+      "pos": [
+        37448.48527967677,
+        8.706,
+        -743.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot5",
+      "pos": [
+        37470.48527967677,
+        8.706,
+        -743.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot6",
+      "pos": [
+        37426.48527967677,
+        8.706,
+        -719.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot7",
+      "pos": [
+        37448.48527967677,
+        8.706,
+        -719.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot8",
+      "pos": [
+        37470.48527967677,
+        8.706,
+        -719.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT:slot9",
+      "pos": [
+        37426.48527967677,
+        8.706,
+        -695.0441746299505
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot0",
+      "pos": [
+        36446.0064839397,
+        7.891,
+        5056.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot1",
+      "pos": [
+        36468.0064839397,
+        7.891,
+        5056.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot2",
+      "pos": [
+        36490.0064839397,
+        7.891,
+        5056.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot3",
+      "pos": [
+        36446.0064839397,
+        7.891,
+        5080.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot4",
+      "pos": [
+        36468.0064839397,
+        7.891,
+        5080.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot5",
+      "pos": [
+        36490.0064839397,
+        7.891,
+        5080.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot6",
+      "pos": [
+        36446.0064839397,
+        7.891,
+        5104.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot7",
+      "pos": [
+        36468.0064839397,
+        7.891,
+        5104.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot8",
+      "pos": [
+        36490.0064839397,
+        7.891,
+        5104.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT:slot9",
+      "pos": [
+        36446.0064839397,
+        7.891,
+        5128.395292873553
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot0",
+      "pos": [
+        43010.38710213558,
+        10.962,
+        -138.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot1",
+      "pos": [
+        43032.38710213558,
+        10.962,
+        -138.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot2",
+      "pos": [
+        43054.38710213558,
+        10.962,
+        -138.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot3",
+      "pos": [
+        43010.38710213558,
+        10.962,
+        -114.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot4",
+      "pos": [
+        43032.38710213558,
+        10.962,
+        -114.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot5",
+      "pos": [
+        43054.38710213558,
+        10.962,
+        -114.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot6",
+      "pos": [
+        43010.38710213558,
+        10.962,
+        -90.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot7",
+      "pos": [
+        43032.38710213558,
+        10.962,
+        -90.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot8",
+      "pos": [
+        43054.38710213558,
+        10.962,
+        -90.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT:slot9",
+      "pos": [
+        43010.38710213558,
+        10.962,
+        -66.36124950236552
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot0",
+      "pos": [
+        42700.429433252546,
+        18.114,
+        5416.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot1",
+      "pos": [
+        42722.429433252546,
+        18.114,
+        5416.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot2",
+      "pos": [
+        42744.429433252546,
+        18.114,
+        5416.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot3",
+      "pos": [
+        42700.429433252546,
+        18.114,
+        5440.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot4",
+      "pos": [
+        42722.429433252546,
+        18.114,
+        5440.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot5",
+      "pos": [
+        42744.429433252546,
+        18.114,
+        5440.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot6",
+      "pos": [
+        42700.429433252546,
+        18.114,
+        5464.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot7",
+      "pos": [
+        42722.429433252546,
+        18.114,
+        5464.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot8",
+      "pos": [
+        42744.429433252546,
+        18.114,
+        5464.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT:slot9",
+      "pos": [
+        42700.429433252546,
+        18.114,
+        5488.654174541397
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot0",
+      "pos": [
+        51341.13847655337,
+        102.0438,
+        -219.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot1",
+      "pos": [
+        51363.13847655337,
+        102.0438,
+        -219.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot2",
+      "pos": [
+        51385.13847655337,
+        102.0438,
+        -219.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot3",
+      "pos": [
+        51341.13847655337,
+        102.0438,
+        -195.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot4",
+      "pos": [
+        51363.13847655337,
+        102.0438,
+        -195.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot5",
+      "pos": [
+        51385.13847655337,
+        102.0438,
+        -195.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot6",
+      "pos": [
+        51341.13847655337,
+        102.0438,
+        -171.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot7",
+      "pos": [
+        51363.13847655337,
+        102.0438,
+        -171.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot8",
+      "pos": [
+        51385.13847655337,
+        102.0438,
+        -171.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT:slot9",
+      "pos": [
+        51341.13847655337,
+        102.0438,
+        -147.94173174490325
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot0",
+      "pos": [
+        50561.09296313994,
+        51.182,
+        5379.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot1",
+      "pos": [
+        50583.09296313994,
+        51.182,
+        5379.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot2",
+      "pos": [
+        50605.09296313994,
+        51.182,
+        5379.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot3",
+      "pos": [
+        50561.09296313994,
+        51.182,
+        5403.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot4",
+      "pos": [
+        50583.09296313994,
+        51.182,
+        5403.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot5",
+      "pos": [
+        50605.09296313994,
+        51.182,
+        5403.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot6",
+      "pos": [
+        50561.09296313994,
+        51.182,
+        5427.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot7",
+      "pos": [
+        50583.09296313994,
+        51.182,
+        5427.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot8",
+      "pos": [
+        50605.09296313994,
+        51.182,
+        5427.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT:slot9",
+      "pos": [
+        50561.09296313994,
+        51.182,
+        5451.009910522291
+      ]
+    },
+    {
+      "id": "RCMQ:runway-centre",
+      "pos": [
+        55442.307425930136,
+        200.558,
+        -21152.600525518843
+      ]
+    },
+    {
+      "id": "RCKU:runway-centre",
+      "pos": [
+        32234.83784746688,
+        24.384,
+        67679.61499112658
+      ]
+    },
+    {
+      "id": "native30m-west:centre",
+      "pos": [
+        37065.0,
+        6.3,
+        2685.0
+      ]
+    },
+    {
+      "id": "native30m-west:north_edge",
+      "pos": [
+        37065.0,
+        2.998393545197734,
+        -3195.0
+      ]
+    },
+    {
+      "id": "native30m-west:north_blend",
+      "pos": [
+        37065.0,
+        2.689941094632764,
+        -3135.0
+      ]
+    },
+    {
+      "id": "native30m-west:west_edge",
+      "pos": [
+        35775.0,
+        5.230719279660909,
+        2685.0
+      ]
+    },
+    {
+      "id": "native30m-west:west_blend",
+      "pos": [
+        35835.0,
+        6.141203293314456,
+        2685.0
+      ]
+    },
+    {
+      "id": "native30m-centre:centre",
+      "pos": [
+        43305.0,
+        12.35,
+        2700.0
+      ]
+    },
+    {
+      "id": "native30m-centre:north_edge",
+      "pos": [
+        43305.0,
+        10.655720806654111,
+        -3195.0
+      ]
+    },
+    {
+      "id": "native30m-centre:north_blend",
+      "pos": [
+        43305.0,
+        9.733314433458876,
+        -3135.0
+      ]
+    },
+    {
+      "id": "native30m-centre:west_edge",
+      "pos": [
+        42255.0,
+        10.592516603892038,
+        2700.0
+      ]
+    },
+    {
+      "id": "native30m-centre:west_blend",
+      "pos": [
+        42315.0,
+        11.416688433772762,
+        2700.0
+      ]
+    },
+    {
+      "id": "native30m-east:centre",
+      "pos": [
+        51225.0,
+        157.0,
+        2685.0
+      ]
+    },
+    {
+      "id": "native30m-east:north_edge",
+      "pos": [
+        51225.0,
+        20.06075466886384,
+        -3225.0
+      ]
+    },
+    {
+      "id": "native30m-east:north_blend",
+      "pos": [
+        51225.0,
+        22.439474172159436,
+        -3165.0
+      ]
+    },
+    {
+      "id": "native30m-east:west_edge",
+      "pos": [
+        50085.0,
+        99.91605481481474,
+        2685.0
+      ]
+    },
+    {
+      "id": "native30m-east:west_blend",
+      "pos": [
+        50145.0,
+        88.05576962962962,
+        2685.0
+      ]
+    },
+    {
+      "id": "airfield-native-RCMQ:centre",
+      "pos": [
+        55438.69249052038,
+        200.558,
+        -21168.164339647246
+      ]
+    },
+    {
+      "id": "airfield-native-RCMQ:north_edge",
+      "pos": [
+        55438.69249052038,
+        194.86893291509207,
+        -23882.12809434451
+      ]
+    },
+    {
+      "id": "airfield-native-RCMQ:north_blend",
+      "pos": [
+        55438.69249052038,
+        195.96722595112834,
+        -23822.12809434451
+      ]
+    },
+    {
+      "id": "airfield-native-RCMQ:west_edge",
+      "pos": [
+        52975.895129252815,
+        189.71269158418463,
+        -21168.164339647246
+      ]
+    },
+    {
+      "id": "airfield-native-RCMQ:west_blend",
+      "pos": [
+        53035.895129252815,
+        188.25341692661087,
+        -21168.164339647246
+      ]
+    },
+    {
+      "id": "airfield-native-RCKU:centre",
+      "pos": [
+        32680.873078490942,
+        25.299999999999994,
+        68061.72378501909
+      ]
+    },
+    {
+      "id": "airfield-native-RCKU:north_edge",
+      "pos": [
+        32680.873078490942,
+        21.740247898073854,
+        65352.15585336602
+      ]
+    },
+    {
+      "id": "airfield-native-RCKU:north_blend",
+      "pos": [
+        32680.873078490942,
+        21.636878991920955,
+        65412.15585336602
+      ]
+    },
+    {
+      "id": "airfield-native-RCKU:west_edge",
+      "pos": [
+        30197.700935178513,
+        19.79476066465952,
+        68061.72378501909
+      ]
+    },
+    {
+      "id": "airfield-native-RCKU:west_blend",
+      "pos": [
+        30257.700935178513,
+        19.64462169135728,
+        68061.72378501909
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT-PAD:centre",
+      "pos": [
+        37448.48527967677,
+        8.706,
+        -731.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT-PAD:edge",
+      "pos": [
+        37496.48527967677,
+        8.706,
+        -731.0441746299505
+      ]
+    },
+    {
+      "id": "B-WEST-FRONT-PAD:blend",
+      "pos": [
+        37556.48527967677,
+        7.034102439396644,
+        -731.0441746299505
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT-PAD:centre",
+      "pos": [
+        36468.0064839397,
+        7.891,
+        5092.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT-PAD:edge",
+      "pos": [
+        36516.0064839397,
+        7.891,
+        5092.395292873553
+      ]
+    },
+    {
+      "id": "R-WEST-FRONT-PAD:blend",
+      "pos": [
+        36576.0064839397,
+        7.489044415574686,
+        5092.395292873553
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT-PAD:centre",
+      "pos": [
+        43032.38710213558,
+        10.962,
+        -102.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT-PAD:edge",
+      "pos": [
+        43080.38710213558,
+        10.962,
+        -102.36124950236552
+      ]
+    },
+    {
+      "id": "B-CENTRE-FRONT-PAD:blend",
+      "pos": [
+        43140.38710213558,
+        11.684582671473386,
+        -102.36124950236552
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT-PAD:centre",
+      "pos": [
+        42722.429433252546,
+        18.114,
+        5452.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT-PAD:edge",
+      "pos": [
+        42770.429433252546,
+        18.114,
+        5452.654174541397
+      ]
+    },
+    {
+      "id": "R-CENTRE-FRONT-PAD:blend",
+      "pos": [
+        42830.429433252546,
+        16.262869365723134,
+        5452.654174541397
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT-PAD:centre",
+      "pos": [
+        51363.13847655337,
+        102.0438,
+        -183.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT-PAD:edge",
+      "pos": [
+        51411.13847655337,
+        102.0438,
+        -183.94173174490325
+      ]
+    },
+    {
+      "id": "B-EAST-FRONT-PAD:blend",
+      "pos": [
+        51471.13847655337,
+        104.3778465678144,
+        -183.94173174490325
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT-PAD:centre",
+      "pos": [
+        50583.09296313994,
+        51.182,
+        5415.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT-PAD:edge",
+      "pos": [
+        50631.09296313994,
+        51.182,
+        5415.009910522291
+      ]
+    },
+    {
+      "id": "R-EAST-FRONT-PAD:blend",
+      "pos": [
+        50691.09296313994,
+        58.333052585355524,
+        5415.009910522291
+      ]
+    }
+  ],
+  "limitations": [
+    "Native full-route traversal and mixed-mode integration/performance remain pending.",
+    "Native DSM includes objects; road/pad/runway grading and water levels are authored game surfaces.",
+    "Strategic coastline is coarse; no ship draft/port/ramp, bathymetry or sea-route certification.",
+    "Only registered ground cores within retained hydro coverage are admitted; remainder of full theatre is not open tank terrain."
+  ]
+}

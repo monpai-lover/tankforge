@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "asset_id": "ru_pantsir_sm_sv",
+  "status": "provisional_gameplay_estimates",
+  "source_policy": "Visual geometry supplied by source GLB. Armor resistance, internal anatomy, crew layout and all gameplay tuning are authored estimates, not verified vehicle specifications.",
+  "angle_units": "degrees",
+  "pose_owner": "accepted simulation sample; viewer animation is diagnostic",
+  "joints": [
+    {
+      "node": "TURRET_YAW",
+      "axis": "y",
+      "limits_deg": [
+        -180,
+        180
+      ],
+      "speed_deg_s": 60,
+      "pivot_world_m": [
+        -0.01,
+        1.96,
+        0.86
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "LAUNCHER_ELEV_L",
+      "axis": "x",
+      "limits_deg": [
+        -5,
+        85
+      ],
+      "speed_deg_s": 40,
+      "pivot_world_m": [
+        -1.3,
+        2.5,
+        0.25
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "LAUNCHER_ELEV_R",
+      "axis": "x",
+      "limits_deg": [
+        -5,
+        85
+      ],
+      "speed_deg_s": 40,
+      "pivot_world_m": [
+        1.28,
+        2.5,
+        0.25
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "CANNON_ELEV_L",
+      "axis": "x",
+      "limits_deg": [
+        -5,
+        85
+      ],
+      "speed_deg_s": 50,
+      "pivot_world_m": [
+        -0.858,
+        2.6800001,
+        0.05
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "CANNON_ELEV_R",
+      "axis": "x",
+      "limits_deg": [
+        -5,
+        85
+      ],
+      "speed_deg_s": 50,
+      "pivot_world_m": [
+        0.837,
+        2.6800001,
+        0.05
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "SEARCH_RADAR_YAW",
+      "axis": "y",
+      "limits_deg": [
+        -180,
+        180
+      ],
+      "speed_deg_s": 60,
+      "pivot_world_m": [
+        -0.01,
+        3.1800001,
+        -0.819
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "SEARCH_RADAR_FOLD",
+      "axis": "x",
+      "limits_deg": [
+        -90,
+        0
+      ],
+      "speed_deg_s": 30,
+      "pivot_world_m": [
+        -0.01,
+        3.3,
+        -0.819
+      ],
+      "approximate_limits": true
+    },
+    {
+      "node": "TRACK_RADAR_ELEV",
+      "axis": "x",
+      "limits_deg": [
+        -15,
+        75
+      ],
+      "speed_deg_s": 45,
+      "pivot_world_m": [
+        -0.01,
+        2.5899999,
+        2.27
+      ],
+      "approximate_limits": true
+    }
+  ],
+  "recoil": {
+    "nodes": [
+      "CANNON_RECOIL_L",
+      "CANNON_RECOIL_R"
+    ],
+    "axis": "local -Z",
+    "distance_m": 0.035,
+    "return_s": 0.12,
+    "note": "presentation-only impulse; fire event owns timing"
+  },
+  "xray": {
+    "changes_visibility_only": true,
+    "disables_armor": false
+  },
+  "detach": {
+    "changes_visibility_and_collision_membership": true,
+    "repair_requires_explicit_reenable": true
+  }
+}

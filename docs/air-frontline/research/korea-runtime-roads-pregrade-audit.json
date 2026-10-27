@@ -1,0 +1,405 @@
+{
+  "method": "Actual current exporter sampler along original source centerlines at<=5m; no new earthworks; intersections against existing75m-simplified mapped river centerlines",
+  "sourceMapSha256": "ad24477982de5eb1e6e67f6e17427707ada79e7c674cbde70e7d730dea43966f",
+  "waterLimitation": "Existing cached hydro extract omits streams/banks. Neither height0 nor absent centreline intersection proves dry land. Source bridge tags are not physical decks.",
+  "edges": [
+    {
+      "lane": "west",
+      "id": "W0-W1",
+      "sourceConnected": true,
+      "lengthMeters": 10389.64,
+      "mappedBridgeWayIds": [
+        259648072,
+        259658473,
+        259658489,
+        1301729703
+      ],
+      "sourceTrackWayIds": [],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 12.824,
+      "p95GradePercent": 8.126,
+      "metersOver15Percent": 0.0,
+      "elevationRangeMeters": [
+        14.4,
+        96.4
+      ],
+      "sampleCount": 2226,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 251447722,
+          "sourceSegment": 40,
+          "enMeters": [
+            306834.696662876,
+            4203391.739471585
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "west",
+      "id": "W1-W2",
+      "sourceConnected": false,
+      "lengthMeters": null,
+      "mappedBridgeWayIds": [],
+      "sourceTrackWayIds": [],
+      "fordWayIds": []
+    },
+    {
+      "lane": "west",
+      "id": "W2-W3",
+      "sourceConnected": true,
+      "lengthMeters": 23733.54,
+      "mappedBridgeWayIds": [
+        252084336,
+        259998681,
+        259998684,
+        260875995,
+        261076974,
+        261076998
+      ],
+      "sourceTrackWayIds": [],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 21.965,
+      "p95GradePercent": 12.251,
+      "metersOver15Percent": 346.8,
+      "elevationRangeMeters": [
+        32.3,
+        159.7
+      ],
+      "sampleCount": 4979,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 259998678,
+          "sourceSegment": 152,
+          "enMeters": [
+            306869.0852732475,
+            4213853.889133393
+          ]
+        },
+        {
+          "riverWayId": 259998678,
+          "sourceSegment": 154,
+          "enMeters": [
+            306726.0795148141,
+            4214014.6751896385
+          ]
+        },
+        {
+          "riverWayId": 129078741,
+          "sourceSegment": 310,
+          "enMeters": [
+            307845.2401479762,
+            4217742.235584067
+          ]
+        },
+        {
+          "riverWayId": 260876244,
+          "sourceSegment": 322,
+          "enMeters": [
+            308040.4659040138,
+            4218374.266623406
+          ]
+        },
+        {
+          "riverWayId": 261077005,
+          "sourceSegment": 370,
+          "enMeters": [
+            308399.18563779804,
+            4221591.374892937
+          ]
+        },
+        {
+          "riverWayId": 261077001,
+          "sourceSegment": 385,
+          "enMeters": [
+            309474.44048931886,
+            4222474.539615227
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "west",
+      "id": "W3-W4",
+      "sourceConnected": true,
+      "lengthMeters": 10155.5,
+      "mappedBridgeWayIds": [
+        261076974
+      ],
+      "sourceTrackWayIds": [],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 20.918,
+      "p95GradePercent": 8.604,
+      "metersOver15Percent": 42.3,
+      "elevationRangeMeters": [
+        49.8,
+        159.7
+      ],
+      "sampleCount": 2089,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 261077001,
+          "sourceSegment": 65,
+          "enMeters": [
+            309474.44048931886,
+            4222474.539615227
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "centre",
+      "id": "C0-C1",
+      "sourceConnected": true,
+      "lengthMeters": 8492.08,
+      "mappedBridgeWayIds": [
+        128945526,
+        1522325295
+      ],
+      "sourceTrackWayIds": [
+        1522325303,
+        1522325315
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 14.169,
+      "p95GradePercent": 6.745,
+      "metersOver15Percent": 0.0,
+      "elevationRangeMeters": [
+        14.9,
+        70.6
+      ],
+      "sampleCount": 1831,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 366856671,
+          "sourceSegment": 140,
+          "enMeters": [
+            322881.6942365636,
+            4210379.434590119
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "centre",
+      "id": "C1-C2",
+      "sourceConnected": true,
+      "lengthMeters": 8155.55,
+      "mappedBridgeWayIds": [
+        72387965,
+        657712424
+      ],
+      "sourceTrackWayIds": [
+        1419633909,
+        1419633936,
+        1522325303
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 14.633,
+      "p95GradePercent": 5.783,
+      "metersOver15Percent": 0.0,
+      "elevationRangeMeters": [
+        19.3,
+        51.3
+      ],
+      "sampleCount": 1699,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 366856671,
+          "sourceSegment": 74,
+          "enMeters": [
+            326014.3197740466,
+            4213899.300921807
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "centre",
+      "id": "C2-C3",
+      "sourceConnected": true,
+      "lengthMeters": 9851.34,
+      "mappedBridgeWayIds": [
+        629825602,
+        1312535101,
+        1312535109,
+        1312535114,
+        1312569009
+      ],
+      "sourceTrackWayIds": [
+        1312535101,
+        1312535102,
+        1312535103,
+        1419633936
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 15.45,
+      "p95GradePercent": 9.992,
+      "metersOver15Percent": 14.0,
+      "elevationRangeMeters": [
+        29.2,
+        151.8
+      ],
+      "sampleCount": 2131,
+      "mappedRiverCenterlineCrossings": []
+    },
+    {
+      "lane": "centre",
+      "id": "C3-C4",
+      "sourceConnected": true,
+      "lengthMeters": 9581.03,
+      "mappedBridgeWayIds": [],
+      "sourceTrackWayIds": [],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 19.921,
+      "p95GradePercent": 12.002,
+      "metersOver15Percent": 115.3,
+      "elevationRangeMeters": [
+        44.3,
+        241.8
+      ],
+      "sampleCount": 2054,
+      "mappedRiverCenterlineCrossings": []
+    },
+    {
+      "lane": "east",
+      "id": "E0-E1",
+      "sourceConnected": true,
+      "lengthMeters": 7055.68,
+      "mappedBridgeWayIds": [
+        654084368,
+        818048791
+      ],
+      "sourceTrackWayIds": [
+        1291643593
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 21.768,
+      "p95GradePercent": 12.048,
+      "metersOver15Percent": 161.8,
+      "elevationRangeMeters": [
+        120.8,
+        223.2
+      ],
+      "sampleCount": 1473,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 129015756,
+          "sourceSegment": 88,
+          "enMeters": [
+            348757.0139198822,
+            4216022.35371037
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "east",
+      "id": "E1-E2",
+      "sourceConnected": true,
+      "lengthMeters": 7664.85,
+      "mappedBridgeWayIds": [
+        600332700,
+        600600537
+      ],
+      "sourceTrackWayIds": [
+        1291643593,
+        1323053260,
+        1327124444,
+        1559045154
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 21.768,
+      "p95GradePercent": 8.281,
+      "metersOver15Percent": 143.9,
+      "elevationRangeMeters": [
+        116.2,
+        223.2
+      ],
+      "sampleCount": 1608,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 470531450,
+          "sourceSegment": 136,
+          "enMeters": [
+            348525.3369668094,
+            4221041.232172596
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "east",
+      "id": "E2-E3",
+      "sourceConnected": true,
+      "lengthMeters": 5865.43,
+      "mappedBridgeWayIds": [
+        1323053172
+      ],
+      "sourceTrackWayIds": [
+        1323053167,
+        1323053172,
+        1323053173,
+        1323053194,
+        1323053214,
+        1323053259,
+        1323053260
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 12.118,
+      "p95GradePercent": 9.776,
+      "metersOver15Percent": 0.0,
+      "elevationRangeMeters": [
+        128.4,
+        201.5
+      ],
+      "sampleCount": 1242,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 1323053178,
+          "sourceSegment": 133,
+          "enMeters": [
+            347695.35792375775,
+            4226163.648729116
+          ]
+        }
+      ]
+    },
+    {
+      "lane": "east",
+      "id": "E3-E4",
+      "sourceConnected": true,
+      "lengthMeters": 6222.9,
+      "mappedBridgeWayIds": [
+        990083195
+      ],
+      "sourceTrackWayIds": [
+        700925561,
+        700925568,
+        1323053165,
+        1323053167,
+        1323053194,
+        1454080998
+      ],
+      "fordWayIds": [],
+      "maximum5mGradePercent": 6.001,
+      "p95GradePercent": 4.428,
+      "metersOver15Percent": 0.0,
+      "elevationRangeMeters": [
+        169.9,
+        194.6
+      ],
+      "sampleCount": 1302,
+      "mappedRiverCenterlineCrossings": [
+        {
+          "riverWayId": 124989804,
+          "sourceSegment": 25,
+          "enMeters": [
+            347203.4081290119,
+            4228157.997372187
+          ]
+        }
+      ]
+    }
+  ]
+}

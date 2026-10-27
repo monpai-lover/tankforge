@@ -1,0 +1,20 @@
+从本目录运行：
+python3 perf/prepare-model-tests.py 原网页.html 升级网页.html
+node --test perf/all-interior/all-interior.test.mjs perf/all-interior/deep-mechanisms.test.mjs
+node --test perf/o-mode/o-mode.test.mjs
+node --test perf/mount-v3/details.test.mjs
+node perf/hardpoints/test.mjs
+node perf/hardpoints/native-layout-adapter.test.mjs
+node --test perf/me262-sight/sight-placement.test.mjs
+python3 perf/model-upgrade-tests.py
+
+Node.js 20 或以上。测试数据从你自己的两份网页提取；无需重复下载模型。
+如需重新编译组合脚本：npm install --no-save --prefix perf esbuild
+然后 python3 perf/compose-model-upgrade.py。
+
+本轮专项：
+node --test perf/mount-v3/mig21-repair.test.mjs perf/mount-v3/samp-bomb.test.mjs perf/mount-v3/specific-adapters.test.mjs perf/mount-v3/procedural-mounts.test.mjs perf/wingtip-v4/wingtip.test.mjs
+python3 perf/mount-v4-audit/analyze-jets-transform.test.py
+node perf/mount-v4-audit/export-coverage.mjs perf/model-upgrade-app.html
+浏览器复验：node perf/mount-v4-audit/review-mounted.mjs（可用TF_REVIEW_APP/TF_REVIEW_OUT/TF_CHROMIUM指定输入与浏览器）。
+全26几何审计的实际矩阵由geometry-audit-build-view输出，analyze-jets.py按nodeLocal变换；不要只平移局部三角形。

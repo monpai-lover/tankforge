@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "vehicle_id": "ru_pantsir_sm_sv",
+  "status": "audit_pending_diagnostic",
+  "target": {
+    "engine": "custom WebGL2 + Rust/WASM TankForge",
+    "source_revision": "local3fd8a58"
+  },
+  "importer_sha256": "a2ee14caf504131f9db9dce304c30de99ce5fe8a1b2aba985a28fe0de557870b",
+  "importer_semantic_patch": {
+    "batch_per_source_node": true,
+    "original_files_modified": false
+  },
+  "files": {
+    "visual_import_directory": "data/vehicles/ru_pantsir_sm_sv",
+    "combat_candidate_directory": "combat-candidate/vehicles/ru_pantsir_sm_sv",
+    "projectiles_append": "data/projectiles.json",
+    "missiles_append": "data/missiles.json",
+    "runtime_adapter": "runtime/pantsir-adapter.mjs",
+    "runtime_hitbox": "runtime/pantsir-hitbox.mjs"
+  },
+  "joint_nodes": [
+    "TURRET_YAW",
+    "LAUNCHER_ELEV_L",
+    "LAUNCHER_ELEV_R",
+    "CANNON_ELEV_L",
+    "CANNON_ELEV_R",
+    "SEARCH_RADAR_YAW",
+    "SEARCH_RADAR_FOLD",
+    "TRACK_RADAR_ELEV"
+  ],
+  "socket_names": [
+    "muzzle_cannon_L1",
+    "muzzle_cannon_L2",
+    "muzzle_cannon_R1",
+    "muzzle_cannon_R2",
+    "launch_L1",
+    "launch_R1",
+    "launch_L2",
+    "launch_R2",
+    "launch_L3",
+    "launch_R3",
+    "launch_L4",
+    "launch_R4",
+    "launch_L5",
+    "launch_R5",
+    "launch_L6",
+    "launch_R6"
+  ],
+  "blockers": [
+    "Combat candidate excluded from visual import directory: native semantic validator P009 (legacy armor intentionally empty); requires trusted render-triangle armor registration instead of planes.",
+    "Imported model capture opt-in and per-node binding hook must be applied to client tankmodel.js; supplied helper is diagnostic only.",
+    "Stock imported renderer has no independent radar articulation: supplied GLB adapter supports those joints, stock importer leaves radar at neutral pose until custom joint node hookup.",
+    "Two launcher elevation groups share one stock launcher hinge; independent elevation requires custom hierarchy hookup.",
+    "Source track belt is retained as hull geometry; suppress procedural duplicate track geometry in custom importer hookup.",
+    "No native/WASM parity, live damage, AI, network, replay or garage registration was performed.",
+    "SACLOS and HE fragmentation substitute are supported game approximations, not authentic Pantsir guidance/fuze behavior."
+  ]
+}

@@ -1,0 +1,193 @@
+{
+  "purpose": "geography and layout study; no gameplay implemented",
+  "centreLonLat": [
+    127.0,
+    38.06
+  ],
+  "projection": "EPSG:32652",
+  "boundsMeters": [
+    274539.8715178099,
+    4154360.5128820706,
+    374539.8715178099,
+    4274360.512882071
+  ],
+  "widthMeters": 100000,
+  "heightMeters": 120000,
+  "cornerLonLat": [
+    [
+      126.44918448103796,
+      37.508672879215524
+    ],
+    [
+      127.58012174180097,
+      37.527690962829844
+    ],
+    [
+      127.55906397696464,
+      38.608888445195845
+    ],
+    [
+      126.41138940898439,
+      38.58912151845036
+    ]
+  ],
+  "planningGrid": [
+    512,
+    614
+  ],
+  "planningCellMeters": [
+    195.3125,
+    195.43973941368077
+  ],
+  "source": "Copernicus GLO-30 Public, AWS COG 2021 release",
+  "sourceSampling": "8x average overview, about 200–250 m; this preview does not contain native 30 m detail",
+  "terrainType": "DSM includes vegetation and structures; field strips require separate native-resolution review",
+  "elevationRangeMeters": [
+    0.0,
+    1422.6048583984375
+  ],
+  "coverageFraction": 1.0,
+  "sources": [
+    {
+      "id": "Copernicus_DSM_COG_10_N37_00_E126_00_DEM",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N37_00_E126_00_DEM/Copernicus_DSM_COG_10_N37_00_E126_00_DEM.tif",
+      "etag": "\"e4cbc0206e530a2e7919deca4d0a0e95\"",
+      "lastModified": "Mon, 09 May 2022 14:19:29 GMT",
+      "nativeShape": [
+        3600,
+        3600
+      ],
+      "nativeTransform": [
+        0.0002777777777777778,
+        0.0,
+        125.99986111111112,
+        0.0,
+        -0.0002777777777777778,
+        38.00013888888889
+      ],
+      "overviewShape": [
+        450,
+        450
+      ],
+      "overviewTransform": [
+        0.0022222222222222222,
+        0.0,
+        125.99986111111112,
+        0.0,
+        -0.0022222222222222222,
+        38.00013888888889
+      ],
+      "overviewFloat32Sha256": "d5e3a549f2238b89b4ceef18abc7c619042c789ef61849b1f51d3e300cff6c44"
+    },
+    {
+      "id": "Copernicus_DSM_COG_10_N37_00_E127_00_DEM",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N37_00_E127_00_DEM/Copernicus_DSM_COG_10_N37_00_E127_00_DEM.tif",
+      "etag": "\"867f1837b89940cb1c8d27e20debc92f\"",
+      "lastModified": "Mon, 09 May 2022 14:19:29 GMT",
+      "nativeShape": [
+        3600,
+        3600
+      ],
+      "nativeTransform": [
+        0.0002777777777777778,
+        0.0,
+        126.99986111111112,
+        0.0,
+        -0.0002777777777777778,
+        38.00013888888889
+      ],
+      "overviewShape": [
+        450,
+        450
+      ],
+      "overviewTransform": [
+        0.0022222222222222222,
+        0.0,
+        126.99986111111112,
+        0.0,
+        -0.0022222222222222222,
+        38.00013888888889
+      ],
+      "overviewFloat32Sha256": "21eb3912831362c0517b7971afbfe075f1e802e1e66cb5e81ed94da61bb8d713"
+    },
+    {
+      "id": "Copernicus_DSM_COG_10_N38_00_E126_00_DEM",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N38_00_E126_00_DEM/Copernicus_DSM_COG_10_N38_00_E126_00_DEM.tif",
+      "etag": "\"d27a9540e8b85219d476adc1093b7faa\"",
+      "lastModified": "Mon, 09 May 2022 14:20:08 GMT",
+      "nativeShape": [
+        3600,
+        3600
+      ],
+      "nativeTransform": [
+        0.0002777777777777778,
+        0.0,
+        125.99986111111112,
+        0.0,
+        -0.0002777777777777778,
+        39.00013888888889
+      ],
+      "overviewShape": [
+        450,
+        450
+      ],
+      "overviewTransform": [
+        0.0022222222222222222,
+        0.0,
+        125.99986111111112,
+        0.0,
+        -0.0022222222222222222,
+        39.00013888888889
+      ],
+      "overviewFloat32Sha256": "4bc7d0ad5adcae790196c21392b2e3dfa56de9d8c86e5d7cc289b9d19f99669f"
+    },
+    {
+      "id": "Copernicus_DSM_COG_10_N38_00_E127_00_DEM",
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N38_00_E127_00_DEM/Copernicus_DSM_COG_10_N38_00_E127_00_DEM.tif",
+      "etag": "\"2859409ef8706a23afdc999018fb5a0b\"",
+      "lastModified": "Mon, 09 May 2022 14:20:08 GMT",
+      "nativeShape": [
+        3600,
+        3600
+      ],
+      "nativeTransform": [
+        0.0002777777777777778,
+        0.0,
+        126.99986111111112,
+        0.0,
+        -0.0002777777777777778,
+        39.00013888888889
+      ],
+      "overviewShape": [
+        450,
+        450
+      ],
+      "overviewTransform": [
+        0.0022222222222222222,
+        0.0,
+        126.99986111111112,
+        0.0,
+        -0.0022222222222222222,
+        39.00013888888889
+      ],
+      "overviewFloat32Sha256": "3ac2ba6e139318acb4b3cc20507906c9f2d5277e5493a78cf435001c3f2557d2"
+    }
+  ],
+  "attribution": "produced using Copernicus WorldDEM-30 © DLR e.V. 2010-2014 and © Airbus Defence and Space GmbH 2014-2018 provided under COPERNICUS by the European Union and ESA; all rights reserved",
+  "licenseSource": "https://dataspace.copernicus.eu/explore-data/data-collections/copernicus-contributing-missions/collections-description/COP-DEM",
+  "datasetDocumentation": "https://copernicus-dem-30m.s3.amazonaws.com/readme.html",
+  "outputs": {
+    "korea-source-overviews.npz": {
+      "bytes": 2575034,
+      "sha256": "a686adfd526120dd14ebcc60a9482c7355434bee62375033a08804b927f90940"
+    },
+    "korea-planning-dem.npz": {
+      "bytes": 1122089,
+      "sha256": "585355ddd85c90923bef75d479b173b473d56f7ab4dbfe38d25b74cac8d6dbb0"
+    },
+    "korea-terrain.png": {
+      "bytes": 504075,
+      "sha256": "49b69e699193158ed5346535218bc88765a7c667356cca02ed957b08faee4575"
+    }
+  }
+}

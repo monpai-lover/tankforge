@@ -1,0 +1,39 @@
+{
+  "schema": "tankforge-r8-shader-source-audit-v1",
+  "date": "2026-10-27",
+  "canonicalSource": "D:/TankForge-workspaces/r8-20261027/worktree/online-source/handoff/bundle/app.js.html",
+  "baselineSha256": "ca6bcf3bb738151f4578f347a34f4960bbd3f9d126ed98caaa5c545f178a2e7e",
+  "stack": "custom dependency-free WebGL2",
+  "externalCodeCopied": false,
+  "externalAssetsCopied": false,
+  "canonicalSourceEditedByShaderAgent": false,
+  "referenceAccess": {
+    "tool": "mcp__codex_apps__search_service_web_run",
+    "shadertoyDirectFetch": "HTTP 402 from connector",
+    "iqArticleDirectFetch": "restricted URL / robots exclusion",
+    "licensePolicy": "Unverified or NC/restricted Shadertoy code is not eligible for copying; verified MIT alternatives recorded separately."
+  },
+  "references": [
+    {"name":"IQ texture repetition","url":"https://www.shadertoy.com/view/4tsGzf","role":"concept reference","authorLicenseVerified":false,"copied":false,"decision":"No code copied; related versions/ports have inconsistent license headers."},
+    {"name":"IQ triplanar/boxmap","url":"https://www.shadertoy.com/view/MtsGWH","role":"concept reference","authorLicenseVerified":false,"copied":false,"decision":"No code copied; procedural terrain does not currently need three texture projections."},
+    {"name":"TDM Seascape","url":"https://www.shadertoy.com/view/Ms2SD1","role":"visual reference","licenseEvidence":"https://gist.github.com/matthewjberger/868a0c2596cbb2ba1e72bfdc64dfb6f1","reportedLicense":"CC-BY-NC-SA-3.0","copied":false,"decision":"Rejected for copying or porting."},
+    {"name":"psrdnoise","url":"https://github.com/stegu/psrdnoise","authorLicenseVerified":true,"licenseEvidence":"https://raw.githubusercontent.com/stegu/psrdnoise/main/src/psrdnoise2.glsl","license":"MIT","copyright":"2021 Stefan Gustavson and Ian McEwan","copied":false,"decision":"Permissive alternative evaluated; existing noise sufficient for bounded patch."},
+    {"name":"Ashima WebGL noise","url":"https://github.com/ashima/webgl-noise","authorLicenseVerified":true,"license":"MIT","copied":false,"decision":"Permissive alternative evaluated; no new dependency required."},
+    {"name":"tuxalin Procedural Water","url":"https://github.com/tuxalin/water-shader","authorLicenseVerified":true,"licenseEvidence":"https://raw.githubusercontent.com/tuxalin/water-shader/master/LICENSE","license":"MIT","copyright":"2017 tuxalin","copied":false,"decision":"Reference architecture only; full refraction/reflection-map port out of scope."},
+    {"name":"GPU Gems chapter 1","url":"https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-1-effective-water-simulation-physical-models","author":"Mark Finch / Cyan Worlds","role":"analytic wave normal mathematics","copied":false,"decision":"Common mathematical concepts only; no chapter source code copied."},
+    {"name":"TerrainHeightBlend Shader","url":"https://github.com/jensnt/TerrainHeightBlend-Shader","licenseEvidence":"https://github.com/jensnt/TerrainHeightBlend-Shader/blob/main/LICENSE.txt","authorLicenseVerified":true,"license":"MIT","copied":false,"decision":"Verified available texture-no-tile port, but no tiled terrain texture contract exists here; not imported."}
+  ],
+  "protectedContracts": ["canonical height and collision", "registered water triangles and holes", "registered water levels", "replay cutaway and material isolation", "status line-art", "HDR ENC/DEC", "resource lifecycle/context restore", "R7 CPU fixes"],
+  "validationClaims": {
+    "sourceInspected": true,
+    "gpuCompileRun": true,
+    "browserVisualRun": false,
+    "fpsMeasured": false,
+    "candidateImplemented": true,
+    "sourceAndNumericTestsPassed": 13,
+    "actualShaderVariantsExported": true,
+    "automaticWebglGateWritten": true,
+    "pairedComparisonWritten": true,
+    "webglEvidence": "Integration owner reported actual CUA IAB gate: HDR/fallback linked, 12 readback fixtures PASS, GL error 0, DOM title PASS at http://127.0.0.1:18791/r8-shaders-20261027/merged/webgl-shader-gate.html. No FPS or visual acceptance claim."
+  }
+}

@@ -213,7 +213,7 @@ export class Node {
   }
   collect(out, excludedRoot = null) {
     if (!this.visible || this === excludedRoot) return out;
-    if (this.mesh) out.push(this);
+    if (this.mesh && !this.aircraftHiddenSkin) out.push(this);
     for (const c of this.children) c.collect(out, excludedRoot);
     return out;
   }

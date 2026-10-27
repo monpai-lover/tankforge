@@ -1,0 +1,68 @@
+{
+  "purpose": "road/bridge design evidence only; OSM completeness and physical passability are not guaranteed",
+  "source": "https://overpass-api.de/api/interpreter",
+  "attribution": "© OpenStreetMap contributors; ODbL 1.0",
+  "license": "https://www.openstreetmap.org/copyright",
+  "extracts": [
+    {
+      "lane": "west",
+      "boundsSouthWestNorthEast": [
+        37.913831,
+        126.7272202,
+        38.183831,
+        126.9172202
+      ],
+      "query": "korea-roads-west.overpassql",
+      "file": "korea-roads-west-source.json.gz",
+      "status": "cached",
+      "bytes": 2085977,
+      "sha256": "ec8c62e98143012587f5c644bd4bcc2bd64411adf4e6a858005d3da68bee2d47",
+      "timestamp": "2026-10-24T11:29:51Z",
+      "ways": 1742,
+      "bridgeWays": 147
+    },
+    {
+      "lane": "centre",
+      "boundsSouthWestNorthEast": [
+        37.9692737,
+        126.9195316,
+        38.219273699999995,
+        127.0795316
+      ],
+      "query": "korea-roads-centre.overpassql",
+      "file": "korea-roads-centre-source.json.gz",
+      "status": "cached",
+      "bytes": 3102667,
+      "sha256": "28286e37fead7e043523859601b4597c082efcf82f4751b3276c6e87775ab11a",
+      "timestamp": "2026-10-24T11:29:51Z",
+      "ways": 2804,
+      "bridgeWays": 210
+    },
+    {
+      "lane": "east",
+      "boundsSouthWestNorthEast": [
+        38.001797,
+        127.1889786,
+        38.251796999999996,
+        127.3589786
+      ],
+      "query": "korea-roads-east.overpassql",
+      "file": "korea-roads-east-source.json.gz",
+      "status": "cached",
+      "bytes": 2773272,
+      "sha256": "aa090b41edc4be98dd326f995140eda041a3b092363ce05f71282284f20eeafc",
+      "timestamp": "2026-10-24T11:31:50Z",
+      "ways": 2562,
+      "bridgeWays": 194
+    },
+    {
+      "lane": "links_supplement",
+      "file": "korea-roads-links-source.json.gz",
+      "query": "korea-roads-links.overpassql",
+      "bytes": 207027,
+      "sha256": "0254f1605d3c2f054653ccde392304eaf2ba9857d3e1a22cd41209939a3fee36",
+      "timestamp": "2026-10-24T11:36:50Z",
+      "ways": 315
+    }
+  ]
+}

@@ -129,36 +129,43 @@ pub fn triangle(a: Point, b: Point, v: [Point; 3]) -> Result<Option<Contact>, St
     let p = v.map(|p| sub(p, a));
     let x = p.map(|p| p[kx] - sx * p[kz]);
     let y = p.map(|p| p[ky] - sy * p[kz]);
-    let mut u = edge(x[2], y[1], y[2], x[1]);
-    let mut w = edge(x[0], y[2], y[0], x[2]);
-    let mut z = edge(x[1], y[0], y[1], x[0]);
+    let u = edge(x[2], y[1], y[2], x[1]);
+    let w = edge(x[0], y[2], y[0], x[2]);
+    let z = edge(x[1], y[0], y[1], x[0]);
     if x.iter().chain(y.iter()).any(|v| !v.is_finite()) || ![u, w, z].iter().all(|v| v.is_finite())
     {
         return Err("triangle edge arithmetic overflow".into());
     }
-    for (vertex, value, left, right) in [
-        (0, &mut u, (x[2] * y[1]).abs(), (y[2] * x[1]).abs()),
-        (1, &mut w, (x[0] * y[2]).abs(), (y[0] * x[2]).abs()),
-        (2, &mut z, (x[1] * y[0]).abs(), (y[1] * x[0]).abs()),
-    ] {
-        if value.abs() <= (left + right) * 64.0 * f64::EPSILON + f64::from_bits(1) * 64.0 {
-            if !super::surface::barycentric_numerator_zero(v, a, b, vertex)? {
-                return Err("triangle barycentric edge precision uncertainty".into());
-            }
-            *value = 0.0;
+    let uncertain_edges = [
+        (u, (x[2] * y[1]).abs(), (y[2] * x[1]).abs()),
+        (w, (x[0] * y[2]).abs(), (y[0] * x[2]).abs()),
+        (z, (x[1] * y[0]).abs(), (y[1] * x[0]).abs()),
+    ]
+    .iter()
+    .any(|&(value, left, right)| {
+        value.abs() <= (left + right) * 64.0 * f64::EPSILON + f64::from_bits(1) * 64.0
+    });
+    let barycentric = if uncertain_edges {
+        // Certify all three original-coordinate signs and ratios together. A
+        // cancelled projected edge may be a strict interior or exterior edge,
+        // so an exact nonzero numerator is recoverable, not a query error.
+        let Some(certified) = super::surface::barycentric_coordinates(v, a, b)? else {
+            return Ok(None);
+        };
+        certified
+    } else {
+        if (u < 0.0 || w < 0.0 || z < 0.0) && (u > 0.0 || w > 0.0 || z > 0.0) {
+            return Ok(None);
         }
-    }
-    if (u < 0.0 || w < 0.0 || z < 0.0) && (u > 0.0 || w > 0.0 || z > 0.0) {
-        return Ok(None);
-    }
-    let det = u + w + z;
-    if !det.is_finite() {
-        return Err("triangle determinant arithmetic overflow".into());
-    }
-    if det == 0.0 {
-        return Ok(None);
-    }
-    let barycentric = [u / det, w / det, z / det];
+        let det = u + w + z;
+        if !det.is_finite() {
+            return Err("triangle determinant arithmetic overflow".into());
+        }
+        if det == 0.0 {
+            return Ok(None);
+        }
+        [u / det, w / det, z / det]
+    };
     if !finite(barycentric) {
         return Err("triangle barycentric arithmetic overflow".into());
     }

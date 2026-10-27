@@ -160,6 +160,7 @@ fn all_five_active_owners_share_raw_two_layer_state() {
             weapons: serde_json::Value::Null,
             machine_guns: serde_json::Value::Null,
             visual: serde_json::Value::Null,
+            surfaces: None,
         },
         &[mat.clone()],
     );

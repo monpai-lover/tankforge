@@ -1,0 +1,72 @@
+{
+ "main_gun": {
+  "id": "kwk42_75_l70",
+  "caliber_mm": 75.0,
+  "barrel_length_mm": 5250,
+  "recoil_mm": 420,
+  "rounds_per_min": 8.0,
+  "reload_s": 7.0,
+  "traverse_deg_s": 15.0,
+  "elevate_deg_s": 4.0,
+  "max_depression_deg": 5.0,
+  "max_elevation_deg": 20.0,
+  "dispersion_mrad": 0.7,
+  "mass_kg": 1000,
+  "ammo": [
+   "apcbc_75_pzgr39_42",
+   "he_75_sprgr42",
+   "apcr_75_pzgr40_42"
+  ],
+  "ammo_count": [
+   40,
+   35,
+   4
+  ]
+ },
+ "mount_m": [
+  0.0,
+  2.236,
+  1.305
+ ],
+ "muzzle_offset_m": 4.231,
+ "sight": {
+  "name": "TZF 12",
+  "levels": [
+   {
+    "magnification": 2.5,
+    "fov_deg": 28.0
+   },
+   {
+    "magnification": 5.0,
+    "fov_deg": 14.0
+   }
+  ]
+ },
+ "secondary": [
+  {
+   "id": "coax_mg34",
+   "weapon": "mg34",
+   "mount": "coax",
+   "position_m": [
+    0.36,
+    2.236,
+    1.6
+   ]
+  },
+  {
+   "id": "bow_mg34",
+   "weapon": "mg34",
+   "mount": "hull",
+   "position_m": [
+    0.62,
+    1.5,
+    2.78
+   ],
+   "arc_deg": [
+    10.0,
+    10.0,
+    15.0
+   ]
+  }
+ ]
+}

@@ -30,7 +30,8 @@ export function prepareReplayEvent(evidence,catalog,originFrame=[0,0,0],epoch=0)
     if(!valid(v(i.entry_position))||!valid(v(i.exit_position)))continue;
     const a=i.entry?.elapsed_s??i.time_s,b=i.output?.elapsed_s;
     if(coreEpoch===null||!Number.isFinite(a)||!Number.isFinite(b)||b<a)continue;
-    traces.push({id:i.event_id,eventId:e.event_id,from:W(i.entry_position),to:W(i.exit_position),start_s:coreEpoch+a,end_s:coreEpoch+b,kind:i.entry?.body_id==='core'?3:1,energy:clamp((i.budget?.core_out_j??i.budget?.input_j??0)/Math.max(1,i.budget?.input_j??1)),seed:seed(i.event_id),hit:i.layer_id,body:i.entry?.body_id==='core',verdict:i.verdict});
+    const outVelocity=v(i.output?.velocity_m_s),stopped=i.verdict==='stopped'||i.output?.remaining_pen_mm===0&&valid(outVelocity)&&Math.hypot(...outVelocity)<1e-6;
+    traces.push({id:i.event_id,eventId:e.event_id,from:W(i.entry_position),to:W(i.exit_position),start_s:coreEpoch+a,end_s:coreEpoch+b,kind:i.entry?.body_id==='core'?3:1,energy:clamp((i.budget?.core_out_j??i.budget?.input_j??0)/Math.max(1,i.budget?.input_j??1)),seed:seed(i.event_id),hit:i.layer_id,body:i.entry?.body_id==='core',verdict:i.verdict,stopped});
   }
   for(const f of rep.fragments||[]){
     if(!valid(v(f.from))||!valid(v(f.to)))continue;
@@ -49,13 +50,21 @@ export function prepareReplayEvent(evidence,catalog,originFrame=[0,0,0],epoch=0)
     for(let i=traces.length-1;i>=0;i--)if(traces[i].body){const row=traces.splice(i,1)[0];unknown.push({...row,body:false,start_s:null,end_s:null});}
   }
   if(events.some(i=>i.entry?.charge?.disposition==='pending_p3'||i.entry?.fuse==='unresolved_legacy'))limitations.push('fuze_pending_p3');
-  if(rep.bursts?.length)limitations.push('burst_timing_unrecorded');
+  const bursts=[];
+  for(const burst of rep.bursts||[]){
+    if(coreEpoch===null||!Number.isFinite(burst.time_s)||burst.time_s<0||!valid(v(burst.pos))||!(burst.explosive_kg>0)||!Number.isFinite(burst.radius)||burst.radius<0||typeof burst.detonation_id!=='string'||!burst.detonation_id){
+      if(!limitations.includes('burst_timing_unrecorded'))limitations.push('burst_timing_unrecorded');continue;
+    }
+    const time=coreEpoch+burst.time_s;
+    if(time<contact){if(!limitations.includes('burst_timing_unrecorded'))limitations.push('burst_timing_unrecorded');continue;}
+    bursts.push({id:`${e.event_id}:${burst.detonation_id}`,eventId:e.event_id,time_s:time,position:W(burst.pos),radius:burst.radius,inside:!!burst.inside,explosiveKg:burst.explosive_kg,mechanism:burst.mechanism});
+  }
   const entry=valid(v(rep.impact))?W(rep.impact):pose.hull_origin.map((x,i)=>x-origin[i]);
   const direction=norm(vector(pose,v(first?.entry?.velocity_m_s)||v(rep.shot?.dir)||[0,0,1]));
-  const physicalEnd=Math.max(contact,...traces.map(t=>t.end_s),...(e.deaths||[]).map(d=>d.time_s-epoch),...(e.mechanism_records||[]).map(r=>r.time_s-epoch));
+  const physicalEnd=Math.max(contact,...traces.map(t=>t.end_s),...bursts.map(b=>b.time_s),...(e.deaths||[]).map(d=>d.time_s-epoch),...(e.mechanism_records||[]).map(r=>r.time_s-epoch));
   // The camera's source phase is easing only; every physical anchor is recorded.
   const mechanism_anchors=physicalEnd>contact?[{phase_s:2.48,time_s:physicalEnd}]:[];
-  return freeze({id:e.event_id,shot_id:e.shot_id,actor:e.actor,evidence:e,profile,limitations,entry,direction,launch_s:flight.length?launch:contact,contact_s:contact,physicalEnd,mechanism_anchors,flight,flightTiming:flight.length?'recorded':'unknown',omittedFlight:e.segment_compacted_count||0,traces,unknown,coreEpoch,epoch,origin:origin.slice()});
+  return freeze({id:e.event_id,shot_id:e.shot_id,actor:e.actor,evidence:e,profile,limitations,entry,direction,launch_s:flight.length?launch:contact,contact_s:contact,physicalEnd,mechanism_anchors,flight,flightTiming:flight.length?'recorded':'unknown',omittedFlight:e.segment_compacted_count||0,traces,unknown,bursts,coreEpoch,epoch,origin:origin.slice()});
 }
 
 /** Source sample() style: physical travel plus short tails/hold; decorative fading only. */
@@ -77,9 +86,16 @@ export function samplePreparedReplay(event,physicalS){
   if(physicalS>=event.contact_s&&body&&event.profile){projectile.timing='recorded';projectile.visible=true;projectile.nose=mix(body.from,body.to,clamp((physicalS-body.start_s)/(body.end_s-body.start_s)));projectile.tangent=norm(body.to.map((x,i)=>x-body.from[i]));}
   // A native stopped record may have zero travel duration. Hold its actual endpoint;
   // this is presentation persistence, with no incoming or continued flight implied.
-  const stop=!body&&event.traces.find(t=>t.body&&t.verdict==='stopped'&&physicalS>=t.end_s&&physicalS<t.end_s+3.3);
+  const stop=!body&&event.traces.find(t=>t.body&&t.stopped&&physicalS>=t.end_s&&physicalS<t.end_s+3.3);
   if(stop&&event.profile){projectile.timing='recorded';projectile.visible=true;projectile.holdingStopped=true;projectile.nose=stop.to.slice();}
   if(event.evidence.authority==='analysis'&&physicalS>=event.contact_s&&event.profile){projectile.visible=true;projectile.referenceOnly=true;}
   // A stop/detonation/unknown continuation does not carry an intact body through the cabin.
-  return {eventId:event.id,physicalS,projectile,traces,staticTraces:physicalS>=event.contact_s?event.unknown:[],arrived:physicalS>=event.contact_s};
+  const bursts=[];
+  for(const b of event.bursts||[]){
+    const age=physicalS-b.time_s;if(age<0||age>.42)continue;
+    const phase=clamp(age/.42),radius=Math.min(1.6,Math.max(.12,b.radius*.42))*(.22+.78*Math.sqrt(clamp(age/.09)));
+    bursts.push({...b,age,radius,alpha:(1-phase)**2});
+  }
+  if(event.bursts?.some(b=>physicalS>=b.time_s))projectile.visible=false;
+  return {eventId:event.id,physicalS,projectile,traces,bursts,staticTraces:physicalS>=event.contact_s?event.unknown:[],arrived:physicalS>=event.contact_s};
 }

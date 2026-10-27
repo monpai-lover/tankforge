@@ -1,0 +1,321 @@
+{
+  "kind": "Combined-mode design/source geography and local shared native ground/air implementation evidence; incomplete full-mode release",
+  "phase": "local_shared_ground_air_functional_stage_verified; full_campaign_incomplete",
+  "layoutRevision": 4,
+  "canonicalDecisions": "../air-frontline-design-2026-10-24.json",
+  "combinedSpecification": "combined-mode-design.json",
+  "desktopReview": "/home/boyang/Desktop/TankForge_地空混合模式设计_20261024.html",
+  "validationScope": "Offline design document remains a layout/intent review. Separate local implementation evidence records independent same-WASM aircraft, native ground companies, shared cannon/bomb/rocket contacts/resources, two birth options and actual original Aircraft presentation. Full Rust167 then overlapping frontline28 tests; Node51 then overlapping15; final mixed browser11 functional assertions pass after422db6b receive/pose fix, captures skipped with prior failures retained. One33-entity20Hz release probe is not maximum-player/WAN/mobile/GPU certification. Complete campaign/maps/services/avionics/model repairs remain unfinished and nothing new is deployed.",
+  "generatedFiles": {
+    "ai-spectator-design.json": {
+      "bytes": 28183,
+      "sha256": "95640cd4c7539565bae64c65d8a36733ba1937571bbf4df5487fc953679d4d6f"
+    },
+    "combined-mode-design.json": {
+      "bytes": 25935,
+      "sha256": "137c0c1b07b945e41862a67401895fdd2063cbb37075efbba5b2276afdb2280a"
+    },
+    "era-roster-study.json": {
+      "bytes": 160562,
+      "sha256": "2eeb2b4f53fb3b207922e505d8c71b7b9d21db3d20dd08c648d845e569f23174"
+    },
+    "flight-runtime-verification-2026-10-25.json": {
+      "bytes": 5212,
+      "sha256": "a53544d8142b34c59757a1e29b0b3ae54431a550ab98da71d0fe4e539cb0726f"
+    },
+    "implementation-status.json": {
+      "bytes": 13384,
+      "sha256": "b9651409363abed52ffdfe4c6541ea1e471c8e7743e5ff3b6a09021fda65bca2"
+    },
+    "korea-layout-proposal.json": {
+      "bytes": 21956,
+      "sha256": "ec6313ba15342f89742b69da5862befb4217e2327e3759bfc582721058d4471f"
+    },
+    "korea-review.html": {
+      "bytes": 1210822,
+      "sha256": "469bbe96c4008476598d6eb71c711bf887d191c2f73d0a8786f406ef13a07baf"
+    },
+    "native-ground-verification-2026-10-25.json": {
+      "bytes": 27196,
+      "sha256": "0483ad0448754a7f1064bd7989c123c36184eeebeda8356899703713a299fac7"
+    },
+    "requirements-traceability.json": {
+      "bytes": 19864,
+      "sha256": "07bee40a2d68e9c5e38c19cd5f4e7a92abfb757e0153f975dd9727db4b18ec1c"
+    },
+    "research/airfield-B-E-native-dem.json": {
+      "bytes": 1015,
+      "sha256": "94bfa0b87bcf9dca43e711d02fe40efeedea3bb2d62a1e28af9335af8404364f"
+    },
+    "research/airfield-B-E-native-dem.npz": {
+      "bytes": 1978448,
+      "sha256": "e0cda89df484fec4bbfc31febb33294a458e0dbfcbbd0d9ccdbcda94dc487583"
+    },
+    "research/airfield-B-W-native-dem.json": {
+      "bytes": 1020,
+      "sha256": "9a2fe74582c487e7b5a8847ca10a43bd28f53fe82b0f1e0c47f9728ef4269d2c"
+    },
+    "research/airfield-B-W-native-dem.npz": {
+      "bytes": 1999285,
+      "sha256": "d484a026ec185f81acebdd7c3e4151785949e46daab56f47618196d79bd57921"
+    },
+    "research/airfield-R-E-native-dem.json": {
+      "bytes": 1008,
+      "sha256": "95f0cef840458dc3adc5eed187bbd71e31fd6898ac32761a5220c6611beca451"
+    },
+    "research/airfield-R-E-native-dem.npz": {
+      "bytes": 1845724,
+      "sha256": "4fda884e82963630d78d6d941b2ef9c79bc6814e90aea7836ed168c53678e8b3"
+    },
+    "research/airfield-R-W-native-dem.json": {
+      "bytes": 1021,
+      "sha256": "0868e7808a4e3b05825426f221a67d00a2f0744cafd2ff562cb8171e11794feb"
+    },
+    "research/airfield-R-W-native-dem.npz": {
+      "bytes": 1879843,
+      "sha256": "2ec4f5c1d72b5980f0a5307b936409d323d5ab2370cc04bce2033d4e2eea835f"
+    },
+    "research/airfield-dsm-profiles.png": {
+      "bytes": 324113,
+      "sha256": "e261dc21697c89879a9438115c474c5a0357bc2379bad44cafd44f4856f60743"
+    },
+    "research/analyse_road_connectivity.py": {
+      "bytes": 8697,
+      "sha256": "8db1d88811ab3dda94d666a1d9830dbafcae45e0e44b6a6299d01046beab9e19"
+    },
+    "research/authoring-environment.json": {
+      "bytes": 281,
+      "sha256": "b50c8c18f21082fc3e6239198707ac5543e09334ff06ee80084084e679c52938"
+    },
+    "research/combined-review-validation.json": {
+      "bytes": 834,
+      "sha256": "04baaae374b4f7c5dc00b1a5f080e266a924a97bc1af55814cf37331fc29006e"
+    },
+    "research/export_runtime_korea.py": {
+      "bytes": 21698,
+      "sha256": "18f126adf4040cc3f682d15b98e58ed38392608b86188984727f21147fcf1179"
+    },
+    "research/fetch_corridor_roads.py": {
+      "bytes": 4296,
+      "sha256": "1c730f869c59391797a160435dc8f1da8131e694488b5dccd3ea705a7064812e"
+    },
+    "research/ground-W-CONNECTOR-native-dem.json": {
+      "bytes": 1232,
+      "sha256": "356f7a823eae08c537b3026bb045ff8300684f9d99213a502515c4caf608a0fa"
+    },
+    "research/ground-W-CONNECTOR-native-dem.npz": {
+      "bytes": 78406,
+      "sha256": "29b9c685cc7846a743259701a193d4cf305bcb274884850a23720e4a52ad28ce"
+    },
+    "research/korea-airfield-native-study.json": {
+      "bytes": 61678,
+      "sha256": "0c23939a0b8dea71fcdc17aea5d6b77936b31fba52a8b6c2835a78e364c7d5eb"
+    },
+    "research/korea-airports-source.json": {
+      "bytes": 60760,
+      "sha256": "67a9a59699e32373f078fbf17bf633bca3ebe0ad0235499c4748543323b3f389"
+    },
+    "research/korea-geography-manifest.json": {
+      "bytes": 5597,
+      "sha256": "447f50c96a9b443c65a420ed79e7d0dd632aea73d0e5716ffb54b4a1ca026413"
+    },
+    "research/korea-ground-staging-study.json": {
+      "bytes": 13897,
+      "sha256": "a49a437592ab4c4000f1435b17e916072343ada542d6ee3b4e316888f226b215"
+    },
+    "research/korea-planning-dem.npz": {
+      "bytes": 1122089,
+      "sha256": "585355ddd85c90923bef75d479b173b473d56f7ab4dbfe38d25b74cac8d6dbb0"
+    },
+    "research/korea-rivers-source.json.gz": {
+      "bytes": 448542,
+      "sha256": "5f5c4e4443f9a268a59bcbd7604a6a8eb652d69c804066e83691e8dc795a3bd5"
+    },
+    "research/korea-rivers.overpassql": {
+      "bytes": 89,
+      "sha256": "e1c510d7e2782a159535108305bfd305d7027170ace763cdedd41268645a93ce"
+    },
+    "research/korea-rivers.projected.json": {
+      "bytes": 264412,
+      "sha256": "fbcc92a652d4a96381c0180a024d728829d45d363ca8ec2ca12b0aac6227cd8f"
+    },
+    "research/korea-road-connectivity-study.json": {
+      "bytes": 671580,
+      "sha256": "5a98b7c6c07359354357d9b1f5a2a5ab268b4f59f675cdf50c9001a91cee46c1"
+    },
+    "research/korea-road-routes.projected.json": {
+      "bytes": 54797,
+      "sha256": "051865f082b9b2faad2d9f342abd865e2d0c4549ae2625ee3c16ead010568386"
+    },
+    "research/korea-road-source-manifest.json": {
+      "bytes": 2067,
+      "sha256": "5bbd50f648ae38f724eff095ae8565df486dc137cc3a92228a2f2e9e85ae1ee3"
+    },
+    "research/korea-roads-centre-source.json.gz": {
+      "bytes": 485540,
+      "sha256": "92987dc052ce488e7d0f9cfb637594feb4f49bbb73e8b1ece6a1341f7e5efb55"
+    },
+    "research/korea-roads-centre.overpassql": {
+      "bytes": 183,
+      "sha256": "67f9cf02b466467843ea3aa683f02211357763031f82f08d7b3ecaa676cfa04e"
+    },
+    "research/korea-roads-east-source.json.gz": {
+      "bytes": 435283,
+      "sha256": "88e278b480428997aad64ff55d6bf89aa011c4d1f28ed3710748a63fbc18256c"
+    },
+    "research/korea-roads-east.overpassql": {
+      "bytes": 183,
+      "sha256": "6f418a95102aace7884a1d13cdaab6a1804e5a0deafa52810920c991f9ac55a4"
+    },
+    "research/korea-roads-links-source.json.gz": {
+      "bytes": 29821,
+      "sha256": "5b025bac53e438a16af6029c06a4a6a9af5fe90ed6f532a02448d14e91f6c784"
+    },
+    "research/korea-roads-links.overpassql": {
+      "bytes": 374,
+      "sha256": "75087890f097bb8afe2ed67393125b35a0182a345cd19f405f3bcfe7e82776a0"
+    },
+    "research/korea-roads-west-source.json.gz": {
+      "bytes": 335245,
+      "sha256": "46d0e4fae048a7e5dd3bed7ec5a66af1368b52b252ec32a7abfb0da3f4b3ccc3"
+    },
+    "research/korea-roads-west.overpassql": {
+      "bytes": 183,
+      "sha256": "c086b824da3c9b6963ae7430b357acabdc376607c36e815d84214f1c57cece87"
+    },
+    "research/korea-source-overviews.npz": {
+      "bytes": 2575034,
+      "sha256": "a686adfd526120dd14ebcc60a9482c7355434bee62375033a08804b927f90940"
+    },
+    "research/korea-terrain.png": {
+      "bytes": 504075,
+      "sha256": "49b69e699193158ed5346535218bc88765a7c667356cca02ed957b08faee4575"
+    },
+    "research/layout-distance-checks.json": {
+      "bytes": 2364,
+      "sha256": "34262181fa6d0d9cce82fd006a15a3091e4b6aaaab794ef53cfdf8c11e86d3c6"
+    },
+    "research/make_review.py": {
+      "bytes": 6149,
+      "sha256": "585904d828fb2b44a51e69a5bcd267b666e4b92826f3b649f53dde080023221c"
+    },
+    "research/paju-runway-alternative.json": {
+      "bytes": 7724,
+      "sha256": "a8989c5a96491da1ce570506407f6ec2ff12551d49b37ed381c3d5b62eb37267"
+    },
+    "research/paju-runway-alternative.png": {
+      "bytes": 196588,
+      "sha256": "8cca85e392d7553093f49b19557be3cec494ead9c75fc796f2f9445df72323bd"
+    },
+    "research/prepare_korea.py": {
+      "bytes": 6780,
+      "sha256": "26ac4589faabfc5a2f5ee9c80a57f04b21e1f5becfeb3c4de5e7815e100658f5"
+    },
+    "research/review-validation.json": {
+      "bytes": 532,
+      "sha256": "188062c2fca49fe10eca554e97c5649e57af5704d04c61454400b216c7202754"
+    },
+    "research/study_ground_staging.py": {
+      "bytes": 4638,
+      "sha256": "40fd376faf7fe3d37a4edab4669614e67669be15ccf663038c59703110fd05b7"
+    },
+    "research/study_paju_extension.py": {
+      "bytes": 3593,
+      "sha256": "36a9f923354c4b63ecfedd9f825a311375d180ebdc91b43a9b1186c97116d26a"
+    },
+    "research/study_west_connector.py": {
+      "bytes": 7661,
+      "sha256": "1eaf9a0b36c776f040111e11a08de38454d286d200d384f5a865ca131444f5f4"
+    },
+    "research/survey_airfields.py": {
+      "bytes": 10072,
+      "sha256": "dd56bef76fddc29fb26a449f2c319325d47c58a33236fefa2a6a9c8829e6bf41"
+    },
+    "research/taiwan-airports-source.json": {
+      "bytes": 61511,
+      "sha256": "91e5e13c9fe52d807fd2b49d084d3520094aa59c1386a1602d878d8b2fbcee23"
+    },
+    "research/taiwan-dem-availability.json": {
+      "bytes": 8188,
+      "sha256": "89223c2335a43298ed302d94d6b7d9b472639f886fc948f30283a5578925b291"
+    },
+    "research/taiwan-distance-options.json": {
+      "bytes": 18049,
+      "sha256": "50247cdc031e86723635a9e05440a82307ed0926ec960286ea89eab2a38b267f"
+    },
+    "research/verify_review.py": {
+      "bytes": 5596,
+      "sha256": "e0d619c5482dab20ab423f2e8f085412ae92fa1ea9dea1edfd102d11696fd170"
+    },
+    "research/west-connector-native-study.json": {
+      "bytes": 3845,
+      "sha256": "935ae27dcc12160eb3127f45214597e5d88af1283bb9ea08fdf955effcf6896c"
+    },
+    "research/west-connector-native-study.png": {
+      "bytes": 193602,
+      "sha256": "0e629b1e9ee4e9af43cdf0d3ac7398d7cb4fa72fa3085c3fdd218ae0a4278dca"
+    },
+    "research/west-road-gap-candidates.json": {
+      "bytes": 4161,
+      "sha256": "a5ee548b008ca765f6e3366453f1ba05eec72e5ae9490db0a41501565a96397d"
+    },
+    "review-controls.js": {
+      "bytes": 9603,
+      "sha256": "a44c5d49d2321c173019d36267250bb50e681d71cdaa56e0ccddb70a15a24f49"
+    },
+    "review.template.html": {
+      "bytes": 25954,
+      "sha256": "8d76918e1ee7f5e7cf45240169719a51fbeb259e4a2adb828586e7e8975b1202"
+    },
+    "server-entity-contract.json": {
+      "bytes": 76264,
+      "sha256": "801e7e74aae0fcdf75ea5c458122d165a9754236e58f5c2b8cf510740594df86"
+    },
+    "shared-air-ground-verification-2026-10-25.json": {
+      "bytes": 42067,
+      "sha256": "19dba9a40e79da4d1962439170bb66d309e759b5aeae2ff409f637a8d701019f"
+    },
+    "taiwan-theatre-study.json": {
+      "bytes": 83410,
+      "sha256": "36420dc2b2b03b10b23ac5169d95cef72539e86722fb6acbbf154b8a15efe9a7"
+    }
+  },
+  "specifications": {
+    "serverEntities": "server-entity-contract.json",
+    "eraRoster": "era-roster-study.json",
+    "taiwanFullIsland": "taiwan-theatre-study.json",
+    "aiObservation": "ai-spectator-design.json"
+  },
+  "canonicalSha256": "c0c50edaec08dae0854fb89173ce54a5381e307986837e2e9ee552842c62f29b",
+  "externalAircraftAudit": {
+    "path": "/home/boyang/Desktop/worldbox/tankforge-jet-fixes/docs/aircraft/parked-roll-visible-audit-f3c6d88-20261024.json",
+    "commit": "5ece18a",
+    "runtimeBase": "f3c6d88/core212",
+    "sha256": "aff5bd44990e57d5f0ce949bcd1812a2e7954d0b92f5100c82bd4f334b44e539",
+    "meaning": "All24actual A/D roll-mesh motions verified; geometry followups remain"
+  },
+  "implementationStatus": "implementation-status.json",
+  "verificationReport": "native-ground-verification-2026-10-25.json",
+  "runtimeAssets": {
+    "data/frontline/korea.json": {
+      "bytes": 2091968,
+      "sha256": "fff1e52695395593cc7c17f3de74c52d49911dd87f2e481ef807534ce50b339c",
+      "scope": "Real source terrain with C2 local1800m ground road, two explicitly authored campaign runways at real airport references, two rear air starts; not the full Korean campaign"
+    },
+    "data/aircraft/frontline.json": {
+      "bytes": 713684,
+      "sha256": "6f100830eb9b4652098c002ae3f15cf2714fd64a6de2614a2d97376084a0987c",
+      "scope": "All24 actual production flight/resource/mount profiles; era metadata admission and supported unguided presets are not complete historical/weapons certification"
+    }
+  },
+  "verificationReports": [
+    "native-ground-verification-2026-10-25.json",
+    "flight-runtime-verification-2026-10-25.json",
+    "shared-air-ground-verification-2026-10-25.json"
+  ],
+  "implementationCommits": [
+    "096f2cffc9e4bb76029d9db5514ec86327a3726c",
+    "08719fd951464f07ff3d2cccfaff1c52cf45fcdd",
+    "422db6b758e18f62c4c7a53f774b83ec5f0c257a"
+  ]
+}

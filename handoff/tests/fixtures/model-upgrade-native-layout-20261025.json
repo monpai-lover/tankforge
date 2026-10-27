@@ -1,0 +1,801 @@
+{
+  "provenance": {
+    "source": "User-provided model-interior-mount upgrade/source/perf/hardpoints/native-layout-map.json",
+    "sha256": "cf0f2f5265c3fa0964c49a2d35cf4edc3f00d5b474deea89a0ee7d378f8745c1",
+    "scope": "Exact provided native initial-store placement/owner/fitted-key fixtures; does not grant weapon capability"
+  },
+  "models": {
+    "f15c": {
+      "sourceMain": "b736634797d9c94fa04967e8f06b20a40458d8349af54888d0b62de47a50c23a",
+      "preset": {
+        "clientIndex": 1,
+        "name": "空戰",
+        "items": [
+          {
+            "index": 0,
+            "id": "aim7f",
+            "count": 1,
+            "station": "belly",
+            "side": -1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              -1.15,
+              -1.4915,
+              1.2
+            ],
+            "revisedP": [
+              -2.094,
+              -1.7335,
+              2.356
+            ],
+            "mount": [
+              -2.094,
+              -1.613,
+              2.356
+            ],
+            "fittedMountKey": "f15c:0",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_cft_fore"
+          },
+          {
+            "index": 1,
+            "id": "aim7f",
+            "count": 1,
+            "station": "belly",
+            "side": 1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              1.15,
+              -1.4915,
+              1.2
+            ],
+            "revisedP": [
+              2.094,
+              -1.7335,
+              2.356
+            ],
+            "mount": [
+              2.094,
+              -1.613,
+              2.356
+            ],
+            "fittedMountKey": "f15c:1",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_cft_fore"
+          },
+          {
+            "index": 2,
+            "id": "aim7f",
+            "count": 1,
+            "station": "belly",
+            "side": -1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              -1.15,
+              -1.4915,
+              -1.2
+            ],
+            "revisedP": [
+              -2.081,
+              -1.5073,
+              -2.739
+            ],
+            "mount": [
+              -2.081,
+              -1.3868,
+              -2.739
+            ],
+            "fittedMountKey": "f15c:2",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_cft_aft"
+          },
+          {
+            "index": 3,
+            "id": "aim7f",
+            "count": 1,
+            "station": "belly",
+            "side": 1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              1.15,
+              -1.4915,
+              -1.2
+            ],
+            "revisedP": [
+              2.081,
+              -1.5073,
+              -2.739
+            ],
+            "mount": [
+              2.081,
+              -1.3868,
+              -2.739
+            ],
+            "fittedMountKey": "f15c:3",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_cft_aft"
+          },
+          {
+            "index": 4,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": -1,
+            "previousOwner": "wing_l",
+            "revisedOwner": "wing_l",
+            "previousP": [
+              -4.3766,
+              -0.34950000000000003,
+              -1.261
+            ],
+            "revisedP": [
+              -2.538717375093214,
+              -0.716819985085757,
+              1.37751677852349
+            ],
+            "mount": [
+              -2.538717375093214,
+              -0.6343199850857569,
+              1.37751677852349
+            ],
+            "fittedMountKey": "f15c:4",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_wing_rail_inner"
+          },
+          {
+            "index": 5,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": 1,
+            "previousOwner": "wing_r",
+            "revisedOwner": "wing_r",
+            "previousP": [
+              4.3766,
+              -0.34950000000000003,
+              -1.261
+            ],
+            "revisedP": [
+              2.538717375093214,
+              -0.716819985085757,
+              1.37751677852349
+            ],
+            "mount": [
+              2.538717375093214,
+              -0.6343199850857569,
+              1.37751677852349
+            ],
+            "fittedMountKey": "f15c:5",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_wing_rail_inner"
+          },
+          {
+            "index": 6,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": -1,
+            "previousOwner": "wing_l_out",
+            "revisedOwner": "wing_l_out",
+            "previousP": [
+              -4.6814,
+              -0.34950000000000003,
+              -1.261
+            ],
+            "revisedP": [
+              -3.31717375093214,
+              -0.716819985085757,
+              1.37751677852349
+            ],
+            "mount": [
+              -3.31717375093214,
+              -0.6343199850857569,
+              1.37751677852349
+            ],
+            "fittedMountKey": "f15c:6",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_wing_rail_outer"
+          },
+          {
+            "index": 7,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": 1,
+            "previousOwner": "wing_r_out",
+            "revisedOwner": "wing_r_out",
+            "previousP": [
+              4.6814,
+              -0.34950000000000003,
+              -1.261
+            ],
+            "revisedP": [
+              3.31717375093214,
+              -0.716819985085757,
+              1.37751677852349
+            ],
+            "mount": [
+              3.31717375093214,
+              -0.6343199850857569,
+              1.37751677852349
+            ],
+            "fittedMountKey": "f15c:7",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_wing_rail_outer"
+          }
+        ]
+      }
+    },
+    "f4e": {
+      "sourceMain": "e03a28ce0a9ef04a4198a647e4ca22eaf85d92e0a625ddad4ad640005624a2f6",
+      "preset": {
+        "clientIndex": 1,
+        "name": "空戰",
+        "items": [
+          {
+            "index": 0,
+            "id": "aim7e",
+            "count": 1,
+            "station": "belly",
+            "side": -1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              -0.975,
+              -0.7235,
+              1.2
+            ],
+            "revisedP": [
+              -0.975,
+              -0.7513144483397187,
+              1.905
+            ],
+            "mount": [
+              -0.975,
+              -0.6308144483397187,
+              1.905
+            ],
+            "fittedMountKey": "f4e:0",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": null
+          },
+          {
+            "index": 1,
+            "id": "aim7e",
+            "count": 1,
+            "station": "belly",
+            "side": 1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              0.975,
+              -0.7235,
+              1.2
+            ],
+            "revisedP": [
+              0.975,
+              -0.7513144483397187,
+              1.905
+            ],
+            "mount": [
+              0.975,
+              -0.6308144483397187,
+              1.905
+            ],
+            "fittedMountKey": "f4e:1",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": null
+          },
+          {
+            "index": 2,
+            "id": "aim7e",
+            "count": 1,
+            "station": "belly",
+            "side": -1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              -0.975,
+              -0.7235,
+              -1.2
+            ],
+            "revisedP": [
+              -0.975,
+              -0.952609656659697,
+              -1.905
+            ],
+            "mount": [
+              -0.975,
+              -0.832109656659697,
+              -1.905
+            ],
+            "fittedMountKey": "f4e:2",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": null
+          },
+          {
+            "index": 3,
+            "id": "aim7e",
+            "count": 1,
+            "station": "belly",
+            "side": 1,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              0.975,
+              -0.7235,
+              -1.2
+            ],
+            "revisedP": [
+              0.975,
+              -0.952609656659697,
+              -1.905
+            ],
+            "mount": [
+              0.975,
+              -0.832109656659697,
+              -1.905
+            ],
+            "fittedMountKey": "f4e:3",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": null
+          },
+          {
+            "index": 4,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": -1,
+            "previousOwner": "wing_l",
+            "revisedOwner": "wing_l",
+            "previousP": [
+              -3.7516,
+              -0.5425,
+              -1.059
+            ],
+            "revisedP": [
+              -1.71966101695,
+              -0.9426322,
+              1.86288136
+            ],
+            "mount": [
+              -1.71966101695,
+              -0.8601322,
+              1.86288136
+            ],
+            "fittedMountKey": "f4e:4",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_wing_rail_inner"
+          },
+          {
+            "index": 5,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": 1,
+            "previousOwner": "wing_r",
+            "revisedOwner": "wing_r",
+            "previousP": [
+              3.7516,
+              -0.5425,
+              -1.059
+            ],
+            "revisedP": [
+              1.71966101695,
+              -0.9426322,
+              1.86288136
+            ],
+            "mount": [
+              1.71966101695,
+              -0.8601322,
+              1.86288136
+            ],
+            "fittedMountKey": "f4e:5",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_wing_rail_inner"
+          },
+          {
+            "index": 6,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": -1,
+            "previousOwner": "wing_l_out",
+            "revisedOwner": "wing_l_out",
+            "previousP": [
+              -4.0564,
+              -0.5425,
+              -1.059
+            ],
+            "revisedP": [
+              -2.4633898305099997,
+              -0.9429712000000001,
+              1.88457627
+            ],
+            "mount": [
+              -2.4633898305099997,
+              -0.8604712000000001,
+              1.88457627
+            ],
+            "fittedMountKey": "f4e:6",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_wing_rail_outer"
+          },
+          {
+            "index": 7,
+            "id": "aim9l",
+            "count": 1,
+            "station": "mid",
+            "side": 1,
+            "previousOwner": "wing_r_out",
+            "revisedOwner": "wing_r_out",
+            "previousP": [
+              4.0564,
+              -0.5425,
+              -1.059
+            ],
+            "revisedP": [
+              2.4633898305099997,
+              -0.9429712000000001,
+              1.88457627
+            ],
+            "mount": [
+              2.4633898305099997,
+              -0.8604712000000001,
+              1.88457627
+            ],
+            "fittedMountKey": "f4e:7",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_wing_rail_outer"
+          }
+        ]
+      }
+    },
+    "mig21": {
+      "sourceMain": "db84ea973ae3dbb337e4c7c711cf5c36d6e53413d9f4ee2bbfc47daf9ee94a30",
+      "preset": {
+        "clientIndex": 1,
+        "name": "空戰",
+        "items": [
+          {
+            "index": 0,
+            "id": "r3s",
+            "count": 1,
+            "station": "inner",
+            "side": -1,
+            "previousOwner": "wing_l",
+            "revisedOwner": "wing_r",
+            "previousP": [
+              -1.477,
+              -0.1565,
+              -1.9347999999999999
+            ],
+            "revisedP": [
+              -1.9855,
+              -0.6458333333333334,
+              0.23069999999999993
+            ],
+            "mount": [
+              -1.9855,
+              -0.5823333333333334,
+              0.0034999999999999476
+            ],
+            "fittedMountKey": "mig21:0",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_inner_wing_rail"
+          },
+          {
+            "index": 1,
+            "id": "r3s",
+            "count": 1,
+            "station": "inner",
+            "side": 1,
+            "previousOwner": "wing_r",
+            "revisedOwner": "wing_l",
+            "previousP": [
+              1.477,
+              -0.1565,
+              -1.9347999999999999
+            ],
+            "revisedP": [
+              1.988,
+              -0.6458333333333334,
+              0.23069999999999993
+            ],
+            "mount": [
+              1.988,
+              -0.5823333333333334,
+              0.0034999999999999476
+            ],
+            "fittedMountKey": "mig21:1",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_inner_wing_rail"
+          }
+        ]
+      }
+    },
+    "su27": {
+      "sourceMain": "562a29d0ae0fbc4f251dc5120b5a30103959eff9b72b5a3116db62d25b77b0f8",
+      "preset": {
+        "clientIndex": 1,
+        "name": "空戰",
+        "items": [
+          {
+            "index": 0,
+            "id": "r27r",
+            "count": 1,
+            "station": "inner",
+            "side": -1,
+            "previousOwner": "wing_l",
+            "revisedOwner": "body",
+            "previousP": [
+              -4.016,
+              -0.6,
+              -0.62
+            ],
+            "revisedP": [
+              -1.1326226012793177,
+              -1.8230575692963753,
+              0.20660980810234542
+            ],
+            "mount": [
+              -1.1326226012793177,
+              -1.6890575692963752,
+              0.20660980810234542
+            ],
+            "fittedMountKey": "su27:0",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_underengine_pylon"
+          },
+          {
+            "index": 1,
+            "id": "r27r",
+            "count": 1,
+            "station": "inner",
+            "side": 1,
+            "previousOwner": "wing_r",
+            "revisedOwner": "body",
+            "previousP": [
+              4.016,
+              -0.6,
+              -0.62
+            ],
+            "revisedP": [
+              1.1707889125799573,
+              -1.8230575692963753,
+              0.20660980810234542
+            ],
+            "mount": [
+              1.1707889125799573,
+              -1.6890575692963752,
+              0.20660980810234542
+            ],
+            "fittedMountKey": "su27:1",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_underengine_pylon"
+          },
+          {
+            "index": 2,
+            "id": "r27t",
+            "count": 1,
+            "station": "mid",
+            "side": -1,
+            "previousOwner": "wing_l_out",
+            "revisedOwner": "wing_l_out",
+            "previousP": [
+              -5.154,
+              -0.449,
+              -1.356
+            ],
+            "revisedP": [
+              -4.293390191897654,
+              -0.7883070362473348,
+              -0.9321961620469084
+            ],
+            "mount": [
+              -4.293390191897654,
+              -0.6543070362473348,
+              -0.9321961620469084
+            ],
+            "fittedMountKey": "su27:4",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "left_innerwing_pylon"
+          },
+          {
+            "index": 3,
+            "id": "r27t",
+            "count": 1,
+            "station": "mid",
+            "side": 1,
+            "previousOwner": "wing_r_out",
+            "revisedOwner": "wing_r_out",
+            "previousP": [
+              5.154,
+              -0.449,
+              -1.356
+            ],
+            "revisedP": [
+              4.2980810234541575,
+              -0.787454157782516,
+              -0.9680170575692963
+            ],
+            "mount": [
+              4.2980810234541575,
+              -0.653454157782516,
+              -0.9680170575692963
+            ],
+            "fittedMountKey": "su27:5",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "right_innerwing_pylon"
+          },
+          {
+            "index": 4,
+            "id": "r73",
+            "count": 1,
+            "station": "outer",
+            "side": -1,
+            "previousOwner": "wing_l_out",
+            "revisedOwner": "wing_l_out",
+            "previousP": [
+              -6.197,
+              -0.33899999999999997,
+              -2.031
+            ],
+            "revisedP": [
+              -5.746055437100213,
+              -0.7097782515991471,
+              -1.649040511727079
+            ],
+            "mount": [
+              -5.746055437100213,
+              -0.6057782515991471,
+              -1.649040511727079
+            ],
+            "fittedMountKey": null,
+            "basis": "source_outer_pylon_with_fin_clearance_adapter",
+            "hardware": "left_outerwing_pylon"
+          },
+          {
+            "index": 5,
+            "id": "r73",
+            "count": 1,
+            "station": "outer",
+            "side": 1,
+            "previousOwner": "wing_r_out",
+            "revisedOwner": "wing_r_out",
+            "previousP": [
+              6.197,
+              -0.33899999999999997,
+              -2.031
+            ],
+            "revisedP": [
+              5.757356076759061,
+              -0.7059402985074626,
+              -1.649040511727079
+            ],
+            "mount": [
+              5.757356076759061,
+              -0.6019402985074627,
+              -1.649040511727079
+            ],
+            "fittedMountKey": null,
+            "basis": "source_outer_pylon_with_fin_clearance_adapter",
+            "hardware": "right_outerwing_pylon"
+          },
+          {
+            "index": 6,
+            "id": "r73",
+            "count": 1,
+            "station": "tip",
+            "side": -1,
+            "previousOwner": "wing_l_out",
+            "revisedOwner": "wing_l_out",
+            "previousP": [
+              -7.28,
+              -0.186,
+              -1.3005
+            ],
+            "revisedP": [
+              -7.13,
+              -0.284,
+              -2.55
+            ],
+            "mount": [
+              -7.13,
+              -0.18,
+              -2.55
+            ],
+            "fittedMountKey": null,
+            "basis": "new_rail_fitted_to_actual_source_wing_edge",
+            "hardware": "left_wingtip_launcher"
+          },
+          {
+            "index": 7,
+            "id": "r73",
+            "count": 1,
+            "station": "tip",
+            "side": 1,
+            "previousOwner": "wing_r_out",
+            "revisedOwner": "wing_r_out",
+            "previousP": [
+              7.28,
+              -0.186,
+              -1.3005
+            ],
+            "revisedP": [
+              7.138,
+              -0.284,
+              -2.55
+            ],
+            "mount": [
+              7.138,
+              -0.18,
+              -2.55
+            ],
+            "fittedMountKey": null,
+            "basis": "new_rail_fitted_to_actual_source_wing_edge",
+            "hardware": "right_wingtip_launcher"
+          },
+          {
+            "index": 8,
+            "id": "r27r",
+            "count": 1,
+            "station": "center",
+            "side": 0,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              0,
+              -1.423,
+              0.3
+            ],
+            "revisedP": [
+              0.009594882729211086,
+              -0.9808400852878464,
+              2.5430703624733475
+            ],
+            "mount": [
+              0.009594882729211086,
+              -0.8468400852878464,
+              2.5430703624733475
+            ],
+            "fittedMountKey": "su27:2",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "center_fore_centerline_pylon"
+          },
+          {
+            "index": 9,
+            "id": "r27r",
+            "count": 1,
+            "station": "center",
+            "side": 0,
+            "previousOwner": "body",
+            "revisedOwner": "body",
+            "previousP": [
+              0,
+              -1.423,
+              -4.03
+            ],
+            "revisedP": [
+              0.009594882729211086,
+              -0.9808400852878464,
+              -1.8633262260127932
+            ],
+            "mount": [
+              0.009594882729211086,
+              -0.8468400852878464,
+              -1.8633262260127932
+            ],
+            "fittedMountKey": "su27:3",
+            "basis": "whole_mesh_clearance_with_physical_airframe_adapter",
+            "hardware": "center_aft_centerline_pylon"
+          }
+        ]
+      }
+    }
+  }
+}

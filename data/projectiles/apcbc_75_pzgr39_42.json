@@ -6,7 +6,7 @@
  "mass_kg": 6.8,
  "muzzle_velocity_ms": 935.0,
  "explosive_mass_kg": 0.017,
- "explosive_type": "petn",
+ "explosive_type": "hexogen",
  "penetrator_material": "steel",
  "length_mm": 278,
  "drag_coefficient": 0.4,

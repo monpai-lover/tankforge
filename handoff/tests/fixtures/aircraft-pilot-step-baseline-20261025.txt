@@ -1,0 +1,21 @@
+    _step(dt) {
+      const s = this.state, inp = this._inputs(), manual = inp.some((v2) => Math.abs(v2) > 0.02), free = this.keys.has("KeyC");
+      if (manual) s.level = false;
+      if (this.keys.has("ShiftLeft") || this.keys.has("ShiftRight")) this.throttleBy(dt * 0.25);
+      if (this.keys.has("ControlLeft") || this.keys.has("ControlRight")) this.throttleBy(-dt * 0.25);
+      if (free && manual) this.aim = [this.S[48], this.S[49], this.S[50]];
+      let flags = (s.instructor ? 1 : 0) | (free ? 2 : 0) | (s.gear ? 4 : 0) | aircraftFlapSetting(s.flaps).flags | (s.brake ? 16 : 0) | (s.level ? 32 : 0);
+      // Pilot killed (or the airframe broken up): nobody flies it; slumped on the stick, it dives away.
+      if (this.damage.pilotDead || this.damage.broken) {
+        flags &= 12 | 64 | 128;
+        inp[0] = -0.3;
+        inp[1] = 0.35 * this.slump;
+        inp[2] = 0;
+      }
+      this.prev.set(this.cur);
+      const flown = free ? this.aim : aqRot(this.aimBias, this.aim);
+      this.api.step(dt, flown[0], flown[1], flown[2], s.throttle, inp[0], inp[1], inp[2], flags);
+      this.cur.set(this.S);
+      this.time += dt;
+      if (this.diagnostics?.enabled) this.diagnostics.capture(this, inp, flags, dt, flown);
+    }

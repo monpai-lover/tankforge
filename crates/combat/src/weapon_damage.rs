@@ -470,6 +470,9 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
     let launcher_count = mounts.len() - cannon_count;
     let turret_count = 1 + w["extra_turrets"].as_array().map_or(0, Vec::len);
     let mut bindings = BTreeMap::new();
+    // mounts naming their critical parts explicitly under one declared group: barrels of one gun (a twin
+    // 2A38M, each side one breech for two barrels) may share those parts; any other sharing stays ambiguous
+    let mut declared_shares: BTreeMap<String, String> = BTreeMap::new();
     for (ti, gi, mount, gun) in mounts {
         let key = format!("gun:{ti}:{gi}");
         let missile = gun["missile"].as_str().map(String::from);
@@ -519,6 +522,9 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
             if let Some(explicit) = refs(def, damage(&mount, &gun, "critical"), None)? {
                 if explicit.is_empty() {
                     return Err("empty critical module references".into());
+                }
+                if let Some(g) = group(&mount, &gun).filter(|g| !g.starts_with("gun:") && !g.starts_with("mg:") && !g.starts_with("turret:")) {
+                    declared_shares.insert(key.clone(), g.to_string());
                 }
                 b.critical = explicit;
             } else if let Some(aps_gun) = aps_gun {
@@ -632,6 +638,10 @@ pub(crate) fn register(def: &mut TargetDef) -> BTreeMap<String, WeaponBinding> {
         }
     }
     for (i, keys) in owners.iter().filter(|(_, keys)| keys.len() > 1) {
+        let shared = declared_shares.get(&keys[0]);
+        if shared.is_some() && keys.iter().all(|k| declared_shares.get(k) == shared) {
+            continue;
+        }
         for key in keys {
             bindings.get_mut(key).unwrap().binding_error = Some(format!(
                 "ambiguous shared critical part {}",

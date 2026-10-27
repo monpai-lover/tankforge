@@ -1,0 +1,15 @@
+{
+  "scope": "Exact historical inputs required by the existing R8.1 gate; no synthetic substitute.",
+  "files": [
+    {
+      "path": "frontend-app-20261025.html",
+      "sha256": "5f9577fabf415594db7c845d061bd48fc1699cf0105c72f93c873acb28a621ba",
+      "bytes": 4146184
+    },
+    {
+      "path": "surfaceCore-original-active.wasm",
+      "sha256": "f88569767f73e291a32c0a7c7b983126075f60a1c0d08f652af60cd99f78c83c",
+      "bytes": 2124470
+    }
+  ]
+}

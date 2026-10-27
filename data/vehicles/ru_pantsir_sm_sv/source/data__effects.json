@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "asset_id": "ru_pantsir_sm_sv",
+  "status": "provisional_gameplay_estimates",
+  "source_policy": "Visual geometry supplied by source GLB. Armor resistance, internal anatomy, crew layout and all gameplay tuning are authored estimates, not verified vehicle specifications.",
+  "effects": [
+    {
+      "id": "cannon_fire",
+      "sockets": [
+        "muzzle_cannon_L1",
+        "muzzle_cannon_L2",
+        "muzzle_cannon_R1",
+        "muzzle_cannon_R2"
+      ],
+      "flash_s": 0.045,
+      "flash_scale_m": 0.45,
+      "smoke_s": 0.8,
+      "tracer_every_n": 4
+    },
+    {
+      "id": "missile_launch",
+      "sockets": [
+        "launch_L1",
+        "launch_R1",
+        "launch_L2",
+        "launch_R2",
+        "launch_L3",
+        "launch_R3",
+        "launch_L4",
+        "launch_R4",
+        "launch_L5",
+        "launch_R5",
+        "launch_L6",
+        "launch_R6"
+      ],
+      "backblast_s": 0.18,
+      "motor_flame_s": 1.2,
+      "smoke_trail_s": 4.0,
+      "launch_plume_scale_m": 0.7
+    }
+  ],
+  "authority": "Consume accepted fire/launch events; effects do not consume ammunition or apply damage.",
+  "tankforge_existing_fx": "client/web/src/fx/missiles.js"
+}

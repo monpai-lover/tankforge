@@ -1,0 +1,11 @@
+{
+  "syntax_pass": true,
+  "sync_check_pass": true,
+  "outside_helpers_match": true,
+  "outside_bytes": 4002347,
+  "outside_sha256": "ea3b5f4af689264b78153fbf8bb43256be49c3888d05bed601ccebec40be29b2",
+  "app_sha256": "1d6691659b5da6d3af5227184ac622fefd9b0906888954dca6ec865c67bcbbd6",
+  "all_frontline_tests": 113,
+  "all_frontline_pass": 113,
+  "exporter_provenance": "target-air-frontline-export-provenance-20261025.json"
+}

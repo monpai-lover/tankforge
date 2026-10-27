@@ -1,0 +1,271 @@
+{
+  "status": "public_native_GLO30_COG_downloaded_and_read_not_runtime_map_asset",
+  "sourceUrl": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E119_00_DEM/Copernicus_DSM_COG_10_N23_00_E119_00_DEM.tif",
+  "retrievedAtUtc": "2026-10-24T12:49:04.196577+00:00",
+  "httpContentLength": 897923,
+  "sha256": "9f3b3db7d2836dfc871450a6dd589c8cd16d2cbe61da9da5520b0abc47b521a4",
+  "lastModified": "Mon, 09 May 2022 14:10:01 GMT",
+  "etag": "\"b390ff3d94e99df264ab214f695d50c8\"",
+  "dataset": {
+    "driver": "GTiff",
+    "width": 3600,
+    "height": 3600,
+    "crs": "EPSG:4326",
+    "bounds": [
+      118.99986111111112,
+      23.000138888888888,
+      119.99986111111112,
+      24.000138888888888
+    ],
+    "resolutionDegrees": [
+      0.0002777777777777778,
+      0.0002777777777777778
+    ],
+    "dtype": "float32",
+    "nodata": null,
+    "minimumM": -5.2118754386901855,
+    "maximumM": 65.30941772460938,
+    "positiveCellCount": 150306,
+    "overviews": [
+      2,
+      4,
+      8
+    ]
+  },
+  "meaning": "Native 1 arc-second GLO30 land-surface tile includes Penghu. Ocean zeros are not bathymetry. File is held in /tmp only, metadata retained in the design tree. This does not prove runway/collision/beach/road validation.",
+  "selectedFullTheatreAvailabilityInventory": {
+    "url": "https://copernicus-dem-30m.s3.amazonaws.com/tileList.txt",
+    "bytes": 1110900,
+    "sha256": "10604e3052c98a09e9216f1a8f0a555a04148419757575f783d4937fd44316dc",
+    "lastModified": "Mon, 09 May 2022 18:23:01 GMT",
+    "retrievedAtUtc": "2026-10-24T13:13:22.755112+00:00",
+    "bbox": [
+      117.8,
+      21.65,
+      122.35,
+      26.5
+    ],
+    "tiles": [
+      {
+        "latDegree": 21,
+        "lonDegree": 117,
+        "key": "Copernicus_DSM_COG_10_N21_00_E117_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 21,
+        "lonDegree": 118,
+        "key": "Copernicus_DSM_COG_10_N21_00_E118_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 21,
+        "lonDegree": 119,
+        "key": "Copernicus_DSM_COG_10_N21_00_E119_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 21,
+        "lonDegree": 120,
+        "key": "Copernicus_DSM_COG_10_N21_00_E120_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 21,
+        "lonDegree": 121,
+        "key": "Copernicus_DSM_COG_10_N21_00_E121_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 21,
+        "lonDegree": 122,
+        "key": "Copernicus_DSM_COG_10_N21_00_E122_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 22,
+        "lonDegree": 117,
+        "key": "Copernicus_DSM_COG_10_N22_00_E117_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 22,
+        "lonDegree": 118,
+        "key": "Copernicus_DSM_COG_10_N22_00_E118_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 22,
+        "lonDegree": 119,
+        "key": "Copernicus_DSM_COG_10_N22_00_E119_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 22,
+        "lonDegree": 120,
+        "key": "Copernicus_DSM_COG_10_N22_00_E120_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 22,
+        "lonDegree": 121,
+        "key": "Copernicus_DSM_COG_10_N22_00_E121_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 22,
+        "lonDegree": 122,
+        "key": "Copernicus_DSM_COG_10_N22_00_E122_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 23,
+        "lonDegree": 117,
+        "key": "Copernicus_DSM_COG_10_N23_00_E117_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 23,
+        "lonDegree": 118,
+        "key": "Copernicus_DSM_COG_10_N23_00_E118_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 23,
+        "lonDegree": 119,
+        "key": "Copernicus_DSM_COG_10_N23_00_E119_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 23,
+        "lonDegree": 120,
+        "key": "Copernicus_DSM_COG_10_N23_00_E120_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 23,
+        "lonDegree": 121,
+        "key": "Copernicus_DSM_COG_10_N23_00_E121_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 23,
+        "lonDegree": 122,
+        "key": "Copernicus_DSM_COG_10_N23_00_E122_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 24,
+        "lonDegree": 117,
+        "key": "Copernicus_DSM_COG_10_N24_00_E117_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 24,
+        "lonDegree": 118,
+        "key": "Copernicus_DSM_COG_10_N24_00_E118_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 24,
+        "lonDegree": 119,
+        "key": "Copernicus_DSM_COG_10_N24_00_E119_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 24,
+        "lonDegree": 120,
+        "key": "Copernicus_DSM_COG_10_N24_00_E120_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 24,
+        "lonDegree": 121,
+        "key": "Copernicus_DSM_COG_10_N24_00_E121_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 24,
+        "lonDegree": 122,
+        "key": "Copernicus_DSM_COG_10_N24_00_E122_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 25,
+        "lonDegree": 117,
+        "key": "Copernicus_DSM_COG_10_N25_00_E117_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 25,
+        "lonDegree": 118,
+        "key": "Copernicus_DSM_COG_10_N25_00_E118_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 25,
+        "lonDegree": 119,
+        "key": "Copernicus_DSM_COG_10_N25_00_E119_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 25,
+        "lonDegree": 120,
+        "key": "Copernicus_DSM_COG_10_N25_00_E120_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 25,
+        "lonDegree": 121,
+        "key": "Copernicus_DSM_COG_10_N25_00_E121_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 25,
+        "lonDegree": 122,
+        "key": "Copernicus_DSM_COG_10_N25_00_E122_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 26,
+        "lonDegree": 117,
+        "key": "Copernicus_DSM_COG_10_N26_00_E117_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 26,
+        "lonDegree": 118,
+        "key": "Copernicus_DSM_COG_10_N26_00_E118_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 26,
+        "lonDegree": 119,
+        "key": "Copernicus_DSM_COG_10_N26_00_E119_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 26,
+        "lonDegree": 120,
+        "key": "Copernicus_DSM_COG_10_N26_00_E120_00_DEM",
+        "presentInPublicTileList": true
+      },
+      {
+        "latDegree": 26,
+        "lonDegree": 121,
+        "key": "Copernicus_DSM_COG_10_N26_00_E121_00_DEM",
+        "presentInPublicTileList": false
+      },
+      {
+        "latDegree": 26,
+        "lonDegree": 122,
+        "key": "Copernicus_DSM_COG_10_N26_00_E122_00_DEM",
+        "presentInPublicTileList": false
+      }
+    ],
+    "note": "Candidate1degreecells intersecting selected map bbox. Ocean-only absence can be valid; presence does not prove full tile data read or coastline/road/runway/sea contact accuracy.",
+    "listedTileCount": 23,
+    "notListedTileCount": 13,
+    "notYetCompleteTerrain": "Only tileList availability tested for full extent. No assertion that all necessary land tiles were downloaded or that missing entries are all ocean; classification still needs coastline masks."
+  }
+}

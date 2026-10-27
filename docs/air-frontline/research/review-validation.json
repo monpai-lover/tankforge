@@ -1,0 +1,28 @@
+{
+  "desktop": [
+    1440,
+    1080
+  ],
+  "mobile": [
+    390,
+    844
+  ],
+  "errors": [],
+  "mobileOverflow": false,
+  "distanceModelChecks": [
+    {
+      "lane": "west",
+      "metricParity": true
+    },
+    {
+      "lane": "centre",
+      "metricParity": true
+    },
+    {
+      "lane": "east",
+      "metricParity": true
+    }
+  ],
+  "controls": "lane, independent front sliders, zoom/reset, reference layer and detail card passed",
+  "purpose": "Only the offline review document was checked, not game terrain or gameplay"
+}

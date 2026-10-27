@@ -1,0 +1,68 @@
+{
+  "schemaVersion": 1,
+  "sourcePackageGzipSha256": "b75f99998e93f063a9b2784d683300dc93531556a7130d04fa062e054cbf27e8",
+  "sourcePageSha256": "b5f58f8083bdad3bf1800b01d28355008a80b8cfa17ecbade15abe628267ab25",
+  "dataSha256": "73a55fd1a23068a6a517d2643a4f9b5d978107a90b26bce218fbee7ed114ef18",
+  "dataBytes": 381615123,
+  "partBytes": 31457280,
+  "parts": [
+    {
+      "name": "data.line.gz.part00",
+      "bytes": 31457280,
+      "sha256": "25d2ae3be3b169763dfca7b3683e7527eb4611b6751a4b9691081827d1c8e6a1"
+    },
+    {
+      "name": "data.line.gz.part01",
+      "bytes": 31457280,
+      "sha256": "6c3d481da6c4ab4cd9662d0fade35f6d7c994a11ccd5322e908412e1c5379844"
+    },
+    {
+      "name": "data.line.gz.part02",
+      "bytes": 31457280,
+      "sha256": "8899d81ce38eceb40e3aae49f257a0740a081e86d1b7c1c8a2ee49599c878f80"
+    },
+    {
+      "name": "data.line.gz.part03",
+      "bytes": 31457280,
+      "sha256": "9906e5a200208f9e8f626fb337bf28c5837acc11ea7b5b4953e07a0b1b2b0e01"
+    },
+    {
+      "name": "data.line.gz.part04",
+      "bytes": 10425521,
+      "sha256": "243f1fe186cf2aeb8de30897231425f55227208955befee7654dd681abfd0e43"
+    }
+  ],
+  "oldDataSha256": "56eaa206dfda19a831d1c82c869e411d1c3ba7e82d979ff6f96b13dd3a0366ee",
+  "oldParts": [
+    {
+      "name": "data.line.gz.part00",
+      "bytes": 31457280,
+      "sha256": "42dc9f0ff098605ed2f2cd42ddb32ca1faa1b6fc8c641b8f5308e1fdd82d5a6a"
+    },
+    {
+      "name": "data.line.gz.part01",
+      "bytes": 31457280,
+      "sha256": "ecf191e24db720531977009bb97bc4a09f6918b2ab10ebb15e7fe4ec869eca0d"
+    },
+    {
+      "name": "data.line.gz.part02",
+      "bytes": 31457280,
+      "sha256": "4fec737ca5ca7cdd5ddbc2e6ee6922fd44b87352540a5b828806b8930ff779ba"
+    },
+    {
+      "name": "data.line.gz.part03",
+      "bytes": 31457280,
+      "sha256": "16dcc3b3359b3a02bea9c0a588f7a827d84550997bdf744e5496680a56f2c787"
+    },
+    {
+      "name": "data.line.gz.part04",
+      "bytes": 7486619,
+      "sha256": "c275b5b73c34b83f1605da8054e37eb1eb663798481ad60fd9a6361ac8de701c"
+    }
+  ],
+  "completeNewGzipReadback": true,
+  "targetPartHashesMatchVerifiedStaging": true,
+  "outsideTwoNativeRecordsUnchangedByPackageSplice": true,
+  "sourceManifestSha256": "3da6e8956556d2b8f90a13346d6097146177bb4718d245708892b1915a88c001",
+  "fullRawOrWholeGzipTemporaryCreated": false
+}

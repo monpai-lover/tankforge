@@ -1,0 +1,84 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tankforge:HitBindingCatalogV1",
+  "title": "Trusted authored protection and anatomy associations for exact emitted triangles",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "specId", "manifestHash", "buildHash", "anatomyHash", "acceptedAnatomy", "targetRegistrationHash", "declarationRevision", "sourceGeneratorHash", "geometryBytesChanged", "declarations", "layers", "articulations", "instances", "audit", "catalogHash"],
+  "properties": {
+    "schema": { "const": "HitBindingCatalogV1" },
+    "specId": { "$ref": "#/$defs/key" },
+    "manifestHash": { "$ref": "#/$defs/hash", "description": "Full-file SHA-256 of the native-compatible HitMeshManifestV1." },
+    "buildHash": { "$ref": "#/$defs/hash" },
+    "anatomyHash": { "$ref": "#/$defs/hash" },
+    "targetRegistrationHash": { "type": ["string", "null"], "pattern": "^[0-9a-f]{64}$", "description": "Rust-normalized complete Target and material-law registration fingerprint, excluding actor id. Null is diagnostic-only; native/WASM combat rejects it." },
+    "acceptedAnatomy": { "type": "object", "additionalProperties": false, "required": ["armor", "modules", "crew", "weapons"], "description": "The complete accepted normalized anatomy without field or numeric rewriting. SHA-256 of its exact canonical JSON subtree equals anatomyHash; native intake additionally compares typed fields against the actual Target.", "properties": {
+      "armor": { "type": "array", "items": { "type": "object" } }, "modules": { "type": "array", "items": { "type": "object" } }, "crew": { "type": "array", "items": { "type": "object" } }, "weapons": { "type": ["object", "null"] }
+    } },
+    "declarationRevision": { "$ref": "#/$defs/key" },
+    "sourceGeneratorHash": { "$ref": "#/$defs/hash" },
+    "geometryBytesChanged": { "const": 0 },
+    "catalogHash": { "$ref": "#/$defs/hash", "description": "Canonical content hash with this member omitted. Allowed catalogs must additionally pin the exact full-file SHA-256." },
+    "declarations": { "type": "array", "maxItems": 1000000, "items": { "$ref": "#/$defs/declaration" } },
+    "layers": { "type": "array", "maxItems": 16384, "items": { "$ref": "#/$defs/layer" } },
+    "articulations": { "type": "array", "maxItems": 16384, "items": {
+      "type": "object", "additionalProperties": false, "required": ["assemblyKey", "parent", "restTransformBits", "joint"],
+      "properties": { "assemblyKey": { "$ref": "#/$defs/key" }, "parent": { "$ref": "#/$defs/nullableKey" }, "restTransformBits": { "$ref": "#/$defs/matrixBits" }, "joint": { "type": "object", "required": ["kind", "status"], "properties": { "kind": { "enum": ["actor_world", "body", "rigid", "turret", "gun", "recoil", "hinge", "wheel", "mg", "static_fixture"] }, "status": { "enum": ["declared", "static_fixture"] } } } }
+    } },
+    "instances": { "type": "array", "maxItems": 32768, "items": { "type": "object", "additionalProperties": false, "required": ["instanceKey", "assemblyKey", "materialFeature"], "properties": {
+      "instanceKey": { "$ref": "#/$defs/key" }, "assemblyKey": { "$ref": "#/$defs/key" }, "materialFeature": { "type": "object", "description": "Must equal the immutable manifest instance materialFeature exactly; ownership never comes from bounds or transform coordinates." },
+      "responseOverrides": { "type": "array", "minItems": 1, "maxItems": 1000000, "uniqueItems": true, "items": { "$ref": "#/$defs/instanceResponseOverride" }, "description": "Exactly one row for every shared running-gear declaration on this instance mesh, and no rows for direct declarations. Reference and coverage checks are semantic validation." }
+    }, "allOf": [{ "if": { "required": ["responseOverrides"] }, "then": { "properties": { "materialFeature": { "required": ["status", "kind", "side"], "properties": { "status": { "const": "declared_identity" }, "kind": { "enum": ["track_link", "running_gear_connection"] }, "side": { "enum": [1, -1] } } } } } }] } },
+    "audit": { "type": "object", "additionalProperties": false, "required": ["status", "physicalTriangles", "declaredTriangles", "unknownTriangles", "ambiguousTriangles", "historicalArmorCertification", "missingSemantics"], "properties": {
+      "status": { "enum": ["reviewed_subset", "declared_authored_geometry"] },
+      "physicalTriangles": { "$ref": "#/$defs/count" }, "declaredTriangles": { "$ref": "#/$defs/count" }, "unknownTriangles": { "$ref": "#/$defs/count" }, "ambiguousTriangles": { "$ref": "#/$defs/count" },
+      "historicalArmorCertification": { "const": false }, "missingSemantics": { "type": "array", "items": { "$ref": "#/$defs/key" } }
+    } }
+  },
+  "$defs": {
+    "hash": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "key": { "type": "string", "minLength": 1, "maxLength": 1024 },
+    "nullableKey": { "anyOf": [{ "$ref": "#/$defs/key" }, { "type": "null" }] },
+    "count": { "type": "integer", "minimum": 0 },
+    "matrixBits": { "type": "array", "minItems": 16, "maxItems": 16, "items": { "type": "integer", "minimum": 0, "maximum": 4294967295 } },
+    "instanceResponseOverride": { "type": "object", "additionalProperties": false, "required": ["responseRef", "sourceKey", "moduleRef", "ownerSide", "policy"], "properties": {
+      "responseRef": { "$ref": "#/$defs/key", "description": "Exact declaration key also carried by the manifest range surface.responseRef." }, "sourceKey": { "$ref": "#/$defs/key", "description": "Must equal that declaration sourceKey, including mirror identity." },
+      "moduleRef": { "$ref": "#/$defs/key", "description": "Actual registered track-kind module for the authored instance side." }, "ownerSide": { "enum": [1, -1] }, "policy": { "const": "registered_module_kind" }
+    } },
+    "declaration": {
+      "type": "object", "additionalProperties": false,
+      "required": ["key", "meshKey", "first", "count", "sourceKey", "partId", "material", "role", "topology", "armorBinding", "moduleRef", "crewSlot", "contactEligible", "fuseEligible", "resistancePolicy", "faceGroup", "mirrorOrdinal", "owners", "declaration"],
+      "allOf": [
+        { "if": { "properties": { "role": { "const": "module" }, "moduleRef": { "type": "null" } } }, "then": { "properties": { "declaration": { "properties": { "basis": { "const": "authored_running_gear_instance_side" } } } } } },
+        { "if": { "properties": { "declaration": { "properties": { "basis": { "const": "authored_running_gear_instance_side" } } } } }, "then": { "properties": { "role": { "const": "module" }, "moduleRef": { "type": "null" }, "crewSlot": { "type": "null" }, "armorBinding": { "properties": { "status": { "const": "none" } } }, "fuseEligible": { "const": false }, "resistancePolicy": { "const": "no_authored_armor" } } } }
+      ],
+      "properties": {
+        "key": { "$ref": "#/$defs/key" }, "meshKey": { "$ref": "#/$defs/key" }, "first": { "$ref": "#/$defs/count" }, "count": { "type": "integer", "minimum": 1 }, "sourceKey": { "$ref": "#/$defs/key" }, "partId": { "$ref": "#/$defs/key" },
+        "material": { "type": "object", "additionalProperties": false, "required": ["status", "label", "physicalClass", "renderMaterialBits", "renderMaterialSampleTriangle", "packed"], "properties": {
+          "status": { "enum": ["authored_visual", "render_parameters_only", "unknown"] }, "label": { "$ref": "#/$defs/nullableKey" },
+          "physicalClass": { "enum": ["metal", "rubber", "glass", "canvas", "wood", "unknown"] },
+          "renderMaterialBits": { "type": "array", "minItems": 15, "maxItems": 15, "items": { "type": "integer", "minimum": 0, "maximum": 4294967295 } },
+          "renderMaterialSampleTriangle": { "$ref": "#/$defs/count" }, "packed": { "type": ["object", "null"] }
+        } },
+        "role": { "enum": ["armor", "module", "crew", "decoration", "unknown"] },
+        "topology": { "type": "object", "additionalProperties": false, "required": ["status", "kind", "solidKey"], "properties": { "status": { "enum": ["declared", "unknown"] }, "kind": { "enum": ["audit_pending", "boundary_shell", "open_sheet", "closed_solid", "decorative_surface"] }, "solidKey": { "$ref": "#/$defs/nullableKey" } } },
+        "armorBinding": { "type": "object", "additionalProperties": false, "required": ["status", "armorRefs", "layerKey", "materialRegionKey", "boundarySide", "thicknessSource", "pairing"], "properties": {
+          "status": { "enum": ["declared", "none", "candidate", "unknown"] }, "armorRefs": { "type": "array", "maxItems": 32, "items": { "$ref": "#/$defs/key" } }, "layerKey": { "$ref": "#/$defs/nullableKey" },
+          "materialRegionKey": { "$ref": "#/$defs/nullableKey" },
+          "boundarySide": { "enum": ["outer", "inner", "reveal", null] }, "thicknessSource": { "enum": ["authored_engineering", "none", "unknown"] }, "pairing": { "enum": ["same_material_region", "none", "unknown"] }
+        } },
+        "moduleRef": { "$ref": "#/$defs/nullableKey" },
+        "crewSlot": { "anyOf": [{ "type": "null" }, { "type": "object", "additionalProperties": false, "required": ["index", "anatomyHash", "role"], "properties": { "index": { "$ref": "#/$defs/count" }, "anatomyHash": { "$ref": "#/$defs/hash" }, "role": { "$ref": "#/$defs/key" } } }] },
+        "contactEligible": { "const": true }, "fuseEligible": { "type": ["boolean", "null"] },
+        "resistancePolicy": { "enum": ["authored_thickness", "no_authored_armor", "unsupported"] },
+        "faceGroup": { "type": ["integer", "null"] }, "mirrorOrdinal": { "type": ["integer", "null"], "minimum": 0 }, "owners": { "type": "array", "items": { "type": "object" } },
+        "declaration": { "type": "object", "additionalProperties": false, "required": ["revision", "basis", "contentHash"], "properties": { "revision": { "$ref": "#/$defs/key" }, "basis": { "$ref": "#/$defs/key" }, "contentHash": { "$ref": "#/$defs/hash" } } }
+      }
+    },
+    "layer": { "type": "object", "additionalProperties": false, "required": ["key", "armorRef", "materialRegionKey", "authoredEngineeringHash", "authoredThicknessMm", "authoredMaterial", "thicknessSource", "chargePolicy", "historicalMeasurement", "declarationKeys"], "properties": {
+      "key": { "$ref": "#/$defs/key" }, "armorRef": { "$ref": "#/$defs/key" }, "authoredEngineeringHash": { "$ref": "#/$defs/hash" }, "authoredThicknessMm": { "type": "number", "minimum": 0 }, "authoredMaterial": { "$ref": "#/$defs/key" },
+      "materialRegionKey": { "$ref": "#/$defs/key" },
+      "thicknessSource": { "const": "authored_engineering" }, "chargePolicy": { "const": "once_per_material_region" }, "historicalMeasurement": { "const": false }, "declarationKeys": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/key" } }
+    } }
+  }
+}

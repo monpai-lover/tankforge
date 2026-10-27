@@ -1,0 +1,77 @@
+{
+  "schema": "TankForgePortableR81RebuildVerificationV1",
+  "result": "PASS",
+  "startedUtc": "2026-10-27T11:32:13.455738+00:00",
+  "elapsedSeconds": 1.311,
+  "command": [
+    "C:\\Python314\\python.exe",
+    "-B",
+    "D:\\TankForge-validation\\r81-git-push-20261027\\additions\\tools\\rebuild_current_handoff.py",
+    "--root",
+    "D:\\TankForge-workspaces\\r8.1-penetration-20261027\\online-source",
+    "--output",
+    "D:\\TankForge-validation\\r81-git-push-20261027\\rebuild-evidence\\tankforge-r81-rebuilt-from-tracked-assets.html"
+  ],
+  "cwd": "C:/Users/24908/Documents/ChatGPT/tank",
+  "exitCode": 0,
+  "toolSha256": "5ef8f8a16c2750417e0399e1be0fdd3a51242a05e7546ff3dc07b50bbc9170d9",
+  "testSha256": "64aed85a1d0c9f7be10056318b580dba1c7469ffe05f42b0b352cf485e99e87e",
+  "sourceInputsBefore": {
+    "handoff/bundle/head.html": "375a1a0a718231eb6ead3dd3540f12c8b0d3445b8d5b9d48945a141e96660113",
+    "handoff/bundle/data.line.gz.part00": "42dc9f0ff098605ed2f2cd42ddb32ca1faa1b6fc8c641b8f5308e1fdd82d5a6a",
+    "handoff/bundle/data.line.gz.part01": "ecf191e24db720531977009bb97bc4a09f6918b2ab10ebb15e7fe4ec869eca0d",
+    "handoff/bundle/data.line.gz.part02": "4fec737ca5ca7cdd5ddbc2e6ee6922fd44b87352540a5b828806b8930ff779ba",
+    "handoff/bundle/data.line.gz.part03": "e0303c5a8588847a8bdf79ce2861497b408e6a46f5d7778cc28947722c0c5692",
+    "handoff/bundle/data.line.gz.part04": "9bbb344a11739906a630365562a89003469517470916dfcd2daa69002b350f2b",
+    "handoff/bundle/app.js.html": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+    "data/aircraft/frontline.json": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+    "data/aircraft/aircraft.json": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+    "handoff/flight/flight_core.wasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "Cargo.lock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+  },
+  "sourceInputsAfter": {
+    "handoff/bundle/head.html": "375a1a0a718231eb6ead3dd3540f12c8b0d3445b8d5b9d48945a141e96660113",
+    "handoff/bundle/data.line.gz.part00": "42dc9f0ff098605ed2f2cd42ddb32ca1faa1b6fc8c641b8f5308e1fdd82d5a6a",
+    "handoff/bundle/data.line.gz.part01": "ecf191e24db720531977009bb97bc4a09f6918b2ab10ebb15e7fe4ec869eca0d",
+    "handoff/bundle/data.line.gz.part02": "4fec737ca5ca7cdd5ddbc2e6ee6922fd44b87352540a5b828806b8930ff779ba",
+    "handoff/bundle/data.line.gz.part03": "e0303c5a8588847a8bdf79ce2861497b408e6a46f5d7778cc28947722c0c5692",
+    "handoff/bundle/data.line.gz.part04": "9bbb344a11739906a630365562a89003469517470916dfcd2daa69002b350f2b",
+    "handoff/bundle/app.js.html": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+    "data/aircraft/frontline.json": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+    "data/aircraft/aircraft.json": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+    "handoff/flight/flight_core.wasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "Cargo.lock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+  },
+  "sourceInputsUnchanged": true,
+  "rebuild": {
+    "schema": "TankForgeFrozenHandoffRebuildV1",
+    "root": "D:\\TankForge-workspaces\\r8.1-penetration-20261027\\online-source",
+    "output": "D:\\TankForge-validation\\r81-git-push-20261027\\rebuild-evidence\\tankforge-r81-rebuilt-from-tracked-assets.html",
+    "bytes": 418794158,
+    "sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+    "expectedSha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+    "parts": [
+      "data.line.gz.part00",
+      "data.line.gz.part01",
+      "data.line.gz.part02",
+      "data.line.gz.part03",
+      "data.line.gz.part04"
+    ]
+  },
+  "outputBytes": 418794158,
+  "outputSha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+  "manifestSource": "D:\\TankForge-validation\\delivery-r8.1-agm-20261027\\tankforge-penetration-r8.1-linux-amd64-20261027\\manifest.json",
+  "manifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+  "matchesFinalDelivery": true,
+  "tdd": {
+    "redTests": 8,
+    "redFailures": 8,
+    "redExitCode": 1,
+    "redLogSha256": "ad65385b693a86c9e0deae50cddeba62ffabbbc16a632115867df3d85173ca92",
+    "greenTests": 8,
+    "greenFailures": 0,
+    "greenExitCode": 0,
+    "greenLogSha256": "746c12cccac66584753e43a2f05e3517ae52261e50be3fd3728b537aa662a3e2"
+  },
+  "scope": "Reassembled exact frozen HTML from existing tracked head, five compressed resource segments and final app; no Rust/Node gameplay rerun or browser interaction."
+}

@@ -46,10 +46,16 @@ pub struct SuspensionDef {
     pub stiffness: f32,
     #[serde(default)]
     pub damping: f32,
-    /// torsion_bar | interleaved | christie | volute | hvss | leaf_bogie. The bogie kinds
-    /// (volute, hvss, leaf_bogie) carry two neighbouring wheels on one pivoting arm.
+    /// Reduced vertical force profile. volute aliases VVSS, interleaved aliases torsion.
+    /// leaf_bogie/VVSS/HVSS/Horstmann couple neighbouring stations in one bogie.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kind: Option<String>,
+    /// Modeling provenance only; it does not grant spatial linkage or active height control.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub force_model: Option<String>,
+    /// Front-first station force kinds for ONE side; exact count is validated by physics.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub station_kinds: Option<Vec<String>>,
     /// Optional unsprung wheel/arm kg per station of ONE side, front first. Otherwise 6% of
     /// existing assembly mass is estimated by disc volume. This never adds assembly mass.
     #[serde(default, skip_serializing_if = "Option::is_none")]

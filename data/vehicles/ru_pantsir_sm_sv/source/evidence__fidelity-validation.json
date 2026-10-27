@@ -1,0 +1,22 @@
+{
+  "passed": true,
+  "model_sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+  "measured_report": "fidelity_audit_v2.json",
+  "metrics": {
+    "source_to_target": {
+      "mean_m": 5.726862944875282e-07,
+      "p95_m": 2.6656007889869215e-07,
+      "p99_m": 2.514729674203415e-06,
+      "max_m": 0.001676972140558064,
+      "over_10mm_pct": 0.0
+    },
+    "target_to_source": {
+      "mean_m": 1.4145354442717682e-07,
+      "p95_m": 2.6656007889869215e-07,
+      "p99_m": 1.438251501895138e-06,
+      "max_m": 0.00037806673208251595,
+      "over_10mm_pct": 0.0
+    }
+  },
+  "errors": []
+}

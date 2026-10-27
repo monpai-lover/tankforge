@@ -1,0 +1,17 @@
+{
+  "result": "PASS",
+  "url": "http://127.0.0.1:8877",
+  "health": "ok",
+  "pageBytes": 418794158,
+  "pageSha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+  "pageMatchesPreparedFile": true,
+  "frontlineMapsResponseKeys": [
+    "maps"
+  ],
+  "windowsBinarySha256": "d700667689952e154edf48fd23282358523ab6ca2c9835220629063810815742",
+  "scope": "Actual same-source Windows server HTTP health, native map catalog and full prepared game page byte equality.",
+  "limitations": [
+    "No manual flight or GPU/browser validation.",
+    "No Linux service execution."
+  ]
+}

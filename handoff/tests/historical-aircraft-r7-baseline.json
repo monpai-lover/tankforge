@@ -1,0 +1,2700 @@
+{
+  "schemaVersion": 1,
+  "description": "Immutable R7 plus mount-v4 continuity receipt. Includes original93, three R7 F15E Maverick presets and ten configurations on two R7 variants;106 indexed loadouts including guns-only. Derived before R8 integration.",
+  "baselineProfileSha256": "6337fcf3ad2fd99c775dd34fff77aaada770af0dac26d2a32d03478e671b6247",
+  "baselineSource": {
+    "appSha256": "ca6bcf3bb738151f4578f347a34f4960bbd3f9d126ed98caaa5c545f178a2e7e",
+    "baselineSha256": "7a35444f326a3234f7bdf6ad84ff8d2a561edc00d1824740ebc236dd6bf46bd4",
+    "baselineRangeNames": [
+      "projectiles",
+      "machineGuns",
+      "storeModels",
+      "aircraftModels"
+    ],
+    "physicalImportedModelCount": 17,
+    "flightWasmSha256": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "flightCoreVersion": 215,
+    "sections": {
+      "primaryProjectileFillers": {
+        "startLine": 5,
+        "sha256": "a215d466f9029e9929f27c7b2af3bc0eb5d9486a14c9e6ac587e89e81cad01b4"
+      },
+      "me262Sight": {
+        "startLine": 20,
+        "sha256": "9772673f0cbe5d9aadc5d307f328e3adf8b66afa03a351f145cef479a07f7356"
+      },
+      "mig17Wing": {
+        "startLine": 134,
+        "sha256": "a0396d1dace4192636575145723e8f7ddd25416303b5215cf95d10584e6f6811"
+      },
+      "aircraftCull": {
+        "startLine": 321,
+        "sha256": "11590e2a0f9c4a2890b872febdb94b2806637554684c5cb0168cd01ab125b69b"
+      },
+      "guidedAircraftVariants": {
+        "startLine": 38668,
+        "sha256": "856bbe0c79448ca2d961bb590cd19c248221c88bf380e36432d4fecd9ea9f28a"
+      },
+      "modelUpgradePrelude": {
+        "startLine": 34921,
+        "sha256": "00034508829aa214ac16946c9adc8ff5f961c8e0094fbe8a8d9c2a9e070b35f9"
+      },
+      "aircraftGeometry": {
+        "startLine": 37107,
+        "sha256": "6d1defd89691ac6f95884cd7061e2803248d14ccfab0d4686e3735b9209bd85f"
+      },
+      "AIR_PARTS": {
+        "startLine": 38044,
+        "sha256": "b21d65cc36ddf1c37919db24035a4b3fcbb54cc00a1b322704fecf41d9d5e769"
+      },
+      "AIR_SKIN": {
+        "startLine": 38059,
+        "sha256": "5b62aa458046735add9c562e4e5b974dffb6027b2ed1b3e03b58e3d61af62b3e"
+      },
+      "AIR_PARTS_JET": {
+        "startLine": 38629,
+        "sha256": "ba2ee475adf5eaa373406ee3f10ec8e6a809d0e0956035ce37fb867142ef8d01"
+      },
+      "AIR_SKIN_JET": {
+        "startLine": 38643,
+        "sha256": "20c36f4eb37d57dcc12e348c5624cee0f1bb2354db6721a66c0a29fb8e0e1999"
+      },
+      "AIRCRAFT_TYPES": {
+        "startLine": 38660,
+        "sha256": "9b1c6e42e531e5a84eaf7f893c7aa999381e895689e924ddc6e391bfac6db160"
+      },
+      "fightersAndTypeConstruction": {
+        "startLine": 38766,
+        "sha256": "f416d909ca3f1eac72747dc7d08215cecf60378a8f511e1c8e5f9b3c148af48b"
+      },
+      "registerAndDecodeModels": {
+        "startLine": 7833,
+        "sha256": "87f359b5a7047ffd5fa5a1a241a5b16da47db834cf6031edb54a2fa7ae4bc0f6"
+      },
+      "aircraftInstrumentMeta": {
+        "startLine": 7884,
+        "sha256": "24b45d07e30f6785ef12f2af7930e878520859ae9957936be57fe1dc8e244fb0"
+      },
+      "applyAircraftRebuilds": {
+        "startLine": 8078,
+        "sha256": "64e0728bdb2fe7b8f54ee2f37bf155c81c18dbeef8998f0568b81ca2d2c60107"
+      },
+      "configureAircraftSurfaces": {
+        "startLine": 39524,
+        "sha256": "8db9b431ae6dbaca7c478b4ca20e88f1d7d6b938952c6a4ae87e98d45bc7947c"
+      },
+      "bulletShell": {
+        "startLine": 5363,
+        "sha256": "eed3c433eabd08323b10abae2e409badb0146c5be703eda20c023f1e23d7b02e"
+      },
+      "guns": {
+        "startLine": 42149,
+        "sha256": "47fb3c7332f6d16a6facc1428a9dcecd851d6a12e4b9f3d9f7cbef1fdba17629"
+      },
+      "aircraftResources": {
+        "path": "handoff/tools/aircraft_resources.js",
+        "sha256": "22273e551a4921becff686f8af9650df68df271897feff0d2b2116c0834c04d5"
+      },
+      "syncPodGuns": {
+        "startLine": 42240,
+        "sha256": "31c05b228c0d5fc94d2480b06e5277c36dd9b7a5848a85402dee63763292dcf6"
+      },
+      "storeDefinitions": {
+        "startLine": 42436,
+        "sha256": "dfca373498a628d2edc7ef154b25d934b76e408ce0b4705177392379db4575b8"
+      },
+      "registerMountedStoreModels": {
+        "startLine": 42566,
+        "sha256": "b64ae30e8db161e6b4e8195c8a7645fe4c9cf12c2d189b0d37b07928f15f34ef"
+      },
+      "tntEquivalentKg": {
+        "startLine": 17098,
+        "sha256": "6f9dd12c0b490b9da4a03cf61607df98a6627bbfa2e08c50b223a558814d7218"
+      },
+      "weaponStatusCompatibilityLoadouts": {
+        "startLine": 42567,
+        "sha256": "d75875ff16419b076a0381d593e72af8d10d2116886ecb9770a869e100788f0c"
+      },
+      "airStationsAndMountPosition": {
+        "startLine": 42721,
+        "sha256": "2b1c3eb5746ae9603ba5cae7cfc345570438212e2b8cc94e0e1f018a351ca4d1"
+      },
+      "modelHardpoints": {
+        "startLine": 42795,
+        "sha256": "f364ecd6044ebf7bd7089d3570ba88761d6beac5201273db8ec43136500e4c09"
+      },
+      "layoutStores": {
+        "startLine": 43126,
+        "sha256": "3ce59f69c3caa348ac3908cd6f0ebcc3e76c7c37e27869bb862ac58a9829c934"
+      },
+      "slotsAndCustomLoadout": {
+        "startLine": 43213,
+        "sha256": "b57019bbc30462fde87d86eee997bf122b0c06c3c19793bf2694e418c90aba15"
+      },
+      "storeSocket": {
+        "startLine": 8192,
+        "sha256": "0de18989e05dd2e6beb15068760ab0416c4e854fd87592440ec73e7d33fcd80b"
+      },
+      "airWingSplit": {
+        "startLine": 38098,
+        "sha256": "2c511172ef40027b9de377b1ff19868298f0893aeb6b4aa7a784fe40a1d82a0c"
+      },
+      "fuel": {
+        "startLine": 43432,
+        "sha256": "d23a483ce3712f8e3932cf017026c078a73856ddad7e2dda14b9157c4098debe"
+      },
+      "aircraftRadarDefinitions": {
+        "startLine": 42652,
+        "sha256": "b7b930837fda9f76250dcbd0a3b4a8bdb2d8fb0ea100bf853696b5615ec06744"
+      },
+      "aircraftSensorDefinitions": {
+        "startLine": 44607,
+        "sha256": "c7d825cfc42a2fa38e37a16905f81efcc0f29a3eb2c890efcb4cc436229c1d62"
+      },
+      "storeWarhead": {
+        "startLine": 42708,
+        "sha256": "5ece42c71873333a7aa1fe3c5ef204fc043ce73f38e0258931d4dbbed6e3f54a"
+      },
+      "loadFlightCore": {
+        "startLine": 37982,
+        "sha256": "c79bbcbdc858458f20127506f7dffce33e017f1d05b162276291392fe8c80eb3"
+      },
+      "Aircraft.spawn": {
+        "startLine": 39993,
+        "sha256": "d3c3d61dca4293de252f8e7d9a6712bd14f35c442586b7a5f7ca838ef417c0c3"
+      }
+    }
+  },
+  "aircraft": {
+    "nf01": {
+      "metadata": {
+        "name": "NF-01 試飛機",
+        "nation": null
+      },
+      "hashes": {
+        "metadata": "3601e0bdd11e8aa1c43b0b2808ae98a330cf723b166604347e6bfbb2d2259658",
+        "physics": "e615921afeb39e4ac062ce1ac7004fb9f2e1a8eb09842a7b284b16748e87072c",
+        "guns": "79986cd8bf8d2fbe92adead154a1632886bb3053a62e756a38c5ca9bab429512",
+        "fuel": "e585ebc460422886f2faeb6bebb792e3bf5eb416a961fdf0058f62881c529639",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "sc250",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "7afb6f2aca137db8df1dff2f6b7202bcedb98250a7098a53b18bd29566e5f274"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "hvar",
+              6,
+              "row"
+            ]
+          ],
+          "sha256": "79280057437617c839679e58acc8af86e2014852a01582b2fed13a5044c2508c"
+        }
+      ],
+      "slotsSha256": "c8511142b002c6b3c9a991498c7babbc9a03ac14b90b21da4cb78629d947dc73",
+      "slotItemsSha256": "754e59fd182769d5ab5ecbb86f6e0eb94f6af69241d2defe23c05fd700a65d6e"
+    },
+    "nf02": {
+      "metadata": {
+        "name": "NF-02 噴射戰鬥機",
+        "nation": null
+      },
+      "hashes": {
+        "metadata": "d3b30d8592456e9b3de16ff569736d299df05f7458cfe63cdc46e226bb5bd8d3",
+        "physics": "8b6df204449d0a41789731144ef85c695ec0dd85377726f6a53b2766bc37a2be",
+        "guns": "e12c2306a12158224e6f82869e52f1bd6108054535da736416236c6977fffb4b",
+        "fuel": "3f1de11e12c9f5128f8ea5c240088edb501ea1040baa4a3de2b307879fbc8782",
+        "sensors": "d35fd8d8caa5c126caaff26237a7d46a5874ce481ac4317ffc8d9e97a37f3c71"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "tip"
+            ],
+            [
+              "aim120a",
+              2,
+              "mid"
+            ],
+            [
+              "aim7f",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "dcc2990384d1d1fb3d6309b23bf596aca7568e9fe9393faedfe3beee4b7473b6"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "agm65a",
+              2,
+              "mid"
+            ],
+            [
+              "agm65d",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "242959fc4fad6ca982a920e756bd05c9d0d492fc4a0f9e4798a2a57a348224fb"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "lau3",
+              2,
+              "outer"
+            ],
+            [
+              "aim9l",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "177d58396bd7dceadf85517af166decf15bfa070e6c31a41479541a3159924a3"
+        },
+        {
+          "index": 4,
+          "name": "測試：紅外",
+          "entries": [
+            [
+              "aim9x",
+              2,
+              "tip"
+            ],
+            [
+              "irist",
+              2,
+              "outer"
+            ],
+            [
+              "asraam",
+              2,
+              "mid"
+            ],
+            [
+              "mica_ir",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "bca52d4c6978d36844813ffdfae179a150d474921a4f973d26f6e70f8a409c9b"
+        },
+        {
+          "index": 5,
+          "name": "測試：紅外（出口型／早期）",
+          "entries": [
+            [
+              "r73e",
+              2,
+              "tip"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ],
+            [
+              "r27t1",
+              2,
+              "mid"
+            ],
+            [
+              "r27et1",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "ec19f974e35144e47c0f3482bbecdc4b2f044247108779de784e78a2dda82313"
+        },
+        {
+          "index": 6,
+          "name": "測試：半主動",
+          "entries": [
+            [
+              "aim7m",
+              2,
+              "tip"
+            ],
+            [
+              "r27r1",
+              2,
+              "outer"
+            ],
+            [
+              "r27er1",
+              2,
+              "mid"
+            ],
+            [
+              "aim54a",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "192dd4acb026741cf2734f2d9c65dc8b60942a61d7e0d520d6f13d99a2d402c4"
+        },
+        {
+          "index": 7,
+          "name": "測試：主動雷達",
+          "entries": [
+            [
+              "aim120b",
+              2,
+              "tip"
+            ],
+            [
+              "aim120c",
+              2,
+              "outer"
+            ],
+            [
+              "rvvae",
+              2,
+              "mid"
+            ],
+            [
+              "meteor",
+              2,
+              "inner"
+            ],
+            [
+              "mica_em",
+              2,
+              "belly"
+            ]
+          ],
+          "sha256": "e3cebcce37f4ceecc80ba6b44679e93a2b2e1d11f997397b5085a9eeff5f51d0"
+        },
+        {
+          "index": 8,
+          "name": "測試：對地導引",
+          "entries": [
+            [
+              "agm65b",
+              2,
+              "tip"
+            ],
+            [
+              "agm65g",
+              2,
+              "outer"
+            ],
+            [
+              "agm65e",
+              2,
+              "mid"
+            ],
+            [
+              "kh29te",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "090846e803bd6d57fd78d95b09f7ee749d9cde3e40a61efbbc1c83253edfd418"
+        },
+        {
+          "index": 9,
+          "name": "測試：駕束／指令／反輻射",
+          "entries": [
+            [
+              "vikhr",
+              2,
+              "tip"
+            ],
+            [
+              "agm12b",
+              2,
+              "outer"
+            ],
+            [
+              "agm45a",
+              2,
+              "mid"
+            ],
+            [
+              "agm88b",
+              2,
+              "inner"
+            ],
+            [
+              "kh31p",
+              2,
+              "belly"
+            ]
+          ],
+          "sha256": "6ef8b25f4750da9563fd740787ab475621cb5db0a103d54fd3b42efc192f05b7"
+        }
+      ],
+      "slotsSha256": "58a9074e4226b83d6c3fe7128fa7403fcb23469806090a7d6b7dc49d98bde9c7",
+      "slotItemsSha256": "befffa2c48803e3228a0c29ac9bc766dc85dfc4c013c71da94debdbbd00fed2b"
+    },
+    "p51d": {
+      "metadata": {
+        "name": "P-51D 野馬",
+        "nation": "美國"
+      },
+      "hashes": {
+        "metadata": "a8ac9586e41b4407828fcc88f6e0ce38af1a1d3780f6e227d0caf9480a6228c5",
+        "physics": "7a358755efb76378aa946cb0c43b25512bdb76f43d5e20b8ee4325a2b575911d",
+        "guns": "03500ed2cdf05f7e7d013abc729e98214a7dfacc4f63f76f01e87d1dd3984e3b",
+        "fuel": "f429ac117a8efbffe573282ec6ca447529215c639f6ab5de41f222ca679c0160",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "4fc98810c2ed2554a2a31abcdeb9f66bf7313c57776d266614d191aafc932cab"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "hvar",
+              6,
+              "row"
+            ]
+          ],
+          "sha256": "12c90e91f047ef7219703c948bb1434872e93dc01924e3effa80c6aedba72454"
+        }
+      ],
+      "slotsSha256": "de5bb9742dd06320b526a55c7463baf55bf39becf875dc3dfbff9ea2951d5f1e",
+      "slotItemsSha256": "b77e6ff1cdf242cc1969b4a81c3cbfeb84ffe26dff7c6bdc12653c6cec367279"
+    },
+    "bf109g": {
+      "metadata": {
+        "name": "Bf 109 G-6",
+        "nation": "德國"
+      },
+      "hashes": {
+        "metadata": "1668cef0799c3a199c0b8c533d0f5ecd0d79f707643541cb4471b176b674fe94",
+        "physics": "8c5de56367971775ca1ec1cb5964cdad6d300bb3c48266f7486209cb031d0c3b",
+        "guns": "307cedfcf2eca39824c2ecafb079d1c66544b5d5f824cd6fdde4e677d7b523c2",
+        "fuel": "232ff6a151b00182e9aa93410abf2deda39f7495a5cd916800870fa4b00c0b35",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "sc250",
+              1,
+              "center"
+            ]
+          ],
+          "sha256": "f787d6fed6f33e9e18bd0f53f74c3ab1e7d03c5b534ab6d4bc324d656e94999a"
+        }
+      ],
+      "slotsSha256": "5efaf4dacb67178dbc65dec4aee4700369bceb98b49c43a66af22f4fc5dcecbe",
+      "slotItemsSha256": "ad07285cb2ecbb0ac90e0befb5f59e4f45e48c8489a90213b3f4a4507833fc39"
+    },
+    "spitfire9": {
+      "metadata": {
+        "name": "噴火 Mk IX",
+        "nation": "英國"
+      },
+      "hashes": {
+        "metadata": "66b90c294be70e23f4c7d4dbe0273b49738d54060ab8bf8ad644eaa03c38cd28",
+        "physics": "9c7bb894e7064abc2346101ca515333e672f7a9dbe956153ab87c66bcff3ab21",
+        "guns": "eb638e3220683af2d2c2cf7142deebfca58b5b203de4bbfc93a803d75e0e281d",
+        "fuel": "90a928b0edc658cfe6994607cb29265ab3f918aa55ecaed3a18cecedd2424a76",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "mc500",
+              1,
+              "center"
+            ],
+            [
+              "gp250",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "2b322badbf4487f758ffab0e15c6d4c18885f256c25a7285b9150e8ca5aa95d4"
+        }
+      ],
+      "slotsSha256": "94904a593082541caad7f2a50b68fad38ceddb27ad729eb5efdf8a75017c9fb8",
+      "slotItemsSha256": "d753635132a0992a0c34266889d3cfa315fe7ab351c9aaf0bbabc2b05e5ab191"
+    },
+    "mig15": {
+      "metadata": {
+        "name": "MiG-15bis",
+        "nation": "蘇聯"
+      },
+      "hashes": {
+        "metadata": "f1c61266010992f7ea2149943dcefc0f7117e4e68dccb5bb93027d98103d9d46",
+        "physics": "06a9a976e195b6550d3b613ca35d68c70bc839a946b419f2c203c0aa950f17b9",
+        "guns": "18b8fc14338a022ba0a43e7d1552c0ddc679d62ead1b09deef879a5ec0272a8f",
+        "fuel": "1b16d138e50e4c55fe6b24374d6e32667e6504be0f5a46648a4b5a80379b89bc",
+        "sensors": "99c65bab9363a6f4e42615acbb7ab9de2253c7401cc5505e2d5b133c4cd6e807"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "a2e7984614f1a066867ff4921615d4702b19241f5941725a5c1153584197a39a"
+        }
+      ],
+      "slotsSha256": "34acd62c4be2f0ee0ca1555ce3c9787060345ea26092c9d43811ed464e3edc25",
+      "slotItemsSha256": "57fe92932ffadfac2e42b18597eddaf8aac03b6ab5ac6c0038dd30ff35948024"
+    },
+    "f86f": {
+      "metadata": {
+        "name": "F-86F 軍刀",
+        "nation": "美國"
+      },
+      "hashes": {
+        "metadata": "0024e84df0d8c6b3dbd155cdf3cecb928b6de3c9d958674984cedc2a4b1acd9c",
+        "physics": "30fed5cc7b7d012e0f520cf513fe7318cce62a02239507f66064f0d5dce8de57",
+        "guns": "bec2d2bbebb907a88f87df56c7ad6525c297d474f6fffadc056084831ad708dd",
+        "fuel": "51d4ac09f94dcb71afa0232fcf7f1e09596bbdb365c5d6e22b7af310ba851619",
+        "sensors": "9902c8895afc654579d9316653a24145c803bde94a5d322795bb944fde696db6"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "500 磅炸彈",
+          "entries": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "79c20e4b5d80fc74c69525c194c92a16b0107717c540f61cc88b3b2ff4613a0c"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "hvar",
+              8,
+              "row"
+            ]
+          ],
+          "sha256": "7a30bc014ea7417a825ca2db6e9871918c974a86f437612c58fb715b01f878fb"
+        },
+        {
+          "index": 3,
+          "name": "副油箱",
+          "entries": [
+            [
+              "tank120",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "ebb0c6da5feecfba529a1b0baf936551e5100433d1f884913f833de9eb76ab1c"
+        },
+        {
+          "index": 4,
+          "name": "炸彈／副油箱",
+          "entries": [
+            [
+              "anm64",
+              2,
+              "inner"
+            ],
+            [
+              "tank120",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "baf1d97d30f8250ec06a04756273077d09c6f3b90e87651d07f35ce307963a78"
+        }
+      ],
+      "slotsSha256": "a059fcca0e290b3adbc8cc18755b49d4516ec1f33bb2fe9c22cb5e358e35c6a3",
+      "slotItemsSha256": "c080564db6502d06f4966ee458bee0541eb2a314926a6f9738860a2dee4bdb16"
+    },
+    "f104g": {
+      "metadata": {
+        "name": "F-104G 星式",
+        "nation": "西德"
+      },
+      "hashes": {
+        "metadata": "ef1044906c3caea6732a2388ed95fc6c39302f1861ec6745acdd18015fadffe2",
+        "physics": "be0b3389419565906482ab4ff935b47eb885d268c77950eb6c1dbfb5e8e3b0a1",
+        "guns": "bb642d69b3d6f1e98564a4318e4a951af8bcf3b6353db182dfa3ec718eca0b9b",
+        "fuel": "aad0009e31c4a3bdbb0befd1467f93543415ec249a252f8b0d15d3bffe9a19a9",
+        "sensors": "46a47a4086ee3dcaa3b638f2909dd175af253cfa1c71fdb420d6f29c3f91999e"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim9b",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "d7742cb29285c9f5770b01e659706417d6dac67f935dae71955567609b1ef2f7"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "mk82",
+              2,
+              "inner"
+            ],
+            [
+              "aim9b",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "9d92585fd66467912c1e01b085778bc889d6c95e15e131c656f1c6737c7b431c"
+        }
+      ],
+      "slotsSha256": "920db5161d21b8a730bc884a9215450ceb7f75373a6c5d85edc280f4367b90b6",
+      "slotItemsSha256": "b33bcfdc76278eefaa2ac501bbab424da515282b873a9d5bf685e284e757739b"
+    },
+    "mig21": {
+      "metadata": {
+        "name": "MiG-21MF",
+        "nation": "東德"
+      },
+      "hashes": {
+        "metadata": "6159f82039069df7a77db2f3b5f286f4bef238179578ee865cb5670b6469793d",
+        "physics": "0ae27642808f703c6c288ea1dfb12c881ad706249ae25cdf948eb2df84eb1b0d",
+        "guns": "82fe23be776a43c8a8616b720d7a9324fc9957e41fa31fc0212101a59e5ecebe",
+        "fuel": "531b9364b0b97d21082d3ae7892d18670622761d93074b58958cbd3859aa20c8",
+        "sensors": "9c46d39bf241f7d9f80850703a487c5c927c0b04eff3839579ee682416a2263b"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r3s",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "b4ba3183e4b17a998d13ff72b608c41721f9e107fccadb229c0893b6955ebc06"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "900733e056068d5c7e5c5ea43f86aa4306987f3667ea3b64837f6415dd581d02"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "ub16",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "3ee3a2f47e10f036b498d9cee1a25447e329af4d08a2801e51752d9fcbc5fc7c"
+        }
+      ],
+      "slotsSha256": "cdd9c47b5691fba5a6b7d0060ca848500394414984f6e9f9bb6520b77ec1fb67",
+      "slotItemsSha256": "22c9120e8bf00b5ec42e0b7a2c311deca01cf1c986722524ea23525d9cea217c"
+    },
+    "fw190a8": {
+      "metadata": {
+        "name": "Fw 190 A-8",
+        "nation": "德國"
+      },
+      "hashes": {
+        "metadata": "9bbd21dea7296b62c44f44664bade823199780e20516e7f1fd861e2e901db7be",
+        "physics": "af5467ee30fa1014729d62af58d8f3f6e8051b6c4afe99f67f64e6405c1a81c0",
+        "guns": "16eb424e24b3d47ec6d9d45db1050c25587c77166b7707e77bfb528e25e2fc61",
+        "fuel": "b2b8d46c62a4a9c8a0159659bbaa8b47e872091f79089c4172ea281fed516100",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "sc500",
+              1,
+              "center"
+            ]
+          ],
+          "sha256": "881696afbc7c9270f695f7f4c4c15be6ab3bfba365462413f255a022889258da"
+        }
+      ],
+      "slotsSha256": "7542e866da78052ded1047ab4efcee644ee1a2cd12cd261dddcfedcd5f74bd18",
+      "slotItemsSha256": "58a6d86cc4223b85493d1b604a00eb6c7cac4a5470acdf16e55716c8251ce0e8"
+    },
+    "yak9u": {
+      "metadata": {
+        "name": "Yak-9U",
+        "nation": "蘇聯"
+      },
+      "hashes": {
+        "metadata": "ff4ec30500394f1c94511cb16102de638f65b516bf150d80b5a47c65d47040a0",
+        "physics": "2ea1a6d3b95f9456c308e57162218656b4fdaf60ef49f265b706b08e7e46eebb",
+        "guns": "0cbec96214aff12268d3b28def18d28ff72ce022b600899d9be6519cee1dad6d",
+        "fuel": "151f16614275341c42e5afd291ea9266259e3af5020ca3c46f353d71d65a0573",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        }
+      ],
+      "slotsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "slotItemsSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "a6m2": {
+      "metadata": {
+        "name": "A6M2 零式艦戰 21 型",
+        "nation": "日本"
+      },
+      "hashes": {
+        "metadata": "258e02d45b0502cabd2fc4c757f4d365c901eb382695c9f3d7b3b5cf49bbbbdd",
+        "physics": "bf021ff034d55e914d23bc7834543c24b63def23d6904710c9e8adf893aa4889",
+        "guns": "428fb80fd96cf74a40c349f47beef8c6365aa0a87c7c1e5c1fff179ecb65cdb6",
+        "fuel": "b7a56f2bc542b74f317a23231a77546f2e16b2951e887cc495d7a141c43f1cbf",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "type97b60",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "b29b10372b4100cea5e4f93382d43b4e0bb931392bd717236ca48254bbd197f8"
+        }
+      ],
+      "slotsSha256": "f6a50195d2ff32f722e730d7be3c2388a559754e4708fc73855abbcdb31332cf",
+      "slotItemsSha256": "9496181a163c41a76a26d654aa59159b084f8978f4f35a9258607d2958e654dc"
+    },
+    "f4u1d": {
+      "metadata": {
+        "name": "F4U-1D 海盜",
+        "nation": "美國"
+      },
+      "hashes": {
+        "metadata": "17c33b927d380606e06d1931eea99aa0465c20e5a63afc4501b4bfeb9f8071fa",
+        "physics": "9a83881928e24776279aa3ff70ed0737dcbb4f19d2dc8660789aac5362411680",
+        "guns": "9907191f210e93b2a116cfac7d604842a3fe75cbd67b36676bdf7aa0b293c199",
+        "fuel": "842339c56551e74aa5f3e73dad92263337b99359579badd6eba45c37e17b0cc6",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "對地",
+          "entries": [
+            [
+              "anm65",
+              2,
+              "inner"
+            ],
+            [
+              "hvar",
+              4,
+              "mid"
+            ],
+            [
+              "hvar",
+              4,
+              "outer"
+            ]
+          ],
+          "sha256": "d1573a054c485344af31012757f45330908775d6b30e8d24825acc1a63836df1"
+        }
+      ],
+      "slotsSha256": "26a07be21511ac8cdfaa9492abe91ab2665f8c285394f44e3c4df427cd5368e0",
+      "slotItemsSha256": "4821bfe98d8d92af0ea996404caf93dd155723962ca60380596035fc0ea897e2"
+    },
+    "me262": {
+      "metadata": {
+        "name": "Me 262 A-1a 燕式",
+        "nation": "德國"
+      },
+      "hashes": {
+        "metadata": "4c8b1e35928b16770bd50cae7b1a9177eadf95c979362e25f18164cdcf47d748",
+        "physics": "9660eb8edfe1a3f142b94d9d0abb06d0a206abe970a958aa32fb5ab5a76d4ef4",
+        "guns": "f74641a4d2ba5d5bb24525c43ccd3c57483cd5d2d39f5cc4314b4739c0be68a8",
+        "fuel": "e3f5706075d1df6963b83218bf8a571922fc83e8981974eec91a5251b95ccbad",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "R4M 火箭",
+          "entries": [
+            [
+              "r4m",
+              24,
+              "source_r4m"
+            ]
+          ],
+          "sha256": "4f57ab22db4741fe4c8040768aee6f27cc7e65d273429bc658731b27b4df4ec8"
+        }
+      ],
+      "slotsSha256": "c93de424cfdfabfe70b83fbf3b45ae1ebc95b52e88109a2ffaf13dbc58d4386f",
+      "slotItemsSha256": "880a97dd3ac0f3768304dba4f5dc6c1f4cfdcfb177da98908ac575c642e7b7fe"
+    },
+    "hunter6": {
+      "metadata": {
+        "name": "Hunter F.6 獵人",
+        "nation": "英國"
+      },
+      "hashes": {
+        "metadata": "9130c41cb84f71d5f9062a23bfa808466afbafd1f59f42bbe09a0fcd8c315daf",
+        "physics": "7a8b27788882939d75ff5cc5d1158d1ea99ca38181464188ead1e80eea601f32",
+        "guns": "242afed8b0fa920bd0d295c8fbdb59d2f6587aa3df91cf0d436d241de93e8f2a",
+        "fuel": "2ca11c66c857b24955e2176c4b52afe58ad8e3e743d362eedeedf6c307c997db",
+        "sensors": "9902c8895afc654579d9316653a24145c803bde94a5d322795bb944fde696db6"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "火箭",
+          "entries": [
+            [
+              "rp3",
+              8,
+              "row"
+            ]
+          ],
+          "sha256": "8660641b81b5a129931b6c4f5dd6112d828b5aa17d052b2476e46cd8156531b3"
+        },
+        {
+          "index": 2,
+          "name": "炸彈",
+          "entries": [
+            [
+              "mc500",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "1aa6037fe313cc04ce82269aa704a18c0bc06676f31e22cc715643379e1a7b5a"
+        }
+      ],
+      "slotsSha256": "8351a6688f28489495a866be9e6f09e55544919ef29956a515fad1c2cd81114d",
+      "slotItemsSha256": "82e093e40ce0f3947c62864aeb09d026596b1cb12066866af273a341b1284c75"
+    },
+    "mig17f": {
+      "metadata": {
+        "name": "MiG-17F",
+        "nation": "蘇聯"
+      },
+      "hashes": {
+        "metadata": "9edebe38acfe9beb5d5d3a8f72faea7f6e9ba5b1ffb599ace89265c92787611e",
+        "physics": "301df0355c92ba99f00c4d99e0c550c58c70318af6df115e14291da80cd09bd5",
+        "guns": "473b45f2b84059aaffd4d7d21c118717d733247bacf464c681aade2324d49d8b",
+        "fuel": "73f41266248e0e6eb64cd9b3984824a529b99b4e8dabdbacd51eea291030bc49",
+        "sensors": "99c65bab9363a6f4e42615acbb7ab9de2253c7401cc5505e2d5b133c4cd6e807"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "ce2b008d912364b5942863c9e9715e7df343da37320edb5402745b8baeda9c7e"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "ub16",
+              2,
+              "inner"
+            ]
+          ],
+          "sha256": "1d1b253c8c61acec3d14db3e9d85d620cd2284a98fe1d39efaeae9c4bdad1beb"
+        }
+      ],
+      "slotsSha256": "c623bef3d81894f34fef3c952c00e2ece1c43ddec03f16a295729a1dda3013db",
+      "slotItemsSha256": "d46c3788a6edb2b58c44d9e9c5de5075c4ae22788a80df0bf8499e76364eb32c"
+    },
+    "mirage3e": {
+      "metadata": {
+        "name": "Mirage 5F 幻象",
+        "nation": "法國"
+      },
+      "hashes": {
+        "metadata": "aded5612672b73b7abf5714c029b200cb628b9ddbb354710701781cbadded1bd",
+        "physics": "53e4349672325aefd970baa13040037c6651c73c892547f755e5e7a014bf02a6",
+        "guns": "aa0c0a3be2dcc14cc4700a50ea95a46fb177af9b1886d09655e1bfb3225f1c32",
+        "fuel": "b41f1c38422d951ddeed5225231d392ec8c37a2ee689c84afd1ad6d9d7b82c69",
+        "sensors": "a417596c1e179e73572a8f1c11c35de9b01992371198d6c1b88c1004bc2c82bf"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "magic1",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "18097fb24eb87e5f0d3886c5b73b464aec8481fb75100d892ab49d19759bf0d9"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "matra155",
+              2,
+              "inner"
+            ],
+            [
+              "magic1",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "d2431659aacae20136f667fb0a059faee6a4cf6bfebc28b26756eaf003b143b2"
+        }
+      ],
+      "slotsSha256": "a281ebdb1e34e48b3146d0cbe528073082f48a6c5180ece566e8a06bcb923daa",
+      "slotItemsSha256": "c4f129c12f706d9d383bf1c70932a8f85a3d12652fc207216794ff6c380c9446"
+    },
+    "f4e": {
+      "metadata": {
+        "name": "F-4E 幽靈 II",
+        "nation": "美國"
+      },
+      "hashes": {
+        "metadata": "017a60c99642ac81d63aa22f5eaf84980758ca9014c0242683340ba33ff0aa3a",
+        "physics": "70aafe64a0c86917bab0ea649cc755c42f0889a888232a3d11295ac74ca80f8e",
+        "guns": "e0233507fca5e4c09495b8086c848d52a3e969626af1f982c345024564f06d8c",
+        "fuel": "1fff01b683f6cfb60530b763c42332549397f7359048aefd394b816aed71d027",
+        "sensors": "022a47720ed01dcaba1bec5d3b279d75d771a0938c8725376e1b06d6f4b7d58b"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim7e",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ],
+          "sha256": "3baf6d4969cdb0e7c8ae8cad6656c3e891432822d50ac2578f5f738aae20c9aa"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "agm65a",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ],
+            [
+              "pavespike",
+              1,
+              "center"
+            ]
+          ],
+          "sha256": "36eb1ae90f8602744dae4da53f80a1ca81e0abcd432bca0d2daaaf825fecca17"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "lau3",
+              4,
+              "inner"
+            ],
+            [
+              "aim9l",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "8b156d399ab7dd28f161b7173f3951ff7e9d3d4f74e677dbb2758c548be21103"
+        },
+        {
+          "index": 4,
+          "name": "重炸彈",
+          "entries": [
+            [
+              "mk84",
+              2,
+              "inner"
+            ],
+            [
+              "aim7e",
+              4,
+              "belly"
+            ]
+          ],
+          "sha256": "c9918fb8a5c8404f6a90ef809228b76db4335b7fa51c11651502999e87ff6ccd"
+        },
+        {
+          "index": 5,
+          "name": "雷射炸彈",
+          "entries": [
+            [
+              "gbu12",
+              4,
+              "inner"
+            ],
+            [
+              "gbu10",
+              2,
+              "outer"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ],
+            [
+              "pavespike",
+              1,
+              "center"
+            ]
+          ],
+          "sha256": "24fb2806872d584b76d17639b04f35fedadba70ea34ab6762fb6a89aa1688a19"
+        },
+        {
+          "index": 6,
+          "name": "犢牛／百舌鳥",
+          "entries": [
+            [
+              "agm12b",
+              2,
+              "inner"
+            ],
+            [
+              "agm45a",
+              2,
+              "outer"
+            ],
+            [
+              "aim7e",
+              4,
+              "belly"
+            ]
+          ],
+          "sha256": "2d483296b4b38562f99c67a84ace95b34cfdab3670e8e24e16653ec00910969b"
+        },
+        {
+          "index": 7,
+          "name": "電視小牛 B",
+          "entries": [
+            [
+              "agm65b",
+              2,
+              "outer"
+            ],
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "aim7e",
+              2,
+              "belly"
+            ]
+          ],
+          "sha256": "9b8dc12d6cec604bda309032713b273e7484b7184bf19d1c9d4aeb7c3262d30b"
+        }
+      ],
+      "slotsSha256": "68a8aa1d1fe1dd1ca97b34c5f715d269e3bbf14455147f485e91732acd4e9b56",
+      "slotItemsSha256": "dcc4ed73007d5ab95a7b25b3fb46bb52d3a2a6d5bf1dfac87d760a7aaaa9959b"
+    },
+    "f15c": {
+      "metadata": {
+        "name": "F-15E 打擊鷹",
+        "nation": "美國"
+      },
+      "hashes": {
+        "metadata": "9e968f1016f39098152600f6f5ae29b9b80228b27f2eb457a5930835998a8d29",
+        "physics": "6dac622e112b543e3c78846203465fc65a1341357f4d0a9226ee0e420d536097",
+        "guns": "bfb47c65c97ffa875396fc244bd178cc9f18d4eb264821e944efc41ba10b5f9f",
+        "fuel": "73935b9b7a461dbb83b48a90e4eeeb23f3f41ebb0863a8276581a379cddd09fe",
+        "sensors": "3bc05feb9e7e49174bf7a9c595ded0d75471009eafc46dee2d5f697f193fcb2f"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim7f",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ],
+          "sha256": "c9f475a34fbf51650fec3d0fdf58e0103087d42d234bd13e864a4edb314f83cb"
+        },
+        {
+          "index": 2,
+          "name": "AMRAAM",
+          "entries": [
+            [
+              "aim120a",
+              4,
+              "belly"
+            ],
+            [
+              "aim9l",
+              4,
+              "mid"
+            ]
+          ],
+          "sha256": "b2419bb09de88fd10fe710b3d5dc0a10ab8c4a3838eeeb22050571190c081786"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "mk82",
+              4,
+              "inner"
+            ],
+            [
+              "mk82",
+              2,
+              "center"
+            ],
+            [
+              "aim9l",
+              2,
+              "outer"
+            ],
+            [
+              "aim7f",
+              2,
+              "belly"
+            ]
+          ],
+          "sha256": "9122b30cd20ef58dd17403aa0d0ce68d5bda1eecf64f6b2f08c236d5ea364fbe"
+        },
+        {
+          "index": 4,
+          "name": "空戰（7M／9M）",
+          "entries": [
+            [
+              "aim7m",
+              4,
+              "belly"
+            ],
+            [
+              "aim9m",
+              4,
+              "mid"
+            ]
+          ],
+          "sha256": "880f74057640a899d0be142152b871d1903c9e09facd62447840e4c1f6b2bb1c"
+        },
+        {
+          "index": 5,
+          "name": "AMRAAM（120B／C）",
+          "entries": [
+            [
+              "aim120b",
+              2,
+              "belly"
+            ],
+            [
+              "aim120c",
+              2,
+              "mid"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "59cbe975cc12d55aedb21b030d8a5eaf57d5f479947ffae4444f1e0db0bed400"
+        },
+        {
+          "index": 6,
+          "name": "AGM-65B TV",
+          "entries": [
+            [
+              "agm65b",
+              2,
+              "inner"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "a84d2c17c17d754c4eb418c012f03d50554fc91253c4d5d57e367b078600ce9e"
+        },
+        {
+          "index": 7,
+          "name": "AGM-65D IIR",
+          "entries": [
+            [
+              "agm65d",
+              2,
+              "inner"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "152bd56027f67c741da210ea2a0f2841960496946ea6578db7a8aebf67f14caa"
+        },
+        {
+          "index": 8,
+          "name": "AGM-65G IIR 重彈頭",
+          "entries": [
+            [
+              "agm65g",
+              2,
+              "inner"
+            ],
+            [
+              "aim9m",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "5af617ef1bdd3b44e6e0f161977f52d9c9d51e765c54f64921ca5632b2134742"
+        }
+      ],
+      "slotsSha256": "005a4b72cbb37a050d1003ad742c2e2bc53f0ec67ddb76a2dd9315b7aa8fd417",
+      "slotItemsSha256": "10854a2e231749bfd67aa6c8473415273b0bd0137ef8cac0cf1514bc2dd3196e"
+    },
+    "mig29": {
+      "metadata": {
+        "name": "MiG-29 9.12 支點",
+        "nation": "蘇聯"
+      },
+      "hashes": {
+        "metadata": "6445b90c111e79c829330a14b9c1d05d9d121b51f333e96a1b0e37a5c4fa56c4",
+        "physics": "0a1f4c73000f1e8e9f37348487430eb2bbe5f8b60c0ee8d3eaa2a40797b51b90",
+        "guns": "4bf5cd3fbd9a9bd89c0c598b3ae380919b5e5d80c79dfbb00aedea14ae699589",
+        "fuel": "7ea432c7724214824d06fe320267a80b0865ef3e6ed9121a910e1e4b370f4ddf",
+        "sensors": "30c57575e416641526f11113ecc7940eb784f152a7092eaf98338a95d20ca369"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r27r",
+              2,
+              "inner"
+            ],
+            [
+              "r73",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "b15afca9e799177c32efca94ef5e1c0e34d5c41b8f9ad12d1ee8b1f5cfca17e7"
+        },
+        {
+          "index": 2,
+          "name": "近戰",
+          "entries": [
+            [
+              "r27t",
+              2,
+              "inner"
+            ],
+            [
+              "r60m",
+              2,
+              "mid"
+            ],
+            [
+              "r60m",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "fa48c9c70f7b9f824bf9b1deab46ec114b32d27bfcbd1ece4e5972614f6a43a4"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "8cb993c11a5e1b8ac4f181db6b2e4937263bfab9b151b08dd8570aa18eb55925"
+        }
+      ],
+      "slotsSha256": "b92b3210371468a0a73320b8d390500d8db44285e876c7c6a7d67069e0aba266",
+      "slotItemsSha256": "3f3ac0d2bf581a6f9bce016c810a80bdf9ae8336de29de104e6a6d82ebc64154"
+    },
+    "f16v": {
+      "metadata": {
+        "name": "F-16V 戰隼",
+        "nation": "中華民國"
+      },
+      "hashes": {
+        "metadata": "62e92ff6c36fa2baf9ce9e950bb33920b4061e9e626f48a1e448882117e4ca53",
+        "physics": "7fba80a7105813cc03b83f138647bf0644fad5c04f995316e76ec4414656e314",
+        "guns": "17a89493cfb3a3a470d72bf159c02f86e40d69ff7b9397ddc04ebb5b2b8ead8d",
+        "fuel": "a04566f2b2b1a54fb31cee7647c0d44d67a17f8bc9b5195bb077f9764a6a88d7",
+        "sensors": "e3d5f3601c524697eb244afbee0732f6fac9dbefa6289d0bb7820eb4ccebc422"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "aim120c",
+              2,
+              "tip"
+            ],
+            [
+              "aim120c",
+              2,
+              "outer"
+            ],
+            [
+              "aim9x",
+              2,
+              "mid"
+            ]
+          ],
+          "sha256": "a9257884dd0074febe00d4ed53d9adfcd0a72249e615a34288e2101e8c85a2bc"
+        },
+        {
+          "index": 2,
+          "name": "空戰（9M／120B）",
+          "entries": [
+            [
+              "aim9m",
+              2,
+              "tip"
+            ],
+            [
+              "aim120b",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "b162ca57a2ee8275431f9744332605246c802fb1bdcba12ff207d5ed45152316"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "agm65g",
+              2,
+              "mid"
+            ],
+            [
+              "mk82",
+              2,
+              "inner"
+            ],
+            [
+              "aim9x",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "46de164530c1b875af12773f906cde37a3049eb21dd3297ccd3b85ba9fb09df7"
+        },
+        {
+          "index": 4,
+          "name": "精準炸彈",
+          "entries": [
+            [
+              "gbu12",
+              2,
+              "inner"
+            ],
+            [
+              "aim120c",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "a4a928a589730fd55f645ee3cb0ecbcd8b11d6cc691a7374758b107919b6639c"
+        }
+      ],
+      "slotsSha256": "b633f4e56834d945519720375feb9116785babe170bd1a8eb6b596f97a614e5c",
+      "slotItemsSha256": "5c61fc883c5db221001e345c11388cf9d603d46be814a22063318c28be50069a"
+    },
+    "su27": {
+      "metadata": {
+        "name": "Su-27UBK 側衛",
+        "nation": "中國"
+      },
+      "hashes": {
+        "metadata": "8b4d1181a146856d3bd3565fac30139280e6203e1289dd471e77061aefb86991",
+        "physics": "baaadf6e41d788f405ba630e3f84dbefb52b6f7bf6203ca3534de0e6d7920da6",
+        "guns": "ed92604501b3e8f3ba04027df25173b074c04b88fd4a9387c4d99c9fd6679d62",
+        "fuel": "7a3ea02c61ef7ba93d8e114ed6159f2e03e4821347c8b7d89227896d137d578c",
+        "sensors": "036703cc82af2e9488b16086411d054eb90ea66199fb0dd84136582985f665a8"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r27r",
+              2,
+              "inner"
+            ],
+            [
+              "r27t",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ],
+            [
+              "r27r",
+              2,
+              "center"
+            ]
+          ],
+          "sha256": "ecc57bad40ec9e887e5738a33f100a7a2a1842f478080067e83fabd9ef6d073e"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "fab500",
+              2,
+              "center"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "83ad003834c9b3d855dbcc829e383d06db59c87c10cae76420dd2465b8e7bfc4"
+        }
+      ],
+      "slotsSha256": "dc10840ba218fe8a9e4824b84e3c98a7aae2c814afbd1eece18397a2231928c2",
+      "slotItemsSha256": "253918117b3672548634257991f2d12f092cfe84f2fda73b2edbd6f6dbcede78"
+    },
+    "a10a": {
+      "metadata": {
+        "name": "A-10C 雷霆 II",
+        "nation": "美國"
+      },
+      "hashes": {
+        "metadata": "e9e4ae8f7d2f2c687d80109b6bc06d500a614d0d28b2669c21f821ced15d44d8",
+        "physics": "87b4cef68954be5f3489fc5178ad248dc81d7a659f7fcc761fcbbe4826edd095",
+        "guns": "fe1bbf9a62355dcc9cb15e2349ea256520562b2845bb08f32df3cbc5315be527",
+        "fuel": "128b0a3fc33e1bab2d99964a63fd80e4835951b1f1661cc63a2e01ae6b8ab03c",
+        "sensors": "27b98c095bac1a1d39481120f8d80a620f01000434ba9b6d192e0c2c1b7f3de7"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "對地（小牛）",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "lau68",
+              1,
+              "p2"
+            ],
+            [
+              "agm65d",
+              3,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p5"
+            ],
+            [
+              "mk82",
+              1,
+              "p7"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "agm65d",
+              3,
+              "p9"
+            ],
+            [
+              "lau68",
+              1,
+              "p10"
+            ]
+          ],
+          "sha256": "b27cc96c06267f54c17821d4658d44619351ba9b8871321bf8dc32fecaf83c62"
+        },
+        {
+          "index": 2,
+          "name": "炸彈",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "mk82",
+              1,
+              "p2"
+            ],
+            [
+              "mk82",
+              3,
+              "p3"
+            ],
+            [
+              "mk84",
+              1,
+              "p4"
+            ],
+            [
+              "mk84",
+              1,
+              "p8"
+            ],
+            [
+              "mk82",
+              3,
+              "p9"
+            ],
+            [
+              "mk82",
+              1,
+              "p10"
+            ]
+          ],
+          "sha256": "c3474c900d8e39eb9d9bf1310509f111d6ceb35dd0732c05c372c644b7b2d27a"
+        },
+        {
+          "index": 3,
+          "name": "火箭",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "lau68",
+              1,
+              "p2"
+            ],
+            [
+              "lau68",
+              1,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "lau68",
+              1,
+              "p9"
+            ],
+            [
+              "lau68",
+              1,
+              "p10"
+            ],
+            [
+              "aim9l",
+              2,
+              "p11"
+            ]
+          ],
+          "sha256": "b99d3b06426b3b6f3d2b938657be623fb128931fc08ea2f2f2d494b2e82811f5"
+        },
+        {
+          "index": 4,
+          "name": "電視小牛",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "agm65a",
+              3,
+              "p3"
+            ],
+            [
+              "agm65a",
+              3,
+              "p9"
+            ],
+            [
+              "aim9l",
+              2,
+              "p11"
+            ]
+          ],
+          "sha256": "a8ed9f16f77ef9ff2c346b5ac37d4ae25cfc613da8c32e7231cc9f64c900908e"
+        },
+        {
+          "index": 5,
+          "name": "集束（干擾）",
+          "entries": [
+            [
+              "aim9l",
+              2,
+              "p1"
+            ],
+            [
+              "cbu87",
+              1,
+              "p2"
+            ],
+            [
+              "cbu87",
+              1,
+              "p3"
+            ],
+            [
+              "tank600",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p5"
+            ],
+            [
+              "mk82",
+              1,
+              "p7"
+            ],
+            [
+              "tank600",
+              1,
+              "p8"
+            ],
+            [
+              "cbu87",
+              1,
+              "p9"
+            ],
+            [
+              "cbu87",
+              1,
+              "p10"
+            ],
+            [
+              "alq131",
+              1,
+              "p11"
+            ]
+          ],
+          "sha256": "7888969c45d8bffd5e929d1e5b5b5098cbbd5f27da615e61de05f9e8a9ec92e1"
+        },
+        {
+          "index": 6,
+          "name": "小牛 B／G",
+          "entries": [
+            [
+              "aim9m",
+              2,
+              "p1"
+            ],
+            [
+              "agm65b",
+              3,
+              "p3"
+            ],
+            [
+              "mk82",
+              1,
+              "p4"
+            ],
+            [
+              "mk82",
+              1,
+              "p8"
+            ],
+            [
+              "agm65g",
+              1,
+              "p9"
+            ],
+            [
+              "aim9m",
+              2,
+              "p11"
+            ]
+          ],
+          "sha256": "90ee745671620c5dd87f97a81d8437012dfe828a3e065b8d02cbc6b6c76a30f3"
+        }
+      ],
+      "slotsSha256": "cf9a067ba22ad492d48b1281d37dc6ae429e8ed045fa497681bd98e033a7d7a9",
+      "slotItemsSha256": "7bdd5608935e908935d1681a70e206c19e0ac37ac9800fb70f8346f342ce3a2d"
+    },
+    "su25": {
+      "metadata": {
+        "name": "Su-25 蛙足",
+        "nation": "蘇聯"
+      },
+      "hashes": {
+        "metadata": "06b8d9de42f14b72c60ccdca4252282690c521f7b198e6a29f0d35b7568e35b1",
+        "physics": "c857d727f8bf650b361bc621ffd411798ce87b06fc27a14c93d02d20bc41b95c",
+        "guns": "1d21d9266ad2d45217e8eb4df42caaa7ffe7f184e88de4ff0a8aafe95c538f8c",
+        "fuel": "3f9134f8010739309f5a305214703dd17bd8b4c4e9e1ab0707ae3d84a79e81b3",
+        "sensors": "919bc1632efb923cf76d934617958c9b167b3dc336a65c6340144d7784ac50f2"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "炸彈",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "fab250",
+              1,
+              "p2"
+            ],
+            [
+              "fab500",
+              1,
+              "p3"
+            ],
+            [
+              "fab500",
+              1,
+              "p4"
+            ],
+            [
+              "fab500",
+              1,
+              "p7"
+            ],
+            [
+              "fab500",
+              1,
+              "p8"
+            ],
+            [
+              "fab250",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "sha256": "bd1d9ef4f101258599f64fbd8dcc40378ec994488c7601ba8d51f2d659116065"
+        },
+        {
+          "index": 2,
+          "name": "火箭",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "b8m1",
+              1,
+              "p2"
+            ],
+            [
+              "b8m1",
+              1,
+              "p3"
+            ],
+            [
+              "b8m1",
+              1,
+              "p4"
+            ],
+            [
+              "b8m1",
+              1,
+              "p7"
+            ],
+            [
+              "b8m1",
+              1,
+              "p8"
+            ],
+            [
+              "b8m1",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "sha256": "f56464bfb9c33c4668e71f0f0c81d102b386c0a55b42decf206f4abfbd6532d2"
+        },
+        {
+          "index": 3,
+          "name": "雷射飛彈",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "s24b",
+              1,
+              "p2"
+            ],
+            [
+              "kh25ml",
+              1,
+              "p3"
+            ],
+            [
+              "kh29l",
+              1,
+              "p4"
+            ],
+            [
+              "fab250",
+              1,
+              "p5"
+            ],
+            [
+              "fab250",
+              1,
+              "p6"
+            ],
+            [
+              "kh29l",
+              1,
+              "p7"
+            ],
+            [
+              "kh25ml",
+              1,
+              "p8"
+            ],
+            [
+              "s24b",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "sha256": "26294bd193732c9f0b01d6b1409e14601dad32bb8b78d93bc1adb2d028bf511a"
+        },
+        {
+          "index": 4,
+          "name": "集束與機砲莢艙",
+          "entries": [
+            [
+              "r60m",
+              1,
+              "p1"
+            ],
+            [
+              "sppu22",
+              1,
+              "p2"
+            ],
+            [
+              "rbk500",
+              1,
+              "p3"
+            ],
+            [
+              "ptb800",
+              1,
+              "p4"
+            ],
+            [
+              "rbk500",
+              1,
+              "p5"
+            ],
+            [
+              "rbk500",
+              1,
+              "p6"
+            ],
+            [
+              "ptb800",
+              1,
+              "p7"
+            ],
+            [
+              "rbk500",
+              1,
+              "p8"
+            ],
+            [
+              "sppu22",
+              1,
+              "p9"
+            ],
+            [
+              "r60m",
+              1,
+              "p10"
+            ]
+          ],
+          "sha256": "ba11de901d202ea7cbe55f9bb0f26597a34d831adb255ee387814b1ede724ec4"
+        }
+      ],
+      "slotsSha256": "44f093b20579261105c43f6584b41e29ab0edf76fcc810d86ab7e6731a03fe4d",
+      "slotItemsSha256": "00c5ac045a3f86289d189dd2b423e7314a1f7668a4696d2a3effc02bd0557366"
+    },
+    "me262a2a": {
+      "metadata": {
+        "name": "Me 262 A-2a",
+        "nation": "德"
+      },
+      "hashes": {
+        "metadata": "1c77e3847a63ae1ff84e92b59a2573ce93ad25265dafed2efeaa02273c8380f0",
+        "physics": "9660eb8edfe1a3f142b94d9d0abb06d0a206abe970a958aa32fb5ab5a76d4ef4",
+        "guns": "60726ad39e8450c2d6f06dd0da064bb980609cd6593f70db89c0eae88689483e",
+        "fuel": "e3f5706075d1df6963b83218bf8a571922fc83e8981974eec91a5251b95ccbad",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "2 × SC 250",
+          "entries": [
+            [
+              "sc250",
+              2,
+              "source_bombs"
+            ]
+          ],
+          "sha256": "433a6a6e40bf844e03b945c4ac6369eb65d3988052bf92be648523cbe7701156"
+        }
+      ],
+      "slotsSha256": "623f4aade938222bfed5e6fd5971c208adaf337cbe0bdd1fef15bfb0f1457830",
+      "slotItemsSha256": "b960fc1b630ce83b1fd083a74bc219a1e132500af7f316eadb421ac8b7a3ad83"
+    },
+    "me262u4": {
+      "metadata": {
+        "name": "Me 262 A-1a/U4（试验型）",
+        "nation": "德"
+      },
+      "hashes": {
+        "metadata": "856b5026a0cac61089d523f5fa5cc1db66df56273fef61f36586adecd1f20fe7",
+        "physics": "9660eb8edfe1a3f142b94d9d0abb06d0a206abe970a958aa32fb5ab5a76d4ef4",
+        "guns": "c0de13ccb11e4a03bd11a9f9b87dd18552be4f687d6b0d4435eeaba0471001bd",
+        "fuel": "e3f5706075d1df6963b83218bf8a571922fc83e8981974eec91a5251b95ccbad",
+        "sensors": "5a14dbf6f6eaed6035eb9b3b6bbe5bc501d705d6132774b36bee17e1b2cf7aac"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        }
+      ],
+      "slotsSha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "slotItemsSha256": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+    },
+    "su27skm": {
+      "metadata": {
+        "name": "Su-27SKM 側衛",
+        "nation": "俄羅斯"
+      },
+      "hashes": {
+        "metadata": "5e9edc1876378142342aa7e0d906f6cb9678bd2c18e885281c3e038b2073d250",
+        "physics": "baaadf6e41d788f405ba630e3f84dbefb52b6f7bf6203ca3534de0e6d7920da6",
+        "guns": "ed92604501b3e8f3ba04027df25173b074c04b88fd4a9387c4d99c9fd6679d62",
+        "fuel": "7a3ea02c61ef7ba93d8e114ed6159f2e03e4821347c8b7d89227896d137d578c",
+        "sensors": "82983539fae61a548dbb49722830857e9622e108db8a301e62423ea30e1ee560"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r27r1",
+              2,
+              "inner"
+            ],
+            [
+              "r27t1",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ],
+            [
+              "r73e",
+              2,
+              "tip"
+            ],
+            [
+              "r27r1",
+              2,
+              "center"
+            ]
+          ],
+          "sha256": "87af9ca2b0091c759ed522797e88926444163fce226aec36c3aa425a0b56d216"
+        },
+        {
+          "index": 2,
+          "name": "對地",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "fab500",
+              2,
+              "center"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "36018c84f4b776f003a538f7df6cbcf67b5be3869e8f3f9ee22172ed24689111"
+        },
+        {
+          "index": 3,
+          "name": "Kh-29TE 對地 / R-73E 自衛",
+          "entries": [
+            [
+              "kh29te",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "22d5a73084d23a811fb2cdd3580eff2e4fd3a66272ba8da636e7dc03ed1aeeb7"
+        }
+      ],
+      "slotsSha256": "7a61a975ace708511813bd460f1f30339b1986fb7df6355fd0450c12cc79daca",
+      "slotItemsSha256": "45baafa606a4237bf7d139dc12ad47ce35c038569f3ef47acc070e2c73168e35"
+    },
+    "mig29smt": {
+      "metadata": {
+        "name": "MiG-29SMT 支點",
+        "nation": "俄羅斯"
+      },
+      "hashes": {
+        "metadata": "c1913c7c3951ed20d2574ab23963fb7c03f55f3c7e117671387b31b960f02dc9",
+        "physics": "0a1f4c73000f1e8e9f37348487430eb2bbe5f8b60c0ee8d3eaa2a40797b51b90",
+        "guns": "4bf5cd3fbd9a9bd89c0c598b3ae380919b5e5d80c79dfbb00aedea14ae699589",
+        "fuel": "7ea432c7724214824d06fe320267a80b0865ef3e6ed9121a910e1e4b370f4ddf",
+        "sensors": "001c411751cff006bd48e62845028f14b856c025c62ce1cf5c05ab6cd9e04342"
+      },
+      "loadouts": [
+        {
+          "index": 0,
+          "name": "僅機砲",
+          "entries": [],
+          "sha256": "be1217df1acf157cd6b30ab614c532f882f349c5760fef13b66cb3c3b6ff058d"
+        },
+        {
+          "index": 1,
+          "name": "空戰",
+          "entries": [
+            [
+              "r27r1",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "21ccdbd3509cf24408bae591340c859898daaf114d3dd053431fda29be8428bc"
+        },
+        {
+          "index": 2,
+          "name": "近戰",
+          "entries": [
+            [
+              "r27t1",
+              2,
+              "inner"
+            ],
+            [
+              "r60m",
+              2,
+              "mid"
+            ],
+            [
+              "r60m",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "acf363df44230294b991a251e5bacdca0ce963e1f0d398db8f2c5d10e4f130e2"
+        },
+        {
+          "index": 3,
+          "name": "對地",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "235208fc712ec4dea1d22bb35329eb048d306c3d70e26cd2d62c88cafb396766"
+        },
+        {
+          "index": 4,
+          "name": "Kh-29TE 對地 / R-73E 自衛",
+          "entries": [
+            [
+              "kh29te",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "f27fa0f79f138bdd919466f64cc5211e6c61426473fab2a5b56ee344d80dafc4"
+        },
+        {
+          "index": 5,
+          "name": "RVV-AE 空優",
+          "entries": [
+            [
+              "rvvae",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "90fbf1efe70b97b3177c4c913f8e343e7d82c3b244c2251c1c36c6e1550b1488"
+        }
+      ],
+      "slotsSha256": "b5747064876dae89720ff58a37423845c0edae0af716ab68329a1b9cadb0709d",
+      "slotItemsSha256": "d532f70ba195d9884e48afffd6ce347467df0002aa59950e1bc22edfa35d7597"
+    }
+  },
+  "r4mStoreMass": 3.85,
+  "storeHashes": {
+    "aim9b": "debbb963559e8e57425d2747049d7e6b0c721ce7d583a083b9e4769dcb752b7c",
+    "aim9l": "12531b21dc4b17734868ecb915e7e0572ff1af60275cf15b6e26d68c00d65422",
+    "r3s": "df4f3d49b446dfd3e0a6b59926a2f827d1dd1f0cf61b4373221d51a968c3911a",
+    "r60m": "fd0d52327f835dd7985a92f2c7c3acfb34085ba2da5c37941aae8a05e6c374db",
+    "r73": "75c4dc7443d2b6dac2f765a7d8a4216f1f926ca2a64fbf2ba27ed2738ec0942c",
+    "r27t": "0b8ec46ea22e152d9a06834c866050b3581029ce6351a502be2456eb70f40a1e",
+    "magic1": "b058b70177ddaf3c5042d193cde3c8fb9f6e6d20d17d99fc5e1ea733a1b6c7cc",
+    "aim7e": "10c288fb89f87c093d46b76db24c6fe691191e9116d4f6fa7e520875c971a75b",
+    "aim7f": "7be96ce227f3056ba0e8eabcbaf9eaaab96718ad2ac5f5cd79db886a5cf1ee30",
+    "aim120a": "783e7fee24760ac4f020460d7ece904384bc64f2ab69516cef4c6397163b587c",
+    "r27r": "d5acde32d165c984f06e30b9483dd9d504752e8a3d84d610ecbd0332fb5edfd2",
+    "agm65a": "88d761a99a1d042042f976ba5626058c50863541e88ce6a5169a17900fa07699",
+    "agm65d": "2ba972ab86237ec2016221002c6b941870de35536cc26fe096f8383e6aa7b523",
+    "lau68": "d3989603a69c8e6aed1c4420f1b0ec4abbc8e829e880f4b92ae9418259f32dfd",
+    "s24b": "23a221fcf7601ef9fab8929a7b19575013e042becd12d07cd1883efd129d4e98",
+    "kh25ml": "b1721251f568aaf5b05ec6c05d89f7868f79e8bf5de3011cbd715d13818cef54",
+    "kh29l": "5ecf30087fe6dd07cca04e8678e7e3127ff8221340bd48925ba777059a1e9416",
+    "tank600": "a1fd30875cc6bce8a45ba71e192c34940fe2abf7ab5b1cb973be39b7c26cb76d",
+    "tank120": "3520b561ed647a03814902fdc15f64c24f56753082029282517f2e71449194c3",
+    "ptb800": "1438b9ebace75f316c4ee9d4340c100830bc5d34a26d7c9a00dc4c788592a81f",
+    "cbu87": "426537087c0d635d8c1e176d692788d35f3d585d9c7f719a2745ea4787e0127c",
+    "rbk500": "4cd837b2df87919c863e8362483056962f8a8ee60094ab25345ad5a2fb5c4e34",
+    "blu97": "bdd2f3d42f650d6ef0baf814b964499cb3e3f6852fdabcf3e7ce1cb6b9c5bc0a",
+    "ptab1m": "fe4d46f29d93ab644a18a55e890eb94bb0fdcacf64d9bb1fafe4b09686b5f91b",
+    "gbu10": "fa680ee7efb373cce49cad8ef7334f088bb696c83995b0f69e83f4064740eb28",
+    "gbu12": "17997cb127f03c8499156fa0163664dd216197cf395e15fd4a7a163ca092e735",
+    "alq131": "70cd2bf366fa8d3a946406305b6e3d4fc1a78aaf14ecac22b2316fe431cc5f6a",
+    "sppu22": "3e12e62ce6933d0faf38e85ca96823e6b4981144dbfec5a0ef7fad4c5da0a803",
+    "mim72a": "ccaab66f6f411ad1b23c2463421648ed9d68d81533c3659e852585bf2eecbabd",
+    "m57e6": "48c2911f9e57c54ed5311b08d04831c2922854dc7f595bb1a5d6c6550163e21f",
+    "m3m9": "f5f1106d5f0551efb8c0fe943565b7f1ad810e8f70220fdb1502fd783875477e",
+    "pavespike": "e63a4e8ad9d39a18f51a51cbcc396e409075183386a53f6c8bf5cbea3df21865",
+    "hvar": "a12e3c78fbb207714eacfb4eaab7c75182bfe4744a3684fa0db435bab08be1f4",
+    "rp3": "518e1265b5e8029e60e1a7ac37158a4231f5cdf0a16814dab8917bee76823447",
+    "r4m": "347cd7774af1299f8b444b1cf956922c4b23f294355b937a8d6d7411536224a7",
+    "hydra": "f2b21bd667973f7bafd646f9355bee508176482e015144712d19a0a1e5e1b17e",
+    "s5k": "dde44d8b179719f851d782eace8f12e10d7d75a51494c30df1c6e26420beff92",
+    "s8kom": "1cec65b86e8161c6f5b473f43b229eb9c12470d94f1436c2ff066ee2b6679b1b",
+    "sneb": "19f4fccaaf7f50b7626b1b903e8d5b032b75e7f792a422e6ad6408848f5fa647",
+    "lau3": "087957e1f64fef47be51356c16d5df66daec105c4472797ec937440fdbb6bbaa",
+    "ub16": "b6cba3f7f43389620528e16863fc9a27bccb0bf4804b6c4a53b0d07d4731bb13",
+    "b8m1": "55945d2b1b8902fadc3c03312ddbaa76d1bb57ccbcbef14dc7a586bce89c270d",
+    "matra155": "e5070c0110be8a17b9919f32cd814acef761a7c3c78b366aaae76e81c178d469",
+    "r4mrack": "429f91e931bc8da74cc29f4709d1180e2cf7e7d85f18e9da09dac9bf60b404bb",
+    "anm64": "8ae5deb04e89d5680659fddc71a79d74fd5760c4dc552ccd1665604d1a070a32",
+    "anm65": "0787fa718e5d3bf93e6104a4ca4b18f807a21caa077c00a2703cbbe227e5a1c1",
+    "gp250": "96ec9702de704a31c299f7d24d5816eeb6b6ce9abdb0c5526bd4d38927d51a22",
+    "mc500": "208699004896536b4aa440db32f5dad1184e12d12d71424a50be55a8e70ec380",
+    "sc250": "9917a44eb345347106e4e69f68d791a6c8d60fdd8a272cf893161fa87959314b",
+    "sc500": "c2e4bf5f056515e312ed0d278be238f459ac80361c994f88a1cbde162ec5761d",
+    "type97b60": "f1478eb7d8ec80fdf1c73b693c26398788caafffbb782785c1b628a41b20a804",
+    "fab100": "0f59852b5916786b08e104c1dc115779842b9e7d6b49a1a0fdad72b3341a3766",
+    "fab250": "ff190551a4095dde159e0bb8543e6585582c7681bff5e50aaa73f5cf5631d290",
+    "fab500": "effe529427d983e637093e9464235a4aeacc9d40fd3dda44b8be2cbaa7f11102",
+    "mk82": "674a85cbc13a7dc04a2d3c55fdb870aec9c27c3eac24220f5a2e62ac1a4e57ce",
+    "mk84": "82868e89faac708befbecd049e639b3bdebfd6a441f2a5e9de3cb8d5737999a7",
+    "aim9m": "c6e9c48cd2c0110ecb742f8e685f9863a80ee1378de2832aa9f6b6b85bd07661",
+    "r73e": "f13497ab291f453109c4ef67312f228fca49ba263f8c68c346c38741eb851aaa",
+    "r27t1": "79a2bb4975cf0523e19725d6f326af33b2bbbb7b364c22ad0c83ddc289bd73af",
+    "r27et1": "ee4fdac6f8998eeebc7f596304c81d9bceb4c2199e11528e9757ae56b6bf7acb",
+    "aim9x": "58f3af6654a35670f79087e97bf4ca403db891e5d120ec86f51b9091715dd28a",
+    "irist": "22ddf54677f5875b88be703328b580ef088e790d23021bcfa3814f790a7706f0",
+    "asraam": "0455a7cc2757c85829859628e59c7c9d7a04210437f5d911690a88861329da20",
+    "mica_ir": "959fc1dfacca3f38dd8f143069447f69ba15e12ef370733802717453ea4bd630",
+    "aim7m": "cfb00578ce59f8966fca5b29d48a85dea7712f9934666dd1865539ecce52006d",
+    "r27r1": "5e71436440eea6d356fb4957cac66759d5b067122b481009d3a1d96a31dba0ff",
+    "r27er1": "d24798cac25f9ebbf2d75db2f7814d11ed980b27ff52f2ceed36c909e89f5b0c",
+    "aim120b": "395e29eb0f44cc2ad0f4c93965731ed9e2994a471df95e6d279a2ff262151f3a",
+    "aim120c": "cffc8fa9faefed2996a6d339318c678021c63cd853ccdd1566d3d043196c9992",
+    "rvvae": "b6e702b97289de4fa3a8f58c43a1bccbc93678b4ea6399680d9719d76426263b",
+    "meteor": "4635508402f99e5a5445aef89564eaa914154517a7e810d4e22d3f2c6717fbf5",
+    "mica_em": "54019d6c292f6ec52c8a8fedacc65db9d2b0933cc8f3d1b084b548673fc02c74",
+    "aim54a": "a4d464d7c1d2f2053f160dda4f70735e71f3382be644744c3cb700f9efa62d40",
+    "agm65b": "2a5530076140081ad417bdb5b42ebaf33820119075a51ec1065ee731b575b5c6",
+    "agm65g": "1524390bd2ddb7ab082ba4e0ac850981bc02c2d202f5caa43858d7c6923c0ade",
+    "agm65e": "c98b32bdd7327389c8e02763ab931e75d77b1269a3307ff237a1a31928f491b0",
+    "kh29te": "2ae3f781b1c5283aa1887317dc19a96b843c759538ef7719ece2fcd5e7785141",
+    "vikhr": "57734b83db00a504e0330e344b84bd3acd1582b0fa46549a5a7685624365aca0",
+    "agm12b": "ebc0eedd3eef53ded88debc3a83a648253a3b7923f44fa2248502e011672de79",
+    "agm45a": "76974cc5276ccf07be67b80d3d0cb37d7cfcd4eb7cdbf54cb26e8a2ec100525c",
+    "agm88b": "95c4fd5730798a71cd9fbf1e548f423b327892f9c81e33bf38c837048f067c26",
+    "kh31p": "cc60a032f776d8003c47825ec2d42302ce35d92cb1d3a8b74e82dedf3cf17c08",
+    "samp250": "73387d740c0d7a9e7b3efd1f4f8820925c07d5efba76d79d2b18ad25899f42c6",
+    "r60": "ac266b84daf931b874dbbb498c9a3da35c1cf12415ece8daec495ed16dce2b6b",
+    "r3r": "32d69fc6852b30563113664bb4f48455c860082e0bdaaf5eb2540f80f28dadb4",
+    "sniper": "e7101d8c39ba3bec00e0f7c70a54aabfa2505f8907023151a3fdb50b3835d9a6",
+    "litening": "31ec89c53f535bb05393623d1d2e6fa70f0299a45f9e7ec6416675693d10cdee"
+  },
+  "shellHashes": {
+    "bullet_mg34": "935617433409581e316f750bc3340ebf2239b5f454e67b346e7170033639531c",
+    "hefi_20_sprgr": "39515a9e1647faba6c6f38cb06c4b57689a1bd3c83f1edac67d26942dab29010",
+    "apt_20_pzgr39": "09039734dd5ee07cddd96ae33cfd18f1577937e3f5d0bfe9ff831ef8d6ac7f40",
+    "hei_20_m56": "c4ee7b540b435ef2b3c46a6efe9e728e0efb59e861414f6646ae83d61e20a3a6",
+    "bullet_an_m2": "5ee465bd57752fa86cbde0608c21050c652d5b52eb92f98333a828966814fbcf",
+    "bullet_mg131": "b8b2adae17b860939141817585299d2da320f518b56cc4630413e31b4f7474f3",
+    "hei_20_hispano": "38e5436d0222acaa9c5e49b9502159f683d9f80ea86553dfcc31ff3f56cd8c67",
+    "hei_23_ofz": "ddbbbaa90ba62a0c4221455e0d793e6759364e3eaf6aee8e93a8e52a03b7f802",
+    "api_23_bza": "c665f59d310365ab7b827dc2665a14206c8ab86f8631910c536b5782bc85d836",
+    "he_37_n37": "7e58499a85b82ec08db898ceb9b572ea7d13f5036b65ebb7aaf8b2a131e57bb7",
+    "bullet_m3_50": "27f7ec2b0db059e0d147f50d9eabf748919e86b1ac3a2ffc9803960d5f730983",
+    "he_30_nr30": "9c91ae8ea9f4c64f2c7036a6e14a14f890665d568bfce9036b4f81c3c0310ff0",
+    "bullet_ubs_127": "68ffe879e0c29e99506caa761d57a5957b6485a2a3775513e7da8150697b57ac",
+    "hei_20_shvak": "1255e74d5632b4d55eed09de68da8dafd5e949e343b51dc5e671a103602731b5",
+    "bullet_type97_77": "112c457c9cfad59be3dea3c2e1f00446c6aad58daa1528949950089407c52b3a",
+    "he_20_type99": "fd559754b68087ea66c19f7302ce8fa0c8eb935ae04c8808e0666e1c4c7f79e0",
+    "he_30_mk108": "ac765e7f1f692baa10bf7b58071d24cc8a5543de66b3828202f00a0eaee2e0f3",
+    "he_30_aden": "5cad0686ec1f202bce7d102911b5721efa3fba66f023b2f0f30ef6e06ea323d7",
+    "apt_30_pzgr": "8ad438079973984b9bfb7c7e311de3b412535fe82436eb5d00d987242785d3d7",
+    "he_30_defa": "128d709f4f3695d4b1cfa834c911f8f46893a06b003dff532a9eda170b013744",
+    "hei_30_gsh301": "76106091e39c0f67925d7a787ac8ff03aa044c06d77c5fb3aa6879ec7aff5b96",
+    "api_30_pgu14": "d5367898d327ca21ef91a8909234f544dcc6fccb27d36ac1e873b821f3df1ac2",
+    "hei_30_pgu13": "6ced5bf88c9034ba04339d90fcbf753c92fe3becef765ab2b2d35ff6afe68e35",
+    "ap_50_mk214a": "480398c28fb970b20e5434be462becf8f047a23a06d2b50c6f2848d8a5c48899",
+    "heat_305_agm65": "5fb7fcf49c181f89608d77de75e47c48edda51b89eb1a9629a8529bd9ad9cf2a",
+    "he_240_s24b": "df8b26d1ca8cd51f003516f150da958d3f4948341a7a9e666ecb3637a52882f3",
+    "he_kh25ml": "6caefce4efd09883b6f061ff141ccff34f24feac6da8e78676d8ebce761f0997",
+    "he_kh29l": "96caa44308d49e2bebefedbf0b4ba86a82562774c25423b154c3faa29f7d03c1",
+    "he_bomb_suu65": "a90ebfcf016be773491e42c468af62ef2e0c9930a71eec3bc9e5fd1fa7d6d26c",
+    "he_bomb_rbk500": "7f79282629f9b82287e68eb8d50cd1294f169ab5d48a2d176fa11b7f50fab640",
+    "heat_64_blu97": "3ea77d6f829263509997765ce89901f1a31439693ded056451ece12d6cb84762",
+    "heat_42_ptab1m": "7ffc522b40945e4503e390729ca86e72f60e63551ed4d75e6f72472892f80b8c",
+    "he_bomb_mk84": "5b8e6c4639666973bac8275c810e1217ad95b68ab6fc6b674bdbf6cc8b47f961",
+    "he_bomb_mk82": "18f18db26e44f8b6c2e8c1039fe620c306b8e1f01f73fc2853c9d57f0eb40e80",
+    "he_127_hvar": "d226491a41c3476c9e108cb7213796079dd1a8eeba1556d07e1e8c1176bf4bef",
+    "he_152_rp3": "8e6046b943382d11c419c04c05296762911f3372c29030e7a3145ac34baa3b47",
+    "he_55_r4m": "2c4cffc8e4404692487754e144b49bc199ad291b5b15170732958e2e4959f2a8",
+    "he_70_m151": "93ce93b931400e1a0d7c249191b978963ad1c97d361770ff40ec164050a5a468",
+    "heat_57_s5k": "d71e30c84dcc667d3f3eb68b7b18730d4815dc4179db4c5086c37525b5330f06",
+    "heat_80_s8kom": "4bee6e2682b618ac395c5c422517eb1f6711c51ba22c2bf92ba4ced4732b4926",
+    "heat_68_sneb": "9fd93c658fe34e2afb090780837cf58a25e297c0dd8238d86fd64b926d7322b6",
+    "he_bomb_anm64": "2395912c71e5a090ee774d0e0ecfcb86559e02607435352078a0627da052d399",
+    "he_bomb_anm65": "053b354086e2d3101ad702055385320050d3f87be0da9442f6700b2d1e1ee495",
+    "he_bomb_gp250": "faf7f5de0b1ad140d0f03d92c1c265b038c2cd3a251bea45c49a9bc753fe86e0",
+    "he_bomb_mc500": "807acd81075e1f524d1feeb3b88b662cfc994910a136e8cc4b6f10a8daaf2394",
+    "he_bomb_sc250": "362be228a923903b6e815c986db883dcc7b20c49cf595fc943a7c0b84750c49f",
+    "he_bomb_sc500": "314db6b269837357b727c41b78da61079b9ef9f46d9e9ba1ddd10aa8af149034",
+    "he_bomb_type97_60": "626995315d4b1ede664218bc3f67439281aa569e803f0dcc2c5b4d3580132977",
+    "he_bomb_fab100": "39d48f230ab029559d61fbf5060d1ad69b5dac1275ea4e245732fb6138070fe1",
+    "he_bomb_fab250": "bed85c1a574a3d916bbd8b021d64c351a9d99bd62d93f97df9df79fc8c2f19f8",
+    "he_bomb_fab500": "5fb3e0b060acd917273fec7ac7cdb975f0787364dd9e7df6f9e8909b771eee81",
+    "he_agm65g_wdu24": "a369607c72139da8358ee930f1f7bf5f5d72e6cb5e2537a52c97f147516d494b",
+    "heat_130_vikhr": "4b80c471eaac36d3f36016b6374991da705a4d6b3c395274552aef8e8fd8b235",
+    "he_agm12b": "a180106975e5f73fb5b99416aa7a96336116ba70f633ad172aa405b080c78ab0",
+    "he_agm45": "dcfd5483a1049bed9361a766a8229a0867b1665abeff0e33118e37df4c675270",
+    "he_agm88": "3867e5d400b4aea16fe3b4dcd950c9de130907ea1be19ff49d1c8a5cbf6db28a",
+    "he_kh31p": "9ef56b0230a7cbaabb559449477f7335c67cd02148064b8c175af6dca125f8cb",
+    "he_bomb_samp250_game": "f0485ce1506fc20a46434bafc9699d5e1e0d1ee9ada90d6097cac43fe7b487f8"
+  }
+}

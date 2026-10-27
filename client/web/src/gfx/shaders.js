@@ -492,7 +492,7 @@ void main() {
     metal *= 1.0 - mud;
     rough = clamp(mix(rough, 0.93, mud), 0.2, 1.0);
     N = bump(N, vWorld, n * 0.0022 * near, 1.0);
-  } else if (uKind == 2) {
+  } else if (uKind == 2 || uKind == 20) {
     vec2 p = vWorld.xz;
     float big = fbm(p * 0.035);
     float mid = fbm(p * 0.45);
@@ -525,10 +525,10 @@ void main() {
       albedo = mix(albedo, vec3(0.62, 0.60, 0.52), tick * 0.8);
     }
     rough = 0.96; metal = 0.0;
-    if (uTerrain < 0.5) {
+    if (uKind == 2 && uTerrain < 0.5) {
       // the flat far ground: cut away where the terrain grid is drawn
       if (p.x > uHole.x && p.x < uHole.z && p.y > uHole.y && p.y < uHole.w) discard;
-    } else {
+    } else if (uKind == 2) {
       vec2 q = p - uDeformWin.xy;
       if (q.x >= 0.0 && q.y >= 0.0 && q.x < uDeformWin.z && q.y < uDeformWin.z) {
         float tx = 1.0 / ${DEFORM_TEX}.0;
@@ -549,11 +549,13 @@ void main() {
         albedo *= 1.0 + 0.25 * smoothstep(0.004, 0.03, dm.r);
       }
     }
-  } else if (uKind == 7) {
+  } else if (uKind == 7 || uKind == 22) {
     // water: dark and clear in the shallows, deep blue-green further out; the waves are two
     // drifting noise layers that bend the normal (reflections and sun glitter come from it)
     vec2 p = vWorld.xz;
-    wdepth = uMapOn > 0.5 ? max(0.0, -mapHeight(p)) : 6.0;
+    // Canonical water has no authored bed: use opaque optical shading,
+    // with no invented seabed and no transparency into an empty depth buffer.
+    wdepth = uKind == 22 ? 6.0 : (uMapOn > 0.5 ? max(0.0, -mapHeight(p)) : 6.0);
     vec2 q1 = p * 0.16 + vec2(uClock * 0.045, uClock * 0.027);
     vec2 q2 = p * 0.62 - vec2(uClock * 0.08, -uClock * 0.05);
     float e = 0.3;
@@ -679,7 +681,7 @@ void main() {
   } else if (uKind == 3) {
     // parts inside the hull get a fill light so they read through the shell
     col += albedo * (uSkyColor * 1.4 + uSunColor * 0.035) * (1.0 - metal * 0.4);
-  } else if (uKind == 7) {
+  } else if (uKind == 7 || uKind == 22) {
     // more water shows its reflection the flatter it is seen; the shallows let the bed through,
     // with a little foam where it laps the shore
     float rim7 = pow(1.0 - NoV, 4.0);
@@ -687,6 +689,7 @@ void main() {
     float foam = smoothstep(0.22, 0.0, wdepth) * (0.5 + 0.5 * vnoise(vWorld.xz * 1.3 + uClock * 0.3));
     col = mix(col, (uSkyColor * 1.5 + uSunColor * 0.06) * 0.9, foam * 0.55);
     alpha = max(alpha, foam * 0.7);
+    if (uKind == 22) alpha = 1.0;
   } else if (uKind == 6) {
     // glass-like shell: nearly clear face-on, visible along its outlines
     float rim = pow(1.0 - NoV, 2.2);

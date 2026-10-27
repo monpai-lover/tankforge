@@ -1,0 +1,42 @@
+{
+  "revision": 2,
+  "profile": "shape_preserving",
+  "default_lod": 0,
+  "geometry_revision": 2,
+  "files": [
+    {
+      "file": "assets/pantsir_lod0.glb",
+      "bytes": 19737300,
+      "sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd"
+    },
+    {
+      "file": "assets/pantsir_lod1.glb",
+      "bytes": 12737892,
+      "sha256": "941cbf0a862a23d5a53d98186e4c673f7d36743af26623c20a3f89b6c0e15df6"
+    },
+    {
+      "file": "assets/pantsir_lod2.glb",
+      "bytes": 9187056,
+      "sha256": "aec2a2e13f18ad7e2e8f897d7ed389f93782aa718a11bceccbc39770651b6eb0"
+    },
+    {
+      "file": "assets/pantsir_master.blend",
+      "bytes": 28278716,
+      "sha256": "796a781c36021cb16da38f88ff27f8bedea7aa39e5ef2dc819ebccc6332a8840"
+    },
+    {
+      "file": "assets/scene_manifest.json",
+      "bytes": 224581,
+      "sha256": "f4909e524e710078f72f4d0cc3782a9bb7b8ca070ce73f9f78f6a7f2d68d7a1a"
+    }
+  ],
+  "fidelity_report": "evidence/fidelity_audit_v2.json",
+  "fidelity_validation": "evidence/fidelity-validation.json",
+  "usage": "README.zh-TW.md",
+  "integration_report": "integration/validation-report.json",
+  "notes": [
+    "Primary preserves original shape, UVs, split normals and normal textures.",
+    "Balanced and distant variants are rebuilt from V2; original over-decimated V1 is retired.",
+    "Internal anatomy and armor parameters remain gameplay approximations."
+  ]
+}

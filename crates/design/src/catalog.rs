@@ -53,6 +53,12 @@ pub struct SteeringCat {
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct SuspensionCat {
     pub label: String,
+    /// Estimated reduced vertical force profile, never historical calibration.
+    #[serde(default = "suspension_force_model")]
+    pub force_model: String,
+    /// Current profiles have no actuator or active leveling capability.
+    #[serde(default = "suspension_height_control")]
+    pub height_control: String,
     /// Rated load of one station (one side) per metre of road-wheel diameter.
     pub rating_kn_per_m: f64,
     pub station_kg: f64,
@@ -65,6 +71,9 @@ pub struct SuspensionCat {
     /// Height taken from the hull floor (torsion bars run across it).
     pub floor_m: f64,
 }
+
+fn suspension_force_model() -> String { "estimated_v7_reduced_vertical".into() }
+fn suspension_height_control() -> String { "fixed".into() }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct TracksCat {

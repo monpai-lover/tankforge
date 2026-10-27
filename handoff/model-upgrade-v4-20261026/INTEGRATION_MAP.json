@@ -1,0 +1,172 @@
+{
+  "targetAppSha256": "8e354eaa40718e7939ec36cbd44603bcb4f98ac59d5e6e12e09e9179879e1ffd",
+  "preserveLocal": [
+    "current air-combat implementation",
+    "current WASM/flight kernel",
+    "native accepted-state authority",
+    "existing weapon IDs and original preset indices"
+  ],
+  "modules": [
+    {
+      "feature": "Aircraft O silhouette and labels",
+      "entry": [
+        "source/perf/mechanism-view.js",
+        "source/perf/patch-mechanism-view.py"
+      ],
+      "integration": "Aircraft selection, garage/flight labels, O display and depth policy"
+    },
+    {
+      "feature": "Rich interiors, animation and damage display",
+      "entry": [
+        "source/perf/all-interior/browser-entry.mjs",
+        "source/work/tankforge-live-flight-patch/source/handoff/flight-rust/interior.mjs",
+        "source/perf/engine/engine-layout-helper.js",
+        "source/perf/mechanism-fit/mechanism-fit-runtime.js"
+      ],
+      "integration": "Aircraft constructor/install; lazy build; show/pose/damage; disposal"
+    },
+    {
+      "feature": "MiG17 mechanisms and Me262 sight",
+      "entry": [
+        "source/work/tankforge-live-flight-patch/source/handoff/flight-rust/mig17-wing.mjs",
+        "source/perf/patch-mig17.py",
+        "source/perf/me262-sight/normalize-me262-sight.mjs"
+      ],
+      "integration": "Source decode/normalization and authored mover binding"
+    },
+    {
+      "feature": "Damage schematic",
+      "entry": [
+        "source/perf/damage-schematic/helper.mjs",
+        "source/perf/damage-schematic/patch.py"
+      ],
+      "integration": "Current aircraft triangle silhouette and bound systems; active mount membership"
+    },
+    {
+      "feature": "Renderer static mesh bounds",
+      "entry": [
+        "source/perf/aircraft-render-cull.mjs",
+        "source/perf/patch-render.py"
+      ],
+      "integration": "Static mesh marker plus conservative draw/shadow rejection"
+    },
+    {
+      "feature": "Base measured mounts and source carrier ownership",
+      "entry": [
+        "source/perf/hardpoints/helper.mjs",
+        "source/perf/hardpoints/measured-mounts.mjs",
+        "source/perf/hardpoints/patch.py"
+      ],
+      "integration": "layoutStores, source sockets, custom slot conflicts and accepted owner handling"
+    },
+    {
+      "feature": "Current jet mount/store geometry",
+      "entry": [
+        "source/perf/mount-v3/details.mjs",
+        "source/perf/mount-v3/patch.py",
+        "source/perf/mount-v3/fitted-mounts.mjs",
+        "source/perf/mount-v3/fit-profiles.json"
+      ],
+      "integration": "Aircraft geometry, storeMesh, layoutStores, mountStores, damage mask and O shell update"
+    },
+    {
+      "feature": "Catalog, quantity selection and targeting pod capability",
+      "entry": [
+        "source/perf/mount-v3/catalog.mjs",
+        "source/perf/mount-v3/catalog-capabilities.json"
+      ],
+      "integration": "Store definitions, compatibility, slots/custom selections, equipment and pod capability"
+    },
+    {
+      "feature": "Backend initial layout",
+      "entry": [
+        "source/perf/hardpoints/native-layout-map.json",
+        "source/perf/hardpoints/native-layout-adapter.mjs",
+        "source/perf/hardpoints/native-layout-adapter.test.mjs"
+      ],
+      "integration": "Initial spawn only; full source+geometry+sequence+old-state validation; 17 models / 55 presets / 379 stores; includes storeRotation and previous calibrated positions"
+    },
+    {
+      "feature": "Physical mount collision",
+      "entry": [
+        "source/perf/mount-v3/mount-collision-map.json",
+        "source/work/tankforge-live-flight-patch/source/handoff/flight-rust/aircraft-hitbox.mjs"
+      ],
+      "integration": "Exact rendered triangles and existing damage IDs; 107 potential adapters on 17 models; per-aircraft masks"
+    },
+    {
+      "feature": "Whole HTML incremental entry",
+      "entry": [
+        "install.py",
+        "model-hunks.json",
+        "manifest.json"
+      ],
+      "integration": "Exact unique contexts for original/prior model release; preserve unrelated local changes"
+    },
+    {
+      "feature": "Reference implementation and reproduction",
+      "entry": [
+        "reference/FROZEN_model_upgrade_app_script.html",
+        "source/perf/compose-model-upgrade.py",
+        "source/perf/prepare-model-tests.py",
+        "source/TESTING.txt"
+      ],
+      "integration": "Compare modules; extract model resources from local HTML; use final fitted data for ordinary integration"
+    },
+    {
+      "feature": "Wingtip side orientation and all26 catalog review",
+      "entry": [
+        "source/perf/wingtip-v4/wingtip.test.mjs",
+        "source/perf/mount-v4-audit/weapon-carrier-coverage.json"
+      ],
+      "integration": "storeRotation in garage, accepted and sensed paths; keep accepted host p; exact source guards"
+    },
+    {
+      "feature": "MiG21 orphan cleanup and actual SARH capability",
+      "entry": [
+        "source/perf/mount-v3/source-cleanup.mjs",
+        "source/perf/mount-v3/catalog.mjs",
+        "source/perf/mount-v3/mig21-repair.test.mjs"
+      ],
+      "integration": "normalize before decode; four independent stations; R3R plus radar/equipment/backend support"
+    },
+    {
+      "feature": "Independent SAMP bomb and dedicated clearance adapters",
+      "entry": [
+        "source/perf/mount-v3/samp-bomb.mjs",
+        "source/perf/mount-v3/procedural-mounts.test.mjs",
+        "source/perf/mount-v3/specific-adapters.test.mjs"
+      ],
+      "integration": "onlyWeapons priority; quantized procedural geometry guard; active triangle masks"
+    }
+  ],
+  "resources": {
+    "existingAircraftResources": "reuse local source assets and procedural models",
+    "existingStoresAndLaunchers": 44,
+    "newGeneratedPodModels": [
+      "sniper",
+      "litening"
+    ],
+    "fixturePreparation": "source/perf/prepare-model-tests.py",
+    "newGeneratedBombModels": [
+      "samp250"
+    ],
+    "newMissileDefinitions": [
+      "r3r",
+      "r60"
+    ]
+  },
+  "identityNotes": {
+    "f15c": "Current F-15E model; legacy ID retained",
+    "a10a": "Current A-10C model; legacy ID retained",
+    "mirage3e": "Current Mirage 5F model; legacy ID retained"
+  },
+  "dependencies": {
+    "htmlInstall": "Python 3.8+ standard library",
+    "portableTests": "Node.js 20+",
+    "recompile": "esbuild",
+    "optionalBrowserAudit": "Playwright and Chromium; TF_CHROMIUM may select the executable",
+    "optionalTriangleAudit": "Python numpy"
+  },
+  "calibration": "Use supplied final fitted-mounts.mjs / fit-profiles.json for ordinary installation; calibration builders require their matching intermediate datasets."
+}

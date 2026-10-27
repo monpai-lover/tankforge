@@ -1,0 +1,155 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-10-25",
+  "status": "acceptance_plan_and_unexecuted_new_socket_fixture",
+  "scope": "Next mixed-mode lifecycle, force integration and production endurance gates; this document does not certify the unfinished full goal.",
+  "evidencePrecedence": {
+    "currentPublishedFoundation": "handoff/tests/out/combined-release-20261025/published-release.json",
+    "currentImplementation": "docs/air-frontline/implementation-status.json",
+    "confirmedUserPreferences": "docs/air-frontline/combined-mode-design.json:confirmed",
+    "historicalOnly": [
+      "Implementation-status prose in requirements-traceability.json and ai-spectator-design.json predates the published shared-world foundation; it is not current release evidence."
+    ],
+    "publishedBinarySha256": "f06e8b2058161a9965f4f65c219832ac5f59a9e2d839b6e70e2d099df39eec3b",
+    "publishedPageSha256": "d64fe4b1dac0a94d57a36e64c22ace2bcdd86c7e6ef647f29ab6d480e009275b"
+  },
+  "newShortRuleFixture": {
+    "rust": "crates/server/src/frontline_round_socket_tests.rs",
+    "filter": "actual_three_socket_round_reset_replaces_world_preserves_audiences_and_rejects_old_inputs",
+    "traceEnvironment": "TANKFORGE_ROUND_SOCKET_TRACE=/absolute/new/nonexistent/trace.json",
+    "validator": "node handoff/tests/frontline-round-trace-validate.mjs TRACE.json NEW-result.json",
+    "validatedSoFar": ["Rustfmt parser/format check", "Node parser check"],
+    "functionalExecution": "Not run by the acceptance agent; parent coordinates the source-frozen Cargo execution.",
+    "trustedTestPolicy": {
+      "configuration": "cfg(test) Lobby forwarding to FrontlineHub.set_round_timing_for_test before creating any room",
+      "roundNativeSeconds": 6,
+      "intermissionServerMonotonicSeconds": 1,
+      "scene": "Existing C2 native fixture",
+      "productionPolicy": "45-minute accepted native simulation time, 20-second authoritative monotonic intermission; no client command, environment switch, map rewrite or damage/time edit to end a production round."
+    },
+    "transport": "Three independent actual loopback TCP/HTTP Upgrade/WebSocket clients through production connection(), lobby, broadcast and per-socket wire code: blue/red wire2 players and a legacy JSON observer.",
+    "checks": [
+      "Actual aircraft and tank firing create accepted old-life ammunition deficits before timeout.",
+      "Exactly one old Ended reaches each audience; accepted native time has reached the configured deadline.",
+      "Intermission blocks deployment and stops native physics; next-round Snapshot arrives after the monotonic intermission.",
+      "Room/map/map hash/era/team/observer/connection survive; battle identity changes, round number and control epochs advance.",
+      "Controls, company ownership, jobs and old battle resources are replaced; the same selected types start with their own initial stock.",
+      "Old tank/air UnitRef and epoch inputs and old company orders are explicitly rejected; sequence 1 works for a new life.",
+      "Observer cannot deploy; each player receives only its own team's private state and authorized enemy public contacts.",
+      "Fresh new-battle Snapshot precedes the first Frame; binary peers receive a new full wire baseline and epoch.",
+      "Offline validator independently decodes captured unmodified binary payloads with production JavaScript, checks audiences and stock, and verifies an obsolete native packet cannot poison the new decoder state.",
+      "All peers receive Leave acknowledgements and close; sources are unchanged between the beginning and end of the test."
+    ],
+    "notCertified": [
+      "Production 45-minute duration or 90-minute endurance",
+      "Real browser DOM, WebGL, camera, sound, async model installation or visual fog-cache disposal",
+      "Full production theatres, registered support routes or maximum population",
+      "WAN or physical mobile/hardware GPU performance"
+    ],
+    "provenance": "Freeze source/data and build the test executable before execution. Preserve build input manifests, test log, raw trace and validator result in a new output directory. Validator checks executable and direct input hashes; preserve or validate the executable before another Cargo rebuild. Runtime input hashes alone do not prove all compiled dependency provenance."
+  },
+  "browserResetGate": {
+    "status": "pending_actual_browser_run",
+    "entry": "Actual production HTML/WebGL, release native server and normal UI or accepted protocol commands; no generated Frame, setSnapshot, clock write, HP write or model teleport.",
+    "audiences": ["Blue tank commander", "Red pilot", "AI-only observer"],
+    "before": [
+      "Drive and fire, switch role only at an accepted friendly deployment area, retain company orders while flying, and observe actual native resource deficits.",
+      "Populate legitimate enemy visible/aged-last-position contacts and follow a unit; leave a pending map order and held controls before the end.",
+      "Record actual WS stream, battle/life/epoch/sequence, DOM inventory, reticle, map contacts, model roots, service/jobs, audio cues and screenshots."
+    ],
+    "during": [
+      "Result and server countdown are readable; start/deploy/air-service/takeover actions and held weapon inputs cannot operate on the finished battle.",
+      "Native clock remains frozen while the monotonic countdown advances; no local countdown authorizes a reset.",
+      "Disconnected player may resume before or after reset without resurrecting old control or company state."
+    ],
+    "after": [
+      "The same socket, room, team, observer role, map and era remain selected and the next round starts without a reconnect or manual Start.",
+      "No old-life HUD stock, weapon effects, reticle, service notice, follow UnitRef, pending order, held key, sound emitter, facility job or aged enemy contact remains.",
+      "Model maps contain only new UnitRef keys; async old map/model/facility completion cannot reinstall old battle entities after the new Snapshot.",
+      "A justifiably detected new-round enemy may appear; every displayed contact must reference the new battle and an accepted new tick.",
+      "A new tank/air sortie accepts sequence 1 with initial stock; observer stays read only and can freely follow new AI units.",
+      "Capture actual before/intermission/after images and inspect them; DOM state and viewport emulation alone do not certify visual correctness."
+    ],
+    "shortPolicyBoundary": "The new socket fixture is not a production browser reset host. Unless a separately reviewed cfg(test)-only page host is added, the actual release browser reset gate must wait for a genuine production terminal result or deadline."
+  },
+  "aiAndForceIntegrationGates": [
+    {
+      "id": "ai_sortie_cycle",
+      "checks": [
+        "Both autonomous initial aircraft independently choose valid era/type missions, engage admitted contacts with finite ammunition/fuel, break off, find an available friendly airfield, approach, land and stop using accepted flight/contact state.",
+        "Fifteen-second service restores resources atomically on the same surviving Store/Instance/life; unavailable supply, closed runway, damage or motion prevents/cancels service without partial grants.",
+        "Actual departure, takeoff and renewed engagement complete at least two cycles. A terminally destroyed aircraft is replaced only through the accepted life/readiness/placement policy.",
+        "No human input, aircraft pose write, native clock jump, speed multiplier or resource patch drives the observer-only run."
+      ]
+    },
+    {
+      "id": "ground_roles",
+      "checks": [
+        "Each advertised era-valid AA/fire-support type has real source/native chassis, weapon, projectile, recoil/reload/ammo and visible accepted shots; a metadata role label or static model is insufficient.",
+        "AA acquires authorized airborne targets, obeys traverse/elevation/LOS/range/reload, fires ballistic shots into actual aircraft contacts and consumes finite ammunition; friendly aircraft block trajectories without default friendly damage.",
+        "Fire support lays a real gun from a stopped platform, consumes accepted shells and impacts actual ground/facility contacts. Obstructions, travel time and misses remain physical.",
+        "Observers see truth while team clients see only shared detections; ground AA ACM radar mode is independently verified through actual Space+R controls when that sensor is implemented.",
+        "Document exactly which source vehicles and roles are implemented. AA and artillery work does not certify missing visible infantry, IFVs/APCs or SAM/guided systems."
+      ]
+    },
+    {
+      "id": "campaign_interactions",
+      "checks": [
+        "Actual shots/bombs damage shared bridges/runways/supply/repair structures; same uploaded Float32 facility surfaces remain authoritative.",
+        "Physical engineer/logistics actors traverse valid routes, work for accepted time, reopen only completed infrastructure and influence airfield service availability.",
+        "Company death charges readiness once per life, survivor takeover preserves state, and reinforcements physically arrive in batches rather than appearing at the front.",
+        "Multi-front Korea and whole-island Taiwan each run genuine attacks, contest/capture, detour/block/repair and victory/end/reset. Taiwan maritime transport/beachheads remain a separate unfinished requirement."
+      ]
+    }
+  ],
+  "populationBudget": {
+    "source": ["crates/server/src/frontline.rs:TEAM_PLAYERS and TEAM_COMPANIES", "current production six autonomous 10-tank companies", "current production sixteen engineer/supply conversions"],
+    "humans": {"perTeam": 12, "total": 24},
+    "playerCompanyCombatTanks": 240,
+    "initialAutonomousCombatTanks": 60,
+    "initialSupportActors": 16,
+    "currentMinimumInitialGroundAtMaximumCompanies": 316,
+    "currentMaximumSimultaneousAircraft": {"human": 24, "initialAutonomous": 2, "total": 26},
+    "interpretation": "A human can retain a full company while flying. Therefore 316 ground plus 26 aircraft is a valid worst-case living mixed world, not merely 300 tanks plus two AI aircraft. New force/support roles may increase the count and must be included rather than substituted silently.",
+    "additionalPhysicalLoad": "Record destroyed but collidable wrecks, in-flight shells/rockets/bombs, facility geometry, queued and physically arriving replacements. Starting readiness 1000 per team and ten per charged loss can permit roughly 200 charged wrecks across teams before a readiness result, subject to objective pressure and other losses; measure actual actors instead of assuming living count equals physical body count.",
+    "creation": [
+      "Connect 24 independent real WS player clients, 12 explicitly on each team, plus one JSON observer and one wire2 observer.",
+      "Use actual deployment admission at the three registered rear sources per team, in waves. Drive command tanks and issue accepted orders so native formation motion clears occupied slots before the next company deploys.",
+      "Do not move/delete bodies, weaken collision clearance, spoof support/player entities or bypass placement just to reach the target count.",
+      "First test the all-ground human-control case; then physically Return each controller at a friendly area and deploy a valid aircraft while its original company continues AI orders."
+    ]
+  },
+  "enduranceAndPerformance": {
+    "status": "pending_real_measurements",
+    "priorShortProbeBoundary": "frontline-wire-tick-probe.mjs currently expects 76/86 ground and two/three aircraft and permits only 2–120 seconds; its existing short proofs cannot certify these gates.",
+    "scenarios": [
+      {"id": "production_single_round_deadline", "duration": "At least 2700 accepted native seconds plus 20 seconds real authoritative intermission", "population": "Current supported population with real active battle", "pass": "Genuine native deadline Ended followed by automatic same-room fresh round; a naturally earlier victory is valid gameplay but does not prove the production timeout."},
+      {"id": "production_application_endurance", "duration": "At least 90 continuous real wall minutes", "population": "Active native AI and humans/protocol clients; natural victories and automatic next rounds allowed", "pass": "No crash, stale control, memory growth without recovery, native clock drift, repeated unbounded wire resync or lost lifecycle; this is distinct from a single 90-minute round policy."},
+      {"id": "max_ground_budget", "duration": "Stable full-population windows followed by combat/loss/reinforcement windows", "population": "316 current ground, two autonomous aircraft, 24 real driver sockets plus two observer sockets", "pass": "Actual accepted motion/contacts/weapons and all audience replication remain live at target cadence."},
+      {"id": "max_retained_company_air_budget", "duration": "Stable full-population windows followed by combat/loss/reinforcement windows", "population": "316 current ground, 26 aircraft, 24 real pilot sockets plus two observer sockets", "pass": "All 300 company combat tanks execute real native AI while all 26 aircraft keep independent source-matched flight plants; no inactive-camera simulation exemption."}
+    ],
+    "clockAndCadence": {
+      "physicsStepHz": 120,
+      "acceptedRoomAndInputHz": 20,
+      "proposedLocalTargets": {"rolling60SecondNativeTickHz": [19, 21.5], "acceptedAirAndGroundClockPerWall": [0.95, 1.05], "perPeerFrameHz": 18},
+      "measurement": "Report full-run and rolling-window native tick/native time versus trusted monotonic wall time; intermission is excluded from active-battle cadence denominators and reported separately. Report p50/p95/p99/max ticker/encode/receive gaps, not only a full-run mean. Thresholds are proposed acceptance targets, not a measured pass."
+    },
+    "recording": [
+      "Use a new bounded-memory long harness. Keep rolling histograms and per-second append-only summaries; do not retain every decoded full frame for 45–90 minutes.",
+      "Save first/last, periodic and transition full native checkpoints, exact wire headers/byte counts, per-battle ticks, life/resource revisions, actor category/alive/wreck counts, facility/order/job/AI states and actual error/close/resync counters.",
+      "Keep bounded exact raw packet windows around failures/round transitions and periodic sample windows so JS decoder values and per-audience projection can be independently replayed.",
+      "Record process image/source/data/page/core hashes, launch command, machine CPU/RAM, PID/start identity, CPU utilization, RSS, threads, sockets, per-peer bandwidth and queue pressure. Freeze direct inputs before and after each acceptance.",
+      "Use diagnostic TANKFORGE_NATIVE_TIMING/TF_FRONTLINE_PROFILE runs separately for attribution. Nested and parallel elapsed counters overlap and cannot be added or called measured OS CPU time. Final realtime acceptance must use diagnostics disabled.",
+      "Compare observer JSON/wire2 at actual same ticks and player frames with their authorized observer subsets; 24 real per-socket encoders and input streams must remain present throughout maximum multiplayer measurement."
+    ],
+    "allowedOptimizationBoundary": "Profile before optimizing. Preserve all native 120 Hz bodies, ground support, aircraft plants, collisions, finite weapons, LOS, accepted damage and active remote AI. Visual LOD is allowed; camera-based removal, reduced population, fake interpolation authority, weakened collision meshes, frozen distant battles or resource/time shortcuts cannot satisfy this gate.",
+    "fairness": "A naturally destructive campaign may not keep every initial unit alive for an entire window. Record genuine counts and failures, then use valid reinforcement/deployment or repeat a real run; never hide losses, patch HP/ammo/time, freeze victory or claim a reduced live population as the requested maximum."
+  },
+  "remainingIndependentReleaseGates": [
+    "Actual physical desktop GPU and mobile device gameplay/performance; headless SwiftShader or viewport emulation is functional evidence only.",
+    "WAN latency/jitter/loss/reconnect and bounded writer/backpressure behavior at real multiplayer population; public HTTP/WS smoke alone is insufficient.",
+    "Source-model roster launch, landing gear, internal structures, cockpit/sight/hardpoint/muzzle fidelity and Me262 U4 audio remain governed by their individual aircraft proofs.",
+    "Shared radar ACM/seeker/guided weapons, historically valid variant/store/sensor sets and complete CCIP/bomb-ring gating require independent actual native/UI acceptance.",
+    "Existing vehicle combat keeps legacy plates/boxes; this work does not claim general uploaded render-triangle vehicle combat migration."
+  ]
+}

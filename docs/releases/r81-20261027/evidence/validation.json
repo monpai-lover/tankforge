@@ -1,0 +1,1306 @@
+{
+  "schema": "TankForgeAirwarR8ValidationV1",
+  "version": "tankforge-penetration-r8.1-linux-amd64-20261027",
+  "result": "PASS_WITH_EXPLICIT_UNVERIFIED_SCOPES",
+  "manifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+  "sourceDeltaSha256": "0e470a8b8bc1b353507d98ab2f4135e38c6d4711315a45c4c9fb913dbb4fe45c",
+  "runSetSha256": "31371195826469e02003aedfd879c01d09635dfa6be9490fb164abc579c9aa6f",
+  "inputs": {
+    "app": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+    "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+    "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+    "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+    "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32",
+    "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
+    "linuxBinary": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+    "windowsBinary": "d700667689952e154edf48fd23282358523ab6ca2c9835220629063810815742",
+    "packageTools": "f65c7af397a96ffc4db56a5aaf95da2530bed7f375a031f7e0fa9dda08823547"
+  },
+  "packageToolSha256": {
+    "install.py": "7bc9271063a22d174e22fa70c4c8fe6febc3b74509bcdd1b0d6379b6a79f7b94",
+    "build_delivery.py": "28f5238c1cebe857786ef100d1cd2cefd15bf22852f7570168a031a1b9948fe1",
+    "verify_actual_release.py": "f82051349074b84c5e247f623ef70072ed7fcf4fb8865a372abfe45f2a1a37d8",
+    "finalize_delivery_r8.py": "0cbe1b0ab27cd2bea7b83e01e87e158479d63977a69a52b04bf0a1b465b0b7fb",
+    "test_installer.py": "e2d83f9129b3cbfe6a43dab96b7d1de8776b9cf7c6581d212a183e4426706ae2",
+    "test_build_delivery.py": "46762ff39efd1e5b195b7cfebcd3c5fcf57745ed5fe33bca8eb7f13199803e72",
+    "test_r8_package.py": "aa892bc4116b8baa0ff215c447e0ffbe05432e1892cc32c60742241b49d24bbe",
+    "test_finalize_delivery_r8.py": "5170530295a60915c582a6965215cd3f282d2689b2e55d302029f95a48f5a04a",
+    "test_r8_increment.py": "94129d19340e42459528c51e983d95b469d24ff5c6fb468962005dbc0b968933",
+    "test_r81_package.py": "cd74500f3aa54761f78031e756fcdccba0f866f6cb1ed82e4af443dea3edef25",
+    "README-r8-zh.md": "6f3217ed7bf25f40f6ad3ebd9aea7bc075f96fd8a3f3ed1894163177723f6fe4",
+    "R8-RUNS.example.json": "4b3acedea171fafa9ae4ed2be90d49d99b1d37ac58d3eb6f31c4143c91c43082",
+    "R8-RUNS.schema.json": "eba08439724f3dfde219fa198867aab900199de6247c975dc746ab46ebedb99c"
+  },
+  "candidate": {
+    "html_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+    "html_bytes": 418794158,
+    "tail_file": "payload/app.tail.html",
+    "tail_sha256": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+    "binary_file": "payload/tg-server",
+    "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+    "data_overlays": [
+      {
+        "path": "data/aircraft/aircraft.json",
+        "payload_file": "payload/data/aircraft/aircraft.json",
+        "sha256": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "bytes": 105393
+      },
+      {
+        "path": "data/aircraft/frontline.json",
+        "payload_file": "payload/data/aircraft/frontline.json",
+        "sha256": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "bytes": 1427858
+      },
+      {
+        "path": "data/projectiles/apcbc_75_pzgr39.json",
+        "payload_file": "payload/data/projectiles/apcbc_75_pzgr39.json",
+        "sha256": "6fcaeebb72cffcfccefd7e1e7565b14f70003e0d51368829bf50487f99b2cb36",
+        "bytes": 773
+      },
+      {
+        "path": "data/projectiles/apcbc_75_pzgr39_42.json",
+        "payload_file": "payload/data/projectiles/apcbc_75_pzgr39_42.json",
+        "sha256": "2a7521b984874205821ca4a3742b549f3b3df5426d128b8413b7220e0664d59b",
+        "bytes": 781
+      },
+      {
+        "path": "data/projectiles/apcbc_75_pzgr39_l43.json",
+        "payload_file": "payload/data/projectiles/apcbc_75_pzgr39_l43.json",
+        "sha256": "b61af5f2c29b288ee677ccdf0c5f9321eb926d3c4c5f9268057b844b130ea161",
+        "bytes": 790
+      },
+      {
+        "path": "data/vehicles/de_panther_f/armor.json",
+        "payload_file": "payload/data/vehicles/de_panther_f/armor.json",
+        "sha256": "4b5bb2f58593ec4765eca6fa5effa280708eaf7ee49f6cc8f1589b27c35895ff",
+        "bytes": 5660
+      },
+      {
+        "path": "data/vehicles/de_panther_g/armor.json",
+        "payload_file": "payload/data/vehicles/de_panther_g/armor.json",
+        "sha256": "1adbc092b2f8f92944bd780e30000be32dad6bc983cb9dcae9604ca634fd511b",
+        "bytes": 5643
+      },
+      {
+        "path": "data/vehicles/de_pz4_h/armor.json",
+        "payload_file": "payload/data/vehicles/de_pz4_h/armor.json",
+        "sha256": "c7b1471457edfff4aa7057e2a3a57c007c3180e5c8201a777d6373d88240a29d",
+        "bytes": 5980
+      },
+      {
+        "path": "data/vehicles/ru_pantsir_sm_sv/surface_armor.json",
+        "payload_file": "payload/data/vehicles/ru_pantsir_sm_sv/surface_armor.json",
+        "sha256": "a5441a98aa8fc344daaa5e87f5535cca8b80336b5d623a33f5de9c0724bbb7b5",
+        "bytes": 949756
+      }
+    ],
+    "kernels": {
+      "flight": {
+        "exports": [
+          "adopt_kinematics",
+          "aero_state_len",
+          "aero_state_ptr",
+          "configure",
+          "configure_airframe",
+          "configure_control",
+          "configure_envelope",
+          "configure_gear_sequence",
+          "configure_surfaces",
+          "core_version",
+          "impulse",
+          "memory",
+          "reset",
+          "seed_control_state",
+          "set_damage",
+          "set_gear_failure",
+          "set_world",
+          "spawn",
+          "state_len",
+          "state_ptr",
+          "step",
+          "terrain_height"
+        ],
+        "coreVersion": 215,
+        "sha256": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "bytes": 33753,
+        "file": "payload/flight_core.wasm"
+      },
+      "combat": {
+        "exports": [
+          "memory",
+          "tg_alloc",
+          "tg_barrel_revision",
+          "tg_call",
+          "tg_free",
+          "tg_replay_revision",
+          "tg_surface_revision",
+          "tg_weapon_bindings_revision"
+        ],
+        "revisions": {
+          "tg_replay_revision": 1,
+          "tg_surface_revision": 1,
+          "tg_barrel_revision": 1,
+          "tg_weapon_bindings_revision": 1
+        },
+        "sha256": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32",
+        "bytes": 3856680,
+        "file": "payload/tg_design_wasm.wasm"
+      }
+    }
+  },
+  "runs": [
+    {
+      "name": "native",
+      "kind": "rust",
+      "status": "PASS",
+      "scope": "Final exact exported profile: cargo test --locked -p tg-server --lib native_agm_point -- --test-threads=2; 11 actual native point guidance cases.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ],
+      "before": {
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+      },
+      "after": {
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+      },
+      "logSha256": "5b5c01da76237c7cde80068a26f30f04d7590b02319169912e5b1015e5ffae70",
+      "results": [
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        }
+      ],
+      "log": "evidence/runs/00-native-log-native-final.log"
+    },
+    {
+      "name": "combat",
+      "kind": "rust",
+      "status": "PASS",
+      "scope": "Actual command recorded in command; source and input hashes captured before and after execution.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ],
+      "before": {
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "after": {
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "logSha256": "afd36d9171684e9a26c03254a2e61a6dcc117f4a077acf1a6a52f6948ef06e03",
+      "results": [
+        {
+          "status": "ok",
+          "passed": 196,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 28,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 15,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 0,
+          "failed": 0
+        }
+      ],
+      "log": "evidence/runs/01-combat-log-combat.log"
+    },
+    {
+      "name": "node",
+      "kind": "node",
+      "status": "PASS",
+      "scope": "Fresh complete selected inventory: 123 actual Node test files, 784/784 PASS; exact coordinator receipt separately preserved. Two excluded historical tests are explicitly NOT_RUN.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ],
+      "before": {
+        "app": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "after": {
+        "app": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "logSha256": "3877ecea643433cfbd014fab8a4fab275222b43cf43f313391584d3ef5e6d083",
+      "results": [
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 13,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 57,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 21,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 5,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 13,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 11,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 6,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 14,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 13,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 9,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 4,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 10,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 2,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 3,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 7,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 12,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 22,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 8,
+          "failed": 0
+        },
+        {
+          "status": "ok",
+          "passed": 1,
+          "failed": 0
+        }
+      ],
+      "log": "evidence/runs/02-node-log-combined.tap.log"
+    },
+    {
+      "name": "package-tools",
+      "kind": "unittest",
+      "status": "PASS",
+      "scope": "Actual command recorded in command; source and input hashes captured before and after execution.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ],
+      "before": {
+        "packageTools": "f65c7af397a96ffc4db56a5aaf95da2530bed7f375a031f7e0fa9dda08823547"
+      },
+      "after": {
+        "packageTools": "f65c7af397a96ffc4db56a5aaf95da2530bed7f375a031f7e0fa9dda08823547"
+      },
+      "logSha256": "ceb8915313a450131227a68602c13e549f044191042acac253fabd5b43b1cbdb",
+      "results": [
+        {
+          "status": "ok",
+          "passed": 101,
+          "failed": 0
+        }
+      ],
+      "log": "evidence/runs/03-package-tools-log-package-tools-final.log"
+    },
+    {
+      "name": "install-primary",
+      "kind": "install",
+      "status": "PASS",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ],
+      "receiptSha256": "2212cecd7da86ed654b18723e71cc39f161b856f64fcd174993cb80257f97ccc",
+      "selectedBaseline": "primary",
+      "install": {
+        "result": "PASS",
+        "scope": "Real full release copy, no service process/systemd execution",
+        "selectedBaseline": "primary",
+        "packageManifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+        "baseline": "D:\\TankForge-validation\\r7-complete-baselines-20261027\\original-oct25-complete",
+        "clone": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-primary-clone",
+        "baselineFilesRehashed": 439,
+        "baselineUntouched": true,
+        "dryRunPreservedAllFiles": true,
+        "appliedCompleteCohort": true,
+        "candidateRawAndGzipMatched": true,
+        "runtimeDataMatched": true,
+        "runtimeDataAdditions": [
+          {
+            "path": "data/vehicles/ru_pantsir_sm_sv/surface_armor.json",
+            "sha256": "a5441a98aa8fc344daaa5e87f5535cca8b80336b5d623a33f5de9c0724bbb7b5"
+          }
+        ],
+        "rollbackRestoredAddedRuntimeAbsence": true,
+        "rollbackRestoredEveryOriginalFileAndPresence": true,
+        "dryRun": {
+          "validated": true,
+          "dry_run": true,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "primary"
+        },
+        "apply": {
+          "validated": true,
+          "dry_run": false,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "primary",
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-primary-clone\\.tankforge-air-rollback-20261027T111438Z-86dd78607cac45e6934895d86bee567a",
+          "installed": true,
+          "restart": "offline"
+        },
+        "rollback": {
+          "restored": true,
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-primary-clone\\.tankforge-air-rollback-20261027T111438Z-86dd78607cac45e6934895d86bee567a"
+        },
+        "elapsedWallSeconds": 38.036
+      },
+      "receipt": "evidence/runs/04-install-primary-receipt-install-primary.json"
+    },
+    {
+      "name": "install-r6",
+      "kind": "install",
+      "status": "PASS",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ],
+      "receiptSha256": "4b492dc2414b37df74a261fdd62c9bda776f244d4be4a156f3a51f28e4cc9670",
+      "selectedBaseline": "tankforge-air-frontline-models-aphe-linux-x86_64-20261026",
+      "install": {
+        "result": "PASS",
+        "scope": "Real full release copy, no service process/systemd execution",
+        "selectedBaseline": "tankforge-air-frontline-models-aphe-linux-x86_64-20261026",
+        "packageManifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+        "baseline": "D:\\TankForge-validation\\r7-complete-baselines-20261027\\r6-installed-complete",
+        "clone": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r6-clone",
+        "baselineFilesRehashed": 440,
+        "baselineUntouched": true,
+        "dryRunPreservedAllFiles": true,
+        "appliedCompleteCohort": true,
+        "candidateRawAndGzipMatched": true,
+        "runtimeDataMatched": true,
+        "runtimeDataAdditions": [],
+        "rollbackRestoredAddedRuntimeAbsence": true,
+        "rollbackRestoredEveryOriginalFileAndPresence": true,
+        "dryRun": {
+          "validated": true,
+          "dry_run": true,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "tankforge-air-frontline-models-aphe-linux-x86_64-20261026"
+        },
+        "apply": {
+          "validated": true,
+          "dry_run": false,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "tankforge-air-frontline-models-aphe-linux-x86_64-20261026",
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r6-clone\\.tankforge-air-rollback-20261027T111514Z-4f448f8b7680409cafcebf8ca5d3e7f8",
+          "installed": true,
+          "restart": "offline"
+        },
+        "rollback": {
+          "restored": true,
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r6-clone\\.tankforge-air-rollback-20261027T111514Z-4f448f8b7680409cafcebf8ca5d3e7f8"
+        },
+        "elapsedWallSeconds": 36.772
+      },
+      "receipt": "evidence/runs/05-install-r6-receipt-install-r6.json"
+    },
+    {
+      "name": "install-r7",
+      "kind": "install",
+      "status": "PASS",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ],
+      "receiptSha256": "e30e3a5569110f2d7682e1f93dd22ca40fe0a0894db7bdf8eceb7dbeb607f7b7",
+      "selectedBaseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7",
+      "install": {
+        "result": "PASS",
+        "scope": "Real full release copy, no service process/systemd execution",
+        "selectedBaseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7",
+        "packageManifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+        "baseline": "D:\\TankForge-validation\\r8-complete-baselines-20261027\\r7-installed-complete",
+        "clone": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7-clone",
+        "baselineFilesRehashed": 440,
+        "baselineUntouched": true,
+        "dryRunPreservedAllFiles": true,
+        "appliedCompleteCohort": true,
+        "candidateRawAndGzipMatched": true,
+        "runtimeDataMatched": true,
+        "runtimeDataAdditions": [],
+        "rollbackRestoredAddedRuntimeAbsence": true,
+        "rollbackRestoredEveryOriginalFileAndPresence": true,
+        "dryRun": {
+          "validated": true,
+          "dry_run": true,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7"
+        },
+        "apply": {
+          "validated": true,
+          "dry_run": false,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7",
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7-clone\\.tankforge-air-rollback-20261027T111447Z-1e2a83304c394f158040814d9e950602",
+          "installed": true,
+          "restart": "offline"
+        },
+        "rollback": {
+          "restored": true,
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7-clone\\.tankforge-air-rollback-20261027T111447Z-1e2a83304c394f158040814d9e950602"
+        },
+        "elapsedWallSeconds": 38.115
+      },
+      "receipt": "evidence/runs/06-install-r7-receipt-install-r7.json"
+    },
+    {
+      "name": "install-r8",
+      "kind": "install",
+      "status": "PASS",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ],
+      "receiptSha256": "8dc4ddde2701f9eb6b2473f93553bf1af29936dd2e586969c124bf3bf1e320b5",
+      "selectedBaseline": "tankforge-airwar-r8-linux-amd64-20261027",
+      "install": {
+        "result": "PASS",
+        "scope": "Real full release copy, no service process/systemd execution",
+        "selectedBaseline": "tankforge-airwar-r8-linux-amd64-20261027",
+        "packageManifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+        "baseline": "D:\\TankForge-validation\\r81-complete-baselines-20261027\\r8-installed-complete",
+        "clone": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r8-clone",
+        "baselineFilesRehashed": 440,
+        "baselineUntouched": true,
+        "dryRunPreservedAllFiles": true,
+        "appliedCompleteCohort": true,
+        "candidateRawAndGzipMatched": true,
+        "runtimeDataMatched": true,
+        "runtimeDataAdditions": [],
+        "rollbackRestoredAddedRuntimeAbsence": true,
+        "rollbackRestoredEveryOriginalFileAndPresence": true,
+        "dryRun": {
+          "validated": true,
+          "dry_run": true,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "tankforge-airwar-r8-linux-amd64-20261027"
+        },
+        "apply": {
+          "validated": true,
+          "dry_run": false,
+          "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+          "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+          "selected_baseline": "tankforge-airwar-r8-linux-amd64-20261027",
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r8-clone\\.tankforge-air-rollback-20261027T111524Z-750bd0999dbe4282a1b7feceb0b4f66b",
+          "installed": true,
+          "restart": "offline"
+        },
+        "rollback": {
+          "restored": true,
+          "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r8-clone\\.tankforge-air-rollback-20261027T111524Z-750bd0999dbe4282a1b7feceb0b4f66b"
+        },
+        "elapsedWallSeconds": 35.664
+      },
+      "receipt": "evidence/runs/07-install-r8-receipt-install-r8.json"
+    },
+    {
+      "name": "native-full-before-export",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "Fresh same-source full tg-server run: 448 unit plus 3 integration tests passed before the exporter refreshed only source.appSha256. Runtime data equivalence is independently recorded; final exact-profile point tests are the native PASS role.",
+      "limitations": [],
+      "receiptSha256": "dffabd70dc7f3fa358a9401cd3dad6d80db2d03bb7226516d901e3d42c098767",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/08-native-full-before-export-receipt-native-run.json"
+    },
+    {
+      "name": "profile-export-equivalence",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "Exact old/new profile comparison; only page source hash changed.",
+      "limitations": [],
+      "receiptSha256": "e531feab652638997d8b2073cb0c159441daa2cb957f9ae897dcbcef8c4a77aa",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/09-profile-export-equivalence-receipt-profile-sync-receipt.json"
+    },
+    {
+      "name": "node-coordinator",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "Actual complete coordinator command, captured before/after inputs, source tree stability and original stdout log hash.",
+      "limitations": [],
+      "receiptSha256": "e23e059785afa838546bb59b266dc857be53ba0093103d42b19946322f6c27ed",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/10-node-coordinator-receipt-node-final-run.json"
+    },
+    {
+      "name": "node-inventory",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "All selected 123 files and the two historical NOT_RUN exclusions; no fixture fabricated.",
+      "limitations": [],
+      "receiptSha256": "adc0fe40868c18902db461b15b58741441a39d86083c18ade2379c1e6dc30428",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/11-node-inventory-receipt-receipt.json"
+    },
+    {
+      "name": "local-http-smoke",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "Actual matching Windows server: health, native maps catalog and served 418794158-byte prepared page match. No browser interaction or flight claimed.",
+      "limitations": [],
+      "receiptSha256": "3072a654f2b7bfe7df75f0b84151019d10943196b4dec8cb136dbab0aafd439f",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/12-local-http-smoke-receipt-http-smoke.json"
+    },
+    {
+      "name": "linux-build",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "Successful same-source static Linux amd64 cross-compilation; runtime profile provenance-only update is recorded separately. ELF payload is separately pinned by the prepared manifest.",
+      "limitations": [
+        "No Linux execution environment."
+      ],
+      "receiptSha256": "348ef5862206125d8596b9eca833813b49b7be8ba69d8e3af731c26237f19fa2",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/13-linux-build-receipt-linux-build-final-run.json"
+    },
+    {
+      "name": "windows-build",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "scope": "Successful same-source Windows release build; served binary is pinned by the actual HTTP smoke receipt.",
+      "limitations": [],
+      "receiptSha256": "5227f2364b4d12d05f2cc6c25c82d8d9f219603b6dc4fb243d9e576f2358a7ef",
+      "referenceOnly": true,
+      "receipt": "evidence/runs/14-windows-build-receipt-windows-build-run.json"
+    },
+    {
+      "name": "historical-not-run-1",
+      "kind": "node",
+      "status": "NOT_RUN",
+      "scope": "handoff/tests/flight_gear_sequence.test.mjs",
+      "reason": "NOT RUN: unchanged historical core212-before-gear.wasm fixture omitted; no synthetic historical fixture substituted",
+      "limitations": [
+        "Original test and available historical inputs preserved; no fabricated substitute."
+      ]
+    },
+    {
+      "name": "historical-not-run-2",
+      "kind": "node",
+      "status": "NOT_RUN",
+      "scope": "handoff/tests/me262-u4-audio.test.mjs",
+      "reason": "NOT RUN: historical ffmpeg-dependent test kept outside available runtime gate; original audio/test retained",
+      "limitations": [
+        "Original test and available historical inputs preserved; no fabricated substitute."
+      ]
+    },
+    {
+      "name": "linux-execution",
+      "kind": "system",
+      "status": "NOT_RUN",
+      "scope": "linux-execution",
+      "reason": "Windows host has no Linux runtime; cross-compilation and ELF validation only.",
+      "limitations": [
+        "Windows host has no Linux runtime; cross-compilation and ELF validation only."
+      ]
+    },
+    {
+      "name": "manual-gpu-flight",
+      "kind": "browser",
+      "status": "NOT_RUN",
+      "scope": "manual-gpu-flight",
+      "reason": "No manual browser/GPU flight test was performed; gameplay is covered by the recorded automated controller/native tests.",
+      "limitations": [
+        "No manual browser/GPU flight test was performed; gameplay is covered by the recorded automated controller/native tests."
+      ]
+    }
+  ],
+  "evidence": {
+    "evidence/runs/00-native-log-native-final.log": {
+      "sha256": "5b5c01da76237c7cde80068a26f30f04d7590b02319169912e5b1015e5ffae70",
+      "bytes": 1596
+    },
+    "evidence/runs/01-combat-log-combat.log": {
+      "sha256": "afd36d9171684e9a26c03254a2e61a6dcc117f4a077acf1a6a52f6948ef06e03",
+      "bytes": 22481
+    },
+    "evidence/runs/02-node-log-combined.tap.log": {
+      "sha256": "3877ecea643433cfbd014fab8a4fab275222b43cf43f313391584d3ef5e6d083",
+      "bytes": 218002
+    },
+    "evidence/runs/03-package-tools-log-package-tools-final.log": {
+      "sha256": "ceb8915313a450131227a68602c13e549f044191042acac253fabd5b43b1cbdb",
+      "bytes": 17945
+    },
+    "evidence/runs/04-install-primary-receipt-install-primary.json": {
+      "sha256": "2212cecd7da86ed654b18723e71cc39f161b856f64fcd174993cb80257f97ccc",
+      "bytes": 1960
+    },
+    "evidence/runs/05-install-r6-receipt-install-r6.json": {
+      "sha256": "4b492dc2414b37df74a261fdd62c9bda776f244d4be4a156f3a51f28e4cc9670",
+      "bytes": 1923
+    },
+    "evidence/runs/06-install-r7-receipt-install-r7.json": {
+      "sha256": "e30e3a5569110f2d7682e1f93dd22ca40fe0a0894db7bdf8eceb7dbeb607f7b7",
+      "bytes": 1914
+    },
+    "evidence/runs/07-install-r8-receipt-install-r8.json": {
+      "sha256": "8dc4ddde2701f9eb6b2473f93553bf1af29936dd2e586969c124bf3bf1e320b5",
+      "bytes": 1873
+    },
+    "evidence/runs/08-native-full-before-export-receipt-native-run.json": {
+      "sha256": "dffabd70dc7f3fa358a9401cd3dad6d80db2d03bb7226516d901e3d42c098767",
+      "bytes": 1655
+    },
+    "evidence/runs/09-profile-export-equivalence-receipt-profile-sync-receipt.json": {
+      "sha256": "e531feab652638997d8b2073cb0c159441daa2cb957f9ae897dcbcef8c4a77aa",
+      "bytes": 621
+    },
+    "evidence/runs/10-node-coordinator-receipt-node-final-run.json": {
+      "sha256": "e23e059785afa838546bb59b266dc857be53ba0093103d42b19946322f6c27ed",
+      "bytes": 1776
+    },
+    "evidence/runs/11-node-inventory-receipt-receipt.json": {
+      "sha256": "adc0fe40868c18902db461b15b58741441a39d86083c18ade2379c1e6dc30428",
+      "bytes": 56300
+    },
+    "evidence/runs/12-local-http-smoke-receipt-http-smoke.json": {
+      "sha256": "3072a654f2b7bfe7df75f0b84151019d10943196b4dec8cb136dbab0aafd439f",
+      "bytes": 611
+    },
+    "evidence/runs/13-linux-build-receipt-linux-build-final-run.json": {
+      "sha256": "348ef5862206125d8596b9eca833813b49b7be8ba69d8e3af731c26237f19fa2",
+      "bytes": 1707
+    },
+    "evidence/runs/14-windows-build-receipt-windows-build-run.json": {
+      "sha256": "5227f2364b4d12d05f2cc6c25c82d8d9f219603b6dc4fb243d9e576f2358a7ef",
+      "bytes": 1654
+    },
+    "evidence/r8-run-set.json": {
+      "sha256": "31371195826469e02003aedfd879c01d09635dfa6be9490fb164abc579c9aa6f",
+      "bytes": 13888
+    }
+  },
+  "linuxElf": {
+    "class": "ELF64",
+    "byteOrder": "little",
+    "machine": "AMD64",
+    "declaredBuildTarget": "x86_64-unknown-linux-musl",
+    "ptInterp": false,
+    "dtNeeded": [],
+    "linuxExecution": "NOT RUN: no Linux execution environment on this Windows host",
+    "bytes": 6580304,
+    "sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf"
+  },
+  "linuxExecutionPerformed": false,
+  "remoteDeploymentPerformed": false,
+  "guiExecutionPerformedByFinalizer": false,
+  "limitations": [
+    "This finalizer performs no GUI or Linux process execution and no remote/systemd deployment.",
+    "REFERENCE entries preserve earlier scoped evidence and are not new R8 test runs.",
+    "Each supplied run retains its original scope and exclusions; no R6/R7 result is relabeled as a fresh R8 run."
+  ]
+}

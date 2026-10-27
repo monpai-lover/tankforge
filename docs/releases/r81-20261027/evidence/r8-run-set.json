@@ -1,0 +1,299 @@
+{
+  "schema": "TankForgeR8RunSetV1",
+  "version": "tankforge-penetration-r8.1-linux-amd64-20261027",
+  "runs": [
+    {
+      "name": "native",
+      "kind": "rust",
+      "status": "PASS",
+      "exitCode": 0,
+      "before": {
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+      },
+      "after": {
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6"
+      },
+      "log": "D:\\TankForge-validation\\agm-ground-point-20261027\\native-final.log",
+      "logSha256": "5b5c01da76237c7cde80068a26f30f04d7590b02319169912e5b1015e5ffae70",
+      "command": [
+        "C:\\Users\\24908\\.codex\\scratch\\tankforge-rust\\cargo\\bin\\cargo.exe",
+        "test",
+        "--locked",
+        "-p",
+        "tg-server",
+        "--lib",
+        "native_agm_point",
+        "--",
+        "--test-threads=2"
+      ],
+      "startedAtUnix": 1793099421.228612,
+      "elapsedSeconds": 50.25463581085205,
+      "rustSourceBefore": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "rustSourceAfter": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "scope": "Final exact exported profile: cargo test --locked -p tg-server --lib native_agm_point -- --test-threads=2; 11 actual native point guidance cases.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ]
+    },
+    {
+      "name": "combat",
+      "kind": "rust",
+      "status": "PASS",
+      "exitCode": 0,
+      "before": {
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "after": {
+        "cargoLock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "log": "D:\\TankForge-validation\\agm-ground-point-20261027\\combat.log",
+      "logSha256": "afd36d9171684e9a26c03254a2e61a6dcc117f4a077acf1a6a52f6948ef06e03",
+      "command": [
+        "C:\\Users\\24908\\.codex\\scratch\\tankforge-rust\\cargo\\bin\\cargo.exe",
+        "test",
+        "--locked",
+        "-p",
+        "tg-combat",
+        "-p",
+        "tg-penetration",
+        "-p",
+        "tg-missile",
+        "--",
+        "--test-threads=2"
+      ],
+      "startedAtUnix": 1793098863.832798,
+      "elapsedSeconds": 87.54072761535645,
+      "rustSourceBefore": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "rustSourceAfter": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "scope": "Actual command recorded in command; source and input hashes captured before and after execution.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ]
+    },
+    {
+      "name": "node",
+      "kind": "node",
+      "status": "PASS",
+      "exitCode": 0,
+      "before": {
+        "app": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "after": {
+        "app": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+        "profile": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+        "aircraft": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
+        "flightWasm": "b2e0f33fd2aa549d042b1fe8b5df790c1b6d28e64acd8edc424d7d93edebfe7f",
+        "combatWasm": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32"
+      },
+      "log": "D:\\TankForge-validation\\agm-ground-point-20261027\\node-gate-final\\combined.tap.log",
+      "logSha256": "3877ecea643433cfbd014fab8a4fab275222b43cf43f313391584d3ef5e6d083",
+      "command": [
+        "node",
+        "handoff/tools/run_r81_node_gate.mjs",
+        "D:\\TankForge-validation\\agm-ground-point-20261027\\node-gate-final"
+      ],
+      "startedAtUnix": 1793099421.229071,
+      "elapsedSeconds": 257.3165183067322,
+      "rustSourceBefore": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "rustSourceAfter": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "scope": "Fresh complete selected inventory: 123 actual Node test files, 784/784 PASS; exact coordinator receipt separately preserved. Two excluded historical tests are explicitly NOT_RUN.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ]
+    },
+    {
+      "name": "package-tools",
+      "kind": "unittest",
+      "status": "PASS",
+      "exitCode": 0,
+      "before": {
+        "packageTools": "f65c7af397a96ffc4db56a5aaf95da2530bed7f375a031f7e0fa9dda08823547"
+      },
+      "after": {
+        "packageTools": "f65c7af397a96ffc4db56a5aaf95da2530bed7f375a031f7e0fa9dda08823547"
+      },
+      "log": "D:\\TankForge-validation\\agm-ground-point-20261027\\package-tools-final.log",
+      "logSha256": "ceb8915313a450131227a68602c13e549f044191042acac253fabd5b43b1cbdb",
+      "command": [
+        "python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        ".",
+        "-p",
+        "test_*.py",
+        "-v"
+      ],
+      "startedAtUnix": 1793098589.6863308,
+      "elapsedSeconds": 7.179044961929321,
+      "rustSourceBefore": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "rustSourceAfter": "1d8eb027bd2fdd431bb22cc752accaf6a4d59834d8d9e2f551f2ccc781852821",
+      "scope": "Actual command recorded in command; source and input hashes captured before and after execution.",
+      "limitations": [
+        "Automated local Windows execution; no Linux service or manual browser verification."
+      ]
+    },
+    {
+      "name": "install-primary",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-primary.json",
+      "receiptSha256": "2212cecd7da86ed654b18723e71cc39f161b856f64fcd174993cb80257f97ccc",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ]
+    },
+    {
+      "name": "install-r6",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r6.json",
+      "receiptSha256": "4b492dc2414b37df74a261fdd62c9bda776f244d4be4a156f3a51f28e4cc9670",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ]
+    },
+    {
+      "name": "install-r7",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7.json",
+      "receiptSha256": "e30e3a5569110f2d7682e1f93dd22ca40fe0a0894db7bdf8eceb7dbeb607f7b7",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ]
+    },
+    {
+      "name": "install-r8",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r8.json",
+      "receiptSha256": "8dc4ddde2701f9eb6b2473f93553bf1af29936dd2e586969c124bf3bf1e320b5",
+      "scope": "Exact full deployment baseline cloned; real offline dry-run, apply and rollback with full file/presence restoration.",
+      "limitations": [
+        "No remote Linux process or systemd execution."
+      ]
+    },
+    {
+      "name": "native-full-before-export",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\native-run.json",
+      "receiptSha256": "dffabd70dc7f3fa358a9401cd3dad6d80db2d03bb7226516d901e3d42c098767",
+      "scope": "Fresh same-source full tg-server run: 448 unit plus 3 integration tests passed before the exporter refreshed only source.appSha256. Runtime data equivalence is independently recorded; final exact-profile point tests are the native PASS role.",
+      "limitations": []
+    },
+    {
+      "name": "profile-export-equivalence",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\profile-sync-receipt.json",
+      "receiptSha256": "e531feab652638997d8b2073cb0c159441daa2cb957f9ae897dcbcef8c4a77aa",
+      "scope": "Exact old/new profile comparison; only page source hash changed.",
+      "limitations": []
+    },
+    {
+      "name": "node-coordinator",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\node-final-run.json",
+      "receiptSha256": "e23e059785afa838546bb59b266dc857be53ba0093103d42b19946322f6c27ed",
+      "scope": "Actual complete coordinator command, captured before/after inputs, source tree stability and original stdout log hash.",
+      "limitations": []
+    },
+    {
+      "name": "node-inventory",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\node-gate-final\\receipt.json",
+      "receiptSha256": "adc0fe40868c18902db461b15b58741441a39d86083c18ade2379c1e6dc30428",
+      "scope": "All selected 123 files and the two historical NOT_RUN exclusions; no fixture fabricated.",
+      "limitations": []
+    },
+    {
+      "name": "local-http-smoke",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\http-smoke.json",
+      "receiptSha256": "3072a654f2b7bfe7df75f0b84151019d10943196b4dec8cb136dbab0aafd439f",
+      "scope": "Actual matching Windows server: health, native maps catalog and served 418794158-byte prepared page match. No browser interaction or flight claimed.",
+      "limitations": []
+    },
+    {
+      "name": "linux-build",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\linux-build-final-run.json",
+      "receiptSha256": "348ef5862206125d8596b9eca833813b49b7be8ba69d8e3af731c26237f19fa2",
+      "scope": "Successful same-source static Linux amd64 cross-compilation; runtime profile provenance-only update is recorded separately. ELF payload is separately pinned by the prepared manifest.",
+      "limitations": [
+        "No Linux execution environment."
+      ]
+    },
+    {
+      "name": "windows-build",
+      "kind": "evidence",
+      "status": "REFERENCE",
+      "receipt": "D:\\TankForge-validation\\agm-ground-point-20261027\\windows-build-run.json",
+      "receiptSha256": "5227f2364b4d12d05f2cc6c25c82d8d9f219603b6dc4fb243d9e576f2358a7ef",
+      "scope": "Successful same-source Windows release build; served binary is pinned by the actual HTTP smoke receipt.",
+      "limitations": []
+    },
+    {
+      "name": "historical-not-run-1",
+      "kind": "node",
+      "status": "NOT_RUN",
+      "scope": "handoff/tests/flight_gear_sequence.test.mjs",
+      "reason": "NOT RUN: unchanged historical core212-before-gear.wasm fixture omitted; no synthetic historical fixture substituted",
+      "limitations": [
+        "Original test and available historical inputs preserved; no fabricated substitute."
+      ]
+    },
+    {
+      "name": "historical-not-run-2",
+      "kind": "node",
+      "status": "NOT_RUN",
+      "scope": "handoff/tests/me262-u4-audio.test.mjs",
+      "reason": "NOT RUN: historical ffmpeg-dependent test kept outside available runtime gate; original audio/test retained",
+      "limitations": [
+        "Original test and available historical inputs preserved; no fabricated substitute."
+      ]
+    },
+    {
+      "name": "linux-execution",
+      "kind": "system",
+      "status": "NOT_RUN",
+      "scope": "linux-execution",
+      "reason": "Windows host has no Linux runtime; cross-compilation and ELF validation only.",
+      "limitations": [
+        "Windows host has no Linux runtime; cross-compilation and ELF validation only."
+      ]
+    },
+    {
+      "name": "manual-gpu-flight",
+      "kind": "browser",
+      "status": "NOT_RUN",
+      "scope": "manual-gpu-flight",
+      "reason": "No manual browser/GPU flight test was performed; gameplay is covered by the recorded automated controller/native tests.",
+      "limitations": [
+        "No manual browser/GPU flight test was performed; gameplay is covered by the recorded automated controller/native tests."
+      ]
+    }
+  ]
+}

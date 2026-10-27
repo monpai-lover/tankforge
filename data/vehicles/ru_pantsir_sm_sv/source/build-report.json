@@ -1,0 +1,16 @@
+{
+  "schema_version": 1,
+  "status": "built_diagnostic_asset_handoff",
+  "geometry_revision": 2,
+  "glb_sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+  "imported_triangles": 291829,
+  "imported_batches": 46,
+  "uint32_index_batches": 1,
+  "largest_batch_vertices": 140682,
+  "glb_mesh_parts": 181,
+  "armor_parts": 11,
+  "socket_count": 16,
+  "internal_representation": "render internals optional GLB layer; approximate module volumes; dropped from stock exterior model",
+  "target_checkout_mutated": false,
+  "native_semantic_validation": "not claimed; P009 expected blocker by design"
+}

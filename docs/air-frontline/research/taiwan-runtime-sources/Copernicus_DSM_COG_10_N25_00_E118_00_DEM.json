@@ -1,0 +1,21 @@
+{
+  "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N25_00_E118_00_DEM/Copernicus_DSM_COG_10_N25_00_E118_00_DEM.tif",
+  "originalWidth": 3600,
+  "originalHeight": 3600,
+  "sourceCrs": "EPSG:4326",
+  "boundsWgs84": [
+    117.99986111111112,
+    25.000138888888888,
+    118.99986111111112,
+    26.000138888888888
+  ],
+  "overviews": [
+    2,
+    4,
+    8
+  ],
+  "nodata": null,
+  "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+  "sampleMinimumM": -1.0,
+  "sampleMaximumM": 1756.5667724609375
+}

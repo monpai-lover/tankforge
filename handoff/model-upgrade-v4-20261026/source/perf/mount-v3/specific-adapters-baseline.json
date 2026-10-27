@@ -1,0 +1,187 @@
+{
+  "sourceAppSha256": "ab73c31b212b75bafc5e14f4d89b2487006e2f2f8907a0fe2cfaf74f3e25ef0d",
+  "basis": "Actual MiG-29 production render/layout immediately before adding S-24B-only adapters; original four preset states",
+  "cases": [
+    {
+      "index": 0,
+      "items": []
+    },
+    {
+      "index": 1,
+      "items": [
+        {
+          "id": "r27r",
+          "p": [
+            -2.915,
+            -0.3089,
+            -0.642
+          ],
+          "fittedMountKey": "mig29:0"
+        },
+        {
+          "id": "r27r",
+          "p": [
+            2.915,
+            -0.3089,
+            -0.642
+          ],
+          "fittedMountKey": "mig29:1"
+        },
+        {
+          "id": "r73",
+          "p": [
+            -3.877,
+            -0.238,
+            -1.22
+          ],
+          "fittedMountKey": null
+        },
+        {
+          "id": "r73",
+          "p": [
+            3.877,
+            -0.26849999999999996,
+            -1.22
+          ],
+          "fittedMountKey": "mig29:2"
+        },
+        {
+          "id": "r73",
+          "p": [
+            -4.758,
+            -0.27299999999999996,
+            -1.749
+          ],
+          "fittedMountKey": null
+        },
+        {
+          "id": "r73",
+          "p": [
+            4.758,
+            -0.30629999999999996,
+            -1.749
+          ],
+          "fittedMountKey": "mig29:3"
+        }
+      ]
+    },
+    {
+      "index": 2,
+      "items": [
+        {
+          "id": "r27t",
+          "p": [
+            -2.915,
+            -0.3089,
+            -0.642
+          ],
+          "fittedMountKey": "mig29:0"
+        },
+        {
+          "id": "r27t",
+          "p": [
+            2.915,
+            -0.3089,
+            -0.642
+          ],
+          "fittedMountKey": "mig29:1"
+        },
+        {
+          "id": "r60m",
+          "p": [
+            -3.877,
+            -0.21300000000000002,
+            -1.22
+          ],
+          "fittedMountKey": null
+        },
+        {
+          "id": "r60m",
+          "p": [
+            3.877,
+            -0.24350000000000002,
+            -1.22
+          ],
+          "fittedMountKey": "mig29:2"
+        },
+        {
+          "id": "r60m",
+          "p": [
+            -4.758,
+            -0.248,
+            -1.749
+          ],
+          "fittedMountKey": null
+        },
+        {
+          "id": "r60m",
+          "p": [
+            4.758,
+            -0.2813,
+            -1.749
+          ],
+          "fittedMountKey": "mig29:3"
+        }
+      ]
+    },
+    {
+      "index": 3,
+      "items": [
+        {
+          "id": "fab500",
+          "p": [
+            -2.915,
+            -0.3749,
+            -0.4444
+          ],
+          "fittedMountKey": "mig29:0"
+        },
+        {
+          "id": "fab500",
+          "p": [
+            2.915,
+            -0.3749,
+            -0.4444
+          ],
+          "fittedMountKey": "mig29:1"
+        },
+        {
+          "id": "b8m1",
+          "p": [
+            -3.877,
+            -0.394,
+            -1
+          ],
+          "fittedMountKey": null
+        },
+        {
+          "id": "b8m1",
+          "p": [
+            3.877,
+            -0.4245,
+            -1
+          ],
+          "fittedMountKey": "mig29:2"
+        },
+        {
+          "id": "r73",
+          "p": [
+            -4.758,
+            -0.27299999999999996,
+            -1.749
+          ],
+          "fittedMountKey": null
+        },
+        {
+          "id": "r73",
+          "p": [
+            4.758,
+            -0.30629999999999996,
+            -1.749
+          ],
+          "fittedMountKey": "mig29:3"
+        }
+      ]
+    }
+  ]
+}

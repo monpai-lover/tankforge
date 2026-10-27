@@ -1,0 +1,648 @@
+{
+  "schemaVersion": 1,
+  "id": "native-ground-verification-2026-10-25",
+  "recordedAt": "2026-10-25T00:26:23.415990+09:00",
+  "implementationCommit": "096f2cffc9e4bb76029d9db5514ec86327a3726c",
+  "status": "local_evidence_complete_with_ground_capture_failure",
+  "deployedToVps": false,
+  "summaryZh": "本地原生地面链路14项已执行功能断言通过，但最后观战截图超时，整套地面浏览器harness结果仍为false。飞机HUD72项通过。未证明完整混合模式完成。",
+  "resultInterpretation": {
+    "groundOverallPass": false,
+    "groundExecutedFunctionalChecks": 14,
+    "groundExplicitTrueChecks": 14,
+    "hudOverallPassed": true,
+    "hudChecks": 72,
+    "hudScenes": 10,
+    "rule": "Read each checks[name].pass with strict boolean equality. Object/key existence and truthiness do not constitute a passing result."
+  },
+  "sourceAndBuild": {
+    "runtimeAssetBase": "f3c6d88 / actual flight WASM core212",
+    "baselineSha256": "56eaa206dfda19a831d1c82c869e411d1c3ba7e82d979ff6f96b13dd3a0366ee",
+    "baselineNote": "Pinned tracked committed-data.line; uncommitted MiG15 conversion/cache was excluded. QA trim retained five ground models and no imported aircraftModels.",
+    "releaseBinary": {
+      "path": "target/release/tg-server",
+      "bytes": 2986032,
+      "sha256": "97777045a26ce1db12ea74a6698e7e14bcd4dddd9ccfeec29e5d05b7fd29cbde"
+    },
+    "expectedReleaseSha256": "97777045a26ce1db12ea74a6698e7e14bcd4dddd9ccfeec29e5d05b7fd29cbde",
+    "testedAppSha256": "059b7bf565fbe7f184a7286e8be8349da98aa4a28e5fbfecd42e9a5e8a51a2c8",
+    "testedHeadSha256": "375a1a0a718231eb6ead3dd3540f12c8b0d3445b8d5b9d48945a141e96660113",
+    "servedPageSha256": "6d65ffdf65aedb7b226fb753a26d040c029ed060f7c04a88649e9000484ca07d",
+    "frontlineSourceSha256": "798cbc933adc9e9a2dd1df2f718bc1fd1a2174b2c2a0c6493c7da8511a9a7071",
+    "frontlineEmbeddedBlockSha256": "e9f4e1b7fed0a3a64a29251d42cbf27dd87ab2e6e8b080a257031bc94bbf30d3",
+    "componentSources": [
+      {
+        "path": "crates/server/src/frontline.rs",
+        "bytes": 61734,
+        "sha256": "02733a3a20b1cd26aa6101ff66659196fe47f127166001a31fd5396bed7b82ed"
+      },
+      {
+        "path": "crates/server/src/frontline_sim.rs",
+        "bytes": 34482,
+        "sha256": "0921a635d0a6b8eae9090302ffa86509463b1c52dbebb9635cf3e335091e66ca"
+      },
+      {
+        "path": "crates/server/src/frontline_sim_adapter_tests.rs",
+        "bytes": 10095,
+        "sha256": "8a6a350d135c9ee71917f59e328cf63c76fdf946e4167f3c8e7688434884c7d0"
+      },
+      {
+        "path": "crates/server/src/lobby.rs",
+        "bytes": 248592,
+        "sha256": "5cc305c269d1c9f2475ebe790b23368f8f2eff000388a4e681b5fe9c0a3dfaed"
+      },
+      {
+        "path": "crates/server/src/lib.rs",
+        "bytes": 514,
+        "sha256": "ea0e6445780a16bfe33f019084628e5e649627014a1247f91d27bc2e2f7bc6c2"
+      },
+      {
+        "path": "handoff/tools/frontline_client.js",
+        "bytes": 26211,
+        "sha256": "798cbc933adc9e9a2dd1df2f718bc1fd1a2174b2c2a0c6493c7da8511a9a7071"
+      },
+      {
+        "path": "handoff/tools/frontline_lod.js",
+        "bytes": 8779,
+        "sha256": "7cc1d9a30732fed694ec78963f47271b117cdeffd85dceb9d58c4300fd2f9c73"
+      },
+      {
+        "path": "handoff/tools/air_hud_inventory.js",
+        "bytes": 11791,
+        "sha256": "72fd7887b1bd1508d09fe666a2be34c567a90ae91ce6867fa83494790aea82d8"
+      },
+      {
+        "path": "handoff/tools/aircraft_resources.js",
+        "bytes": 2263,
+        "sha256": "22273e551a4921becff686f8af9650df68df271897feff0d2b2116c0834c04d5"
+      },
+      {
+        "path": "handoff/bundle/app.js.html",
+        "bytes": 2701089,
+        "sha256": "059b7bf565fbe7f184a7286e8be8349da98aa4a28e5fbfecd42e9a5e8a51a2c8"
+      },
+      {
+        "path": "handoff/bundle/head.html",
+        "bytes": 100492,
+        "sha256": "375a1a0a718231eb6ead3dd3540f12c8b0d3445b8d5b9d48945a141e96660113"
+      },
+      {
+        "path": "data/frontline/korea.json",
+        "bytes": 2090190,
+        "sha256": "08284a28077fceeec61ae36fba1100a965675511dc033c4eb902a94180dec2e4"
+      },
+      {
+        "path": "handoff/tests/air-hud-browser.py",
+        "bytes": 19422,
+        "sha256": "58aa02ec4b078578ddf6bc19215f52ec5c83174ba0b0bf8e34d20351c22b8977"
+      },
+      {
+        "path": "handoff/tests/frontline-browser-e2e.py",
+        "bytes": 18857,
+        "sha256": "1e5362cbf2c67b60ada2335bf4c8b0892cb23c203ad4502b573615a0f0953736"
+      },
+      {
+        "path": "handoff/tests/frontline-browser-prepare.py",
+        "bytes": 4594,
+        "sha256": "0276316d9348904d0f35910538c19ec1bb55d443a3b5775885103eac3ee6475e"
+      },
+      {
+        "path": "handoff/tests/frontline-browser-tick-probe.mjs",
+        "bytes": 5295,
+        "sha256": "c6674933765f23835f6994a2f654016abb5670f0fe1502609b629bc585c1a5c9"
+      },
+      {
+        "path": "handoff/tests/air-hud-inventory.test.mjs",
+        "bytes": 12271,
+        "sha256": "86f48c1e3f70add8c73958837b4309611e7337740879363c265f9d249c603dba"
+      },
+      {
+        "path": "handoff/tests/aircraft-resources.test.mjs",
+        "bytes": 14002,
+        "sha256": "550db1bd4f950b79cd7d208ea24dfc453554a0e399889729c217f5a0f79e92ec"
+      },
+      {
+        "path": "handoff/tests/frontline-input.test.mjs",
+        "bytes": 2289,
+        "sha256": "121e370d8fa502292857a2dabcfd0c255089a34573a53c34f1be5af42310e006"
+      },
+      {
+        "path": "handoff/tests/frontline_lod.test.mjs",
+        "bytes": 3095,
+        "sha256": "90d0e5c6bc828c9071a89aebb10be3e65db38035d7d4a9df82861d895ea7e908"
+      },
+      {
+        "path": "handoff/tests/aircraft-era.test.mjs",
+        "bytes": 5328,
+        "sha256": "3d874ed6f9abafaef199d984a23d178f43b53db1c1703fe8b4dff51b89853fbd"
+      },
+      {
+        "path": "handoff/tests/aircraft-chords.test.mjs",
+        "bytes": 3644,
+        "sha256": "d406c285c83785ba08d89a42581288d9a1fc7092e76c17f3a865f316f78961e9"
+      },
+      {
+        "path": "handoff/tests/aircraft_attachments.test.mjs",
+        "bytes": 5246,
+        "sha256": "e51b26e94cf8ccdc73013eaf3665471ed0c154e28a06271c24668533d5bedeb7"
+      }
+    ]
+  },
+  "functionTests": [
+    {
+      "group": "Rust",
+      "passed": 152,
+      "total": 152,
+      "reportedBy": "/root",
+      "evidenceKind": "Parent-reported executed result; full Rust console transcript is not an artifact in this record. Not rerun by the document author."
+    },
+    {
+      "group": "Node aircraft HUD/resources",
+      "passed": 23,
+      "total": 23,
+      "reportedBy": "/root/era_roster and /root",
+      "command": "node --test handoff/tests/aircraft-resources.test.mjs handoff/tests/air-hud-inventory.test.mjs",
+      "breakdown": {
+        "hudInventory": 12,
+        "resources": 11
+      },
+      "evidenceKind": "Executed in this session; includes actual extracted production fuel/engineToggle/pod functions; console transcript not retained as a separate file."
+    },
+    {
+      "group": "Node frontline input/visual LOD",
+      "passed": 3,
+      "total": 3,
+      "reportedBy": "/root",
+      "breakdown": {
+        "input": 2,
+        "visualLod": 1
+      },
+      "evidenceKind": "Parent-reported executed result; source files hashed below."
+    },
+    {
+      "group": "Node aircraft era/chords/attachments",
+      "passed": 14,
+      "total": 14,
+      "reportedBy": "/root",
+      "breakdown": {
+        "era": 4,
+        "chords": 6,
+        "attachments": 4
+      },
+      "evidenceKind": "Parent-reported executed result; source files hashed below."
+    }
+  ],
+  "aircraftHudBrowser": {
+    "overallPassed": true,
+    "explicitTrueChecks": 72,
+    "sceneNames": [
+      "mig15-stock",
+      "mig15-current-consumption",
+      "mig15-engine-off",
+      "f104-stock",
+      "f104-after-real-fire",
+      "f104-real-rearm",
+      "f104-weapon-switch",
+      "f104-actual-jettison-empty",
+      "f86-real-external-tanks",
+      "f86-external-current-consumption"
+    ],
+    "coreVersion": 212,
+    "viewport": [
+      1280,
+      800
+    ],
+    "actualInventory": {
+      "mig15": {
+        "feeds": [
+          80,
+          80,
+          40
+        ],
+        "visible23mm": 160,
+        "visible37mm": 40
+      },
+      "f104g": {
+        "configuredM61Stock": 725,
+        "afterActualMouseFire": 716,
+        "note": "Production catalog stock is725; the earlier750 assumption/test title was corrected, without changing accepted stock."
+      },
+      "f86f": {
+        "before": {
+          "internalKg": 1300,
+          "externalKg": 726,
+          "usableKg": 2026
+        },
+        "afterActualBurn": {
+          "internalKg": 1300,
+          "externalKg": 725.6373062378054,
+          "usableKg": 2025.6373062378054,
+          "flowKgS": 0.2876028888225556
+        }
+      }
+    },
+    "engineOff": {
+      "actualFlowKgS": 0,
+      "fuelUnchanged": true,
+      "visibleEndurance": "—",
+      "visibleStatus": "引擎關閉"
+    },
+    "otherVerified": [
+      "Actual K rearm, weapon switching, accepted double-click jettison and selected/all-group zero counts.",
+      "Visible labels remain single-line; damage diagram does not overlap inventory data.",
+      "Each read-only helper report preserved actual native/inventory JSON before/after."
+    ],
+    "errors": {
+      "pageOrFrameErrors": 0,
+      "warnings": 4,
+      "warningKind": "SwiftShader GPU stall due to ReadPixels"
+    },
+    "scope": "Actual legacy local-flight UI and real WASM state with procedural aircraft bodies. Actual battle/F8/hangar button entry, normal input and bounded native stepping; no fake DOM or inventory mutation.",
+    "limits": [
+      "Imported aircraft meshes/cockpit geometry omitted: does not verify cockpit camera, gunsight placement or original aircraft geometry.",
+      "Does not verify new-mode hosted/online aircraft combat, mobile performance or ordinary full-roster cold startup.",
+      "Fresh read-only probe has independent derived EMA history; its exact endurance need not equal the integrated HUD EMA. Visible UI rows/screenshots are retained separately.",
+      "Bottom armament DOM remains hidden by current production CSS; top-left inventory and actual action bar were the visible verified display."
+    ]
+  },
+  "nativeGroundBrowser": {
+    "terminal": true,
+    "exitCode": 1,
+    "overallHarnessPass": false,
+    "functionalCheckResults": {
+      "page_matches_frozen_current_source": true,
+      "solo_observer_started_twenty_native_units": true,
+      "observer_ai_moves_without_human_vehicle_input": true,
+      "observer_shared_terrain_probes": true,
+      "all_twenty_models_have_uploaded_geometry_and_native_poses": true,
+      "close_follow_projects_actual_uploaded_vehicle_on_screen": true,
+      "player_company_has_ten_entities_three_platoons": true,
+      "real_keyboard_moves_native_controlled_tank": true,
+      "real_map_click_order_accepted": true,
+      "foreign_ownership_and_stale_epoch_rejected_over_real_ws": true,
+      "rejected_fire_keeps_ammunition_and_control": true,
+      "real_pointer_fire_spends_native_ammo_and_emits_native_shot": true,
+      "both_real_clients_receive_matching_authoritative_frame": true,
+      "same_tick_native_state_identical_on_both_clients": true
+    },
+    "failure": {
+      "stage": "Last observer-shared-battle screenshot",
+      "type": "TimeoutError",
+      "timeoutMs": 60000,
+      "message": "Page.screenshot: Timeout 60000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n",
+      "consequence": "Overall browser harness remains failed; stop bounded verification without rerun."
+    },
+    "actualBehavior": {
+      "soloHumanObserverStartedAIUnits": 20,
+      "withPlayerCompanyUnits": 30,
+      "companySize": 10,
+      "aiPlatoons": [
+        3,
+        3,
+        3
+      ],
+      "drivenDistanceXZ_M": 13.233710279623894,
+      "heldBrowserSeconds": 4.165399999976158,
+      "nativeMainAmmoBefore": 22,
+      "nativeMainAmmoAfter": 21,
+      "sameTickAgreement": {
+        "tick": 2420,
+        "fields": [
+          "battle",
+          "tick",
+          "units",
+          "companies",
+          "readiness",
+          "objectives",
+          "events"
+        ],
+        "unitCount": 30,
+        "unitStateSha256": "b04ae72b2565232900ed0258ebf81a5eb0fe077b75f7f1be39424f25448c3690"
+      },
+      "contactModel": "native_legacy_plates_boxes"
+    },
+    "savedLogReview": {
+      "pageOrFrontlineRuntimeErrors": 0,
+      "warnings": 8,
+      "finalNoRuntimeErrorsAssertionExecuted": false,
+      "note": "The final15th assertion was never reached. Zero errors is a post-hoc review of saved logs, not a passing unexecuted assertion."
+    },
+    "visualEvidence": {
+      "visualKinds": {
+        "original_imported_model": 6,
+        "distant_lod": 14
+      },
+      "distantWorldMatrixToleranceM": 0.01
+    },
+    "visualScope": "Close models use original retained native vehicle assets and accepted native pose. Distant LOD is a visual representation based on source dimensions; it does not migrate collision/armor to rendered triangles.",
+    "cleanup": {
+      "player": "explicit_leave_acknowledged",
+      "observer": "explicit_leave_acknowledged"
+    },
+    "limits": [
+      "Two local desktop SwiftShader clients only; the late screenshot timeout is a client capture/performance limitation.",
+      "Legacy thumbnail loop paused; five-model bounded fixture does not prove normal full-roster startup performance.",
+      "Only the Korean C2 local navigable corridor is exercised, not complete Korea or full Taiwan gameplay."
+    ]
+  },
+  "rawWebSocketMeasurement": {
+    "scope": "one actual shared30-unit ground world; zeroGPUbrowsers; no240-unit orWANclaim",
+    "hardware": {
+      "platform": "linux",
+      "arch": "x64",
+      "cpuModels": [
+        "AMD EPYC 7A23 48-Core Processor"
+      ],
+      "logicalCpus": 8,
+      "availableParallelism": 8,
+      "systemMemoryBytes": 8321814528
+    },
+    "initialWorldCount": 0,
+    "concurrentWorldCount": 1,
+    "durationSeconds": 12.000945546999999,
+    "frames": 241,
+    "unitCounts": [
+      30
+    ],
+    "aliveCounts": [
+      30
+    ],
+    "tickAdvance": 240,
+    "tickHz": 19.99842421249843,
+    "frameArrivalHz": 19.99842421249843,
+    "meanFrameBytes": 75529.1908713693,
+    "maxFrameBytes": 75953,
+    "receivedFrameBytesPerSecond": 1510508.5619300662,
+    "bytesMeaning": "UTF8 JSON payload only; excludesWebSocket/TCP/TLSoverhead",
+    "error": null,
+    "cleanup": {
+      "playerLeaveAcknowledged": true,
+      "observerLeaveAcknowledged": true,
+      "finalWorldCount": 0
+    }
+  },
+  "performanceInterpretation": {
+    "measuredHzRounded": 19.9984,
+    "jsonMBPerSecondPerObserverDecimal": 1.5105,
+    "limits": [
+      "One actual30-unit world over about12seconds without GPU browsers.",
+      "JSON payload excludes WebSocket/TCP/TLS overhead; this is per receiving observer, not total all-client traffic.",
+      "No maximum population,240-unit,24-human,WAN,VPS,mobile or browser-FPS capacity proof.",
+      "Frame payload/bandwidth optimization remains necessary."
+    ]
+  },
+  "priorAttempts": {
+    "ground": [
+      {
+        "artifact": "handoff/tests/out/frontline-browser-20261024/attempt1-result.json",
+        "overallPass": false,
+        "explicitFailedCheckNames": [],
+        "failureMessage": "Page.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"#frontline-open\")\n    - locator resolved to <button id=\"frontline-open\">front 线推进 / AI 观战</button>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n"
+      },
+      {
+        "artifact": "handoff/tests/out/frontline-browser-20261024/attempt2-result.json",
+        "overallPass": null,
+        "explicitFailedCheckNames": [],
+        "failureMessage": null
+      },
+      {
+        "artifact": "handoff/tests/out/frontline-browser-20261024/attempt3-result.json",
+        "overallPass": false,
+        "explicitFailedCheckNames": [
+          "close_follow_projects_actual_vehicle_at_readable_size"
+        ],
+        "failureMessage": "close_follow_projects_actual_vehicle_at_readable_size"
+      },
+      {
+        "artifact": "handoff/tests/out/frontline-browser-20261024/attempt4-result.json",
+        "overallPass": false,
+        "explicitFailedCheckNames": [
+          "real_keyboard_moves_native_controlled_tank"
+        ],
+        "failureMessage": "real_keyboard_moves_native_controlled_tank"
+      },
+      {
+        "artifact": "handoff/tests/out/frontline-browser-20261024/attempt5-result.json",
+        "overallPass": false,
+        "explicitFailedCheckNames": [
+          "real_pointer_fire_spends_native_ammo_and_emits_native_shot"
+        ],
+        "failureMessage": "real_pointer_fire_spends_native_ammo_and_emits_native_shot"
+      }
+    ],
+    "groundAttempt5Clarification": "Old shooter comparison expected a scalar; actual event shooter is a full UnitRef. Retained raw wire proved accepted own shots; corrected final functional assertion passed. The historical attempt remains failed.",
+    "hudDriverAttempts": [
+      "Wrong /dev.html URL returned404; correct native route is /.",
+      "Garage hangar button is hidden in battle; final run uses actual F8 then visible card keyboard activation.",
+      "F104 initial750 stock expectation was incorrect; actual catalog and HUD both725.",
+      "Unpaused live-bar node replacement defeated locator stability waiting; final driver measures visible control bounds while paused, then sends a real trusted mouse click through the normal unpaused input gate."
+    ],
+    "hudRetention": "Earlier failed HUD JSON was overwritten by final success; earlier-harness-failure.png preserves the last driver-failure image only. Do not infer a complete earlier HUD trace from that image.",
+    "fixtureReset": "Earlier failed run left a lone20AI test world before explicit Leave cleanup was added; authorized local fixture restart is recorded in fixture-reset-reason.json. This was not a successful server observation-timeout test."
+  },
+  "retention": {
+    "artifactPathsRelativeTo": "repository root",
+    "ignoredOutputDirectory": "handoff/tests/out/",
+    "retainedArtifacts": [
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/result.json",
+        "bytes": 146012,
+        "sha256": "3ae658f3963c4af8454f84de73eabc0be989f55db5b51bc691b9b457a8aac6e1"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/summary.json",
+        "bytes": 2918,
+        "sha256": "bd1da3228d04b899fc4dbe3c3b0a5ffd91d3b481e28009ccd24700b03cef5806"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/earlier-harness-failure.png",
+        "bytes": 870175,
+        "sha256": "ee7c7b26aae87d266369901f3550e3f3dcc09d33c72668362635196cbbd2feed"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/mig15-stock.png",
+        "bytes": 949708,
+        "sha256": "a9ccde05683d984885e52c7c4c1e212a170c731c11c1878ed26c29fd20958baa"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/mig15-current-consumption.png",
+        "bytes": 890134,
+        "sha256": "0b777693e19fe8b3ca5c5a76da007d352cb9e076338f686f025c7788c92dfccf"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/mig15-engine-off.png",
+        "bytes": 889024,
+        "sha256": "ea7fb9b3782ca42e27622ff2ebe98fb996253a1a401a9ce47c67e027250ba6d7"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f104-stock.png",
+        "bytes": 955222,
+        "sha256": "74e430a841a7b96f6efadfaf5db98dea94a15c374e19b56d98205057a692c9eb"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f104-after-real-fire.png",
+        "bytes": 954452,
+        "sha256": "078d3f569a3ae01fa06d249f4f76b4ce384cf6185b0d298d1f8e4f589949621a"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f104-real-rearm.png",
+        "bytes": 960545,
+        "sha256": "05b51518f380f7fa4a01ba0309fad81f590d6a475071ae7f7be8007d9592e3e9"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f104-weapon-switch.png",
+        "bytes": 920196,
+        "sha256": "5d10b072ff37036c16d59732864a75efd998717f78282ed63b0b7a7a4e6fef82"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f104-actual-jettison-empty.png",
+        "bytes": 918442,
+        "sha256": "02c5f6bcf4faef9fb4547d84c6d6fb29b5d70c5965312d68e4c4a8914c784c71"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f86-real-external-tanks.png",
+        "bytes": 877406,
+        "sha256": "59f2ba2a26fda428246ed405aa57fb5d4ef164182c25caca08a2c1748da89c7f"
+      },
+      {
+        "path": "handoff/tests/out/air-hud-browser-20261024/f86-external-current-consumption.png",
+        "bytes": 875147,
+        "sha256": "26525364768a1285a845255308f13c2b2ce712c696940ce8fd186cc54d3f0fa4"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/result.json",
+        "bytes": 4954753,
+        "sha256": "311d7ed7c6fbf6af70e6f3911d60afda9457ea2296960952de1e4a36f0b99f97"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/wire.json",
+        "bytes": 30708062,
+        "sha256": "7f36ff736b59e5d5f78f76dac1580443f9163d1af24102c6ddb47f92cb46b7bd"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/matching-native-frame.json",
+        "bytes": 146295,
+        "sha256": "3b18a120c53f3f546d85c8d9556e4482342ba4deec3c4aa3ecade73f5197fbe2"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/final-summary.json",
+        "bytes": 7715,
+        "sha256": "ecbee67b748b9052b143902b80e164fa360d2d3d4d2660c0672c3c30eda10532"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/final-fixture-cleanup.json",
+        "bytes": 1605,
+        "sha256": "8e5f125fb95960d964492898580ffe04b2f461da4fc18fcc0861ac6cd0a079f3"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/tick-probe.json",
+        "bytes": 30954,
+        "sha256": "b583b175948dec7a8ddb79fcb3afb2b7f73e07bedd3cc072fb92853115116c41"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/page-provenance.json",
+        "bytes": 1450,
+        "sha256": "c0d07ba4298ab32aa507fb7dc8e93de7d54979ed46b901428cb1a730b8ebf5ff"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/server-provenance.json",
+        "bytes": 428,
+        "sha256": "b4448c74420e42f12f052dc6ee3f902b966b2af1a54d0b72465a3445476a0fda"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/fixture-reset-reason.json",
+        "bytes": 378,
+        "sha256": "61b77d7069b074fc7f4e64ad15799526f1ba2b61d1882cf241fe97a6b5b41141"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/observer-overview.png",
+        "bytes": 626698,
+        "sha256": "eff24abfbaba3d0442fa507eca1c65df73d578b90d443d7ceb1f2d352bfaff47"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/observer-close-chase45.png",
+        "bytes": 747357,
+        "sha256": "154762adb7c2683a651b278390a7af736a84e0d64cab24d7d5200f931180ee3d"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/player-driving.png",
+        "bytes": 570168,
+        "sha256": "f64b737d38028abc839fff4badc1202e91507fe77cb7062a1efff39ac0b50726"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/player-native-fire.png",
+        "bytes": 575024,
+        "sha256": "2c1739b61bdfc3147b115889b9b66af8ca08010f83d9ae4d64014db18a615575"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/attempt1-result.json",
+        "bytes": 4882,
+        "sha256": "d4a0dc89941b7f94d48e78f78e1de0335ad8cd772e03214a2ca6835d54aaf281"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/attempt2-result.json",
+        "bytes": 779,
+        "sha256": "5c9db5f1a9e46d4caa844e8c57af0f45a5c3b9ae33913937be1b5b1cd549c11f"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/attempt3-result.json",
+        "bytes": 3505203,
+        "sha256": "640145ca37b5004b969dd00d7af5874bf4303b7c73201b589ba6aa8480827489"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/attempt4-result.json",
+        "bytes": 11321080,
+        "sha256": "ef2247c51d5a59dce135553cfd993c45966fbf08a72dfa085e5cfc0cad83bc09"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/attempt5-result.json",
+        "bytes": 7736349,
+        "sha256": "ea12bce8f4b1bde084d406efb735f2c22d63950fe0cd6c50487242213a52ab7a"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/attempt5-wire.json",
+        "bytes": 28603551,
+        "sha256": "6c32120ec25a6d590cd8a236d984ddac3f7713a3ee97a2945cfbed6d38cdfe06"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/tick-probe.log",
+        "bytes": 1280,
+        "sha256": "0297f73657f98545438751c2bdb0551710654fa8cf2a58b194331c81c7aff49c"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/tick-probe-fixture1-json",
+        "bytes": 955,
+        "sha256": "77d1f3e876b616d31e86829fcbfcd3c3940455408097cf3e6679102a2806f360"
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/tick-probe-fixture1-log",
+        "bytes": 785,
+        "sha256": "48cfafc87d340bfc67b27d0f95657b51a29874bdf150b1f41f06ce1f79ef6e4c"
+      }
+    ],
+    "removedTemporaryRuntimeInputs": [
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/data.frontline.dev.line",
+        "bytes": 57467381,
+        "sha256": "7359e751e784b8d82f64b222230b211b4e952ee45e073e7f3b1534f62c415e9d",
+        "retained": false
+      },
+      {
+        "path": "handoff/tests/out/frontline-browser-20261024/dev.html",
+        "bytes": 60269930,
+        "sha256": "6d65ffdf65aedb7b226fb753a26d040c029ed060f7c04a88649e9000484ca07d",
+        "retained": false
+      }
+    ],
+    "cleanupNote": "Only owned QA server/temp trimmed data/dev page were removed after explicit Leave acknowledgments; saved results/wire/screenshots/provenance remain ignored outputs. Rebuild temporary page using retained prepare script and pinned baseline.",
+    "testServiceStopped": true
+  },
+  "remainingScope": [
+    "Complete hosted aircraft/ground shared combat integration and airport services.",
+    "Infantry, full Korea front, full Taiwan/mainland/Penghu/Kinmen/Matsu physical runtime and sea/land logistics.",
+    "Approved full variant/weapon/sensor era manifests; current UI-era gating is not full historical capability validation.",
+    "Full navigation/water/bridge certification and render-triangle armor/contact migration.",
+    "Maximum population, mobile/WAN performance, bandwidth improvements and production deployment."
+  ],
+  "documentScope": "Evidence-only record from existing artifacts and explicitly attributed executed results; this author did not rerun tests, alter gameplay/assets, deploy, or include this document in implementationCommit."
+}

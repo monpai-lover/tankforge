@@ -1,0 +1,39 @@
+{
+  "result": "PASS",
+  "scope": "Real full release copy, no service process/systemd execution",
+  "selectedBaseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7",
+  "packageManifestSha256": "095d0b45050a1f37c71afad42e4fd1226ab2e031099aaaedfc1cb337514b357a",
+  "baseline": "D:\\TankForge-validation\\r8-complete-baselines-20261027\\r7-installed-complete",
+  "clone": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7-clone",
+  "baselineFilesRehashed": 440,
+  "baselineUntouched": true,
+  "dryRunPreservedAllFiles": true,
+  "appliedCompleteCohort": true,
+  "candidateRawAndGzipMatched": true,
+  "runtimeDataMatched": true,
+  "runtimeDataAdditions": [],
+  "rollbackRestoredAddedRuntimeAbsence": true,
+  "rollbackRestoredEveryOriginalFileAndPresence": true,
+  "dryRun": {
+    "validated": true,
+    "dry_run": true,
+    "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+    "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+    "selected_baseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7"
+  },
+  "apply": {
+    "validated": true,
+    "dry_run": false,
+    "page_sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+    "binary_sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf",
+    "selected_baseline": "tankforge-airwar-models-guided-linux-amd64-20261026-r7",
+    "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7-clone\\.tankforge-air-rollback-20261027T111447Z-1e2a83304c394f158040814d9e950602",
+    "installed": true,
+    "restart": "offline"
+  },
+  "rollback": {
+    "restored": true,
+    "journal": "D:\\TankForge-validation\\agm-ground-point-20261027\\install-r7-clone\\.tankforge-air-rollback-20261027T111447Z-1e2a83304c394f158040814d9e950602"
+  },
+  "elapsedWallSeconds": 38.115
+}

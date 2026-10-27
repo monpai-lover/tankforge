@@ -226,7 +226,7 @@ pub fn compile(m: &Model, r: &DesignReport, engine: Option<&EngineFile>) -> Opti
         physics: PhysicsDef {
             track_width_m: gear.track_w as f32,
             track_length_m: gear.contact_length as f32,
-            suspension: SuspensionDef { travel_m: r.suspension.travel_m as f32, stiffness: k as f32, damping: c as f32, kind: Some(d.suspension.kind.clone()), station_mass_kg: None },
+            suspension: SuspensionDef { travel_m: r.suspension.travel_m as f32, stiffness: k as f32, damping: c as f32, kind: Some(d.suspension.kind.clone()), force_model: Some(sc.force_model.clone()), station_kinds: None, station_mass_kg: None },
             rolling_resistance: rolling as f32,
             sprocket_radius_m: cat.tracks.sprocket_radius_m as f32,
             drivetrain_efficiency: tc.efficiency as f32,

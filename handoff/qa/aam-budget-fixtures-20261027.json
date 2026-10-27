@@ -1,0 +1,157 @@
+[
+  {
+    "name": "aim9m:0:500:10",
+    "def": {
+      "kind": "aam",
+      "guidance": "ir",
+      "model": "aim9m",
+      "mass": 85,
+      "d": 0.127,
+      "tailFins": 0.45,
+      "burn": 5,
+      "dv": 800,
+      "maxG": 50,
+      "fov": 20,
+      "gimbal": 90,
+      "lockRange": 10000,
+      "life": 60
+    },
+    "altitude": 0,
+    "speed": 500,
+    "age": 10,
+    "rho": 1.225,
+    "motor": 0,
+    "request": [
+      200,
+      0,
+      0
+    ],
+    "availableG": 50.0,
+    "normalAcceleration": 200,
+    "dragAcceleration": 49.86087264412975
+  },
+  {
+    "name": "aim9m:2000:100:1",
+    "def": {
+      "kind": "aam",
+      "guidance": "ir",
+      "model": "aim9m",
+      "mass": 85,
+      "d": 0.127,
+      "tailFins": 0.45,
+      "burn": 5,
+      "dv": 800,
+      "maxG": 50,
+      "fov": 20,
+      "gimbal": 90,
+      "lockRange": 10000,
+      "life": 60
+    },
+    "altitude": 2000,
+    "speed": 100,
+    "age": 1,
+    "rho": 0.9681644946523353,
+    "motor": 0,
+    "request": [
+      200,
+      0,
+      0
+    ],
+    "availableG": 4.034018727718064,
+    "normalAcceleration": 39.56020975617635,
+    "dragAcceleration": 61.70835945251607
+  },
+  {
+    "name": "aim9x:0:0:1",
+    "def": {
+      "kind": "aam",
+      "guidance": "ir",
+      "model": "aim9x",
+      "mass": 85,
+      "d": 0.127,
+      "tailFins": 0.45,
+      "burn": 5,
+      "dv": 800,
+      "maxG": 50,
+      "fov": 20,
+      "gimbal": 90,
+      "lockRange": 10000,
+      "life": 60
+    },
+    "altitude": 0,
+    "speed": 0,
+    "age": 1,
+    "rho": 1.225,
+    "motor": 160,
+    "request": [
+      200,
+      0,
+      0
+    ],
+    "availableG": 3.2630918815293706,
+    "normalAcceleration": 32.0,
+    "dragAcceleration": 3.2326564618766156
+  },
+  {
+    "name": "aim9x:2000:100:1",
+    "def": {
+      "kind": "aam",
+      "guidance": "ir",
+      "model": "aim9x",
+      "mass": 85,
+      "d": 0.127,
+      "tailFins": 0.45,
+      "burn": 5,
+      "dv": 800,
+      "maxG": 50,
+      "fov": 20,
+      "gimbal": 90,
+      "lockRange": 10000,
+      "life": 60
+    },
+    "altitude": 2000,
+    "speed": 100,
+    "age": 1,
+    "rho": 0.9681644946523353,
+    "motor": 160,
+    "request": [
+      200,
+      0,
+      0
+    ],
+    "availableG": 7.297110609247435,
+    "normalAcceleration": 71.56020975617635,
+    "dragAcceleration": 64.9410159143927
+  },
+  {
+    "name": "aim9x:2000:100:6",
+    "def": {
+      "kind": "aam",
+      "guidance": "ir",
+      "model": "aim9x",
+      "mass": 85,
+      "d": 0.127,
+      "tailFins": 0.45,
+      "burn": 5,
+      "dv": 800,
+      "maxG": 50,
+      "fov": 20,
+      "gimbal": 90,
+      "lockRange": 10000,
+      "life": 60
+    },
+    "altitude": 2000,
+    "speed": 100,
+    "age": 6,
+    "rho": 0.9681644946523353,
+    "motor": 0,
+    "request": [
+      200,
+      0,
+      0
+    ],
+    "availableG": 4.034018727718064,
+    "normalAcceleration": 39.56020975617635,
+    "dragAcceleration": 61.70835945251607
+  }
+]

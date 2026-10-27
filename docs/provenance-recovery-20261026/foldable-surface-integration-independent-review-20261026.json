@@ -1,0 +1,40 @@
+{
+  "schema": "FoldableSurfaceIntegrationIndependentReviewV1",
+  "scope": "Read-only boot composition review and sync checks; no actual app/profile writes or Cargo; prior ten real-WASM behavioral checks not duplicated because all non-call-site app bytes are identical.",
+  "passed": true,
+  "appSha256": "d9c79629b698d0c9d2a90ae88aaf743abd930e5ea65078ac045ade0281b3397e",
+  "profileSha256": "d675869736ec9fbee7f6e3c63be650746937b084539a4d9381d56920861a4e23",
+  "helperSha256": "061143c77a70760936efbd7760f243af2d4055661616050e125b47ca963db14d",
+  "priorReviewedCandidateSha256": "b423f2aa6cf873c3d90067bb48349e2b8c4e61afc9c26e90534e47ad3848dc82",
+  "onlyBootCallRelocated": true,
+  "oneInstallerCall": true,
+  "currentHelperByteIdempotent": true,
+  "oldStagedLocationUpgradesToSameApp": true,
+  "bootOrder": [
+    "JSON.parse tf-data",
+    "data.designCore = TF_APHE_SURFACE_CORE",
+    "if (data.surfaceCore) data.surfaceCore = TF_APHE_SURFACE_CORE",
+    "installReviewedFoldableSurfacePackets(data)"
+  ],
+  "checks": [
+    {
+      "command": "node handoff/tools/sync_design_core.mjs --check",
+      "passed": true,
+      "observed": "checked; replay/surface/barrel/weapon-bindings revisions all 1"
+    },
+    {
+      "command": "python handoff/tools/sync_frontline_client.py --check",
+      "passed": true
+    },
+    {
+      "command": "node handoff/tools/sync_airframe_limits.mjs --check",
+      "passed": true,
+      "observed": "Aircraft-limit hooks are current."
+    },
+    {
+      "command": "node handoff/tools/export_frontline_aircraft.mjs --check",
+      "passed": true,
+      "observed": "Aircraft profile source match: 26 types"
+    }
+  ]
+}

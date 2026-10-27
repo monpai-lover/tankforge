@@ -1,0 +1,282 @@
+   Compiling tg-missile v0.1.0 (D:\TankForge-workspaces\r8.1-penetration-20261027\online-source\crates\missile)
+   Compiling tg-penetration v0.1.0 (D:\TankForge-workspaces\r8.1-penetration-20261027\online-source\crates\penetration)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.30s
+     Running unittests src\lib.rs (D:\TankForge-validation\rust-r81-target\debug\deps\tg_combat-b6fc3002e76698e2.exe)
+
+running 196 tests
+test geometry::combat_scene::barrel_scene_tests::composed_scene_refuses_overlap_wrong_parent_and_wrong_derivative ... ok
+test geometry::combat_scene::barrel_scene_tests::declared_ancestor_and_actual_weapon_table_own_main_mg_and_aps ... ok
+test geometry::combat_scene::barrel_scene_tests::composed_scene_retains_both_removed_spaces_and_independent_restore ... ok
+test geometry::combat_scene::material_region_tests::compound_independent_instances_with_same_region_name_are_not_merged ... ok
+test geometry::combat_scene::material_region_tests::compound_disjoint_same_region_panels_each_consume_new_resistance ... ok
+test geometry::combat_scene::material_region_tests::compound_same_region_overlapping_constructor_pieces_charge_once ... ok
+test geometry::surface::shape_context_tests::accepted_shape_context_retains_independent_geometry_and_pose_revisions ... ok
+test geometry::surface::shape_context_tests::legacy_pose_context_defaults_to_stock_geometry_revision ... ok
+test geometry::combat_scene::material_region_tests::compound_overlap_does_not_skip_a_distinct_authored_armor_layer ... ok
+test geometry::tests::actual_renderer_hetzer_and_hollow_tube_recorded_oracles ... ok
+test geometry::tests::closed_cancellation_does_not_certify_a_false_coplanar_boundary ... ok
+test geometry::tests::closed_cavity_and_nested_outward_overlap_use_signed_union_occupancy ... ok
+test geometry::tests::closed_diamond_edge_boundary_skips_exact_incident_plane_cuts ... ok
+test geometry::tests::closed_distinct_solids_and_instances_keep_independent_occupancy ... ok
+test geometry::tests::closed_endpoint_coplanar_mirror_and_zero_length_keep_boundary_semantics ... ok
+test geometry::tests::closed_internal_overlap_coplanar_sheet_does_not_remove_outer_occupancy ... ok
+test geometry::tests::closed_isolated_plane_cancellation_cannot_skip_an_actual_interior_face ... ok
+test geometry::tests::closed_nonconvex_reentrant_vertex_is_enter_and_reversed_exit ... ok
+test geometry::tests::closed_occupancy_work_limit_is_explicit_and_counted ... ok
+test geometry::tests::closed_sheared_subnormal_slab_reports_collapsed_oblique_intervals ... ok
+test geometry::tests::closed_surface_partitions_share_one_solid_feature_crossing ... ok
+test geometry::tests::closed_tangent_edge_is_touch ... ok
+test geometry::tests::closed_tangent_vertex_is_touch ... ok
+test geometry::tests::closed_tangent_vertex_kind_survives_triangle_reordering ... ok
+test geometry::tests::closed_unrepresentable_distinct_contact_intervals_return_explicit_error ... ok
+test geometry::tests::coplanar_finite_competing_halfspaces_compare_unrounded_roots ... ok
+test geometry::tests::coplanar_finite_genuine_entry_endpoint_and_vertex_touch_remain_contacts ... ok
+test geometry::tests::coplanar_finite_outside_endpoints_never_round_into_a_touch ... ok
+test geometry::tests::coplanar_finite_projected_shear_tilt_and_all_axes_preserve_empty_and_tangent_intervals ... ok
+test geometry::tests::declared_closed_fixture_inside_exit_and_mirrored_occupancy_use_actual_faces ... ok
+test geometry::tests::declared_shared_edge_is_single_crossing_but_coincident_layers_and_instances_survive ... ok
+test geometry::tests::deterministic_sah_zero_centroid_extent_bounded_leaves_and_corrupt_tree_rejection ... ok
+test geometry::tests::explicit_crossing_capacity_growth_reserves_even_on_an_empty_query ... ok
+test geometry::tests::finite_axis_plane_interior_fraction_matches_independent_integer_nearest_even_rounding ... ok
+test geometry::tests::finite_axis_plane_minimum_subnormal_and_direct_subnormal_roots_remain_half ... ok
+test geometry::tests::finite_axis_plane_outside_endpoints_never_round_into_a_sideface_touch ... ok
+test geometry::tests::finite_subnormal_segment_crosses_actual_triangle_instead_of_silent_miss ... ok
+test geometry::tests::finite_watertight_edges_vertices_coplanar_nearparallel_and_reversed ... ok
+test geometry::tests::hashes_malformed_payload_manifest_limits_cache_and_explicit_overflow ... ok
+test geometry::tests::independent_moller_bvh_oracle_preserves_triangle_ids ... ok
+test geometry::tests::long_assembly_chains_validate_linearly_and_deep_cycles_reject_without_recursion ... ok
+test geometry::tests::mirrored_scaled_affine_refit_is_atomic_and_normals_follow_transformed_edges ... ok
+test geometry::tests::nullable_keys_obey_schema_empty_and_1025_boundary ... ok
+test geometry::tests::query_fraction_zero_is_canonical_while_emitted_negative_zero_bits_survive ... ok
+test geometry::tests::selected_surface_visit_preserves_exact_posed_vertices_and_instance_range_identity ... ok
+test geometry::tests::source_triangle_identity_legacy_offset_defaults_to_zero ... ok
+test geometry::tests::source_triangle_identity_rejects_overflow_and_out_of_inventory_offsets ... ok
+test geometry::tests::source_triangle_identity_survives_split_and_reordered_classification ... ok
+test geometry::tests::static_cold_warm_costs_and_shared_actor_disposal_receipt ... ok
+test geometry::tests::surface_lookup_rebuilds_on_registration_and_rejects_in_place_surface_reorder ... ok
+test geometry::tests::surface_lookup_storage_is_per_mesh_range_and_released_with_scene ... ok
+test geometry::tests::surface_lookup_visit_uses_registered_ordinals_without_linear_key_search ... ok
+test geometry::tests::triangle_affine_inverse_cancellation_cannot_silently_miss_a_true_world_crossing ... ok
+test geometry::tests::triangle_cancellation_all_topologies_winding_reverse_affine_and_recovery_use_dyadic_oracle ... ok
+test geometry::tests::triangle_cancelled_projected_edge_certifies_positive_interior_weight ... ok
+test geometry::tests::triangle_coplanar_original_coordinate_edge_cancellation_cannot_grant_an_outside_point ... ok
+test geometry::tests::triangle_exact_oblique_endpoint_is_not_lost_by_weighted_distance_rounding ... ok
+test geometry::tests::triangle_inverse_translation_cancellation_cannot_preserve_a_biased_shear_origin ... ok
+test geometry::tests::triangle_noncoplanar_original_edge_cancellation_cannot_grant_outside_contact ... ok
+test geometry::tests::triangle_plane_cancellation_center_root_is_half_or_explicit_error ... ok
+test geometry::tests::triangle_plane_cancellation_parallel_outside_is_empty_or_explicit_error ... ok
+test geometry::tests::triangle_plane_cancellation_same_side_oblique_is_empty_or_explicit_error ... ok
+test geometry::tests::triangle_rounded_zero_normal_cannot_silently_certify_exact_f32_degeneracy ... ok
+test geometry::tests::triangle_t72_cancelled_projected_edge_certifies_actual_outside_candidate ... ok
+test replay_evidence::geometry_pose_tests::replay_pose_retains_exact_geometry_instance_matrices ... ok
+test tests::a_dead_engine_stops_the_vehicle_until_it_is_repaired ... ok
+test tests::all_destroyed_repairable_modules_preserve_original_duration ... ok
+test tests::ammunition_that_goes_up_destroys_the_vehicle ... ok
+test tests::an_empty_rack_cannot_go_up ... ok
+test tests::an_he_shell_landing_beside_an_open_vehicle_hurts_its_crew ... ok
+test tests::aphe_bursts_inside_and_kills_more_than_solid_shot ... ok
+test tests::aphe_through_thin_plate_does_not_start_its_fuse ... ok
+test tests::big_he_breaks_in_through_thin_roof_armour ... ok
+test tests::blast_distance_uses_rotated_box_for_external_and_internal_modules ... ok
+test tests::combat_report_old_json_defaults_and_new_mechanisms_roundtrip ... ok
+test tests::delayed_aphe_armed_shell_stopped_inside_keeps_one_timed_detonation ... ok
+test tests::delayed_aphe_destructive_shatter_marks_fuze_failed_without_burst ... ok
+test tests::delayed_aphe_fuse_uses_current_residual_speed_after_internal_contact ... ok
+test tests::delayed_aphe_overpenetration_keeps_armed_exit_without_inventing_outside_burst ... ok
+test tests::delayed_aphe_unarmed_thin_plate_and_solid_shot_never_release_filler ... ok
+test tests::distinct_nearby_main_plate_blocks_allocated_auxiliary_spall ... ok
+test tests::drive_power_combines_engine_and_transmission_and_old_caps_deserialize ... ok
+test tests::engine_block_shields_what_is_behind_it ... ok
+test tests::every_data_vehicle_is_a_target ... ok
+test tests::excessive_and_repeated_direct_damage_records_only_actual_loss ... ok
+test tests::excessive_crew_damage_reports_actual_loss_and_one_death ... ok
+test tests::explicit_zero_rack_damage_never_penalizes_weapon_feed_in_stale_states ... ok
+test tests::explicit_zero_racks_do_not_receive_or_displace_a_short_load ... ok
+test tests::explicit_zero_racks_never_take_shell_fragment_blast_or_fire_hits_in_stale_states ... ok
+test tests::explicit_zero_racks_stay_empty_on_fresh_and_loaded_states ... ok
+test tests::field_repair_does_not_refill_empty_racks_or_put_out_a_fire ... ok
+test tests::fire_burns_out_or_is_put_out ... ok
+test tests::fire_clamps_health_and_emits_crew_death_once ... ok
+test tests::folding_hull_side_armor_changes_shell_and_splash_protection_without_reindexing_the_crew ... ok
+test tests::fragment_ray_misses_rotated_empty_corner ... ok
+test tests::fragment_starting_in_expanded_corner_is_not_excluded_from_true_module ... ok
+test tests::he_bursts_outside_heavy_armour_but_wrecks_the_track_it_lands_on ... ok
+test tests::invalid_kinetic_material_contact_preserves_targets_and_carrier ... ok
+test tests::kinetic_fragment_serial_reports_match_segment_entry_and_collision_point ... ok
+test tests::launcher_apparatus_has_its_own_damage_kind_and_disables_firing_when_destroyed ... ok
+test tests::losing_all_but_one_of_the_crew_puts_the_vehicle_out ... ok
+test tests::machine_gun_bullets_bounce_off_armour_but_hit_an_open_crew ... ok
+test tests::near_burst_budget_regressions::small_he_registered_budget_preserves_other_explosive_families ... ok
+test tests::near_burst_budget_regressions::small_he_registered_casing_budget_keeps_sixteen_individual_physical_samples ... ok
+test tests::near_burst_budget_regressions::small_he_registered_samples_remain_seeded_and_respect_real_aperture_and_wall ... ok
+test tests::near_burst_casing_mass_and_representative_weight_never_become_one_oversized_fragment ... ok
+test tests::near_burst_closed_thin_armour_is_defeated_by_actual_casing_paths_not_primary_pressure ... ok
+test tests::near_burst_fragment_cursor_never_reenters_already_crossed_paired_wall ... ok
+test tests::near_burst_invalid_charge_rejects_and_zero_filler_cannot_create_fragments ... ok
+test tests::near_burst_is_deterministic_and_global_open_top_does_not_open_a_sealed_driver ... ok
+test tests::near_burst_regressions::anatomy_visibility_candidate_scan_skips_occluder_triangle_transforms_without_changing_contacts ... ok
+test tests::near_burst_regressions::casing_only_contact_does_not_repeat_primary_or_duplicate_recorded_burst ... ok
+test tests::near_burst_regressions::direct_he_primary_uses_the_same_real_aperture_as_near_burst ... ok
+test tests::near_burst_regressions::direct_legacy_primary_respects_each_declared_station_screen ... ok
+test tests::near_burst_regressions::external_pressure_reaches_only_actual_visible_station_triangles ... ok
+test tests::near_burst_regressions::initiated_heat_family_keeps_casing_burst_separate_from_jet ... ok
+test tests::near_burst_regressions::legacy_declared_plane_fallback_checks_each_open_station ... ok
+test tests::near_burst_regressions::unknown_surface_stays_a_pressure_barrier_while_real_opening_stays_open ... ok
+test tests::near_burst_seeded_sampling_has_no_permanently_empty_central_cone ... ok
+test tests::pantsir_triangle_armour_from_its_model ... ok
+test tests::partially_damaged_engine_and_aim_drives_use_continuous_curves ... ok
+test tests::partially_damaged_modules_can_be_repaired_with_weighted_duration ... ok
+test tests::passing_plate_core_segment_starts_at_output_snapshot ... ok
+test tests::primary_cursor_contacts_straddling_module_and_crew_once_at_exit ... ok
+test tests::primary_cursor_ignores_module_and_crew_volumes_entirely_before_exit ... ok
+test tests::quality_weapon_bindings_cannon_critical_requires_breech_and_barrel_kinds ... ok
+test tests::quality_weapon_bindings_drives_keep_full_instance_and_shared_turret_groups ... ok
+test tests::quality_weapon_bindings_explicit_critical_cannot_borrow_an_errored_cannon_owner ... ok
+test tests::quality_weapon_bindings_explicit_critical_respects_declared_groups_and_turret_ownership ... ok
+test tests::quality_weapon_bindings_explicit_missile_critical_cannot_borrow_an_errored_owner ... ok
+test tests::quality_weapon_bindings_independent_aps_critical_is_the_named_complete_gun ... ok
+test tests::quality_weapon_bindings_mg_cannot_borrow_a_foreign_reserved_owner_group ... ok
+test tests::quality_weapon_bindings_missile_and_mg_critical_reject_other_module_kinds ... ok
+test tests::quality_weapon_bindings_named_aps_gun_rejects_foreign_explicit_ownership ... ok
+test tests::repair_cancels_after_abandonment_or_insufficient_crew ... ok
+test tests::repair_excludes_ammo_and_preserves_empty_racks_and_old_completion ... ok
+test tests::repair_only_restores_original_targets_and_does_not_reset_when_hit ... ok
+test tests::repair_targets_survive_serialization_and_keep_later_hits_on_the_same_target ... ok
+test tests::repeated_fragment_damage_is_clamped_and_records_one_transition ... ok
+test tests::rotated_barrel_empty_corner_is_not_a_direct_hit ... ok
+test tests::rotated_barrel_true_volume_remains_a_direct_hit ... ok
+test tests::rotated_module_centres_follow_a_translated_turret_pivot ... ok
+test tests::rotated_module_shields_crew_even_after_it_is_destroyed ... ok
+test tests::solid_shot_through_the_side_sprays_spall_and_hurts_what_is_inside ... ok
+test tests::someone_takes_over_the_gunners_seat ... ok
+test tests::surface_armour_hole_in_the_skin_is_not_filled ... ok
+test tests::surface_armour_rejects_a_changed_geometry ... ok
+test tests::surface_armour_side_shot_meets_the_models_wall ... ok
+test tests::surface_armour_turret_turns_with_its_yaw ... ok
+test tests::surface_armour_two_skins_of_one_part_are_one_wall ... ok
+test tests::surface_combat_aperture_and_finite_segment_never_fall_back_to_plane ... ok
+test tests::surface_combat_blast_damage_uses_actual_anatomy_and_surface_occlusion ... ok
+test tests::surface_combat_chemical_path_uses_modeled_inner_face_and_impact_clock_starts_at_contact ... ok
+test tests::surface_combat_continuation_hits_visible_engine_and_charges_paired_wall_once ... ok
+test tests::surface_combat_fragment_never_uses_old_module_box_or_crew_sphere ... ok
+test tests::surface_combat_impact_requires_incoming_contact_before_bounded_internal_continuation ... ok
+test tests::surface_combat_real_t72_catalog_native_registration_and_damage ... ok
+test tests::surface_combat_real_t72_he_wheel_impact_has_exact_blast_exposure ... ok
+test tests::surface_combat_registered_target_mutation_invalidates_accepted_anatomy ... ok
+test tests::surface_combat_same_key_replacement_must_not_reuse_anatomy ... ok
+test tests::surface_delayed_aphe_mk214_uses_accepted_triangles_and_armed_stop ... ok
+test tests::surface_instance_gear_blast_resolves_same_instance_owner ... ok
+test tests::surface_instance_gear_hit_damages_only_visible_owned_side ... ok
+test tests::surface_instance_gear_registration_rejects_forged_or_missing_side_owner ... ok
+test tests::surface_instance_gear_rejects_duplicate_module_owner ... ok
+test tests::surface_instance_gear_rejects_second_anatomy_owner ... ok
+test tests::surface_registration_hash_uses_numeric_value_not_json_integer_spelling ... ok
+test tests::t72a_fitted_mechanical_caps_do_not_require_a_human_loader_and_follow_named_damage ... ok
+test tests::the_same_seed_gives_the_same_shot ... ok
+test tests::the_turret_turns_its_armour_with_it ... ok
+test tests::thick_front_stops_the_round_and_steep_hits_glance_off ... ok
+test tests::weapon_bindings_authored_secondary_groups_reuse_only_their_real_modules ... ok
+test tests::weapon_bindings_common_restrictions_and_legacy_defaults ... ok
+test tests::weapon_bindings_duplicate_models_and_launcher_instances_are_independent ... ok
+test tests::weapon_bindings_every_fleet_and_workshop_mount_is_usable ... ok
+test tests::weapon_bindings_explicit_groups_and_module_refs_override_ambiguous_geometry ... ok
+test tests::weapon_bindings_explicit_missing_mg_group_fails_without_appending_parts ... ok
+test tests::weapon_bindings_explicit_shared_part_under_one_group_fires_and_fails_together ... ok
+test tests::weapon_bindings_feed_groups_only_affect_their_instance ... ok
+test tests::weapon_bindings_instance_selection_is_unique_eligible_and_ammo_checked ... ok
+test tests::weapon_bindings_invalid_aps_turret_and_group_metadata_report_errors ... ok
+test tests::weapon_bindings_main_gun_damage_refs_are_used_and_mount_refs_take_priority ... ok
+test tests::weapon_bindings_mg_external_frame_and_origin_metadata_are_respected ... ok
+test tests::weapon_bindings_mg_survives_main_gun_damage_and_has_own_real_parts ... ok
+test tests::weapon_bindings_module_schema_accepts_runtime_rounds_and_frame_metadata ... ok
+test tests::weapon_bindings_omitted_catalog_uses_shared_measured_geometry ... ok
+test tests::weapon_bindings_oplot_has_its_own_drives_and_cannon_curves ... ok
+test tests::weapon_bindings_oplot_survives_main_breech_and_radar_damage ... ok
+test tests::weapon_bindings_real_workshop_exports_and_legacy_imports_preserve_instances ... ok
+test tests::weapon_bindings_rotated_long_barrel_tip_stays_in_broadphase ... ok
+test tests::weapon_bindings_shared_critical_part_is_ambiguous_for_both_mounts ... ok
+test tests::weapon_bindings_shared_drives_and_partial_damage_use_instance_curves ... ok
+test tests::weapon_bindings_single_legacy_cannon_keeps_all_ungrouped_parts ... ok
+test tests::weapon_bindings_stable_module_groups_resolve_same_pose_mounts ... ok
+test tests::zero_kinetic_energy_does_not_damage_crew ... ok
+test geometry::tests::all_exported_manifests_are_structurally_valid_and_not_damage_certified has been running for over 60 seconds
+test geometry::tests::all_exported_manifests_are_structurally_valid_and_not_damage_certified ... ok
+
+test result: ok. 196 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 82.99s
+
+     Running unittests src\lib.rs (D:\TankForge-validation\rust-r81-target\debug\deps\tg_missile-7764e64b595a9dde.exe)
+
+running 31 tests
+test terrain::tests::bilinear_between_texel_centres_and_a_hill_blocks_the_view ... ok
+test tests::a_hill_hides_a_missile_from_the_radar ... ok
+test tests::a_missile_skimming_the_ground_is_still_seen_and_engaged ... ok
+test tests::a_tow_flies_its_speed_schedule_and_rides_the_line_to_the_target ... ok
+test tests::actor_damage_multipliers_apply_to_independent_aps_servos_without_changing_definition ... ok
+test tests::a_salvo_can_saturate_it ... ok
+test tests::aps_damage_changes_actual_bullet_scatter_with_same_seed_and_cyclic_rate ... ok
+test tests::aps_pose_adoption_only_changes_four_fields_and_rejects_untrusted_inputs ... ok
+test tests::aps_pose_enabled_carry_and_equal_bore_rehandoff_keep_motor_rates ... ok
+test tests::aps_pose_moving_tilted_parent_preserves_physical_carry_at_damaged_rates ... ok
+test tests::aps_pose_tilted_stop_is_rate_bounded_in_the_mechanical_frame ... ok
+test tests::barrels_overheat_and_the_rate_stays_inside_its_range ... ok
+test tests::command_jumps_and_damage_drift_share_the_normal_load_envelope ... ok
+test tests::debug_trace_rocket ... ignored
+test tests::debug_trace_single_tow ... ignored
+test tests::debug_two_sides ... ignored
+test tests::every_kill_is_a_bullet_that_reached_the_missile ... ok
+test tests::g_limited_guidance_is_independent_of_outer_step_size ... ok
+test tests::legacy_acceleration_and_guidance_lag_remain_compatible ... ok
+test tests::low_g_lift_cannot_cancel_gravity_for_free ... ok
+test tests::max_g_caps_actual_control_load_and_high_speed_turn_radius ... ok
+test tests::an_ambush_from_close_in_leaves_too_little_time ... ok
+test tests::negative_g_and_invalid_legacy_acceleration_are_rejected_when_loading ... ok
+test tests::no_rounds_a_broken_gun_a_dead_radar_or_switched_off_means_no_defence ... ok
+test tests::missiles_from_two_sides_are_taken_one_after_the_other ... ok
+test tests::the_oplot_mo_detects_tracks_leads_and_shoots_a_single_tow_down ... ok
+test tests::the_same_seeds_give_the_same_battle ... ok
+test tests::unguided_rocket_ignores_guidance_even_with_an_optional_g_limit ... ok
+test v::tests::bearing_round_trip_and_wrap ... ok
+test v::tests::rng_is_repeatable_and_spread ... ok
+test tests::speed_matters_and_shot_faster_than_the_gun_can_handle_is_left_alone ... ok
+
+test result: ok. 28 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 0.92s
+
+     Running unittests src\lib.rs (D:\TankForge-validation\rust-r81-target\debug\deps\tg_penetration-043a961ca6998f45.exe)
+
+running 15 tests
+test impact_tests::invalid_updates_and_charge_transfer_are_atomic ... ok
+test impact_tests::active_single_and_stack_progress_keep_one_fixed_physical_layer ... ok
+test impact_tests::one_traversal_is_subdivision_and_duplicate_safe ... ok
+test impact_tests::plate_spall_is_a_finite_allocation_of_work ... ok
+test impact_tests::subcal_mass_is_estimated_and_core_dimensions_remain_unknown ... ok
+test stack::tests::heat_jet_loses_to_spaced_armour_but_kinetic_does_not ... ok
+test stack::tests::layers_are_beaten_in_order_and_residual_shrinks ... ok
+test stack::tests::single_plate_matches_the_single_plate_engine ... ok
+test stack::tests::two_physical_plates_use_the_same_energy_law_as_two_single_contacts ... ok
+test tests::residual_speed_grows_with_margin ... ok
+test tests::rha100_pen150_at_0_penetrates ... ok
+test stack::tests::ricochet_only_on_fresh_impacts_and_probability_is_monotone ... ok
+test tests::rha100_pen90_at_0_is_stopped ... ok
+test tests::rha80_at_60_uses_los_with_normalization ... ok
+test tests::steep_angle_ricochets_but_overmatch_prevents_it ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tg_combat
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tg_missile
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests tg_penetration
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

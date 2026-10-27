@@ -1,0 +1,255 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-10-25",
+  "status": "current_source_eight_aircraft_browser_verified_private_release_gates_pending",
+  "deployed": false,
+  "browserAccepted": true,
+  "archive": {
+    "path": "/home/boyang/Desktop/tankforge-flight-performance-fix.zip",
+    "sha256": "c47d57026edd84e8b28a1d4137b3ae07f3feb3dd896cf6518e96ed973bf69e8f",
+    "extractedPath": "handoff/upgrade_assets/flight-performance-c47d5702-20261025",
+    "files": 149,
+    "allExtractedFileHashesMatchArchive": true,
+    "extraExtractedFiles": 0
+  },
+  "suppliedPayloads": [
+    {
+      "path": "handoff/upgrade_assets/flight-performance-c47d5702-20261025/C213-app-fixed.html",
+      "sha256": "127b686c9cfc554b7165ad14df6e669669a993180b5b4efe23f13518830d3b70",
+      "installed": false
+    },
+    {
+      "path": "handoff/upgrade_assets/flight-performance-c47d5702-20261025/Rust301-app-fixed.html",
+      "sha256": "6f01a107b34402221701b823aad3894c75b8c8af3b1d18cc72a251ea124a7678",
+      "installed": false
+    }
+  ],
+  "baseCompatibility": {
+    "suppliedLatestBaseAppSha256": "303f4f6bb5fd876f99b46c692780e074e1a0607c85c59724c77ca811aa17d27b",
+    "currentAppBeforeMergeSha256": "8e7863ff700f12661227fb9bcaa96d5a5a229eedb4c1ce1197c7690d4df451f8",
+    "installerUsed": false,
+    "reason": "Package targets an older audio-only HTML. Current shared mixed-mode/round/audio app is preserved and receives only inspected helper/hook edits."
+  },
+  "helpers": [
+    {
+      "path": "aircraft-render-cull.mjs",
+      "packageSource": "source/aircraft-render-cull.mjs",
+      "sha256": "49619b59fd3ebde7b8fec0562ee989623ff2889d5addb9f26598ab4e8cf884c2",
+      "bytes": 3964
+    },
+    {
+      "path": "mig17-wing.mjs",
+      "packageSource": "source/project/handoff/flight-rust/mig17-wing.mjs",
+      "sha256": "3727710ae598b9e5433c92e6a0c9e006d08f93122bbe81f7d3858c45f3391515",
+      "bytes": 7909
+    },
+    {
+      "path": "engine-layout-helper.js",
+      "packageSource": "source/engine/engine-layout-helper.js",
+      "sha256": "d25ade94e1e2629774263aca57b0802bcb3ac1ba6eb8387b2e335c6a9f965ade",
+      "bytes": 67418
+    },
+    {
+      "path": "mechanism-view.js",
+      "packageSource": "source/mechanism-view.js",
+      "sha256": "5c47fefc9bdcdd905eac3e8872e651b0fcc7f01693b1dbe2f819301f9fd139fd",
+      "bytes": 4289,
+      "packageSha256": "5130e40b8c48f2262c423125d35b1e60c786aac22574504c8f82e5bcf837cb00",
+      "packageBytes": 3643,
+      "localChanges": [
+        {
+          "id": "imported_source_gear_axis_and_panel_classification",
+          "reason": "Actual current Me262 browser evidence had empty gearRecords because its four gear_* axes were not recognized; F104 source parts also use lowercase geardoor names.",
+          "change": "Recognize gear_* and tailgear categories from type or param; split camel-case names and identify lowercase door/cover compounds; retain explicitly named door actuators/rods while hiding panels. Original full meshes remain unchanged; mixed joints retain only physically disabled exact source triangle render subsets.",
+          "regression": "handoff/tests/aircraft-mechanism-gear.test.mjs",
+          "regressionSha256": "9c6d9d778f5e48018f9bb8dc86b0db5f66a0b188272f7ab866dc49c10087ca35"
+        }
+      ]
+    },
+    {
+      "path": "mechanism-fit-runtime.js",
+      "packageSource": "source/mechanism-fit/mechanism-fit-runtime.js",
+      "sha256": "55f8b5b4a794ca355c4b25ffc436889fa2b5a3b5d635d783bfd4bc5d8953d75a",
+      "bytes": 1221880
+    }
+  ],
+  "sourceOwnedIntegration": {
+    "syncTool": "handoff/tools/sync_aircraft_performance.py",
+    "syncToolSha256": "6545c0cea125169fe038f5ce3e5b6c893be93f026eea8eb0f95aa8cfd56523c6",
+    "vmPrelude": "handoff/tools/aircraft_performance/runtime.mjs",
+    "vmPreludeSha256": "7b5998e7c420f4f6c7aacc814b3acf636ab5a9283ffd11d9b556c4f77e305af3",
+    "syncCheckPassed": true,
+    "pythonAndJsPreludeByteParityPassed": true,
+    "fullAppParserPassed": true,
+    "frontlineClientSyncCheckPassed": true,
+    "app": "handoff/bundle/app.js.html",
+    "appSha256": "5f9577fabf415594db7c845d061bd48fc1699cf0105c72f93c873acb28a621ba",
+    "nativeProfile": "data/aircraft/frontline.json",
+    "nativeProfileSha256": "c86b54e9a06fb82b889f4177e8efe261f45d3e66b5cb8964de68beb7cb579b65",
+    "flightCoreVersion": 213,
+    "flightWasmSha256": "2450d4ebb7f73f3a155a5bc2a312558e241a511146f81f02f922122eb232568e",
+    "nativeProfileRefreshPending": true
+  },
+  "scope": [
+    "Conservative draw-only rejection of explicitly marked immutable aircraft/pilot/store/pylon meshes, using each actual camera or shadow VP; unknown/instanced/indexed/nonfinite uploads fail open. Canonical renderer/math and current HTML retain their respective existing draw/material paths.",
+    "Guarded MiG17 revision2 source component reassignment and hinge poses after model inflation, retaining all original source bytes, triangle winding, normals, UVs, materials and unrelated animation tracks.",
+    "Fitted fallback engine/nozzle and precomputed generated mechanism positions for mig17f/f4e/f15c/su27/a10a/su25. Source signatures and authored-internal guards fail open; no model asset prefix replacement.",
+    "O mechanism view omits skin/cage and duplicate box overlays only from drawing; exact gear mechanism render subsets remain physically disabled while original geometry and accepted damage identities persist.",
+    "One-call CCIP endpoint clearance reuse only. The original integration, supported weapons, per-frame updates, impact identity, ground/crash/empty gates and visibleStoreImpact equipment/selection gate remain in place.",
+    "Source-extracting exporter and CPU fixtures load exactly the same helper prelude as the current app. Physical control travel uses saved original mover poses so visual hinge repair does not change the native flight ABI."
+  ],
+  "authoredInteriorsPreserved": [
+    "f104g",
+    "f86f",
+    "hunter6",
+    "me262",
+    "me262a2a",
+    "me262u4",
+    "mig15",
+    "mig29",
+    "mirage3e"
+  ],
+  "semanticParity": {
+    "passed": true,
+    "aircraft": 26,
+    "comparison": "Exact complete serialized export minus source provenance, including metadata, physics, guns, fuel, stores, definitions, compatibility and conventions. JSON serialization is the actual boundary; in-memory signed zero is not a mismatch.",
+    "baseline": "handoff/tests/fixtures/aircraft-performance-baseline-20261025.json",
+    "baselineFileSha256": "b272f4eb8d635bbe40c817f9aaf74e9495b24dc642bfc48883ad5d00325709b1",
+    "priorNativeProfileFileSha256": "8dcb59d2c52bd91c5bc6584b37bfa5a2acb0081aeb74a32bed576ce9525b65d5",
+    "semanticSha256": "6032c2158cea070725246b33e034ba028edea4af9b26974dcde1c4c148118ec6",
+    "allAircraftSha256": "49989787c6d475c94db926c9ffaf9e91a71030b86114a8376c163668d3946ded",
+    "physicalTravelRegression": "Original visual correction changed measured MiG17 quaternion-derived travel by approximately one ULP/6.8e-8 rad; configureAircraftSurfaces now measures original saved source mover poses and preserves the complete prior serialized contract."
+  },
+  "cpuVerification": {
+    "existingTargeted": {
+      "passed": 13,
+      "failed": 0,
+      "command": "node --test --test-concurrency=1 handoff/tests/aircraft-source-internals.test.mjs handoff/tests/control_surfaces.test.mjs handoff/tests/aircraft_attachments.test.mjs handoff/tests/flight_gear_sequence.test.mjs",
+      "scope": "Actual current source authored-interior uploads/damage/repair, mounts/barrels, control surfaces and C213 gear-sequence/212-mode parity."
+    },
+    "mig17AndFullContract": {
+      "passed": 3,
+      "failed": 0,
+      "command": "node --test --test-concurrency=1 handoff/tests/aircraft-performance-mig17.test.mjs",
+      "testSha256": "0a61f58b3127a5f3534d5edd3279eec61d38b8040d980fcd1913dfb359f0443d",
+      "scope": "Current tracked model, exact 85645 triangle multiset/winding and attributes, original buffer prefix, unaffected rig, mutation guards/idempotence and all26 serialized profile equality."
+    },
+    "ccipAndCull": {
+      "passed": 4,
+      "failed": 0,
+      "command": "node --test --test-concurrency=1 handoff/tests/aircraft-performance-cull.test.mjs handoff/tests/aircraft-performance-ccip.test.mjs",
+      "ccipCases": 2304,
+      "weapons": 32,
+      "terrains": [
+        "range",
+        "coast",
+        "normandy"
+      ],
+      "aglMeters": [
+        0,
+        1,
+        100,
+        1000,
+        3000,
+        8000
+      ],
+      "attitudes": 4,
+      "exactFloat64Results": true,
+      "oldTerrainQueries": 12690915,
+      "newTerrainQueries": 6348426,
+      "worstQueriesBefore": 9602,
+      "worstQueriesAfter": 4802,
+      "initialFixtureSeconds": 87.669982585,
+      "finalVmRealmOnlyRerun": {
+        "passed": 4,
+        "failed": 0,
+        "durationSeconds": 2260.767111649,
+        "note": "Observed wall duration only. No profiling established its cause; scheduling, suspension or other environment effects are not ruled out. This is not a production frame-time claim."
+      },
+      "ccipTestSha256": "7cb634b26396f6f1986d9ae10756ae2ebf0ef52b94492a197ac0e74ea8999c15",
+      "cullTestSha256": "28356e47a7bbf5be2991cc3d109ce700529435a0fa26f99a641dee93b01cc6a0",
+      "scope": "Frozen original C213 predictor versus current function with actual current weapon definitions and Terrain/BattleMap methods; exact-bit return values, same integration, endpoint call counts, deformation resampling and zero-work gates. Cull checks use actual Float32 uploads and both perspective/identity clip passes, unknown uploads fail open; filtering changes no physical scene state."
+    }
+  },
+  "packageEvidenceBoundary": [
+    "Supplied regression-final.txt records85 passed and10 skipped; it is not a fresh95-pass current-source proof.",
+    "Supplied4608-case CCIP artifact spans two historical host variants. Its standalone source test is missing ccip-test-host.mjs/maps/current-app inputs in this ZIP; the new2304-case current C213 gate replaces reliance on that claim for this merge.",
+    "Supplied render counters demonstrate removed offscreen submissions. Reported wall timings are mixed, so they do not establish a general FPS gain.",
+    "Some referenced independent shell PNG/JSON artifacts are absent. Fitted internal anatomy remains an approximation of the game source geometry, not historical CAD or a watertight containment certificate."
+  ],
+  "limitations": [
+    "No C213 flight WASM, dynamics parameters, native ammunition/damage identities, source interiors or U4 sound replacement.",
+    "No Rust301 hitbox/interior/flight backend installation and no precise-triangle aircraft/vehicle combat migration. Current native aircraft skin/part boxes and existing vehicle plates/boxes remain accepted contact paths.",
+    "No whole-game FPS, GPU/mobile/WAN, maximum population,45–90-minute endurance or complete advanced mixed-mode acceptance claimed.",
+    "First model decode/upload/fitted geometry creation can still cause a peak. Offscreen draw rejection does not stop native AI, motion, collisions or weapon simulation.",
+    "Current shared-mode full avionics/guided weapons/CCIP integration is not created by this offline predictor optimization.",
+    "Root full serial Node/native/socket/browser/release acceptance and deployment are separate pending gates. Do not replace pending statuses with package historical browser smoke."
+  ],
+  "previousActualBrowserAttempt": {
+    "path": "handoff/tests/out/combined-upgrade-20261025/flight-upgrade-browser/browser-result.json",
+    "appSha256": "d8e7e815c746c572b2f24c5e43b967e48500b16114499311d3aa3d0968a11191",
+    "accepted": false,
+    "fittedFamiliesPassed": [
+      "mig17f",
+      "f4e",
+      "f15c",
+      "su27",
+      "a10a",
+      "su25"
+    ],
+    "captures": 12,
+    "failure": "Me262 O view hid all real gear because source gear_main/gear_nose/gear_main_doors/gear_nose_door categories were unrecognized. This original failed proof is preserved; fresh browser acceptance is pending."
+  },
+  "localGearViewFix": {
+    "helperSha256": "5c47fefc9bdcdd905eac3e8872e651b0fcc7f01693b1dbe2f819301f9fd139fd",
+    "packageOriginalHelperSha256": "5130e40b8c48f2262c423125d35b1e60c786aac22574504c8f82e5bcf837cb00",
+    "test": "handoff/tests/aircraft-mechanism-gear.test.mjs",
+    "testSha256": "9c6d9d778f5e48018f9bb8dc86b0db5f66a0b188272f7ab866dc49c10087ca35",
+    "scope": [
+      "Actual current Me262/A2a/U4 four-axis source controllers retain legs/wheels/actuators and suppress eight authored doors/covers from drawing.",
+      "Actual current F104 seven unique authored gear controllers across split material batches retain wheels/struts and suppress lowercase geardoor sources.",
+      "Actual current mixed MiG17 joints upload only original triangle/attribute multisets, keep new subsets hitboxDisabled, preserve original full mesh/pose/data/native resource buffers and restore draw membership on release.",
+      "No source assets, original archive, accepted native contacts or authored internal nodes are replaced."
+    ],
+    "verification": "Focused final current-source gear regression4/4 passed; existing source-interior3/3 and full26 semantic/MiG17 geometry3/3 also passed on this same app. Fresh full suite/browser/profile refresh remain separate parent gates.",
+    "focusedTests": {
+      "passed": 4,
+      "failed": 0,
+      "command": "node --test --test-concurrency=1 handoff/tests/aircraft-mechanism-gear.test.mjs"
+    }
+  },
+  "browserVerification": {
+    "path": "handoff/tests/out/combined-upgrade-final-20261025/flight-upgrade-browser/browser-result.json",
+    "sha256": "756fad604cef9f932c902dbf9e82140ebea42e048a07ec7576e2de781e7bbdf9",
+    "functionalPass": true,
+    "capturePass": true,
+    "checks": 78,
+    "screenshots": 16,
+    "models": [
+      "mig17f",
+      "f4e",
+      "f15c",
+      "su27",
+      "a10a",
+      "su25",
+      "me262",
+      "f104g"
+    ],
+    "scope": "Actual current pinned source models and WebGL uploads; gear/roll/flap DOM controls; O draw membership/restoration and unchanged accepted state/resources/damage. Bounded offline source-model fixture, not FPS/WAN/full-roster startup acceptance.",
+    "visualReview": [
+      "a10a-O-mechanisms",
+      "su27-O-mechanisms",
+      "me262-O-mechanisms",
+      "f104g-O-mechanisms"
+    ]
+  },
+  "nativeVerification": {
+    "passed": 300,
+    "failed": 0,
+    "log": "handoff/tests/out/combined-upgrade-20261025/full-native.log",
+    "sourceProvenance": "handoff/tests/out/combined-upgrade-final-20261025/native-source-provenance.json",
+    "roundSockets": "handoff/tests/out/combined-upgrade-final-20261025/round-socket-validate.json",
+    "roundSocketPass": true,
+    "scope": "Unchanged native source and physical26-aircraft contract; fresh profile provenance after render-only correction. Short-round TCP/WS reset is not45-minute endurance certification."
+  }
+}

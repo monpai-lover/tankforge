@@ -1,0 +1,127 @@
+{
+  "schema": "TankForgeR8RunSetV1",
+  "version": "tankforge-penetration-r8.1-linux-amd64-20261027",
+  "runs": [
+    {
+      "name": "native",
+      "kind": "rust",
+      "status": "PASS",
+      "before": {
+        "profile": "0000000000000000000000000000000000000000000000000000000000000000",
+        "aircraft": "0000000000000000000000000000000000000000000000000000000000000000",
+        "flightWasm": "0000000000000000000000000000000000000000000000000000000000000000",
+        "cargoLock": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": {
+        "profile": "0000000000000000000000000000000000000000000000000000000000000000",
+        "aircraft": "0000000000000000000000000000000000000000000000000000000000000000",
+        "flightWasm": "0000000000000000000000000000000000000000000000000000000000000000",
+        "cargoLock": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "log": "D:/TankForge-validation/REPLACE-native-final.log",
+      "logSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Replace with the actual command and run scope; this example is not evidence",
+      "limitations": [],
+      "exitCode": 0
+    },
+    {
+      "name": "combat",
+      "kind": "rust",
+      "status": "PASS",
+      "before": {
+        "combatWasm": "0000000000000000000000000000000000000000000000000000000000000000",
+        "cargoLock": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": {
+        "combatWasm": "0000000000000000000000000000000000000000000000000000000000000000",
+        "cargoLock": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "log": "D:/TankForge-validation/REPLACE-combat-final.log",
+      "logSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Replace with the actual command and run scope; this example is not evidence",
+      "limitations": [],
+      "exitCode": 0
+    },
+    {
+      "name": "node",
+      "kind": "node",
+      "status": "PASS",
+      "before": {
+        "app": "0000000000000000000000000000000000000000000000000000000000000000",
+        "profile": "0000000000000000000000000000000000000000000000000000000000000000",
+        "aircraft": "0000000000000000000000000000000000000000000000000000000000000000",
+        "flightWasm": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": {
+        "app": "0000000000000000000000000000000000000000000000000000000000000000",
+        "profile": "0000000000000000000000000000000000000000000000000000000000000000",
+        "aircraft": "0000000000000000000000000000000000000000000000000000000000000000",
+        "flightWasm": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "log": "D:/TankForge-validation/REPLACE-node-final.log",
+      "logSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Replace with the actual command and run scope; this example is not evidence",
+      "limitations": [],
+      "exitCode": 0
+    },
+    {
+      "name": "package-tools",
+      "kind": "unittest",
+      "status": "PASS",
+      "before": {
+        "packageTools": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "after": {
+        "packageTools": "0000000000000000000000000000000000000000000000000000000000000000"
+      },
+      "log": "D:/TankForge-validation/REPLACE-package-tools-final.log",
+      "logSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Replace with the actual command and run scope; this example is not evidence",
+      "limitations": [],
+      "exitCode": 0
+    },
+    {
+      "name": "install-primary",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:/TankForge-validation/REPLACE-install-primary.json",
+      "receiptSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Full preserved release clone, offline dry-run/apply/rollback; no service execution",
+      "limitations": [
+        "No Linux process or systemd execution"
+      ]
+    },
+    {
+      "name": "install-r6",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:/TankForge-validation/REPLACE-install-r6.json",
+      "receiptSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Full preserved release clone, offline dry-run/apply/rollback; no service execution",
+      "limitations": [
+        "No Linux process or systemd execution"
+      ]
+    },
+    {
+      "name": "install-r7",
+      "kind": "install",
+      "status": "PASS",
+      "receipt": "D:/TankForge-validation/REPLACE-install-r7.json",
+      "receiptSha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "scope": "Full preserved release clone, offline dry-run/apply/rollback; no service execution",
+      "limitations": [
+        "No Linux process or systemd execution"
+      ]
+    },
+    {
+      "name": "gui-by-packager",
+      "kind": "scope",
+      "status": "NOT_RUN",
+      "scope": "Packaging/finalizer does not execute a GUI",
+      "reason": "Command-line artifact preparation only",
+      "limitations": [
+        "Any separate GUI receipt must state its own exact app hash and scope"
+      ]
+    }
+  ]
+}

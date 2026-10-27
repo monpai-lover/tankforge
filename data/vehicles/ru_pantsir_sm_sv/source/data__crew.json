@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "asset_id": "ru_pantsir_sm_sv",
+  "status": "provisional_gameplay_estimates",
+  "source_policy": "Visual geometry supplied by source GLB. Armor resistance, internal anatomy, crew layout and all gameplay tuning are authored estimates, not verified vehicle specifications.",
+  "approximate": true,
+  "crew": [
+    {
+      "id": "driver",
+      "role": "driver",
+      "pos_m": [
+        -0.5,
+        1.2000000476837158,
+        2.700000047683716
+      ],
+      "radius_m": 0.25,
+      "health": 100,
+      "pose": "seated",
+      "approximate": true
+    },
+    {
+      "id": "commander",
+      "role": "commander",
+      "pos_m": [
+        -0.35000000335276127,
+        2.1700000762939453,
+        0.5
+      ],
+      "radius_m": 0.25,
+      "health": 100,
+      "pose": "seated",
+      "approximate": true
+    },
+    {
+      "id": "operator",
+      "role": "gunner",
+      "pos_m": [
+        0.33999999426305294,
+        2.1700000762939453,
+        0.3500000238418579
+      ],
+      "radius_m": 0.27,
+      "health": 100,
+      "pose": "seated",
+      "approximate": true
+    }
+  ]
+}

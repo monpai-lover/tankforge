@@ -1,0 +1,214 @@
+{
+  "schema": "TankForgeOnlineBaselineReadOnlyAuditV1",
+  "result": "PASS",
+  "date": "2026-10-25",
+  "originalFilesModified": false,
+  "onlineURL": "https://tank.monpai.site/",
+  "onlineDecodedGzip": {
+    "bytes": 388581642,
+    "sha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f"
+  },
+  "onlineIdentity": {
+    "bytes": 388581642,
+    "sha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f"
+  },
+  "releaseGzip": {
+    "bytes": 138867216,
+    "sha256": "886b2181d8416c099ff59b3b70fe7d9442569344b8a53abe62db87722784fc46"
+  },
+  "releaseDecompressed": {
+    "bytes": 388581642,
+    "sha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f"
+  },
+  "releaseApp": {
+    "bytes": 4146184,
+    "sha256": "5f9577fabf415594db7c845d061bd48fc1699cf0105c72f93c873acb28a621ba"
+  },
+  "baselineApp": {
+    "bytes": 4146184,
+    "sha256": "5f9577fabf415594db7c845d061bd48fc1699cf0105c72f93c873acb28a621ba"
+  },
+  "baselineHead": {
+    "bytes": 100492,
+    "sha256": "375a1a0a718231eb6ead3dd3540f12c8b0d3445b8d5b9d48945a141e96660113"
+  },
+  "baselineRecomposedHTML": {
+    "bytes": 388581642,
+    "sha256": "36bb12d62609f3f9ad2be9a0015786500c1de374623a11a0a60301e29967e63f"
+  },
+  "maps": {
+    "korea": {
+      "online": {
+        "bytes": 3326543,
+        "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+      },
+      "release": {
+        "bytes": 3326543,
+        "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+      },
+      "baseline": {
+        "bytes": 3326543,
+        "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+      }
+    },
+    "taiwan": {
+      "online": {
+        "bytes": 3771682,
+        "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+      },
+      "release": {
+        "bytes": 3771682,
+        "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+      },
+      "baseline": {
+        "bytes": 3771682,
+        "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+      }
+    }
+  },
+  "aircraftData": {
+    "aircraft.json": {
+      "release": {
+        "bytes": 176884,
+        "sha256": "c305303787c7a14a098b02270d17c46429bfa463c8cf6412910df2a142a5fbbc"
+      },
+      "baseline": {
+        "bytes": 176884,
+        "sha256": "c305303787c7a14a098b02270d17c46429bfa463c8cf6412910df2a142a5fbbc"
+      }
+    },
+    "frontline.json": {
+      "release": {
+        "bytes": 763709,
+        "sha256": "c86b54e9a06fb82b889f4177e8efe261f45d3e66b5cb8964de68beb7cb579b65"
+      },
+      "baseline": {
+        "bytes": 763709,
+        "sha256": "c86b54e9a06fb82b889f4177e8efe261f45d3e66b5cb8964de68beb7cb579b65"
+      }
+    }
+  },
+  "releaseBinary": {
+    "bytes": 5831344,
+    "sha256": "13571854f12301d67bf169ead59f2987b4c497965695470290bf9afed97c2972"
+  },
+  "sourceReproducibleBinaryCertified": false,
+  "wip": {
+    "crates/server/src/frontline.rs": {
+      "wip": {
+        "bytes": 172239,
+        "sha256": "37b184858aac5a465c91bbb3c90a395fd99eb255d15a181fd42a29634af627d1"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 164518,
+        "sha256": "629f45dc36514a04fa0022b4fdd9586955808509d1421b4e9874bdbe4ae67141"
+      },
+      "differsFromBaseline": true
+    },
+    "crates/server/src/frontline_air.rs": {
+      "wip": {
+        "bytes": 107377,
+        "sha256": "e4070e94f20a74759a0da6d121efb1777e4ac70300fe8c3c8ceb1cfca0a06e82"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 107201,
+        "sha256": "69c462cd0e0212704d270c32b0ca4c8d8d9764e194c609daecb913a033e889b1"
+      },
+      "differsFromBaseline": true
+    },
+    "crates/server/src/frontline_campaign.rs": {
+      "wip": {
+        "bytes": 31848,
+        "sha256": "4ac7dda491b06bb50402e062266705fcda311edec49cd36e9279bef2db7c19da"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 30573,
+        "sha256": "fe089a885594a0a0dc715e2bd3e873a6d2412cae6f88f8e704b78923d61165c9"
+      },
+      "differsFromBaseline": true
+    },
+    "crates/server/src/frontline_sim.rs": {
+      "wip": {
+        "bytes": 165438,
+        "sha256": "0fbdb663c71968be28eab59b9f18960d47feabcb865a720e31fd22e62d38fe1b"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 164916,
+        "sha256": "fb909da9b6b7821d6f9314fa6fbd7be3b81dc5fafbbf110473a9531fcef9b63c"
+      },
+      "differsFromBaseline": true
+    },
+    "crates/server/src/lobby.rs": {
+      "wip": {
+        "bytes": 322640,
+        "sha256": "12d204631be3198d102f24dbfbfb0ad96088d21006c83543ee0e3aa14fbf9abb"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 249852,
+        "sha256": "82a70aba314dcb6e01358a295eb5f75446e30b0d26f6d9cc50d4c328dc6c5f17"
+      },
+      "differsFromBaseline": true
+    },
+    "data/aircraft/frontline.json": {
+      "wip": {
+        "bytes": 763709,
+        "sha256": "a058b7f328dda28a61385ba921a0aeaa3618334059160ed2a7575583e623d582"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 763709,
+        "sha256": "c86b54e9a06fb82b889f4177e8efe261f45d3e66b5cb8964de68beb7cb579b65"
+      },
+      "differsFromBaseline": true
+    },
+    "handoff/tests/air-frontline-shared-ui-browser.py": {
+      "wip": {
+        "bytes": 18367,
+        "sha256": "6f8fdb09c4faf62b349959f81dff04d182bf9c6e11c076767505cb2dce50fd31"
+      },
+      "notDeployed": true,
+      "baselineMissing": true
+    },
+    "handoff/tests/air-frontline-shared-ui-contract.pending.json": {
+      "wip": {
+        "bytes": 586,
+        "sha256": "5b3227eba4ff3ce0641d3418ac8d173b1af88a91abbeef289a25f02e414686bf"
+      },
+      "notDeployed": true,
+      "baselineMissing": true
+    },
+    "handoff/tests/air-frontline-shared-ui-plan.json": {
+      "wip": {
+        "bytes": 5000,
+        "sha256": "0335cc7a117ee4568d594f82e913c6a897846ab4ad050cc36133d29179aad7b4"
+      },
+      "notDeployed": true,
+      "baselineMissing": true
+    },
+    "handoff/tools/frontline_client.js": {
+      "wip": {
+        "bytes": 70022,
+        "sha256": "a10a4c6d041498502a21aa88075c0e2a67b69a6b2d27684d88dc707e34fa1dbe"
+      },
+      "notDeployed": true,
+      "baseline": {
+        "bytes": 69964,
+        "sha256": "7d224979b10df0ade588299cec9112d2e70aae8238c8249100b6a8be920035f5"
+      },
+      "differsFromBaseline": true
+    },
+    "handoff/tools/frontline_shared_lobby.js": {
+      "wip": {
+        "bytes": 21334,
+        "sha256": "c0d8c14142994e0f0586ccceaf93dd0f26707ed60f67596f912b36310c0aa0ee"
+      },
+      "notDeployed": true,
+      "baselineMissing": true
+    }
+  }
+}

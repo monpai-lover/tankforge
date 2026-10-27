@@ -1,0 +1,18 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.06s
+     Running unittests src\lib.rs (D:\TankForge-validation\rust-r81-target\debug\deps\tg_server-57da0ffb3a2d689c.exe)
+
+running 11 tests
+test frontline::air_point_tests::native_agm_point_control_life_sequence_and_cancel_are_guarded ... ok
+test frontline::air_point_tests::native_agm_point_review_beam_requires_live_designator_and_never_a_fake_unit ... ok
+test frontline::air_point_tests::native_agm_point_review_capture_ack_is_the_successful_host_sequence ... ok
+test frontline::air_point_tests::native_agm_point_review_low_angle_ground_endpoint_accepts_clear_ray_but_rejects_ridge ... ok
+test frontline::air_point_tests::native_agm_point_review_laser_hardware_survives_aam_unit_selection_and_exports_designation ... ok
+test frontline::air_point_tests::native_agm_point_review_minimum_range_and_finite_horizon_do_not_capture ... ok
+test frontline::air_point_tests::native_agm_point_review_repeated_sight_uses_current_bearing_to_fixed_point ... ok
+test frontline::air_point_tests::native_agm_point_review_scene_first_contact_obeys_facility_geometry_and_unit_occlusion ... ok
+test frontline::air_point_tests::native_agm_point_review_rejected_fresh_capture_cannot_release_the_old_point ... ok
+test frontline::air_point_tests::native_agm_point_wire_accepts_only_sight_direction_and_rejects_contact_coordinates ... ok
+test frontline::air_point_tests::native_agm_point_tv_iir_capture_is_fixed_and_actual_launch_spends_once ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 437 filtered out; finished in 49.90s
+

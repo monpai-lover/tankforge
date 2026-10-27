@@ -1,0 +1,1086 @@
+{
+  "schema": 2,
+  "purpose": "Spawn/loadout construction integration only; not a live accepted-state or browser override.",
+  "source": "Current tank.monpai.site snapshot ETag 17154d8d-6addb4f6",
+  "models": {
+    "f15c": {
+      "sourceMain": "b736634797d9c94fa04967e8f06b20a40458d8349af54888d0b62de47a50c23a",
+      "presets": [
+        {
+          "clientIndex": 1,
+          "name": "空戰",
+          "items": [
+            {
+              "index": 0,
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4915,
+                1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -2.1158299970222507,
+                1.905
+              ],
+              "mount": [
+                -1.15,
+                -1.995329997022251,
+                1.905
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 1,
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4915,
+                1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4485527508093583,
+                1.905
+              ],
+              "mount": [
+                1.15,
+                -1.3280527508093583,
+                1.905
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 2,
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4915,
+                -1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -1.4120314395632552,
+                -1.905
+              ],
+              "mount": [
+                -1.15,
+                -1.2915314395632551,
+                -1.905
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 3,
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4915,
+                -1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4120309868519476,
+                -1.905
+              ],
+              "mount": [
+                1.15,
+                -1.2915309868519476,
+                -1.905
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 4,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l",
+              "revisedOwner": "wing_l",
+              "previousP": [
+                -4.3766,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                -2.668717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_inner"
+            },
+            {
+              "index": 5,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r",
+              "revisedOwner": "wing_r",
+              "previousP": [
+                4.3766,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                2.668717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_inner"
+            },
+            {
+              "index": 6,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l_out",
+              "revisedOwner": "wing_l_out",
+              "previousP": [
+                -4.6814,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                -3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_outer"
+            },
+            {
+              "index": 7,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r_out",
+              "revisedOwner": "wing_r_out",
+              "previousP": [
+                4.6814,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_outer"
+            }
+          ]
+        },
+        {
+          "clientIndex": 2,
+          "name": "AMRAAM",
+          "items": [
+            {
+              "index": 0,
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4788999999999999,
+                1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -2.1017796679489575,
+                1.9
+              ],
+              "mount": [
+                -1.15,
+                -1.9938796679489577,
+                1.9
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 1,
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4788999999999999,
+                1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4362064269548278,
+                1.9
+              ],
+              "mount": [
+                1.15,
+                -1.328306426954828,
+                1.9
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 2,
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4788999999999999,
+                -1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -1.3996221645439308,
+                -1.9
+              ],
+              "mount": [
+                -1.15,
+                -1.291722164543931,
+                -1.9
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 3,
+              "id": "aim120a",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4788999999999999,
+                -1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.39962170673429,
+                -1.9
+              ],
+              "mount": [
+                1.15,
+                -1.29172170673429,
+                -1.9
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 4,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l",
+              "revisedOwner": "wing_l",
+              "previousP": [
+                -4.3766,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                -2.668717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_inner"
+            },
+            {
+              "index": 5,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r",
+              "revisedOwner": "wing_r",
+              "previousP": [
+                4.3766,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                2.668717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_inner"
+            },
+            {
+              "index": 6,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l_out",
+              "revisedOwner": "wing_l_out",
+              "previousP": [
+                -4.6814,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                -3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_outer"
+            },
+            {
+              "index": 7,
+              "id": "aim9l",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r_out",
+              "revisedOwner": "wing_r_out",
+              "previousP": [
+                4.6814,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_outer"
+            }
+          ]
+        },
+        {
+          "clientIndex": 3,
+          "name": "對地",
+          "items": [
+            {
+              "index": 0,
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1,
+              "previousOwner": "wing_l",
+              "revisedOwner": "wing_l",
+              "previousP": [
+                -3.1564,
+                -0.5545,
+                -0.29419999999999996
+              ],
+              "revisedP": [
+                -2.741352348993288,
+                -0.9912352721849367,
+                0.22303415361670392
+              ],
+              "mount": [
+                -2.741352348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "basis": "source_pylon_bottom_with_inferred_short_carrier",
+              "hardware": null
+            },
+            {
+              "index": 1,
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1,
+              "previousOwner": "wing_r",
+              "revisedOwner": "wing_r",
+              "previousP": [
+                3.1564,
+                -0.5545,
+                -0.29419999999999996
+              ],
+              "revisedP": [
+                2.741352348993288,
+                -0.9912352721849367,
+                0.22303415361670392
+              ],
+              "mount": [
+                2.741352348993288,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "basis": "source_pylon_bottom_with_inferred_short_carrier",
+              "hardware": null
+            },
+            {
+              "index": 2,
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": -1,
+              "previousOwner": "wing_l",
+              "revisedOwner": "wing_l",
+              "previousP": [
+                -3.8116,
+                -0.5545,
+                -0.29419999999999996
+              ],
+              "revisedP": [
+                -3.1143523489932883,
+                -0.9912352721849367,
+                0.22303415361670392
+              ],
+              "mount": [
+                -3.1143523489932883,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "basis": "source_pylon_bottom_with_inferred_short_carrier",
+              "hardware": null
+            },
+            {
+              "index": 3,
+              "id": "mk82",
+              "count": 1,
+              "station": "inner",
+              "side": 1,
+              "previousOwner": "wing_r",
+              "revisedOwner": "wing_r",
+              "previousP": [
+                3.8116,
+                -0.5545,
+                -0.29419999999999996
+              ],
+              "revisedP": [
+                3.1143523489932883,
+                -0.9912352721849367,
+                0.22303415361670392
+              ],
+              "mount": [
+                3.1143523489932883,
+                -0.8547352721849366,
+                0.04623415361670391
+              ],
+              "basis": "source_pylon_bottom_with_inferred_short_carrier",
+              "hardware": null
+            },
+            {
+              "index": 4,
+              "id": "mk82",
+              "count": 1,
+              "station": "center",
+              "side": 0,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                0,
+                -1.5075,
+                0.4768
+              ],
+              "revisedP": [
+                0,
+                -1.5075,
+                0.4768
+              ],
+              "mount": [
+                0,
+                -1.371,
+                0.3
+              ],
+              "basis": "retained_existing",
+              "hardware": null
+            },
+            {
+              "index": 5,
+              "id": "mk82",
+              "count": 1,
+              "station": "center",
+              "side": 0,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                0,
+                -1.5075,
+                -1.9832
+              ],
+              "revisedP": [
+                0,
+                -1.5075,
+                -1.9832
+              ],
+              "mount": [
+                0,
+                -1.371,
+                -2.16
+              ],
+              "basis": "retained_existing",
+              "hardware": null
+            },
+            {
+              "index": 6,
+              "id": "aim9l",
+              "count": 1,
+              "station": "outer",
+              "side": -1,
+              "previousOwner": "wing_l_out",
+              "revisedOwner": "wing_l_out",
+              "previousP": [
+                -5.486,
+                -0.3375,
+                -1.923
+              ],
+              "revisedP": [
+                -3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_outer"
+            },
+            {
+              "index": 7,
+              "id": "aim9l",
+              "count": 1,
+              "station": "outer",
+              "side": 1,
+              "previousOwner": "wing_r_out",
+              "revisedOwner": "wing_r_out",
+              "previousP": [
+                5.486,
+                -0.3375,
+                -1.923
+              ],
+              "revisedP": [
+                3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_outer"
+            },
+            {
+              "index": 8,
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4915,
+                1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -1.4915,
+                1.2
+              ],
+              "mount": [
+                -1.15,
+                -1.371,
+                1.2
+              ],
+              "basis": "retained_existing",
+              "hardware": null
+            },
+            {
+              "index": 9,
+              "id": "aim7f",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4915,
+                1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4915,
+                1.2
+              ],
+              "mount": [
+                1.15,
+                -1.371,
+                1.2
+              ],
+              "basis": "retained_existing",
+              "hardware": null
+            }
+          ]
+        },
+        {
+          "clientIndex": 4,
+          "name": "空戰（7M／9M）",
+          "items": [
+            {
+              "index": 0,
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4915,
+                1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -2.1129293388756643,
+                1.895
+              ],
+              "mount": [
+                -1.15,
+                -1.9924293388756644,
+                1.895
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 1,
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4915,
+                1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4490601031002976,
+                1.895
+              ],
+              "mount": [
+                1.15,
+                -1.3285601031002976,
+                1.895
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 2,
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4915,
+                -1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -1.4124128895246069,
+                -1.895
+              ],
+              "mount": [
+                -1.15,
+                -1.2919128895246068,
+                -1.895
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 3,
+              "id": "aim7m",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4915,
+                -1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4124124266166331,
+                -1.895
+              ],
+              "mount": [
+                1.15,
+                -1.291912426616633,
+                -1.895
+              ],
+              "basis": "inferred_clearance_with_exact_exterior_contact",
+              "hardware": null
+            },
+            {
+              "index": 4,
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l",
+              "revisedOwner": "wing_l",
+              "previousP": [
+                -4.3766,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                -2.668717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_inner"
+            },
+            {
+              "index": 5,
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r",
+              "revisedOwner": "wing_r",
+              "previousP": [
+                4.3766,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                2.668717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_inner"
+            },
+            {
+              "index": 6,
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l_out",
+              "revisedOwner": "wing_l_out",
+              "previousP": [
+                -4.6814,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                -3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_outer"
+            },
+            {
+              "index": 7,
+              "id": "aim9m",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r_out",
+              "revisedOwner": "wing_r_out",
+              "previousP": [
+                4.6814,
+                -0.34950000000000003,
+                -1.261
+              ],
+              "revisedP": [
+                3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_outer"
+            }
+          ]
+        },
+        {
+          "clientIndex": 5,
+          "name": "AMRAAM（120B／C）",
+          "items": [
+            {
+              "index": 0,
+              "id": "aim120b",
+              "count": 1,
+              "station": "belly",
+              "side": -1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                -1.15,
+                -1.4788999999999999,
+                1.2
+              ],
+              "revisedP": [
+                -1.15,
+                -1.4788999999999999,
+                1.2
+              ],
+              "mount": [
+                -1.15,
+                -1.371,
+                1.2
+              ],
+              "basis": "retained_existing",
+              "hardware": null
+            },
+            {
+              "index": 1,
+              "id": "aim120b",
+              "count": 1,
+              "station": "belly",
+              "side": 1,
+              "previousOwner": "body",
+              "revisedOwner": "body",
+              "previousP": [
+                1.15,
+                -1.4788999999999999,
+                1.2
+              ],
+              "revisedP": [
+                1.15,
+                -1.4788999999999999,
+                1.2
+              ],
+              "mount": [
+                1.15,
+                -1.371,
+                1.2
+              ],
+              "basis": "retained_existing",
+              "hardware": null
+            },
+            {
+              "index": 2,
+              "id": "aim120c",
+              "count": 1,
+              "station": "mid",
+              "side": -1,
+              "previousOwner": "wing_l_out",
+              "revisedOwner": "wing_l_out",
+              "previousP": [
+                -4.529,
+                -0.3749,
+                -1.261
+              ],
+              "revisedP": [
+                -2.668717375093214,
+                -0.6131199850857569,
+                1.37751677852349
+              ],
+              "mount": [
+                -2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_inner"
+            },
+            {
+              "index": 3,
+              "id": "aim120c",
+              "count": 1,
+              "station": "mid",
+              "side": 1,
+              "previousOwner": "wing_r_out",
+              "revisedOwner": "wing_r_out",
+              "previousP": [
+                4.529,
+                -0.3749,
+                -1.261
+              ],
+              "revisedP": [
+                2.668717375093214,
+                -0.6131199850857569,
+                1.37751677852349
+              ],
+              "mount": [
+                2.668717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_inner"
+            },
+            {
+              "index": 4,
+              "id": "aim9m",
+              "count": 1,
+              "station": "outer",
+              "side": -1,
+              "previousOwner": "wing_l_out",
+              "revisedOwner": "wing_l_out",
+              "previousP": [
+                -5.486,
+                -0.3375,
+                -1.923
+              ],
+              "revisedP": [
+                -3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                -3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "left_wing_rail_outer"
+            },
+            {
+              "index": 5,
+              "id": "aim9m",
+              "count": 1,
+              "station": "outer",
+              "side": 1,
+              "previousOwner": "wing_r_out",
+              "revisedOwner": "wing_r_out",
+              "previousP": [
+                5.486,
+                -0.3375,
+                -1.923
+              ],
+              "revisedP": [
+                3.18717375093214,
+                -0.587719985085757,
+                1.37751677852349
+              ],
+              "mount": [
+                3.18717375093214,
+                -0.5052199850857569,
+                1.37751677852349
+              ],
+              "basis": "source_rail_lower_face_center",
+              "hardware": "right_wing_rail_outer"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "preserved": "Existing weapon IDs, sequence, counts, ammunition, mass, drag and capabilities. Su27 underengine owner becomes body. MiG21/F16 wing owners follow the actual source wing groups.",
+  "basis": "Source-component lower-face centers are geometric installation inferences, not registered author sockets. F4/F15 inner-store carriers and belly clearance adapters are explicitly procedural, fitted to existing model surfaces. Numbered launchers align existing adapter sockets.",
+  "integration": "Load this map in the local air-combat backend layout constructor, match complete initial item sequence + source model hash, then use revised P/owner before publishing/spawning units. Existing browser Native Frontline accept remains authoritative. For custom/new layouts use measured profile helper with the backend weapon socket schema; do not match client preset index alone.",
+  "limitation": "This package cannot modify an unseen local/VPS backend. The client native projection preserves accepted host owners and positions; old host positions continue until that backend adopts the map."
+}

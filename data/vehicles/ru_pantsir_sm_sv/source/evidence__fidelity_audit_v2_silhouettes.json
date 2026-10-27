@@ -1,0 +1,43 @@
+{
+  "method": "Silhouette segmentation from identical uniform world background RGB with >2/255 channel threshold; 4-neighbor foreground boundaries; nearest Euclidean image-space boundary pixel distances. Measures visible silhouette/aperture changes, not internal surface wrinkles. Orthographic pixels converted using camera horizontal world scale.",
+  "threequarter": {
+    "foreground_iou": 0.9995404204332358,
+    "source_silhouette_pixels": 487279,
+    "target_silhouette_pixels": 487301,
+    "lost_silhouette_pixels": 101,
+    "added_silhouette_pixels": 123,
+    "source_to_target_boundary": {
+      "mean_px": 0.0921555832028389,
+      "p95_px": 0.0,
+      "p99_px": 2.2360680103302,
+      "max_px": 22.671567916870117
+    },
+    "target_to_source_boundary": {
+      "mean_px": 0.07181136310100555,
+      "p95_px": 0.0,
+      "p99_px": 1.4142135381698608,
+      "max_px": 14.560219764709473
+    },
+    "world_m_per_pixel": 0.007265625
+  },
+  "front": {
+    "foreground_iou": 0.9992991639348622,
+    "source_silhouette_pixels": 526363,
+    "target_silhouette_pixels": 526296,
+    "lost_silhouette_pixels": 218,
+    "added_silhouette_pixels": 151,
+    "source_to_target_boundary": {
+      "mean_px": 0.1767137497663498,
+      "p95_px": 1.0,
+      "p99_px": 4.123105525970459,
+      "max_px": 26.925823211669922
+    },
+    "target_to_source_boundary": {
+      "mean_px": 0.19470982253551483,
+      "p95_px": 1.0,
+      "p99_px": 5.036637306213379,
+      "max_px": 19.235383987426758
+    },
+    "world_m_per_pixel": 0.005
+  }
+}

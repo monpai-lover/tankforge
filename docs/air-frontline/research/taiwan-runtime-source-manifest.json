@@ -1,0 +1,741 @@
+{
+  "retrievedAtUtc": "2026-10-24T20:04:36.132048+00:00",
+  "focusBoundsWgs84": [
+    120.38,
+    23.88,
+    120.66,
+    24.13
+  ],
+  "selectedBoundsWgs84": [
+    117.8,
+    21.65,
+    122.35,
+    26.5
+  ],
+  "files": [
+    {
+      "kind": "land_polygon",
+      "file": "official-counties.zip",
+      "url": "https://maps.nlsc.gov.tw/download/%E7%B8%A3%E5%B8%82%E7%95%8C%E7%B7%9A%28TWD97%E7%B6%93%E7%B7%AF%E5%BA%A6%29.zip",
+      "bytes": 3708666,
+      "sha256": "0c6fca34a92b92ef3e9a41957e403cb89e814bb64942ca7c7e51c746f913d49d"
+    },
+    {
+      "kind": "land_polygon",
+      "file": "natural-earth-land.zip",
+      "url": "https://naturalearth.s3.amazonaws.com/10m_physical/ne_10m_land.zip",
+      "bytes": 3269070,
+      "sha256": "e547d749445eaa0964aba76738090ec88f5e63c4585122170f98c67a7ea922dc"
+    },
+    {
+      "kind": "roads",
+      "file": "roads.json.gz",
+      "query": "roads.overpassql",
+      "source": "https://overpass-api.de/api/interpreter",
+      "boundsWgs84": [
+        120.38,
+        23.88,
+        120.66,
+        24.13
+      ],
+      "rawBytes": 9727592,
+      "rawSha256": "91cff36dc5e2657344f5d162af4de28bbb61ddd329aabdb525707eaa0dd0ba95",
+      "gzipSha256": "eb511db4bf7dc83c61c346871b77d21a9f0fd855699e47a761d29bb40ce18abe",
+      "elements": 80371,
+      "timestamp": "2026-10-24T19:56:21Z"
+    },
+    {
+      "kind": "water",
+      "file": "water.json.gz",
+      "query": "water.overpassql",
+      "source": "https://overpass-api.de/api/interpreter",
+      "boundsWgs84": [
+        120.38,
+        23.88,
+        120.66,
+        24.13
+      ],
+      "rawBytes": 3797242,
+      "rawSha256": "6ab0335e818600e8370a55ea142729997b293b075ac8871c6a8a67200d733993",
+      "gzipSha256": "de6737fc845623e50d142338415e40a9f37a04c46126b3c485f31a5c697e8912",
+      "elements": 3361,
+      "timestamp": "2026-10-24T19:58:20Z"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N21_00_E120_00_DEM/Copernicus_DSM_COG_10_N21_00_E120_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        119.99986111111112,
+        21.000138888888888,
+        120.99986111111112,
+        22.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.00010841674520634115,
+      "sampleMaximumM": 290.0028381347656,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N21_00_E120_00_DEM.npz",
+      "bytes": 4738,
+      "sha256": "094f2deddd38844acbeca83965aeab8d95a16504465464e49fdc815bf28f3a2d"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N21_00_E121_00_DEM/Copernicus_DSM_COG_10_N21_00_E121_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        120.99986111111112,
+        21.000138888888888,
+        121.99986111111112,
+        22.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 0.0,
+      "sampleMaximumM": 115.79877471923828,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N21_00_E121_00_DEM.npz",
+      "bytes": 1127,
+      "sha256": "ffbf1dc0dca704ea5fbfb689a6f011dfbd219812c5b0dde1eba9172be0348f4e"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N22_00_E120_00_DEM/Copernicus_DSM_COG_10_N22_00_E120_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        119.99986111111112,
+        22.000138888888888,
+        120.99986111111112,
+        23.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -3.2678773403167725,
+      "sampleMaximumM": 2987.6689453125,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N22_00_E120_00_DEM.npz",
+      "bytes": 176379,
+      "sha256": "9c3fe7d29324ecb66efb98ddf67bd1706028bb1d4d2d484611f6c108da2235e6"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N22_00_E121_00_DEM/Copernicus_DSM_COG_10_N22_00_E121_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        120.99986111111112,
+        22.000138888888888,
+        121.99986111111112,
+        23.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 0.0,
+      "sampleMaximumM": 2827.093505859375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N22_00_E121_00_DEM.npz",
+      "bytes": 27583,
+      "sha256": "b70295f5c17b63338d9f5e41914f9466f362d58cb1909bf24f208b8b66578967"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E117_00_DEM/Copernicus_DSM_COG_10_N23_00_E117_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        116.99986111111112,
+        23.000138888888888,
+        117.99986111111112,
+        24.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -1.0,
+      "sampleMaximumM": 1035.0240478515625,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N23_00_E117_00_DEM.npz",
+      "bytes": 79169,
+      "sha256": "56dfbda4ee9cf1c09464f608509a76e35e413d7854e231613dd4ded346f240db"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E119_00_DEM/Copernicus_DSM_COG_10_N23_00_E119_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        118.99986111111112,
+        23.000138888888888,
+        119.99986111111112,
+        24.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.01713036559522152,
+      "sampleMaximumM": 53.46227264404297,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N23_00_E119_00_DEM.npz",
+      "bytes": 9236,
+      "sha256": "5091196f6a4befd2122378aab05eb26a7468608188a285fd4dae21e7b7be16d1"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E120_00_DEM/Copernicus_DSM_COG_10_N23_00_E120_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        119.99986111111112,
+        23.000138888888888,
+        120.99986111111112,
+        24.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -4.478399276733398,
+      "sampleMaximumM": 3801.1103515625,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N23_00_E120_00_DEM.npz",
+      "bytes": 287498,
+      "sha256": "f82e479d8b38609bf3aedd42c0776230b5189d35d02dc939aab567367729bc91"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E121_00_DEM/Copernicus_DSM_COG_10_N23_00_E121_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        120.99986111111112,
+        23.000138888888888,
+        121.99986111111112,
+        24.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.03626031056046486,
+      "sampleMaximumM": 3718.947021484375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N23_00_E121_00_DEM.npz",
+      "bytes": 164943,
+      "sha256": "80aacc240c57f4a672d83d5c1c021327404855a139a65b7aeffa84585bc61952"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E117_00_DEM/Copernicus_DSM_COG_10_N24_00_E117_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        116.99986111111112,
+        24.000138888888888,
+        117.99986111111112,
+        25.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -7.437827110290527,
+      "sampleMaximumM": 1482.837646484375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N24_00_E117_00_DEM.npz",
+      "bytes": 320455,
+      "sha256": "4a2afaae1b3b3f3437aeab49388ee05a309dc23fd91d399ec53579fe88fb8aae"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E118_00_DEM/Copernicus_DSM_COG_10_N24_00_E118_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        117.99986111111112,
+        24.000138888888888,
+        118.99986111111112,
+        25.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.48283806443214417,
+      "sampleMaximumM": 1119.853271484375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N24_00_E118_00_DEM.npz",
+      "bytes": 132929,
+      "sha256": "ea2ba398c93330110c5b66b8e8362c3c423b74b212bb2b3c7e3022cbc2fc21f6"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E119_00_DEM/Copernicus_DSM_COG_10_N24_00_E119_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        118.99986111111112,
+        24.000138888888888,
+        119.99986111111112,
+        25.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 0.0,
+      "sampleMaximumM": 55.393985748291016,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N24_00_E119_00_DEM.npz",
+      "bytes": 1276,
+      "sha256": "2d7a970a1cab3b3becb5cfe9e35537d2a324824182f3ed53a9f969dcf7ab7ff5"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E120_00_DEM/Copernicus_DSM_COG_10_N24_00_E120_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        119.99986111111112,
+        24.000138888888888,
+        120.99986111111112,
+        25.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.3069978952407837,
+      "sampleMaximumM": 2350.982421875,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N24_00_E120_00_DEM.npz",
+      "bytes": 110363,
+      "sha256": "92d2b36e74f6edb8638e1f7ba09d0d52a99eb34525b919da8fb7b347e8866e5a"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E121_00_DEM/Copernicus_DSM_COG_10_N24_00_E121_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        120.99986111111112,
+        24.000138888888888,
+        121.99986111111112,
+        25.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 0.0,
+      "sampleMaximumM": 3779.25634765625,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N24_00_E121_00_DEM.npz",
+      "bytes": 258019,
+      "sha256": "782984ba662d2f306dfa1502bb58fc9e3f74c20f6cf6821409fadd98fdb3f136"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E122_00_DEM/Copernicus_DSM_COG_10_N24_00_E122_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        121.99986111111112,
+        24.000138888888888,
+        122.99986111111112,
+        25.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 0.0,
+      "sampleMaximumM": 142.9341278076172,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N24_00_E122_00_DEM.npz",
+      "bytes": 1688,
+      "sha256": "01985f0964cbf121d24be59a8b352e94b0833e2121f7d0104f44463e0f7fdb59"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N25_00_E117_00_DEM/Copernicus_DSM_COG_10_N25_00_E117_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        116.99986111111112,
+        25.000138888888888,
+        117.99986111111112,
+        26.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 88.49954223632812,
+      "sampleMaximumM": 1678.7030029296875,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N25_00_E117_00_DEM.npz",
+      "bytes": 317154,
+      "sha256": "67e6925fc03b70279b19a931e29b06b18e81b26b9dc43a1c9225f28915b7ed25"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N25_00_E118_00_DEM/Copernicus_DSM_COG_10_N25_00_E118_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        117.99986111111112,
+        25.000138888888888,
+        118.99986111111112,
+        26.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -1.0,
+      "sampleMaximumM": 1756.5667724609375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N25_00_E118_00_DEM.npz",
+      "bytes": 317498,
+      "sha256": "df7ca473d87f3556b12e557c38004aa909bebd75fcf6530e4c1954fe41c37c96"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N25_00_E119_00_DEM/Copernicus_DSM_COG_10_N25_00_E119_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        118.99986111111112,
+        25.000138888888888,
+        119.99986111111112,
+        26.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -2.9704129695892334,
+      "sampleMaximumM": 1047.26318359375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N25_00_E119_00_DEM.npz",
+      "bytes": 161154,
+      "sha256": "faf6516e1327d0ba950316fd897a7232e3f9cf243adb011bd39476a8fc082992"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N25_00_E121_00_DEM/Copernicus_DSM_COG_10_N25_00_E121_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        120.99986111111112,
+        25.000138888888888,
+        121.99986111111112,
+        26.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.0566580705344677,
+      "sampleMaximumM": 1045.29638671875,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N25_00_E121_00_DEM.npz",
+      "bytes": 51023,
+      "sha256": "69ce27297f4ef8357c95f145d39cc88fd3047118f7b455fc6e89c79a4d7276a9"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N25_00_E122_00_DEM/Copernicus_DSM_COG_10_N25_00_E122_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        121.99986111111112,
+        25.000138888888888,
+        122.99986111111112,
+        26.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -0.008124208077788353,
+      "sampleMaximumM": 85.61172485351562,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N25_00_E122_00_DEM.npz",
+      "bytes": 1042,
+      "sha256": "5b0a5a4dcde5379feed1fd4f2c8247ec0b6d1b445197465837fdc6c4af39a7f9"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N26_00_E117_00_DEM/Copernicus_DSM_COG_10_N26_00_E117_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        116.99986111111112,
+        26.000138888888888,
+        117.99986111111112,
+        27.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 87.46310424804688,
+      "sampleMaximumM": 1567.7408447265625,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N26_00_E117_00_DEM.npz",
+      "bytes": 318875,
+      "sha256": "435a21e1f145875e3df4290c9bb0421a320ec89948826f7456bdfd6d8ad6553f"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N26_00_E118_00_DEM/Copernicus_DSM_COG_10_N26_00_E118_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        117.99986111111112,
+        26.000138888888888,
+        118.99986111111112,
+        27.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 1.5361099243164062,
+      "sampleMaximumM": 1586.1461181640625,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N26_00_E118_00_DEM.npz",
+      "bytes": 320645,
+      "sha256": "4b25716cb295011ea12d81f3ba2ebcb6ec060ebd86d4e1c9df9dffc5346c9737"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N26_00_E119_00_DEM/Copernicus_DSM_COG_10_N26_00_E119_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        118.99986111111112,
+        26.000138888888888,
+        119.99986111111112,
+        27.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": -1.5898319482803345,
+      "sampleMaximumM": 1449.097412109375,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N26_00_E119_00_DEM.npz",
+      "bytes": 269874,
+      "sha256": "443b72bb3c5bde7464ae4ffb6a012e212f386ae9e560a0c9b95bd975cd7deab8"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N26_00_E120_00_DEM/Copernicus_DSM_COG_10_N26_00_E120_00_DEM.tif",
+      "originalWidth": 3600,
+      "originalHeight": 3600,
+      "sourceCrs": "EPSG:4326",
+      "boundsWgs84": [
+        119.99986111111112,
+        26.000138888888888,
+        120.99986111111112,
+        27.000138888888888
+      ],
+      "overviews": [
+        2,
+        4,
+        8
+      ],
+      "nodata": null,
+      "readMethod": "COG average overview sampled to 300x300; not complete original bytes or native30m route surface",
+      "sampleMinimumM": 0.0,
+      "sampleMaximumM": 870.0723266601562,
+      "kind": "sampled_elevation",
+      "file": "Copernicus_DSM_COG_10_N26_00_E120_00_DEM.npz",
+      "bytes": 23716,
+      "sha256": "631931abe669cc26ed8ca0d4914e538a1344a8ba681a2dfc6176ec3d2b733023"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E120_00_DEM/Copernicus_DSM_COG_10_N23_00_E120_00_DEM.tif",
+      "boundsWgs84": [
+        120.37986111111111,
+        23.880138888888887,
+        120.65986111111111,
+        24.000138888888888
+      ],
+      "shape": [
+        432,
+        1008
+      ],
+      "sourceResolutionDegrees": [
+        0.0002777777777777778,
+        0.0002777777777777778
+      ],
+      "readMethod": "Actual native1arcsecond GLO30 COG window, no resampling",
+      "notBareEarth": true,
+      "kind": "native_focus_elevation",
+      "file": "focus-native-N23E120.npz",
+      "bytes": 1545485,
+      "sha256": "cde5d12bea9c9791f9217ee8d5d1e6612f006c593cee306157c51e9f34c3c6e4"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E120_00_DEM/Copernicus_DSM_COG_10_N24_00_E120_00_DEM.tif",
+      "boundsWgs84": [
+        120.37986111111111,
+        24.000138888888888,
+        120.65986111111111,
+        24.130138888888887
+      ],
+      "shape": [
+        468,
+        1008
+      ],
+      "sourceResolutionDegrees": [
+        0.0002777777777777778,
+        0.0002777777777777778
+      ],
+      "readMethod": "Actual native1arcsecond GLO30 COG window, no resampling",
+      "notBareEarth": true,
+      "kind": "native_focus_elevation",
+      "file": "focus-native-N24E120.npz",
+      "bytes": 1625951,
+      "sha256": "9e769ac307652ffc02381d7993af80823b86facd052e1ba297dd4ea395d96767"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N24_00_E120_00_DEM/Copernicus_DSM_COG_10_N24_00_E120_00_DEM.tif",
+      "boundsWgs84": [
+        120.59597222222223,
+        24.240138888888886,
+        120.64597222222223,
+        24.290138888888887
+      ],
+      "shape": [
+        180,
+        180
+      ],
+      "sourceResolutionDegrees": [
+        0.0002777777777777778,
+        0.0002777777777777778
+      ],
+      "readMethod": "Actual native1arcsecond GLO30 airport window; not runway surface or obstacle clearance certificate",
+      "kind": "native_airfield_elevation",
+      "file": "airfield-native-RCMQ.npz",
+      "bytes": 103800,
+      "sha256": "9d7ec1b9c274954e4036027630f046afa64c5f8d9ec63d0ad1fc5d7ecc7ca883"
+    },
+    {
+      "url": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N23_00_E120_00_DEM/Copernicus_DSM_COG_10_N23_00_E120_00_DEM.tif",
+      "boundsWgs84": [
+        120.36986111111112,
+        23.435138888888886,
+        120.41986111111112,
+        23.485138888888887
+      ],
+      "shape": [
+        180,
+        180
+      ],
+      "sourceResolutionDegrees": [
+        0.0002777777777777778,
+        0.0002777777777777778
+      ],
+      "readMethod": "Actual native1arcsecond GLO30 airport window; not runway surface or obstacle clearance certificate",
+      "kind": "native_airfield_elevation",
+      "file": "airfield-native-RCKU.npz",
+      "bytes": 108848,
+      "sha256": "2a6385a575e0ae9a51128ecb3382a8d54e12ad4bd807512bddcd3080320a7b75"
+    }
+  ],
+  "attributions": [
+    "© OpenStreetMap contributors, ODbL",
+    "Copernicus DEM GLO30 / European Union and data providers",
+    "NLSC Taiwan official counties, OGL Taiwan1.0; source member2020-08-20",
+    "Natural Earth 1:10,000,000 cartographic-scale land v5.1.1, public domain; strategic coastline only, not10m resolution"
+  ],
+  "limitations": [
+    "DSM includes trees/buildings; not bare earth or a road/runway certificate.",
+    "OSM absence is not proof of dry terrain or bridge condition.",
+    "No bathymetry or navigable maritime route certified."
+  ]
+}

@@ -206,3 +206,16 @@ MIT 授權條款要求保留版權聲明:
 
 - 追加原版Hetzer外形以使用者提供的剖面與四視圖作比例參考，圖面雜湊及估計邊界見 `docs/hetzer-reference-refinement-2026-10-09.md`。未使用Claude of Tanks的車輛或美術。導彈`max_g`數值從原有加速度調校推導，為遊戲估計，來源與包絡定義見 `docs/missile-flight.md`；瞄具鏡口依既有倍率/真實視場作展示映射，未據此宣稱取得實測眼距或光學品質。
 
+
+## 2026-10-23 飛行員模型
+
+- **飛行員**（所有飛機的座艙）：「USSR Pilot Late (War Thunder)」，Sketchfab 上由 KojfDiscord 以 CC BY 4.0 標示發布（https://sketchfab.com/3d-models/ussr-pilot-late-war-thunder-9acefd3e5f854e69a0ed6fb7bbfce9dc）。
+  - 依使用者要求直接使用。取自使用者自製的 MiG-29 重製模型（使用者已把飛行員擺成坐在噴射機座椅上的姿勢；其中的 MiG-29 機體來源是 42manako 的「MiG-29 "Ukrainian Falcons"」，CC BY 4.0）。
+  - 這裡的處理：轉成遊戲座標、以眼睛位置為原點、把三張顏色貼圖縮放併成一張 1024² 圖集；法線與光澤貼圖沒有使用。轉換工具：`handoff/tools/pilot_glb/convert.py`。
+
+## 2026-10-23 鎧甲（Pantsir-S1 SM-SV）
+
+- **鎧甲車輛**（`data/vehicles/ru_pantsir_sm_sv`）：使用者提供的 Pantsir_TankForge_LowPoly 套件，依使用者要求直接使用（模型、關節、資料）。
+  - 外形來源：「Pantsir SM-SV (War Thunder) Ninth Wave」，Sketchfab 上由 KojfDiscord 以 CC BY 4.0 標示發布（https://sketchfab.com/3d-models/pantsir-sm-sv-war-thunder-ninth-wave-0838ed8759f84ece8d3939a9894a6ded）。
+  - 套件自述：原始 GLB 沒有裝甲厚度、內部配置、性能或彈道資料；套件裡的厚度、模組、乘員、武器、發動機都是遊戲用估計值，不是原廠資料。
+  - 套件原有的說明文件、驗證報告與證據原樣保存在 `data/vehicles/ru_pantsir_sm_sv/source/`（不含 GLB 與 .blend）。安裝工具：`tools/install_pantsir.py`。

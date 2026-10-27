@@ -1,0 +1,64 @@
+{
+  "review_stage_order": [
+    "spec_compliance",
+    "quality"
+  ],
+  "scope": "User-requested fidelity repair of standalone asset pack; source appearance and shape take priority over superseded V1 20k-30k budget. No live game changes required.",
+  "source_sha256_unchanged": "044a1d62df9bb11ab1a6854371fad54989079eebf4226e149bdeb5d9a854732a",
+  "shipping_glb_sha256": [
+    "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+    "941cbf0a862a23d5a53d98186e4c673f7d36743af26623c20a3f89b6c0e15df6",
+    "aec2a2e13f18ad7e2e8f897d7ed389f93782aa718a11bceccbc39770651b6eb0"
+  ],
+  "spec_compliance": {
+    "assessment": "PASS for revised fidelity-priority scope",
+    "lod_exterior_triangles": [
+      291829,
+      167250,
+      110869
+    ],
+    "lod_total_triangles": [
+      296201,
+      169492,
+      112249
+    ],
+    "default_lod": 0,
+    "source_and_current_images": "Visually coherent near-match: wheel rims, track details, hull fittings, tube rims and radar retained; no visible V1 deformation",
+    "runtime_old_geometry_used": false
+  },
+  "quality": {
+    "assessment": "No critical or important runtime findings",
+    "fresh_checks": [
+      "Source and all shipping GLB hashes independently matched",
+      "All188 catalog position/index byte ranges and hashes independently compared to actual LOD0 accessors; zero mismatches, geometry revision2, no nonarmor zone inheritance",
+      "46 actual target Float32 imported batch hashes and diagnostic collision tests passed",
+      "Accepted-event adapter and spent payload removal/reload tests passed",
+      "Actual browser defaultV2 and all three LOD counts, posed muzzle, exact X-ray invariant contact, removed armor membership, weapons, socket counts and null nonarmor zones passed",
+      "All six standalone embedded gzip payloads byte-identical to shipping files",
+      "Forced-offline file preview loads all V2 LODs, fires both weapons and resets with zero network requests and page errors"
+    ],
+    "evidence": [
+      "review-v2-browser.json",
+      "review-v2-offline.json"
+    ]
+  },
+  "independent_attribute_audit": {
+    "exterior_vertices_matched": 404858,
+    "position_material_match_tolerance_m": 2e-05,
+    "max_uv_difference": 2.384e-07,
+    "source_images_byte_identical_full_resolution": 19,
+    "exterior_materials_retaining_normal_maps": 11,
+    "all_lods_missing_or_zero_normals": 0,
+    "all_lods_missing_uvs": 0,
+    "normal_transfer_note": "Near-equivalent source normals, not byte-exact; p95 difference0.0159degrees, p99 0.0687degrees; >5degrees706/404858(0.1744%), >15degrees63(0.01556%). No associated geometry/UV defect."
+  },
+  "minor_maintenance_note": {
+    "file": "tools/build_asset.py",
+    "issue": "Legacy V1 builder still writes assets and its validator rejects V2 above40k; exclude it from V2 release or guard legacy regeneration to avoid accidentally restoring rejected geometry.",
+    "status": "RESOLVED: legacy --build/--validate guard independently observed; V2 source path and global validators documented. Legacy --build refused without changing shipping GLB hash."
+  },
+  "pending_delivery_owned_by_root": [
+    "Finalize current usage docs and release ZIP/checksums; known ongoing work, not a reviewed runtime defect"
+  ],
+  "unresolved_findings": []
+}

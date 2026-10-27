@@ -1,0 +1,11 @@
+{
+  "class": "ELF64",
+  "byteOrder": "little",
+  "machine": "AMD64",
+  "declaredBuildTarget": "x86_64-unknown-linux-musl",
+  "ptInterp": false,
+  "dtNeeded": [],
+  "linuxExecution": "NOT RUN: no Linux execution environment on this Windows host",
+  "bytes": 6580304,
+  "sha256": "03387adaeaf335c50ae1887822fd63f33f4453ba0dd9a1f7aa05826962a921bf"
+}

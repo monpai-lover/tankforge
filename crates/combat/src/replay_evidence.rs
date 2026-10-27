@@ -11,6 +11,7 @@ impl ReplayActor {pub fn valid(&self)->bool {self.battle>0&&self.life>0&&self.en
 pub struct ReplayPose {
     pub trust:String,pub hull_origin:[f64;3],pub ex:[f64;3],pub ey:[f64;3],pub ez:[f64;3],
     pub joints:Vec<Value>,pub running_gear:Vec<Value>,pub payload:Vec<Value>,pub variants:Vec<Value>,
+    #[serde(default)] pub geometry_instances:Vec<(String,[f64;16])>,
 }
 #[derive(Clone,Debug,Serialize,Deserialize,PartialEq)]
 pub struct FlightSample {pub time_s:f64,pub position:[f64;3],pub velocity_m_s:[f64;3]}
@@ -65,8 +66,23 @@ impl ReplayEvidence {
         let cross=[p.ex[1]*p.ey[2]-p.ex[2]*p.ey[1],p.ex[2]*p.ey[0]-p.ex[0]*p.ey[2],p.ex[0]*p.ey[1]-p.ex[1]*p.ey[0]];
         if dot(cross,p.ez)<0.9999 {return Err("invalid_handedness");}
         if p.joints.len()>64||p.running_gear.len()>1024||p.payload.len()>128||p.variants.len()>128||self.flight.len()>256||self.segments.len()>256||self.deaths.len()>1||self.mechanism_records.len()>16 {return Err("resource_limit");}
+        if p.geometry_instances.len()>1024 {return Err("geometry_pose_limit");}
+        let mut instances=std::collections::HashSet::new();
+        for (id,matrix) in &p.geometry_instances {if id.is_empty()||id.len()>256||!instances.insert(id)||crate::geometry::ray::Affine::new(*matrix).is_err(){return Err("invalid_geometry_pose");}}
         if self.report["impact_events"].as_array().is_some_and(|a|a.len()>64)||self.report["fragments"].as_array().is_some_and(|a|a.len()>256) {return Err("report_limit");}
         let mut last=f64::NEG_INFINITY;for q in &self.flight {if !q.time_s.is_finite()||q.time_s<last||q.position.iter().chain(q.velocity_m_s.iter()).any(|v|!v.is_finite()) {return Err("invalid_flight");}last=q.time_s;}
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod geometry_pose_tests {
+    use super::*;
+    #[test]
+    fn replay_pose_retains_exact_geometry_instance_matrices() {
+        let matrix=[1.,0.,0.,0.,0.,1.,0.,0.,0.,0.,1.,0.,0.1,0.2,0.3,1.];
+        let input=serde_json::json!({"trust":"accepted","hull_origin":[0,0,0],"ex":[1,0,0],"ey":[0,1,0],"ez":[0,0,1],"joints":[],"running_gear":[],"payload":[],"variants":[],"geometry_instances":[["instance:actual-barrel",matrix]]});
+        let pose:ReplayPose=serde_json::from_value(input.clone()).unwrap();
+        assert_eq!(serde_json::to_value(pose).unwrap()["geometry_instances"],input["geometry_instances"],"native pose must not discard matrices already used by the damage scene");
     }
 }

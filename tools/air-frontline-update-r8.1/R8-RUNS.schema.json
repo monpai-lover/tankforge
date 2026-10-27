@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "TankForge R8.1 actual run evidence index (R8 envelope)",
+  "type": "object",
+  "required": ["schema", "version", "runs"],
+  "properties": {
+    "schema": {"const": "TankForgeR8RunSetV1"},
+    "version": {"const": "tankforge-penetration-r8.1-linux-amd64-20261027"},
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "kind", "status", "scope", "limitations"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[a-z0-9_-]+$"},
+          "kind": {"enum": ["rust", "node", "unittest", "install", "ws", "scope"]},
+          "status": {"enum": ["PASS", "REFERENCE", "NOT_RUN"]},
+          "scope": {"type": "string", "minLength": 1},
+          "limitations": {"type": "array", "items": {"type": "string"}},
+          "reason": {"type": "string", "minLength": 1},
+          "exitCode": {"const": 0},
+          "before": {"$ref": "#/$defs/inputHashes"},
+          "after": {"$ref": "#/$defs/inputHashes"},
+          "log": {"type": "string", "minLength": 1},
+          "logSha256": {"$ref": "#/$defs/sha256"},
+          "receipt": {"type": "string", "minLength": 1},
+          "receiptSha256": {"$ref": "#/$defs/sha256"}
+        },
+        "allOf": [
+          {"if": {"properties": {"status": {"const": "NOT_RUN"}}}, "then": {"required": ["reason"]}},
+          {"if": {"properties": {"status": {"const": "REFERENCE"}}}, "then": {"required": ["receipt", "receiptSha256"]}},
+          {"if": {"properties": {"status": {"const": "PASS"}, "kind": {"const": "install"}}}, "then": {"required": ["receipt", "receiptSha256"]}},
+          {"if": {"properties": {"status": {"const": "PASS"}, "kind": {"enum": ["rust", "node", "unittest", "ws"]}}}, "then": {"required": ["exitCode", "before", "after", "log", "logSha256"]}},
+          {"if": {"properties": {"status": {"const": "PASS"}, "kind": {"const": "ws"}}}, "then": {"required": ["receipt", "receiptSha256"]}}
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "inputHashes": {"type": "object", "additionalProperties": {"$ref": "#/$defs/sha256"}}
+  },
+  "$comment": "This is documentation of the finalizer input shape. The finalizer additionally verifies actual log/receipt bytes, current before/after hashes, complete PASS roles and exact selected baselines. This schema and its all-zero example are never evidence of a run."
+}

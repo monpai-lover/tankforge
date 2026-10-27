@@ -1,0 +1,66 @@
+{
+  "schema": "TankForgeR81RepositorySyncVerificationV1",
+  "branch": "codex/r81-airwar-agm-fixes",
+  "baseCommit": "3fd8a58b4ef291add1058817bded47cd12334648",
+  "sourceSnapshot": "Exact frozen R8.1 runtime/data bytes; README and ignore rules intentionally updated for repository usage.",
+  "appSha256": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+  "profileSha256": "c68f81a71409424d52e3eea3d67b42972f932de2ab21a7022dba52cefe21eace",
+  "repositoryPageRebuild": {
+    "bytes": 418794158,
+    "sha256": "f2d507c002fa0a8aed351ce606685cb76fa5d926c0ed1db7c5d4ced41373e4fa",
+    "matchesDeliveredHtml": true
+  },
+  "freshRepositoryNodeGate": {
+    "files": 123,
+    "tests": 784,
+    "pass": 784,
+    "inputsStable": true,
+    "notRun": [
+      {
+        "file": "handoff/tests/flight_gear_sequence.test.mjs",
+        "reason": "NOT RUN: unchanged historical core212-before-gear.wasm fixture omitted; no synthetic historical fixture substituted",
+        "sha256": "998bb77182115652651812b144b9b5496add7f2b92b490473cc66a008b234f23"
+      },
+      {
+        "file": "handoff/tests/me262-u4-audio.test.mjs",
+        "reason": "NOT RUN: historical ffmpeg-dependent test kept outside available runtime gate; original audio/test retained",
+        "sha256": "6b188fd4e1b95c827d4c9f4ca9cd041fa2a4dd102e81f0523a67a9c64b41f06b"
+      }
+    ]
+  },
+  "newBuilderTests": {
+    "pass": 8,
+    "fail": 0
+  },
+  "compilerArtifact": {
+    "sha256": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32",
+    "provenance": "Actual same-source release combat WASM reused from the already verified build; staged only as ignored local test prerequisite.",
+    "committed": false
+  },
+  "evidence": {
+    "repository-checks/node-receipt.json": {
+      "sha256": "3917373e042b0cc5bd37ab63e933d1bb8b9a2271f2e8a5db54c632bf3fb68c52",
+      "bytes": 55764
+    },
+    "repository-checks/node-inputs-before.json": {
+      "sha256": "2d94922b95404087802e05dee6892e312addcd7226293cb1e51b0896e5b027ba",
+      "bytes": 15689
+    },
+    "repository-checks/node-inputs-after.json": {
+      "sha256": "2d94922b95404087802e05dee6892e312addcd7226293cb1e51b0896e5b027ba",
+      "bytes": 15689
+    },
+    "repository-checks/node-combined.tap.log": {
+      "sha256": "b477c010578149c2359619853cd75e98ebd20a97db7a6d802faca9ce97ac4c2d",
+      "bytes": 217933
+    },
+    "repository-checks/builder-tests.log": {
+      "sha256": "e20446cd9d644c25518609a20a84f17574a5770bd9a82b8cf6313acb1ce79b08",
+      "bytes": 1375
+    }
+  },
+  "limitations": [
+    "No Linux or GPU run added by repository synchronization.",
+    "Original historical NOT_RUN and REFERENCE scopes remain unchanged."
+  ]
+}

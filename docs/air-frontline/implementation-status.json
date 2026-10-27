@@ -1,0 +1,1049 @@
+{
+  "phase": "combined_frontline_foundation_published_advanced_scope_remaining",
+  "implementationWorktree": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation",
+  "implementationBranch": "feat/combined-frontline-20261024",
+  "verifiedRuntimeBase": "3d4c495 plus uncommitted core213/model/native/client/map integration; exact evidence is recorded separately",
+  "existingGameFix": {
+    "commit": "030e8cb266082f7e9e2f73fa51bb834098de8456",
+    "behavior": "Actual online deploy UI and server enforce aircraft metadata year before seat/SP changes; unknown years denied in restricted rooms; unrestricted legacy catalogs compatible",
+    "sourceLimit": "Room-eligibility metadata only; complete historical variant/store/sensor profiles remain work",
+    "validation": {
+      "node": "14/14 aircraft era/chords/attachments regressions",
+      "server": "136/136 tg-server lib tests, including4 real Lobby dispatch regressions"
+    },
+    "deployedToVps": false
+  },
+  "designImportCommits": [
+    "93d0cbf",
+    "b5c8213",
+    "cf7be9a",
+    "9f4f38b"
+  ],
+  "aircraftAuditCommit": "459611e",
+  "aircraftAuditRuntimeBase": "f3c6d88",
+  "newGameplayImplemented": true,
+  "requiredNext": "Continue retained advanced scope without reverting published aircraft repairs, U4 audio, team perception or physical facility/support integration.",
+  "publicRuntime": "https://tank.monpai.site/ — combined frontline foundation, core213 and U4 50mm audio; page d64fe4b1dac0a94d57a36e64c22ace2bcdd86c7e6ef647f29ab6d480e009275b",
+  "excludedUnverifiedWork": "The repair worktree uncommitted MiG15 converter/data cache was never imported into this implementation base.",
+  "featureCommit": "08719fd951464f07ff3d2cccfaff1c52cf45fcdd",
+  "updatedDate": "2026-10-25",
+  "gameplayImplementationStarted": true,
+  "groundPrototypeImplemented": true,
+  "aircraftHudImplementedLocally": true,
+  "newModeImplemented": true,
+  "fullCombinedModeImplemented": false,
+  "newGameplayImplementedMeaning": "Playable combined ground/air foundation publicly deployed and verified. Full advanced scope and long-session/max-population/device acceptance remain incomplete.",
+  "implementedStage": {
+    "updatedDate": "2026-10-25",
+    "phase": "combined_frontline_foundation_published_advanced_scope_remaining",
+    "fullCombinedModeImplemented": false,
+    "deployedToVps": true,
+    "implementedLocally": [
+      "Core213, 26 exported aircraft profiles, source-derived accepted model-pose/gun/store/contact transforms and sequenced Me262 main/nose gear service gates",
+      "Production Korea three fronts, 15 objectives, six sources and 60 native tanks; explicit C2-only fixture no longer production fallback",
+      "Native batch reinforcements: actual45-second sim clock, max3 physical rear arrivals per batch, persistent survivor inventory/damage and no front teleport",
+      "Full Taiwan main-island/strait real1:1 source map, three land fronts, 15 objectives, six sources, registered source roads/decks/shorelines and ground elevation patches",
+      "Per-map native simulation/ground data, immutable raw map/SHA registry and client exact-room-map hash verification; post-joint native map/campaign acceptance passed",
+      "Authoritative friendly rear-source selection, accepted reinforcement display, entire-theatre tactical map and near/follow/control-only original ground detail loading",
+      "Native grouped ammunition/fuel/store HUD using stable display projections and labelled estimated endurance; finite quantities never inferred from capacity",
+      "Lossless per-socket binary full/delta/reset codec and actual browser NetClient; exact live60+2 and70+3 state parity, strict clock/frame budgets and measured full observer-WS traffic",
+      "Explicit shared-junction bridge wedge polygons/triangles, canonical top/real-thickness shell, lit-pass-only bias and source-water terrain cutouts; actual Taiwan deck576 uploaded geometry verified",
+      "Real source coast/water/land tactical-map background with main-island and mainland holes retained, fit-to-theatre view and bounded source extent",
+      "Nonblocking GPU visual submission gate with real drawn-frame adaptive resolution; conforming canonical terrain/shared area normals, correct grass/source-surface materials and depth-writing canonical water",
+      "Audience-separated team optical discovery, immutable scan poses and last-known map contacts; actual Hub/WS/browser authorization verified",
+      "Native exact Float32 facility triangle contacts, damage, bridge support/nav closure and local runway closure; visible source geometry hash checked before GPU upload",
+      "Sixteen real unarmed engineer/supply conversions, source-backed rear/apron spawning, footprint-checked approach and actual stopped-worker repair/delivery/escort effects"
+    ],
+    "completionBoundary": "Published foundation passed 282 native tests, 321 Node checks, 5 updater checks, 47 actual browser assertions and short source-matched native/WS cadence gates. Public HTTP page/registry and real TLS WebSocket create/start/76ground+2air/Leave verified. Full advanced goal remains incomplete.",
+    "validationReference": "validation.currentThreeFrontIntegration",
+    "remainingReference": "remaining",
+    "publicRuntime": "https://tank.monpai.site/ — combined frontline foundation, core213 and U4 50mm audio; page d64fe4b1dac0a94d57a36e64c22ace2bcdd86c7e6ef647f29ab6d480e009275b"
+  },
+  "validation": {
+    "rustLib": {
+      "passed": 186,
+      "status": "passed",
+      "scope": "Full tg-server library after native airport service and C2 campaign rules; actual service domain and shared-world contact checks included"
+    },
+    "node": {
+      "hudAndResourcesPassed": 23,
+      "inputAndVisualLodPassed": 3,
+      "existingAircraftRegressionsPassed": 14,
+      "status": "passed"
+    },
+    "aircraftHudBrowser": {
+      "checksPassed": 72,
+      "checksTotal": 72,
+      "harnessPassed": true,
+      "coreVersion": 212,
+      "evidence": "handoff/tests/out/air-hud-browser-20261024/summary.json",
+      "scope": "Actual browser aircraft HUD inventory/resource states, real firing, rearm, jettison, external fuel and engine-off/no-flow cases; not new-mode airfield service"
+    },
+    "groundTwoBrowser": {
+      "functionalAssertionsPassed": 14,
+      "functionalAssertionsTotal": 14,
+      "harnessPassed": false,
+      "status": "all_functional_assertions_passed_final_screenshot_timed_out",
+      "scope": "Actual independent observer/player browser clients, native20-AI observation, player10-tank/3-platoon deployment, keyboard motion, map order, rejected foreign/stale control, native cannon debit/shot and identical same-tick accepted state",
+      "failure": "Final observer screenshot timed out after60s in the SwiftShader/ReadPixels capture path; do not report the whole harness as passed",
+      "cleanup": "Both clients confirmed Leave; browsers closed",
+      "evidence": "handoff/tests/out/frontline-browser-20261024/result.json"
+    },
+    "localReleaseProbe": {
+      "units": 30,
+      "worlds": 1,
+      "durationSeconds": 12.000945546999999,
+      "tickHz": 19.99842421249843,
+      "observerJsonBytesPerSecond": 1510508.5619300662,
+      "observerJsonMegabytesPerSecondApprox": 1.51,
+      "scope": "One local release ground world and one observation stream; UTF-8 JSON payload excludes WebSocket/TCP/TLS overhead; zero GPU browsers in the tick/traffic probe",
+      "limits": "No WAN/VPS,240-unit,maximum-human-count or mobile gameplay performance certification",
+      "evidence": "handoff/tests/out/frontline-browser-20261024/tick-probe.json"
+    },
+    "sharedAirRust": {
+      "fullLibRun": {
+        "passed": 167,
+        "failed": 0,
+        "status": "passed_before_final_review_fixes"
+      },
+      "afterReviewTargeted": {
+        "passed": 28,
+        "failed": 0,
+        "newTests": 3,
+        "status": "passed"
+      },
+      "uniqueTestsCovered": 170,
+      "singleFull170RunClaimed": false,
+      "scope": "Full167 lib run followed by review fixes and28-targeted frontline run including3 new cases; do not describe as a single170-test full-suite pass"
+    },
+    "sharedAirNode": {
+      "passed": 51,
+      "failed": 0,
+      "status": "passed"
+    },
+    "flightRuntime": {
+      "evidence": "flight-runtime-verification-2026-10-25.json",
+      "targetedPassed": 6,
+      "nodeParityFloats": 10240,
+      "maximumAbsoluteError": 0,
+      "scope": "Unchanged212 WASM wrapper, per-instance isolation/terrain/control/damage/trap validation; interpreter debug micro-probe is not release/population acceptance"
+    },
+    "mixedReleaseProbe": {
+      "binary": "target/release/tg-server",
+      "binarySha256": "4f17ed2e515c4cd0ed599e044b491c3ff2701b564ad60423d9638df79777a850",
+      "sourceCommit": "08719fd951464f07ff3d2cccfaff1c52cf45fcdd",
+      "worlds": 1,
+      "groundUnits": 30,
+      "independentAircraft": 3,
+      "entities": 33,
+      "gpuBrowsers": 0,
+      "durationSeconds": 12.001792111,
+      "ticks": 240,
+      "tickHz": 19.99701359433087,
+      "aircraftNativeTimeAdvanceSeconds": [
+        11.999901999999999,
+        11.999901999999999,
+        11.999901999999999
+      ],
+      "observerJsonBytesPerSecond": 1633277.0821812479,
+      "observerJsonMegabytesPerSecondApprox": 1.633277,
+      "bytesMeaning": "UTF-8 JSON payload only; excludes WebSocket/TCP/TLS overhead",
+      "cleanup": {
+        "playerLeaveAcknowledged": true,
+        "observerLeaveAcknowledged": true,
+        "finalWorldCount": 0
+      },
+      "limits": "One local short release world, zero GPU browsers; no maximum-human/240-company-tank/WAN/VPS/mobile/endurance certification; bandwidth remains a material unresolved budget",
+      "evidence": "handoff/tests/out/frontline-air-browser-20261025/mixed-tick-probe.json"
+    },
+    "mixedBrowser": {
+      "status": "functional_pass_capture_skipped",
+      "scenarios": 3,
+      "browserCount": 1,
+      "functionalAssertionsPassed": 11,
+      "functionalAssertionsTotal": 11,
+      "harnessPassed": true,
+      "functionalPassed": true,
+      "capturePassed": null,
+      "captureStatus": "skipped_after_retained_previous_SwiftShader_timeout",
+      "scope": "Actual player UI/WS/shared native ground and air; no imported-model/cockpit, maximum-population, mobile or GPU performance certification",
+      "evidenceDirectory": "handoff/tests/out/frontline-air-browser-20261025",
+      "sourceFix": "422db6b758e18f62c4c7a53f774b83ec5f0c257a",
+      "previousFailureRetained": true,
+      "passClaimed": true,
+      "latencyLimit": "Observed key-to-native/model samples include browser/CDP scheduling; end-to-end GPU performance remains unverified"
+    },
+    "nodeAfterReceiveFix": {
+      "passed": 15,
+      "uniqueIncludingPreviousRun": 52,
+      "note": "Previous51 ran together; this15-check run overlaps and adds1 receive-without-frame regression"
+    },
+    "airportServiceAndCampaign": {
+      "reference": "airport-service-campaign-verification-2026-10-25.json",
+      "nodePassed": 58,
+      "serviceBrowser": "prepared_not_run",
+      "deployed": false
+    },
+    "latestAircraftAndModeClientRegression": {
+      "passed": 98,
+      "failed": 0,
+      "scope": "Current app/current tracked native assets/regenerated profiles; actual new-mode service browser remains pending"
+    },
+    "currentThreeFrontIntegration": {
+      "core213Runtime": {
+        "actualRuntimeTests": 7,
+        "parityFloats": 266240,
+        "steps": 2080,
+        "maxError": 0,
+        "scope": "Actual Node/wasmi213 runtime suite; not maximum-population performance"
+      },
+      "acceptedAircraftPose": {
+        "types": 26,
+        "cases": 234,
+        "rootFloat32MatrixMaxError": 0,
+        "scope": "Actual production Aircraft.pose against native contact basis; legacy contact envelopes still apply; not render-triangle combat migration"
+      },
+      "koreanGroundBeforeJointMetadata": {
+        "uniqueTests": 32,
+        "passed": 32,
+        "additionalStrengthenedSameCasePassed": true,
+        "evidence": "handoff/tests/out/three-front-native-20261025/result.json",
+        "scope": "Pre-joint Korea native suite; post-joint and multi-map tests in progress, not a final combined full Rust run"
+      },
+      "physicalReinforcements": {
+        "uniqueNewTestsPassed": 3,
+        "singleFullSuiteClaimed": false,
+        "evidence": "handoff/tests/out/physical-reinforcements-20261025/result.json",
+        "scope": "Actual native45s grants, real rear travel/arrival, closures/survivor stock plus blocked/colliding/readiness/time gates"
+      },
+      "twoMapGeometry": {
+        "koreaSha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861",
+        "taiwanSha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499",
+        "jointGroups": 66,
+        "scope": "Authoring geography/footprint proofs and all66 actual client GeoBuilder groups pass; final actual native cases in progress",
+        "nativePostJointTargeted": {
+          "passed": 9,
+          "failed": 0,
+          "runs": [
+            {
+              "passed": 2,
+              "seconds": 6.77,
+              "evidence": "handoff/tests/out/native-multimap-20261025/joint-smoke-attempt1.log"
+            },
+            {
+              "passed": 7,
+              "seconds": 109.23,
+              "evidence": "handoff/tests/out/native-multimap-20261025/surface-http-optional-attempt2.log"
+            }
+          ],
+          "scope": "Distinct registry/joint source validation plus Taiwan5surface and HTTP/optional-map tests; final120-body/old Korean campaign tests still running, not a final full Rust run"
+        }
+      },
+      "bridgeAndWireClient": {
+        "passed": 19,
+        "failed": 0,
+        "evidence": "handoff/tests/out/three-front-native-20261025/bridge-wire-client.log",
+        "scope": "Actual Rust-generated binary fixture chains, failure-atomic decoder, actual NetClient socket adapter with fake sockets, actual GeoBuilder66 bridges and GL-state mock; not realWS or GPU acceptance"
+      },
+      "fullNodeAttempt": {
+        "passed": 269,
+        "failed": 2,
+        "evidence": "handoff/tests/out/three-front-native-20261025/all-node-bridge-wire-attempt1.log",
+        "failures": "Stale generated profile after app changes; isolated renderer harness not yet importing new bridge helper. Profile re-export and renderer harness repair completed, targeted rerun in progress. Do not call this full run passed."
+      },
+      "actualServiceBrowser": {
+        "status": "passed",
+        "passed": 13,
+        "failed": 0,
+        "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-service-render-gate/result.json",
+        "appSha256": "4d4a831f33cbe682fc1c314a0d58064690d1ab2c60e82baa14a2f8af3cabd150",
+        "scope": "Actual core213/full native world/MiG21 source model browser, continuous native15s atomic repair/rearm/refuel+loadout0→2 on same UnitRef/epoch/instance; partial grants none, actual pilot interruption/manual cancel no grant, return/rejoin retains stock/loadout with strict epoch sequences, binary frames/no resets and actual UI Leave ACK. No forged damage, fast-forward, screenshot or device/GPU performance certification."
+      },
+      "newModeDeployed": false,
+      "fullNodeCurrent": {
+        "passed": 305,
+        "failed": 0,
+        "singleFullRun": true,
+        "concurrency": 1,
+        "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-node.log",
+        "appSha256": "1a52cb4d9793063002106d680e49373e39a6991f6f5986e8e27e0d00061a6e06",
+        "scope": "Complete current frontend305 Node tests, including public sensed pose/source Aircraft mechanisms; no latest GPU/browser performance claim."
+      },
+      "sourceWaterTerrain": {
+        "passed": 13,
+        "failed": 0,
+        "evidence": "handoff/tests/out/three-front-native-20261025/source-water-terrain.log",
+        "scope": "Actual canonical terrain builder and exact registered-water triangle subtraction; no invented water-bed height and no native support relaxation"
+      },
+      "wireRust": {
+        "actualCrateCodecPassed": 9,
+        "actualCrateTransportPassed": 3,
+        "realWebSocketBudgetMeasured": true,
+        "realWebSocketBudgetPassed": true
+      },
+      "postJointMapAndCampaignRegression": {
+        "passed": 25,
+        "failed": 0,
+        "seconds": 124.51,
+        "evidence": "handoff/tests/out/native-multimap-20261025/two-room-korea-regression-attempt1.log",
+        "scope": "One actual native120-ground-unit/two-map concurrent start/motion/resources/shutdown case plus14Korea ground adapter and10campaign cases; contains overlap with the separate joint smoke run; not a full Rust suite"
+      },
+      "wire60FirstActualReleaseAttempt": {
+        "passed": false,
+        "evidence": "handoff/tests/out/frontline-wire-20261025/solo60-2-actual.json",
+        "binarySha256": "2b8b0cb7d7828e70a64d635156c9a7668528007a2bb4a134853ebe3d61e21b63",
+        "nativeGroundUnits": 60,
+        "nativeAircraft": 2,
+        "exactSameTickDecodedPairs": 46,
+        "seconds": 12.255492576,
+        "nativeTickHz": 13.952927549796755,
+        "frameLegacyPayloadBytesPerSecond": 629949.9552648581,
+        "frameWirePayloadBytesPerSecond": 84613.24533219643,
+        "wireOverLegacyRatio": 0.1343174082719339,
+        "framePayloadMeaning": "Actual observer Frame WebSocket payload only, excludes framing/TCP/TLS; reduced traffic does not establish a pass when simulation misses realtime",
+        "failure": "Readonly reset never processed; both Leave commands timed out. Tick thread continuously held/reacquired Hub mutex under native overload. Neither20Hz nor cleanup/read-only-reset acceptance passed. No mixed70-unit or GPU test was started.",
+        "cleanup": "Only isolated QA process314835 was terminated after retained failure evidence; production untouched",
+        "nextFix": "Preserve native120Hz/20Hz targets/population/contacts; replace every-substep full AI target serialization with exact typed kinematics, cache static spatial lookup/radii and release overdue ticker mutex for waiting commands. New release and actual probe required."
+      },
+      "coastMapBackground": {
+        "targetedPassed": 17,
+        "targetedFailed": 0,
+        "evidence": "handoff/tests/out/three-front-native-20261025/map-objective-background-final.log",
+        "scope": "Actual source water rings/holes and standalone Canvas2D source-path tests plus actual drawMap/objective/deployment integration; strategic shoreline source precision retained; no navigation grant"
+      },
+      "nativeHotpathParity": {
+        "passed": 4,
+        "failed": 0,
+        "seconds": 18.28,
+        "sourceAndBoundaryPositions": 29415,
+        "evidence": "handoff/tests/out/native-hotpath-20261025/parity-fairness-attempt1.log",
+        "scope": "Lightweight actual AI target projection/independent Store trajectories, native kinematics/radius bits, exact source candidate/height lookup bits, actual overloaded HTTP/reset/Leave thread behavior"
+      },
+      "nativeHotpathRegression": {
+        "passed": 36,
+        "failed": 0,
+        "seconds": 425.66,
+        "evidence": "handoff/tests/out/native-hotpath-20261025/native-regression-attempt1.log",
+        "scope": "Actual two-map120, full three-front60, physical reinforcements, Korean adapters/campaign and Taiwan slopes/turns/wet decks/source samples. Not final full235-test library run."
+      },
+      "wire60SecondActualReleaseAttempt": {
+        "passed": false,
+        "evidence": "handoff/tests/out/frontline-wire-20261025/solo60-2-attempt2.json",
+        "binarySha256": "45bc27b11ff148e958b71f42a208c2d826697e0a722812371d062bfed3aa3fd6",
+        "scope": "Real native60+2, independent legacy/binary observers, noGPU/Cargo; exact pair/reset/HTTP/Leave worked but realtime remained below threshold",
+        "nativeTickHz": 17.884446334363346,
+        "frameArrivalHz": 4.84028593452953,
+        "realtimeBudget": {
+          "passed": false,
+          "nativeTickHz": 17.884446334363346,
+          "pairedFrameHz": 4.84028593452953,
+          "airClockPerWall": [
+            0.8942156715798504,
+            0.8942156715798504
+          ],
+          "thresholds": {
+            "nativeTickHz": [
+              19,
+              21.5
+            ],
+            "airClockPerWall": [
+              0.95,
+              1.05
+            ],
+            "minimumPairedFrameHz": 18
+          }
+        },
+        "cleanup": {
+          "wire2-native-observer": true,
+          "wire1-native-observer": true
+        },
+        "state": {
+          "wireFull": 2,
+          "wireDelta": 59,
+          "resetRequests": 1,
+          "initialRooms": 0,
+          "finalRooms": 0,
+          "httpRegistry": {
+            "value": {
+              "maps": [
+                {
+                  "id": "korea",
+                  "name": "三八线 · 西中东三线推进战区",
+                  "path": "/frontline/korea.json",
+                  "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+                },
+                {
+                  "id": "taiwan",
+                  "name": "台湾全岛与海峡 · 三线混合作战地理",
+                  "path": "/frontline/taiwan.json",
+                  "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+                }
+              ]
+            },
+            "latencyMs": 234.66287699999998,
+            "bodySha256": "edc02f7b41f2f756d162545cdf97ce2a7ea20eb7fa6997214cf4251ff0569627"
+          }
+        },
+        "error": "AssertionError [ERR_ASSERTION]: Actual native/network realtime budget failed: {\"passed\":false,\"nativeTickHz\":17.884446334363346,\"pairedFrameHz\":4.84028593452953,\"airClockPerWall\":[0.8942156715798504,0.8942156715798504],\"thresholds\":{\"nativeTickHz\":[19,21.5],\"airClockPerWall\":[0.95,1.05],\"minimumPairedFrameHz\":18}}\n    at file:///home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tests/frontline-wire-tick-probe.mjs:152:10\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+        "nextFix": "Profile actual air/ground/serialization stage times and preserve nearest-visible target semantics while avoiding unnecessary LOS queries; do not lower frequency/population or loosen realtime acceptance."
+      },
+      "fineRoadbedCache": {
+        "mapDataChanged": false,
+        "cellMetres": 32,
+        "sourceAuthorCellMetres": 256,
+        "heightFormulaChanged": false,
+        "targetedPassed": 4,
+        "targetedFailed": 0,
+        "queryComparisons": 735048,
+        "outlineSamples": 37932,
+        "evidence": "handoff/tests/out/native-hotpath-20261025/attempt5/result.json",
+        "scope": "Conservative positive-weight candidate/order and exact source height/nav bits, complete native outline/trajectory and60-unit advancement; reduced query candidate count is not population acceptance"
+      },
+      "formalSolo60": {
+        "evidence": "handoff/tests/out/frontline-wire-20261025/attempt5-solo60-2-formal.json",
+        "passed": true,
+        "binarySha256": "916c719e19e139b1052aabec67f0bbf38561525b227b32f6a34aebf266090b67",
+        "nativeTickHz": 19.999810290132842,
+        "frameArrivalHz": 19.833145204381736,
+        "realtimeBudget": {
+          "passed": true,
+          "nativeTickHz": 19.999810290132842,
+          "pairedFrameHz": 19.833145204381736,
+          "airClockPerWall": [
+            0.9999823479174402,
+            0.9999823479174402
+          ],
+          "thresholds": {
+            "nativeTickHz": [
+              19,
+              21.5
+            ],
+            "airClockPerWall": [
+              0.95,
+              1.05
+            ],
+            "minimumPairedFrameHz": 18
+          }
+        },
+        "cleanup": {
+          "wire2-native-observer": true,
+          "wire1-native-observer": true
+        },
+        "state": {
+          "wireFull": 2,
+          "wireDelta": 238,
+          "resetRequests": 1,
+          "initialRooms": 0,
+          "finalRooms": 0,
+          "httpRegistry": {
+            "value": {
+              "maps": [
+                {
+                  "id": "korea",
+                  "name": "三八线 · 西中东三线推进战区",
+                  "path": "/frontline/korea.json",
+                  "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+                },
+                {
+                  "id": "taiwan",
+                  "name": "台湾全岛与海峡 · 三线混合作战地理",
+                  "path": "/frontline/taiwan.json",
+                  "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+                }
+              ]
+            },
+            "latencyMs": 59.54165999999998,
+            "bodySha256": "edc02f7b41f2f756d162545cdf97ce2a7ea20eb7fa6997214cf4251ff0569627"
+          }
+        },
+        "error": null,
+        "scope": "Actual private native world, noGPU/Cargo; all mandatory cadence/clock/identity/HTTP/reset/cleanup gates required. No WAN/mobile/full-round/max-population acceptance."
+      },
+      "formalMixed70FirstHarnessFailure": {
+        "evidence": "handoff/tests/out/frontline-wire-20261025/attempt5-mixed70-3-formal.json",
+        "passed": false,
+        "binarySha256": "916c719e19e139b1052aabec67f0bbf38561525b227b32f6a34aebf266090b67",
+        "nativeTickHz": 18.978998023675526,
+        "frameArrivalHz": 11.214862468535538,
+        "realtimeBudget": {
+          "passed": false,
+          "nativeTickHz": 18.978998023675526,
+          "pairedFrameHz": 11.214862468535538,
+          "airClockPerWall": [
+            0.9489492973065664,
+            0.9489492973065664,
+            0.9489492973065664
+          ],
+          "thresholds": {
+            "nativeTickHz": [
+              19,
+              21.5
+            ],
+            "airClockPerWall": [
+              0.95,
+              1.05
+            ],
+            "minimumPairedFrameHz": 18
+          }
+        },
+        "cleanup": {
+          "wire2-native-pilot": true,
+          "wire2-native-observer": true,
+          "wire1-native-observer": true
+        },
+        "state": {
+          "wireFull": 2,
+          "wireDelta": 14,
+          "resetRequests": 1,
+          "initialRooms": 0,
+          "finalRooms": 0,
+          "httpRegistry": {
+            "value": {
+              "maps": [
+                {
+                  "id": "korea",
+                  "name": "三八线 · 西中东三线推进战区",
+                  "path": "/frontline/korea.json",
+                  "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+                },
+                {
+                  "id": "taiwan",
+                  "name": "台湾全岛与海峡 · 三线混合作战地理",
+                  "path": "/frontline/taiwan.json",
+                  "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+                }
+              ]
+            },
+            "latencyMs": 250.92094600000019,
+            "bodySha256": "edc02f7b41f2f756d162545cdf97ce2a7ea20eb7fa6997214cf4251ff0569627"
+          }
+        },
+        "error": "Error: AssertionError [ERR_ASSERTION]: Readonly resync changed role/control/epoch/company\n+ actual - expected\n... Skipped lines\n\n  [\n    {\n      company: null,\n      controlled: null,\n      epoch: 1,\n...\n        life: 1,\n+       unit: 135\n-       unit: 125\n      },\n+     epoch: 6,\n-     epoch: 3,\n      observer: false,\n      player: 5,\n      team: 'blue'\n    }\n  ]\n\n    at Peer.receive (file:///home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tests/frontline-wire-tick-probe.mjs:108:67)\n    at Peer.ws.onmessage (file:///home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tests/frontline-wire-tick-probe.mjs:83:36)\n    at [nodejs.internal.kHybridDispatch] (node:internal/event_target:843:20)\n    at WebSocket.dispatchEvent (node:internal/event_target:776:26)\n    at fireEvent (node:internal/deps/undici/undici:12005:14)\n    at websocketMessageReceived (node:internal/deps/undici/undici:12027:7)\n    at ByteParser.run (node:internal/deps/undici/undici:12719:19)\n    at ByteParser._write (node:internal/deps/undici/undici:12591:14)\n    at writeOrBuffer (node:internal/streams/writable:572:12)\n    at _write (node:internal/streams/writable:501:10)\n    at file:///home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tests/frontline-wire-tick-probe.mjs:149:87\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+        "scope": "Retained test harness stale observer-role baseline; no production-state mutation was established. Fixed only by a premeasurement readonly snapshot matching the actual pilot life/epoch; all role members retained in equality."
+      },
+      "formalMixed70Retry": {
+        "evidence": "handoff/tests/out/frontline-wire-20261025/attempt5-mixed70-3-formal-retry2.json",
+        "passed": false,
+        "binarySha256": "916c719e19e139b1052aabec67f0bbf38561525b227b32f6a34aebf266090b67",
+        "nativeTickHz": 19.956772066759854,
+        "frameArrivalHz": 15.300191917849222,
+        "realtimeBudget": {
+          "passed": false,
+          "nativeTickHz": 19.956772066759854,
+          "pairedFrameHz": 15.300191917849222,
+          "airClockPerWall": [
+            0.9978301183837357,
+            0.9978301183837357,
+            0.997830286353234
+          ],
+          "thresholds": {
+            "nativeTickHz": [
+              19,
+              21.5
+            ],
+            "airClockPerWall": [
+              0.95,
+              1.05
+            ],
+            "minimumPairedFrameHz": 18
+          }
+        },
+        "cleanup": {
+          "wire2-native-pilot": true,
+          "wire2-native-observer": true,
+          "wire1-native-observer": true
+        },
+        "state": {
+          "wireFull": 3,
+          "wireDelta": 189,
+          "resetRequests": 1,
+          "warmupResetRequests": 1,
+          "initialRooms": 0,
+          "finalRooms": 0,
+          "httpRegistry": {
+            "value": {
+              "maps": [
+                {
+                  "id": "korea",
+                  "name": "三八线 · 西中东三线推进战区",
+                  "path": "/frontline/korea.json",
+                  "sha256": "eb549d736c7dbbd184964aeac6e9188e75e08d90bfc532c34d5f2cf7c55e6861"
+                },
+                {
+                  "id": "taiwan",
+                  "name": "台湾全岛与海峡 · 三线混合作战地理",
+                  "path": "/frontline/taiwan.json",
+                  "sha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499"
+                }
+              ]
+            },
+            "latencyMs": 107.39068499999985,
+            "bodySha256": "edc02f7b41f2f756d162545cdf97ce2a7ea20eb7fa6997214cf4251ff0569627"
+          }
+        },
+        "error": "AssertionError [ERR_ASSERTION]: Actual native/network realtime budget failed: {\"passed\":false,\"nativeTickHz\":19.956772066759854,\"pairedFrameHz\":15.300191917849222,\"airClockPerWall\":[0.9978301183837357,0.9978301183837357,0.997830286353234],\"thresholds\":{\"nativeTickHz\":[19,21.5],\"airClockPerWall\":[0.95,1.05],\"minimumPairedFrameHz\":18}}\n    at file:///home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tests/frontline-wire-tick-probe.mjs:161:10\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)",
+        "scope": "Actual private native world, noGPU/Cargo; all mandatory cadence/clock/identity/HTTP/reset/cleanup gates required. No WAN/mobile/full-round/max-population acceptance."
+      },
+      "parallelNativeGround": {
+        "targetedPassed": 4,
+        "targetedFailed": 0,
+        "unitStepComparisonPairs": 8064,
+        "physicsHz": 120,
+        "sourceUnitOrderPreserved": true,
+        "eventOrderPreserved": true,
+        "evidence": "handoff/tests/out/native-hotpath-20261025/attempt6/result.json",
+        "scope": "Independent per-unit physical updates with fixed pre-step obstacle poses; actual serial/4-worker complete state, collision, damage, trajectory, time and event comparisons; no frequency/contact/population reduction"
+      },
+      "formalCurrentSolo60": {
+        "passed": true,
+        "evidence": "handoff/tests/out/frontline-wire-20261025/attempt6-solo60-2-formal.json",
+        "binarySha256": "c8fea7791e946ac22f751bd235c3b667e094b5f8768483b515a4030620c61b11",
+        "worlds": 1,
+        "gpuBrowsers": 0,
+        "seconds": 12.010714053000001,
+        "nativeTickHz": 20.065418170521156,
+        "frameArrivalHz": 20.065418170521156,
+        "sameTickPairs": 242,
+        "nativeAirTimeAdvance": [
+          12.049900999999998,
+          12.049900999999998
+        ],
+        "realtimeBudget": {
+          "passed": true,
+          "nativeTickHz": 20.065418170521156,
+          "pairedFrameHz": 20.065418170521156,
+          "airClockPerWall": [
+            1.0032626658853983,
+            1.0032626658853983
+          ],
+          "thresholds": {
+            "nativeTickHz": [
+              19,
+              21.5
+            ],
+            "airClockPerWall": [
+              0.95,
+              1.05
+            ],
+            "minimumPairedFrameHz": 18
+          }
+        },
+        "socketBytesPerSecond": {
+          "legacy": 3438769.729582401,
+          "wire": 479206.1901788021
+        },
+        "socketWireOverLegacyRatio": 0.1393539631503608,
+        "cleanup": {
+          "wire2-native-observer": true,
+          "wire1-native-observer": true
+        },
+        "finalRooms": 0,
+        "scope": "Actual private release, complete native60+2 or70+3 including retained company, exact same-tick decoded f64/f32 state/inventory/damage/life; HTTP, readonly reset, role preservation and explicit Leave required. One local short world only; no GPU/WAN/mobile/max humans/240/endurance acceptance."
+      },
+      "formalCurrentMixed70": {
+        "passed": true,
+        "evidence": "handoff/tests/out/frontline-wire-20261025/attempt6-mixed70-3-formal.json",
+        "binarySha256": "c8fea7791e946ac22f751bd235c3b667e094b5f8768483b515a4030620c61b11",
+        "worlds": 1,
+        "gpuBrowsers": 0,
+        "seconds": 12.01956488,
+        "nativeTickHz": 20.050642631915306,
+        "frameArrivalHz": 20.050642631915306,
+        "sameTickPairs": 242,
+        "nativeAirTimeAdvance": [
+          12.049900000000001,
+          12.049900000000001,
+          12.049900000000001
+        ],
+        "realtimeBudget": {
+          "passed": true,
+          "nativeTickHz": 20.050642631915306,
+          "pairedFrameHz": 20.050642631915306,
+          "airClockPerWall": [
+            1.0025238118270385,
+            1.0025238118270385,
+            1.0025238118270385
+          ],
+          "thresholds": {
+            "nativeTickHz": [
+              19,
+              21.5
+            ],
+            "airClockPerWall": [
+              0.95,
+              1.05
+            ],
+            "minimumPairedFrameHz": 18
+          }
+        },
+        "socketBytesPerSecond": {
+          "legacy": 4039854.311825497,
+          "wire": 563600.3946346955
+        },
+        "socketWireOverLegacyRatio": 0.1395100791097638,
+        "cleanup": {
+          "wire2-native-pilot": true,
+          "wire2-native-observer": true,
+          "wire1-native-observer": true
+        },
+        "finalRooms": 0,
+        "scope": "Actual private release, complete native60+2 or70+3 including retained company, exact same-tick decoded f64/f32 state/inventory/damage/life; HTTP, readonly reset, role preservation and explicit Leave required. One local short world only; no GPU/WAN/mobile/max humans/240/endurance acceptance."
+      },
+      "actualGroundBrowserBeforeRenderGate": {
+        "status": "failed",
+        "attempts": [
+          {
+            "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-ground/result.json",
+            "passed": 13,
+            "failure": "Playwright mapcanvas layout stability timed out; player rendering blocked message handling; observer Leave acknowledged, player Leave timeout; both browsers closed"
+          },
+          {
+            "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-ground-retry/result.json",
+            "passed": 13,
+            "failure": "Server accepted map order in23.6ms but active player received it23.26s later; status wait timed out; both browsers closed"
+          }
+        ],
+        "scope": "Actual 60/70-native-unit world; all reached driving but neither complete harness passed. Captures retained only for the first run."
+      },
+      "actualGroundBrowserRenderGate": {
+        "status": "passed",
+        "passed": 21,
+        "failed": 0,
+        "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-ground-render-gate/result.json",
+        "appSha256": "4d4a831f33cbe682fc1c314a0d58064690d1ab2c60e82baa14a2f8af3cabd150",
+        "binarySha256": "c8fea7791e946ac22f751bd235c3b667e094b5f8768483b515a4030620c61b11",
+        "scope": "Actual 60-AI observer/70-tank player world, three friendly sources, ten-member three-platoon deployment, real keyboard drive, map order, foreign/stale rejects, native ammo debit+shot, exact same-tick state and binary full/deltas. Inactive observer drawing paused during player actions; all native WS/input remained live. No screenshots in this functional run. Both Leave ACK and browsers closed. Software visual frame rate remains low and is not performance acceptance.",
+        "mapOrderIssuerRoundTripMs": 98.84992408752441
+      },
+      "fullNodeRenderGateAttempt": {
+        "passed": 297,
+        "failed": 4,
+        "evidence": "handoff/tests/out/three-front-native-20261025/all-node-render-gate.log",
+        "scope": "Interim full run; old reticle/renderer isolated harness contexts lacked new helpers and real terrain extraction used a replaced anchor. Targeted fixture corrections; final full rerun pending."
+      },
+      "actualTaiwanBrowserRenderGate": {
+        "status": "passed",
+        "passed": 13,
+        "failed": 0,
+        "capturesSaved": 2,
+        "capturesTotal": 2,
+        "rootViewedCaptures": true,
+        "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-taiwan-render-gate/result.json",
+        "appSha256": "4d4a831f33cbe682fc1c314a0d58064690d1ab2c60e82baa14a2f8af3cabd150",
+        "scope": "Actual full-island theatre Canvas coastline/land/strait; 60 ground+2 air observer, six sources/fifteen objectives, actual HTTP/room/raw SHA binding, all129 client height probes paired with separately recorded native verification, actual uploaded Float32 deck576 joint/top/shell/water/terrain bytes and absence of bridge earth berm. Native AI and wire full/deltas; Leave ACK/browser close. Root saw material alias stripes and river-edge dark slivers, so functional/source acceptance is not final visual-quality acceptance."
+      },
+      "previousActualServiceBrowser": {
+        "status": "partial_previous_run_then_boot_timeout",
+        "evidence": "handoff/tests/out/frontline-air-service-browser-20261025",
+        "scope": "Previous real15s same-aircraft service6 checks passed, later queued-round assertion fixed; next run boot timeout. Current core213/full-world browser re-run pending."
+      },
+      "canonicalTerrainSeams": {
+        "status": "passed",
+        "passed": 9,
+        "evidence": "handoff/tests/frontline-terrain-geometry.test.mjs",
+        "helperSha256": "185af223408db2355f17a01956374f9b3ad3147c8da2e773fecf65542ec7c737",
+        "scope": "Actual GeoBuilder mixed50/10 and200/25 conforming edges/shared Float32-area normals; synthetic holes plus actual small Korea250m road and150m source-water ROIs. Observed3.6814377m old T-junction gap becomes shared vertex gap0; canonical heights and source JSON/navigation unchanged. Area tinyFloat32 clipping variation .003634m2; normals add0height callbacks. 5km source mesh/GPU budget not implied."
+      },
+      "fullNodeMaterialParallelAttempt": {
+        "passed": 298,
+        "failedTestFiles": 1,
+        "evidence": "handoff/tests/out/three-front-native-20261025/all-node-current-terrain-material.log",
+        "failure": "aircraft-source-internals.test.mjs process SIGKILL; cause not confirmed. Monotonic/wall test span13,545,976ms; do not treat as all-pass or an ordinary benchmark. All subsequent serial checks recorded separately."
+      },
+      "previousFullNodeCurrent": {
+        "passed": 289,
+        "failed": 0,
+        "singleFullRun": true,
+        "evidence": "handoff/tests/out/three-front-native-20261025/all-node-current-coast.log",
+        "appSha256": "350f4ac45f4128aeceba9bf37cd559aa93110e879775baa8d2fe93b292d11fda",
+        "scope": "Actual current app, tracked asset profiles and native model, bridge, source-water cutout, actual sea/land tactical map, decoder and socket adapter checks; no browser/GPU acceptance implied"
+      },
+      "fullCurrentNativeDebugPartial": {
+        "status": "intentionally_interrupted_incomplete",
+        "passedTestsBeforeInterruption": 34,
+        "evidence": "handoff/tests/out/three-front-native-20261025/full-lib-current/run.log",
+        "reason": "Switch complete242-test acceptance to optimized release build matching the measured production hotpath; debug world/wasmi-heavy fixtures are slow. This partial run is neither full-suite pass nor an assertion failure.",
+        "interruptedAtUnix": 1792899551.2533746,
+        "testPid": 580567,
+        "cargoPid": 580547
+      },
+      "fullCurrentNativeRelease": {
+        "status": "passed",
+        "passed": 242,
+        "failed": 0,
+        "ignored": 0,
+        "singleFullRun": true,
+        "profile": "release optimized opt-level3/LTO/codegen1, test-threads1, j2 compilation, diagnostics off",
+        "runSeconds": 132.36,
+        "buildSeconds": 210,
+        "evidence": "handoff/tests/out/three-front-native-20261025/full-lib-current/release-run.log",
+        "inputsBefore": "handoff/tests/out/three-front-native-20261025/full-lib-current/inputs-before.json",
+        "inputsAfter": "handoff/tests/out/three-front-native-20261025/full-lib-current/inputs-after.json",
+        "sourceAndRuntimeDataChanges": [],
+        "actual73CompiledInputChanges": [],
+        "productionReleaseBinaryUnchangedSha256": "c8fea7791e946ac22f751bd235c3b667e094b5f8768483b515a4030620c61b11",
+        "scope": "Complete tg-server library only; physics-cache tests are separately recorded, and full gameplay/population/device endurance is not implied. Subsequent visual-only exporter provenance changes have exact serialized profile-config parity proof."
+      },
+      "actualTaiwanMaterialBrowser": {
+        "status": "passed_with_followup_visual_issue",
+        "passed": 13,
+        "failed": 0,
+        "capturesSaved": 2,
+        "rootViewedCaptures": true,
+        "appSha256": "ee3c44bab5fb600f636f08c4550235623f7c4cf0dce2c1ebfe4dcaff98e11a75",
+        "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-taiwan-material/result.json",
+        "scope": "Same actual native/deck/source geometry13 checks and both screenshots pass. Correct canonical ground material removes prior alias stripes and dark slivers. Root identified white water from legacy transparent kind7 leaving cleared depth; kind22 opaque actual-water depth fix added afterward, actual screenshot still pending."
+      },
+      "previousFullNodeCurrentTerrainMaterial": {
+        "passed": 301,
+        "failed": 0,
+        "singleFullRun": true,
+        "testConcurrency": 1,
+        "maxOldSpaceMb": 1200,
+        "durationSeconds": 55.646367551,
+        "evidence": "handoff/tests/out/three-front-native-20261025/all-node-current-terrain-material-serial.log",
+        "appSha256": "ee3c44bab5fb600f636f08c4550235623f7c4cf0dce2c1ebfe4dcaff98e11a75",
+        "scope": "Complete current301 Node tests, including actual source interiors, controls/gear, native profile projections, wire adapter, source heights/water, actual GeoBuilder conforming seams/normals and source shader material bindings. No device/GPU performance acceptance implied."
+      },
+      "actualTaiwanCurrentWaterDepthBrowser": {
+        "status": "passed",
+        "passed": 13,
+        "failed": 0,
+        "capturesSaved": 2,
+        "capturesTotal": 2,
+        "rootViewedDeckCapture": true,
+        "evidence": "handoff/tests/out/three-front-browser-20261025/attempt6-taiwan-water-depth/result.json",
+        "appSha256": "fe6aec38f5ee85648667f4afdd235d4d797fb7623e76c0b421d69087f26ea875",
+        "scope": "Actual latest source/page/native profile binding, full-island coastline map, source/native-height probes and exact uploaded bridge576/water/canonical terrain bytes. Canonical water is opaque and writes real source surface depth, keeping atmospheric fog finite without inventing a seabed. Root viewed same-angle image: grass alias bands and former river-edge slivers removed, river is blue instead of sky-fog white. Both actual captures saved, Leave ACK/browser closed. Current ground21/service13 functional proof remains recorded at its earlier source revision; latest visual-only fields have unchanged serialized native config proof. Full-world artistic detail/device performance is not certified."
+      },
+      "visualOnlyRuntimeProfileParity": {
+        "evidence": "handoff/tests/out/three-front-native-20261025/full-lib-current/visual-profile-config-parity.json",
+        "aircraft": 26,
+        "serializedRuntimeConfigsUnchanged": true,
+        "changedExportFields": [
+          "source provenance only"
+        ],
+        "note": "Initial read-only raw-object check distinguished in-memory-0 from encodedJSON0; corrected comparison uses the actual exporter JSON encoding boundary. No aircraft data were mutated by the check."
+      },
+      "previousFullNodeCurrentBeforeWrap": {
+        "passed": 302,
+        "failed": 0,
+        "singleFullRun": true,
+        "testConcurrency": 1,
+        "maxOldSpaceMb": 1200,
+        "durationSeconds": 56.83118054,
+        "evidence": "handoff/tests/out/three-front-native-20261025/all-node-current-water-depth-serial.log",
+        "appSha256": "fe6aec38f5ee85648667f4afdd235d4d797fb7623e76c0b421d69087f26ea875",
+        "scope": "Complete current302 Node tests: actual source interiors, gear/control,26 native profiles, wire adapter, source water/canonical terrain, conforming/shared-normal GeoBuilder and actual renderer opaque-water depth ordering. No device/GPU/endurance performance acceptance implied."
+      },
+      "nextStageCurrentTargeted": {
+        "perception": {
+          "passed": 15,
+          "failed": 0,
+          "seconds": 0.05,
+          "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-perception.log"
+        },
+        "facilities": {
+          "passed": 7,
+          "failed": 0,
+          "seconds": 3.94,
+          "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-facilities.log"
+        },
+        "dynamicBridge": {
+          "passed": 7,
+          "failed": 0,
+          "seconds": 6.2,
+          "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-bridges.log"
+        },
+        "optionalGroundSupport": {
+          "passed": 3,
+          "failed": 0,
+          "seconds": 0.34,
+          "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-support.log"
+        }
+      },
+      "prior242AndC8BudgetScope": "Prior242 optimized full run and60+2/70+3 budgets retain frozen source/binary evidence; new perception/ground-support source is not covered by those full-run/performance claims."
+    },
+    "resumedCombined20261025": {
+      "nativeLibrary": {
+        "passed": 282,
+        "log": "handoff/tests/out/three-front-native-20261025/resumed-full-lib-final.log"
+      },
+      "frontend": {
+        "passed": 321,
+        "log": "handoff/tests/out/three-front-native-20261025/resumed-full-node-2.log"
+      },
+      "updater": {
+        "passed": 5,
+        "log": "handoff/tests/out/three-front-native-20261025/resumed-updater-tests.log"
+      },
+      "candidate": "handoff/server/dist/tankforge-combined-20261025/candidate.json",
+      "browserStatus": "passed_47_assertions",
+      "deployed": true,
+      "publicHttpAndWs": "passed",
+      "proof": "handoff/tests/out/combined-release-20261025/published-release.json"
+    }
+  },
+  "remaining": [
+    "Full-roster launch, software/hardware GPU and broad camera/road/water visual quality, full population/endurance/WAN/mobile acceptance beyond the current short native and bounded-client browser proofs",
+    "Temporary bridge placement and broader real-route recovery beyond verified original-bridge repair and safe-prefix approach",
+    "Visible infantry, IFVs/APCs, artillery and air defence; richer support kits and sustained logistics beyond current real tracked conversions",
+    "Taiwan sea transport/beachheads and complete sustained multi-front campaign acceptance beyond current short native ground motion cases",
+    "Automatic next-round reset and complete45–90-minute/full-population endurance acceptance",
+    "Full shared-mode radar/seeker/guided-weapon/CCIP suite; basic aircraft integration does not certify complete avionics/weapons",
+    "Complete historically valid variant/weapon/store/sensor profiles beyond metadata year gates",
+    "Gunpods, rotary-cannon spinup, random dispersion/recoil, asymmetric-store forces and complete mounted weapon behavior need integration/verification",
+    "Aircraft entity collisions, map boundaries, air-AI replenishment and sustained tactics need integration/verification",
+    "8–12 humans/team, up to240 player-company tanks plus60 initial autonomous tanks (300 living ground units before support/aircraft/wrecks/reinforcement entities); actual wire2 bandwidth/tick budget and final performance measurements pending",
+    "Complete mobile gameplay and measured device performance; full-roster boot/GPU capture performance remains unaccepted",
+    "Remaining authorised aircraft hinge/group, landing gear, cockpit/sight, hardpoint and carried-store repairs; preserve actual source interiors"
+  ],
+  "deployedToVps": true,
+  "sharedGroundAirFoundationImplementedLocally": true,
+  "groundHudFeatureCommit": "096f2cffc9e4bb76029d9db5514ec86327a3726c",
+  "clientPoseFixCommit": "422db6b758e18f62c4c7a53f774b83ec5f0c257a",
+  "publishedAircraftRepairs": {
+    "date": "2026-10-25",
+    "reference": "../aircraft/me262-release-20261025.json",
+    "sourceInteriorAudit": "../aircraft/source-interior-audit-20261025.json",
+    "newCombinedModePublished": false
+  },
+  "previousStage20261025BeforeThreeFrontIntegration": {
+    "updatedDate": "2026-10-25",
+    "phase": "local_native_airport_service_and_single_objective_campaign",
+    "featureCommit": "08719fd951464f07ff3d2cccfaff1c52cf45fcdd",
+    "implementationStarted": true,
+    "fullCombinedModeImplemented": false,
+    "deployedToVps": false,
+    "implementedLocally": [
+      "Independent versioned FrontlineHub rooms, observers, participants, companies, UnitRef lives and control epochs; no fake Player AI or personal currency",
+      "One observer can run two native10-tank AI companies; actual native movement, aiming, finite main-gun ammunition, ballistic contacts and existing accepted damage rules",
+      "A ground player deploys one10-tank company with nine AI in three platoons; actual client map orders and keyboard/pointer control",
+      "Ownership/stale-input admission, once-per-life readiness loss, survivor takeover preserving unit position/ammo/damage/reload, and company continuity through disconnect/rejoin",
+      "Actual client rendering/HUD and distance visual LOD while accepted native units remain in the same world",
+      "Aircraft grouped ammunition/store display and labelled current-consumption fuel endurance, including external fuel and engine-off/no-flow display",
+      "Shared native ground/air battle: unchanged flight_core.wasm212, separate Store/Instance per aircraft,24 source-derived type profiles and accepted80-state/48-aero telemetry",
+      "Solo observer runs20 native tanks and2 autonomous aircraft; players can deploy at a runway or farther rear air start in the same world",
+      "Friendly ground Return permits aircraft sortie while the same owned company continues AI execution and accepts authorised map orders",
+      "Finite aircraft guns/stores/fuel and native gun/bomb/rocket projectiles interact with accepted ground and aircraft contacts/damage; reviewed direct/external blast accounting",
+      "Aircraft unit ownership/life/epoch/seq, reconnect/role gates, no surviving-aircraft clone, metadata25-year admission, safe stale inputs, persistent store cooldown and spatial air-start separation",
+      "Native uninterrupted15-second runway service: actual fuel/ammunition/loadout and nonterminal damage restore atomically on the same flight instance; actual pilot input, damage, unavailable host supply or cancellation abort without partial grants",
+      "Campaign rules for owned/supplied objectives, physical ground-contact presence, contest, neutralization before capture, readiness pressure and time-limit result; actual enabled map still has only C2, not complete multiple fronts",
+      "Actual service countdown/start/cancel UI and accepted native repair projection restore original visual nodes without respawn; retained company/aircraft state survives Return/rejoin"
+    ],
+    "koreanRuntime": {
+      "map": "korea",
+      "enabledRoad": "centre:C2-local-test",
+      "enabledLengthMeters": 1800,
+      "enabledObjective": "C2",
+      "enabledStaging": [
+        "B-C2-TEST",
+        "R-C2-TEST"
+      ],
+      "terrain": "Real Korean source elevation plus explicit pads/detail patches and rotated runway grading shared by native and rendered sampling",
+      "limits": "Only Korean C2 and its1.8km ground corridor are enabled. B-E/R-W source-site game expansions have explicitly authored2600m rotated runway/terrain surfaces; this is gameplay construction, not certification of real airport expansion. Complete Korean/Taiwan theatres remain unfinished.",
+      "enabledAirfieldSites": [
+        "B-E",
+        "R-W"
+      ],
+      "runways": {
+        "lengthMeters": 2600,
+        "status": "Explicit game modification/expansion on source airport sites; same canonical rotated visible/physical terrain",
+        "notCertified": "Not real-world airport expansion, historical engineering or complete approach/airport certification"
+      }
+    },
+    "completionBoundary": "Local native ground/air foundation plus airport service and campaign rules only. Full186-test server library and58-test client regression pass; actual service-browser run remains pending. Runtime map still enables only one C2 corridor/objective. Full theatre, forces/logistics/engineering/avionics and population gates remain incomplete.",
+    "publicRuntime": "Published f3/core212 plus20261025 MiG17/F104/optics/ground-AA repair package verified via actual HTTPS gzip hash. Combined-mode native service/campaign/runtime remains local and unpublished.",
+    "validationReference": "validation",
+    "remainingReference": "remaining"
+  },
+  "nativeGameplayGapAudit20261025": {
+    "source": "Current source read-only review by era_roster; no new systems implemented by the audit",
+    "alreadyImplemented": [
+      "Surviving native-unit takeover with retained resources/damage",
+      "Source-constrained return/role switch; original company remains owned and commandable while flying",
+      "45-s actual native reinforcements, maximum3 physical rear replacements per batch"
+    ],
+    "nextDependencies": [
+      "Damageable authoritative bridge/runway/fuel/ammo/repair facilities and reopenable route/support state",
+      "Physical engineers/logistics movement/work to drive service availability; production ServiceAvailability currently all enabled",
+      "Server team-perception/shared sightings/aged last known contacts; current complete frames/map positions expose all enemies",
+      "Full historical variant/store/sensor availability and shared avionics/guided weapons",
+      "Infantry, wheeled IFV/APC and role-aware SPAA/SAM/artillery/support forces",
+      "Air AI mission/RTB/service/replenishment loop; current initial2 use closest-target cannon, release=false",
+      "Automatic next-round reset and actual45–90min/full population/WAN/mobile acceptance"
+    ],
+    "capacityBoundary": "Current12 player companies per team excludes autonomous count: nominal240 player tanks +60 autonomous initial tanks =300 living native ground units, before support/aircraft/wrecks/new reinforcement UnitRefs; current70+3 budget does not certify it."
+  },
+  "userRequestedWrap20261025": {
+    "capturedAtUnix": 1792903803.8288593,
+    "userRequest": "要尽快收尾了 要没额度了",
+    "status": "current_stage_wrapped_further_development_paused_at_user_request",
+    "fullGoalComplete": false,
+    "publicDeployment": "Only the previously verified Me262/source-interior repair is published. No mixed-mode/perception/facility update deployed.",
+    "appSha256": "1a52cb4d9793063002106d680e49373e39a6991f6f5986e8e27e0d00061a6e06",
+    "node": {
+      "passed": 305,
+      "failed": 0,
+      "singleFullRun": true,
+      "concurrency": 1,
+      "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-node.log"
+    },
+    "nativeTargeted": {
+      "perception": {
+        "passed": 15,
+        "failed": 0,
+        "seconds": 0.05,
+        "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-perception.log"
+      },
+      "facilities": {
+        "passed": 7,
+        "failed": 0,
+        "seconds": 3.94,
+        "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-facilities.log"
+      },
+      "dynamicBridge": {
+        "passed": 7,
+        "failed": 0,
+        "seconds": 6.2,
+        "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-bridges.log"
+      },
+      "optionalGroundSupport": {
+        "passed": 3,
+        "failed": 0,
+        "seconds": 0.34,
+        "evidence": "handoff/tests/out/three-front-native-20261025/final-wrap-support.log"
+      }
+    },
+    "nativeFullSuite": "Previous242 full optimized run applies to its frozen prior-stage source; current next-stage changes have compiled all271 server tests and passed29 server+3 physics targeted tests, not a current full271 run.",
+    "implementedButIntegrationUnverified": [
+      "Audience-separated Frame/Snapshot/list/resume/reset projections and enemy public-pose client path are now source-wired and compile/Node checked, but real Hub/WS and latest browser acceptance are outstanding.",
+      "Dynamic bridge/no-support contact passes actual native T72 fall and same-flight-store tests, but live bomb-to-infrastructure production mutation and drowned-vehicle terminal loss are not wired."
+    ],
+    "standalonePending": [
+      "Facility triangle/damage/engineering domain,32bit geometry identity and new runway/blocking API exist; no SimWorld projectile/body/navigation/service/renderer production integration yet.",
+      "No new dynamic runway closure regions were written to MapGround; no physical engineer/logistics actors or live jobs spawned."
+    ],
+    "preservedRemainingScope": [
+      "Real facilities/combat/engineering/logistics and temporary crossings",
+      "Full team-disclosure Hub/WS/browser/endurance verification",
+      "All forces/ground AA/shared avionics/air AI sortie loop/round reset",
+      "Nominal300 living ground before support: full-population,45–90min,WAN/mobile/full-roster performance",
+      "Remaining authorized aircraft verification and repairs"
+    ],
+    "noTestOrGpuProcessesIntentionallyLeftRunning": true,
+    "supersededBy": "resumedCombinedRelease20261025"
+  },
+  "audioU4Release": {
+    "deployed": true,
+    "proof": "handoff/tests/out/me262-u4-audio-20261025/proof.json",
+    "pageSha256": "ba527ed61942697a2da587768820e6dcdf185a67f575b5d6726bd600a7857b4c",
+    "serverRestarted": false
+  },
+  "resumedCombinedRelease20261025": {
+    "published": true,
+    "proof": "handoff/tests/out/combined-release-20261025/published-release.json",
+    "release": "handoff/server/dist/tankforge-combined-20261025/release.json",
+    "completeAdvancedGoal": false
+  }
+}

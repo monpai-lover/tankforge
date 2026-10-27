@@ -1,0 +1,385 @@
+{
+  "schema_version": 1,
+  "asset_id": "ru_pantsir_sm_sv",
+  "status": "provisional_gameplay_estimates",
+  "source_policy": "Visual geometry supplied by source GLB. Armor resistance, internal anatomy, crew layout and all gameplay tuning are authored estimates, not verified vehicle specifications.",
+  "cannon_bores": [
+    {
+      "id": "muzzle_cannon_L1",
+      "parent_node": "CANNON_RECOIL_L",
+      "position_m": [
+        -0.807,
+        2.6730001,
+        3.3250001
+      ],
+      "position_frame": "neutral_world",
+      "position_world_m": [
+        -0.807,
+        2.6730001,
+        3.3250001
+      ],
+      "position_local_m": [
+        0.051,
+        -0.007,
+        3.2750001
+      ],
+      "local_frame": "CANNON_RECOIL_L",
+      "caliber_mm": 30,
+      "cyclic_rpm_per_bore": 1250,
+      "recoil_m": 0.035,
+      "approximate": true
+    },
+    {
+      "id": "muzzle_cannon_L2",
+      "parent_node": "CANNON_RECOIL_L",
+      "position_m": [
+        -0.911,
+        2.6730001,
+        3.3250001
+      ],
+      "position_frame": "neutral_world",
+      "position_world_m": [
+        -0.911,
+        2.6730001,
+        3.3250001
+      ],
+      "position_local_m": [
+        -0.053,
+        -0.007,
+        3.2750001
+      ],
+      "local_frame": "CANNON_RECOIL_L",
+      "caliber_mm": 30,
+      "cyclic_rpm_per_bore": 1250,
+      "recoil_m": 0.035,
+      "approximate": true
+    },
+    {
+      "id": "muzzle_cannon_R1",
+      "parent_node": "CANNON_RECOIL_R",
+      "position_m": [
+        0.787,
+        2.6730001,
+        3.3250001
+      ],
+      "position_frame": "neutral_world",
+      "position_world_m": [
+        0.787,
+        2.6730001,
+        3.3250001
+      ],
+      "position_local_m": [
+        -0.05,
+        -0.007,
+        3.2750001
+      ],
+      "local_frame": "CANNON_RECOIL_R",
+      "caliber_mm": 30,
+      "cyclic_rpm_per_bore": 1250,
+      "recoil_m": 0.035,
+      "approximate": true
+    },
+    {
+      "id": "muzzle_cannon_R2",
+      "parent_node": "CANNON_RECOIL_R",
+      "position_m": [
+        0.891,
+        2.6730001,
+        3.3250001
+      ],
+      "position_frame": "neutral_world",
+      "position_world_m": [
+        0.891,
+        2.6730001,
+        3.3250001
+      ],
+      "position_local_m": [
+        0.054,
+        -0.007,
+        3.2750001
+      ],
+      "local_frame": "CANNON_RECOIL_R",
+      "caliber_mm": 30,
+      "cyclic_rpm_per_bore": 1250,
+      "recoil_m": 0.035,
+      "approximate": true
+    }
+  ],
+  "missile_launcher": {
+    "id": "pantsir_12_tube_estimate",
+    "capacity": 12,
+    "fire_order": [
+      "launch_L1",
+      "launch_R1",
+      "launch_L2",
+      "launch_R2",
+      "launch_L3",
+      "launch_R3",
+      "launch_L4",
+      "launch_R4",
+      "launch_L5",
+      "launch_R5",
+      "launch_L6",
+      "launch_R6"
+    ],
+    "reload_s": 40,
+    "interval_s": 0.6,
+    "reload_policy": "reload only after all 12 tubes consumed; refill requires authoritative ammo event",
+    "sockets": [
+      {
+        "id": "launch_L1",
+        "parent_node": "LAUNCHER_ELEV_L",
+        "position_m": [
+          -1.4500001,
+          2.2,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          -1.4500001,
+          2.2,
+          3.655
+        ],
+        "position_local_m": [
+          -0.1500001,
+          -0.3,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_L"
+      },
+      {
+        "id": "launch_R1",
+        "parent_node": "LAUNCHER_ELEV_R",
+        "position_m": [
+          1.4299999,
+          2.2,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          1.4299999,
+          2.2,
+          3.655
+        ],
+        "position_local_m": [
+          0.15,
+          -0.3,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_R"
+      },
+      {
+        "id": "launch_L2",
+        "parent_node": "LAUNCHER_ELEV_L",
+        "position_m": [
+          -1.17,
+          2.2,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          -1.17,
+          2.2,
+          3.655
+        ],
+        "position_local_m": [
+          0.13,
+          -0.3,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_L"
+      },
+      {
+        "id": "launch_R2",
+        "parent_node": "LAUNCHER_ELEV_R",
+        "position_m": [
+          1.15,
+          2.2,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          1.15,
+          2.2,
+          3.655
+        ],
+        "position_local_m": [
+          -0.13,
+          -0.3,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_R"
+      },
+      {
+        "id": "launch_L3",
+        "parent_node": "LAUNCHER_ELEV_L",
+        "position_m": [
+          -1.4500001,
+          2.52,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          -1.4500001,
+          2.52,
+          3.655
+        ],
+        "position_local_m": [
+          -0.1500001,
+          0.02,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_L"
+      },
+      {
+        "id": "launch_R3",
+        "parent_node": "LAUNCHER_ELEV_R",
+        "position_m": [
+          1.4299999,
+          2.52,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          1.4299999,
+          2.52,
+          3.655
+        ],
+        "position_local_m": [
+          0.15,
+          0.02,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_R"
+      },
+      {
+        "id": "launch_L4",
+        "parent_node": "LAUNCHER_ELEV_L",
+        "position_m": [
+          -1.17,
+          2.52,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          -1.17,
+          2.52,
+          3.655
+        ],
+        "position_local_m": [
+          0.13,
+          0.02,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_L"
+      },
+      {
+        "id": "launch_R4",
+        "parent_node": "LAUNCHER_ELEV_R",
+        "position_m": [
+          1.15,
+          2.52,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          1.15,
+          2.52,
+          3.655
+        ],
+        "position_local_m": [
+          -0.13,
+          0.02,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_R"
+      },
+      {
+        "id": "launch_L5",
+        "parent_node": "LAUNCHER_ELEV_L",
+        "position_m": [
+          -1.4500001,
+          2.8199999,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          -1.4500001,
+          2.8199999,
+          3.655
+        ],
+        "position_local_m": [
+          -0.1500001,
+          0.3199999,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_L"
+      },
+      {
+        "id": "launch_R5",
+        "parent_node": "LAUNCHER_ELEV_R",
+        "position_m": [
+          1.4299999,
+          2.8199999,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          1.4299999,
+          2.8199999,
+          3.655
+        ],
+        "position_local_m": [
+          0.15,
+          0.3199999,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_R"
+      },
+      {
+        "id": "launch_L6",
+        "parent_node": "LAUNCHER_ELEV_L",
+        "position_m": [
+          -1.17,
+          2.8199999,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          -1.17,
+          2.8199999,
+          3.655
+        ],
+        "position_local_m": [
+          0.13,
+          0.3199999,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_L"
+      },
+      {
+        "id": "launch_R6",
+        "parent_node": "LAUNCHER_ELEV_R",
+        "position_m": [
+          1.15,
+          2.8199999,
+          3.655
+        ],
+        "position_frame": "neutral_world",
+        "position_world_m": [
+          1.15,
+          2.8199999,
+          3.655
+        ],
+        "position_local_m": [
+          -0.13,
+          0.3199999,
+          3.405
+        ],
+        "local_frame": "LAUNCHER_ELEV_R"
+      }
+    ],
+    "guidance": "saclos",
+    "guidance_note": "Local engine supported approximation; no claim of authentic Pantsir guidance or proximity fuze"
+  }
+}

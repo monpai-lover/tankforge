@@ -62,7 +62,7 @@ export class Sound {
   resetMissiles() { this.full?.resetMissiles(); }
   mgLoading(m, st, previous) { this.full?.mgLoading(m, st, previous); }
   uiCue(kind) { this.full?.ui(kind); }
-  cancelFull() { for(const voice of [...this.delayedReloads.values()])voice.stop(); this.full?.cancel(); }
+  cancelFull() { for(const voice of [...this.delayedReloads.values()])voice.stop(); this.aircraftShots?.clear(); this.full?.cancel(); }
   cancelOwner(owner) { this.full?.cancelOwner(owner); }
   setFullAudible(on) { this.full?.suspend(!on); }
   dispose() {
@@ -332,6 +332,7 @@ export class Sound {
 
   /** Must be called from a user gesture. */
   start() {
+    if (this.ctx?.state === 'closed') this.ctx = null;
     if (this.ctx) { if(this.ctx.state==='suspended') { try { this.ctx.resume?.()?.catch?.(()=>{}); } catch {} } return; }
     const AC = window.AudioContext || window.webkitAudioContext;
     if (!AC) return;
@@ -426,6 +427,7 @@ export class Sound {
   }
 
   shot(caliber, event) {
+    if (caliber === 50 && event?.weaponId === 'air_cannon' && this.aircraftShots?.play('mk214a', event.eventId, event.position, event.velocity, event.time, event.emitterId)) return;
     if (this.fullOwned) return this.full?.weapon(caliber, event, 'weapon');
     if (!this.ctx) return;
     const slot = caliber < 60 ? 'shot_light' : caliber <= 100 ? 'shot_medium' : 'shot_heavy';

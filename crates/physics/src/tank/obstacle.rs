@@ -85,6 +85,10 @@ pub fn collision_points(gear: &GearGeometry, hull: HullBox) -> Vec<V3> {
 
 /// Pushes the hull out of the boxes; returns how many points touched.
 pub fn apply_obstacles(points: &[V3], body: &mut VehicleRigidBody, boxes: &[Obstacle], dt: f64) -> usize {
+    #[cfg(test)]
+    if cache_tests::oracle_enabled() {
+        return cache_tests::apply_obstacles_uncached(points, body, boxes, dt);
+    }
     if boxes.is_empty() {
         return 0;
     }
@@ -94,14 +98,18 @@ pub fn apply_obstacles(points: &[V3], body: &mut VehicleRigidBody, boxes: &[Obst
     let c = 2.0 * ZETA * (k * mass / 8.0).sqrt();
     let cap = 4.0 * mass * GRAVITY;
     let mut touched = 0;
+    let mut world_points: Option<Vec<V3>> = None;
     for b in boxes {
         let reach = b.hx.hypot(b.hz) + 8.0;
         if (b.x - o[0]).powi(2) + (b.z - o[2]).powi(2) > reach * reach {
             continue;
         }
         let (sn, cs) = b.yaw.sin_cos();
-        for lp in points {
-            let p = body.world_point(*lp);
+        // add_force_at only accumulates force/torque; it changes neither pose
+        // nor velocities. Preserve box/point order and the original transform,
+        // but compute these immutable points once, only after a near box exists.
+        let world_points = world_points.get_or_insert_with(|| points.iter().map(|lp| body.world_point(*lp)).collect());
+        for &p in world_points.iter() {
             if p[1] < b.y0 || p[1] > b.y1 {
                 continue;
             }
@@ -142,3 +150,7 @@ pub fn apply_obstacles(points: &[V3], body: &mut VehicleRigidBody, boxes: &[Obst
     }
     touched
 }
+
+#[cfg(test)]
+#[path = "obstacle_cache_tests.rs"]
+mod cache_tests;

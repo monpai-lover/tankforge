@@ -107,7 +107,7 @@ pub fn track_contacts(ct: &ContactGeometry, cs: &ContactState, body: &VehicleRig
         let base = if side > 0 { 0 } else { per }; let st = &sp.stations[base..base + per];
         if broken[si(side)] {
             for i in 0..per { if ss.load[base + i] > 0.0 {
-                let p = ss.contact[base + i]; let n = ct.ground_normal(cs, body, side, st[i].z);
+                let p = ss.contact[base + i]; if !terrain.has_support(p[0], p[2]) { continue; } let n = ct.ground_normal(cs, body, side, st[i].z);
                 let mut c = Contact::new(p, n, ss.load[base + i], side, Grip::of(terrain.surface(p[0], p[2])), Some(st[i].z));
                 c.wheels = WheelBlend::single(base + i, 1.0); out.push(c);
             }}
@@ -122,7 +122,7 @@ pub fn track_contacts(ct: &ContactGeometry, cs: &ContactState, body: &VehicleRig
             let y = bottom[j] + (if has_b { bottom[j + 1] } else { bottom[j] } - bottom[j]) * u;
             let p = body.world_point([side as f64 * ct.track_x, y, z]);
             let blend = if has_b { WheelBlend::pair(base + j, 1.0 - u, base + j + 1, u) } else { WheelBlend::single(base + j, 1.0) };
-            (p, blend, p[1] <= ground_height(&cs.prof[si(side)], z) + 0.01)
+            (p, blend, ground_height(&cs.prof[si(side)], z).is_some_and(|h| p[1] <= h + 0.01) && terrain.has_support(p[0], p[2]))
         }).collect();
         let weights: Vec<Vec<f64>> = ct.cz.iter().enumerate().map(|(k, z)| st.iter().map(|s| if candidates[k].2 { (1.0 - (z - s.z).abs() / spacing).max(0.0) } else { 0.0 }).collect()).collect();
         let sums: Vec<f64> = (0..per).map(|i| { let t: f64 = weights.iter().map(|row| row[i]).sum(); if t > 0.0 { t } else { 1.0 } }).collect();
@@ -137,10 +137,10 @@ pub fn track_contacts(ct: &ContactGeometry, cs: &ContactState, body: &VehicleRig
     out
 }
 
-fn ground_height(prof: &super::road_wheel::GroundProfile, z: f64) -> f64 {
+fn ground_height(prof: &super::road_wheel::GroundProfile, z: f64) -> Option<f64> {
     let mut k = 1; while k < prof.zs.len() - 1 && prof.zs[k] < z { k += 1; }
     let u = ((z - prof.zs[k - 1]) / (prof.zs[k] - prof.zs[k - 1])).clamp(0.0, 1.0);
-    prof.h[k - 1] + u * (prof.h[k] - prof.h[k - 1])
+    if prof.supported_at(k - 1) && prof.supported_at(k) { Some(prof.h[k - 1] + u * (prof.h[k] - prof.h[k - 1])) } else { None }
 }
 
 fn shear_ratio(slip: f64, k: f64, l: f64) -> f64 {

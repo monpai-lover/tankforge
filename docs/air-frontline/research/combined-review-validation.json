@@ -1,0 +1,22 @@
+{
+  "scope": "Offline combined-mode design preview; no live AI/native combat/network/role-switch implementation proof",
+  "desktop": [
+    1440,
+    1080
+  ],
+  "mobile": [
+    390,
+    844
+  ],
+  "errors": [],
+  "mobileOverflow": false,
+  "checks": [
+    "Actual map pointer gives one selected platoon an intent",
+    "Flying role retains company intent and allows simplified new map order",
+    "Team intents are isolated; all three AI platoons can receive ground follow intent",
+    "Missing west source path disables candidate deployment/command preview instead of inventing a connector",
+    "Terminal front has no invented off-map deployment; restored interior front regains candidate",
+    "Native field profile, source-derived era rows and Taiwan extent comparison display",
+    "Mobile390px has no horizontal overflow"
+  ]
+}

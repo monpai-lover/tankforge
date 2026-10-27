@@ -1,0 +1,65 @@
+{
+ "id": "ru_pantsir_sm_sv",
+ "name": "Pantsir-S1（SM-SV）",
+ "schema_version": 1,
+ "model": "model.json",
+ "files": {
+  "armor": "armor.json",
+  "weapons": "weapons.json",
+  "engine": "engine.json",
+  "crew": "crew.json",
+  "modules": "modules.json",
+  "visual": "visual.json",
+  "surface_armor": "surface_armor.json"
+ },
+ "hull": {
+  "size_m": [
+   3.45,
+   2.45,
+   8.72
+  ],
+  "mass_kg": 30000,
+  "center_of_mass": [
+   0,
+   1.45,
+   -0.3
+  ]
+ },
+ "turret": {
+  "size_m": [
+   3.45,
+   3.0,
+   4.5
+  ],
+  "ring_diameter_m": 1.7,
+  "position_m": [
+   -0.01,
+   1.96,
+   0.86
+  ]
+ },
+ "physics": {
+  "track_width_m": 0.497,
+  "track_length_m": 5.15,
+  "suspension": {
+   "travel_m": 0.24,
+   "stiffness": 170000,
+   "damping": 19000
+  },
+  "rolling_resistance": 0.025,
+  "min_turn_radius_m": 2.6,
+  "max_reverse_speed_ms": 6,
+  "sprocket_radius_m": 0.338,
+  "drivetrain_efficiency": 0.85,
+  "max_brake_decel_ms2": 6.0,
+  "max_turn_rate_deg_s": 32.0
+ },
+ "meta": {
+  "nation": "russia",
+  "based_on": "User-supplied Pantsir SM-SV visual model",
+  "notes": "The user's Pantsir package (Pantsir_TankForge_LowPoly, visual from KojfDiscord's 'Pantsir SM-SV (War Thunder) Ninth Wave', CC BY 4.0) used directly at the user's request: its imported model, joints and data. Armour: the model's own armour triangles (surface_armor.json; thickness, modules, crew, weapons and engine are the package's provisional gameplay estimates). No plates.",
+  "class": "spaa",
+  "outline": "original",
+  "year": 2019
+ }
+}

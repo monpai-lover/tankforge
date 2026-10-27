@@ -1,0 +1,151 @@
+{
+  "before_sha256": "1304af0a8c4a1c5746a658fd43831e759d00af250b345541049180d82a00f49c",
+  "after_sha256": "09697e2abac944f529d7bcffcd7db94df573df0e87749ceae970cbb9ccab4431",
+  "export_sha256": "5067a2a62a093f4f37b9fabf7f889bb85c298d481e7a5bd894b8e8e0a76f0284",
+  "changed_types": [
+    "me262",
+    "me262a2a",
+    "me262u4"
+  ],
+  "preserved_original_type_values": {
+    "nf01": {
+      "bytes": 6778,
+      "sha256": "ea8176d211367204fead483a379b4d8b5986a95f7ea01747189ac60f158685cf"
+    },
+    "nf02": {
+      "bytes": 7753,
+      "sha256": "6f93ebe47059c32a0c9b1fddb1138e11ff5a58689f115b308685defd4d8b6c6c"
+    },
+    "p51d": {
+      "bytes": 7220,
+      "sha256": "d1867707b9b3bc27e28e6a10583f576f29f08caec426b2d4a267ea61fedc94dc"
+    },
+    "bf109g": {
+      "bytes": 6155,
+      "sha256": "a3a5263b052168cbff8a53b7c6ee89b8f3d1525f52b75507265877b50a32b8c2"
+    },
+    "spitfire9": {
+      "bytes": 6378,
+      "sha256": "0e290b6cd38189c7721ba2becf34933fadcbccade6d97d9542bd7a5d941bc879"
+    },
+    "mig15": {
+      "bytes": 6445,
+      "sha256": "ad6215d01065117145abfe28e47794b6e961ddb412f4a27fef0cfe932459b54b"
+    },
+    "f86f": {
+      "bytes": 6983,
+      "sha256": "044a63baf33daa052e78e53253a0eeb44e20c49ff4603482566403d3899835f0"
+    },
+    "f104g": {
+      "bytes": 6416,
+      "sha256": "d0fb71632c8dc7e711ced76c70bdf0158f6996caaf30fa2331a7b30876303f2d"
+    },
+    "mig21": {
+      "bytes": 6294,
+      "sha256": "3a0d7090aa75208217915b755a3d842ab37aade9403f763efb966ecd36007f0e"
+    },
+    "fw190a8": {
+      "bytes": 6731,
+      "sha256": "c7f146bde8845e22414a3d389121b51a2e1b46e279d7fdfa4372e2c1a8f72b32"
+    },
+    "yak9u": {
+      "bytes": 6438,
+      "sha256": "7ed5e0e37d88bf3dd6148ed62b8e4b1193b6963765d9396b9e2bb8d2366021b1"
+    },
+    "a6m2": {
+      "bytes": 6813,
+      "sha256": "860e984abf425fa956e9fc7b25494afdd831e020289d3b3f5743bbb41d56af96"
+    },
+    "f4u1d": {
+      "bytes": 7113,
+      "sha256": "2b08f051a746dee04a8bd269f08e7dd371488298def49f68cff450886e405c5b"
+    },
+    "hunter6": {
+      "bytes": 6777,
+      "sha256": "b674f470a05bcefa4fb327844438ed2ce53c5c1835415764df0b9335203072aa"
+    },
+    "mig17f": {
+      "bytes": 10876,
+      "sha256": "0ea6e183e4704ee4fcccf7796f4554c8592369df66a66c09d3c4f5eadba1a018"
+    },
+    "mirage3e": {
+      "bytes": 5790,
+      "sha256": "f4c824275c944271aba9ba618ebed84ef82cef4d52233ce41b7f5ad6754b3f21"
+    },
+    "f4e": {
+      "bytes": 7206,
+      "sha256": "206ca57f6b97117ad0d5bc36e92a17d7fe86bcc404d0e41d30e6c54b633caa5a"
+    },
+    "f15c": {
+      "bytes": 7086,
+      "sha256": "5d997cbf18a9faa35cc3ac8cd212bcdc2b771bdb7c8e2879c742b5f946a4eb70"
+    },
+    "mig29": {
+      "bytes": 6813,
+      "sha256": "8bc168f171f3759a3dfe7a4420834424df4e8cfda3698b38d1af908ef0a453fe"
+    },
+    "f16v": {
+      "bytes": 6710,
+      "sha256": "7efdcbbd8ab63dce57fe0ba334ca5b23f8a71abc91052fa1b58df4555305d220"
+    },
+    "su27": {
+      "bytes": 6444,
+      "sha256": "22fcbc1cc368cbaa792ace337dc8512fc9f7af1d3492f6c3a753d41a5cb39f78"
+    },
+    "a10a": {
+      "bytes": 7334,
+      "sha256": "79ab12943f10975ba709c035ce61e9d18d6e6d12a73c44cfbd5083dbfa2f9933"
+    },
+    "su25": {
+      "bytes": 6930,
+      "sha256": "aa0143f3d40ca184a1fba52a91999c7f67ed647361416a757633864b40dc9af2"
+    }
+  },
+  "preserved_original_shells": [
+    "bullet:mg34",
+    "hefi_20_sprgr",
+    "apt_20_pzgr39",
+    "bullet:m61a1",
+    "bullet:an_m2",
+    "bullet:mg131",
+    "hei_20_hispano",
+    "hei_23_ofz",
+    "api_23_bza",
+    "he_37_n37",
+    "bullet:m3_50",
+    "he_30_nr30",
+    "bullet:ubs_127",
+    "hei_20_shvak",
+    "bullet:type97_77",
+    "he_20_type99",
+    "he_30_mk108",
+    "he_30_aden",
+    "apt_30_pzgr",
+    "he_30_defa",
+    "hei_30_gsh301",
+    "api_30_pgu14",
+    "hei_30_pgu13"
+  ],
+  "appended_shells": [
+    "ap_50_mk214a"
+  ],
+  "before_types": 24,
+  "after_types": 26,
+  "bytes_preserved": true,
+  "source": {
+    "actualProductionDecoderConstructorAndGunFactory": true,
+    "legacyBoxesNotRenderTriangles": true,
+    "appSha256": "8ae3425a4e618b620cf6b0936713ea83f7b0996d67d2d835edfe8eefaafb5490",
+    "nativeSha256": {
+      "me262": "fd9b7acf1273d1e0c14d2be0785d8293455c1d138cf415f7afb762103c730e88",
+      "me262a2a": "57d18a8ed21112cc1399e02ad0456c07e6a5e32de2e2c11566d10e0d24031a85",
+      "me262u4": "c2160da2187238570e206198ecbe735cabbea1b89401fd7eacd10ce9ec83dad4"
+    },
+    "projectileSourceSha256": {
+      "he_30_mgesch": "a797d6a7252013b93edc4efe656992ad22adb84f23d47015cf8a2b6754e458e8",
+      "apc_50_pzgr39": "494e624055d70d440ba5e722259c0e333dba0044ee1656bb8a5cd0a7d967eb18"
+    },
+    "customLoadouts": "Actual production customLoadout with empty browser storage; no arbitrary unregistered custom configuration implied"
+  },
+  "contact_model": "Existing accepted legacy part/skin AABBs; no render-triangle combat migration"
+}

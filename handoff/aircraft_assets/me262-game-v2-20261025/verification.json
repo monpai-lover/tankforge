@@ -1,0 +1,2421 @@
+{
+  "source_archive_sha256": "30beda948d09760f1af24f0c79314c25923765862f8e6555761dc9fc35fb5f1f",
+  "phase": "source_assets_core213_and_actual_CPU_verified_browser_pending",
+  "native_records": {
+    "me262": {
+      "sha256": "fd9b7acf1273d1e0c14d2be0785d8293455c1d138cf415f7afb762103c730e88",
+      "bytes": 1416408,
+      "source_faces": 58724,
+      "groups": {
+        "body": 7980,
+        "cockpit": 27118,
+        "control": 6935,
+        "crew": 4882,
+        "glass": 427,
+        "internal": 5220,
+        "mount": 1264,
+        "source_excluded": 8,
+        "store": 2256,
+        "wing_l": 1320,
+        "wing_r": 1314
+      }
+    },
+    "me262a2a": {
+      "sha256": "57d18a8ed21112cc1399e02ad0456c07e6a5e32de2e2c11566d10e0d24031a85",
+      "bytes": 1354638,
+      "source_faces": 56350,
+      "groups": {
+        "body": 7718,
+        "cockpit": 27118,
+        "control": 6935,
+        "crew": 4882,
+        "glass": 427,
+        "internal": 4908,
+        "mount": 184,
+        "source_excluded": 8,
+        "store": 1536,
+        "wing_l": 1320,
+        "wing_r": 1314
+      }
+    },
+    "me262u4": {
+      "sha256": "c2160da2187238570e206198ecbe735cabbea1b89401fd7eacd10ce9ec83dad4",
+      "bytes": 1342120,
+      "source_faces": 55424,
+      "groups": {
+        "body": 8768,
+        "cockpit": 27118,
+        "control": 6935,
+        "crew": 4882,
+        "glass": 427,
+        "internal": 4652,
+        "source_excluded": 8,
+        "wing_l": 1320,
+        "wing_r": 1314
+      }
+    }
+  },
+  "source_pose_audit": {
+    "frames": 2058,
+    "passed": true,
+    "face_coverage_exact": true,
+    "variants": [
+      {
+        "type": "me262",
+        "record_sha256": "fd9b7acf1273d1e0c14d2be0785d8293455c1d138cf415f7afb762103c730e88",
+        "source_sha256": "501fa3f895703caba6e6cd03f4e3c9c5068b9c541f91b6423df5d9b985617550",
+        "source_face_coverage_exact": true,
+        "source_faces": 58724,
+        "base_quantization_error_m": 0.0002848983363304048,
+        "clips": [
+          {
+            "clip": "gear_main",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.00038244749642405833,
+            "worst": {
+              "part": "ACT_Main_L_Cylinder::p0::control",
+              "time": 0.9791666666666666
+            }
+          },
+          {
+            "clip": "gear_nose",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.002751783256831848,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 0.47916666666666663
+            }
+          },
+          {
+            "clip": "gear_main_doors",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "gear_nose_door",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "roll",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "pitch",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "yaw",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "flaps",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "slats",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "canopy",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.00028423777160117034,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 1.0
+            }
+          },
+          {
+            "clip": "wheel_spin",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "gear_extend",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.001698739146434393,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 6.166666666666666
+            }
+          },
+          {
+            "clip": "gear_retract",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0016813245900943428,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 5.666666666666666
+            }
+          },
+          {
+            "clip": "gear_cycle",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.001173981614514134,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 14.625
+            }
+          }
+        ],
+        "closed_door_surface_error_m": 0.00858893107764963,
+        "actual_aircraft": {
+          "app_sha256": "8ae3425a4e618b620cf6b0936713ea83f7b0996d67d2d835edfe8eefaafb5490",
+          "actual_decoder": true,
+          "actual_constructor": true,
+          "actual_pose": true,
+          "accepted_state_geometry_fixture": true,
+          "frames": 686,
+          "constructor_triangles": 55196,
+          "full_constructor_triangles": 58716,
+          "stores_mounts_excluded": false,
+          "source_module_nodes": 22,
+          "actual_gun_factory": [
+            {
+              "id": "air_mk108_0",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk108",
+              "belt": [
+                "he_30_mk108"
+              ],
+              "mount": [
+                -0.3019999861717224,
+                0.21199999749660492,
+                3.609999895095825
+              ],
+              "rpm": 650,
+              "ammo": 100,
+              "cool": 0.025733454199427953,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            },
+            {
+              "id": "air_mk108_1",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk108",
+              "belt": [
+                "he_30_mk108"
+              ],
+              "mount": [
+                0.3019999861717224,
+                0.21199999749660492,
+                3.609999895095825
+              ],
+              "rpm": 650,
+              "ammo": 100,
+              "cool": 0.029743006609731417,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            },
+            {
+              "id": "air_mk108_2",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk108",
+              "belt": [
+                "he_30_mk108"
+              ],
+              "mount": [
+                -0.14800000190734863,
+                0.35499998927116394,
+                3.609999895095825
+              ],
+              "rpm": 650,
+              "ammo": 80,
+              "cool": 0.02766257874104179,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            },
+            {
+              "id": "air_mk108_3",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk108",
+              "belt": [
+                "he_30_mk108"
+              ],
+              "mount": [
+                0.14800000190734863,
+                0.35499998927116394,
+                3.609999895095825
+              ],
+              "rpm": 650,
+              "ammo": 80,
+              "cool": 0.001543838206147963,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            }
+          ],
+          "actual_stores": [
+            {
+              "index": 0,
+              "items": [],
+              "nodes": []
+            },
+            {
+              "index": 1,
+              "items": [
+                {
+                  "source": "SOCKET_R4M_L_01",
+                  "origin": [
+                    -2.8950001001358032,
+                    -0.35616667568683624,
+                    -0.25950001180171967
+                  ],
+                  "socket": [
+                    -2.8949999809265137,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_02",
+                  "origin": [
+                    -2.975000023841858,
+                    -0.3479999899864197,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -2.9749999046325684,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_03",
+                  "origin": [
+                    -3.0549999475479126,
+                    -0.3396666646003723,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.055000066757202,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_04",
+                  "origin": [
+                    -3.1350001096725464,
+                    -0.3310000002384186,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.134999990463257,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_05",
+                  "origin": [
+                    -3.215000033378601,
+                    -0.32266665995121,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.2149999141693115,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_06",
+                  "origin": [
+                    -3.2949999570846558,
+                    -0.31466667354106903,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.2950000762939453,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_07",
+                  "origin": [
+                    -3.375,
+                    -0.3071666657924652,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.375,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_08",
+                  "origin": [
+                    -3.4550000429153442,
+                    -0.2993333339691162,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.4549999237060547,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_09",
+                  "origin": [
+                    -3.534999966621399,
+                    -0.291333332657814,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.5350000858306885,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_10",
+                  "origin": [
+                    -3.6149998903274536,
+                    -0.28316666185855865,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.615000009536743,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_11",
+                  "origin": [
+                    -3.6950000524520874,
+                    -0.27550000697374344,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.694999933242798,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_L_12",
+                  "origin": [
+                    -3.774999976158142,
+                    -0.26783332973718643,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    -3.7750000953674316,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_l"
+                },
+                {
+                  "source": "SOCKET_R4M_R_01",
+                  "origin": [
+                    3.774999976158142,
+                    -0.26783332973718643,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.7750000953674316,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_02",
+                  "origin": [
+                    3.6950000524520874,
+                    -0.27550000697374344,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.694999933242798,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_03",
+                  "origin": [
+                    3.6149998903274536,
+                    -0.28316666185855865,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.615000009536743,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_04",
+                  "origin": [
+                    3.534999966621399,
+                    -0.291333332657814,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.5350000858306885,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_05",
+                  "origin": [
+                    3.4550000429153442,
+                    -0.2993333339691162,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.4549999237060547,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_06",
+                  "origin": [
+                    3.375,
+                    -0.3071666657924652,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.375,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_07",
+                  "origin": [
+                    3.2949999570846558,
+                    -0.31466667354106903,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.2950000762939453,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_08",
+                  "origin": [
+                    3.215000033378601,
+                    -0.32266665995121,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.2149999141693115,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_09",
+                  "origin": [
+                    3.1350001096725464,
+                    -0.3310000002384186,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.134999990463257,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_10",
+                  "origin": [
+                    3.0549999475479126,
+                    -0.3396666646003723,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    3.055000066757202,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_11",
+                  "origin": [
+                    2.975000023841858,
+                    -0.3479999899864197,
+                    -0.25966666638851166
+                  ],
+                  "socket": [
+                    2.9749999046325684,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                },
+                {
+                  "source": "SOCKET_R4M_R_12",
+                  "origin": [
+                    2.8950001001358032,
+                    -0.35616667568683624,
+                    -0.25950001180171967
+                  ],
+                  "socket": [
+                    2.8949999809265137,
+                    -0.30000001192092896,
+                    0.15000000596046448
+                  ],
+                  "triangles": 94,
+                  "owner": "wing_r"
+                }
+              ],
+              "nodes": [
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_01",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -2.8949999809265137,
+                    -0.35616666078567505,
+                    -0.25950002670288086,
+                    1
+                  ]
+                },
+                {
+                  "mount": "MOUNT_R4M_WoodRack_L",
+                  "source": null,
+                  "triangles": 632,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.3350000381469727,
+                    -0.2448333352804184,
+                    -0.24149999022483826,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_02",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -2.9749999046325684,
+                    -0.3479999899864197,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_03",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.054999828338623,
+                    -0.3396666646003723,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_04",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.135000228881836,
+                    -0.3310000002384186,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_05",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.2150001525878906,
+                    -0.32266664505004883,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_06",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.2950000762939453,
+                    -0.3146666884422302,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_07",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.375,
+                    -0.3071666657924652,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_08",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.4549999237060547,
+                    -0.2993333339691162,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_09",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.5349998474121094,
+                    -0.29133331775665283,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_10",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.614999771118164,
+                    -0.28316664695739746,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_11",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.695000171661377,
+                    -0.27549999952316284,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_L_12",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -3.7750000953674316,
+                    -0.26783332228660583,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_01",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.7750000953674316,
+                    -0.26783332228660583,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": "MOUNT_R4M_WoodRack_R",
+                  "source": null,
+                  "triangles": 632,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.3350000381469727,
+                    -0.2448333352804184,
+                    -0.24149999022483826,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_02",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.695000171661377,
+                    -0.27549999952316284,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_03",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.614999771118164,
+                    -0.28316664695739746,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_04",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.5349998474121094,
+                    -0.29133331775665283,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_05",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.4549999237060547,
+                    -0.2993333339691162,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_06",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.375,
+                    -0.3071666657924652,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_07",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.2950000762939453,
+                    -0.3146666884422302,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_08",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.2150001525878906,
+                    -0.32266664505004883,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_09",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.135000228881836,
+                    -0.3310000002384186,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_10",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    3.054999828338623,
+                    -0.3396666646003723,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_11",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    2.9749999046325684,
+                    -0.3479999899864197,
+                    -0.25966668128967285,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_R4M_R_12",
+                  "triangles": 94,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    2.8949999809265137,
+                    -0.35616666078567505,
+                    -0.25950002670288086,
+                    1
+                  ]
+                }
+              ]
+            }
+          ],
+          "wing_loss": [
+            {
+              "name": "CTRL_Aileron_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Aileron_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Flap_Inner_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Flap_Outer_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Flap_Inner_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Flap_Outer_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Slat_Inner_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Slat_Outer_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Slat_Inner_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Slat_Outer_R",
+              "owner": "wing_r",
+              "visible": true
+            }
+          ],
+          "actual_native_control_signs": [
+            {
+              "axis": "pitch",
+              "input": -1,
+              "acceptedControl": -0.8750003576278687,
+              "bodyAngularRateDelta": 0.18877626955509186,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": -0.10585470341825043
+            },
+            {
+              "axis": "pitch",
+              "input": 1,
+              "acceptedControl": 0.8750003576278687,
+              "bodyAngularRateDelta": -0.24637877941131592,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": 0.13113968233110052
+            },
+            {
+              "axis": "roll",
+              "input": -1,
+              "acceptedControl": -1,
+              "bodyAngularRateDelta": 2.06876492550774,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": 0.0658054451651724
+            },
+            {
+              "axis": "roll",
+              "input": 1,
+              "acceptedControl": 1,
+              "bodyAngularRateDelta": -2.0687649244983635,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": -0.05163898997889049
+            },
+            {
+              "axis": "yaw",
+              "input": -1,
+              "acceptedControl": -0.7499998211860657,
+              "bodyAngularRateDelta": -0.22675609586578505,
+              "trailingEdgeComponent": 0,
+              "trailingEdgeDeltaM": -0.19227584027163436
+            },
+            {
+              "axis": "yaw",
+              "input": 1,
+              "acceptedControl": 0.7499998211860657,
+              "bodyAngularRateDelta": 0.2267560959066759,
+              "trailingEdgeComponent": 0,
+              "trailingEdgeDeltaM": 0.19259425925404694
+            }
+          ],
+          "bind_upload_error_m": 0.00028490926057069444,
+          "clip_maximum_errors_m": {
+            "gear_main": 0.0003824553069908654,
+            "gear_nose": 0.0027517810980332937,
+            "gear_main_doors": 0.0002842208721513263,
+            "gear_nose_door": 0.0002842208721513263,
+            "roll": 0.0002842208721513263,
+            "pitch": 0.0002842208721513263,
+            "yaw": 0.0002842208721513263,
+            "flaps": 0.0002842208721513263,
+            "slats": 0.0002842208721513263,
+            "canopy": 0.0002842351714718086,
+            "wheel_spin": 0.0002842208721513263,
+            "gear_extend": 0.0016987417148593793,
+            "gear_retract": 0.00168132585818584,
+            "gear_cycle": 0.0011739858231666269
+          },
+          "wheel_contacts": [
+            {
+              "name": "control:33:CTRL_Wheel_Main_L",
+              "minimum_world_y": -4.98814290709193e-05
+            },
+            {
+              "name": "control:34:CTRL_Wheel_Main_R",
+              "minimum_world_y": -4.98814290709193e-05
+            },
+            {
+              "name": "control:35:CTRL_Wheel_Nose",
+              "minimum_world_y": -4.944063802547749e-05
+            }
+          ],
+          "passed": true
+        },
+        "passed": true
+      },
+      {
+        "type": "me262a2a",
+        "record_sha256": "57d18a8ed21112cc1399e02ad0456c07e6a5e32de2e2c11566d10e0d24031a85",
+        "source_sha256": "ab2bafe6b94cf0b0edc739b06c8c17b53dad174b5a473e46768b4207c2057a48",
+        "source_face_coverage_exact": true,
+        "source_faces": 56350,
+        "base_quantization_error_m": 0.0002848983363304048,
+        "clips": [
+          {
+            "clip": "gear_main",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.00038244749642405833,
+            "worst": {
+              "part": "ACT_Main_L_Cylinder::p0::control",
+              "time": 0.9791666666666666
+            }
+          },
+          {
+            "clip": "gear_nose",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.002751783256831848,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 0.47916666666666663
+            }
+          },
+          {
+            "clip": "gear_main_doors",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "gear_nose_door",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "roll",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "pitch",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "yaw",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "flaps",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "slats",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "canopy",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.00028423777160117034,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 1.0
+            }
+          },
+          {
+            "clip": "wheel_spin",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "gear_extend",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.001698739146434393,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 6.166666666666666
+            }
+          },
+          {
+            "clip": "gear_retract",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0016813245900943428,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 5.666666666666666
+            }
+          },
+          {
+            "clip": "gear_cycle",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.001173981614514134,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 14.625
+            }
+          }
+        ],
+        "closed_door_surface_error_m": 0.00858893107764963,
+        "actual_aircraft": {
+          "app_sha256": "8ae3425a4e618b620cf6b0936713ea83f7b0996d67d2d835edfe8eefaafb5490",
+          "actual_decoder": true,
+          "actual_constructor": true,
+          "actual_pose": true,
+          "accepted_state_geometry_fixture": true,
+          "frames": 686,
+          "constructor_triangles": 54622,
+          "full_constructor_triangles": 56342,
+          "stores_mounts_excluded": false,
+          "source_module_nodes": 18,
+          "actual_gun_factory": [
+            {
+              "id": "air_mk108_0",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk108",
+              "belt": [
+                "he_30_mk108"
+              ],
+              "mount": [
+                -0.3019999861717224,
+                0.21199999749660492,
+                3.609999895095825
+              ],
+              "rpm": 650,
+              "ammo": 100,
+              "cool": 0.010053674568914473,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            },
+            {
+              "id": "air_mk108_1",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk108",
+              "belt": [
+                "he_30_mk108"
+              ],
+              "mount": [
+                0.3019999861717224,
+                0.21199999749660492,
+                3.609999895095825
+              ],
+              "rpm": 650,
+              "ammo": 100,
+              "cool": 0.0038487899937426407,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            }
+          ],
+          "actual_stores": [
+            {
+              "index": 0,
+              "items": [],
+              "nodes": []
+            },
+            {
+              "index": 1,
+              "items": [
+                {
+                  "source": "SOCKET_BombRelease_L",
+                  "origin": [
+                    -0.4599999785423279,
+                    -0.9289999902248383,
+                    2.6399999856948853
+                  ],
+                  "socket": [
+                    -0.46000000834465027,
+                    -0.9399999976158142,
+                    2.640000104904175
+                  ],
+                  "triangles": 768,
+                  "owner": "body"
+                },
+                {
+                  "source": "SOCKET_BombRelease_R",
+                  "origin": [
+                    0.4599999785423279,
+                    -0.9289999902248383,
+                    2.6399999856948853
+                  ],
+                  "socket": [
+                    0.46000000834465027,
+                    -0.9399999976158142,
+                    2.640000104904175
+                  ],
+                  "triangles": 768,
+                  "owner": "body"
+                }
+              ],
+              "nodes": [
+                {
+                  "mount": null,
+                  "source": "SOCKET_BombRelease_L",
+                  "triangles": 768,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -0.4599999785423279,
+                    -0.9290000200271606,
+                    2.6399998664855957,
+                    1
+                  ]
+                },
+                {
+                  "mount": "MOUNT_Wikingerschiff_L",
+                  "source": null,
+                  "triangles": 92,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    -0.46016666293144226,
+                    -0.5600000023841858,
+                    2.640000104904175,
+                    1
+                  ]
+                },
+                {
+                  "mount": null,
+                  "source": "SOCKET_BombRelease_R",
+                  "triangles": 768,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0.4599999785423279,
+                    -0.9290000200271606,
+                    2.6399998664855957,
+                    1
+                  ]
+                },
+                {
+                  "mount": "MOUNT_Wikingerschiff_R",
+                  "source": null,
+                  "triangles": 92,
+                  "local": [
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0,
+                    0,
+                    0,
+                    1,
+                    0,
+                    0.46016666293144226,
+                    -0.5600000023841858,
+                    2.640000104904175,
+                    1
+                  ]
+                }
+              ]
+            }
+          ],
+          "wing_loss": [
+            {
+              "name": "CTRL_Aileron_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Aileron_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Flap_Inner_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Flap_Outer_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Flap_Inner_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Flap_Outer_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Slat_Inner_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Slat_Outer_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Slat_Inner_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Slat_Outer_R",
+              "owner": "wing_r",
+              "visible": true
+            }
+          ],
+          "actual_native_control_signs": [
+            {
+              "axis": "pitch",
+              "input": -1,
+              "acceptedControl": -0.8750003576278687,
+              "bodyAngularRateDelta": 0.18877626955509186,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": -0.10585470341825043
+            },
+            {
+              "axis": "pitch",
+              "input": 1,
+              "acceptedControl": 0.8750003576278687,
+              "bodyAngularRateDelta": -0.24637877941131592,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": 0.13113968233110052
+            },
+            {
+              "axis": "roll",
+              "input": -1,
+              "acceptedControl": -1,
+              "bodyAngularRateDelta": 2.06876492550774,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": 0.0658054451651724
+            },
+            {
+              "axis": "roll",
+              "input": 1,
+              "acceptedControl": 1,
+              "bodyAngularRateDelta": -2.0687649244983635,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": -0.05163898997889049
+            },
+            {
+              "axis": "yaw",
+              "input": -1,
+              "acceptedControl": -0.7499998211860657,
+              "bodyAngularRateDelta": -0.22675609586578505,
+              "trailingEdgeComponent": 0,
+              "trailingEdgeDeltaM": -0.19227584027163436
+            },
+            {
+              "axis": "yaw",
+              "input": 1,
+              "acceptedControl": 0.7499998211860657,
+              "bodyAngularRateDelta": 0.2267560959066759,
+              "trailingEdgeComponent": 0,
+              "trailingEdgeDeltaM": 0.19259425925404694
+            }
+          ],
+          "bind_upload_error_m": 0.00028490926057069444,
+          "clip_maximum_errors_m": {
+            "gear_main": 0.0003824553069908654,
+            "gear_nose": 0.0027517810980332937,
+            "gear_main_doors": 0.0002842208721513263,
+            "gear_nose_door": 0.0002842208721513263,
+            "roll": 0.0002842208721513263,
+            "pitch": 0.0002842208721513263,
+            "yaw": 0.0002842208721513263,
+            "flaps": 0.0002842208721513263,
+            "slats": 0.0002842208721513263,
+            "canopy": 0.0002842351714718086,
+            "wheel_spin": 0.0002842208721513263,
+            "gear_extend": 0.0016987417148593793,
+            "gear_retract": 0.00168132585818584,
+            "gear_cycle": 0.0011739858231666269
+          },
+          "wheel_contacts": [
+            {
+              "name": "control:33:CTRL_Wheel_Main_L",
+              "minimum_world_y": -4.98814290709193e-05
+            },
+            {
+              "name": "control:34:CTRL_Wheel_Main_R",
+              "minimum_world_y": -4.98814290709193e-05
+            },
+            {
+              "name": "control:35:CTRL_Wheel_Nose",
+              "minimum_world_y": -4.944063802547749e-05
+            }
+          ],
+          "passed": true
+        },
+        "passed": true
+      },
+      {
+        "type": "me262u4",
+        "record_sha256": "c2160da2187238570e206198ecbe735cabbea1b89401fd7eacd10ce9ec83dad4",
+        "source_sha256": "122deddc160ad0070d63efa8084180dd00aacd50358b4bf3576201b642a3cad2",
+        "source_face_coverage_exact": true,
+        "source_faces": 55424,
+        "base_quantization_error_m": 0.0002848983363304048,
+        "clips": [
+          {
+            "clip": "gear_main",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.00038244749642405833,
+            "worst": {
+              "part": "ACT_Main_L_Cylinder::p0::control",
+              "time": 0.9791666666666666
+            }
+          },
+          {
+            "clip": "gear_nose",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.002751783256831848,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 0.47916666666666663
+            }
+          },
+          {
+            "clip": "gear_main_doors",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "gear_nose_door",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "roll",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "pitch",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "yaw",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "flaps",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "slats",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "canopy",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.00028423777160117034,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 1.0
+            }
+          },
+          {
+            "clip": "wheel_spin",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0002842290392012457,
+            "worst": {
+              "part": "GLASS_Canopy_Moving::p0::glass",
+              "time": 0.0
+            }
+          },
+          {
+            "clip": "gear_extend",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.001698739146434393,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 6.166666666666666
+            }
+          },
+          {
+            "clip": "gear_retract",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.0016813245900943428,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 5.666666666666666
+            }
+          },
+          {
+            "clip": "gear_cycle",
+            "samples": 49,
+            "maximum_triangle_vertex_error_m": 0.001173981614514134,
+            "worst": {
+              "part": "ACT_Nose_Cylinder::p0::control",
+              "time": 14.625
+            }
+          }
+        ],
+        "closed_door_surface_error_m": 0.00858893107764963,
+        "actual_aircraft": {
+          "app_sha256": "8ae3425a4e618b620cf6b0936713ea83f7b0996d67d2d835edfe8eefaafb5490",
+          "actual_decoder": true,
+          "actual_constructor": true,
+          "actual_pose": true,
+          "accepted_state_geometry_fixture": true,
+          "frames": 686,
+          "constructor_triangles": 55416,
+          "full_constructor_triangles": 55416,
+          "stores_mounts_excluded": false,
+          "source_module_nodes": 15,
+          "actual_gun_factory": [
+            {
+              "id": "air_mk214a_0",
+              "owner": "body",
+              "kind": "cannon",
+              "sound": "mk214a",
+              "belt": [
+                "ap_50_mk214a"
+              ],
+              "mount": [
+                0,
+                0.1899999976158142,
+                6.224999904632568
+              ],
+              "rpm": 150,
+              "ammo": 32,
+              "cool": 0.04124055908649069,
+              "fired": 0,
+              "rotary": null,
+              "spin": 0
+            }
+          ],
+          "actual_stores": [
+            {
+              "index": 0,
+              "items": [],
+              "nodes": []
+            },
+            {
+              "index": 1,
+              "items": [],
+              "nodes": []
+            }
+          ],
+          "wing_loss": [
+            {
+              "name": "CTRL_Aileron_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Aileron_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Flap_Inner_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Flap_Outer_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Flap_Inner_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Flap_Outer_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Slat_Inner_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Slat_Outer_L",
+              "owner": "wing_l",
+              "visible": false
+            },
+            {
+              "name": "CTRL_Slat_Inner_R",
+              "owner": "wing_r",
+              "visible": true
+            },
+            {
+              "name": "CTRL_Slat_Outer_R",
+              "owner": "wing_r",
+              "visible": true
+            }
+          ],
+          "actual_native_control_signs": [
+            {
+              "axis": "pitch",
+              "input": -1,
+              "acceptedControl": -0.8750003576278687,
+              "bodyAngularRateDelta": 0.18877626955509186,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": -0.10585470341825043
+            },
+            {
+              "axis": "pitch",
+              "input": 1,
+              "acceptedControl": 0.8750003576278687,
+              "bodyAngularRateDelta": -0.24637877941131592,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": 0.13113968233110052
+            },
+            {
+              "axis": "roll",
+              "input": -1,
+              "acceptedControl": -1,
+              "bodyAngularRateDelta": 2.06876492550774,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": 0.0658054451651724
+            },
+            {
+              "axis": "roll",
+              "input": 1,
+              "acceptedControl": 1,
+              "bodyAngularRateDelta": -2.0687649244983635,
+              "trailingEdgeComponent": 1,
+              "trailingEdgeDeltaM": -0.05163898997889049
+            },
+            {
+              "axis": "yaw",
+              "input": -1,
+              "acceptedControl": -0.7499998211860657,
+              "bodyAngularRateDelta": -0.22675609586578505,
+              "trailingEdgeComponent": 0,
+              "trailingEdgeDeltaM": -0.19227584027163436
+            },
+            {
+              "axis": "yaw",
+              "input": 1,
+              "acceptedControl": 0.7499998211860657,
+              "bodyAngularRateDelta": 0.2267560959066759,
+              "trailingEdgeComponent": 0,
+              "trailingEdgeDeltaM": 0.19259425925404694
+            }
+          ],
+          "bind_upload_error_m": 0.00028490926057069444,
+          "clip_maximum_errors_m": {
+            "gear_main": 0.0003824553069908654,
+            "gear_nose": 0.0027517810980332937,
+            "gear_main_doors": 0.0002842208721513263,
+            "gear_nose_door": 0.0002842208721513263,
+            "roll": 0.0002842208721513263,
+            "pitch": 0.0002842208721513263,
+            "yaw": 0.0002842208721513263,
+            "flaps": 0.0002842208721513263,
+            "slats": 0.0002842208721513263,
+            "canopy": 0.0002842351714718086,
+            "wheel_spin": 0.0002842208721513263,
+            "gear_extend": 0.0016987417148593793,
+            "gear_retract": 0.00168132585818584,
+            "gear_cycle": 0.0011739858231666269
+          },
+          "wheel_contacts": [
+            {
+              "name": "control:33:CTRL_Wheel_Main_L",
+              "minimum_world_y": -4.98814290709193e-05
+            },
+            {
+              "name": "control:34:CTRL_Wheel_Main_R",
+              "minimum_world_y": -4.98814290709193e-05
+            },
+            {
+              "name": "control:35:CTRL_Wheel_Nose",
+              "minimum_world_y": -4.944063802547749e-05
+            }
+          ],
+          "passed": true
+        },
+        "passed": true
+      }
+    ]
+  },
+  "nose_door_tire_sweep": {
+    "method": "Finite original door triangle edges vs original tire indexed triangles in both directions,147 sourceclip frames; coplanar/grazing contact excluded",
+    "source_max": 0,
+    "repaired_max": 0
+  },
+  "core213": {
+    "passed": true,
+    "coreVersion": 213,
+    "wasmSha256": "2450d4ebb7f73f3a155a5bc2a312558e241a511146f81f02f922122eb232568e",
+    "baseline212Sha256": "a52a939b991eee2ac7c64f2a3aabb6b5ab7f69142d4bd887e2fc12bc268d1342",
+    "checks": [
+      {
+        "name": "mode0 exact core212 parity",
+        "profiles": 3,
+        "scenarios": 3,
+        "ticks": 8640,
+        "floats": 1105920,
+        "maximumError": 0
+      },
+      {
+        "name": "accepted7.75s extension/8s retraction phases and physical scalar",
+        "points": [
+          {
+            "time": 1,
+            "axes": [
+              0,
+              0.9999994039535522,
+              0,
+              0
+            ],
+            "effectiveGear": 0
+          },
+          {
+            "time": 4,
+            "axes": [
+              0.9999967217445374,
+              1,
+              0,
+              0
+            ],
+            "effectiveGear": 0.4999983608722687
+          },
+          {
+            "time": 4.75,
+            "axes": [
+              1,
+              1,
+              0,
+              0.9999881982803345
+            ],
+            "effectiveGear": 0.5
+          },
+          {
+            "time": 7.75,
+            "axes": [
+              1,
+              1,
+              0.9999939799308777,
+              1
+            ],
+            "effectiveGear": 0.9999970197677612
+          },
+          {
+            "time": 7.766666666666667,
+            "axes": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "effectiveGear": 1
+          },
+          {
+            "retractionTime": 3,
+            "axes": [
+              3.0766241252422333e-06,
+              1,
+              1,
+              1
+            ],
+            "effectiveGear": 0.5000015497207642
+          },
+          {
+            "retractionTime": 4,
+            "axes": [
+              0,
+              9.855255484580994e-06,
+              1,
+              1
+            ],
+            "effectiveGear": 0.5
+          },
+          {
+            "retractionTime": 7,
+            "axes": [
+              0,
+              0,
+              6.354879587888718e-06,
+              1
+            ],
+            "effectiveGear": 3.177439793944359e-06
+          },
+          {
+            "retractionTime": 8,
+            "axes": [
+              0,
+              0,
+              0,
+              1.9690021872520447e-05
+            ],
+            "effectiveGear": 0
+          },
+          {
+            "retractionTime": 8.016666666666666,
+            "axes": [
+              0,
+              0,
+              0,
+              0
+            ],
+            "effectiveGear": 0
+          }
+        ]
+      },
+      {
+        "name": "arbitrary reversals preserve clearance and bounded actual movement",
+        "ticks": 4800,
+        "toggles": 36
+      },
+      {
+        "name": "mass reconfiguration continuity, no cross-type/new-spawn state, endpoint reset",
+        "before": [
+          1,
+          1,
+          0.2222195267677307,
+          1
+        ],
+        "after": [
+          0.9972222447395325,
+          1,
+          0.2222195267677307,
+          1
+        ]
+      },
+      {
+        "name": "finite timing/input boundaries and explicit mode0 disable"
+      },
+      {
+        "name": "real terrain touchdown rejects unlocked nose despite average>.9 and accepts both locked",
+        "landings": [
+          {
+            "axes": [
+              1,
+              1,
+              0.8833282589912415,
+              1
+            ],
+            "effectiveGear": 0.9416640996932983,
+            "sink": 0,
+            "pitch": -1.3468784345604945e-06,
+            "bank": 2.1073507383562173e-08,
+            "crashed": 1
+          },
+          {
+            "axes": [
+              1,
+              1,
+              1,
+              1
+            ],
+            "effectiveGear": 1,
+            "sink": 0,
+            "pitch": -1.1573306437639985e-06,
+            "bank": 2.4328665304551578e-08,
+            "crashed": 0
+          }
+        ]
+      }
+    ]
+  },
+  "remaining": [
+    "Root final public/offline browser review and authoritative gameplay end-to-end release",
+    "Full combined-mode service/campaign integration validation is independent of this asset update",
+    "No visible-triangle combat migration claimed"
+  ],
+  "corrected_glbs": [
+    {
+      "filename": "me262_a1a.glb",
+      "bytes": 15501484,
+      "sha256": "4b81288de0cd278dfede9022a8026973777d9571e1b4f3636862272fafd848ca"
+    },
+    {
+      "filename": "me262_a1a_r4m.glb",
+      "bytes": 15668584,
+      "sha256": "b2bdc3affd25613585afd52448658d8f8464e2efed89a0f47b1b4a3ea525a826"
+    },
+    {
+      "filename": "me262_a1a_u4.glb",
+      "bytes": 15431928,
+      "sha256": "249efd5cc17cc26d34d145d79e47e87e12b07fa02f2a1716e1d20530c52d6f7c"
+    },
+    {
+      "filename": "me262_a2a_2x250.glb",
+      "bytes": 15509652,
+      "sha256": "55764ac8a0e36adcb43ce1bba30330d551000e1600cac770e07af9b411baa55c"
+    }
+  ],
+  "catalog": {
+    "local_fullmode_sha256": "c305303787c7a14a098b02270d17c46429bfa463c8cf6412910df2a142a5fbbc",
+    "public_candidate_sha256": "09697e2abac944f529d7bcffcd7db94df573df0e87749ceae970cbb9ccab4431",
+    "public_baseline_sha256": "1304af0a8c4a1c5746a658fd43831e759d00af250b345541049180d82a00f49c",
+    "new_shell_game_profile": "MK214A reuses registered50mmPzgr39 APC ballistics with inherited17gPETN; not historicalMK214 ammunition certification",
+    "legacy_existing_binary_preflight": {
+      "passed": true,
+      "existing_binary_sha256": "1cc923ce8707cff1f8d499f6963b7387dfc2aa92664f36dfa416d14fab667dce",
+      "catalog_sha256": "09697e2abac944f529d7bcffcd7db94df573df0e87749ceae970cbb9ccab4431",
+      "existing_service_untouched": true,
+      "temporary_private_process": true,
+      "loaded_types": 26,
+      "network": {
+        "actualWebSocket": true,
+        "results": [
+          {
+            "aircraft": "me262a2a",
+            "accepted": true,
+            "loadout": 0
+          },
+          {
+            "aircraft": "me262u4",
+            "accepted": true,
+            "loadout": 0
+          }
+        ]
+      },
+      "server_log": "\u8b66\u544a:/tmp/tf-me262-catalog-rxehzoe9 \u88e1\u6c92\u6709\u8eca\u8f1b\u8cc7\u6599,\u4efb\u4f55\u8eca\u8f1b id \u90fd\u6703\u88ab\u63a5\u53d7\nTankForge \u806f\u6a5f\u4f3a\u670d\u5668:http://127.0.0.1:32773/ (WebSocket /ws)\n  0 \u7a2e\u70ae\u5f48\u30010 \u53f0\u8eca\u3001\u5730\u5716:range\n  \u640d\u50b7\u6a21\u578b:0 \u53f0\u8eca\u7684\u88dd\u7532/\u6a21\u7d44/\u4e58\u54e1\u30010 \u7a2e\u70ae\u5f48\u30010 \u7a2e\u6a5f\u69cd\u5f48\n  \u98db\u6a5f:26 \u578b\uff08\u4f3a\u670d\u5668\u5224\u5b9a\u6bc0\u50b7\uff09\n  (\u627e\u4e0d\u5230 /tmp/tf-me262-catalog-rxehzoe9/no-page.html,/ \u4e0d\u63d0\u4f9b\u904a\u6232\u9801\u9762;\u53ef\u76f4\u63a5\u958b\u672c\u6a5f\u7684 HTML \u518d\u9023\u9032\u4f86)\n",
+      "scope": "Legacy catalog schema and actual deploy_air dynamic type lookup only; not combined mode or render-triangle combat"
+    }
+  }
+}

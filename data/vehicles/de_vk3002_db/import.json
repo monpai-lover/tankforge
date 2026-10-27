@@ -1,0 +1,30 @@
+{
+ "glb": "/tmp/claude-1002/-home-boyang-Desktop-worldbox-tankforge--claude-worktrees-vibrant-montalcini-9ac9d6/f38c4d90-9319-432e-946b-685ebd421111/scratchpad/vk3002_src/VK3002_DB.glb",
+ "source": "VK 30.02 (DB): the user's own model (VK3002_DB_armor_v1_4.html, visual geometry v1.3 with v1.4 armour metadata), used with the user's permission",
+ "mirror_x": false,
+ "offset": [
+  0,
+  0,
+  0
+ ],
+ "drop_nodes": [
+  "Tracks_Left",
+  "Tracks_Right"
+ ],
+ "turret_nodes": [
+  "Turret_Yaw"
+ ],
+ "gun_nodes": [
+  "Gun_Elevation"
+ ],
+ "barrel_meshes": [
+  16
+ ],
+ "barrel_min_length": 2.5,
+ "barrel_ahead_z": 2.2,
+ "normal_maps": true,
+ "textures": {
+  "0": 1024,
+  "14": 1024
+ }
+}

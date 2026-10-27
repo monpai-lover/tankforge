@@ -1,0 +1,1236 @@
+{
+  "schemaVersion": 1,
+  "documentId": "combined-frontline-server-entity-contract",
+  "status": "proposed_not_implemented",
+  "gameplayImplementationStartedByThisDocument": false,
+  "purpose": "Define the server-owned world, control transitions and actual client/server integration needed for a playable shared tank-company and aircraft frontline battle.",
+  "sourceBasis": {
+    "reviewDate": "2026-10-24",
+    "reviewedDesignCommit": "64693fa",
+    "implementationBase": "f3c6d88 or a newer verified aircraft repair commit",
+    "implementationBaseWorktree": "/home/boyang/Desktop/worldbox/tankforge-jet-fixes",
+    "designWorktree": "/home/boyang/Desktop/worldbox/tankforge-air-frontline",
+    "requirements": "docs/air-frontline/combined-mode-design.json",
+    "instructions": [
+      "AGENTS.md",
+      "docs/hitbox-conventions.md"
+    ],
+    "verifiedServerSourceParity": "git diff f3c6d88 for the reviewed lobby, server, ammunition, gameplay, aircraft, missile and shot-flight source files was empty. Bundle line numbers below refer to design commit 64693fa; f3c6d88 contains newer client aircraft repairs and different later line numbers.",
+    "releaseBoundary": "Bring reviewed design documents into a new implementation worktree based on the verified repair. Do not deploy this older design worktree's core 211 or copy the repair worktree's uncommitted MiG-15 tooling.",
+    "evidenceLimit": "Read-only source review. No running two-client combined scenario, load benchmark, new game code or deployment is produced by this contract."
+  },
+  "requiredBehavior": {
+    "teams": 2,
+    "humanSlotsPerTeam": [
+      8,
+      12
+    ],
+    "humanSlotInterpretation": "Total humans across both roles, not an additional air quota on top of the ground quota.",
+    "company": {
+      "initialVehicles": 10,
+      "initialHumanControlled": 1,
+      "initialAiControlled": 9,
+      "aiPlatoons": 3,
+      "initialAiMembersPerPlatoon": 3,
+      "orders": [
+        "move",
+        "attack",
+        "defend"
+      ],
+      "takeover": "Only after loss of the controlled tank, select a living owned company survivor. Reassign its controller without moving, repairing, rearming or respawning it.",
+      "takeoverStrengthExample": "10 alive -> controlled tank destroyed -> 9 surviving AI -> takeover -> 1 human + 8 AI, still 9 alive.",
+      "whileFlying": "The same company remains owned by the player and continues the last accepted task under AI.",
+      "replacements": "Missing company members are replenished in batches at a friendly deployment source. Reinforcement vehicles physically follow a valid route to rejoin; no instant frontline refill.",
+      "ordersWhileFlying": "While flying, the owner can issue simplified move/attack/defend map orders to the same company, while directly controlling only one vehicle."
+    },
+    "roleChoiceGate": "Friendly deployment return or accepted loss of the currently controlled vehicle.",
+    "roundMinutes": [
+      45,
+      90
+    ],
+    "lossEconomy": "Shared team readiness; repeated sorties; no personal currency or personal spawn-point eligibility.",
+    "normalAirfieldServiceSeconds": [
+      10,
+      20
+    ],
+    "lightAirportLogistics": "Facility condition, transport and route access affect service availability or throughput. Do not implement a per-round airport ammunition stock ledger. Each vehicle still has real accepted ammunition and fuel.",
+    "world": "Real 1:1 map coordinates and terrain; Korea first, Taiwan also required. Both sides have independent AI, support forces and visible infantry.",
+    "infrastructure": "Destructible bridges and runway patches, engineering repair or temporary crossings, detours, and runway recovery accelerated by escorted supply.",
+    "era": "Both teams use the same era-valid pool. Validate variants, weapons, stores, sensors and air defence together.",
+    "contacts": "Detected contacts shared by the team. Lost mobile contacts retain only their last known position and timestamp.",
+    "platforms": "Desktop priority; mobile may simplify rendering but shares the same accepted gameplay world.",
+    "friendlyFire": {
+      "enabledByDefault": false,
+      "vehicleCollisions": true,
+      "ballisticBlocking": true,
+      "meaning": "Friendly units remain physical obstacles and ballistic contacts; disabling friendly damage must not make them transparent."
+    },
+    "taiwanCoverage": "Entire Taiwan main island plus retained mainland coast/Penghu/Kinmen/Matsu geography,1:1; whole-world coverage with selected active battle areas.",
+    "aiSpectator": {
+      "required": true,
+      "minimumHumanObservers": 1,
+      "humanCombatantsRequired": 0,
+      "teams": "Both sides AI-controlled; actual ground/air combat and shared frontline rules",
+      "entry": "Separate AI battle observation choice with map and era selection",
+      "maps": [
+        "Korean38th-line",
+        "Full Taiwan main island and retained strait geography"
+      ],
+      "defaultProposals": "Pure observation at1x with free camera, unit follow and tactical map; takeover/pause/speed controls remain optional unconfirmed additions"
+    }
+  },
+  "currentSourceEvidence": [
+    {
+      "id": "E01",
+      "paths": [
+        "crates/gameplay/src/lib.rs:36",
+        "crates/server/src/gameplay.rs:10",
+        "crates/server/src/gameplay.rs:29"
+      ],
+      "api": "GameplayMode::{Casual,Historical}, RoomGameplay::parse, RoomGameplay::rules/max_speed",
+      "observed": "Casual/Historical contain movement, traverse, fire and marker rule factors. RoomGameplay explicitly describes speed/rate checks as coarse abuse bounds, not a complete authoritative drivetrain/reload model.",
+      "implication": "Add a separate versioned match scenario. Do not rename a physics profile into this scenario or infer server motion simulation from the presence of rule bounds."
+    },
+    {
+      "id": "E02",
+      "paths": [
+        "crates/server/src/lobby.rs:452",
+        "crates/server/src/lobby.rs:528",
+        "crates/server/src/lobby.rs:599"
+      ],
+      "api": "Player, AirSeat, Room",
+      "observed": "Player owns one vehicle, alive/hp, life, pose/trail, CombatState, AmmoLedger, shot receipts and optional AirSeat. Room owns members, era, capture points, tickets and a missile World, but no companies, platoons, AI units, unit orders or frontline facilities.",
+      "implication": "Extract or adapt the combatant state into independent world units. A company is not ten Player records or a local array of visual companions."
+    },
+    {
+      "id": "E03",
+      "paths": [
+        "crates/server/src/lobby.rs:131",
+        "crates/server/src/lobby.rs:337",
+        "crates/server/src/lobby.rs:346"
+      ],
+      "api": "ClientMsg::{State,Fire,Hit,MgHit,Launch,AirFire,AirLaunch,AirHit,AirBurst}, SnapPlayer, ServerMsg",
+      "observed": "Transport identifies combatants primarily by player u32 IDs. Ground discharge scope is battle/life with the player implied by the connection; hit targets are player IDs. Air fire/hit messages have no vehicle-life/control epoch. Snap publishes player states, not an independent entity set.",
+      "implication": "Version a combined protocol with explicit unit/life references, separate control authority and unit snapshots. Reject ambiguous legacy combat messages in combined rooms."
+    },
+    {
+      "id": "E04",
+      "paths": [
+        "crates/server/src/lobby.rs:1257",
+        "crates/server/src/lobby.rs:1279"
+      ],
+      "api": "ClientMsg::Create, ClientMsg::Join",
+      "observed": "Create clamps max to 2..16 total room members; Join uses that room maximum.",
+      "implication": "The requested 8..12 humans per team needs an explicit 16..24 total-human scenario capacity and per-team enforcement. Do not count AI world entities as room members or increase caps without load verification."
+    },
+    {
+      "id": "E05",
+      "paths": [
+        "crates/server/src/lobby.rs:1445",
+        "crates/server/src/lobby.rs:1470",
+        "crates/server/src/lobby.rs:2275",
+        "crates/server/src/server.rs:18",
+        "crates/server/src/server.rs:277"
+      ],
+      "api": "ClientMsg::State admission, Lobby::tick_at, ticker, TICK_HZ=20",
+      "observed": "Client supplies vehicle State; the lobby admits finite positions with coarse speed checks and stores the state/trail. Its 20 Hz tick advances missiles, aircraft damage, supply and conquest. No company movement/controller simulation is wired into that loop.",
+      "implication": "Combined AI and controlled-unit movement need a server simulation owner and accepted poses. A motion packet relay alone cannot execute persistent AI when a player flies or disconnects."
+    },
+    {
+      "id": "E06",
+      "paths": [
+        "crates/physics/src/tank/mod.rs:123",
+        "crates/physics/src/tank/mod.rs:235",
+        "crates/physics/src/tank/mod.rs:341",
+        "crates/physics/src/tank/terrain.rs:22",
+        "crates/server/Cargo.toml:6"
+      ],
+      "api": "TankModel::from_vehicle, tank::step, tank::NetState, Ground::{height,surface}",
+      "observed": "Native tank dynamics and a Ground adapter interface exist. The current server dependency list does not include tg-physics and Lobby::State still accepts client poses.",
+      "implication": "Reuse and wire the existing tank dynamics for the first supported ground models. The physics module's multiplayer comment is not evidence that the running lobby already simulates tanks. Validate actual model, terrain and damage-to-mobility integration."
+    },
+    {
+      "id": "E07",
+      "paths": [
+        "crates/server/src/ammo.rs:38",
+        "crates/server/src/ammo.rs:51",
+        "crates/server/src/ammo.rs:216",
+        "crates/server/src/ammo.rs:277",
+        "crates/server/src/lobby.rs:1167"
+      ],
+      "api": "AmmoScope, AmmoFrame, AmmoLedger::{new,spend,terminal,refill}, Lobby::spawn",
+      "observed": "Ground ammunition already has mounted pools, revision, terminal sequence progress and battle/life scope. spawn increments Player.life, creates a fresh ledger and combat state, resets pose/trail and restores health.",
+      "implication": "Reuse ledger validation and debit semantics per unit. Never call spawn, bench or a constructor to take over a survivor. Existing scope needs an explicit outer unit identity in the combined protocol."
+    },
+    {
+      "id": "E08",
+      "paths": [
+        "crates/server/src/lobby.rs:1647",
+        "crates/server/src/lobby.rs:1688",
+        "crates/server/src/lobby.rs:1728"
+      ],
+      "api": "deploy_air, air_fire, air_target_ok",
+      "observed": "deploy_air charges p.sp, creates fresh AirSeat damage/guns/missiles, clears ground ammo/combat/state and sends AirSpawned with player ID and SP. It does not increment Player.life. air_target_ok resolves the target through self.players.",
+      "implication": "Do not use this deployment function unchanged for the new scenario. Aircraft require their own unit life, accepted inventory/fuel and service state, and era/deployment validation without personal currency."
+    },
+    {
+      "id": "E09",
+      "paths": [
+        "handoff/bundle/app.js.html:36324",
+        "handoff/bundle/app.js.html:36331",
+        "handoff/bundle/app.js.html:38837",
+        "handoff/bundle/app.js.html:43417"
+      ],
+      "api": "DeployScreen airLineup/deployAir -> deploy_air -> air_spawned -> enterAircraftOnline",
+      "observed": "An existing online deployment-panel path sends deploy_air and enters an online aircraft when accepted. Online aircraft helpers and remote damage handlers are real source paths, not wholly unreachable stubs.",
+      "implication": "Preserve and adapt this existing online air-to-air skeleton. It does not by itself prove a tested combined frontline mode."
+    },
+    {
+      "id": "E10",
+      "paths": [
+        "handoff/bundle/app.js.html:37284",
+        "handoff/bundle/app.js.html:38379",
+        "handoff/bundle/app.js.html:38403",
+        "handoff/bundle/app.js.html:38815",
+        "handoff/bundle/app.js.html:38828",
+        "handoff/bundle/app.js.html:46118"
+      ],
+      "api": "enterAircraft, flyType, rearmAircraft, releaseStore, AIR_ONLINE_CLASSES, airOnlineLoadouts",
+      "observed": "Normal garage/local boarding rejects online flight, while the separate deployment path exists. Online loadouts only expose guns/AAM; releaseStore explicitly rejects online air-to-ground stores. rearmAircraft cycles/refills a local stopped aircraft without an accepted facility service transaction.",
+      "implication": "Precise blocker: shared air-to-ground weapon acceptance, valid field/air starts, airport service and combined role flow remain missing. Removing the garage guard alone would not implement them."
+    },
+    {
+      "id": "E11",
+      "paths": [
+        "crates/server/src/aircraft.rs:1",
+        "crates/server/src/aircraft.rs:21",
+        "crates/server/src/lobby.rs:2096",
+        "crates/server/src/replay_receipts.rs:30"
+      ],
+      "api": "AirType::{parts,skin,guns,loadouts}, combat_hit -> commit_damage",
+      "observed": "Aircraft server resolution uses skin/part boxes after client-proposed target-local segments. Ground hit admission validates a discharge proof and plausibility, then commits through tg-combat. Existing formal combat remains the accepted legacy damage models.",
+      "implication": "Generalize their unit-state access and preserve honest contact/flight trust labels. New AI and air-to-ground paths must actually reach accepted combat commits; a full replacement of all vehicle collision internals is not a prerequisite for this mode."
+    },
+    {
+      "id": "E12",
+      "paths": [
+        "crates/server/src/shot_flight.rs:1",
+        "crates/server/src/lobby.rs:2448",
+        "crates/server/src/lobby.rs:2456",
+        "crates/server/src/missiles.rs:300",
+        "crates/missile/src/world.rs:38",
+        "crates/missile/src/world.rs:97"
+      ],
+      "api": "shot_flight::{actor,discharge,pose}, step_missiles, actor_of, tg_missile::{Missile,Actor}",
+      "observed": "Ground replay actor is battle/player-ID/ammo-life; missile-world owner and Actor ID are u32. step_missiles builds actors from room.members/self.players. Missile replay retains real world segments, while cannon flight explicitly remains unknown_cannon_flight.",
+      "implication": "Map missile-world actor handles to immutable unit/life identities and include AI units. Freeze shooter/target incarnation in receipts and events. Preserve approximation labels rather than claiming a new authoritative shell-flight engine."
+    },
+    {
+      "id": "E13",
+      "paths": [
+        "crates/server/src/lobby.rs:87",
+        "crates/server/src/lobby.rs:823",
+        "crates/server/src/lobby.rs:839",
+        "crates/server/src/lobby.rs:894",
+        "crates/server/src/lobby.rs:958"
+      ],
+      "api": "drop_link, resume, sweep, disconnect, leave, RESUME_GRACE=20s",
+      "observed": "A dropped battle seat is briefly held and can resume under its old player ID/token. After the grace period sweep disconnects it; leave clears player state/ammo and can remove an empty room.",
+      "implication": "Retain a battle participant/company owner independently of socket/seat lifetime. Company survival, bounded slots and late reconnect cannot depend on keeping a Player struct for only 20 seconds."
+    },
+    {
+      "id": "E14",
+      "paths": [
+        "crates/server/src/lobby.rs:1023",
+        "crates/server/src/lobby.rs:2338",
+        "crates/server/src/lobby.rs:2579",
+        "crates/server/src/lobby.rs:2635"
+      ],
+      "api": "supply_eligible, resupply_at, conquest",
+      "observed": "Supply eligibility currently comes from uncontested friendly capture circles and player pose. Conquest counts alive non-air players only, changes capture/tickets and grants personal SP for captures.",
+      "implication": "Capture must count accepted eligible world tanks/infantry, including AI, and light facility service needs distinct ownership/eligibility. Disable personal-SP rewards in combined mode while preserving legacy rooms."
+    },
+    {
+      "id": "E15",
+      "paths": [
+        "crates/server/src/lobby.rs:675",
+        "crates/server/src/lobby.rs:2287",
+        "handoff/bundle/app.js.html:12949"
+      ],
+      "api": "interest, Snap grouping, gameplay visibility helper",
+      "observed": "Interest throttles update frequency using distance and aircraft status; it is not team discovery. A client rule helper can show enemy markers for Casual.",
+      "implication": "Add a team contact/disclosure policy separately from replication frequency. Both profiles must respect scenario discovery for map and 3D aids. Do not treat receiving a world pose as a detected radar/seeker track."
+    },
+    {
+      "id": "E16",
+      "paths": [
+        "crates/server/src/missiles.rs:46",
+        "crates/server/src/missiles.rs:77",
+        "crates/missile/src/terrain.rs:8",
+        "crates/physics/src/tank/terrain.rs:22",
+        "docs/hitbox-conventions.md:1"
+      ],
+      "api": "MissileData.grids, HeightGrid::height, Ground, hitbox conventions",
+      "observed": "The missile server loads map height grids; tank ground sampling has an adapter interface. The reviewed room does not own dynamic bridge decks or runway-patch topology. Current vehicle contact migration is explicitly incomplete in the conventions.",
+      "implication": "A shared static height grid alone cannot represent a bridge deck removed over lower terrain/water. New infrastructure needs canonical visible/physical surfaces and revisions. Keep the separate vehicle visible-triangle migration claim separate."
+    },
+    {
+      "id": "E17",
+      "paths": [
+        "handoff/flight/README.md:1",
+        "handoff/flight/flight_core.c:42",
+        "handoff/flight/build.sh:15",
+        "crates/server/src/lobby.rs:1853"
+      ],
+      "api": "C/WASM flight configure/spawn/step exports, global plant state, advance_aircraft",
+      "observed": "The delivered aircraft plant is a C/WASM core with file-static aircraft/instructor state and explicit world-ground callbacks. The build synchronizes standalone WASM/base64 and the delivered bundle. advance_aircraft in the Rust lobby advances AirDamage fire/cooling, not aircraft pose dynamics.",
+      "implication": "Reuse the verified flight plant; do not claim a server flight engine is already wired. Per-unit server flight hosting needs isolated instances or an explicit full-state context adapter, including hidden plant/controller state and terrain hooks. Copying the 80 telemetry floats alone is not a verified complete continuation state."
+    }
+  ],
+  "proposedDomain": {
+    "match": {
+      "owner": "Room-owned CombinedMatch, serialized and advanced under the existing lobby/hub synchronization boundary",
+      "fields": [
+        "battle_id",
+        "scenario_id",
+        "scenario_version",
+        "frontline_protocol_version",
+        "theatre_id",
+        "terrain_catalog_hash",
+        "infrastructure_revision",
+        "era_id",
+        "gameplay_mode",
+        "gameplay_rules_version",
+        "phase",
+        "started_at",
+        "ends_at",
+        "participants",
+        "teams",
+        "companies",
+        "units",
+        "orders",
+        "contacts",
+        "facilities",
+        "engineering_jobs",
+        "projectiles",
+        "loss_ledger"
+      ],
+      "scenarioId": "combined_frontline",
+      "physicsProfiles": [
+        "casual",
+        "historical"
+      ],
+      "invariant": "Scenario identity, era, terrain and physics profile are fixed at match start. Existing legacy conquest remains a separate scenario; combined messages cannot mutate another room or battle."
+    },
+    "participant": {
+      "identity": [
+        "battle_id",
+        "participant_id"
+      ],
+      "fields": [
+        "team_id",
+        "resume_credential_reference",
+        "connection_id_optional",
+        "company_slot_optional",
+        "controlled_unit_ref_optional",
+        "control_epoch",
+        "role_state",
+        "role_gate",
+        "last_command_sequence",
+        "disconnect_policy_state"
+      ],
+      "rule": "Socket connection, stable battle ownership and controlled unit are different identities. A battle participant may own a company while flying, disconnected or waiting to choose a role."
+    },
+    "team": {
+      "fields": [
+        "team_id",
+        "readiness",
+        "human_slot_limit",
+        "company_slot_limit",
+        "active_company_slots",
+        "autonomous_force_budget",
+        "objectives",
+        "detected_contacts",
+        "deployment_sources",
+        "service_network_status"
+      ],
+      "rule": "Shared readiness is charged once per accepted vehicle life loss, independent of the current controller or the owner's personal score. No p.sp eligibility or spending in this scenario."
+    },
+    "company": {
+      "identity": [
+        "battle_id",
+        "company_id"
+      ],
+      "fields": [
+        "ownership: ParticipantCompany(participant_id) or TeamAiCompany(team_id, ai_commander_id)",
+        "owner_participant_id_optional",
+        "team_id",
+        "generation",
+        "membership_revision",
+        "original_command_unit_ref",
+        "current_command_unit_ref_optional",
+        "three_platoon_ids",
+        "member_unit_refs",
+        "last_company_order",
+        "pending_replacement_slots",
+        "withdrawal_state"
+      ],
+      "rule": "Each combat participant may reserve at most one persistent player company; switching roles never allocates a second company. Team-owned autonomous AI companies use a separate scenario quota and server AI commander, with no fabricated player or observer owner. Initial company strength is ten; living members plus accepted replacement reservations never exceed ten. Observers own no company and consume no combat-participant/company slot."
+    },
+    "platoon": {
+      "identity": [
+        "battle_id",
+        "company_id",
+        "platoon_id"
+      ],
+      "fields": [
+        "member_unit_refs",
+        "leader_unit_ref_optional",
+        "order_revision",
+        "accepted_order",
+        "formation",
+        "route_state"
+      ],
+      "rule": "Start with three AI members in each of three platoons and one command tank outside those nine. After takeover, preserve the selected tank's membership and label its moved command role; map orders affect only AI-controlled members. Do not create a tenth replacement implicitly or force the human tank to follow an AI order."
+    },
+    "unit": {
+      "identity": [
+        "battle_id",
+        "unit_id",
+        "vehicle_life_id"
+      ],
+      "fields": [
+        "team_id",
+        "unit_kind",
+        "vehicle_variant_id",
+        "era_catalog_hash",
+        "company_id_optional",
+        "platoon_id_optional",
+        "owner_participant_id_optional",
+        "controller",
+        "accepted_pose",
+        "velocity",
+        "joint_state",
+        "pose_revision",
+        "geometry_hash",
+        "geometry_revision",
+        "alive",
+        "combat_state",
+        "weapon_caps",
+        "ammunition",
+        "fuel",
+        "weapon_cooldowns",
+        "repair_state",
+        "service_state",
+        "perception_state",
+        "last_order",
+        "discharge_receipts",
+        "rewind_history"
+      ],
+      "unitKinds": [
+        "tank",
+        "aircraft",
+        "ifv_apc",
+        "air_defence",
+        "artillery",
+        "supply",
+        "engineer",
+        "infantry",
+        "water_transport"
+      ],
+      "controller": "Human(participant_id, control_epoch) or ServerAi(ai_controller_id). Ownership is independent of controller.",
+      "rule": "Combat state, per-mounted-weapon ammunition, aircraft stores/countermeasures, fuel and cooldowns belong to this unit life. Changing controller changes none of them. A replacement arrives as a new unit/life, not reuse of a destroyed reference."
+    },
+    "order": {
+      "fields": [
+        "battle_id",
+        "order_id",
+        "company_id",
+        "issuer_participant_id",
+        "request_id",
+        "order_sequence",
+        "expected_order_revision",
+        "accepted_tick",
+        "kind",
+        "platoon_ids",
+        "destination_or_area",
+        "contact_reference_optional",
+        "formation",
+        "route_revision",
+        "status",
+        "failure_reason"
+      ],
+      "kinds": [
+        "move",
+        "attack",
+        "defend"
+      ],
+      "rule": "Attack an area or an authorized current contact. A stale map marker authorizes moving/searching an area, not aiming or guiding at an undisclosed live position. Units must perceive, turn, aim, reload and fire through combat APIs; orders never directly subtract enemy HP.",
+      "issuerPolicy": "Accepted order origin is Participant(participant_id) or ServerAiCommander(ai_commander_id). A client cannot assert AI commander authority; the server assigns this origin after validating participant/company ownership or making its own AI decision."
+    },
+    "contact": {
+      "identity": [
+        "battle_id",
+        "observing_team_id",
+        "contact_id"
+      ],
+      "fields": [
+        "last_observed_tick",
+        "expires_at",
+        "last_known_position",
+        "uncertainty",
+        "classification",
+        "source_sensor_class",
+        "quality",
+        "live_track_reference_optional"
+      ],
+      "rule": "Only sufficiently current sensor/visual tracks can support live targeting. Last-known map positions are frozen. Friendly/owned unit disclosure and enemy contact disclosure are distinct policies."
+    },
+    "facilityAndInfrastructure": {
+      "fields": [
+        "facility_id",
+        "team_owner",
+        "kind",
+        "canonical_surface_id",
+        "geometry_hash",
+        "geometry_revision",
+        "damage_state",
+        "service_capabilities",
+        "service_queue",
+        "route_edges",
+        "active_engineering_job",
+        "supply_access_status"
+      ],
+      "kinds": [
+        "deployment_area",
+        "airfield",
+        "runway_patch",
+        "bridge_span",
+        "temporary_crossing",
+        "supply_node"
+      ],
+      "rule": "Visible deck/runway damage, collision/contact surface, projectile impact and navigation passability consume the same accepted infrastructure revision. A runway closure may leave visible crater geometry; a destroyed bridge may not leave an invisible driveable deck."
+    },
+    "engineeringJob": {
+      "fields": [
+        "job_id",
+        "facility_id",
+        "job_kind",
+        "assigned_engineer_unit_refs",
+        "work_position",
+        "progress",
+        "supply_access",
+        "escort_acceleration",
+        "paused_reason",
+        "expected_infrastructure_revision"
+      ],
+      "rule": "Living engineers must reach the work area through accepted routes and remain able to work. Supply can accelerate repair without a per-round airport ammunition inventory. Completion atomically updates surface, passability and service revisions."
+    },
+    "observer": {
+      "identity": [
+        "battle_id",
+        "observer_id"
+      ],
+      "fields": [
+        "connection_id_optional",
+        "resume_credential_reference",
+        "observer_capabilities",
+        "camera_subscription",
+        "last_seen_at"
+      ],
+      "rule": "No combat team, controlled unit or company ownership. Full observation payload is permitted only through an observer subscription and never returned as AI/team contact knowledge."
+    }
+  },
+  "identityAndAuthorityInvariants": [
+    {
+      "id": "I01",
+      "rule": "UnitRef = battle_id + unit_id + vehicle_life_id. Never use participant/player ID as a durable projectile target or a unit's life identity. Never reuse a destroyed UnitRef in the same battle.",
+      "reason": "A player may leave a lost tank and control a surviving tank or an aircraft while projectiles/replay events from the old unit remain active."
+    },
+    {
+      "id": "I02",
+      "rule": "At most one human controller per unit and one directly controlled unit per participant. Advance control_epoch on acquisition, release, disconnect and reconnect. Reject any input, fire, guidance or held trigger tagged with an earlier epoch.",
+      "reason": "Late messages cannot move or fire the previously controlled tank after handover. AI-to-human transfer stops the AI actuator; human-to-AI transfer clears input before AI resumes."
+    },
+    {
+      "id": "I03",
+      "rule": "A control-transfer transaction preserves UnitRef, pose/velocity, combat damage, ammunition counts and revision, fuel, reload/cooldowns, geometry membership and current life. Only controller/epoch and command-role metadata change.",
+      "reason": "Takeover must be visibly the same surviving vehicle. Do not use fresh spawn constructors, reset_spawn_shots, bench or Respawned to emulate it."
+    },
+    {
+      "id": "I04",
+      "rule": "Shots store immutable shooter UnitRef, credited participant/team at discharge, weapon instance, request sequence, ammunition revision and accepted pose/time. Target proposals/events name an immutable target UnitRef. Existing in-flight projectiles survive controller changes without acquiring the controller's new unit.",
+      "reason": "A shot can still hit the old parked tank if it exists, but an old target reference cannot resolve onto the owner's newly selected aircraft. Guidance also requires the original launcher/controller epoch or an explicit server-owned AI guidance transfer."
+    },
+    {
+      "id": "I05",
+      "rule": "The unit ledger debits a mounted weapon once per terminal discharge request. Duplicate requests replay the original acceptance/rejection; conflicting payloads under the same ID are rejected. Controller changes do not reset ammunition or cooldowns, and an old receipt cannot consume a different unit's ammunition.",
+      "reason": "Reuse AmmoLedger admission semantics, adding unit-scoped receipt keys and an AI command stream. Counters must remain JavaScript-safe integers or use a versioned string encoding; fail before overflow."
+    },
+    {
+      "id": "I06",
+      "rule": "Loss ledger key is UnitRef. Charge team readiness exactly once when accepted combat/destruction makes that life terminal. Control changes, valid returns, reconnects and replay retries do not charge loss or create free vehicles.",
+      "reason": "Legacy count_death and personal SP rewards cannot remain the combined scenario's economy owner. Personal statistics may credit results without becoming spendable currency."
+    },
+    {
+      "id": "I07",
+      "rule": "Companies are battle-owned persistent entities, bounded by team company slots. Initial spawn is one accepted ten-vehicle allocation; replacement reservations are bounded by missing slots, valid era, source, readiness and route. Reconnect, pilot role, repeated join/leave or repeated request IDs cannot allocate another company.",
+      "reason": "The maximum company population is 160..240 tanks across the battle before independent support/aircraft. Socket removal must not erase surviving companies or release unbounded slots."
+    },
+    {
+      "id": "I08",
+      "rule": "Server owns membership, accepted orders, AI movement/perception/aiming, ammunition/fuel/damage, supply/engineering, captures, readiness and round end. Clients submit intentions and optional legacy hit proposals, predict only their controlled vehicle, and render accepted state.",
+      "reason": "A client-side animation or local spawnBots list is not shared authority. Native dynamics/combat libraries must be connected through the real lobby/ws path."
+    },
+    {
+      "id": "I09",
+      "rule": "Both human and AI discharges use the same validated weapon definitions, era whitelist, caps, ammunition, recoil/reload and damage commits. Server AI has no hidden unlimited rounds or knowledge of undiscovered enemies.",
+      "reason": "A valid shared match must continue meaningfully without human ground commanders and while company owners fly."
+    },
+    {
+      "id": "I10",
+      "rule": "Simulation coordinates and terrain assets have one projection/origin/axis/units/vertical datum contract and content hashes. Dynamic bridge/runway surfaces publish one revision used for drawing, ground contact, impacts and navigation.",
+      "reason": "Real roads and bridge approaches must connect physically at 1:1 scale. A routing graph cannot grant passability over absent collision geometry."
+    },
+    {
+      "id": "I11",
+      "rule": "Scenario disclosure caps rule-profile aids: visible aid = scenario-authorized contact AND profile-permitted aid. Replication cadence/interest is separate. Stale contacts carry no hidden current pose for map/marker use and are not seeker guidance.",
+      "reason": "Casual marker settings cannot bypass the confirmed team discovery rules; historical settings may hide an aid even when a contact is known."
+    },
+    {
+      "id": "I12",
+      "rule": "Ground/air deployment and loadout changes validate one server-built era catalog, including variants, stores, guns, countermeasures, sensors and SAMs. Space+R ACM remains on every already radar-equipped aircraft as the requested game feature, without granting older radars modern range/PD/missile compatibility.",
+      "reason": "Client lineup year labels are not enough, and universal sensor assistance must not silently alter historical hardware."
+    },
+    {
+      "id": "I13",
+      "rule": "Airfield service accepts a living unit stopped in a friendly valid service area with available service functions. Routine repair/ammo/fuel service completes in configured 10..20 seconds; departure, destruction, capture or facility interruption suspends/cancels according to explicit progress policy.",
+      "reason": "Completion applies one accepted unit-state transaction. No arbitrary-ground K-key refill, client fuel reset, free airborne rearm or per-round airport stock ledger."
+    },
+    {
+      "id": "I14",
+      "rule": "Mobile/desktop visual settings change mesh, effects and draw distance only. AI, contact acquisition, passability, captures, weapon impacts and readiness use the same accepted server world.",
+      "reason": "Performance scaling may change server scheduling frequency within declared tolerances, but cannot delete combatants or make unseen units immune."
+    }
+  ],
+  "controlAndRoleTransitions": [
+    {
+      "from": "no_control / initial_deploy",
+      "request": "deploy_ground",
+      "serverChecks": "Match active; participant/team slot valid; ground variant/ammo era-valid; deployment source and collision-safe queued positions valid; one company slot only; readiness policy satisfied without p.sp.",
+      "commit": "Allocate company once, ten distinct unit lives at physical staging positions, three platoons of three AI plus one human command tank. Commit controller, ammo/damage and spawn revision atomically.",
+      "mustNot": "Spawn all vehicles at the same point, create fake network players, or make future role choices call this allocation again."
+    },
+    {
+      "from": "human_ground_control",
+      "request": "controlled_tank_destroyed",
+      "serverChecks": "Accepted damage/destruction terminates the exact controlled UnitRef.",
+      "commit": "Release input, advance control epoch, charge loss once, retain surviving company/order state, open a loss role gate and show owned living AI survivors.",
+      "mustNot": "Teleport followers to the lost commander or keep following a destroyed leader reference. AI survivors hold/defend the last valid area until a live leader/order is assigned."
+    },
+    {
+      "from": "loss_role_gate with surviving owned company tanks",
+      "request": "takeover_survivor",
+      "serverChecks": "Gate proves loss of the participant's previous controlled tank; selected UnitRef is alive, owned, same battle/team/company, currently AI and not reserved by another transfer. Expected unit/controller revisions match.",
+      "commit": "Atomically switch that same unit from AI to human, advance epoch and move command role. Preserve all unit-life state. Send an accepted full control snapshot and then consume the gate.",
+      "mustNot": "Allow alive field-to-field hot switching, refill the selected tank, count takeover as a replacement, reset life, or drop old in-flight projectile evidence."
+    },
+    {
+      "from": "human_ground_control or human_air_control",
+      "request": "return_to_deployment",
+      "serverChecks": "Living controlled unit is physically inside a friendly scenario deployment/recovery zone and satisfies stopped/landed safety rules; source still available; no teleport proposal.",
+      "commit": "Release control/held weapons, open a return role gate. Ground tank returns to AI with its company and state. Aircraft is retained parked or explicitly recovered through a recorded non-loss transition; never leave a duplicate controllable aircraft.",
+      "mustNot": "Reuse legacy alive Respawn abandonment as the ordinary return flow; it currently counts a death."
+    },
+    {
+      "from": "valid initial, return or loss role gate",
+      "request": "deploy_aircraft",
+      "serverChecks": "Era-valid airframe/stores/sensors; valid friendly airfield or farther-back air start; runway/service eligibility where applicable; team readiness and bounded active-aircraft allocation; no personal SP test.",
+      "commit": "Bind a distinct aircraft UnitRef/life with accepted inventory/fuel and one controller. The owned company remains in the world with AI executing its last accepted task.",
+      "mustNot": "Clear company ammo/damage, allocate another company, reset ownership, or repoint old tank-target projectiles at the pilot."
+    },
+    {
+      "from": "pilot returning to a friendly deployment role gate",
+      "request": "select_ground_role",
+      "serverChecks": "Use a surviving company vehicle physically available at that deployment area, or an authorized replacement arrival for a missing slot. Remote survivor takeover without controlled-tank loss is not authorized by this gate.",
+      "commit": "Resume an eligible existing tank or wait for physical return/reinforcement, preserving the company. A wiped company uses explicit bounded replenishment, not an automatic fresh ten on every sortie.",
+      "mustNot": "Teleport a distant AI survivor to the base or let a normal role change become unrestricted battlefield hot switching."
+    },
+    {
+      "from": "any connected control state",
+      "request": "connection_drop / reconnect",
+      "serverChecks": "Retain participant/company identity for the battle independent of the legacy 20-second transport seat; authenticate resume ownership; reject concurrent claimant and stale epoch.",
+      "commit": "Release human input immediately and hand company units to AI. On reconnect send accepted company, unit, ammo/damage, orders, infrastructure and contact snapshots; reacquire control by an explicit valid controller transaction.",
+      "mustNot": "Give invulnerable disconnected units, freeze AI to await a socket, free a company slot while its tanks remain alive, or spawn a new company because the old Player was swept."
+    },
+    {
+      "from": "active match",
+      "request": "round_end",
+      "serverChecks": "Readiness/objective/time victory is decided once by the accepted round clock and rules.",
+      "commit": "Close new orders/control/service requests, publish result, retire the battle's units/projectiles/jobs/contacts and ownership bindings, then create a new battle ID for reset.",
+      "mustNot": "Accept delayed old-round fire, apply old engineering completion or carry old company/ammo identities into the reset round."
+    }
+  ],
+  "proposedProtocol": {
+    "status": "New protocol proposal; these message names are not existing implemented APIs.",
+    "versioning": {
+      "frontline_protocol_version": 1,
+      "scenario_id": "combined_frontline",
+      "scenario_version": 1,
+      "rule": "Advertise combined capability at Hello and include scenario/catalog versions in room/start/resume. Preserve separate gameplay_rules_version and ammunition compatibility. Legacy rooms keep their current message semantics; combined rooms reject legacy unscoped State/Hit/AirHit/DeployAir mutations instead of guessing a unit.",
+      "ammoCompatibility": "Reuse the internal AmmoLedger where possible, but expose UnitRef on every combined ammo frame/receipt. Add a separately negotiated combined ammo envelope or a coordinated protocol bump; do not silently reinterpret the old battle/life frame."
+    },
+    "commandEnvelope": {
+      "common": [
+        "battle_id",
+        "request_id",
+        "client_sequence",
+        "expected_revision where mutation needs compare-and-swap"
+      ],
+      "controlledUnitCommands": [
+        "unit_ref",
+        "control_epoch"
+      ],
+      "rule": "Check battle/phase, participant/team ownership, exact unit life, controller epoch, finite bounded payload, applicable catalog versions, then command-specific conditions. Return a stable accepted/rejected result for retries."
+    },
+    "clientToServer": [
+      {
+        "message": "frontline_deploy",
+        "payload": [
+          "role",
+          "role_gate_id",
+          "source_id",
+          "variant_id",
+          "loadout_id_or_ammo_mix",
+          "start_kind",
+          "expected_company_revision"
+        ],
+        "validation": "Consumes a valid role gate; validates era/source/readiness/bounds and creates or reuses only the permitted unit/company state."
+      },
+      {
+        "message": "frontline_return",
+        "payload": [
+          "unit_ref",
+          "control_epoch",
+          "deployment_area_id"
+        ],
+        "validation": "Server accepted pose/landed/stopped state qualifies; a client-selected area ID is only a request."
+      },
+      {
+        "message": "frontline_takeover",
+        "payload": [
+          "role_gate_id",
+          "survivor_unit_ref",
+          "expected_company_revision",
+          "expected_unit_revision"
+        ],
+        "validation": "Only a controlled-tank-loss gate; owned living AI survivor; atomic exclusive controller transfer; preserve life/state."
+      },
+      {
+        "message": "unit_input",
+        "payload": [
+          "unit_ref",
+          "control_epoch",
+          "input_sequence",
+          "axes",
+          "aim",
+          "switches",
+          "held_weapon_flags"
+        ],
+        "validation": "Driver owns this unit at this epoch. Ground server advances admitted native dynamics and publishes pose/caps; client prediction is reconciled. An explicitly negotiated hybrid human aircraft submits scoped motion proposals instead, with its approximation declared. Bound input age and clear held state on timeout/handover."
+      },
+      {
+        "message": "unit_motion_proposal",
+        "payload": [
+          "unit_ref",
+          "control_epoch",
+          "pose_sequence",
+          "pose/velocity/joints",
+          "flight_plant_version",
+          "accepted_damage_revision"
+        ],
+        "validation": "Only the negotiated human-aircraft hybrid authority class may propose poses. Validate current life/controller epoch, monotonic samples, finite state, declared dynamics envelope and canonical terrain; admit an accepted server pose/history. Ammo/fuel/service/damage are separate server-owned fields and cannot be overwritten. This message does not claim full server flight authority."
+      },
+      {
+        "message": "company_order",
+        "payload": [
+          "company_id",
+          "platoon_ids",
+          "order_sequence",
+          "expected_order_revision",
+          "kind",
+          "destination_or_area",
+          "authorized_contact_id_optional",
+          "formation"
+        ],
+        "validation": "Issuer owns company; platoons are members; commandable AI members only; destination valid in terrain; target uses team contact policy. Explicitly return unreachable/blocked/no_live_track rather than inventing damage."
+      },
+      {
+        "message": "unit_discharge",
+        "payload": [
+          "unit_ref",
+          "control_epoch",
+          "weapon_instance",
+          "projectile_or_store_id",
+          "discharge_sequence",
+          "accepted_pose_revision",
+          "aim_or_origin_proposal"
+        ],
+        "validation": "Own healthy mounted weapon, era-valid projectile, accepted muzzle/pose, rate/reload and unit ammo/fuel state. Commit debit and immutable discharge once. AI submits the same internal command without a socket."
+      },
+      {
+        "message": "unit_hit_proposal",
+        "payload": [
+          "discharge_id",
+          "target_unit_ref",
+          "target_pose_revision",
+          "legacy_contact_segment_or_world_burst"
+        ],
+        "validation": "Candidate evidence only. Match immutable shooter/target lives, accepted discharge, reach/time/pose and accepted damage adapter. Reject client HP/result authority; annotate reused legacy flight/contact approximations."
+      },
+      {
+        "message": "unit_guidance",
+        "payload": [
+          "projectile_id",
+          "launcher_unit_ref",
+          "control_epoch",
+          "live_track_reference_or_sight_line"
+        ],
+        "validation": "Original launcher/controller or explicit AI continuation owns guidance; target track must support the weapon. A stale map contact and a new controlled unit do not qualify."
+      },
+      {
+        "message": "unit_service_request",
+        "payload": [
+          "unit_ref",
+          "control_epoch",
+          "facility_id",
+          "requested_functions",
+          "era_valid_loadout_optional"
+        ],
+        "validation": "Physical friendly service eligibility and facility capabilities; accepted 10..20-second normal service; server owns progress and final ammo/fuel/damage mutation."
+      }
+    ],
+    "serverToClient": [
+      {
+        "message": "frontline_start_or_resume",
+        "fields": [
+          "battle/scenario/catalog versions",
+          "participant identity",
+          "company membership and revisions",
+          "current control binding/epoch",
+          "owned-unit inventory/damage",
+          "role gates",
+          "team objectives/readiness",
+          "authorized contacts",
+          "infrastructure revisions"
+        ]
+      },
+      {
+        "message": "control_committed",
+        "fields": [
+          "transaction_id",
+          "previous_binding",
+          "new_unit_ref_or_none",
+          "new_control_epoch",
+          "accepted_tick",
+          "full controlled-unit snapshot",
+          "consumed_role_gate"
+        ]
+      },
+      {
+        "message": "company_order_result",
+        "fields": [
+          "request_id",
+          "accepted_or_rejected",
+          "order_revision",
+          "per_platoon_status",
+          "reason"
+        ]
+      },
+      {
+        "message": "unit_snapshot",
+        "fields": [
+          "unit_ref",
+          "accepted_tick",
+          "pose_revision",
+          "pose/velocity/joints",
+          "controller disclosure",
+          "damage/caps revision",
+          "public visual state"
+        ]
+      },
+      {
+        "message": "unit_ammo_or_service",
+        "fields": [
+          "unit_ref",
+          "ledger_revision",
+          "processed_discharge_sequence",
+          "mounted counts",
+          "fuel",
+          "service_revision/progress/functions",
+          "refill_commit_id_optional"
+        ]
+      },
+      {
+        "message": "unit_discharge_or_damage",
+        "fields": [
+          "event_id",
+          "immutable shooter/target unit refs",
+          "weapon/projectile instance",
+          "accepted_tick",
+          "debit/damage revisions",
+          "legacy/new-contact trust metadata",
+          "readiness_loss_id_optional"
+        ]
+      },
+      {
+        "message": "team_contact_update",
+        "fields": [
+          "contact_id",
+          "observed_tick/expiry",
+          "authorized class/position/uncertainty",
+          "live_track_quality_or_last_known"
+        ]
+      },
+      {
+        "message": "infrastructure_commit",
+        "fields": [
+          "facility/surface IDs",
+          "geometry hash/revision",
+          "accepted_tick",
+          "damage/repair state",
+          "affected route edges",
+          "service status"
+        ]
+      },
+      {
+        "message": "frontline_result",
+        "fields": [
+          "battle_id",
+          "final_tick",
+          "winner",
+          "reason",
+          "readiness/objective ledger summary",
+          "reset boundary"
+        ]
+      }
+    ],
+    "replication": {
+      "existingOwnerToReplace": "Player-only Snap construction in Lobby::tick_at and player-distance interest grouping.",
+      "proposal": "Replicate accepted world units through spatial interest plus team disclosure, with reliable revisioned control/ownership/ammo/damage/order/infrastructure commits. Owned company roster/state must remain accessible while owner flies; nearby combatants interpolate from accepted unit snapshots.",
+      "contacts": "Map and 3D aids use server-authorized contacts, including last-known aging. If rendering requires an enemy pose, do not let that pose silently become a detected sensor track or global map marker. Define and test the disclosure channel before claiming fog-of-war enforcement.",
+      "bounds": "Bound snapshot size, per-recipient queue and resync frequency; use deltas/interest/LOD after correctness. Existing bounded socket queues and interest cadence do not establish capacity for hundreds of units."
+    }
+  },
+  "implementationOwnersAndReuse": [
+    {
+      "area": "Lobby and transport",
+      "existing": [
+        "crates/server/src/lobby.rs",
+        "crates/server/src/server.rs",
+        "crates/server/src/ws.rs"
+      ],
+      "change": "Keep existing room/ws dispatch and synchronization. Add CombinedMatch domain and versioned dispatch, participant ownership, independent unit storage, lifecycle transactions and world snapshots. Generalize helpers to a combatant/unit adapter rather than making AI Player records.",
+      "proof": "Real sockets drive the actual scenario; old rooms retain their behavior."
+    },
+    {
+      "area": "Ground movement and AI",
+      "existing": [
+        "crates/physics/src/tank/mod.rs",
+        "crates/physics/src/tank/terrain.rs",
+        "crates/server/src/gameplay.rs"
+      ],
+      "change": "Wire native tank dynamics/terrain/obstacle adapters to server-owned units. Supply human and AI inputs to the same accepted actuator path; apply combat mobility and weapon caps. Add route following, local spacing/obstacle response, perception/aiming and platoon order state.",
+      "proof": "AI tanks actually negotiate terrain, stop/turn/aim/fire and lose mobility after accepted damage. No scripted HP bars or client-only convoy animation."
+    },
+    {
+      "area": "Damage, ammo, projectiles and replay",
+      "existing": [
+        "crates/server/src/ammo.rs",
+        "crates/server/src/aircraft.rs",
+        "crates/server/src/missiles.rs",
+        "crates/server/src/shot_flight.rs",
+        "crates/server/src/replay_receipts.rs",
+        "crates/server/src/lobby.rs:2096"
+      ],
+      "change": "Move/adapt per-life inventories, combat states, receipts, rewind and replay actors to units. Include all AI units in missile actor queries and area effects. Map immutable unit/life references to bounded missile-world actor handles. Add real accepted aircraft cannon/bomb damage against ground-unit combat states.",
+      "proof": "Both clients see identical ammo, damage, disablement, losses and credits. Replays retain original shooter/target life across takeover and role changes.",
+      "explicitLimit": "Reuse existing plates/boxes and accepted legacy damage calculations honestly. This task does not require or certify the separate all-vehicle posed-triangle combat migration, and does not claim existing cannon flight is server-simulated merely because replay metadata exists."
+    },
+    {
+      "area": "Actual game client",
+      "existing": [
+        "handoff/bundle/app.js.html:36298",
+        "handoff/bundle/app.js.html:38837",
+        "handoff/bundle/app.js.html:42874",
+        "handoff/bundle/app.js.html:43417"
+      ],
+      "change": "Adapt real DeployScreen, online tank/air control, remote entities, ammo/damage HUD and map to the new unit/role contract. Preserve verified core 212 radar/seeker/ground-aileron fixes. Add company/platoon selection, accepted order status and survivor selection. Replace personal SP UI only for the combined scenario.",
+      "proof": "A user can enter the scenario, command three platoons, drive/fire, lose a tank, take over the same survivor and fly in the shared battle using the production bundle. A standalone mock page or client/web/src-only edit is insufficient."
+    },
+    {
+      "area": "Facilities, routes, contact and round rules",
+      "existing": [
+        "crates/server/src/lobby.rs:1023",
+        "crates/server/src/lobby.rs:2579",
+        "crates/server/src/missiles.rs:77",
+        "docs/air-frontline/korea-layout-proposal.json"
+      ],
+      "change": "Replace player-only conquest with accepted eligible world-unit occupation, scenario objectives/readiness and round clock. Add contact aging, physical source/route eligibility, service jobs, bridge/runway damage and engineers using shared terrain/surface revisions.",
+      "proof": "Actual ground/air actions change the same front, service access and infrastructure in both clients."
+    }
+  ],
+  "firstPlayableVerticalSlice": {
+    "label": "An actual shared Korean ground-and-air battle, intentionally smaller than the final theatre/population",
+    "completionClaim": "Playable integration slice only. Do not label the whole requested mode complete when this slice passes.",
+    "world": "One georeferenced 1:1 Korean corridor taken from verified road/terrain evidence; two team deployment areas, one connected frontline capture objective, one usable airfield per team and collision-consistent road/bridge approaches.",
+    "minimumActors": "At least one full persistent 10-tank player company, an opposing independent AI ground force, one visible infantry squad per team and a pilot from a second real client in the same server battle. Also exercise a second ground participant/company sequentially or concurrently to verify ownership isolation; the final 8..12-per-team load is a later measured gate.",
+    "minimumActions": [
+      "Create/join the new scenario with explicit profile/era/protocol and reject incompatible clients.",
+      "Deploy the company at real separated staging positions, directly drive the command tank and issue move/attack/defend to all three AI platoons through the actual map UI.",
+      "AI physically moves and uses perception, aiming, finite per-unit ammunition and accepted ground damage; both clients observe identical disables and deaths.",
+      "At least one era-valid aircraft can deploy from a field and a farther-back air start. The second client attacks that same ground force using an accepted cannon path and at least one real bomb-release/fall/burst path; ground vehicles can damage that aircraft through accepted existing rules.",
+      "A controlled tank is destroyed; take over a deliberately moved, damaged and partly depleted owned survivor. Preserve its UnitRef, exact pose, ammo, fuel/damage/cooldowns and show nine living company vehicles rather than ten.",
+      "At a valid deployment return, the owner can fly while that same company continues its accepted AI order. This transition neither clones units nor charges personal SP; loss-based team readiness remains accepted once.",
+      "Capture changes only from accepted eligible ground/infantry occupancy, includes AI and advances the shared objective/readiness state.",
+      "Land and complete one accepted normal 10..20-second repair/ammo/fuel service at a functioning friendly field. Stopped arbitrary ground outside the field cannot refill.",
+      "Disconnect/reconnect during combat restores the same company/units/order/ammo/damage after both shorter and longer than the legacy 20-second seat grace; stale input and old target references are rejected.",
+      "Finish a configurable short test round using the same round-end/reset path, then prove a normal configured 45..90-minute round clock without carrying old entity/projectile identities into the new battle."
+    ],
+    "requiredEvidence": [
+      "Server and production bundle built from a recorded verified-repair-based revision, with exact scenario, era, terrain, protocol and combat/physics artifact hashes.",
+      "Two simultaneous real browser/WebGL clients against the Rust ws server, recording their accepted unit IDs, company roster, orders, inventory and damage revisions. Unit tests and a mocked UI cannot substitute.",
+      "Before/after takeover snapshots and event ledger proving 10 -> 9 -> 9 strength, same survivor life/location/ammunition/damage, one loss charge and no hidden spawn/refill.",
+      "Cross-domain hit/discharge/damage evidence for air-to-ground, ground-to-air and AI-to-ground, with the reused legacy contact/flight approximations declared.",
+      "Invalid-owner/stale-epoch/old-life/duplicate-spawn tests through actual Lobby/ws dispatch, not only a detached domain library.",
+      "A representative server tick/queue, client frame and replication measurement for the slice, plus an explicit list of unimplemented full-scope items."
+    ],
+    "notEnough": [
+      "A Company struct, route library or unit-test suite with no actual Lobby/ws/client owner.",
+      "A design viewer that records local command intentions.",
+      "Removing the online aircraft guard while leaving personal SP, on-ground local refills and online store rejection intact.",
+      "Creating ten visual meshes or local bots that do not own accepted ammunition/damage/capture state.",
+      "Testing only two planes or one tank, with no actual persistent company takeover or shared air-to-ground damage."
+    ]
+  },
+  "implementationSequenceAndGates": [
+    {
+      "step": "P0",
+      "title": "Verified base and scenario seam",
+      "dependsOn": [],
+      "work": "Use a new worktree from f3c6d88 or newer verified repairs. Bring in reviewed design docs; inventory runtime bundle/WASM/catalog versions. Add separate scenario/capability negotiation and explicitly gate old messages. Keep Casual/Historical physics profiles separate.",
+      "gate": "Current aircraft fixes and legacy room compatibility remain verified; the real client creates/joins a versioned combined room and incompatible clients receive a clear update requirement."
+    },
+    {
+      "step": "P1",
+      "title": "Independent combatants and accepted control lifecycle",
+      "dependsOn": [
+        "P0"
+      ],
+      "work": "Add room-owned participants/companies/platoons/units, per-unit ledgers/combat states and immutable projectile refs. Adapt existing discharge/damage/replay/missile helpers, snapshots and production client to units. Implement atomic deployment/loss/takeover/return/resume without calling fresh spawn on a survivor.",
+      "gate": "Real Lobby/ws/client path shows persistent distinct unit lives, rejects unauthorized/stale epoch control, preserves state on takeover and never creates an extra company on role changes or reconnect. Domain tests alone do not close P1."
+    },
+    {
+      "step": "P2",
+      "title": "Physical company AI on native terrain",
+      "dependsOn": [
+        "P1"
+      ],
+      "work": "Connect existing native tank dynamics to the server, build canonical terrain/obstacle adapters, add route/formation/perception/aiming controllers, company orders and visible infantry. Use accepted weapons/ammo/damage for AI and ground occupancy for one front.",
+      "gate": "Drive one tank and command all three platoons in the real client; opposing autonomous units move/fight and AI/infantry capture without a fake player or scripted HP outcome."
+    },
+    {
+      "step": "P3",
+      "title": "Real shared aircraft sortie, ordnance and field service",
+      "dependsOn": [
+        "P1",
+        "P2"
+      ],
+      "work": "Adapt existing DeployScreen->deploy_air->air_spawned->enterAircraftOnline skeleton into unit-scoped combined deployment without personal SP. Add accepted aircraft inventory/fuel, field/air starts, shared cannon and bomb ordnance against world units, accepted ground-to-air hits and 10..20-second service. Keep company AI active while the owner flies. Explicitly negotiate and test the declared human-aircraft motion authority class; do not label client plant plus server State admission as full server flight simulation.",
+      "gate": "All firstPlayableVerticalSlice actions and evidence pass with simultaneous real clients. Only now call the shared ground-and-air slice playable."
+    },
+    {
+      "step": "P4",
+      "title": "Infrastructure and light logistics on multiple connected fronts",
+      "dependsOn": [
+        "P3"
+      ],
+      "work": "Expand Korean fronts and routes. Add canonical destructible bridge spans/runway patches, navigation invalidation, engineering jobs/temporary crossings, supply/escort effects, service interruptions and bounded physical replacements. Independent support and visible infantry act on both sides.",
+      "gate": "Two clients see matching destroyed surfaces and blocked passage, AI detours or waits, engineers physically restore routes/airfield functionality, and escorted supply accelerates recovery without an airport per-round stock ledger."
+    },
+    {
+      "step": "P5",
+      "title": "Era catalog, contact policy and complete sortie systems",
+      "dependsOn": [
+        "P3"
+      ],
+      "work": "Enforce approved ground/air/store/sensor/air-defence era manifests for both teams. Expand missing required store types and accepted per-unit endurance UI; implement discovery/last-known contacts for map and 3D aids. Keep Space+R ACM assistance scoped to the aircraft's actual sensor capability. Add independent AI aircraft on both sides with a verified per-unit server host for the existing C/WASM flight plant and accepted perception/weapons; keep companies active regardless of human role choices.",
+      "gate": "Forbidden variant/store/sensor combinations are rejected server-side even if forged; stale contacts do not guide weapons; Casual does not reveal undiscovered enemies; accepted ammo/fuel/service UI matches the server. Autonomous air and ground forces operate on both teams without human role quotas, and aircraft plant instances do not share/reset one another state."
+    },
+    {
+      "step": "P6",
+      "title": "Taiwan terrain, maritime logistics and final population",
+      "dependsOn": [
+        "P4",
+        "P5"
+      ],
+      "work": "Connect the Taiwan real-map terrain, airports, shore/sea routes, transport and beachhead supply to the same domain. Tune support budgets and raise the current 16-human limit to tested 16..24 total/8..12 per team. Measure up to 240 persistent company tanks plus pilots, independent support, infantry and engineering/projectiles.",
+      "gate": "Both theatres support actual ground and aircraft play, including Taiwan transport/beachhead continuity. Worst-case server AI/tick/queue and desktop/mobile rendering/replication budgets are measured on recorded hardware; mobile rendering reductions do not change combat outcomes."
+    },
+    {
+      "step": "P7",
+      "title": "Round endurance, complete integration review and deployment",
+      "dependsOn": [
+        "P4",
+        "P5",
+        "P6"
+      ],
+      "work": "Exercise 45..90-minute rounds, replacement/reconnect/slot bounds, victory/reset, infrastructure recovery and failure handling. Validate required aircraft asset/control/cockpit repairs separately against their actual models. Deploy a source-matched server, production bundle, native/WASM artifacts and catalogs using the existing deployment path only after reviewable checks.",
+      "gate": "Full canonical acceptance requirements have evidence and unresolved items are stated. New protocol/server state cannot be shipped with only a page refresh. Do not claim the mode or historical/model repair backlog complete solely from passing the smaller slice."
+    }
+  ],
+  "targetedVerificationMatrix": [
+    {
+      "case": "Concurrent takeover attempts",
+      "expected": "One atomic control commit, one controller, unchanged unit life/state; other request rejected with current revisions."
+    },
+    {
+      "case": "Alive player requests a remote survivor",
+      "expected": "Rejected: no controlled-tank-loss gate. Ordinary friendly-base role choice cannot become field hot switching."
+    },
+    {
+      "case": "Old control input arrives after release",
+      "expected": "Rejected by control epoch; neither previous tank nor new aircraft moves/fires from stale input."
+    },
+    {
+      "case": "Old air/ground hit targets a player after role switch",
+      "expected": "Target resolves only by original UnitRef/life. Never substitute the participant's newly controlled unit."
+    },
+    {
+      "case": "Accepted projectile outlives controller death",
+      "expected": "Immutable discharge/credit retained; still resolves against an actual target life under existing accepted weapon rules."
+    },
+    {
+      "case": "Repeat deployment request or disconnect/rejoin",
+      "expected": "Original result reused or request rejected; living company + committed replacements remains at most ten and one company slot per participant."
+    },
+    {
+      "case": "Vehicle loss reported twice",
+      "expected": "One terminal life and one readiness debit; no second death charge from replay/retry/role selection."
+    },
+    {
+      "case": "Takeover with partly fired gun and broken track",
+      "expected": "Counts/revision, reload, track damage, fuel, pose/velocity and UnitRef unchanged; mobility still constrained."
+    },
+    {
+      "case": "AI commander/pilot disconnect lasts more than 20 seconds",
+      "expected": "Company remains bounded and active under AI; resume restores same ownership. No silent company deletion or new ten-tank grant."
+    },
+    {
+      "case": "Order to platoon containing human-controlled survivor",
+      "expected": "Only AI members execute movement. Human tank remains manually driven while its platoon membership and moved command role stay explicit."
+    },
+    {
+      "case": "Out-of-era loadout forged at deploy/rearm/replacement",
+      "expected": "Server manifest rejects variant, weapon/store or sensor; neither AI supply nor local UI can bypass."
+    },
+    {
+      "case": "No human ground commander on one team",
+      "expected": "Its independent AI/support/infantry still move, fight, capture and support the front."
+    },
+    {
+      "case": "Aircraft releases a real bomb against a company tank",
+      "expected": "One accepted store debit and trajectory/burst, accepted ground damage/loss, identical client results; no local-only deletion or scripted bar change."
+    },
+    {
+      "case": "Stopped aircraft outside friendly airfield",
+      "expected": "No accepted refill/repair/fuel reset or loadout swap; local K behavior cannot mutate the server unit."
+    },
+    {
+      "case": "Airfield service interrupted or runway damaged",
+      "expected": "Shared service eligibility/progress changes, no completed refill transaction after invalidation; unaffected functional facilities follow explicit scenario rules."
+    },
+    {
+      "case": "Bridge destroyed during crossing or route following",
+      "expected": "Accepted surface revision removes the same visible/physical deck and route edge, handles units on the span explicitly, prevents invisible passage and triggers detour/engineering."
+    },
+    {
+      "case": "Expired mobile contact under Casual",
+      "expected": "Map freezes last position/time, aid does not reveal the current location, AI/seeker cannot use a stale marker as a live track."
+    },
+    {
+      "case": "Round reset with in-flight missiles and pending repairs",
+      "expected": "New battle ID; old inputs/projectile hits/engineering completions ignored; unit/slot/ammo ledgers do not leak."
+    },
+    {
+      "case": "Hundreds of units with mobile low graphics",
+      "expected": "One accepted combat/capture world; measured queue/tick/frame limits and bounded resync. No deletion of gameplay entities to satisfy a graphics budget."
+    }
+  ],
+  "remainingDesignChoices": [
+    {
+      "topic": "Replacement timing and readiness coefficients",
+      "alreadyConfirmed": "Losses debit team readiness, no personal money, and replacements cannot clone surviving companies. Missing company members are replenished in batches at a friendly deployment source. Reinforcement vehicles physically follow a valid route to rejoin; no instant frontline refill.",
+      "proposedHandling": "Keep timing/costs in scenario tuning data, implement bounded source/route reservations and arrival evidence first. Do not invent a confirmed personal timer or arbitrary paid recovery."
+    },
+    {
+      "topic": "Simplified company commands while flying (confirmed)",
+      "alreadyConfirmed": "While flying, the owner can issue simplified move/attack/defend map orders to the same company, while directly controlling only one vehicle.",
+      "proposedHandling": "Use the same company ownership, order revision and accepted AI path for move/attack/defend from either role. Direct control remains limited to one vehicle; no tank-following-the-aircraft behavior."
+    },
+    {
+      "topic": "Disconnected participant expiry and empty-round behavior",
+      "alreadyConfirmed": "Reconnect must not clone/reset companies; AI can fight without direct human control.",
+      "proposedHandling": "Retain battle participant/company slots until explicit withdrawal/round end, define bounded team reassignment or withdrawal after a configured long timeout, and never free a company slot while its vehicles remain uncontrolled in-world. Do not bind ownership to the existing 20-second socket grace."
+    },
+    {
+      "topic": "Service progress and disabled facilities",
+      "alreadyConfirmed": "Normal service is 10..20 seconds; infrastructure/supply affects availability and runway repairs, without per-round airport stock.",
+      "proposedHandling": "Specify whether progress pauses or resets for departure/combat interruption and which facility damage disables each function. Preserve one accepted transaction and visible status in all cases."
+    },
+    {
+      "topic": "Population and scheduling budgets",
+      "alreadyConfirmed": "8..12 humans per team, persistent companies while flying, independent support/infantry, same mobile gameplay.",
+      "proposedHandling": "Measure per-system tick costs and replication on recorded VPS/client hardware before locking limits. Lower AI decision frequency or visual LOD may be tuned; deleting combatants or substituting simulated outcome bars is not an accepted shortcut."
+    }
+  ],
+  "reviewOutcome": {
+    "existingReusableFoundation": "Versioned room rules and ammunition, accepted ground combat commits/replay receipts, aircraft box damage and gun/AAM online deployment, missile simulation/APS, tank dynamics interfaces, capture/supply timers and reconnect transport exist.",
+    "actualBlockers": [
+      "No independent persistent company/platoon/unit owner in the running lobby.",
+      "Player-bound life/ammo/pose/projectile targets cannot safely implement survivor takeover and role changes unchanged.",
+      "No company AI/controller/native movement integration in the server tick; current state admission is not authoritative vehicle simulation.",
+      "Online air-to-ground stores are explicitly disabled and existing aircraft deployment/service lacks combined unit life and no-personal-currency rules.",
+      "The Rust aircraft tick advances damage only. Autonomous aircraft and any full server flight authority need a real isolated host for the existing C/WASM plant; the initial human-aircraft path must honestly declare its accepted-motion approximation.",
+      "Ground capture, supply, missile actor sets and snapshots currently enumerate players rather than the full accepted world.",
+      "Legacy 20-second seat expiry and 16-total-human room cap conflict with persistent companies and 8..12 humans per team.",
+      "Dynamic bridge/runway topology, engineers, light airfield logistics and era-wide weapons/sensor validation are not implemented by the reviewed room.",
+      "Two-client combined gameplay, full-population load and real-theatre playability remain unverified."
+    ],
+    "claimBoundary": "This contract specifies implementation and evidence gates. It does not claim complete gameplay, complete visible-triangle combat migration, corrected aircraft assets, deployed updates or measured performance."
+  },
+  "motionAuthorityPlan": {
+    "ground": "For the first real company slice, use the existing native tank dynamics under the server unit owner, with human and AI actuator inputs. Apply accepted combat mobility caps, canonical terrain and physical obstacles. Current lobby client-State relaying is not this integration.",
+    "humanAircraftInitialCompatibility": "A scoped continuation of the existing client C/WASM aircraft plant is permissible for the first playable slice: submit unit_motion_proposal with exact UnitRef/control_epoch and monotonic pose revision; server admits bounded poses and owns resulting accepted pose/history, combat, ammo/stores, fuel/service and lifecycle. This is a hybrid accepted-motion approximation, not full server-authoritative aircraft dynamics. Declare its speed/acceleration/terrain/fuel validation limits and reconcile accepted damage factors. Never accept a reset as a takeover or a free rearm.",
+    "aircraftAiAndStricterAuthority": "Independent autonomous aircraft eventually need a server motion owner. Reuse verified repair flight-core source via isolated WASM instances or a native per-aircraft context adapter; measure and prove state isolation/native-WASM parity before selecting the production host. Preserve hidden instructor/dynamics state, per-airframe surface configuration, damage effects and the same world-ground/landability callbacks. This is a flight-host integration task, not an unrelated collision-engine rewrite.",
+    "inputProtocol": "unit_input owns ground actuators in the first slice. A versioned unit_motion_proposal is only allowed for an explicitly negotiated human-aircraft hybrid authority class, current controller epoch and accepted aircraft life. Never accept generic legacy State in combined rooms.",
+    "claimedEvidence": "Record which authority class each tested aircraft uses. Passing existing AirDamage tests or observing server snapshot relay does not prove server flight simulation."
+  },
+  "confirmedPolicyAdditions": {
+    "physicalReinforcements": "Missing company members are replenished in batches at a friendly deployment source. Reinforcement vehicles physically follow a valid route to rejoin; no instant frontline refill.",
+    "pilotMapOrders": "While flying, the owner can issue simplified move/attack/defend map orders to the same company, while directly controlling only one vehicle.",
+    "friendlyFire": {
+      "enabledByDefault": false,
+      "vehicleCollisions": true,
+      "ballisticBlocking": true,
+      "meaning": "Friendly units remain physical obstacles and ballistic contacts; disabling friendly damage must not make them transparent."
+    },
+    "fullTaiwanMainIsland": true
+  },
+  "relatedSpecifications": [
+    "ai-spectator-design.json",
+    "era-roster-study.json",
+    "taiwan-theatre-study.json"
+  ],
+  "observerAddendum": "Separate observer identity/capabilities from combat team participants. One observer may launch an AI-versus-AI room. AI combat, world replication and round clock continue with zero human drivers/pilots; full observation state is isolated from AI/team discovery channels. Refer to ai-spectator-design.json for production-entry and actual-combat gates. Team-owned AI companies have explicit TeamAiCompany ownership and a separate scenario quota; an observer never stands in for their owner."
+}

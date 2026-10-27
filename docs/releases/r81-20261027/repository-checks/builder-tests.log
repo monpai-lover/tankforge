@@ -1,0 +1,13 @@
+test_corrupt_gzip_leaves_no_partial_output (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_corrupt_gzip_leaves_no_partial_output) ... ok
+test_default_expected_hash_is_the_frozen_release (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_default_expected_hash_is_the_frozen_release) ... ok
+test_default_root_follows_script_from_another_working_directory (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_default_root_follows_script_from_another_working_directory) ... ok
+test_existing_output_is_preserved (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_existing_output_is_preserved) ... ok
+test_extra_part_is_rejected_without_output (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_extra_part_is_rejected_without_output) ... ok
+test_hash_mismatch_removes_only_its_temporary_file (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_hash_mismatch_removes_only_its_temporary_file) ... ok
+test_missing_middle_part_is_rejected_without_output (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_missing_middle_part_is_rejected_without_output) ... ok
+test_valid_stream_across_five_parts (test_rebuild_current_handoff.RebuildCurrentHandoffTests.test_valid_stream_across_five_parts) ... ok
+
+----------------------------------------------------------------------
+Ran 8 tests in 0.702s
+
+OK

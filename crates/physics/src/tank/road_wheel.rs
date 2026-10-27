@@ -98,15 +98,32 @@ pub struct GroundProfile {
     pub run: Vec<f64>,
     pub h: Vec<f64>,
     pub pts: Vec<V3>,
+    /// Explicit contact availability. Empty preserves legacy all-supported
+    /// profiles; a present mask never turns a missing entry into ground.
+    pub supported: Vec<bool>,
+}
+impl GroundProfile {
+    pub fn supported_at(&self, index: usize) -> bool {
+        self.supported.is_empty() || self.supported.get(index) == Some(&true)
+    }
+    pub fn along_slope(&self, k: usize) -> f64 {
+        if self.supported_at(k - 1) && self.supported_at(k + 1) {
+            (self.h[k + 1] - self.h[k - 1]) / (self.zs[k + 1] - self.zs[k - 1])
+        } else if self.supported_at(k) && self.supported_at(k + 1) {
+            (self.h[k + 1] - self.h[k]) / (self.zs[k + 1] - self.zs[k])
+        } else if self.supported_at(k - 1) && self.supported_at(k) {
+            (self.h[k] - self.h[k - 1]) / (self.zs[k] - self.zs[k - 1])
+        } else { 0.0 }
+    }
 }
 
 /// Height of the track under station `s` (world y): the highest of the ground under the wheel
 /// and the ground nearby, falling away round the wheel's rim and then at the bridging angle.
-pub fn support_under(window: f64, prof: &GroundProfile, s: &Station) -> f64 {
+pub fn support_under(window: f64, prof: &GroundProfile, s: &Station) -> Option<f64> {
     support_under_mode(window, prof, s, false)
 }
 
-pub fn support_under_mode(window: f64, prof: &GroundProfile, s: &Station, bare: bool) -> f64 {
+pub fn support_under_mode(window: f64, prof: &GroundProfile, s: &Station, bare: bool) -> Option<f64> {
     let zs = &prof.zs;
     let g = &prof.h;
     let mut j = 1;
@@ -114,16 +131,18 @@ pub fn support_under_mode(window: f64, prof: &GroundProfile, s: &Station, bare: 
         j += 1;
     }
     let u = ((s.z - zs[j - 1]) / (zs[j] - zs[j - 1])).clamp(0.0, 1.0);
-    let mut best = g[j - 1] + (g[j] - g[j - 1]) * u;
+    let mut best = if prof.supported_at(j - 1) && prof.supported_at(j) {
+        Some(g[j - 1] + (g[j] - g[j - 1]) * u)
+    } else { None };
     for k in 0..zs.len() {
         let dz = (zs[k] - s.z).abs();
-        if dz > window || prof.run[k] >= 0.0 || (bare && dz >= s.r) {
+        if !prof.supported_at(k) || dz > window || prof.run[k] >= 0.0 || (bare && dz >= s.r) {
             continue;
         }
         let round = if dz < s.r { s.r - (s.r * s.r - dz * dz).sqrt() } else { f64::INFINITY };
         let v = g[k] - if bare { round } else { round.min(BRIDGE * dz) };
-        if v > best {
-            best = v;
+        if best.is_none_or(|best| v > best) {
+            best = Some(v);
         }
     }
     best
@@ -147,9 +166,9 @@ mod tests {
     #[test]
     fn the_track_bridges_a_narrow_dip_and_wraps_a_hump() {
         let zs: Vec<f64> = (0..41).map(|i| -2.0 + i as f64 * 0.1).collect();
-        let flat = GroundProfile { run: vec![-1.0; zs.len()], h: vec![0.0; zs.len()], pts: vec![], zs: zs.clone() };
+        let flat = GroundProfile { run: vec![-1.0; zs.len()], h: vec![0.0; zs.len()], pts: vec![], supported: vec![true; zs.len()], zs: zs.clone() };
         let s = Station { z: 0.0, y: 0.5, r: 0.35, x: 1.0, side: 1 };
-        assert_eq!(support_under(0.6, &flat, &s), 0.0);
+        assert_eq!(support_under(0.6, &flat, &s), Some(0.0));
         // a 0.2 m wide, 0.3 m deep slot right under the wheel: the track spans it
         let mut dip = flat.clone();
         for (k, z) in zs.iter().enumerate() {
@@ -157,7 +176,7 @@ mod tests {
                 dip.h[k] = -0.3;
             }
         }
-        let d = support_under(0.6, &dip, &s);
+        let d = support_under(0.6, &dip, &s).unwrap();
         assert!(d > -0.08 && d < 0.0, "the wheel dips {d} into a 0.3 m slot");
         // a 10 cm bump 0.2 m ahead lifts the wheel before it gets there, less than the bump
         let mut bump = flat.clone();
@@ -166,7 +185,7 @@ mod tests {
                 bump.h[k] = 0.1;
             }
         }
-        let lift = support_under(0.6, &bump, &s);
+        let lift = support_under(0.6, &bump, &s).unwrap();
         assert!(lift > 0.0 && lift < 0.1, "{lift}");
         assert!((wheel_angle(2.0 * std::f64::consts::PI * 0.4, 0.4) - 2.0 * std::f64::consts::PI).abs() < 1e-12);
     }

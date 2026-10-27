@@ -22,6 +22,12 @@ pub const BELLY_MU: f64 = 0.45;
 pub trait Ground {
     fn height(&self, x: f64, z: f64) -> f64;
     fn surface(&self, x: f64, z: f64) -> &TerrainDef;
+    /// A known height (e.g. a water plane for flight) need not support a tank.
+    /// Existing grounds retain exactly their original height/contact behavior.
+    fn has_support(&self, _x: f64, _z: f64) -> bool { true }
+    fn support_height(&self, x: f64, z: f64) -> Option<f64> {
+        if self.has_support(x, z) { Some(self.height(x, z)) } else { None }
+    }
 }
 
 /// Ground made of a height function and one surface (tests, tools).
@@ -152,7 +158,7 @@ impl ContactGeometry {
 
     pub fn new_state(&self) -> ContactState {
         let n = self.zs.len();
-        let row = || GroundProfile { zs: self.zs.clone(), run: self.run.clone(), h: vec![0.0; n], pts: vec![[0.0; 3]; n] };
+        let row = || GroundProfile { zs: self.zs.clone(), run: self.run.clone(), h: vec![0.0; n], pts: vec![[0.0; 3]; n], supported: vec![true; n] };
         ContactState { prof: [row(), row()], run_prev: [vec![0.0; n], vec![0.0; n]], belly_prev: vec![0.0; self.belly.len()], belly: 0.0, response_pool: (0..2 * self.cz.len() + 2 * self.zs.len() + self.belly.len()).map(|_| ResponsePair::new(self.station_count)).collect() }
     }
 
@@ -165,7 +171,9 @@ impl ContactGeometry {
                 let h = if self.run[k] >= 0.0 { self.ground + self.run[k] } else { self.ground };
                 let p = body.world_point([x, h, self.zs[k]]);
                 prof.pts[k] = p;
-                prof.h[k] = terrain.height(p[0], p[2]);
+                let support = terrain.support_height(p[0], p[2]);
+                prof.supported[k] = support.is_some();
+                prof.h[k] = support.unwrap_or(0.0);
             }
         }
     }
@@ -179,9 +187,8 @@ impl ContactGeometry {
         while k < zs.len() - 2 && zs[k] < z {
             k += 1;
         }
-        let dz = zs[k + 1] - zs[k - 1];
-        let along = (a.h[k + 1] - a.h[k - 1]) / dz;
-        let across = (if side > 0 { a.h[k] - o.h[k] } else { o.h[k] - a.h[k] }) / (2.0 * self.track_x);
+        let along = a.along_slope(k);
+        let across = if a.supported_at(k) && o.supported_at(k) { (if side > 0 { a.h[k] - o.h[k] } else { o.h[k] - a.h[k] }) / (2.0 * self.track_x) } else { 0.0 };
         // horizontal forward / right of the hull
         let f = norm([body.ez[0], 0.0, body.ez[2]]);
         let r = [f[2], 0.0, -f[0]];
@@ -203,6 +210,7 @@ impl ContactGeometry {
                 let i = if front { base } else { base + per - 1 };
                 let blend = WheelBlend::single(i, 1.0 - u);
                 let p = body.world_point([side as f64 * self.track_x, self.ground + self.run[k] + ss.comp[i] * (1.0 - u), z]);
+                if !cs.prof[si(side)].supported_at(k) || !terrain.has_support(p[0], p[2]) { cs.run_prev[si(side)][k] = 0.0; continue; }
                 let pen = cs.prof[si(side)].h[k] - p[1]; cs.run_prev[si(side)][k] = pen;
                 let n = self.ground_normal(cs, body, side, z);
                 let load = normal_impulse(body, p, n, pen * n[1], self.run_k, self.run_c, self.run_k * 0.3, dt, blend);
@@ -213,7 +221,9 @@ impl ContactGeometry {
         }
         let mut belly = 0.0;
         for (i, b) in self.belly.iter().enumerate() {
-            let p = body.world_point(*b); let pen = terrain.height(p[0], p[2]) - p[1]; cs.belly_prev[i] = pen;
+            let p = body.world_point(*b);
+            let Some(height) = terrain.support_height(p[0], p[2]) else { cs.belly_prev[i] = 0.0; continue; };
+            let pen = height - p[1]; cs.belly_prev[i] = pen;
             let load = normal_impulse(body, p, [0.0, 1.0, 0.0], pen, self.belly_k, self.belly_c, self.belly_k * 0.15, dt, WheelBlend::default());
             belly += load;
             if load > 0.0 { extra.push(Contact::new(p, [0.0, 1.0, 0.0], load, 0, Grip { traction_mu: BELLY_MU, lateral_mu: BELLY_MU, shear_k: None }, None)); }
@@ -228,3 +238,7 @@ fn normal_impulse(body: &mut VehicleRigidBody, p: V3, n: V3, pen: f64, k: f64, c
     let j = (dt * (k * pen - (c + dt * k) * vn) / (1.0 + dt * (c + dt * k) * inv)).clamp(0.0, cap * dt);
     body.coupled_apply_impulse_at(scale(n, j), p, blend); j / dt
 }
+
+#[cfg(test)]
+#[path = "terrain_support_tests.rs"]
+mod support_tests;

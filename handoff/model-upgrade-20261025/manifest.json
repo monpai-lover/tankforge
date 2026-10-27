@@ -1,0 +1,8 @@
+{
+  "format": "tankforge-model-context-multi-v1",
+  "payload_sha256": "5c44a47c1c8172824593eded715bfb0fb19d61de91b89bb4a28412bfba380899",
+  "base_app_sha256": "e75dff32e6c19240263ce61186106ed406f683bbb1963582117b365c80126344",
+  "target_app_sha256": "d5d27a26a6220d32120cfadac48217a509f64f2c00a71d78e52346861a36c0be",
+  "hunks": 65,
+  "scope": "aircraft model presentation and physical station layout; native combat blocks preserved"
+}

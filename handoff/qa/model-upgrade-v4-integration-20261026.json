@@ -1,0 +1,16 @@
+{
+  "packageSha256": "41e923aa6dcb24be74e59b4e3833fad64fc00cd6db017b81f8d5aa6464bfdc43",
+  "hashEntriesVerified": 178,
+  "exactModelHunks": 16,
+  "manualNativeOrientationHunks": 2,
+  "beforeAppSha256": "ab9563d9444e317d240a133956a962bf877c9ae736887ff962f1639a2512da50",
+  "afterModelAppSha256": "664b4959ed6c81087068e743c77553a54b1f1258917b89fbca6e829fc59c1684",
+  "preserved": [
+    "flight kernel",
+    "APHE replay",
+    "geometry immutable cache",
+    "verified armor declarations",
+    "native control and accepted resources"
+  ],
+  "source": "Supplied model v4; evidence claims require local rerun"
+}

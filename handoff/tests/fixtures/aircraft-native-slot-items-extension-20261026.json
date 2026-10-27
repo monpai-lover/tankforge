@@ -1,0 +1,37 @@
+{
+  "scope": "Explicit native source-socket geometry extension and core214 gear-failure ABI; every previous semantic field unchanged after removing only stores.slotItems and historical RP3 Windows one-ULP normalization.",
+  "baseReceiptSha256": "d5eb789c29b25a1c03064f2550129cb9aaeda0c370212c3537de6f7fc5ee6827",
+  "kernel": {
+    "coreVersion": 214,
+    "flightWasmSha256": "b35e59001c3e6d8f1f63c6645396359c2516a5cd1618ee22fbe9cd54d086d0f1",
+    "reason": "Explicit gear failure/repair ABI; original serialized aircraft physics arguments remain byte-identical."
+  },
+  "slotItems": {
+    "nf01": "3c91c48585ae3a6d151c5951473b464db4d3d369048d7c1bd5032adba766b4ee",
+    "nf02": "bdc457a06ec29252d02c6a1f3c625316f05c4297efafa820c24efe80dda4c990",
+    "p51d": "76b2f2e4fa07384d2ca9c2dee33c4ecb366959a3843964f02d460ba2ba9f29dd",
+    "bf109g": "72c48de3f54921e895fd78b49c010ed3ccf6ceaa8f4b9f2d7e4b3981018a44dd",
+    "spitfire9": "405dc61672869956106a58cfe1fce524106b9d35ef191fedd162506598a243c1",
+    "mig15": "4c1dab4a6bb93249e5d2ea07ef289ead312012e876818bc63fe408f990aa3ce2",
+    "f86f": "0fbf5095fdebc38ee7d102a39fe8313cabc185a7b043321047d4f05b939644f7",
+    "f104g": "04847ba21cb42877aafc905f0a2631a01e7eedc5d9537f4a978d481f0d1b2f16",
+    "mig21": "a3d29a641e0c8d1f72ad90f819f0262d5242dd24d21f2e04dc7aba2fa38132a0",
+    "fw190a8": "b52cbb73f0a73bba496410b34af9adb462e9d39166b7b46fa9a87a67164bdc50",
+    "yak9u": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+    "a6m2": "1898504ea00d9196cbfddf0c5e01bc82d0a9d23a407ce84f021fd54c9d08ea66",
+    "f4u1d": "62e895287607a857c52f47697c9bf507c4d309b19e00a67c3915fd6ee052a69e",
+    "me262": "c383f031df914dc94423aa1e9576bf4d8f12b5cad2af3da6dd10883b656c48d5",
+    "hunter6": "499f056f7382ae80f828faaa3ebffee48babcffb1126975d98a8f7c1f45b44c7",
+    "mig17f": "8904e73fb16509b764ddfa9abcfaf6ccbaf9632b68e8d2666797c29e7d659572",
+    "mirage3e": "bff7f4f1a432fa70fd07be78df71acc7c7c677dbf86141b009ae253287093010",
+    "f4e": "fab6d6a2fa9af34e1172b4a219132bfbd791f5b1248444d0ab523af6a658ff93",
+    "f15c": "46bfb737d4d9a7e97b2d7a52ff4323d8c45b95c017c66c00e816254edc32ab22",
+    "mig29": "1251acbadd3ed36b17e6db47d22be0163d61c403443ec9228b1a39c28f27fc4f",
+    "f16v": "7b2083c98c48d1b0a0480cd8097b9c271546ea80b47c02d02b7312aa056d58cf",
+    "su27": "e80a8907b48c92dc4d9966fc40cc72ce980a60712b2b9344f4b3a40d6cee548a",
+    "a10a": "e439c96044f90a6346bb3ffc230081cfc9579e714eeb34bdeb074903a516d80f",
+    "su25": "319e1f330d12d83db2599a0c059232ebccdb60160f373414652bdd054234cbe4",
+    "me262a2a": "d48e0ca27ee2f780e4c5c0ec46c5a0abbc5d7dfcac2eb10252578137483a91f4",
+    "me262u4": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a"
+  }
+}

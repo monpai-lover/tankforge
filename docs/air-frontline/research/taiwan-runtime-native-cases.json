@@ -1,0 +1,527 @@
+{
+  "sourceMapSha256": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499",
+  "purpose": "Actual native tank follow-up cases; preserve accepted MapGround/wet/hull contacts, no bypass or teleport.",
+  "nativeExecutionStatus": "pending",
+  "cases": [
+    {
+      "id": "west:W0-W1:max-grade",
+      "kind": "slope",
+      "roadId": "west:W0-W1",
+      "start": [
+        37584.991,
+        7.7048000000000005,
+        -1103.126
+      ],
+      "end": [
+        37583.2145,
+        7.4401111104693864,
+        -1098.87925
+      ],
+      "gradePercent": 5.749917959174909,
+      "yawRad": -0.39619895754911555
+    },
+    {
+      "id": "west:W0-W1:tight-turn",
+      "kind": "turn",
+      "roadId": "west:W0-W1",
+      "turnDegrees": 95.06825232526903,
+      "approach": [
+        37990.502,
+        5.2165,
+        -2228.885
+      ],
+      "corner": [
+        38008.694,
+        5.1791,
+        -2225.211
+      ],
+      "departure": [
+        38005.62,
+        5.1673,
+        -2214.824
+      ],
+      "yawRad": 1.371519838419492
+    },
+    {
+      "id": "west:W1-W2:max-grade",
+      "kind": "slope",
+      "roadId": "west:W1-W2",
+      "start": [
+        37403.55100000001,
+        6.910790510752986,
+        -572.365
+      ],
+      "end": [
+        37402.2295,
+        6.607166589623775,
+        -567.698
+      ],
+      "gradePercent": 6.259654879619103,
+      "yawRad": -0.27593502816199356
+    },
+    {
+      "id": "west:W1-W2:tight-turn",
+      "kind": "turn",
+      "roadId": "west:W1-W2",
+      "turnDegrees": 106.66627127165418,
+      "approach": [
+        36958.422,
+        5.6612,
+        527.628
+      ],
+      "corner": [
+        36950.212,
+        5.7301,
+        534.25
+      ],
+      "departure": [
+        36958.546,
+        5.751,
+        539.966
+      ],
+      "yawRad": -0.892057656453291
+    },
+    {
+      "id": "west:W2-W3:max-grade",
+      "kind": "slope",
+      "roadId": "west:W2-W3",
+      "start": [
+        36548.31,
+        8.148934682839558,
+        4829.4805
+      ],
+      "end": [
+        36545.8645,
+        8.42376592823957,
+        4833.4397500000005
+      ],
+      "gradePercent": 5.9057583521805785,
+      "yawRad": -0.5533091126524597
+    },
+    {
+      "id": "west:W2-W3:tight-turn",
+      "kind": "turn",
+      "roadId": "west:W2-W3",
+      "turnDegrees": 92.88800600357506,
+      "approach": [
+        36882.861,
+        10.3289,
+        2821.221
+      ],
+      "corner": [
+        36896.217,
+        9.9784,
+        2833.359
+      ],
+      "departure": [
+        36888.882,
+        10.1157,
+        2840.655
+      ],
+      "yawRad": 0.8331378101922459
+    },
+    {
+      "id": "west:W3-W4:max-grade",
+      "kind": "slope",
+      "roadId": "west:W3-W4",
+      "start": [
+        36448.913250000005,
+        9.631323622896339,
+        7404.77425
+      ],
+      "end": [
+        36450.56050000001,
+        9.372125563196729,
+        7409.1505
+      ],
+      "gradePercent": 5.543155206379488,
+      "yawRad": 0.36000340663553726
+    },
+    {
+      "id": "west:W3-W4:tight-turn",
+      "kind": "turn",
+      "roadId": "west:W3-W4",
+      "turnDegrees": 43.884004707352496,
+      "approach": [
+        36719.78,
+        11.7532,
+        8135.12
+      ],
+      "corner": [
+        36730.998,
+        11.1893,
+        8145.071
+      ],
+      "departure": [
+        36732.334,
+        10.4492,
+        8161.892
+      ],
+      "yawRad": 0.8451785191766716
+    },
+    {
+      "id": "centre:C0-C1:max-grade",
+      "kind": "slope",
+      "roadId": "centre:C0-C1",
+      "start": [
+        43730.973,
+        11.4602998797254,
+        -2698.154
+      ],
+      "end": [
+        43735.00125,
+        11.729115876085542,
+        -2696.268
+      ],
+      "gradePercent": 6.043664079625676,
+      "yawRad": 1.1329162092633864
+    },
+    {
+      "id": "centre:C0-C1:tight-turn",
+      "kind": "turn",
+      "roadId": "centre:C0-C1",
+      "turnDegrees": 114.2417068915713,
+      "approach": [
+        43023.67,
+        11.893,
+        -798.377
+      ],
+      "corner": [
+        43016.91,
+        12.2022,
+        -784.224
+      ],
+      "departure": [
+        43036.462,
+        11.9818,
+        -783.784
+      ],
+      "yawRad": -0.44559789542151085
+    },
+    {
+      "id": "centre:C1-C2:max-grade",
+      "kind": "slope",
+      "roadId": "centre:C1-C2",
+      "start": [
+        42963.28675,
+        9.584869875490428,
+        633.5007499999999
+      ],
+      "end": [
+        42962.8625,
+        9.861630149523334,
+        638.2745
+      ],
+      "gradePercent": 5.774784212870354,
+      "yawRad": -0.08863856211050394
+    },
+    {
+      "id": "centre:C1-C2:tight-turn",
+      "kind": "turn",
+      "roadId": "centre:C1-C2",
+      "turnDegrees": 83.27569917781156,
+      "approach": [
+        42817.213,
+        10.706,
+        1627.612
+      ],
+      "corner": [
+        42817.491,
+        10.706,
+        1635.442
+      ],
+      "departure": [
+        42831.116,
+        10.6801,
+        1636.56
+      ],
+      "yawRad": 0.035489562668069186
+    },
+    {
+      "id": "centre:C2-C3:max-grade",
+      "kind": "slope",
+      "roadId": "centre:C2-C3",
+      "start": [
+        43841.712499999994,
+        12.223639205660469,
+        2576.085
+      ],
+      "end": [
+        43837.223249999995,
+        12.506863292157336,
+        2577.567
+      ],
+      "gradePercent": 5.990932647913884,
+      "yawRad": -1.251938789294041
+    },
+    {
+      "id": "centre:C2-C3:tight-turn",
+      "kind": "turn",
+      "roadId": "centre:C2-C3",
+      "turnDegrees": 104.75294502618507,
+      "approach": [
+        43858.597,
+        11.3735,
+        2551.731
+      ],
+      "corner": [
+        43868.647,
+        11.3856,
+        2567.193
+      ],
+      "departure": [
+        43850.691,
+        11.7938,
+        2573.121
+      ],
+      "yawRad": 0.5763615808174066
+    },
+    {
+      "id": "centre:C3-C4:max-grade",
+      "kind": "slope",
+      "roadId": "centre:C3-C4",
+      "start": [
+        42831.471,
+        15.973203060531247,
+        5630.06675
+      ],
+      "end": [
+        42833.602,
+        15.678893698513201,
+        5634.1835
+      ],
+      "gradePercent": 6.348894064185677,
+      "yawRad": 0.477660874688372
+    },
+    {
+      "id": "centre:C3-C4:tight-turn",
+      "kind": "turn",
+      "roadId": "centre:C3-C4",
+      "turnDegrees": 98.98260105206532,
+      "approach": [
+        43877.536,
+        17.4779,
+        8101.783
+      ],
+      "corner": [
+        43887.734,
+        17.1644,
+        8113.673
+      ],
+      "departure": [
+        43873.84,
+        17.0474,
+        8122.233
+      ],
+      "yawRad": 0.7089447919688578
+    },
+    {
+      "id": "east:E0-E1:max-grade",
+      "kind": "slope",
+      "roadId": "east:E0-E1",
+      "start": [
+        51380.358,
+        96.65209606924928,
+        -366.87
+      ],
+      "end": [
+        51378.572,
+        97.04389167078116,
+        -363.01666666666665
+      ],
+      "gradePercent": 9.22498525114161,
+      "yawRad": -0.43401936888665726
+    },
+    {
+      "id": "east:E0-E1:tight-turn",
+      "kind": "turn",
+      "roadId": "east:E0-E1",
+      "turnDegrees": 92.70752609368007,
+      "approach": [
+        51075.828,
+        49.8611,
+        -1246.796
+      ],
+      "corner": [
+        51056.681,
+        50.1818,
+        -1249.618
+      ],
+      "departure": [
+        51055.283,
+        50.5687,
+        -1235.554
+      ],
+      "yawRad": -1.7171288332367423
+    },
+    {
+      "id": "east:E1-E2:max-grade",
+      "kind": "slope",
+      "roadId": "east:E1-E2",
+      "start": [
+        51756.114,
+        163.3770021737419,
+        1946.856
+      ],
+      "end": [
+        51757.012,
+        163.64066461343455,
+        1950.661
+      ],
+      "gradePercent": 6.744094651967892,
+      "yawRad": 0.23176439323918616
+    },
+    {
+      "id": "east:E1-E2:tight-turn",
+      "kind": "turn",
+      "roadId": "east:E1-E2",
+      "turnDegrees": 126.09194988932857,
+      "approach": [
+        51980.842,
+        174.1205,
+        2013.717
+      ],
+      "corner": [
+        51997.342,
+        174.1009,
+        2017.201
+      ],
+      "departure": [
+        51985.38,
+        174.1733,
+        2027.966
+      ],
+      "yawRad": 1.3627015101723323
+    },
+    {
+      "id": "east:E2-E3:max-grade",
+      "kind": "slope",
+      "roadId": "east:E2-E3",
+      "start": [
+        51566.728,
+        161.49025984830507,
+        2736.8720000000003
+      ],
+      "end": [
+        51564.91650000001,
+        161.18785390023402,
+        2741.3325
+      ],
+      "gradePercent": 6.281395913189948,
+      "yawRad": -0.3857714149589164
+    },
+    {
+      "id": "east:E2-E3:tight-turn",
+      "kind": "turn",
+      "roadId": "east:E2-E3",
+      "turnDegrees": 27.853056215971936,
+      "approach": [
+        50612.264,
+        63.2387,
+        5101.355
+      ],
+      "corner": [
+        50602.48,
+        62.5912,
+        5112.089
+      ],
+      "departure": [
+        50598.175,
+        61.7233,
+        5128.74
+      ],
+      "yawRad": -0.7391303978762764
+    },
+    {
+      "id": "east:E3-E4:max-grade",
+      "kind": "slope",
+      "roadId": "east:E3-E4",
+      "start": [
+        50592.644499999995,
+        56.275675141211835,
+        5233.706
+      ],
+      "end": [
+        50592.39325,
+        55.8099264900257,
+        5238.477
+      ],
+      "gradePercent": 9.748567727546956,
+      "yawRad": -0.05261331455175658
+    },
+    {
+      "id": "east:E3-E4:tight-turn",
+      "kind": "turn",
+      "roadId": "east:E3-E4",
+      "turnDegrees": 76.00145978080211,
+      "approach": [
+        50452.408,
+        31.7941,
+        6684.962
+      ],
+      "corner": [
+        50451.83,
+        31.9544,
+        6702.841
+      ],
+      "departure": [
+        50461.928,
+        32.1266,
+        6705.708
+      ],
+      "yawRad": -0.0323171746163795
+    },
+    {
+      "id": "west:wet-deck",
+      "kind": "wet_bridge",
+      "roadId": "west:W3-W4",
+      "bridgeId": "deck:630",
+      "point": [
+        36309.691999999995,
+        9.854000000000001,
+        5879.791499999999
+      ],
+      "yawRad": -0.19695829694024192,
+      "waterAreaIds": [
+        "water:72:11:authored_conservative_stream_buffer:0"
+      ]
+    },
+    {
+      "id": "centre:wet-deck",
+      "kind": "wet_bridge",
+      "roadId": "centre:C0-C1",
+      "bridgeId": "deck:950",
+      "point": [
+        43043.866,
+        12.131999999999998,
+        -528.376
+      ],
+      "yawRad": -0.2714152742700737,
+      "waterAreaIds": [
+        "water:85:-1:authored_conservative_stream_buffer:0",
+        "water:85:-1:osm_water_polygon:0",
+        "water:86:-1:authored_conservative_stream_buffer:0",
+        "water:86:-2:authored_conservative_stream_buffer:0"
+      ]
+    },
+    {
+      "id": "east:wet-deck",
+      "kind": "wet_bridge",
+      "roadId": "east:E3-E4",
+      "bridgeId": "deck:2262",
+      "point": [
+        50430.013,
+        40.076820119308515,
+        6186.0885
+      ],
+      "yawRad": 0.06345209703762283,
+      "waterAreaIds": [
+        "water:100:11:authored_conservative_stream_buffer:0",
+        "water:100:12:authored_conservative_stream_buffer:0",
+        "water:100:13:authored_conservative_stream_buffer:0",
+        "water:101:11:authored_conservative_stream_buffer:0",
+        "water:101:13:authored_conservative_stream_buffer:1"
+      ]
+    }
+  ]
+}

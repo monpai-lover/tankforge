@@ -1,0 +1,367 @@
+{
+  "schemaVersion": 1,
+  "documentId": "combined-frontline-ai-spectator-v1",
+  "title": "AI观战（看海斗蛐蛐）",
+  "status": "concrete_design_for_review",
+  "gameplayImplementationStartedByThisDocument": false,
+  "requirement": {
+    "userRequest": "增加看海斗蛐蛐模式 玩家可以单人的情况下选择单人看AI互打",
+    "confirmed": [
+      "One human can choose to watch two AI sides fight. No second human is required.",
+      "Use the same mixed tank-company and aviation battle, not a separate animated demonstration."
+    ],
+    "designDefault": "Pure observer of two server-controlled AI teams; no human vehicle, company or mandatory team selection.",
+    "scopeBoundary": "Single human describes participation count. It does not promise network-offline operation or an already working autonomous flight host."
+  },
+  "sourceBasis": {
+    "asOf": "2026-10-24",
+    "inputs": [
+      "AGENTS.md",
+      "docs/air-frontline/combined-mode-design.json",
+      "docs/air-frontline-design-2026-10-24.json",
+      "docs/air-frontline/server-entity-contract.json",
+      "docs/air-frontline/era-roster-study.json",
+      "docs/air-frontline/korea-layout-proposal.json"
+    ],
+    "implementationBase": "Verified aircraft repair f3c6d88/core212 or a newer verified repair; do not ship the older design worktree runtime.",
+    "precedence": "Confirmed full-Taiwan requirement in combined-mode-design.json supersedes older partial-island comparison options in taiwan-theatre-study.json.",
+    "codeEvidence": [
+      {
+        "path": "crates/server/src/lobby.rs:ClientMsg::Start",
+        "observation": "The reviewed start path does not itself require two humans. It uses host membership and, outside deploy mode, member vehicle/era validation. This is not an AI-observer launch path."
+      },
+      {
+        "path": "crates/server/src/lobby.rs:Room / Player",
+        "observation": "Members currently refer to player-owned vehicle state; independent battle units, AI field commands and observer subscriptions need the combined entity contract."
+      },
+      {
+        "path": "crates/server/src/lobby.rs:tick_at",
+        "observation": "Snapshot publication currently continues past rooms with no SnapPlayer state. An observer-only room needs independent world-unit snapshots even with zero player vehicles."
+      },
+      {
+        "path": "crates/server/src/lobby.rs:leave",
+        "observation": "Current empty-member deletion conflates room connections and world lifetime. Observer disconnect/reconnect policy must be explicit."
+      },
+      {
+        "path": "docs/air-frontline/server-entity-contract.json:motionAuthorityPlan",
+        "observation": "Independent AI aircraft need a verified authority-owned flight plant. Existing aircraft damage advance or human motion relaying is insufficient."
+      }
+    ],
+    "evidenceLimit": "Read-only source/design review. No live AI battle, server modification, GPU session, benchmark or deployment is produced here."
+  },
+  "productionClientFlow": {
+    "entry": "模式选择 → AI观战（看海斗蛐蛐）",
+    "setup": [
+      {
+        "field": "map",
+        "choices": [
+          "三八线战区",
+          "台海全战区"
+        ],
+        "rule": "Select a versioned scenario using real 1:1 geography."
+      },
+      {
+        "field": "era",
+        "choicesSource": "Reviewed scenario-era manifests",
+        "rule": "Both AI teams share the same approved aircraft/ground/weapon/sensor pool. Unreviewed study candidates are not advertised as playable."
+      },
+      {
+        "field": "forcePreset",
+        "default": "标准混合作战",
+        "rule": "Initial curated preset includes ground companies, aircraft, infantry, air defence, supply and engineers. Detailed custom army editing is not required for first release."
+      }
+    ],
+    "startButton": "开始观战",
+    "startBehavior": "Create or use a private AI-observer scenario on the configured actual game host, subscribe as the sole observer and start when required manifests/authority capabilities are ready. No second-player wait screen, dummy player, vehicle selection, personal currency or team-ready requirement.",
+    "loading": "Load geography, approved forces and accepted world snapshot; show preparation progress. An unavailable host or unimplemented scenario returns a clear unavailable/retry state instead of playing a local mock outcome.",
+    "initialView": "Tactical map frames the selected active battle area; offer free camera or follow a live tank/aircraft immediately.",
+    "inBattleUi": [
+      "Free camera / follow selected unit / tactical map",
+      "Select or find live units by team, formation and aircraft role",
+      "Jump to an accepted battle event or objective; cameras never create a battle event",
+      "Display elapsed simulation time, readiness, sector ownership and actual unit losses",
+      "Leave observation"
+    ],
+    "roundEnd": "Show authoritative winner/reason, readiness, losses and objective/logistics results. Offer a fresh observation round with the same settings or return to setup; do not reset while still presenting the prior battle as live.",
+    "additionalViewers": "Optional later viewers join as observers and receive a current baseline. Their presence is not required to launch or sustain AI combat."
+  },
+  "roomAndLifecycle": {
+    "scenarioKind": "combined_frontline_ai_observer",
+    "teams": 2,
+    "minimumHumansToLaunch": 1,
+    "minimumHumanCombatants": 0,
+    "minimumHumanCombatantsPerTeam": 0,
+    "requiredAiSides": 2,
+    "observer": {
+      "teamId": null,
+      "controlledUnit": null,
+      "company": null,
+      "countsTowardCombatantSlots": false,
+      "countsAsRoomPresence": true,
+      "canStartOwnedObserverRoom": true,
+      "canIssueBattleOrders": false,
+      "canFireOrGuide": false
+    },
+    "aiIdentity": "AI units and field commanders are battle-owned entities, with ServerAi controllers. They are not artificial websocket connections, fake human participants or invisible player vehicles.",
+    "startGate": [
+      "One authenticated/valid local-session observer is present and owns start permission.",
+      "Scenario, geography, routes, force composition and era manifests pass approval/hash validation.",
+      "Two valid AI team controllers and all required native motion/combat/service systems initialize.",
+      "Initial units occupy valid terrain/runway/airborne locations; readiness and ownership initialize once."
+    ],
+    "duringRound": "Zero human combatants is the expected state. Both AI sides continue fighting, advancing, servicing and reinforcing for the normal 45–90 minute round or an earlier real victory condition. No team-forfeit, no-player timeout or player-state-empty snapshot branch may end/freeze it.",
+    "worldClock": "One trusted host advances accepted simulation time, timers and outcomes; rendering frame rate, camera position and observer input cannot advance the battle.",
+    "observerDisconnectProposal": {
+      "status": "implementation_default_proposal_not_explicitly_user_confirmed",
+      "reconnectGraceWallSeconds": 60,
+      "remoteOrPersistentHost": "Continue the same battle at normal speed during the short reconnect grace. Restore the same battle ID and live state on return, without respawning/refilling forces. If all observers remain absent after grace, end/dispose the private room as abandoned rather than run an unbounded unattended match.",
+      "localAuthorityProcess": "Closing its owning process can end the local session immediately. This does not imply that a hosted room has the same lifetime.",
+      "noAutomaticPause": "Disconnect does not silently activate an unconfirmed pause feature."
+    },
+    "states": [
+      "configuring",
+      "preparing",
+      "running",
+      "finished",
+      "abandoned",
+      "disposed"
+    ],
+    "reset": "A new round receives a new battle ID and fresh scenario initialization; old unit references, shots, camera targets and event cursors cannot resolve into the next battle."
+  },
+  "sameBattleSimulation": {
+    "authority": "Reuse the combined native/host authority for accepted pose, ammunition, damage, shot/impact receipts, fuel, services, logistics, discovery, objectives and readiness. AI emits actuator/fire/order intentions through the same validation used by human-controlled units.",
+    "ground": "AI field commanders choose objectives and issue company/platoon move/attack/defend orders. Each tank physically routes, avoids vehicles, acquires its own valid contacts, aims, fires, reloads, takes damage and can lose mobility. Orders do not subtract remote HP or transfer sectors directly.",
+    "air": "AI flights perform patrol, interception, escort and ground support from valid accepted spawns. They physically fly, consume fuel/stores, use permitted sensors, take combat damage, return to an operational field, land/taxi/service and take off again. Required aircraft state is owned by the host, not the spectator browser.",
+    "airfieldService": "Normal repair/rearm/refuel remains 10–20 seconds after the actual accepted service conditions are met. Fuel, ammunition, facility availability and runway closure matter even when no human pilots exist.",
+    "logistics": "Supply convoys and replacements move from valid sources through accepted road/sea routes. Engineers repair bridges/runway areas or establish approved temporary crossings; units can reroute, wait or lose service when a route fails. Light logistics controls availability; no per-round base inventory ledger is introduced.",
+    "supportIndependentOfHumanRole": "AI companies, infantry, APC/IFV support, artillery, air defence, supply, engineers and aircraft allocate from the scenario force manifest even with no human commander or pilot. Removing the observer or switching cameras does not create/remove them.",
+    "teamKnowledge": "Each AI side makes decisions from its own valid perception and shared discovered contacts. Stale moving contacts remain last-known positions. Observer full-truth knowledge is never an AI targeting source.",
+    "victory": "Real ground occupation through connected routes, accepted losses and objective/logistics effects change front ownership/readiness. Air presence alone does not capture land. Loss charges occur once per unit life.",
+    "unwatchedAreas": "All activated battle actors continue under authority when outside the camera interest region. LOD and less frequent planning may reduce cost, but cannot hide failed simulation behind timed destruction, scripted winner selection or observer-dependent combat."
+  },
+  "forcePresetProposal": {
+    "status": "concrete_initial_balance_proposal_not_user_confirmed_or_benchmarked",
+    "principle": "Each side gets the same approved era pool and equal initial package; different accepted AI decisions and world conditions can produce different outcomes.",
+    "standardPerTeam": {
+      "aiTankCompanies": 2,
+      "tanksPerCompany": 10,
+      "companyOrganization": "One AI command tank plus three platoons of three; no human owner or allocated human company slot is required.",
+      "ifvOrApcVehicles": 4,
+      "infantrySquads": 6,
+      "soldiersPerSquad": 6,
+      "frontGunOrShortRangeAirDefenceUnits": 3,
+      "artilleryPieces": 2,
+      "engineerVehicles": 2,
+      "frontSupplyOrConvoyVehicles": 4,
+      "rearEraAppropriateAirDefenceUpperBudget": 2,
+      "simultaneousFighterAircraft": 2,
+      "simultaneousAttackAircraft": 2,
+      "aircraftReserveSlotsAtBases": 2
+    },
+    "eraAdaptation": "Allocate only real approved profiles for that snapshot. A gun-only early jet can fill an attack role using verified bombs/rockets. Rear defence may be gun sites in an early era; a modern SAM is never inserted just to fill a role slot.",
+    "missingAssets": "If the required profile/role has no approved implementation, mark that preset unfinished and provide a truthful available subset for a named integration slice. Do not relabel fictional xp vehicles or an unverified model as a historical production vehicle.",
+    "reinforcements": "Scenario readiness and source/route reservations govern physical replacements. Reserve slots are not instantly materialized active aircraft and are not counted twice.",
+    "measurement": "This observation preset is independent of the 8–12 human-per-team combat-room capacity proposal. It neither proves that larger company populations perform nor reduces that separate requirement."
+  },
+  "theatresAndGeography": {
+    "korea": "Use the reviewed Korean theatre lanes, real terrain/roads, airports, bridges and active-sector layout. Both ground and air AI operate in the same world.",
+    "taiwan": {
+      "coverage": "Entire Taiwan main island at real 1:1 scale, retaining mainland coast, Penghu, Kinmen and Matsu in the required full theatre.",
+      "battlePlacement": "A round activates selected connected sectors, fictional existing fronts/beachheads, logistics routes and supporting airbases. Full-island inclusion does not require distributing every actor uniformly across the island or keeping every coast in continuous combat.",
+      "seaAndLand": "The strait remains water. Ground companies require accepted water transport/landing/harbour or pre-authored fictional initial beachheads; no road edge spans open sea and no instant coast-to-coast reinforcement occurs.",
+      "travel": "Retain real transit distance. Nearby standby forces and initial fronts can make a round active without compressing geography or teleporting live units."
+    },
+    "streaming": "The tactical map represents the full approved extent; camera and route streaming fetch the required terrain/objects. Camera visibility is an interest subscription, not the simulation boundary. Unavailable terrain shows a loading/unavailable state rather than silently shrinking the advertised theatre.",
+    "firstLocalView": "A bounded Korean or Taiwan sector is acceptable as an explicitly labelled first playable integration slice. It must not be reported as the finished full-theatre spectator mode."
+  },
+  "cameraAndInformation": {
+    "defaultPermission": "observer_full_truth, explicitly granted by the host for this AI-only private scenario",
+    "separation": "Observer access, host administration and human combatant/team discovery are different capabilities. Full-truth observation does not change team discovery, AI perception, radar tracks, seeker locks or weapon guidance.",
+    "freeCamera": "Fly around the approved world with ground/altitude awareness, orbit a selected entity, adjust speed and return to the active front. Camera motion has no collision/damage effect on battle entities.",
+    "follow": "Follow a real living unit using accepted/interpolated pose; offer chase/orbit and cockpit/crew views only where the matching camera/model is available. Camera selection does not take control, alter the AI, refill the unit or create a hidden player seat.",
+    "targetLost": "If a followed unit is destroyed or leaves the battle, retain the final accepted location briefly and offer another live unit or free camera. Never respawn/repair it to preserve the camera target.",
+    "tacticalMap": "Show full-truth live units, objectives, routes, supply status and real battle events within observer permission. A blue/red team-knowledge display is a viewing filter and must use that team's discovery timestamps; it is not a controller or targeting feed.",
+    "readouts": "Selected-unit health/damage, ammunition, fuel/endurance and current accepted task explain the battle. Distinguish live, destroyed and last-known states.",
+    "cockpitOptics": "Following an aircraft uses its actual cockpit eye and approved gunsight/sensor profile; universal observer markers must not masquerade as onboard ballistic-computer/HUD capability.",
+    "replication": "Grant a versioned observer world baseline plus sequenced accepted deltas/events. Stream detailed nearby/followed state and lower-rate full-map accepted summaries, including AI units with no player connection. Re-subscription/reconnect must not duplicate losses, projectiles or supply arrivals.",
+    "futureCombatJoin": "Any later proposal to enter a combat role needs an explicit permission transition, removal of observer truth access and normal control-epoch transfer; it is not part of the default spectator feature."
+  },
+  "hostAndProtocolRequirements": {
+    "transport": "Use the existing actual game host/native authority contract. A packaged local host and a remote/private server may expose the same scenario protocol; choosing single-human observation does not choose network topology.",
+    "identity": [
+      "battle_id",
+      "scenario_id and revision",
+      "participant_id and observer capability",
+      "unit_id + vehicle_life_id",
+      "team_id",
+      "company_id/platoon_id where present",
+      "era_profile_id and catalog_hash",
+      "pose/state/event revisions"
+    ],
+    "observerRequests": [
+      "create_ai_observer_session(map, era_manifest, force_preset)",
+      "start_observer_session",
+      "subscribe_observer_world(region, followed_unit_optional)",
+      "set_camera_or_view_filter",
+      "leave_observer_session"
+    ],
+    "serverMessages": [
+      "scenario_prepare_status",
+      "observer_capabilities",
+      "battle_world_baseline",
+      "accepted_unit/objective/logistics_deltas",
+      "battle_event_stream",
+      "round_result"
+    ],
+    "requestBoundary": "Observer requests select presentation/subscriptions and approved setup. They cannot submit unit motion, fire, hit, damage, company orders, readiness changes or battle results.",
+    "aiFlightHostGate": "Implement and verify independent authority-owned flight contexts from the accepted repair core, with canonical terrain/landing callbacks, per-airframe configuration, damage effects and isolated internal state. Client flight relaying and advance_aircraft damage updates do not satisfy this gate.",
+    "roundLifetimeGate": "Advance and publish the world when there are no player-owned vehicles; observer connections and AI entities must not be filtered through Player.state as the only existence criterion.",
+    "determinismAndReplay": "Record accepted orders, discharges, impacts, service, losses and result against immutable unit lives and seeds/time. Replays must come from the same accepted events, not separate cinematic logic."
+  },
+  "approvedManifestGates": {
+    "required": [
+      "scenario geography/terrain/route manifest",
+      "reviewed era profile and carrier/weapon/sensor manifest",
+      "force and reinforcement-source manifest",
+      "airfield/runway/service compatibility manifest",
+      "host/native simulation capability versions"
+    ],
+    "eraSource": "era-roster-study.json supplies audited candidates and unresolved cases; it is not itself an all-approved production allowlist.",
+    "validation": "Both AI sides use identical reviewed profile eligibility. Validate all initial units, replacement units, stores, ammunition, pods, sensors and complete air-defence systems. Fail closed on unknown or pending capabilities.",
+    "knownDebt": [
+      "Resolve F-15E/APG-63, A-10C/A-type equipment, MiG-21MF early-gun/radar and HunterF4/F6 mismatches before claiming their complete era profiles.",
+      "Keep radarless Mirage5F distinct from MirageIIIE; date Su-27UBK export equipment without undocumented modern missiles.",
+      "Preserve user-requested Space+R on radar-equipped profiles as game assistance; it grants no modern range or compatibility.",
+      "Several ground support/transport/engineer roles and SAM carrier models still need approved assets and actual shared authority integration."
+    ],
+    "availabilityUi": "Advertise only playable reviewed map-era presets. Pending modern profiles remain explicit completion work, not silently removed from the final combined/spectator scope."
+  },
+  "desktopAndMobile": {
+    "desktop": "Mouse/keyboard free camera, unit selection, follow/chase controls and tactical-map navigation; optional key bindings can be tuned after real input testing.",
+    "mobile": "Touch pan/orbit/zoom, simple altitude/speed controls, searchable unit list and full tactical map; large buttons for free/follow/map and event jumps.",
+    "sameWorld": "Mobile may simplify terrain/vehicle effects and detail updates, but receives the same accepted battle, objectives and unit identities. It cannot use a reduced fake AI match or remove distant threats from simulation.",
+    "performance": "Measure host fixed-step budget, AI planning, independent flight contexts, entity/shot counts, observer snapshot bandwidth and camera streaming. Watching an active battle must not make it cheaper by omitting combat just outside view."
+  },
+  "optionalProposalsNotUserConfirmed": [
+    {
+      "feature": "Take over a tank or aircraft",
+      "default": "off",
+      "meaning": "Would turn pure observation into a separate interactive sandbox choice. Requires explicit capability and control-epoch transfer preserving the same unit state; no free repair/rearm."
+    },
+    {
+      "feature": "Pause",
+      "default": "off",
+      "meaning": "Would be an authority-owned private-session control, separate from disconnect behavior. Must freeze the same simulation clocks/timers and resume without lost events; client animation pause is insufficient."
+    },
+    {
+      "feature": "Time-speed controls",
+      "default": "1x only",
+      "meaning": "Would need authority-side repeated fixed steps and measured limits, with consistent fuel/reload/guidance/service clocks. Multiplying visual speed or skipping combat steps is insufficient."
+    },
+    {
+      "feature": "Custom armies, camera director, replay export or auto-restart",
+      "default": "not required for first release",
+      "meaning": "Can be reviewed after the basic actual-game observer loop works; these are not implied by the current user request."
+    }
+  ],
+  "acceptance": {
+    "completionRule": "The production entry and real shared simulation must pass the following in actual game sessions. Library tests, JSON validation, scenario mockups or a bounded integration slice alone cannot establish completion.",
+    "requiredActualGameChecks": [
+      {
+        "id": "S01",
+        "case": "One human launches alone from the production menu",
+        "pass": "No second human, fake player, human vehicle selection or team-ready slot is required; two AI sides appear as accepted world units."
+      },
+      {
+        "id": "S02",
+        "case": "Autonomous mixed battle",
+        "pass": "Observe both teams' ground forces move, acquire targets and exchange accepted fire/damage; aircraft independently fly and attack; objectives/readiness change from actual battle outcomes."
+      },
+      {
+        "id": "S03",
+        "case": "Air sortie and return loop",
+        "pass": "Follow an AI aircraft taking off, fighting, consuming fuel/stores, returning/landing and receiving permitted 10–20second service before another physical sortie. Damage/runway closure can deny or redirect the return."
+      },
+      {
+        "id": "S04",
+        "case": "Supply/engineering/replacement effects",
+        "pass": "A real destroyed bridge/runway area or intercepted supply route changes accepted movement/service. Engineers/transport arrive physically, and valid repairs/reroutes/replacements restore functions without teleport/refill."
+      },
+      {
+        "id": "S05",
+        "case": "AI independence from observer",
+        "pass": "Move camera away and switch between land/air/map views; the same units continue fighting and servicing. No observer camera or follow action changes their control or ammo/damage."
+      },
+      {
+        "id": "S06",
+        "case": "Knowledge separation",
+        "pass": "Full-truth observer can inspect an undiscovered enemy; that inspection does not produce an AI team contact, live guidance track, shot or combatant overlay. Team-view filter shows correct stale contacts."
+      },
+      {
+        "id": "S07",
+        "case": "Room with zero human combatants",
+        "pass": "Round and snapshots continue with only an observer. Killing all currently watched units does not end the room unless a real victory condition occurs."
+      },
+      {
+        "id": "S08",
+        "case": "Observer lifecycle and unit identity",
+        "pass": "Reconnect under the adopted policy preserves battle/unit life, damage, ammo, fuel and accepted event cursor. No duplicate losses or new company allocation; an expired abandoned room cleans up."
+      },
+      {
+        "id": "S09",
+        "case": "Era enforcement across AI and services",
+        "pass": "Rejected pending/late weapons or sensors cannot enter via AI initial spawns, resupply or replacements; both sides use the same approved manifest."
+      },
+      {
+        "id": "S10",
+        "case": "Korean and full-Taiwan theatre coverage",
+        "pass": "Both selected maps launch their real mixed AI scenario. Taiwan overview/camera and manifest retain the full main island plus required island/coast geography; water/land routes and actual distances remain valid. Combat may focus on selected sectors."
+      },
+      {
+        "id": "S11",
+        "case": "Real round completion/reset",
+        "pass": "A 45–90minute or genuine early-victory session produces an accepted result from combat/objective/logistics events; starting again creates a clean new battle and cannot replay old damage into new units."
+      },
+      {
+        "id": "S12",
+        "case": "Desktop/mobile and load",
+        "pass": "Desktop and a real mobile viewing client can select/freecam/follow/map the same authoritative battle at the adopted population. Report measured host tick budget, frame rate and snapshot bandwidth; no hard-coded unsupported performance claim."
+      }
+    ],
+    "recordedEvidence": [
+      "Exact game/host/core build and manifest hashes",
+      "Production menu startup and sole observer session record",
+      "Accepted AI unit/order/shot/impact/service/logistics/result receipts",
+      "Tank/aircraft follow and map recordings from the same battle",
+      "Full-Taiwan extent/route and active-sector evidence",
+      "Measured host/client/network results and unresolved failures"
+    ],
+    "firstPlayableSlice": "A small accepted ground company on each side, real air sorties, one working service field per side and one bridge/supply dependency, driven by the real host and normal menu. Label the bounded map/force/era coverage precisely and continue toward the full acceptance list."
+  },
+  "pendingChoicesAndWork": {
+    "notRequiredToReaskUserBeforeDesign": [
+      "Pure observation is the default implied by watching AI fight.",
+      "No second player or human battle role is required.",
+      "Map and approved era are selectable; same mixed simulation and full-Taiwan requirement apply."
+    ],
+    "reviewChoices": [
+      "Confirm or tune standard AI force counts after actual host/desktop/mobile measurement.",
+      "Adopt/tune the proposed 60second reconnect grace and private-room cleanup policy.",
+      "Choose default active sectors/fronts and approved initial map-era presets; full geographic scope remains fixed.",
+      "Review takeover, pause or time speed only if those optional features are requested or explicitly accepted."
+    ],
+    "implementationDependencies": [
+      "Independent host-owned ground/air AI plants and combat unit world",
+      "Actual AI perception, orders and physical logistics/service loops",
+      "Reviewed era and full-theatre geography/route/asset manifests",
+      "Observer capability, world snapshots, room lifetime and production client viewing path"
+    ],
+    "doneInThisDocument": [
+      "Defined concrete single-observer flow, zero-human-combatant lifecycle, authority/knowledge boundaries and actual-game acceptance."
+    ],
+    "notYetValidated": [
+      "No production spectator session exists as evidence here.",
+      "No independent AI aircraft host, complete ground front, service/logistics round, full-Taiwan runtime or desktop/mobile performance has been established by this design."
+    ]
+  }
+}

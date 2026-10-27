@@ -1,0 +1,1754 @@
+{
+  "schema": "tankforge-model-capacity-audit-v1",
+  "stage": "client_hardpoint_binding_upgrade",
+  "source": {
+    "url": "https://tank.monpai.site/",
+    "etag": "17154d8d-6addb4f6"
+  },
+  "scope": {
+    "types": 26,
+    "imported": 17,
+    "procedural": 9
+  },
+  "definitions": {
+    "modelMount": "A pylon, rack or AAM rail established by measured model coordinates/source metadata, not a raw mesh-part count.",
+    "releaseSlot": "One external store suspension/release location; not muzzle, eye or sight optical socket.",
+    "presetStoreObjects": "Mounted objects in one existing preset; a rocket pod is one object while loose R4M rockets are individual objects. Multi-racks can carry several objects on one numbered pylon.",
+    "unverified": "Not independently certified by this client geometry audit; does not automatically mean the existing configuration is disabled."
+  },
+  "changeSummary": [
+    "F-15E four modeled wing AAM rails are bound in client layout.",
+    "F-15 mid/outer aliases cannot duplicate allocation of the same two rails per side.",
+    "No preset capability, weapon type, ammunition, mass, drag, accepted server ID or native host.p capacity is added.",
+    "MiG17 station aliases were already measured and bound; no misbinding fix is needed."
+  ],
+  "nativeScope": "Client layout only. Authoritative Native Frontline host.p and server capacity stay unchanged.",
+  "historicalCertification": false,
+  "helperSha256": "fb461f600e0cb3d235bc97ef089c63e8afe0618855b61207668265e3c07dc962",
+  "models": [
+    {
+      "id": "nf01",
+      "name": "NF-01 試飛機",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 6,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 6,
+          "byKind": {
+            "rocket": 6
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "nf02",
+      "name": "NF-02 噴射戰鬥機",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 9,
+      "maxPresetStoreObjects": 10,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 6,
+          "byKind": {
+            "aam": 6
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 6,
+          "byKind": {
+            "agm": 4,
+            "bomb": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 4,
+          "byKind": {
+            "pod": 2,
+            "aam": 2
+          }
+        },
+        {
+          "name": "測試：紅外",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "測試：紅外（出口型／早期）",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "測試：半主動",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "測試：主動雷達",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 10
+          }
+        },
+        {
+          "name": "測試：對地導引",
+          "storeObjects": 8,
+          "byKind": {
+            "agm": 8
+          }
+        },
+        {
+          "name": "測試：駕束／指令／反輻射",
+          "storeObjects": 10,
+          "byKind": {
+            "agm": 10
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "p51d",
+      "name": "P-51D 野馬",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 6,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 6,
+          "byKind": {
+            "rocket": 6
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "bf109g",
+      "name": "Bf 109 G-6",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 1,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 1,
+          "byKind": {
+            "bomb": 1
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "spitfire9",
+      "name": "噴火 Mk IX",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 3,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 3,
+          "byKind": {
+            "bomb": 3
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "mig15",
+      "name": "MiG-15bis",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 2,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "f86f",
+      "name": "F-86F 軍刀",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 4,
+      "maxPresetStoreObjects": 8,
+      "presetObjectCounts": [
+        {
+          "name": "500 磅炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 8,
+          "byKind": {
+            "rocket": 8
+          }
+        },
+        {
+          "name": "副油箱",
+          "storeObjects": 2,
+          "byKind": {
+            "tank": 2
+          }
+        },
+        {
+          "name": "炸彈／副油箱",
+          "storeObjects": 4,
+          "byKind": {
+            "bomb": 2,
+            "tank": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "f104g",
+      "name": "F-104G 星式",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 4,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 2,
+          "byKind": {
+            "aam": 2
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 4,
+          "byKind": {
+            "bomb": 2,
+            "aam": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "mig21",
+      "name": "MiG-21MF",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 3,
+      "maxPresetStoreObjects": 2,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 2,
+          "byKind": {
+            "aam": 2
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 2,
+          "byKind": {
+            "pod": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "fw190a8",
+      "name": "Fw 190 A-8",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 1,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 1,
+          "byKind": {
+            "bomb": 1
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "yak9u",
+      "name": "Yak-9U",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 0,
+      "maxPresetStoreObjects": 0,
+      "presetObjectCounts": [],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "a6m2",
+      "name": "A6M2 零式艦戰 21 型",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 2,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "f4u1d",
+      "name": "F4U-1D 海盜",
+      "imported": false,
+      "physicalModelEvidence": {
+        "status": "generic_programmatic_stations",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Procedural airframe with station-generated pylons; existing preset object counts are implemented software configurations."
+        ],
+        "unverified": [
+          "No imported source-rail count; not a historical capacity certification."
+        ]
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 10,
+      "presetObjectCounts": [
+        {
+          "name": "對地",
+          "storeObjects": 10,
+          "byKind": {
+            "bomb": 2,
+            "rocket": 8
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "me262",
+      "name": "Me 262 A-1a 燕式",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "authored_external_release_sockets",
+        "verifiedModelMounts": 2,
+        "verifiedModelReleaseSlots": 24,
+        "evidence": [
+          "Only source store_socket entries associated with external store geometry are counted.",
+          "Muzzle, pilot-eye and sight-axis sockets are not weapon suspension points."
+        ],
+        "unverified": []
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 24,
+      "presetObjectCounts": [
+        {
+          "name": "R4M 火箭",
+          "storeObjects": 24,
+          "byKind": {
+            "rocket": 24
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [
+        "SOCKET_R4M_L_01",
+        "SOCKET_R4M_L_02",
+        "SOCKET_R4M_L_03",
+        "SOCKET_R4M_L_04",
+        "SOCKET_R4M_L_05",
+        "SOCKET_R4M_L_06",
+        "SOCKET_R4M_L_07",
+        "SOCKET_R4M_L_08",
+        "SOCKET_R4M_L_09",
+        "SOCKET_R4M_L_10",
+        "SOCKET_R4M_L_11",
+        "SOCKET_R4M_L_12",
+        "SOCKET_R4M_R_01",
+        "SOCKET_R4M_R_02",
+        "SOCKET_R4M_R_03",
+        "SOCKET_R4M_R_04",
+        "SOCKET_R4M_R_05",
+        "SOCKET_R4M_R_06",
+        "SOCKET_R4M_R_07",
+        "SOCKET_R4M_R_08",
+        "SOCKET_R4M_R_09",
+        "SOCKET_R4M_R_10",
+        "SOCKET_R4M_R_11",
+        "SOCKET_R4M_R_12"
+      ],
+      "sourceMountKeys": [
+        "MOUNT_R4M_WoodRack_L",
+        "MOUNT_R4M_WoodRack_R"
+      ],
+      "remainingCapacityUnverified": false,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "hunter6",
+      "name": "Hunter F.6 獵人",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 8,
+      "presetObjectCounts": [
+        {
+          "name": "火箭",
+          "storeObjects": 8,
+          "byKind": {
+            "rocket": 8
+          }
+        },
+        {
+          "name": "炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "mig17f",
+      "name": "MiG-17F",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "measured_wing_pair_already_bound",
+        "verifiedModelMounts": 2,
+        "verifiedModelReleaseSlots": 2,
+        "evidence": [
+          "pylonPoints is 1-indexed with a null sentinel, so it contains 2 valid points, not 3.",
+          "inner/mid/outer already equal the measured wing pair with modelPylon:true; coordinate rounding discrepancy is about 0.033 mm."
+        ],
+        "unverified": [
+          "No additional centerline weapon capacity is inferred."
+        ],
+        "stationAliasesMatchMeasuredPoints": true
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 2,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 2,
+          "byKind": {
+            "pod": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [
+        {
+          "n": 1,
+          "p": [
+            -2.3503333333333334,
+            -0.5619999999999999,
+            -0.3395
+          ]
+        },
+        {
+          "n": 2,
+          "p": [
+            2.3503333333333334,
+            -0.5619999999999999,
+            -0.3395
+          ]
+        }
+      ],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "mirage3e",
+      "name": "Mirage 5F 幻象",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 4,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 2,
+          "byKind": {
+            "aam": 2
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 4,
+          "byKind": {
+            "pod": 2,
+            "aam": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "f4e",
+      "name": "F-4E 幽靈 II",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 7,
+      "maxPresetStoreObjects": 9,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 9,
+          "byKind": {
+            "agm": 2,
+            "bomb": 4,
+            "aam": 2,
+            "sensorpod": 1
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 6,
+          "byKind": {
+            "pod": 4,
+            "aam": 2
+          }
+        },
+        {
+          "name": "重炸彈",
+          "storeObjects": 6,
+          "byKind": {
+            "bomb": 2,
+            "aam": 4
+          }
+        },
+        {
+          "name": "雷射炸彈",
+          "storeObjects": 9,
+          "byKind": {
+            "bomb": 6,
+            "aam": 2,
+            "sensorpod": 1
+          }
+        },
+        {
+          "name": "犢牛／百舌鳥",
+          "storeObjects": 8,
+          "byKind": {
+            "agm": 4,
+            "aam": 4
+          }
+        },
+        {
+          "name": "電視小牛 B",
+          "storeObjects": 8,
+          "byKind": {
+            "agm": 2,
+            "bomb": 4,
+            "aam": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "f15c",
+      "name": "F-15E 打擊鷹",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "four_wing_aam_rails_client_rebound",
+        "verifiedModelMounts": 4,
+        "verifiedModelReleaseSlots": 4,
+        "evidence": [
+          "Source-guarded current F-15E mesh contains 2 measured AAM rails per wing.",
+          "Client mid/outer AIM-9/AIM-120 layout now uses those source rails and omits duplicate procedural pylons.",
+          "Preset item IDs, order, count, ammunition, mass and drag stay unchanged."
+        ],
+        "unverified": [
+          "Lower-fuselage/CFT hooks remain unresolved. Existing belly/bomb positions and counts are retained but are not model-verified by this patch.",
+          "Native Frontline host.p remains authoritative; no backend station or capacity change is made."
+        ],
+        "railMounts": [
+          {
+            "key": "left_wing_rail_inner",
+            "p": [
+              -2.668717375093214,
+              -0.5052199850857569,
+              1.37751677852349
+            ]
+          },
+          {
+            "key": "left_wing_rail_outer",
+            "p": [
+              -3.18717375093214,
+              -0.5052199850857569,
+              1.37751677852349
+            ]
+          },
+          {
+            "key": "right_wing_rail_inner",
+            "p": [
+              2.668717375093214,
+              -0.5052199850857569,
+              1.37751677852349
+            ]
+          },
+          {
+            "key": "right_wing_rail_outer",
+            "p": [
+              3.18717375093214,
+              -0.5052199850857569,
+              1.37751677852349
+            ]
+          }
+        ],
+        "customAliasLimit": {
+          "aamPerWing": 2,
+          "midAndOuterCannotAllocateSameRailFamilyTwice": true
+        }
+      },
+      "existingPresetCount": 5,
+      "maxPresetStoreObjects": 10,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "AMRAAM",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 10,
+          "byKind": {
+            "bomb": 6,
+            "aam": 4
+          }
+        },
+        {
+          "name": "空戰（7M／9M）",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 8
+          }
+        },
+        {
+          "name": "AMRAAM（120B／C）",
+          "storeObjects": 6,
+          "byKind": {
+            "aam": 6
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "mig29",
+      "name": "MiG-29 9.12 支點",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 3,
+      "maxPresetStoreObjects": 6,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 6,
+          "byKind": {
+            "aam": 6
+          }
+        },
+        {
+          "name": "近戰",
+          "storeObjects": 6,
+          "byKind": {
+            "aam": 6
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 6,
+          "byKind": {
+            "bomb": 2,
+            "pod": 2,
+            "aam": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "f16v",
+      "name": "F-16V 戰隼",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 4,
+      "maxPresetStoreObjects": 6,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 6,
+          "byKind": {
+            "aam": 6
+          }
+        },
+        {
+          "name": "空戰（9M／120B）",
+          "storeObjects": 4,
+          "byKind": {
+            "aam": 4
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 6,
+          "byKind": {
+            "agm": 2,
+            "bomb": 2,
+            "aam": 2
+          }
+        },
+        {
+          "name": "精準炸彈",
+          "storeObjects": 4,
+          "byKind": {
+            "bomb": 2,
+            "aam": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "su27",
+      "name": "Su-27UBK 側衛",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "not_independently_measured",
+        "verifiedModelMounts": null,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Existing generic station aliases and preset store-object counts are implemented; imported source has no explicit mount/socket registry."
+        ],
+        "unverified": [
+          "Visible anonymous rail geometry and its ultimate load limit are not independently verified; no new capacity is enabled."
+        ]
+      },
+      "existingPresetCount": 2,
+      "maxPresetStoreObjects": 10,
+      "presetObjectCounts": [
+        {
+          "name": "空戰",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 10
+          }
+        },
+        {
+          "name": "對地",
+          "storeObjects": 8,
+          "byKind": {
+            "bomb": 4,
+            "pod": 2,
+            "aam": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "a10a",
+      "name": "A-10C 雷霆 II",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "numbered_measured_pylons",
+        "verifiedModelMounts": 11,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Current model pylonPoints correspond to numbered T.fighter.spec.pylons; pylonPoint reads measured XYZ.",
+          "Multi-weapon rack capacity stays at existing station allow limits."
+        ],
+        "unverified": [
+          "Historical or aircraft structural-load limits are not re-certified by this model audit."
+        ]
+      },
+      "existingPresetCount": 6,
+      "maxPresetStoreObjects": 14,
+      "presetObjectCounts": [
+        {
+          "name": "對地（小牛）",
+          "storeObjects": 14,
+          "byKind": {
+            "aam": 2,
+            "pod": 2,
+            "agm": 6,
+            "bomb": 4
+          }
+        },
+        {
+          "name": "炸彈",
+          "storeObjects": 12,
+          "byKind": {
+            "aam": 2,
+            "bomb": 10
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 4,
+            "pod": 4,
+            "bomb": 2
+          }
+        },
+        {
+          "name": "電視小牛",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 4,
+            "agm": 6
+          }
+        },
+        {
+          "name": "集束（干擾）",
+          "storeObjects": 11,
+          "byKind": {
+            "aam": 2,
+            "bomb": 6,
+            "tank": 2,
+            "ecm": 1
+          }
+        },
+        {
+          "name": "小牛 B／G",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 4,
+            "agm": 4,
+            "bomb": 2
+          }
+        }
+      ],
+      "numberedStations": [
+        {
+          "n": 1,
+          "allow": {
+            "aim9l": 2,
+            "aim9m": 2,
+            "alq131": 1
+          },
+          "incomplete": {},
+          "adapter": "LAU-105（雙聯）"
+        },
+        {
+          "n": 2,
+          "allow": {
+            "mk82": 1,
+            "lau68": 1,
+            "cbu87": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 3,
+          "allow": {
+            "agm65a": 3,
+            "agm65b": 3,
+            "agm65d": 3,
+            "agm65g": 1,
+            "mk82": 3,
+            "lau68": 1,
+            "cbu87": 1
+          },
+          "incomplete": {},
+          "adapter": "LAU-88（小牛三聯）／LAU-117（單發，AGM-65G 只能用這個）／TER-9（炸彈三聯）"
+        },
+        {
+          "n": 4,
+          "allow": {
+            "mk84": 1,
+            "mk82": 1,
+            "tank600": 1
+          },
+          "incomplete": {
+            "gbu10": "A-10A 沒有雷射指示器（Pave Penny 只接收雷射點），離線沒有外部指示"
+          },
+          "adapter": null
+        },
+        {
+          "n": 5,
+          "allow": {
+            "mk82": 1,
+            "mk84": 1
+          },
+          "incomplete": {
+            "gbu12": "A-10A 沒有雷射指示器（需要外部雷射指示）"
+          },
+          "adapter": null
+        },
+        {
+          "n": 6,
+          "allow": {
+            "mk84": 1,
+            "tank600": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 7,
+          "allow": {
+            "mk82": 1,
+            "mk84": 1
+          },
+          "incomplete": {
+            "gbu12": "A-10A 沒有雷射指示器（需要外部雷射指示）"
+          },
+          "adapter": null
+        },
+        {
+          "n": 8,
+          "allow": {
+            "mk84": 1,
+            "mk82": 1,
+            "tank600": 1
+          },
+          "incomplete": {
+            "gbu10": "A-10A 沒有雷射指示器（Pave Penny 只接收雷射點），離線沒有外部指示"
+          },
+          "adapter": null
+        },
+        {
+          "n": 9,
+          "allow": {
+            "agm65a": 3,
+            "agm65b": 3,
+            "agm65d": 3,
+            "agm65g": 1,
+            "mk82": 3,
+            "lau68": 1,
+            "cbu87": 1
+          },
+          "incomplete": {},
+          "adapter": "LAU-88（小牛三聯）／LAU-117（單發，AGM-65G 只能用這個）／TER-9（炸彈三聯）"
+        },
+        {
+          "n": 10,
+          "allow": {
+            "mk82": 1,
+            "lau68": 1,
+            "cbu87": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 11,
+          "allow": {
+            "aim9l": 2,
+            "aim9m": 2,
+            "alq131": 1
+          },
+          "incomplete": {},
+          "adapter": "LAU-105（雙聯）"
+        }
+      ],
+      "measuredPoints": [
+        {
+          "n": "1",
+          "p": [
+            -7.4,
+            -0.216,
+            -0.551
+          ]
+        },
+        {
+          "n": "2",
+          "p": [
+            -6.1,
+            -0.368,
+            -0.501
+          ]
+        },
+        {
+          "n": "3",
+          "p": [
+            -4.8,
+            -0.529,
+            -0.479
+          ]
+        },
+        {
+          "n": "4",
+          "p": [
+            -3.3,
+            -0.694,
+            -0.413
+          ]
+        },
+        {
+          "n": "5",
+          "p": [
+            -0.75,
+            -0.79,
+            -0.036
+          ]
+        },
+        {
+          "n": "6",
+          "p": [
+            0,
+            -0.875,
+            -0.036
+          ]
+        },
+        {
+          "n": "7",
+          "p": [
+            0.75,
+            -0.79,
+            -0.036
+          ]
+        },
+        {
+          "n": "8",
+          "p": [
+            3.3,
+            -0.694,
+            -0.413
+          ]
+        },
+        {
+          "n": "9",
+          "p": [
+            4.8,
+            -0.529,
+            -0.479
+          ]
+        },
+        {
+          "n": "10",
+          "p": [
+            6.1,
+            -0.368,
+            -0.501
+          ]
+        },
+        {
+          "n": "11",
+          "p": [
+            7.4,
+            -0.216,
+            -0.551
+          ]
+        }
+      ],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "su25",
+      "name": "Su-25 蛙足",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "numbered_measured_pylons",
+        "verifiedModelMounts": 10,
+        "verifiedModelReleaseSlots": null,
+        "evidence": [
+          "Current model pylonPoints correspond to numbered T.fighter.spec.pylons; pylonPoint reads measured XYZ.",
+          "Multi-weapon rack capacity stays at existing station allow limits."
+        ],
+        "unverified": [
+          "Historical or aircraft structural-load limits are not re-certified by this model audit."
+        ]
+      },
+      "existingPresetCount": 4,
+      "maxPresetStoreObjects": 10,
+      "presetObjectCounts": [
+        {
+          "name": "炸彈",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 2,
+            "bomb": 6
+          }
+        },
+        {
+          "name": "火箭",
+          "storeObjects": 8,
+          "byKind": {
+            "aam": 2,
+            "pod": 6
+          }
+        },
+        {
+          "name": "雷射飛彈",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 2,
+            "rocket": 2,
+            "agm": 4,
+            "bomb": 2
+          }
+        },
+        {
+          "name": "集束與機砲莢艙",
+          "storeObjects": 10,
+          "byKind": {
+            "aam": 2,
+            "gunpod": 2,
+            "bomb": 4,
+            "tank": 2
+          }
+        }
+      ],
+      "numberedStations": [
+        {
+          "n": 1,
+          "allow": {
+            "r60m": 1
+          },
+          "incomplete": {},
+          "adapter": "APU-60"
+        },
+        {
+          "n": 2,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "sppu22": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 3,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "rbk500": 1
+          },
+          "incomplete": {},
+          "adapter": "APU-68UM（Kh-25ML）"
+        },
+        {
+          "n": 4,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "kh29l": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {},
+          "adapter": "AKU-58（Kh-29L）"
+        },
+        {
+          "n": 5,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 6,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 7,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "kh29l": 1,
+            "ptb800": 1,
+            "rbk500": 1
+          },
+          "incomplete": {},
+          "adapter": "AKU-58（Kh-29L）"
+        },
+        {
+          "n": 8,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "kh25ml": 1,
+            "rbk500": 1
+          },
+          "incomplete": {},
+          "adapter": "APU-68UM（Kh-25ML）"
+        },
+        {
+          "n": 9,
+          "allow": {
+            "fab250": 1,
+            "fab500": 1,
+            "b8m1": 1,
+            "ub16": 1,
+            "s24b": 1,
+            "sppu22": 1
+          },
+          "incomplete": {},
+          "adapter": null
+        },
+        {
+          "n": 10,
+          "allow": {
+            "r60m": 1
+          },
+          "incomplete": {},
+          "adapter": "APU-60"
+        }
+      ],
+      "measuredPoints": [
+        {
+          "n": "1",
+          "p": [
+            -6.6,
+            -0.115,
+            -0.785
+          ]
+        },
+        {
+          "n": "2",
+          "p": [
+            -5.6,
+            -0.024,
+            -0.715
+          ]
+        },
+        {
+          "n": "3",
+          "p": [
+            -4.5,
+            0.019,
+            -0.487
+          ]
+        },
+        {
+          "n": "4",
+          "p": [
+            -3.3,
+            0.067,
+            -0.269
+          ]
+        },
+        {
+          "n": "5",
+          "p": [
+            -2.15,
+            0.113,
+            -0.049
+          ]
+        },
+        {
+          "n": "6",
+          "p": [
+            2.15,
+            0.113,
+            -0.049
+          ]
+        },
+        {
+          "n": "7",
+          "p": [
+            3.3,
+            0.067,
+            -0.269
+          ]
+        },
+        {
+          "n": "8",
+          "p": [
+            4.5,
+            0.019,
+            -0.487
+          ]
+        },
+        {
+          "n": "9",
+          "p": [
+            5.6,
+            -0.024,
+            -0.715
+          ]
+        },
+        {
+          "n": "10",
+          "p": [
+            6.6,
+            -0.115,
+            -0.785
+          ]
+        }
+      ],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": true,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "me262a2a",
+      "name": "Me 262 A-2a",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "authored_external_release_sockets",
+        "verifiedModelMounts": 2,
+        "verifiedModelReleaseSlots": 2,
+        "evidence": [
+          "Only source store_socket entries associated with external store geometry are counted.",
+          "Muzzle, pilot-eye and sight-axis sockets are not weapon suspension points."
+        ],
+        "unverified": []
+      },
+      "existingPresetCount": 1,
+      "maxPresetStoreObjects": 2,
+      "presetObjectCounts": [
+        {
+          "name": "2 × SC 250",
+          "storeObjects": 2,
+          "byKind": {
+            "bomb": 2
+          }
+        }
+      ],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [
+        "SOCKET_BombRelease_L",
+        "SOCKET_BombRelease_R"
+      ],
+      "sourceMountKeys": [
+        "MOUNT_Wikingerschiff_L",
+        "MOUNT_Wikingerschiff_R"
+      ],
+      "remainingCapacityUnverified": false,
+      "presetCapacityChanged": false
+    },
+    {
+      "id": "me262u4",
+      "name": "Me 262 A-1a/U4（试验型）",
+      "imported": true,
+      "physicalModelEvidence": {
+        "status": "no_external_loadout",
+        "verifiedModelMounts": 0,
+        "verifiedModelReleaseSlots": 0,
+        "evidence": [
+          "Only source store_socket entries associated with external store geometry are counted.",
+          "Muzzle, pilot-eye and sight-axis sockets are not weapon suspension points."
+        ],
+        "unverified": []
+      },
+      "existingPresetCount": 0,
+      "maxPresetStoreObjects": 0,
+      "presetObjectCounts": [],
+      "numberedStations": [],
+      "measuredPoints": [],
+      "externalReleaseSocketKeys": [],
+      "sourceMountKeys": [],
+      "remainingCapacityUnverified": false,
+      "presetCapacityChanged": false
+    }
+  ],
+  "modelMountUpgrade": {
+    "version": "model-hardpoints-20261025-v2",
+    "aircraftReviewed": 26,
+    "existingPresets": 67,
+    "positionCorrections": 146,
+    "changedModels": [
+      "f104g",
+      "mig21",
+      "f4e",
+      "f15c",
+      "f16v",
+      "su27",
+      "a10a",
+      "su25"
+    ],
+    "countsCapabilitiesPreserved": true,
+    "ownersCorrected": [
+      "su27 underengine -> body",
+      "mig21/f16 wing attachments -> actual source group"
+    ],
+    "basisManifest": "geometry-audit-mount-table.json",
+    "nativeIntegration": "native-layout-map.json; existing native server unchanged"
+  }
+}

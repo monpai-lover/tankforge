@@ -1,0 +1,264 @@
+{
+  "passed": true,
+  "mode": "file://, browser offline",
+  "result": {
+    "initial": {
+      "ready": true,
+      "mode": "exterior",
+      "lod": 0,
+      "triangles": 296201,
+      "meshes": 188,
+      "armorMeshes": 11,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.11213272344321,
+        8.722509384155273
+      ],
+      "yaw": 0,
+      "elevation": 0,
+      "explode": 0,
+      "missilesRemaining": 12,
+      "cannonBursts": 0,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 0,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    },
+    "missile": {
+      "fired": true,
+      "weapon": "missile",
+      "socket": "launch_L1",
+      "name": "launch_L1",
+      "position": [
+        -0.7041252483675825,
+        3.3826708368108904,
+        3.8332223002546626
+      ],
+      "direction": [
+        0.24321034680169396,
+        0.34202014332566866,
+        0.9076733711903687
+      ],
+      "quaternion": [
+        -0.1721625934348045,
+        0.12854320606946854,
+        0.022665635416815412,
+        0.9763825861650425
+      ],
+      "time": 1415.5999999642372
+    },
+    "cannon": {
+      "fired": true,
+      "weapon": "cannon",
+      "sockets": [
+        {
+          "name": "muzzle_cannon_L1",
+          "position": [
+            -0.19235274617104048,
+            3.793538249097991,
+            3.2588217990656636
+          ],
+          "direction": [
+            0.24321034680169396,
+            0.34202014332566866,
+            0.9076733711903687
+          ],
+          "quaternion": [
+            -0.1721625934348045,
+            0.12854320606946854,
+            0.022665635416815412,
+            0.9763825861650425
+          ]
+        },
+        {
+          "name": "muzzle_cannon_L2",
+          "position": [
+            -0.2928090629645884,
+            3.793538249097991,
+            3.2857389880251002
+          ],
+          "direction": [
+            0.24321034680169396,
+            0.34202014332566866,
+            0.9076733711903687
+          ],
+          "quaternion": [
+            -0.1721625934348045,
+            0.12854320606946854,
+            0.022665635416815412,
+            0.9763825861650425
+          ]
+        },
+        {
+          "name": "muzzle_cannon_R1",
+          "position": [
+            1.34733300343134,
+            3.793538249097991,
+            2.846264245861999
+          ],
+          "direction": [
+            0.24321034680169396,
+            0.34202014332566866,
+            0.9076733711903687
+          ],
+          "quaternion": [
+            -0.1721625934348045,
+            0.12854320606946854,
+            0.022665635416815412,
+            0.9763825861650425
+          ]
+        },
+        {
+          "name": "muzzle_cannon_R2",
+          "position": [
+            1.4477892626512223,
+            3.793538249097991,
+            2.8193470723293794
+          ],
+          "direction": [
+            0.24321034680169396,
+            0.34202014332566866,
+            0.9076733711903687
+          ],
+          "quaternion": [
+            -0.1721625934348045,
+            0.12854320606946854,
+            0.022665635416815412,
+            0.9763825861650425
+          ]
+        }
+      ],
+      "time": 1416.2999999523163
+    },
+    "fired": {
+      "ready": true,
+      "mode": "xray",
+      "lod": 0,
+      "triangles": 296201,
+      "meshes": 188,
+      "armorMeshes": 11,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.11213272344321,
+        8.722509384155273
+      ],
+      "yaw": 15,
+      "elevation": 20,
+      "explode": 0,
+      "missilesRemaining": 11,
+      "cannonBursts": 1,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 39,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    },
+    "lod1": {
+      "ready": true,
+      "mode": "xray",
+      "lod": 1,
+      "triangles": 169492,
+      "meshes": 188,
+      "armorMeshes": 13,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.115684172604233,
+        8.723159790039062
+      ],
+      "yaw": 15,
+      "elevation": 20,
+      "explode": 0,
+      "missilesRemaining": 11,
+      "cannonBursts": 1,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 41,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    },
+    "lod2": {
+      "ready": true,
+      "mode": "xray",
+      "lod": 2,
+      "triangles": 112249,
+      "meshes": 188,
+      "armorMeshes": 13,
+      "internalMeshes": 142,
+      "dimensions_m": [
+        3.4508349895477295,
+        5.136625988408923,
+        8.724304676055908
+      ],
+      "yaw": 15,
+      "elevation": 20,
+      "explode": 0,
+      "missilesRemaining": 11,
+      "cannonBursts": 1,
+      "removedArmor": 0,
+      "removedParts": [],
+      "activeEffects": 41,
+      "sockets": {
+        "cannon": 4,
+        "missile": 12
+      },
+      "clips": [],
+      "clipPlaying": false,
+      "collision": {
+        "method": "actual_mesh_triangles",
+        "opacityIndependent": true,
+        "removedArmorDisabled": true,
+        "boxFallback": false
+      },
+      "selected": null
+    }
+  },
+  "errors": [],
+  "networkRequests": []
+}

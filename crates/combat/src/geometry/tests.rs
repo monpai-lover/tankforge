@@ -283,6 +283,8 @@ fn context(g: &Geometry) -> QueryContext {
         spawn_epoch: 7,
         build_hash: g.manifest.build_hash.clone(),
         pose_revision: 19,
+        geometry_revision: 0,
+        shape_hash: None,
     }
 }
 fn register_file(file: &str) -> Geometry {
@@ -417,6 +419,91 @@ fn cube_fixture(reordered: bool) -> Geometry {
         t.insert(0, right);
     }
     closed_fixture(&p, &t)
+}
+
+#[test]
+fn selected_surface_visit_preserves_exact_posed_vertices_and_instance_range_identity() {
+    let positions = [[-1., -1., 0.], [1., -1., 0.], [1., 1., 0.], [-1., 1., 0.],
+        [-1., -1., 1.], [1., -1., 1.], [1., 1., 1.], [-1., 1., 1.]];
+    let indices = [[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]];
+    let (mut geometry, _, _) = synthetic(&positions, &indices, 2, true);
+    geometry.refit(&[("instance-1".into(), [-2.,0.,0.,0.,0.,3.,0.,0.,0.,0.,0.5,0.,7.,-4.,2.,1.])]).unwrap();
+    let mut reference = vec![];
+    geometry.visit_surface_triangles(|instance, surface, vertices| {
+        if instance == "instance-1" && surface.key == "surface-b" { reference.push(vertices); }
+    }).unwrap();
+    let before = surface_triangle_visits_for_test();
+    let mut selections = 0;
+    let mut selected = vec![];
+    geometry.visit_surface_triangles_selected(|instance, surface| {
+        selections += 1;
+        (instance == "instance-1" && surface.key == "surface-b").then_some(17usize)
+    }, |instance, surface, owner, vertices| {
+        assert_eq!(instance, "instance-1"); assert_eq!(surface.key, "surface-b"); assert_eq!(owner, 17);
+        selected.push(vertices);
+    }).unwrap();
+    assert_eq!(selections, 4, "resolve ownership once per instance/range, not once per triangle");
+    assert_eq!(surface_triangle_visits_for_test() - before, 2, "only selected triangles are transformed");
+    assert_eq!(selected, reference, "selection preserves the exact original world vertex bits and triangle order under reflected, nonuniform, translated poses");
+}
+
+#[test]
+fn surface_lookup_visit_uses_registered_ordinals_without_linear_key_search() {
+    let positions = [[-1., -1., 0.], [1., -1., 0.], [1., 1., 0.], [-1., 1., 0.],
+        [-1., -1., 1.], [1., -1., 1.], [1., 1., 1.], [-1., 1., 1.]];
+    let indices = [[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]];
+    let (geometry, _, _) = synthetic(&positions, &indices, 2, true);
+    let before = surface_key_comparisons_for_test();
+    let mut visited = 0;
+    geometry.visit_surface_triangles_selected(|_,_|Some(()),|_,_,(),_|visited+=1).unwrap();
+    assert_eq!(visited, 8, "the cost optimization must retain every requested triangle");
+    assert_eq!(surface_key_comparisons_for_test() - before, 0,
+        "surface keys are pinned at registration; a blast must not repeat a linear key search for every mesh range");
+}
+
+#[test]
+fn surface_lookup_rebuilds_on_registration_and_rejects_in_place_surface_reorder() {
+    let positions = [[-1., -1., 0.], [1., -1., 0.], [1., 1., 0.], [-1., 1., 0.],
+        [-1., -1., 1.], [1., -1., 1.], [1., 1., 1.], [-1., 1., 1.]];
+    let indices = [[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]];
+    let (mut geometry, bytes, store) = synthetic(&positions, &indices, 2, true);
+    let mut original = vec![];
+    geometry.visit_surface_triangles(|instance,surface,vertices|original.push((instance.to_owned(),surface.key.clone(),vertices))).unwrap();
+    // A freshly validated manifest may store the same surfaces in a different
+    // order. Its new registration must own its new cache, with exact parity.
+    let mut manifest:Value=serde_json::from_slice(&bytes).unwrap();
+    manifest["surfaces"].as_array_mut().unwrap().reverse();
+    let rebuilt_bytes=seal(manifest);
+    let rebuilt=Geometry::register(&rebuilt_bytes,&manifest::sha256(&rebuilt_bytes),&store).unwrap();
+    let mut next=vec![];
+    rebuilt.visit_surface_triangles(|instance,surface,vertices|next.push((instance.to_owned(),surface.key.clone(),vertices))).unwrap();
+    assert_eq!(next,original,"re-registration derives the exact new surface ordinals instead of retaining another scene's cache");
+    // The public diagnostic manifest must not permit a stale ordinal to
+    // select another surface after an unregistered membership/order change.
+    geometry.manifest.surfaces.swap(0,1);
+    assert!(geometry.visit_surface_triangles_selected(|_,_|Some(()),|_,_,(),_|{}).is_err(),
+        "in-place surface reordering must fail closed; rebuild through Geometry::register");
+}
+
+#[test]
+fn surface_lookup_storage_is_per_mesh_range_and_released_with_scene() {
+    let positions = [[-1., -1., 0.], [1., -1., 0.], [1., 1., 0.], [-1., 1., 0.],
+        [-1., -1., 1.], [1., -1., 1.], [1., 1., 1.], [-1., 1., 1.]];
+    let indices = [[0, 2, 1], [0, 3, 2], [4, 6, 5], [4, 7, 6]];
+    let (one, _, _) = synthetic(&positions, &indices, 1, true);
+    let (many, _, mut store) = synthetic(&positions, &indices, 64, true);
+    assert_eq!(many.range_surface_ordinals.len(), many.manifest.meshes.len());
+    assert_eq!(many.range_surface_ordinals.iter().map(Vec::len).sum::<usize>(),
+        many.manifest.meshes.iter().map(|mesh|mesh.ranges.len()).sum::<usize>(),
+        "one bounded ordinal is stored for each validated mesh range");
+    assert_eq!(one.memory_stats().surface_index_array_bytes,many.memory_stats().surface_index_array_bytes,
+        "instances reuse their mesh's immutable range index instead of multiplying cache storage");
+    store.collect_unused();
+    assert_eq!(store.memory_stats().immutable_meshes,1);
+    drop(many);
+    store.collect_unused();
+    assert_eq!(store.memory_stats().immutable_meshes,0,
+        "scene release drops its mesh references; the owned ordinal arrays cannot retain geometry");
 }
 fn assert_cube_tangent(reordered: bool, end: Point) {
     let mut g = cube_fixture(reordered);
@@ -851,13 +938,22 @@ fn actual_renderer_hetzer_and_hollow_tube_recorded_oracles() {
         pin!("crates/combat/src/geometry/ray.rs"),
         pin!("crates/combat/src/geometry/surface.rs"),
         pin!("crates/combat/src/geometry/tests.rs"),
+        pin!("crates/combat/src/geometry/combat_scene.rs"),
         pin!("crates/design-wasm/src/lib.rs"),
         pin!("crates/design-wasm/src/geometry_diagnostic.rs"),
+        pin!("crates/design-wasm/src/surface_runtime.rs"),
         pin!("client/web/src/design/core.js"),
         pin!("client/web/src/gfx/imported.js"),
         pin!("client/web/tools/export-hit-mesh.mjs"),
         pin!("client/web/tools/hit-mesh-capture.mjs"),
+        pin!("client/web/tools/fleet-authored-bindings.mjs"),
+        pin!("client/web/tools/fleet-additional-authored-bindings.mjs"),
+        pin!("client/web/src/collision/physicalNodeKey.js"),
+        pin!("client/web/src/game/barrelShapeComposition.js"),
         pin!("schemas/hit-mesh.schema.json"),
+        pin!("client/web/tools/hit-binding-catalog.mjs"),
+        pin!("schemas/hit-binding-catalog.schema.json"),
+        pin!("client/web/test/hit-binding-catalog.test.mjs"),
         pin!("client/web/test/exact-hit-mesh.test.mjs"),
         pin!("client/web/test/fixtures/exact-hit-x1-oracle-witness.json"),
         pin!("client/web/test/exact-hit-source-receipt.test.mjs"),
@@ -868,11 +964,14 @@ fn actual_renderer_hetzer_and_hollow_tube_recorded_oracles() {
         pin!("client/web/src/gfx/interior.js"),
         pin!("client/web/src/gfx/mgmodel.js"),
         pin!("client/web/src/gfx/track.js"),
+        pin!("client/web/src/sim/tank/trackChain.js"),
         pin!("client/web/src/gfx/gearSupports.js"),
         pin!("client/web/src/game/loadout.js"),
         pin!("client/web/src/game/workshopImported.js"),
         pin!("client/web/src/gfx/math.js"),
         pin!("client/web/src/game/combat.js"),
+        pin!("client/web/src/game/localSurfaceCombat.js"),
+        pin!("client/web/tools/load-surface-catalog.mjs"),
         pin!("client/web/src/game/workshopBuild.js"),
         pin!("client/web/tools/load-data.mjs"),
         pin!("client/web/src/gfx/renderer.js"),
@@ -1012,6 +1111,92 @@ fn triangle_noncoplanar_original_edge_cancellation_cannot_grant_outside_contact(
                 Ok(None) => {}
                 Err(e) => assert!(numerical_error(&e), "{e}"),
                 other => panic!("outside analytic x+y edge returned {other:?}"),
+            }
+        }
+    }
+}
+#[test]
+fn triangle_t72_cancelled_projected_edge_certifies_actual_outside_candidate() {
+    // Captured unchanged from the real T72 breech transit's local triangle
+    // query. Both segment endpoints lie above every represented vertex.
+    let v = [
+        [
+            -0.1420000046491623,
+            -1.9471884559057475e-17,
+            -0.2619999945163727,
+        ],
+        [
+            -0.12200000137090683,
+            0.06681809574365616,
+            -0.24674920737743378,
+        ],
+        [
+            -0.12200000137090683,
+            -1.8247237044727817e-17,
+            -0.2619999945163727,
+        ],
+    ];
+    let a = [
+        2.6100000143051147,
+        0.10000002384185791,
+        -0.25999999046325684,
+    ];
+    let b = [
+        -3.3899999856948853,
+        0.10000002384185791,
+        -0.25999999046325684,
+    ];
+    assert!(v.iter().all(|p| p[1] < a[1]));
+    for order in [
+        [0, 1, 2],
+        [0, 2, 1],
+        [1, 0, 2],
+        [1, 2, 0],
+        [2, 0, 1],
+        [2, 1, 0],
+    ] {
+        for (start, end) in [(a, b), (b, a)] {
+            assert!(ray::triangle(start, end, order.map(|i| v[i]))
+                .unwrap()
+                .is_none());
+        }
+    }
+}
+#[test]
+fn triangle_cancelled_projected_edge_certifies_positive_interior_weight() {
+    // The independent half-space x+y=d proves a strict interior crossing,
+    // with the third vertex's weight d/2. Its projected edge rounds to zero.
+    for exponent in [-40, 0, 40] {
+        let s = 2f64.powi(exponent);
+        let d = s * 2f64.powi(-55);
+        for rotation in 0..3 {
+            let project = |p: Point| std::array::from_fn(|k| p[(k + rotation) % 3] * s);
+            let vertices = [[1., -1., 0.], [-1., 1., 0.], [1., 1., 0.]].map(project);
+            let a = project([d / s, 0., -1.]);
+            let b = project([d / s, 0., 1.]);
+            for order in [
+                [0, 1, 2],
+                [0, 2, 1],
+                [1, 0, 2],
+                [1, 2, 0],
+                [2, 0, 1],
+                [2, 1, 0],
+            ] {
+                for (start, end) in [(a, b), (b, a)] {
+                    let c = ray::triangle(start, end, order.map(|i| vertices[i]))
+                        .unwrap()
+                        .unwrap();
+                    assert_eq!(c.t, 0.5);
+                    assert!(!c.coplanar);
+                    assert_eq!(
+                        c.barycentric[order.iter().position(|&i| i == 2).unwrap()],
+                        2f64.powi(-56)
+                    );
+                    assert!(c
+                        .barycentric
+                        .iter()
+                        .all(|&weight| weight > 0.0 && weight <= 1.0));
+                }
             }
         }
     }
@@ -1354,6 +1539,102 @@ fn declared_shared_edge_is_single_crossing_but_coincident_layers_and_instances_s
             ("instance-1", Some("layer-a"), 0),
             ("instance-1", Some("layer-b"), 2)
         ]
+    );
+}
+#[test]
+fn source_triangle_identity_survives_split_and_reordered_classification() {
+    let p = [
+        [0f32, 0., 0.],
+        [1., 0., 0.],
+        [0., 1., 0.],
+        [0., 0., 1.],
+        [1., 0., 1.],
+        [0., 1., 1.],
+        [0., 0., 2.],
+        [1., 0., 2.],
+        [0., 1., 2.],
+        [0., 0., 3.],
+        [1., 0., 3.],
+        [0., 1., 3.],
+    ];
+    let indices = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]];
+    let (_, original, store) = synthetic(&p, &indices, 1, true);
+    let source = "packed:fixture:part:roadwheel";
+    let mut previous = None;
+    for boundary in [2, 1, 3] {
+        let mut value: Value = serde_json::from_slice(&original).unwrap();
+        value["meshes"][0]["ranges"] = json!([
+            {"first":0,"count":boundary,"sourceKey":source,"sourceTriangleFirst":0,"surfaceKey":"surface-a","solidKey":null,"bindingKey":null},
+            {"first":boundary,"count":4-boundary,"sourceKey":source,"sourceTriangleFirst":boundary,"surfaceKey":"surface-b","solidKey":null,"bindingKey":null}
+        ]);
+        if boundary != 2 {
+            value["surfaces"].as_array_mut().unwrap().reverse();
+            value["meshes"][0]["ranges"][0]["surfaceKey"] = json!("surface-b");
+            value["meshes"][0]["ranges"][1]["surfaceKey"] = json!("surface-a");
+        }
+        let bytes = seal(value);
+        let mut g = Geometry::register(&bytes, &manifest::sha256(&bytes), &store).unwrap();
+        let ctx = context(&g);
+        let hits = g.trace([0.2, 0.2, -1.], [0.2, 0.2, 4.], &ctx, 8).unwrap();
+        let keys = hits
+            .iter()
+            .map(|h| h.source_triangle_key.clone())
+            .collect::<Vec<_>>();
+        assert_eq!(
+            keys,
+            (0..4)
+                .map(|ordinal| format!("{source}:triangle:{ordinal}"))
+                .collect::<Vec<_>>()
+        );
+        assert_eq!(
+            keys.iter().collect::<std::collections::HashSet<_>>().len(),
+            4
+        );
+        if let Some(previous) = &previous {
+            assert_eq!(
+                &keys, previous,
+                "classification cannot rename a source triangle"
+            );
+        }
+        previous = Some(keys);
+    }
+}
+#[test]
+fn source_triangle_identity_legacy_offset_defaults_to_zero() {
+    let (_, text, store) = synthetic(
+        &[[0f32, 0., 0.], [1., 0., 0.], [0., 1., 0.]],
+        &[[0, 1, 2]],
+        1,
+        false,
+    );
+    let mut g = Geometry::register(&text, &manifest::sha256(&text), &store).unwrap();
+    let ctx = context(&g);
+    let hits = g.trace([0.2, 0.2, -1.], [0.2, 0.2, 1.], &ctx, 4).unwrap();
+    assert_eq!(hits[0].source_triangle_key, "fixture-source:triangle:0");
+}
+#[test]
+fn source_triangle_identity_rejects_overflow_and_out_of_inventory_offsets() {
+    let (_, text, store) = synthetic(
+        &[[0f32, 0., 0.], [1., 0., 0.], [0., 1., 0.]],
+        &[[0, 1, 2]],
+        1,
+        false,
+    );
+    for first in [u32::MAX, MAX_TRIANGLES as u32] {
+        let mut value: Value = serde_json::from_slice(&text).unwrap();
+        value["meshes"][0]["ranges"][0]["sourceTriangleFirst"] = json!(first);
+        let bytes = seal(value);
+        assert!(Geometry::register(&bytes, &manifest::sha256(&bytes), &store).is_err());
+    }
+    let mut value: Value = serde_json::from_slice(&text).unwrap();
+    value["meshes"][0]["ranges"][0]["sourceTriangleFirst"] = json!(MAX_TRIANGLES - 1);
+    let bytes = seal(value);
+    let mut g = Geometry::register(&bytes, &manifest::sha256(&bytes), &store).unwrap();
+    let ctx = context(&g);
+    let hits = g.trace([0.2, 0.2, -1.], [0.2, 0.2, 1.], &ctx, 4).unwrap();
+    assert_eq!(
+        hits[0].source_triangle_key,
+        format!("fixture-source:triangle:{}", MAX_TRIANGLES - 1)
     );
 }
 #[test]
@@ -1730,6 +2011,8 @@ fn static_cold_warm_costs_and_shared_actor_disposal_receipt() {
             spawn_epoch: 1,
             build_hash: m.build_hash.clone(),
             pose_revision: 1,
+            geometry_revision: 0,
+            shape_hash: None,
         };
         let mut query_evidence = Vec::new();
         for (key, a, b) in queries {
@@ -1843,13 +2126,22 @@ fn static_cold_warm_costs_and_shared_actor_disposal_receipt() {
         pin!("crates/combat/src/geometry/ray.rs"),
         pin!("crates/combat/src/geometry/surface.rs"),
         pin!("crates/combat/src/geometry/tests.rs"),
+        pin!("crates/combat/src/geometry/combat_scene.rs"),
         pin!("crates/design-wasm/src/lib.rs"),
         pin!("crates/design-wasm/src/geometry_diagnostic.rs"),
+        pin!("crates/design-wasm/src/surface_runtime.rs"),
         pin!("client/web/src/design/core.js"),
         pin!("client/web/src/gfx/imported.js"),
         pin!("client/web/tools/export-hit-mesh.mjs"),
         pin!("client/web/tools/hit-mesh-capture.mjs"),
+        pin!("client/web/tools/fleet-authored-bindings.mjs"),
+        pin!("client/web/tools/fleet-additional-authored-bindings.mjs"),
+        pin!("client/web/src/collision/physicalNodeKey.js"),
+        pin!("client/web/src/game/barrelShapeComposition.js"),
         pin!("schemas/hit-mesh.schema.json"),
+        pin!("client/web/tools/hit-binding-catalog.mjs"),
+        pin!("schemas/hit-binding-catalog.schema.json"),
+        pin!("client/web/test/hit-binding-catalog.test.mjs"),
         pin!("client/web/test/exact-hit-mesh.test.mjs"),
         pin!("client/web/test/fixtures/exact-hit-x1-oracle-witness.json"),
         pin!("client/web/test/exact-hit-source-receipt.test.mjs"),
@@ -1860,11 +2152,14 @@ fn static_cold_warm_costs_and_shared_actor_disposal_receipt() {
         pin!("client/web/src/gfx/interior.js"),
         pin!("client/web/src/gfx/mgmodel.js"),
         pin!("client/web/src/gfx/track.js"),
+        pin!("client/web/src/sim/tank/trackChain.js"),
         pin!("client/web/src/gfx/gearSupports.js"),
         pin!("client/web/src/game/loadout.js"),
         pin!("client/web/src/game/workshopImported.js"),
         pin!("client/web/src/gfx/math.js"),
         pin!("client/web/src/game/combat.js"),
+        pin!("client/web/src/game/localSurfaceCombat.js"),
+        pin!("client/web/tools/load-surface-catalog.mjs"),
         pin!("client/web/src/game/workshopBuild.js"),
         pin!("client/web/tools/load-data.mjs"),
         pin!("client/web/src/gfx/renderer.js"),

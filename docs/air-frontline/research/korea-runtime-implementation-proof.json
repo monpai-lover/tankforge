@@ -1,0 +1,81 @@
+{
+  "status": "authored_geography_and_actual_client_sampler_geometry_CPU_validated; native_ground_execution_owned_by_server_adapter_agent_pending",
+  "map": {
+    "path": "data/frontline/korea.json",
+    "sha256": "66fa323eae0c6581a815b315319657c58367843de9b4fd1b2dc6bc7ed2c1dee6",
+    "bytes": 3158374,
+    "scale": "1:1 EPSG32652,100000x120000m retained",
+    "registeredRoads": 12,
+    "registeredRoadMeters": 105647.51999999999,
+    "activeObjectives": 15,
+    "enabledCompanySources": 6,
+    "initialNativeTankSlots": 60,
+    "waterAreas": 229,
+    "bridgeDeckGroups": 36,
+    "sourceTaggedDeckGroups": 22,
+    "maximumAlong5mGradePercent": 8.85972,
+    "maximumCrossTrackGradePercent": 3.61535,
+    "cutFill": {
+      "minimumSignedCutFillMeters": -20.475,
+      "maximumFillMeters": 21.475
+    }
+  },
+  "client": {
+    "path": "handoff/tools/frontline_client.js",
+    "sha256AtTests": "f1c030d5306bd9026c9ce9f5dc0c1c69c8c8833b46170284ade8ae18ad14363c",
+    "changedFunctions": [
+      "height",
+      "rebuildTerrain"
+    ],
+    "bundleSynced": false,
+    "GPUrun": false,
+    "nativePhysicsChangedByThisAgent": false
+  },
+  "newChecks": {
+    "node": {
+      "command": "node --test handoff/tests/korea-runtime-geography.test.mjs",
+      "passed": 4,
+      "failed": 0
+    },
+    "python": {
+      "command": "PYTHONPATH=/tmp/tankforge-korea-nav-20261025-pydeps python3 -m unittest handoff/tests/test_korea_runtime_navigation.py",
+      "passed": 5,
+      "failed": 0
+    },
+    "physicalFootprintProof": {
+      "scope": "All12 registered roads at<=5m centre intervals and5 body probes (10x4m footprint) per interval; six entire pad+grading rectangles dry, realroad entrygap<=1cm, source separations>=300m",
+      "passes": true,
+      "failures": [],
+      "failureCount": 0,
+      "wetFootprintProbes": 10613,
+      "minimumDeckWaterClearanceMeters": 2.956976071221966,
+      "vehicleLimitation": "Native individual tank driving/turning still requires separate runtime tests. This geometry proof does not certify arbitrary chassis, road buildings or real bridge load capacity."
+    }
+  },
+  "relatedNodeRegression": {
+    "command": "node --test handoff/tests/korea-runtime-geography.test.mjs handoff/tests/frontline-aircraft-visual.test.mjs handoff/tests/frontline-air-service.test.mjs handoff/tests/frontline-objective-ui.test.mjs handoff/tests/frontline-input.test.mjs handoff/tests/frontline-reticle.test.mjs",
+    "passed": 21,
+    "failed": 1,
+    "failure": "Existing hardcoded24-aircraft assertion now sees26 after concurrent Me262 variants addition; reported to root, not modified or hidden."
+  },
+  "nativeCases": {
+    "file": "korea-runtime-native-cases.json",
+    "cases": 27,
+    "executionStatus": "pending native adapter owner; no Rust/Cargo/GPU run by geography agent"
+  },
+  "buildDependencies": {
+    "numpy": "2.2.6",
+    "pyproj": "3.7.1",
+    "shapely": "2.1.2",
+    "requirements": "korea-runtime-build-requirements.txt"
+  },
+  "limitations": [
+    "All roadwidths/grading/cleared pads/new decks/culverts and waterplane levels are explicit fictional game authoring, not real bridge load/condition/construction feasibility certification.",
+    "Ground-route source DSM remains approximately195m planning resolution; four native30m airport patches do not cover the ground corridors.",
+    "Hydro mask covers three road neighborhoods, with mapped waterpolygons plus conservative game stream buffers. Outside coverage and unregistered offroad are failclosed.",
+    "Single-valued bridge top sampler does not implement underside/under-bridge traffic. Actual native hull and track wet guards remain separately tested by adapter agent.",
+    "Only CPU correctness/resource ownership of client road/water/deck construction checked; no60-tank GPU/framerate claim.",
+    "Original west nearest-snapgap/spur are retained as rejected study evidence; W0/W1/W2 fictional objectives were explicitly relocated onto true connected through-road paths.",
+    "Taiwan full-main-island remains required separately; this asset contains Korea only."
+  ]
+}

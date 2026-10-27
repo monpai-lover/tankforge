@@ -3,6 +3,26 @@ use super::{
     ray::{cross, dot, sub, Contact, Point},
 };
 use serde::{Deserialize, Serialize};
+#[cfg(test)]
+mod shape_context_tests {
+    use super::QueryContext;
+    #[test]
+    fn legacy_pose_context_defaults_to_stock_geometry_revision() {
+        let context: QueryContext = serde_json::from_value(serde_json::json!({
+            "entityId":"barrel-actor", "spawnEpoch":1, "buildHash":"b".repeat(64), "poseRevision":3
+        })).unwrap();
+        let serialized=serde_json::to_value(context).unwrap();
+        assert_eq!(serialized["geometryRevision"],0);
+        assert!(serialized["shapeHash"].is_null());
+    }
+    #[test]
+    fn accepted_shape_context_retains_independent_geometry_and_pose_revisions() {
+        let raw=serde_json::json!({"entityId":"barrel-actor", "spawnEpoch":1,
+            "buildHash":"b".repeat(64), "poseRevision":17, "geometryRevision":2, "shapeHash":"c".repeat(64)});
+        let context: QueryContext=serde_json::from_value(raw.clone()).unwrap();
+        assert_eq!(serde_json::to_value(context).unwrap(),raw);
+    }
+}
 #[derive(Clone, Debug, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct QueryContext {
@@ -10,6 +30,10 @@ pub struct QueryContext {
     pub spawn_epoch: u64,
     pub build_hash: String,
     pub pose_revision: u64,
+    #[serde(default)]
+    pub geometry_revision: u64,
+    #[serde(default)]
+    pub shape_hash: Option<String>,
 }
 #[derive(Clone, Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -19,6 +43,8 @@ pub struct SurfaceCrossingV1 {
     pub spawn_epoch: u64,
     pub build_hash: String,
     pub pose_revision: u64,
+    pub geometry_revision: u64,
+    pub shape_hash: Option<String>,
     pub assembly_id: String,
     pub instance_id: String,
     pub mesh_id: String,
@@ -81,11 +107,17 @@ impl SurfaceCrossingV1 {
             spawn_epoch: ctx.spawn_epoch,
             build_hash: ctx.build_hash.clone(),
             pose_revision: ctx.pose_revision,
+            geometry_revision: ctx.geometry_revision,
+            shape_hash: ctx.shape_hash.clone(),
             assembly_id: assembly.into(),
             instance_id: instance.into(),
             mesh_id: mesh.into(),
             triangle_id: triangle,
-            source_triangle_key: format!("{}:triangle:{}", r.source_key, triangle - r.first),
+            source_triangle_key: format!(
+                "{}:triangle:{}",
+                r.source_key,
+                r.source_triangle_first + (triangle - r.first)
+            ),
             solid_id: r.solid_key.clone(),
             binding_id: r.binding_key.clone(),
             surface_id: s.key.clone(),
@@ -618,9 +650,13 @@ fn certified_fraction(
         return Ok(None);
     }
     let mut t = numerator.iter().sum::<f64>() / den.iter().sum::<f64>();
-    if !t.is_finite() || t <= 0.0 || t >= 1.0 {
+    if !t.is_finite() {
         return Err("triangle plane fraction representable interval precision uncertainty".into());
     }
+    // Exact expansion signs already proved a strictly interior root. Its
+    // nearest representable fraction may nevertheless be an endpoint; certify
+    // that rounding interval below rather than rejecting a real surface hit.
+    t=t.clamp(0.,1.);
     let residual = |t: f64, stats: &mut super::QueryStats| -> Result<Expansion, String> {
         let mut out = numerator.clone();
         for x in product(&den, &vec![t], stats)? {
@@ -859,21 +895,48 @@ pub(crate) fn projected_orientation_zero(
     }
     Ok(result.is_empty())
 }
-pub(crate) fn barycentric_numerator_zero(
+pub(crate) fn barycentric_coordinates(
     v: [Point; 3],
     a: Point,
     b: Point,
-    vertex: usize,
-) -> Result<bool, String> {
+) -> Result<Option<Point>, String> {
     let scale = coordinate_scale(&[v[0], v[1], v[2], a, b])?;
     let mut stats = super::QueryStats::default();
-    Ok(plane_expansion(
-        [a, b, v[(vertex + 1) % 3]],
-        v[(vertex + 2) % 3],
-        scale,
-        &mut stats,
-    )?
-    .is_empty())
+    let mut numerators = Vec::with_capacity(3);
+    for vertex in 0..3 {
+        numerators.push(plane_expansion(
+            [a, b, v[(vertex + 1) % 3]],
+            v[(vertex + 2) % 3],
+            scale,
+            &mut stats,
+        )?);
+    }
+    let negative = numerators
+        .iter()
+        .any(|e| e.last().is_some_and(|&x| x < 0.0));
+    let positive = numerators
+        .iter()
+        .any(|e| e.last().is_some_and(|&x| x > 0.0));
+    if negative && positive {
+        return Ok(None);
+    }
+    if !negative && !positive {
+        return Err("triangle barycentric edge precision uncertainty".into());
+    }
+    let sign = if negative { -1.0 } else { 1.0 };
+    let mut denominator = Vec::new();
+    for numerator in &mut numerators {
+        for term in numerator {
+            *term *= sign;
+            grow(&mut denominator, *term)?;
+        }
+    }
+    let mut barycentric = [0.0; 3];
+    for (vertex, numerator) in numerators.into_iter().enumerate() {
+        barycentric[vertex] = certified_fraction(numerator, denominator.clone(), &mut stats)?
+            .ok_or("triangle barycentric fraction precision uncertainty")?;
+    }
+    Ok(Some(barycentric))
 }
 pub(crate) fn affine_component(row: [f64; 4], p: Point) -> Result<f64, String> {
     // At most four original terms. Correct mixed-sign accumulation before BVH

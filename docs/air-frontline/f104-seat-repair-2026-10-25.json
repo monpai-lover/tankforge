@@ -1,0 +1,34 @@
+{
+  "date": "2026-10-25",
+  "type": "f104g",
+  "sourceRecordSha256": "ecb310ba8cc83f250abfbd83ed2b9f7623e7e1cdc8af6c8f7d88a2159868eab5",
+  "repairedRecordSha256": "f55ed792976a710ae6d306a1f6c601626ca05a7c945cc86bc7032b7468e31b6f",
+  "oldEye": [
+    0,
+    0.520406,
+    6.188
+  ],
+  "newEye": [
+    0,
+    0.520406,
+    5.948
+  ],
+  "rearwardMeters": 0.24,
+  "sourceGeometry": "Unchanged original blobs, source combiner vertices, source seat, moving parts, cockpitHi and instrument definitions",
+  "seatClearance": {
+    "method": "Minimum Euclidean point-to-actual-indexed-seat-triangle distance; all three martin_baker_ejection_seat batches",
+    "oldEyeMeters": 0.3344466290566102,
+    "newEyeMeters": 0.14833394523631863,
+    "headProbeRadiusMeters": 0.08,
+    "probeMarginMeters": 0.06833394523631862,
+    "limitation": "A bounded camera clearance probe, not a human-factor or historical eye-position certification"
+  },
+  "hud": "Actual updateAirHud now hides both generic DOM air-aim/air-nose in camera1 and restores them outside; sensor-specific and optical sights retain their own rules",
+  "tests": {
+    "actualImportedAircraftAndCamera": true,
+    "cameraOnlyRecordComparison": true,
+    "actualHudCameraTransitions": true,
+    "nodePassed": 3,
+    "browser": "Actual native cockpit, camera/local eye, hidden DOM markers passed; centre/side/eye-box-out images reviewed; original centre8s timeout retained with independent successful follow-up"
+  }
+}

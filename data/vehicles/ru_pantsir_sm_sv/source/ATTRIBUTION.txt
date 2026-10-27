@@ -1,0 +1,20 @@
+Original model title: Pantsir SM-SV (War Thunder) Ninth Wave
+Original model author declared by the supplied GLB: KojfDiscord
+Author: https://sketchfab.com/KojfDiscord
+Source URL declared by the supplied GLB:
+https://sketchfab.com/3d-models/pantsir-sm-sv-war-thunder-ninth-wave-0838ed8759f84ece8d3939a9894a6ded
+License declared by the supplied GLB: CC BY 4.0
+https://creativecommons.org/licenses/by/4.0/
+
+This derivative package reorganizes and simplifies the supplied model, restores
+its diffuse textures, creates articulated joints and animations, and adds
+approximate game-oriented internal geometry, metadata and a standalone viewer.
+The supplied original GLB is not modified or redistributed inside this package.
+
+The original file supplies no verified armor thickness, internal component
+layout, performance or ballistic data. Added dimensions, protection values and
+component layouts are declared game approximations, not manufacturer data.
+
+Third-party viewer dependencies, when present, retain their own license files
+under preview/vendor/. TankForge integration code or copied tooling retains
+provenance in integration/.

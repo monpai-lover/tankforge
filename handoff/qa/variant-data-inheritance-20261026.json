@@ -1,0 +1,22 @@
+{
+  "scope": "Two explicit logical variants inherit existing legacy damage anatomy and structural data; original entries unchanged",
+  "records": {
+    "aircraft.json": {
+      "beforeSha256": "ef1bf83c19a94b28686704313fdbaa7f7f5aff46bbc44ee8cd6157e7d3b2b064",
+      "afterSha256": "754f94990b0b881c20b69c3286d9f2a41fb9fee80d87ea38186db7c7ddb22322",
+      "inherited": {
+        "su27skm": "su27",
+        "mig29smt": "mig29"
+      }
+    },
+    "limits.json": {
+      "beforeSha256": "14ae273a084cf07f24359aebe012cf2c2fcfaddc509c582248cfb87adb00c268",
+      "afterSha256": "891ad78f8c46847e52d4ca57a96200f9d1c481fc76e122b663b95bff588401c9",
+      "inherited": {
+        "su27skm": "su27",
+        "mig29smt": "mig29"
+      }
+    }
+  },
+  "profileSha256": "34822a94e19aab0c9958f48d7f9f737e42f9cbd4c31a2f31a1d239e4338d6cfd"
+}

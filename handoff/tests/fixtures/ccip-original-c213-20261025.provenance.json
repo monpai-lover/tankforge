@@ -1,0 +1,8 @@
+{
+  "scope": "Frozen original prediction function only; no alternate ballistic implementation.",
+  "gitCommit": "3d4c4953e3519ae5b54b377db91b92bce87cedbe",
+  "path": "handoff/bundle/app.js.html:storeImpact",
+  "functionSha256WithoutFinalNewline": "dcbf6cfa2d6f2c196ecb87cf5b8c94b560041ac19bc09e4984bd1c019fd0ec84",
+  "reviewedCurrentAppBeforeIncrementalMergeSha256": "8e7863ff700f12661227fb9bcaa96d5a5a229eedb4c1ce1197c7690d4df451f8",
+  "verification": "The current production function with only endpoint-cache changes reversed matches the frozen earlier function byte for byte. Tests execute this pinned function and current source against actual current weapon definitions and Terrain/BattleMap methods."
+}

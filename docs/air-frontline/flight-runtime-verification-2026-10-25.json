@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-25",
+  "scope": "Targeted verification of the server interpreter wrapper around the unchanged browser flight_core.wasm212; not full combined-mode or deployment acceptance",
+  "repositoryHeadAtRecord": "9505ec0d37313a63900b755b74b9784c77d3adc8",
+  "sourceStatus": "Runtime and tests were local uncommitted additions when verified; no commit or deployment performed by this audit",
+  "artifact": {
+    "path": "handoff/flight/flight_core.wasm",
+    "sha256": "a52a939b991eee2ac7c64f2a3aabb6b5ab7f69142d4bd887e2fc12bc268d1342",
+    "coreVersion": 212,
+    "stateFloats": 80,
+    "aeroFloats": 48,
+    "memoryBytesPerInstance": 131072,
+    "unchanged": true,
+    "browserEmbeddedBytesMatch": true,
+    "sourceC": {
+      "path": "handoff/flight/flight_core.c",
+      "sha256": "328c9ab536cdb7560a01a43b945ca53346d51bd51a8d23e3f016ba7ad751decb"
+    }
+  },
+  "runtime": {
+    "path": "crates/server/src/flight_runtime.rs",
+    "sha256": "876d45a1d841f8533e6c34dc7d1dc01af3750803d91a914ed225f43775d1aa27",
+    "interpreter": "wasmi =2.0.0",
+    "defaultFeatures": false,
+    "features": ["std", "validate", "auto-dispatch"],
+    "isolation": "Engine and Module shared; every aircraft has an independent Store, Instance, memory and C static state",
+    "terrain": "World imports use the shared MapGround sampler including authored overlays; landing eligibility requires explicit LandingArea regions",
+    "math": "f32 WASM operands promoted to f64 host sin/cos/asin/acos/atan2/exp and narrowed to f32, matching the browser import boundary",
+    "debugDispatchFix": "With default features disabled, omitting auto-dispatch caused a real unoptimized native stack overflow. Explicit auto-dispatch selects the portable interpreter loop for opt-level0/1 instead of relying on LLVM sibling-call optimization. No enlarged thread stack or core modification was used.",
+    "stateLimit": "80+48 telemetry floats are a serialized observation, not a complete restorable execution context; hidden C state remains in its instance"
+  },
+  "verification": {
+    "command": "CARGO_INCREMENTAL=0 CARGO_PROFILE_DEV_DEBUG=0 CARGO_PROFILE_TEST_DEBUG=0 cargo test -p tg-server --lib flight_runtime::tests -- --nocapture",
+    "result": "passed",
+    "passed": 6,
+    "failed": 0,
+    "tests": [
+      {"name": "pinned_module_checks_identity_abi_memory_and_rejects_invalid_admission", "evidence": "Exact artifact and ABI, 128KiB memory, invalid landing region, oversized dt/nonfinite controls/invalid flags/damage rejected without changing telemetry, serde round trip"},
+      {"name": "two_different_airframes_interleaved_match_their_independent_execution", "evidence": "Different piston and jet configurations interleaved in separate instances match their isolated runs, including instructor hidden-state effects"},
+      {"name": "actual_world_sampling_parked_controls_and_airborne_roll_are_connected", "evidence": "Actual Korea terrain height/parked AGL; explicit test-only landing pad; parked A/D actuator response and opposite accepted airborne roll response; not a model hinge/mesh audit or airport certification"},
+      {"name": "accepted_damage_reduces_real_kernel_thrust_and_impulse_changes_plant", "evidence": "Engine damage reduces actual kernel thrust and speed; accepted velocity/angular impulses alter plant state"},
+      {"name": "host_trap_returns_result_and_prevents_continuation_of_partial_state", "evidence": "Test-only world callback trap becomes Result error and faults the instance; subsequent telemetry/step cannot continue partial state"},
+      {"name": "same_wasm_parameters_and_command_sequence_match_node_browser_math", "evidence": "Same real WASM, production client terrain sampler and f32 parameter/control/damage/impulse sequence in Node compared with wasmi"}
+    ],
+    "testsSource": {
+      "path": "crates/server/src/flight_runtime_tests.rs",
+      "sha256": "e4ef8b3b6ea3b81e23f7f0f2154669d6efe7705793bd433be7bef6f0090ba1e8"
+    },
+    "nodeParity": {
+      "script": "handoff/tests/flight_runtime_parity.mjs",
+      "sha256": "193109a0ef66f2b8684f81d8b6d0319dc72d2c54b4774f1166b66ec134e54dc5",
+      "cases": 2,
+      "stepsPerCase": 40,
+      "floatsCompared": 10240,
+      "maximumAbsoluteError": 0,
+      "assertedTolerance": "1e-5 + 2e-6 * abs(Node float)",
+      "browserEmbeddingEqualityAsserted": true,
+      "browserOrRendererLaunched": false
+    },
+    "performance": {
+      "probe": "80 interpreter steps plus two instances/configuration during the unoptimized parallel test run",
+      "observedMilliseconds": 424.512,
+      "realtimeOrPopulationCertified": false,
+      "limit": "Not a standalone benchmark; no release build, maximum player/aircraft load, mobile, browser rendering or network performance claim. Root records release mixed-world evidence separately."
+    }
+  },
+  "completionBoundary": {
+    "fullCombinedModeImplemented": false,
+    "deployedToVps": false,
+    "excluded": ["Air domain ownership/ammunition/shot admission and actual mixed-world tests are separate integration evidence", "Full model geometry and animation fidelity", "Full Korean/Taiwan maps, logistics, infantry and support vehicles", "Maximum population and mobile acceptance"]
+  }
+}

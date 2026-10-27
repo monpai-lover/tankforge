@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "purpose": "Exact pre-conforming terrain cell loops from the frozen page actually used by ground observer screenshot. Tests only read these tracked fixtures; no ignored output dependency.",
+  "source": {
+    "appSha256": "350f4ac45f4128aeceba9bf37cd559aa93110e879775baa8d2fe93b292d11fda",
+    "pageSha256": "db48307e40aacfc9ac8d37cd8fe7e80e5b2b269e9f686119cbf71b4fb2875351",
+    "pageBytes": 41114032,
+    "historicalPage": "/home/boyang/Desktop/worldbox/tankforge-combined-implementation/handoff/tests/out/three-front-browser-20261025/dev.html",
+    "historicalEvidence": "handoff/tests/out/three-front-browser-20261025/attempt6-ground/observer-close-chase45.png"
+  },
+  "fixture": {
+    "file": "frontline-terrain-legacy-loop.js",
+    "bytes": 842,
+    "sha256": "845a4dac7401022a143cb5965b52c1904a0918f87b3f0539db880c5d5f234d31"
+  },
+  "scope": "Original adaptive50/10m and200/25m cell triangles, including source water clipping; fixture needs the documented GeoBuilder/canonical callback variables supplied by the test wrapper."
+}

@@ -1,0 +1,286 @@
+{
+  "sourceRoot": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013",
+  "activeRoot": "C:\\Users\\24908\\.codex\\scratch\\tankforge-airwar-online-20261025\\worktree\\online-source",
+  "files": [
+    {
+      "path": "crates/combat/Cargo.toml",
+      "status": "recovered",
+      "currentSha256": "924ee6b6fea12896276ce9e4d3036b1f71144a3fe7a1e117d67a5f9d4934608e",
+      "baseSha256": "924ee6b6fea12896276ce9e4d3036b1f71144a3fe7a1e117d67a5f9d4934608e",
+      "recoveredSha256": "8ad60af4975d906e3388b15019b4baca331e03d14b81855912df30ff5b952df8",
+      "candidateSha256": "8ad60af4975d906e3388b15019b4baca331e03d14b81855912df30ff5b952df8"
+    },
+    {
+      "path": "crates/combat/src/lib.rs",
+      "status": "reviewed_merged",
+      "currentSha256": "c35cb875ff16edd28c6b3f7927c32df42225d54f681f96207ea23afccdf95173",
+      "baseSha256": "aa9b96b4258e690a9ff72ee7c6f8964c36f3f74762df8a9bd4eed5776473d4f9",
+      "recoveredSha256": "e68c93c1882d5cfa5cff34a4edf881f931c7aa4d908c83ef48eb0dd6099b5578",
+      "candidateSha256": "012ff8efa1c71d993a53edc97bba796ac1bf7ff81a2a24e5a986a3d8d4a8d796"
+    },
+    {
+      "path": "crates/combat/src/near_burst.rs",
+      "status": "recovered",
+      "currentSha256": null,
+      "baseSha256": null,
+      "recoveredSha256": "9667791ce160f96337b77c6e044ea324cc361d2c5a78ac293d4f2cd99bb70bd2",
+      "candidateSha256": "260a7cfad6b64031a6510d37f866aa3868765cf7725eb8b6064e906f2a147c9f"
+    },
+    {
+      "path": "crates/combat/src/replay_evidence.rs",
+      "status": "recovered",
+      "currentSha256": "fc3fe65ebc13df5da336c5581c9990ed72507aa33459e1ce9e4dd4988125464e",
+      "baseSha256": "fc3fe65ebc13df5da336c5581c9990ed72507aa33459e1ce9e4dd4988125464e",
+      "recoveredSha256": "9131b77c4fd0bdd9bd34e60145c175c1d5bf7525be08b26a74a54d5462f8fc37",
+      "candidateSha256": "9131b77c4fd0bdd9bd34e60145c175c1d5bf7525be08b26a74a54d5462f8fc37"
+    },
+    {
+      "path": "crates/combat/src/tests.rs",
+      "status": "reviewed_merged",
+      "currentSha256": "d70ea6f50820ab6be2d3b3838daa9915632e5801822486696c947766d16d706a",
+      "baseSha256": "4c05dc816ebfa62d29cf5e8f8cdb5c06109e7dfdee4bb146556c8a42945e8a19",
+      "recoveredSha256": "783f016831ced19687697f768897d78e7459a1bc3a24a3e233a63d32f94409f6",
+      "candidateSha256": "3d63ecd198b126acdbc97a177d64ca295a1ef6013a16383dac66c3ba225b0010"
+    },
+    {
+      "path": "crates/combat/src/geometry/barrel_scene_tests.rs",
+      "status": "recovered",
+      "currentSha256": null,
+      "baseSha256": null,
+      "recoveredSha256": "3de637915e5fa6acb4910d9666814672481b984a5e710c516028ed4f87ed2f4a",
+      "candidateSha256": "3de637915e5fa6acb4910d9666814672481b984a5e710c516028ed4f87ed2f4a"
+    },
+    {
+      "path": "crates/combat/src/geometry/combat_scene.rs",
+      "status": "recovered",
+      "currentSha256": null,
+      "baseSha256": null,
+      "recoveredSha256": "d57e0bb35e5e62b88ddfe089748e318f0b76e53e63a9f0ad6ba073a6cd646157",
+      "candidateSha256": "d57e0bb35e5e62b88ddfe089748e318f0b76e53e63a9f0ad6ba073a6cd646157"
+    },
+    {
+      "path": "crates/combat/src/geometry/manifest.rs",
+      "status": "recovered",
+      "currentSha256": "cc2ea3d71d41deb00bdde98e05fa0e9c919a3d760caee6e76526ab8fbed45860",
+      "baseSha256": "cc2ea3d71d41deb00bdde98e05fa0e9c919a3d760caee6e76526ab8fbed45860",
+      "recoveredSha256": "f374c032454f5431b0687a6a3ab80ef51f399e0afa1f67c713e9dcc34b9ea53e",
+      "candidateSha256": "f374c032454f5431b0687a6a3ab80ef51f399e0afa1f67c713e9dcc34b9ea53e"
+    },
+    {
+      "path": "crates/combat/src/geometry/mod.rs",
+      "status": "recovered",
+      "currentSha256": "68f80eb9fb030270a8d01ecb173f080abc884b2cce419d908d7d03f0fc4daa83",
+      "baseSha256": "68f80eb9fb030270a8d01ecb173f080abc884b2cce419d908d7d03f0fc4daa83",
+      "recoveredSha256": "92e6f2dbd17b8d7ce7958b847061af93eb9a3278fe081047951f1c17225cf132",
+      "candidateSha256": "92e6f2dbd17b8d7ce7958b847061af93eb9a3278fe081047951f1c17225cf132"
+    },
+    {
+      "path": "crates/combat/src/geometry/ray.rs",
+      "status": "recovered",
+      "currentSha256": "1c3e19e2b50c317a8649b0d912e451c58b07535253e4c052e32448f31ae346d1",
+      "baseSha256": "1c3e19e2b50c317a8649b0d912e451c58b07535253e4c052e32448f31ae346d1",
+      "recoveredSha256": "5b6b17c6991cb9a19ee3894654f75dcbafdb3bf13e4d48c18d345d2fe3379541",
+      "candidateSha256": "5b6b17c6991cb9a19ee3894654f75dcbafdb3bf13e4d48c18d345d2fe3379541"
+    },
+    {
+      "path": "crates/combat/src/geometry/surface.rs",
+      "status": "recovered",
+      "currentSha256": "d4ef97e8e21018953d9fbfdac5e761367744019a0cec51a18e43dc41d96124ff",
+      "baseSha256": "d4ef97e8e21018953d9fbfdac5e761367744019a0cec51a18e43dc41d96124ff",
+      "recoveredSha256": "79ca6e9142a1957207cd6b87ab4c438b6ba99c3b16360a1c42f8beb1ea0ea97d",
+      "candidateSha256": "79ca6e9142a1957207cd6b87ab4c438b6ba99c3b16360a1c42f8beb1ea0ea97d"
+    },
+    {
+      "path": "crates/combat/src/geometry/tests.rs",
+      "status": "recovered",
+      "currentSha256": "833f5a66ff0025da84fd4a9d24a9e6d0c22a981808a49cae601e52f846749371",
+      "baseSha256": "833f5a66ff0025da84fd4a9d24a9e6d0c22a981808a49cae601e52f846749371",
+      "recoveredSha256": "b68c59f1ac41a0d92ac933f71d9924ef9a27e4536c371ed411ff50dfc87677bb",
+      "candidateSha256": "b68c59f1ac41a0d92ac933f71d9924ef9a27e4536c371ed411ff50dfc87677bb"
+    },
+    {
+      "path": "crates/design/src/catalog.rs",
+      "status": "recovered",
+      "currentSha256": "3e5d45fb117e8e8221f575fd76b5e40288c7f347fddbb8c8816fbc0fc2c1e55c",
+      "baseSha256": "3e5d45fb117e8e8221f575fd76b5e40288c7f347fddbb8c8816fbc0fc2c1e55c",
+      "recoveredSha256": "d0b13a310040eca66d75ae1c9144bb5c063c60aba04971d3a9c58dcc4a8de307",
+      "candidateSha256": "d0b13a310040eca66d75ae1c9144bb5c063c60aba04971d3a9c58dcc4a8de307"
+    },
+    {
+      "path": "crates/design/src/compile.rs",
+      "status": "recovered",
+      "currentSha256": "0c1ec7dea4c558a908ace1020fd383642c1d21bb406ab9f389a74ff537b7abeb",
+      "baseSha256": "0c1ec7dea4c558a908ace1020fd383642c1d21bb406ab9f389a74ff537b7abeb",
+      "recoveredSha256": "efc0e8b4b60fb7d526c0cab36ea82e983f1fdd2fd0918898d3aad69dd67df3f7",
+      "candidateSha256": "efc0e8b4b60fb7d526c0cab36ea82e983f1fdd2fd0918898d3aad69dd67df3f7"
+    },
+    {
+      "path": "crates/design/src/tests.rs",
+      "status": "recovered",
+      "currentSha256": "ea9cc8965dce6e3ad88c22d10461b0816a149a56fdb75f4fbc585f04e6ba7975",
+      "baseSha256": "ea9cc8965dce6e3ad88c22d10461b0816a149a56fdb75f4fbc585f04e6ba7975",
+      "recoveredSha256": "e99932c81324b950bb3ae0ddf97b9453584cb56876812a5e472abe3f3cbffae7",
+      "candidateSha256": "e99932c81324b950bb3ae0ddf97b9453584cb56876812a5e472abe3f3cbffae7"
+    },
+    {
+      "path": "crates/design-wasm/src/lib.rs",
+      "status": "recovered",
+      "currentSha256": "0202adab16af57357b7b7efcd2c61367bd6260f4e4d19239b944594dbdc27fdf",
+      "baseSha256": "0202adab16af57357b7b7efcd2c61367bd6260f4e4d19239b944594dbdc27fdf",
+      "recoveredSha256": "e7cd31340a174a8186b43d1bde9e38bb126268d16ee717186b4bcdb06cda3501",
+      "candidateSha256": "e7cd31340a174a8186b43d1bde9e38bb126268d16ee717186b4bcdb06cda3501"
+    },
+    {
+      "path": "crates/design-wasm/src/surface_runtime.rs",
+      "status": "recovered",
+      "currentSha256": null,
+      "baseSha256": null,
+      "recoveredSha256": "b7f71b596b5f8c47363e64a48a7db3feb19422cd6d5a7dd5669a6e3681576dc5",
+      "candidateSha256": "b7f71b596b5f8c47363e64a48a7db3feb19422cd6d5a7dd5669a6e3681576dc5"
+    },
+    {
+      "path": "crates/design-wasm/src/surface_runtime_multi_tests.rs",
+      "status": "recovered",
+      "currentSha256": null,
+      "baseSha256": null,
+      "recoveredSha256": "29cd21f4b470313879b96c881f20f9f1e99aece6829f4728634bfe5c561b4364",
+      "candidateSha256": "29cd21f4b470313879b96c881f20f9f1e99aece6829f4728634bfe5c561b4364"
+    }
+  ],
+  "preservedCurrent": [
+    "crates/penetration/src/impact.rs",
+    "crates/combat/src/weapon_damage.rs",
+    "crates/combat/src/surface_armor.rs"
+  ],
+  "reviewNotes": [
+    "Matched active designCore 7095c82c373534c7590ca882f75005059f4f849586ad2b7154c0a5c524656c25 exactly to source owner asset/release and all 22 source receipt hashes.",
+    "Conflict resolved by using measured triangle exit plus current delayed APHE arming/lifecycle.",
+    "Retained legacy surfaces/surf/surface_error/Posed yaw-pivot/add_walls/nearest helpers conditionally when no registered CombatScene; no registered surface fallback to legacy planes.",
+    "Preserved current public field/function sets; added compatibility surfaces:None and optional timing fields to recovered constructors.",
+    "Existing hit-meshes index and shared immutable files are byte-identical; only absent verified payload files are staged.",
+    "New MK214 surface regression uses source 17gPETN round and accepted visible wall/engine mesh with contradictory legacy boxes plus a real aperture. Existing recovered real T72 integration tests remain."
+  ],
+  "compileEssentialData": [
+    {
+      "path": "data/barrel-shapes/index.json",
+      "bytes": 645985,
+      "sha256": "c6a080ceb0122ca9b5b3b1fd05ab5dd052f7550e296caab1d58ab02bfab35d39"
+    }
+  ],
+  "applied": true,
+  "tests": "ROOT owns Cargo. New filter surface_delayed_aphe_mk214 plus delayed_aphe and recovered surface_combat/barrel suites.",
+  "largeDatasetPolicy": "624 provenance-pinned authoring/test meshes copied locally for ROOT broad regression only; excluded runtime and lean source_delta except compile-essential barrel index.",
+  "testCompileSources": [
+    {
+      "path": "client/web/src/collision/physicalNodeKey.js",
+      "sha256": "055db3196ee4d2ef46c8d2b913124d08753185d9ce8c1346b76fbfa103eb32f7",
+      "bytes": 3060,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\src\\collision\\physicalNodeKey.js"
+    },
+    {
+      "path": "client/web/src/game/barrelShapeComposition.js",
+      "sha256": "6df06756c8971b602d2aceb1fe56e7080e8b25821c41b4a8fa783d326935d225",
+      "bytes": 2978,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\src\\game\\barrelShapeComposition.js"
+    },
+    {
+      "path": "client/web/src/game/localSurfaceCombat.js",
+      "sha256": "e65793a3920ba86508404d12ecc842a283155a0f59d9b765dedbdb77a65a5c19",
+      "bytes": 15996,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\src\\game\\localSurfaceCombat.js"
+    },
+    {
+      "path": "client/web/src/sim/tank/trackChain.js",
+      "sha256": "c4c5e086126574076574b00c0335a09316bc5016e9de4e18cb559896f8b8af55",
+      "bytes": 16557,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\src\\sim\\tank\\trackChain.js"
+    },
+    {
+      "path": "client/web/test/hit-binding-catalog.test.mjs",
+      "sha256": "f7ea2edd8c29e8893e1c1dcad1e964e228a3a76ff110a7fc5bf8eac1378c59e8",
+      "bytes": 13292,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\test\\hit-binding-catalog.test.mjs"
+    },
+    {
+      "path": "client/web/tools/fleet-additional-authored-bindings.mjs",
+      "sha256": "c40f89ad7fd284c8e7a9a5b012012d363bb37dc30c2bd08f054c81826946628e",
+      "bytes": 24824,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\tools\\fleet-additional-authored-bindings.mjs"
+    },
+    {
+      "path": "client/web/tools/fleet-authored-bindings.mjs",
+      "sha256": "bc27c1e183339097755ec2d2da5ea9acf6bbe74a309f8915636c21fa3845a000",
+      "bytes": 16460,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\tools\\fleet-authored-bindings.mjs"
+    },
+    {
+      "path": "client/web/tools/hit-binding-catalog.mjs",
+      "sha256": "6373fb02277806b323f0c3f82835a65726617318056d0b56eec0d7bc46dbb19c",
+      "bytes": 31034,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\tools\\hit-binding-catalog.mjs"
+    },
+    {
+      "path": "client/web/tools/load-surface-catalog.mjs",
+      "sha256": "956056c75da2c6539ef72fb684fd1aa380de57645aeec63ae55e3034be9896be",
+      "bytes": 4509,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\client\\web\\tools\\load-surface-catalog.mjs"
+    },
+    {
+      "path": "schemas/hit-binding-catalog.schema.json",
+      "sha256": "4017f414d0855247b43a960b211206df9f3266b8601ad5d908dd3984fb159682",
+      "bytes": 10779,
+      "classification": "test_source_compile_required",
+      "recoveredFrom": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\schemas\\hit-binding-catalog.schema.json"
+    }
+  ],
+  "compatibilityCallers": [
+    {
+      "path": "crates/server/src/shot_flight.rs",
+      "sha256": "ca5d849e4c2032b7e6a8379c67695afe7787f28d2683929651e68af162b3e358",
+      "change": "geometry_instances empty for explicitly legacy_receipt_pose; matches recovered source pose helper semantics; no invented accepted matrices"
+    }
+  ],
+  "optionalVehicleMetadata": {
+    "path": "crates/vehicle/src/files.rs",
+    "beforeSha256": "68d4c6cb9bd82d0ad9b32db894f117ccce06a0e26ed750f5f6550b3ab3b2d887",
+    "sourceSha256": "40ada91c99e750955497040c5280ec5ec3c627c3113d12dab72abb4d30eb65af",
+    "newFields": [
+      "force_model: Option<String>",
+      "station_kinds: Option<Vec<String>>"
+    ],
+    "semantics": "serde default/omit None. Current physics sources remain unchanged; these fields preserve recovered design output/provenance and add no force law or station interpretation."
+  },
+  "retainedRegressionFunctions": [
+    "pantsir_from_data",
+    "pantsir_triangle_armour_from_its_model",
+    "surface_armour_hole_in_the_skin_is_not_filled",
+    "surface_armour_rejects_a_changed_geometry",
+    "surface_armour_side_shot_meets_the_models_wall",
+    "surface_armour_turret_turns_with_its_yaw",
+    "surface_armour_two_skins_of_one_part_are_one_wall",
+    "surface_box",
+    "surface_tank",
+    "weapon_bindings_explicit_shared_part_under_one_group_fires_and_fails_together"
+  ],
+  "additionalTestFixtures": [
+    {
+      "path": "data/hit-bindings/48628571dfc892feb27da516e2e804004181198e93f286e635143f77adb65de4.json",
+      "sha256": "48628571dfc892feb27da516e2e804004181198e93f286e635143f77adb65de4",
+      "bytes": 2698272,
+      "manifestHash": "57cf34dd8f1694e59acef7e3cbf4ae77e5624c919cf89095aa680229e0cff5fe",
+      "indexSha256": "9dc71ed329675b7a3c5ca9ca55a99d06e7840784a69f608721a9e42bf675fd8d",
+      "sourcePath": "C:\\Users\\24908\\.codex\\scratch\\tankforge-audio-v3-integration-20261013\\data\\hit-bindings\\48628571dfc892feb27da516e2e804004181198e93f286e635143f77adb65de4.json",
+      "classification": "test_authoring_only_not_runtime"
+    }
+  ],
+  "rosterGuardReceipt": "docs/provenance-recovery-20261026/current-roster-and-t72-binding-receipt.json"
+}

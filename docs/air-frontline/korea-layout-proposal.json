@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "status": "design_proposal_only",
+  "implementationStarted": false,
+  "theatre": "Korean western/central frontier geography",
+  "extent": "100×120 km at 1:1 scale; extra rear airspace keeps airborne starts farther back",
+  "coordinateBasis": "EPSG:32652 easting/northing for this study; game renderer/physics transform remains to be specified and tested",
+  "geographyManifest": "research/korea-geography-manifest.json",
+  "lanes": [
+    {
+      "id": "west",
+      "name": "西线 · 临津江支流",
+      "role": "河谷与桥头，护送装甲纵队、阻断补给",
+      "nodes": [
+        {
+          "id": "W0",
+          "name": "蓝方西线集结点",
+          "lonLat": [
+            126.7922202,
+            37.948831
+          ],
+          "initialOwner": "blue",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "W1",
+          "name": "西线南岸据点",
+          "lonLat": [
+            126.8222202,
+            37.998831
+          ],
+          "initialOwner": "blue",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "W2",
+          "name": "临津江支流交战区",
+          "lonLat": [
+            126.8522202,
+            38.048831
+          ],
+          "initialOwner": null,
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "W3",
+          "name": "西线北侧路口",
+          "lonLat": [
+            126.8422202,
+            38.098831
+          ],
+          "initialOwner": "red",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "W4",
+          "name": "红方西线补给节点",
+          "lonLat": [
+            126.8022202,
+            38.148831
+          ],
+          "initialOwner": "red",
+          "captureRadiusMeters": 250
+        }
+      ],
+      "anchorEvidence": {
+        "osmRiver": "Samichon",
+        "riverCentreLonLat": [
+          126.8482867,
+          38.0469568
+        ],
+        "studyAreaOffsetMetersEastNorth": [
+          350,
+          200
+        ],
+        "reason": "Reduce straight-line airport arrival imbalance while keeping the battle corridor beside an observed real river",
+        "captureGroundStatus": "Study centroid only; dry ground, bridge crossings and legal paths require native-resolution checking"
+      }
+    },
+    {
+      "id": "centre",
+      "name": "中线 · 涟川／临津江",
+      "role": "连接两翼的道路枢纽，便于调动和增援",
+      "nodes": [
+        {
+          "id": "C0",
+          "name": "蓝方中线集结点",
+          "lonLat": [
+            126.9895316,
+            38.0042737
+          ],
+          "initialOwner": "blue",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "C1",
+          "name": "中线南侧路口",
+          "lonLat": [
+            126.9995316,
+            38.0492737
+          ],
+          "initialOwner": "blue",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "C2",
+          "name": "涟川河谷交战区",
+          "lonLat": [
+            127.0145316,
+            38.0942737
+          ],
+          "initialOwner": null,
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "C3",
+          "name": "中线北侧据点",
+          "lonLat": [
+            127.0045316,
+            38.1392737
+          ],
+          "initialOwner": "red",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "C4",
+          "name": "红方中线补给节点",
+          "lonLat": [
+            126.9845316,
+            38.1842737
+          ],
+          "initialOwner": "red",
+          "captureRadiusMeters": 250
+        }
+      ],
+      "anchorEvidence": {
+        "osmRiver": "Imjin River",
+        "riverCentreLonLat": [
+          127.0111123,
+          38.0942159
+        ],
+        "studyAreaOffsetMetersEastNorth": [
+          300,
+          0
+        ],
+        "reason": "Reduce straight-line airport arrival imbalance while keeping the battle corridor beside an observed real river",
+        "captureGroundStatus": "Study centroid only; dry ground, bridge crossings and legal paths require native-resolution checking"
+      }
+    },
+    {
+      "id": "east",
+      "name": "东线 · 汉滩江—铁原",
+      "role": "平原装甲战与山谷进出通道，兼顾制空和近距支援",
+      "nodes": [
+        {
+          "id": "E0",
+          "name": "蓝方东线集结点",
+          "lonLat": [
+            127.2939786,
+            38.036797
+          ],
+          "initialOwner": "blue",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "E1",
+          "name": "东线南侧据点",
+          "lonLat": [
+            127.2889786,
+            38.081797
+          ],
+          "initialOwner": "blue",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "E2",
+          "name": "汉滩江交战区",
+          "lonLat": [
+            127.2739786,
+            38.126797
+          ],
+          "initialOwner": null,
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "E3",
+          "name": "东线北侧路口",
+          "lonLat": [
+            127.2589786,
+            38.171797
+          ],
+          "initialOwner": "red",
+          "captureRadiusMeters": 250
+        },
+        {
+          "id": "E4",
+          "name": "红方东线补给节点",
+          "lonLat": [
+            127.2539786,
+            38.216797
+          ],
+          "initialOwner": "red",
+          "captureRadiusMeters": 250
+        }
+      ],
+      "anchorEvidence": {
+        "osmRiver": "Hantan River",
+        "riverCentreLonLat": [
+          127.2773999,
+          38.1268472
+        ],
+        "studyAreaOffsetMetersEastNorth": [
+          -300,
+          0
+        ],
+        "reason": "Reduce straight-line airport arrival imbalance while keeping the battle corridor beside an observed real river",
+        "captureGroundStatus": "Study centroid only; dry ground, bridge crossings and legal paths require native-resolution checking"
+      }
+    }
+  ],
+  "airfields": [
+    {
+      "id": "B-W",
+      "name": "蓝方西部机场候选",
+      "team": "blue",
+      "lonLat": [
+        126.792548,
+        37.763489
+      ],
+      "kind": "real_site_with_proposed_expansion",
+      "sourceAirport": "RKRP",
+      "proposedRunwayMeters": 2600,
+      "note": "真实坡州机场参考点；现有短跑道方向延长至2600m时，源表面高差约66m，附近改扩建候选走廊约18m；平整、道路及进近仍待核验"
+    },
+    {
+      "id": "B-E",
+      "name": "蓝方东部机场候选",
+      "team": "blue",
+      "lonLat": [
+        127.176633,
+        37.864555
+      ],
+      "kind": "real_site_with_proposed_expansion",
+      "sourceAirport": "QJP",
+      "proposedRunwayMeters": 2600,
+      "note": "真实抱川机场位置；公开数据跑道约1109m，扩建走向与障碍物尚待精查"
+    },
+    {
+      "id": "R-W",
+      "name": "红方西部机场候选",
+      "team": "red",
+      "lonLat": [
+        126.869003,
+        38.333801
+      ],
+      "kind": "real_site_with_proposed_conversion",
+      "sourceAirport": "KP-0007",
+      "proposedRunwayMeters": 2600,
+      "note": "公开机场资料中的Taebukpo Ri位置；草地跑道记录约2018m，改建为喷气机基地属于架空战役布置"
+    },
+    {
+      "id": "R-E",
+      "name": "红方东部前进机场候选",
+      "team": "red",
+      "lonLat": [
+        127.3,
+        38.4
+      ],
+      "kind": "fictional_candidate_on_real_terrain",
+      "proposedRunwayMeters": 2600,
+      "note": "平康河谷内的架空选址示意；还未完成30m高程、平整范围、道路和进近障碍核验"
+    }
+  ],
+  "airspawns": [
+    {
+      "id": "BA-W",
+      "name": "蓝方西部空中出生",
+      "team": "blue",
+      "lonLat": [
+        126.82,
+        37.56
+      ]
+    },
+    {
+      "id": "BA-E",
+      "name": "蓝方东部空中出生",
+      "team": "blue",
+      "lonLat": [
+        127.22,
+        37.56
+      ]
+    },
+    {
+      "id": "RA-W",
+      "name": "红方西部空中出生",
+      "team": "red",
+      "lonLat": [
+        126.85,
+        38.56
+      ]
+    },
+    {
+      "id": "RA-E",
+      "name": "红方东部空中出生",
+      "team": "red",
+      "lonLat": [
+        127.28,
+        38.56
+      ]
+    }
+  ],
+  "initialFront": "Authored line through W2/C2/E2; fictional opening battle line, not the 1953 MDL or the 38° parallel",
+  "routeStatus": "Road topology screening added. West W1–W2 has no path in the combined source extracts, W2–W3 detours 23.7km; several area centroids lie off mapped roads. These are unresolved design problems, not drivable/capture-ready routes. Native914m west connector screen measures64.65m DSM variation and27.08% maximum approximately120m surface grade; not accepted as a navigation edge. Proposed1200m road staging anchors are not certified spawn pads.",
+  "airportStatus": "Native DSM screening complete at four candidates. Paju original-axis 2600m extension crosses about 66m surface variation; a nearby authored corridor reduces this to about18m but grading/roads/approaches and actual aircraft operation remain unverified.",
+  "confirmedRules": {
+    "twoTeams": true,
+    "playersPerTeam": [
+      8,
+      12
+    ],
+    "groundAndAirAI": true,
+    "roundMinutes": [
+      45,
+      90
+    ],
+    "repeatSameAircraftRespawns": true,
+    "lossChargesTeamReadiness": true,
+    "personalCurrency": false,
+    "routineAirfieldServiceSeconds": [
+      10,
+      20
+    ],
+    "airDefence": "Front-line guns/short-range systems, era-appropriate rear radar defences",
+    "airports": "Real airports primarily; campaign extensions and a small number of fictional forward airfields allowed",
+    "aircraftPools": "Both teams share the era-restricted aircraft pool, distinguished by team identity",
+    "intelligence": "Discovery or sensors required; team sharing; stale mobile-target contacts retain last known position instead of revealing current truth",
+    "platforms": {
+      "priority": "Desktop",
+      "mobile": "Simplified graphics, complete gameplay"
+    },
+    "mode": "Combined ground/air frontline combat",
+    "playerGroundRole": "Drive one tank and command an AI tank company",
+    "playerAirRole": "Fly aircraft in the same battle",
+    "airportLogistics": "Light logistics; facility and transport states, not per-round airport stock ledgers",
+    "bridges": "Destructible, engineer repair or temporary crossing, possible detours",
+    "runwayRecovery": "Temporary local closure and engineer repair, accelerated by supply escort",
+    "tankCompany": {
+      "playerDrivenTanks": 1,
+      "aiTanks": 9,
+      "aiPlatoons": 3,
+      "tanksPerAiPlatoon": 3,
+      "commandStyle": "Direct driving of the command tank; map orders for movement, attack and defence",
+      "afterCommandTankLoss": "After loss of the controlled tank, the player may take over an owned surviving AI tank; preserve its position, ammunition, damage and vehicle life.",
+      "whileOwnerFlies": "AI continues the last accepted company task while its owner flies; the company remains owned by that player."
+    },
+    "roleSwitch": "Return to a friendly deployment area, or lose the current vehicle, then select a tank company or aircraft sortie"
+  },
+  "proposedRules": {
+    "round": {
+      "defaultMinutes": 60,
+      "readinessPerTeam": 10000,
+      "earlyEnd": "Enemy readiness reaches zero, or ground forces secure two enemy rear nodes and hold them for 180 seconds",
+      "timeLimit": "Compare cumulative forward-sector control, then remaining readiness; exact tie is a draw",
+      "tuningStatus": "Initial design values; no balance or round-duration simulation has validated them"
+    },
+    "sectorControl": {
+      "groundCaptureRequired": true,
+      "aircraftCanCaptureLand": false,
+      "captureSeconds": 60,
+      "radiusMeters": 250,
+      "conditions": [
+        "An eligible player/AI ground combat unit reaches an adjacent, supply-connected objective",
+        "No opposing combat force remains in the capture area",
+        "Infantry help occupy and consolidate positions; exact class weights remain tuning parameters"
+      ],
+      "advance": "Units travel between objectives. Capturing a node does not teleport the next force forward.",
+      "crossLaneSupport": "Only authored, verified lateral roads connect lanes; mountain ridges and rivers are not automatically passable.",
+      "captureEligibleGroundUnits": [
+        "Player-driven tanks",
+        "AI tanks and supporting combat vehicles",
+        "Infantry squads"
+      ],
+      "captureWeightCap": "Cap the capture-rate bonus so nine followers do not produce instant captures"
+    },
+    "groundForces": {
+      "perLanePerTeam": {
+        "tanks": 4,
+        "ifvsOrApcs": 2,
+        "shortRangeAirDefence": 1,
+        "supplyTruck": 1,
+        "infantrySquads": 2,
+        "soldiersPerSquad": 6
+      },
+      "rearSupportPerTeam": {
+        "artilleryPieces": 2,
+        "additionalSupplyAndEngineerVehicles": 6,
+        "radarAirDefenceVehiclesUpperBudget": 4
+      },
+      "populationStatus": "Air-only first-draft budget superseded. Player company size confirmed at1human+9AI; combined support-force quantities and performance budgets remain proposals.",
+      "unitBehaviour": [
+        "Tanks suppress, fight armour and contest ground objectives; infantry consolidate positions; APCs transport infantry",
+        "Artillery reacts to observed targets and needs supply",
+        "Air defence has sensor/LOS/era limits and finite ammunition",
+        "Supply trucks and engineers replenish and repair actual units and infrastructure",
+        "Destroyed vehicles are removed from the battle and cannot contribute fire or capture strength",
+        "Ground AI fights, attacks and withdraws even when no player visits its lane"
+      ],
+      "travelProposal": {
+        "convoyAverageKmh": [
+          18,
+          30
+        ],
+        "infantry": "Ride in APCs to the battle vicinity, then dismount; no sprinting several kilometres in seconds",
+        "forwardLogistics": "Forward staging and supply nodes start within the ground theatre; rear-to-front convoys need physical travel time",
+        "reinforcements": "Show ETA and actual source; no teleport into a newly captured point"
+      }
+    },
+    "airAI": {
+      "routineBudgetPerTeam": 4,
+      "roles": [
+        "fighter patrol/interception",
+        "ground attack",
+        "reconnaissance",
+        "occasional bomber strike task"
+      ],
+      "missionsUseBudgetRatherThanSpawningAllRolesAtOnce": true,
+      "impact": "Actual aircraft and weapons influence the same ground battle; no decorative-only strike waves"
+    },
+    "logistics": {
+      "normalServiceSeconds": 15,
+      "allowedRangeSeconds": [
+        10,
+        20
+      ],
+      "zone": "Friendly operational service apron; parked, low ground speed, engines/throttle made safe for service",
+      "parallel": "Repair, fuel and ammunition service run together when corresponding facilities and abstract supply availability allow",
+      "components": [
+        "Runway/taxiway",
+        "Repair apron/hangars",
+        "Fuel depot",
+        "Ammunition depot"
+      ],
+      "damage": "Damaged modules disable or slow only the corresponding function until repaired",
+      "fallback": "Keep an independent rear air-start option; loss of all airport modules does not automatically end a frontline match",
+      "resupply": "Convoys sustain abstract airport supply availability and assist recovery; no per-round airport ammunition or fuel stock ledger. Aircraft rounds and fuel mass still use accepted per-vehicle values.",
+      "noAnywhereReload": "Service requires the appropriate friendly zone in the combined mode; existing anywhere-stopped loadout replacement is not a free field service."
+    },
+    "objectives": {
+      "front": [
+        "Ground battle support",
+        "Bridgehead/road junction fighting",
+        "Escort or destroy supply columns"
+      ],
+      "rear": [
+        "Authored ammunition storage",
+        "Authored fuel storage",
+        "Field repair/logistics compounds",
+        "Airfield functional modules"
+      ],
+      "deployment": "All opposing combat deployments and target compounds are authored for the fictional match; real civilian building locations do not automatically become bombing targets",
+      "rewardPolicy": "Destroying a target changes supply, usable facilities or actual combat strength as well as scoring; repaired targets cannot be repeatedly farmed for unlimited strategic points"
+    },
+    "respawn": {
+      "suggestedDelaySeconds": 15,
+      "airStartAltitudeAGLMeters": 1500,
+      "airStartSpeed": "Per-aircraft accepted safe flight speed, no universal speed applied to every era",
+      "heading": "Toward a rear assembly waypoint; no enemy already locked by a fresh spawn",
+      "arrivalBalance": "Use actual metric distances and aircraft speed; airport start is closer, air start farther back. Take-off/climb time must be measured in playtests.",
+      "farming": "Team readiness charged once per accepted aircraft life; landing and taking off is not a new death"
+    },
+    "eraRooms": {
+      "separateAirframeAndLoadoutEligibility": true,
+      "enforce": [
+        "aircraft variant",
+        "missile guidance and seeker generation",
+        "bomb/rocket and pod availability",
+        "radar/sensor capability",
+        "ground AI and air-defence era"
+      ],
+      "provisionalGroups": [
+        "early jets / guns and early infrared",
+        "early supersonic / restricted infrared",
+        "late Cold War / semi-active radar",
+        "modern / active radar and modern sensors"
+      ],
+      "catalogueStatus": "Exact variant years and capability lists require a separate source-backed audit; current model IDs/names and universal loadouts are not sufficient evidence"
+    },
+    "hud": {
+      "upperLeft": [
+        "Live gun rounds grouped by calibre/ammunition pool; shared multi-barrel ammo counted once",
+        "Separate carried gun-pod rounds",
+        "Selected external weapon count",
+        "Usable fuel mass including connected usable external fuel",
+        "Estimated endurance at current smoothed fuel consumption"
+      ],
+      "endurance": "Use accepted fuel-flow telemetry; do not infer consumption from fuel-level changes during tank transfer, refuelling or jettison",
+      "smoothingProposalSeconds": 5,
+      "states": [
+        "Calculating",
+        "Current power estimate mm:ss",
+        "Engines off / no meaningful current-flow estimate",
+        "Fuel system damage / unusable fuel clearly distinguished"
+      ],
+      "mockupOnlyUntilAcceptedSimulationAndServerIntegration": true
+    },
+    "authorityAndTerrain": {
+      "combat": "Accepted native/server life, ammunition, damage and scoring; client renders those results",
+      "terrain": "Tiled metric terrain with one height convention shared by rendering, flight ground contacts, ground routes and weapon impacts",
+      "airfields": "Native-resolution survey, explicit runway grading and identical visual/physical surfaces",
+      "streaming": "Far terrain LOD; detail around aircraft, airfields and actual ground battles; source DEM is not stretched from an existing 2km tank map",
+      "network": "Server owns frontline state, AI orders, supply, facilities and aircraft-life costs; reconnect restores accepted state",
+      "replay": "Immutable accepted life/weapon/contact/terrain revisions; repair or respawn cannot rewrite past evidence",
+      "mobile": "Mobile and desktop share the accepted AI/combat/supply world. Reduce rendering detail, shadows and distant animation only; do not remove simulated enemies or change capture/weapon rules by device."
+    },
+    "intelligence": {
+      "staticTargets": "Once discovered, keep location but do not reveal unobserved damage/repair state",
+      "mobileTargets": "Last-known position with age and confidence; position stops updating when contact is lost",
+      "candidateMobileContactExpirySeconds": 30,
+      "terrainAndSensorGates": true,
+      "earlyEraRadioVsModernDataLinks": "Team tactical-map assistance must be distinguished from a real onboard data link or radar track; missile guidance cannot read stale map markers as live tracks"
+    }
+  },
+  "nextReviewGates": [
+    "Define player tank companies, command interface, role switching and accepted company/vehicle ownership without duplicate respawns",
+    "Review the 100×120km geography layout, river corridors, airport candidates and sortie estimates",
+    "Audit exact era-limited aircraft/weapon/sensor rosters",
+    "Validate native-resolution runways, dry-ground capture areas, roads and bridge connectivity",
+    "Review AI/logistics timing, readiness scoring and airfield fallback rules",
+    "Design the Taiwan maritime theatre separately",
+    "Review and reconcile the detailed mode design and acceptance criteria before gameplay implementation"
+  ],
+  "taiwanFollowup": {
+    "required": true,
+    "designOrder": "After Korean ground-front rules",
+    "terrainScale": "1:1 full Taiwan main island plus retained strait/mainland/island geography, about463×537km selected extent",
+    "distinctRequirements": [
+      "Sea transport rather than ground routes crossing water",
+      "Ports, beachheads and supply shipping",
+      "Aircraft and island/mainland runway geography",
+      "Separate coastline/water and seabed data where required"
+    ],
+    "status": "Whole-island extent/official boundary/airport/transit study written; playable terrain and maritime integration not implemented",
+    "study": "taiwan-theatre-study.json"
+  },
+  "layoutRevision": 4,
+  "tuningEvidence": "research/layout-distance-checks.json",
+  "combinedModeSpecification": "combined-mode-design.json",
+  "groundStagingStudy": "research/korea-ground-staging-study.json"
+}

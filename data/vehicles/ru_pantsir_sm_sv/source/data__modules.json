@@ -1,0 +1,900 @@
+{
+  "schema_version": 1,
+  "asset_id": "ru_pantsir_sm_sv",
+  "status": "provisional_gameplay_estimates",
+  "source_policy": "Visual geometry supplied by source GLB. Armor resistance, internal anatomy, crew layout and all gameplay tuning are authored estimates, not verified vehicle specifications.",
+  "approximate": true,
+  "modules": [
+    {
+      "id": "engine",
+      "kind": "engine",
+      "node_name": "internal_engine_bank_L",
+      "center_m": [
+        0.0,
+        1.237499974668026,
+        -2.6824999302625656
+      ],
+      "half_extents_m": [
+        0.6000000238418579,
+        0.39250000566244125,
+        0.7574999779462814
+      ],
+      "max_health": 140,
+      "damage_effects": [
+        "mobility_power_loss"
+      ],
+      "part_ids": [
+        "internal_engine_bank_L",
+        "internal_engine_bank_R",
+        "internal_engine_block",
+        "internal_engine_cylinder_0.48_0",
+        "internal_engine_cylinder_0.48_1",
+        "internal_engine_cylinder_0.48_2",
+        "internal_engine_cylinder_0.48_3",
+        "internal_engine_cylinder_0.48_4",
+        "internal_engine_cylinder_0.48_5",
+        "internal_engine_cylinder_-0.48_0",
+        "internal_engine_cylinder_-0.48_1",
+        "internal_engine_cylinder_-0.48_2",
+        "internal_engine_cylinder_-0.48_3",
+        "internal_engine_cylinder_-0.48_4",
+        "internal_engine_cylinder_-0.48_5",
+        "internal_fan",
+        "internal_radiator",
+        "internal_radiator_fin_0",
+        "internal_radiator_fin_1",
+        "internal_radiator_fin_2",
+        "internal_radiator_fin_3",
+        "internal_radiator_fin_4",
+        "internal_radiator_fin_5",
+        "internal_radiator_fin_6",
+        "internal_radiator_fin_7",
+        "internal_radiator_fin_8"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "transmission",
+      "kind": "transmission",
+      "node_name": "internal_drive_shaft",
+      "center_m": [
+        0.0,
+        0.962499987334013,
+        -0.8974999934434891
+      ],
+      "half_extents_m": [
+        0.4749999940395355,
+        0.23250003531575203,
+        0.997500017285347
+      ],
+      "max_health": 110,
+      "damage_effects": [
+        "mobility_loss"
+      ],
+      "part_ids": [
+        "internal_drive_shaft",
+        "internal_transmission"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "fuel_left",
+      "kind": "fuel_tank",
+      "node_name": "internal_fuel_cap_L",
+      "center_m": [
+        -0.9300000071525574,
+        1.1899999817833304,
+        -1.2200000286102295
+      ],
+      "half_extents_m": [
+        0.15000000596046448,
+        0.35000000800937414,
+        0.7749999761581421
+      ],
+      "max_health": 70,
+      "damage_effects": [
+        "fuel_leak",
+        "fire_risk"
+      ],
+      "part_ids": [
+        "internal_fuel_cap_L",
+        "internal_fuel_tank_L"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "fuel_right",
+      "kind": "fuel_tank",
+      "node_name": "internal_fuel_cap_R",
+      "center_m": [
+        0.9100000262260437,
+        1.1899999817833304,
+        -1.2200000286102295
+      ],
+      "half_extents_m": [
+        0.15000000596046448,
+        0.35000000800937414,
+        0.7749999761581421
+      ],
+      "max_health": 70,
+      "damage_effects": [
+        "fuel_leak",
+        "fire_risk"
+      ],
+      "part_ids": [
+        "internal_fuel_cap_R",
+        "internal_fuel_tank_R"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_cannon_left",
+      "kind": "ammo_rack",
+      "node_name": "internal_ammo_box_L",
+      "center_m": [
+        -0.4799999985843897,
+        2.4975000731647015,
+        -0.13999998569488525
+      ],
+      "half_extents_m": [
+        0.15000000596046448,
+        0.2874999903142452,
+        0.4000000059604645
+      ],
+      "max_health": 55,
+      "damage_effects": [
+        "left_feed_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_ammo_box_L",
+        "internal_ammo_round_L0",
+        "internal_ammo_round_L1",
+        "internal_ammo_round_L2",
+        "internal_ammo_round_L3",
+        "internal_ammo_round_L4",
+        "internal_ammo_round_L5",
+        "internal_ammo_round_L6",
+        "internal_ammo_round_L7"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_cannon_right",
+      "kind": "ammo_rack",
+      "node_name": "internal_ammo_box_R",
+      "center_m": [
+        0.4599999990314245,
+        2.4975000731647015,
+        -0.13999998569488525
+      ],
+      "half_extents_m": [
+        0.15000000596046448,
+        0.2874999903142452,
+        0.4000000059604645
+      ],
+      "max_health": 55,
+      "damage_effects": [
+        "right_feed_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_ammo_box_R",
+        "internal_ammo_round_R0",
+        "internal_ammo_round_R1",
+        "internal_ammo_round_R2",
+        "internal_ammo_round_R3",
+        "internal_ammo_round_R4",
+        "internal_ammo_round_R5",
+        "internal_ammo_round_R6",
+        "internal_ammo_round_R7"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "electronics",
+      "kind": "radio",
+      "node_name": "internal_battery",
+      "center_m": [
+        -0.010000020265579224,
+        2.089999943971634,
+        -0.2824999839067459
+      ],
+      "half_extents_m": [
+        0.7350000087171793,
+        0.8100000023841858,
+        1.2574999630451202
+      ],
+      "max_health": 65,
+      "damage_effects": [
+        "sensor_and_fire_control_loss"
+      ],
+      "part_ids": [
+        "internal_battery",
+        "internal_power_cable_L",
+        "internal_power_cable_R",
+        "internal_electronics_board_0",
+        "internal_electronics_board_1",
+        "internal_electronics_board_2",
+        "internal_electronics_board_3",
+        "internal_operator_console",
+        "internal_radar_electronics"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "turret_drive",
+      "kind": "turret_drive",
+      "node_name": "internal_hydraulic_L",
+      "center_m": [
+        -0.009999999776482582,
+        2.09249996766448,
+        0.8600000143051147
+      ],
+      "half_extents_m": [
+        0.9399999976158142,
+        0.24249999970197678,
+        0.9399999976158142
+      ],
+      "max_health": 100,
+      "damage_effects": [
+        "traverse_loss"
+      ],
+      "part_ids": [
+        "internal_hydraulic_L",
+        "internal_hydraulic_R",
+        "internal_turret_motor",
+        "internal_turret_ring"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "elevation_left",
+      "kind": "vertical_drive",
+      "node_name": null,
+      "center_m": [
+        -1.1,
+        2.3,
+        -0.7
+      ],
+      "half_extents_m": [
+        0.18,
+        0.22,
+        0.25
+      ],
+      "max_health": 80,
+      "damage_effects": [
+        "left_elevation_loss"
+      ],
+      "part_ids": [],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "elevation_right",
+      "kind": "vertical_drive",
+      "node_name": null,
+      "center_m": [
+        1.1,
+        2.3,
+        -0.7
+      ],
+      "half_extents_m": [
+        0.18,
+        0.22,
+        0.25
+      ],
+      "max_health": 80,
+      "damage_effects": [
+        "right_elevation_loss"
+      ],
+      "part_ids": [],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "cannon_left_breech",
+      "kind": "gun_breech",
+      "node_name": "internal_cannon_breech_L",
+      "center_m": [
+        -0.8579999897629023,
+        2.6600000858306885,
+        0.44999998807907104
+      ],
+      "half_extents_m": [
+        0.125,
+        0.125,
+        0.25999999046325684
+      ],
+      "max_health": 90,
+      "damage_effects": [
+        "left_cannon_disabled"
+      ],
+      "part_ids": [
+        "internal_cannon_breech_L"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "cannon_right_breech",
+      "kind": "gun_breech",
+      "node_name": "internal_cannon_breech_R",
+      "center_m": [
+        0.8370000030845404,
+        2.6600000858306885,
+        0.44999998807907104
+      ],
+      "half_extents_m": [
+        0.125,
+        0.125,
+        0.25999999046325684
+      ],
+      "max_health": 90,
+      "damage_effects": [
+        "right_cannon_disabled"
+      ],
+      "part_ids": [
+        "internal_cannon_breech_R"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "cannon_left_barrel",
+      "kind": "gun_barrel",
+      "node_name": "cannon_L",
+      "center_m": [
+        -0.8520919773727655,
+        2.680596947669983,
+        1.475421991199255
+      ],
+      "half_extents_m": [
+        0.16707497835159302,
+        0.4053705930709839,
+        1.835444375872612
+      ],
+      "max_health": 70,
+      "damage_effects": [
+        "left_cannon_disabled"
+      ],
+      "part_ids": [
+        "cannon_L"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "cannon_right_barrel",
+      "kind": "gun_barrel",
+      "node_name": "cannon_R",
+      "center_m": [
+        0.8316729869693518,
+        2.680596947669983,
+        1.4754194281995296
+      ],
+      "half_extents_m": [
+        0.16710999608039856,
+        0.4053705930709839,
+        1.8354447931051254
+      ],
+      "max_health": 70,
+      "damage_effects": [
+        "right_cannon_disabled"
+      ],
+      "part_ids": [
+        "cannon_R"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "launcher_left",
+      "kind": "launcher",
+      "node_name": "internal_launcher_actuator_L",
+      "center_m": [
+        -1.312702963128686,
+        2.499986171722412,
+        1.8031006455421448
+      ],
+      "half_extents_m": [
+        0.28821998834609985,
+        0.4357585906982422,
+        1.8281006217002869
+      ],
+      "max_health": 85,
+      "damage_effects": [
+        "left_launcher_disabled"
+      ],
+      "part_ids": [
+        "internal_launcher_actuator_L",
+        "launcher_cradle_L",
+        "launcher_tubes_L"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "launcher_right",
+      "kind": "launcher",
+      "node_name": "internal_launcher_actuator_R",
+      "center_m": [
+        1.2923269774764776,
+        2.499988079071045,
+        1.8030981421470642
+      ],
+      "half_extents_m": [
+        0.28821998834609985,
+        0.4357595443725586,
+        1.8280981183052063
+      ],
+      "max_health": 85,
+      "damage_effects": [
+        "right_launcher_disabled"
+      ],
+      "part_ids": [
+        "internal_launcher_actuator_R",
+        "launcher_cradle_R",
+        "launcher_tubes_R"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "radar_search",
+      "kind": "aps_radar",
+      "node_name": "search_radar",
+      "center_m": [
+        -0.01239749789237976,
+        4.129251837730408,
+        -0.9485441893339157
+      ],
+      "half_extents_m": [
+        0.9194705188274384,
+        0.9789005517959595,
+        0.6872427016496658
+      ],
+      "max_health": 45,
+      "damage_effects": [
+        "search_radar_loss"
+      ],
+      "part_ids": [
+        "search_radar"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "radar_track",
+      "kind": "aps_radar",
+      "node_name": "tracking_radar",
+      "center_m": [
+        -0.010221987962722778,
+        2.5412840843200684,
+        2.724748432636261
+      ],
+      "half_extents_m": [
+        0.6559009850025177,
+        0.6329095363616943,
+        0.9775695204734802
+      ],
+      "max_health": 45,
+      "damage_effects": [
+        "tracking_radar_loss"
+      ],
+      "part_ids": [
+        "tracking_radar"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "track_left",
+      "kind": "track",
+      "node_name": "track_L",
+      "center_m": [
+        -1.3785350322723389,
+        0.5208851352799684,
+        -0.01238250732421875
+      ],
+      "half_extents_m": [
+        0.2487649917602539,
+        0.5248554691206664,
+        3.4481730461120605
+      ],
+      "max_health": 140,
+      "damage_effects": [
+        "left_track_disabled"
+      ],
+      "part_ids": [
+        "track_L",
+        "wheel_L_1",
+        "wheel_L_2",
+        "wheel_L_3",
+        "wheel_L_4",
+        "wheel_L_5",
+        "wheel_L_6",
+        "wheel_L_idler",
+        "wheel_L_sprocket"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "track_right",
+      "kind": "track",
+      "node_name": "track_R",
+      "center_m": [
+        1.355343997478485,
+        0.5208951556123793,
+        0.22067999839782715
+      ],
+      "half_extents_m": [
+        0.3372599482536316,
+        0.5248754895292222,
+        3.6812355518341064
+      ],
+      "max_health": 140,
+      "damage_effects": [
+        "right_track_disabled"
+      ],
+      "part_ids": [
+        "track_R",
+        "wheel_R_1",
+        "wheel_R_2",
+        "wheel_R_3",
+        "wheel_R_4",
+        "wheel_R_5",
+        "wheel_R_6",
+        "wheel_R_idler",
+        "wheel_R_sprocket"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_L1",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_L1_fin1",
+      "center_m": [
+        -1.4499999973922968,
+        2.200000047683716,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_L1_fin1",
+        "internal_missile_L1_fin-1",
+        "internal_missile_L1_nose",
+        "internal_missile_L1"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_L2",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_L2_fin1",
+      "center_m": [
+        -1.1700000260025263,
+        2.200000047683716,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_L2_fin1",
+        "internal_missile_L2_fin-1",
+        "internal_missile_L2_nose",
+        "internal_missile_L2"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_L3",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_L3_fin1",
+      "center_m": [
+        -1.4499999973922968,
+        2.5199999809265137,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_L3_fin1",
+        "internal_missile_L3_fin-1",
+        "internal_missile_L3_nose",
+        "internal_missile_L3"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_L4",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_L4_fin1",
+      "center_m": [
+        -1.1700000260025263,
+        2.5199999809265137,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_L4_fin1",
+        "internal_missile_L4_fin-1",
+        "internal_missile_L4_nose",
+        "internal_missile_L4"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_L5",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_L5_fin1",
+      "center_m": [
+        -1.4499999973922968,
+        2.819999933242798,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_L5_fin1",
+        "internal_missile_L5_fin-1",
+        "internal_missile_L5_nose",
+        "internal_missile_L5"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_L6",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_L6_fin1",
+      "center_m": [
+        -1.1700000260025263,
+        2.819999933242798,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_L6_fin1",
+        "internal_missile_L6_fin-1",
+        "internal_missile_L6_nose",
+        "internal_missile_L6"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_R1",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_R1_fin1",
+      "center_m": [
+        1.4299999978393316,
+        2.200000047683716,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_R1_fin1",
+        "internal_missile_R1_fin-1",
+        "internal_missile_R1_nose",
+        "internal_missile_R1"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_R2",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_R2_fin1",
+      "center_m": [
+        1.1500000264495611,
+        2.200000047683716,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_R2_fin1",
+        "internal_missile_R2_fin-1",
+        "internal_missile_R2_nose",
+        "internal_missile_R2"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_R3",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_R3_fin1",
+      "center_m": [
+        1.4299999978393316,
+        2.5199999809265137,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_R3_fin1",
+        "internal_missile_R3_fin-1",
+        "internal_missile_R3_nose",
+        "internal_missile_R3"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_R4",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_R4_fin1",
+      "center_m": [
+        1.1500000264495611,
+        2.5199999809265137,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_R4_fin1",
+        "internal_missile_R4_fin-1",
+        "internal_missile_R4_nose",
+        "internal_missile_R4"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_R5",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_R5_fin1",
+      "center_m": [
+        1.4299999978393316,
+        2.819999933242798,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_R5_fin1",
+        "internal_missile_R5_fin-1",
+        "internal_missile_R5_nose",
+        "internal_missile_R5"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    },
+    {
+      "id": "ammo_missile_R6",
+      "kind": "ammo_rack",
+      "node_name": "internal_missile_R6_fin1",
+      "center_m": [
+        1.1500000264495611,
+        2.819999933242798,
+        2.1075000318655155
+      ],
+      "half_extents_m": [
+        0.08199997618794441,
+        0.07100006192922592,
+        1.5474999475249431
+      ],
+      "max_health": 25,
+      "damage_effects": [
+        "individual_missile_loss",
+        "cookoff_risk"
+      ],
+      "part_ids": [
+        "internal_missile_R6_fin1",
+        "internal_missile_R6_fin-1",
+        "internal_missile_R6_nose",
+        "internal_missile_R6"
+      ],
+      "approximate": true,
+      "volume_use": "approximate internal module volume; never an armor contact substitute"
+    }
+  ]
+}

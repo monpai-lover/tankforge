@@ -1,0 +1,193 @@
+{
+  "schema_version": 1,
+  "asset_id": "ru_pantsir_sm_sv",
+  "status": "schema_and_local_geometry_diagnostics_passed",
+  "geometry_revision": 2,
+  "glb_sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+  "catalog_glb_sha256": "6b5fc753a0c818891ac9c1ddb2e83c78bd55ee835a6bb0be171b99bdc503dfbd",
+  "geometry_buffer_sha256": "9b6df86d158ccfa032ed8b94bae9436742c9736c08619ea9d0baaaac7a2eba8f",
+  "model_json_sha256": "c47a04fc2d73eb37fd9e1e99a7aeee1de69f7d2412390353ad8f43e8ab45aff8",
+  "glb_mesh_parts": 181,
+  "glb_primitive_catalog_entries": 188,
+  "glb_triangles": 296201,
+  "imported_exterior_triangles": 291829,
+  "imported_semantic_batches": 46,
+  "registered_binding_count": 46,
+  "uint32_index_batches": 1,
+  "largest_batch_vertices": 140682,
+  "imported_texture_count": 19,
+  "imported_texture_sizes": [
+    [
+      1024,
+      512
+    ],
+    [
+      64,
+      256
+    ],
+    [
+      512,
+      512
+    ],
+    [
+      256,
+      256
+    ],
+    [
+      256,
+      256
+    ],
+    [
+      1024,
+      512
+    ],
+    [
+      256,
+      256
+    ],
+    [
+      512,
+      512
+    ],
+    [
+      1024,
+      256
+    ],
+    [
+      1024,
+      512
+    ],
+    [
+      1024,
+      512
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      512,
+      512
+    ],
+    [
+      1024,
+      256
+    ],
+    [
+      1024,
+      512
+    ],
+    [
+      64,
+      256
+    ],
+    [
+      256,
+      256
+    ],
+    [
+      128,
+      128
+    ],
+    [
+      1024,
+      512
+    ]
+  ],
+  "lods": [
+    {
+      "lod": 0,
+      "file": "pantsir_lod0.glb",
+      "bytes": 19737300,
+      "exterior_triangles": 291829,
+      "internal_triangles": 4372,
+      "triangles": 296201,
+      "mesh_nodes": 181,
+      "animations": [
+        "aim_demo",
+        "cannon_fire",
+        "missile_launch_demo",
+        "radar_scan"
+      ]
+    },
+    {
+      "lod": 1,
+      "file": "pantsir_lod1.glb",
+      "bytes": 12737892,
+      "exterior_triangles": 167250,
+      "internal_triangles": 2242,
+      "triangles": 169492,
+      "mesh_nodes": 181,
+      "animations": []
+    },
+    {
+      "lod": 2,
+      "file": "pantsir_lod2.glb",
+      "bytes": 9187056,
+      "exterior_triangles": 110869,
+      "internal_triangles": 1380,
+      "triangles": 112249,
+      "mesh_nodes": 181,
+      "animations": [],
+      "policy": "Derived from balanced V2 geometry; no culling, original normal/UV seams and armor cut boundaries retained."
+    }
+  ],
+  "checks": [
+    {
+      "name": "actual_target_JSON_schemas_and_data",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Python314\\python.exe tools/validate_data.py --repo C:\\Users\\24908\\Documents\\ChatGPT\\tankforge",
+      "output": "PASS: data references, exact geometry hashes, 12 tubes / 4 cannon bores, target JSON schemas\nScope: diagnostic asset integration only; native/WASM damage registration and legacy armor replacement pending.\n"
+    },
+    {
+      "name": "real_target_uploaded_Float32_geometry",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": "node integration/tools/test-imported.mjs --repo C:\\Users\\24908\\Documents\\ChatGPT\\tankforge",
+      "output": "PASS: 46 real target Float32 upload hashes; mismatch rejection; exact triangle contact; X-ray; detach; repair; frozen pose; stable contact IDs\n"
+    },
+    {
+      "name": "runtime_event_adapter",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": "node integration/tools/test-runtime.mjs",
+      "output": "PASS: accepted-event effects, duplicate suppression, launch/reload payload physical membership, radar joints, X-ray membership\n"
+    },
+    {
+      "name": "data_hash_freshness_regression",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Python314\\python.exe integration/tools/test-data-freshness.py --repo C:\\Users\\24908\\Documents\\ChatGPT\\tankforge",
+      "output": "PASS: valid baseline accepted; imported-model mutation rejected; original vehicle data untouched\n"
+    },
+    {
+      "name": "large_uint32_batch_regression",
+      "result": "PASS",
+      "exit_code": 0,
+      "command": "C:\\Python314\\python.exe integration/tools/test-large-import.py --repo C:\\Users\\24908\\Documents\\ChatGPT\\tankforge",
+      "output": "PASS: unmodified stock importer + browser decoder, 66049 vertices, 131072 triangles, uint32 exact indices; original vehicle data untouched\n"
+    },
+    {
+      "name": "existing_native_validator_binary",
+      "result": "FAILED_DIAGNOSTIC_PRESERVED",
+      "report": "native-candidate-report.json",
+      "binary_source_parity": "not established",
+      "output": "[ERROR] L003 vehicles/ru_pantsir_sm_sv: C:\\Users\\24908\\Downloads\\Pantsir_TankForge_LowPoly\\integration\\tools\\native-candidate-h4tulori\\vehicles\\ru_pantsir_sm_sv\\modules.json: unknown variant `launcher`, expected one of `engine`, `transmission`, `fuel_tank`, `ammo_rack`, `gun_breech`, `gun_barrel`, `turret_drive`, `horizontal_drive`, `vertical_drive`, `radio`, `track`, `aps_gun`, `aps_radar` at line 244 column 22\n1 error(s), 0 warning(s)\n\nRecorded existing-binary diagnostic; combat candidate remains excluded from visual import folder.\n"
+    }
+  ],
+  "combat_candidate": {
+    "status": "not_installable_for_live_combat",
+    "location": "combat-candidate/vehicles/ru_pantsir_sm_sv",
+    "legacy_armor": "intentionally empty; inspected source defines expected P009 until trusted triangle armor registration replaces legacy contacts",
+    "resistance_and_internal_anatomy": "provisional gameplay estimates; no confirmed historical armor or authentic complete internals"
+  },
+  "not_claimed": [
+    "native/WASM trusted registration or parity",
+    "complete penetration or wall pairing",
+    "live player/AI/network damage",
+    "replay authority",
+    "garage registration",
+    "authentic missile guidance or fuze behavior"
+  ]
+}

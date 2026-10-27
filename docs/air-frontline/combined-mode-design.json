@@ -1,0 +1,304 @@
+{
+  "schemaVersion": 1,
+  "phase": "local_shared_ground_air_foundation_verification",
+  "gameplayImplementationStarted": true,
+  "title": "地空混合前线推进战",
+  "scope": "Expands the original air-frontline goal; both Korean and Taiwan theatres, aviation repairs, airfields and HUD requirements remain required. Adds one-human AI-versus-AI observation with zero human combatants required.",
+  "confirmed": {
+    "teams": 2,
+    "playersPerTeam": [
+      8,
+      12
+    ],
+    "playerCountInterpretation": "Assume 8–12 total human players per team across both roles; larger separate air/ground quotas have not been requested.",
+    "roles": [
+      "Tank company commander: directly drive one tank, command AI platoons through the map",
+      "Pilot: fly in the same ongoing battle"
+    ],
+    "company": {
+      "playerCommandTank": 1,
+      "aiTanks": 9,
+      "aiPlatoons": 3,
+      "aiTanksPerPlatoon": 3,
+      "orders": [
+        "Move",
+        "Attack",
+        "Defend"
+      ],
+      "initialStrength": 10,
+      "afterCommandTankLoss": "After loss of the controlled tank, the player may take over an owned surviving AI tank; preserve its position, ammunition, damage and vehicle life.",
+      "whileOwnerFlies": "AI continues the last accepted company task while its owner flies; the company remains owned by that player.",
+      "replacements": "Missing company members are replenished in batches at a friendly deployment source. Reinforcement vehicles physically follow a valid route to rejoin; no instant frontline refill.",
+      "ordersWhileFlying": "While flying, the owner can issue simplified move/attack/defend map orders to the same company, while directly controlling only one vehicle."
+    },
+    "roleSwitchGate": "At a friendly deployment area, or after loss of the current vehicle, choose tank/company or aircraft sortie",
+    "roundMinutes": [
+      45,
+      90
+    ],
+    "sameEraPoolForBothTeams": true,
+    "eraRestrictionsIncludeWeaponsAndSensors": true,
+    "noPersonalCurrency": true,
+    "lossesAffectTeamReadiness": true,
+    "routineAirfieldServiceSeconds": [
+      10,
+      20
+    ],
+    "airportLogistics": "Light logistics: facilities and transport affect supply functions; no per-round airport stock ledger",
+    "bridges": "Destructible; engineers can repair or construct temporary crossings, and units may seek detours",
+    "runwayRecovery": "Temporary closure of damaged areas; engineer repair accelerated by escorted supply",
+    "intelligence": "Detected contacts shared by the team; lost mobile contacts retain last known position rather than live truth",
+    "platforms": "Desktop priority; simplified mobile graphics with the same complete gameplay and accepted world",
+    "friendlyFire": {
+      "enabledByDefault": false,
+      "vehicleCollisions": true,
+      "ballisticBlocking": true,
+      "meaning": "Friendly units remain physical obstacles and ballistic contacts; disabling friendly damage must not make them transparent."
+    },
+    "taiwanCoverage": "Entire Taiwan main island plus retained mainland coast/Penghu/Kinmen/Matsu in a real1:1 theatre; partial-island options are comparison evidence only.",
+    "aiSpectatorMode": {
+      "required": true,
+      "minimumHumanObservers": 1,
+      "humanCombatantsRequired": 0,
+      "teams": "Both sides AI-controlled; actual ground/air combat and shared frontline rules",
+      "entry": "Separate AI battle observation choice with map and era selection",
+      "maps": [
+        "Korean38th-line",
+        "Full Taiwan main island and retained strait geography"
+      ],
+      "defaultProposals": "Pure observation at1x with free camera, unit follow and tactical map; takeover/pause/speed controls remain optional unconfirmed additions"
+    }
+  },
+  "proposedCoreLoop": [
+    "Join team and era room, choose a tank company or aircraft and valid deployment point",
+    "Ground commander drives the command tank; three AI platoons execute accepted map orders",
+    "Ground forces contest connected objectives and protect bridges, engineers and logistics",
+    "Pilots intercept hostile aircraft, escort friendly sorties and support actual ground engagements",
+    "Successful ground attacks advance the same front for all players; strikes affect actual vehicles and functioning supplies",
+    "Recover at friendly zones, service or replace losses, then choose the next role",
+    "Resolve readiness/frontline objectives/time limit and reset all round-owned state"
+  ],
+  "companyPolicyProposals": {
+    "onePersistentCompanySlotPerPlayer": "A role change cannot create another full company. Surviving members and orders remain accepted world entities.",
+    "whenPilot": "AI continues the last accepted company task while its owner flies; the company remains owned by that player. While flying, the owner can issue simplified move/attack/defend map orders to the same company, while directly controlling only one vehicle.",
+    "commandTankLoss": "Offer takeover of an owned surviving AI vehicle after the controlled tank is lost. Reassign command/control role without creating a new tank, refilling ammunition or repairing damage. No surviving unit is reset.",
+    "replacements": "Missing company members are replenished in batches at a friendly deployment source. Reinforcement vehicles physically follow a valid route to rejoin; no instant frontline refill. Timing, batch size and travel conditions remain tuning proposals.",
+    "disconnect": "AI continues or safely withdraws the same units; reconnect restores company identity, orders, ammo and damage. Team company-slot limits prevent accumulation by joining/leaving.",
+    "manualTank": "Map orders address the AI platoons. The player command tank remains under direct control unless an explicit assist is selected.",
+    "formations": [
+      "Route column",
+      "Deployment line/spacing",
+      "Follow command tank",
+      "Hold a defended area"
+    ],
+    "combat": "Each tank needs its own visibility, aiming, ammunition, damage, mobility and accepted shots. Orders do not directly subtract enemy HP.",
+    "contactPolicy": "An attack-area order moves and searches there; an expired map contact is not a live aiming or missile-guidance track.",
+    "followAfterCommanderLoss": "Followers hold or defend the last accepted area until a valid replacement/AI leader is assigned; they cannot follow a destroyed vehicle or stale player input.",
+    "controlChanges": "Release held triggers and pending input, advance control epoch, preserve unit damage/ammo/fuel and reject stale input from the previous controller.",
+    "strengthExample": "10 alive before loss → 9 surviving AI vehicles after the command tank is destroyed → takeover produces 1 player-controlled tank + 8 AI, still 9 alive. Replacements are separate accepted arrivals.",
+    "commandRole": "The command role may move to a survivor; it is not permanently tied to the original command-tank hull. Orders to a platoon affect only its AI-controlled members, preserving the player direct-driving choice.",
+    "noSurvivors": "With no survivor available, ground re-entry needs a valid deployment/replacement process; exact recovery timing remains a tuning proposal.",
+    "replacementReservations": "Reserve company/platoon vacancies for incoming units, counting survivors and accepted arrivals toward the initial ten-vehicle cap; reroute or hold reinforcements if a route is cut. An arrival cannot reset survivors or charge the same loss twice."
+  },
+  "deploymentProposals": {
+    "ground": "Road-distance candidate staging anchors1200m from the active road battle reference, with source-path gaps blocked. Native terrain, protected egress,10 separate parking footprints and supply gates still require authoring.",
+    "groundTravelTarget": "Roughly 2–5 minutes to first contact, using actual 1:1 route distances rather than compressed map scale.",
+    "air": "Retain the four airport candidates and rear airborne options; take-off/landing/loadout checks remain necessary.",
+    "queue": "Reserve clear, nonoverlapping vehicle/formation pads; no 10-tank spawn pile or creation inside enemy-held ground.",
+    "fieldReturn": "Switching roles requires the accepted friendly deployment condition; opening the map is not a free escape from combat.",
+    "companyContinuation": "Role changes and vehicle losses must not silently delete the surviving company from the battle."
+  },
+  "frontlineProposals": {
+    "sharedWorld": true,
+    "aircraftCaptureLand": false,
+    "groundCapture": "Eligible player tanks, AI combat vehicles and infantry physically contest adjacent objectives; infantry help consolidate positions.",
+    "rateCap": "Cap capture speed benefits from multiple members so ten tanks do not instantly flip an objective.",
+    "bridges": "Deck damage changes actual passability. AI stops, reroutes or waits for engineers. Temporary bridges require authored valid banks, approaches and load classes.",
+    "engineers": "A real engineer unit must reach the work area and complete accepted repair progress; an offscreen countdown alone does not prove a repaired crossing.",
+    "logistics": "Truck arrival and facility condition maintain abstract supply availability; individual vehicle ammunition/fuel remain accepted quantities.",
+    "targets": "Authored military task compounds and moving units, not automatic designation of every real civilian building as a target."
+  },
+  "populationEnvelope": {
+    "at8HumanSlotsPerTeam": {
+      "companyTanks": 80,
+      "wholeBattleCompanyTanks": 160
+    },
+    "at12HumanSlotsPerTeam": {
+      "companyTanks": 120,
+      "wholeBattleCompanyTanks": 240
+    },
+    "counting": "Command tanks are already included in the ten tanks per company. Do not add the human-driven tank again.",
+    "roleChangeWorstCase": "Companies may remain active while their owners fly; aircraft and surviving companies must fit the same measured budget.",
+    "supportForces": "The old air-only 36-ground-vehicles-per-team draft is superseded. Infantry, APCs, artillery, air defence, logistics and engineers still need explicit combined-mode budgets.",
+    "simulation": "One accepted simulation and combat result for desktop and mobile. Client graphics settings cannot remove enemy units or change fighting/capture outcomes.",
+    "performanceStatus": "A local release30-unit ground world sustained approximately20Hz; the observer stream used approximately1.51MB/s of UTF-8 JSON before transport overhead. No maximum8–12-human-per-team/240-company-tank-plus-support, WAN or complete mobile gameplay benchmark has passed.",
+    "supportForceProposalPerTeam": {
+      "autonomousTanks": 6,
+      "ifvsOrApcs": 6,
+      "frontShortRangeAirDefence": 3,
+      "frontSupplyTrucks": 3,
+      "engineerVehicles": 3,
+      "artilleryPieces": 2,
+      "rearRadarAirDefenceUpperBudget": 4,
+      "additionalSupplyConvoyVehicles": 2,
+      "airfieldGunSites": 4,
+      "infantrySquads": 6,
+      "soldiersPerSquad": 6,
+      "status": "Initial combined-mode proposal, not a measured performance or final balance claim"
+    },
+    "supportForceProposalNotes": "Supports the front even when no human selects a ground company. The 120-company-tank-per-team maximum is additional to these support forces."
+  },
+  "implementationBoundary": {
+    "matchScenario": "Add a separate combined-frontline scenario identity and version. Existing Casual/Historical gameplay modes are physics/rule profiles, not this scenario.",
+    "ownership": "Separate player connection, controlled vehicle, company and platoon identities. AI units cannot be implemented as fake network players.",
+    "unitIdentity": [
+      "battle_id",
+      "unit_id",
+      "vehicle_life_id",
+      "control_epoch",
+      "team_id",
+      "company_id",
+      "platoon_id",
+      "geometry_revision"
+    ],
+    "serverOwned": [
+      "Company membership",
+      "Orders and their revision/sequence",
+      "AI movement and weapons",
+      "Unit ammunition/damage/life",
+      "Supply and engineering work",
+      "Objective control",
+      "Loss charges and match result"
+    ],
+    "handover": "One active driver per unit and one directly controlled vehicle per player; control handover does not reset ammo, damage or life identity.",
+    "personalSpawnPoints": "The legacy aircraft personal spawn-point gate conflicts with the confirmed no-personal-currency rule and cannot be reused unchanged in this scenario.",
+    "terrainAndContacts": "Rendered roads, runways, bridge decks, ground contacts and weapon impacts need one geometry/height convention. Native geometry query support alone is not complete combat integration.",
+    "eraCatalog": "Validate ground and aircraft variants, weapons, pods, sensors and air defence together; current type labels and universal loadout menus are insufficient.",
+    "implementationBase": "The implementation worktree descends from verified f3c6d88/core212 and verified030e8cb aircraft-era fix. Ground/HUD feature096f2cffc9e4bb76029d9db5514ec86327a3726c is retained; shared-air foundation commit is 08719fd951464f07ff3d2cccfaff1c52cf45fcdd. The older design worktree6799e22/core211 is not a release base.",
+    "legacyPersonalSpawnPoints": "Remove the personal p.sp eligibility/cost path for this combined scenario; keep individual vehicle ammo/fuel accounting and shared team readiness.",
+    "sharedGameAssistance": "Retain the user-requested Space+R ACM on all existing radar-equipped types. This game control feature does not imply modern radar range, pulse-Doppler capability or missile compatibility for older aircraft.",
+    "visibilityOverlays": "Scenario contact/discovery rules gate both map and 3D aids in either physics profile; existing Casual all-enemy hints must not bypass discovery. Stale map contacts are not live radar/seeker guidance.",
+    "combatScope": "The initial combined scenario may reuse existing accepted vehicle damage rules. Newly authored bridge/runway surfaces must have consistent visible and physical geometry. A full vehicle visible-triangle migration remains a separate, explicitly verified integration claim.",
+    "projectileIdentity": "Shots and guided weapons retain the original unit/life target reference. Changing a player controlled vehicle cannot retarget an old projectile onto the new vehicle.",
+    "friendlyDamage": "Suppress allied damage and loss charging through the same accepted hit/blast path, while retaining physical vehicle contact, line-of-sight occlusion and projectile contacts. Check bombs, shells, missiles and secondary effects; do not remove allied hulls from collision queries.",
+    "observer": "Observers are separate from team combat participants and company owners. Full spectator information cannot feed AI perception or leak into the playable team contact channel. A single observer can start an AI battle; zero human combatants does not stop its simulation."
+  },
+  "currentCodeEvidence": [
+    {
+      "path": "crates/gameplay/src/lib.rs",
+      "finding": "GameplayMode contains Casual/Historical rule profiles."
+    },
+    {
+      "path": "crates/server/src/lobby.rs:Player",
+      "finding": "Legacy Player retains its single-vehicle/life state. The separate implemented FrontlineHub now owns persistent companies, independent native unit lives and control epochs; AI units are not fake Player records."
+    },
+    {
+      "path": "crates/server/src/lobby.rs:Room",
+      "finding": "Legacy Room remains separate. FrontlineHub now owns shared ground/air scenario rooms, observers, persistent companies, independent unit lives/control epochs, resources, readiness and one C2 objective; full logistics/infrastructure remain absent."
+    },
+    {
+      "path": "crates/server/src/lobby.rs:deploy_air",
+      "finding": "Legacy deployment still charges personal p.sp and creates an AirSeat. The new scenario uses its separate FrontlineHub DeployAir path and shared team readiness, without personal currency."
+    },
+    {
+      "path": "crates/server/src/aircraft.rs",
+      "finding": "Aircraft damage data uses skin/part boxes and imported loadout definitions; this is not evidence of completed native visible-surface combat integration."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:DeployScreen / air_spawned / enterAircraftOnline",
+      "finding": "The real legacy DeployScreen->deploy_air->air_spawned->enterAircraftOnline skeleton is preserved. New FrontlineHub/actual client now add independent same-world ground/air units, runway/rear-air starts and shared gun/bomb/rocket contacts/resources; full airfield service is still missing."
+    },
+    {
+      "path": "crates/server/src/lobby.rs:ClientMsg::Create",
+      "finding": "Legacy room max still clamps to16 total humans. The new frontline domain separately enforces12 human slots/team and persistent company limits, but requested maximum population and performance remain unverified."
+    },
+    {
+      "path": "handoff/bundle/app.js.html:fighterType / airOnlineLineup",
+      "finding": "The reproduced missing-T.era eligibility bug was fixed locally by030e8cb: actual online UI/server aircraft metadata-year admission is checked before state/SP mutation. Full variant/store/sensor era certification is still unfinished and this fix is not a deployment claim."
+    },
+    {
+      "path": "crates/server/src/lobby.rs:advance_aircraft",
+      "finding": "Legacy advance_aircraft advances damage rather than flight dynamics. New scenario aircraft use the unchanged flight_core.wasm212 through per-aircraft isolated wasmi Store/Instance; native ground motion and basic autonomous air AI share the accepted world."
+    },
+    {
+      "path": "crates/server/src/frontline.rs",
+      "finding": "Actual versioned shared ground/air room/observer/company/unit-life/control-epoch domain, ground and aircraft deployment/input/return, survivor takeover, ownership-preserving role changes, orders during flight, readiness and reconnect/leave handling are integrated through Lobby/socket wrappers."
+    },
+    {
+      "path": "crates/server/src/frontline_sim.rs",
+      "finding": "Actual native tracked plants, shared terrain, aiming, finite mounted main-cannon ammunition and ballistic legacy module/crew contacts now interact with aircraft gun/bomb/rocket rounds and accepted aircraft skin/part-box damage. This is not visible-triangle combat migration or complete secondary-weapons/infantry support."
+    },
+    {
+      "path": "data/frontline/korea.json",
+      "finding": "Canonical native/rendered elevation, patches, pads and rotated runway grading are shared. C2/centre:C2-local-test1.8km remains the only enabled ground front. B-E/R-W2600m game-expanded runway/rear-air starts enable bounded aircraft tests; real expansion or full theatre acceptance is not claimed."
+    },
+    {
+      "path": "handoff/tools/frontline_client.js / frontline_lod.js",
+      "finding": "Actual local client now renders authoritative ground/air units and allows observer/company/pilot controls; ground distant visual LOD leaves native state intact. Prior ground browser14 functional assertions passed with overall screenshot-timeout failure retained; new one-browser mixed three-scenario QA is pending."
+    },
+    {
+      "path": "handoff/tools/air_hud_inventory.js / aircraft_resources.js",
+      "finding": "Grouped aircraft ammo/stores and current-consumption fuel endurance retain72 prior actual browser HUD checks. New shared mode now consumes accepted server aircraft resources; new mixed browser verification is pending and airfield service remains missing."
+    },
+    {
+      "path": "crates/server/src/flight_runtime.rs / frontline_air.rs",
+      "finding": "Commit08719fd951464f07ff3d2cccfaff1c52cf45fcdd:24 source-derived aircraft profiles, unchanged core212 per-instance Store, safe input timeout, monotonic ownership/seq, metadata25-year admission, persistent store-release cooldown and separated spatial air starts. Source profiles are not complete historical loadout/sensor or model-fidelity certification."
+    }
+  ],
+  "acceptanceGates": [
+    "Two real clients control tank companies and aircraft concurrently in one server battle",
+    "Every commander sees the accepted three-platoon membership and can issue move/attack/defend orders only to authorised units",
+    "AI vehicles physically move, aim, fire, take damage, lose mobility and interact with terrain/bridges rather than scripted outcome bars",
+    "Company and vehicle state survive valid role changes, command-tank loss, disconnect and reconnect without cloning or resets",
+    "Takeover of a surviving AI tank preserves its actual position, ammunition, damage and life; company strength reflects losses instead of resetting to ten",
+    "Actual tanks/infantry capture and advance at multiple connected fronts; planes affect the same fighting",
+    "Runway and bridge damage, engineering recovery and supply affect shared passability and service availability",
+    "Aircraft UI shows accepted ammo and fuel endurance, with both valid airborne and field starts",
+    "Era restrictions and shared pool enforced server-side for ground, air, weapons and sensors",
+    "Playable Korean and Taiwan real-data maps, including sea transport/beachheads in Taiwan, at the agreed scale",
+    "Measured worst-case AI, rendering and replication performance; mobile retains the same gameplay",
+    "Complete round victory, readiness charging and clean reset at the agreed duration",
+    "Remaining aircraft ground control-surface animation and separately authorised asset repairs verified against actual models",
+    "One human enters AI observation alone; both AI teams actually move/fight, use accepted ammunition/damage/service and advance the same front without human State packets; camera controls do not create a player vehicle or command a team."
+  ],
+  "openDesignItems": [
+    "Physical reinforcement timing, batch size and source/deployment route validation; player policy already confirmed",
+    "Ground staging/capture-node revisions after road/bridge connectivity and native terrain checks",
+    "Matched variant/weapon/sensor profiles and candidate era-room review",
+    "Support-unit population and measured server/client budgets",
+    "Whole-Taiwan theatre active battle areas, streaming terrain and actual sea/land logistics"
+  ],
+  "designEvidence": {
+    "airportNativeStudy": "research/korea-airfield-native-study.json",
+    "pajuExpansionAlternative": "research/paju-runway-alternative.json",
+    "roadGraphStudy": "research/korea-road-connectivity-study.json",
+    "roadGapCandidates": "research/west-road-gap-candidates.json",
+    "limits": "The geography/staging/airport research artifacts remain surveys, not complete vehicle-specific playability evidence. Separate actual runtime validation now exists for the enabled C2 ground prototype only; full theatre/air/infrastructure acceptance remains open.",
+    "serverEntityContract": "server-entity-contract.json",
+    "eraRosterStudy": "era-roster-study.json",
+    "taiwanTheatre": "taiwan-theatre-study.json",
+    "groundStaging": "research/korea-ground-staging-study.json",
+    "westConnectorNative": "research/west-connector-native-study.json",
+    "aiSpectator": "ai-spectator-design.json",
+    "implementationStatus": "implementation-status.json"
+  },
+  "newModeImplemented": false,
+  "fullCombinedModeImplemented": false,
+  "implementationProgress": {
+    "updatedDate": "2026-10-25",
+    "phase": "local_shared_ground_air_foundation_verification",
+    "featureCommit": "08719fd951464f07ff3d2cccfaff1c52cf45fcdd",
+    "implementationStarted": true,
+    "fullCombinedModeImplemented": false,
+    "deployedToVps": false,
+    "implementedStage": "Shared native ground/air foundation now runs in one local battle: independent flight WASM212 Store per aircraft,24 source-derived type profiles, accepted80/48-float telemetry, solo20 tanks+2 AI aircraft, player runway/rear-air starts, persistent company orders while flying, finite gun/bomb/rocket resources and shared accepted contacts/damage. Full requested mode remains incomplete.",
+    "runtimeMapLimit": "Only Korean C2 and its1.8km ground corridor are enabled. B-E/R-W source-site game expansions have explicitly authored2600m rotated runway/terrain surfaces; this is gameplay construction, not certification of real airport expansion. Complete Korean/Taiwan theatres remain unfinished.",
+    "validationSummary": "Historical ground/HUD evidence retained. New stage:167 tests passed in one full Rust lib run; review fixes and3 additions then passed28 targeted frontline tests (170 unique, not a single170-test full run). Node51 passed together, then15 relevant checks passed after the receive/pose fix with1 addition (52 unique, not a single52-test run). Release33 entities (30 ground+3 independent aircraft) advanced240 ticks in12.001792111s=19.9970135943Hz; each flight core advanced11.999902s. Observer JSON1.633277MB/s excludes transport. Final actual one-browser/three-scenario functional harness passed11/11; captures skipped after the retained prior SwiftShader timeout, so no capture or device-performance pass claim.",
+    "details": "implementation-status.json",
+    "publicRuntime": "Online/VPS remains the earlier f3c6d88 radar/core212 release; local ground/HUD096f2cf and shared-air08719fd have not been deployed.",
+    "historicalGroundHudFeatureCommit": "096f2cffc9e4bb76029d9db5514ec86327a3726c",
+    "historicalGroundHudValidationSummary": "152 Rust lib;23 HUD/resource Node +3 input/LOD Node +14 existing Node;72/72 actual HUD browser checks. Ground browser14/14 functional assertions true, whole harness false after final60s screenshot timeout. Local release30 units about20Hz,1.51MB/s/observer JSON; no maximum-population/WAN/mobile certification.",
+    "clientPoseFixCommit": "422db6b758e18f62c4c7a53f774b83ec5f0c257a",
+    "verificationReport": "docs/air-frontline/shared-air-ground-verification-2026-10-25.json"
+  }
+}

@@ -1,0 +1,455 @@
+{
+  "method": {
+    "ellipsoid": "WGS84",
+    "implementation": "pyproj.Geod.inv and polygon_area_perimeter",
+    "pyprojVersion": "3.7.1",
+    "input": "Airport reference points from retained public-domain OurAirports snapshot; bounds are explicitly proposed design selections.",
+    "rounding": "Routes3decimals km, times2decimals minutes, extents2decimals km. This precision is calculation precision, not source positional accuracy.",
+    "speedAssumptionsKmh": [
+      500,
+      700,
+      900
+    ],
+    "speedMeaning": "Illustrative groundspeed only, not certified aircraft cruise or combat performance; actual game aircraft physics, fuel endurance, era/load and wind control sortie viability."
+  },
+  "bounds": [
+    {
+      "id": "full_taiwan_strait",
+      "bounds": [
+        117.8,
+        21.65,
+        122.35,
+        26.5
+      ],
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 462.68,
+        "heightAtMiddleLongitudeKm": 537.18,
+        "geodesicPolygonAreaKm2": 248547.8,
+        "landAreaKm2": null,
+        "note": "Geodesic edge-centre distances and full bounds area including ocean; not island dimensions or land area."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": true
+      },
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSAM_RCKH",
+        "referencePointSpanKm": 314.526,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 509.49,
+        "notNavigableRoute": true,
+        "meaning": "Geographic-span arithmetic only; airports lie on land. A real game ship ETA must use a coastline-avoiding water-only route, draft/slope checks and loading/unloading time."
+      },
+      "selectionStatus": "selected_by_user_include_full_taiwan"
+    },
+    {
+      "id": "central_strait",
+      "bounds": [
+        118.25,
+        23.15,
+        121.0,
+        25.15
+      ],
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 279.49,
+        "heightAtMiddleLongitudeKm": 221.52,
+        "geodesicPolygonAreaKm2": 61916.16,
+        "landAreaKm2": null,
+        "note": "Width is geodesic west/east edge-centre distance; height is geodesic north/south edge-centre distance. Area includes ocean. Bounds select real geography; not the entire island."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSQZ_RCQC",
+        "referencePointSpanKm": 172.126,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 278.82,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    },
+    {
+      "id": "northern_strait",
+      "bounds": [
+        119.05,
+        24.35,
+        121.65,
+        26.35
+      ],
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 261.72,
+        "heightAtMiddleLongitudeKm": 221.56,
+        "geodesicPolygonAreaKm2": 57987.7,
+        "landAreaKm2": null,
+        "note": "Width is geodesic west/east edge-centre distance; height is geodesic north/south edge-centre distance. Area includes ocean. Bounds select real geography; not the entire island."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSFZ_RCTP",
+        "referencePointSpanKm": 183.058,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 296.53,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    },
+    {
+      "id": "expanded_central_south",
+      "bounds": [
+        117.9,
+        22.65,
+        121.0,
+        25.25
+      ],
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 315.55,
+        "heightAtMiddleLongitudeKm": 287.97,
+        "geodesicPolygonAreaKm2": 90873.01,
+        "landAreaKm2": null,
+        "note": "Width is geodesic west/east edge-centre distance; height is geodesic north/south edge-centre distance. Area includes ocean. Bounds select real geography; not the entire island."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": true,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSAM_RCBS",
+        "referencePointSpanKm": 26.757,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 43.34,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    },
+    {
+      "id": "compact_xiamen_kinmen",
+      "bounds": [
+        117.95,
+        24.28,
+        118.55,
+        24.75
+      ],
+      "dimensions": {
+        "widthAtMiddleLatitudeKm": 60.81,
+        "heightAtMiddleLongitudeKm": 52.06,
+        "geodesicPolygonAreaKm2": 3165.54,
+        "landAreaKm2": null,
+        "note": "Real-scale local subregion including mainland coast, Xiamen island, Kinmen and nearby water; not the full Taiwan Strait."
+      },
+      "presence": {
+        "mainlandPresent": true,
+        "taiwanMainIslandPresent": false,
+        "wholeTaiwanMainIslandPresent": false
+      },
+      "seaDistanceScaleComparison": {
+        "referenceAirfieldSpanId": "ZSAM_RCBS",
+        "referencePointSpanKm": 26.757,
+        "assumedGameTransportKnots": 20,
+        "assumedGameTransportKmh": 37.04,
+        "minutesIfAnAuthoredSeaRouteHasThisLength": 43.34,
+        "notNavigableRoute": true,
+        "meaning": "Scale arithmetic using the stated geographic span only. Airport points are on land; this is not a ship route or a claimed actual port-to-port distance. A concrete sea ETA must later use an authored water-only route and add loading/unloading."
+      },
+      "selectionStatus": "comparison_only_superseded_by_user_include_full_taiwan"
+    }
+  ],
+  "routes": [
+    {
+      "id": "ZSQZ_RCQC",
+      "fromAirport": "ZSQZ",
+      "toAirport": "RCQC",
+      "distanceKm": 172.126,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 20.66,
+        "700": 14.75,
+        "900": 11.48
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCQC_RCKU",
+      "fromAirport": "RCQC",
+      "toAirport": "RCKU",
+      "distanceKm": 78.76,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 9.45,
+        "700": 6.75,
+        "900": 5.25
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCQC_RCMQ",
+      "fromAirport": "RCQC",
+      "toAirport": "RCMQ",
+      "distanceKm": 127.139,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 15.26,
+        "700": 10.9,
+        "900": 8.48
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSQZ_RCMQ",
+      "fromAirport": "ZSQZ",
+      "toAirport": "RCMQ",
+      "distanceKm": 214.18,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 25.7,
+        "700": 18.36,
+        "900": 14.28
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSQZ_RCKU",
+      "fromAirport": "ZSQZ",
+      "toAirport": "RCKU",
+      "distanceKm": 235.277,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 28.23,
+        "700": 20.17,
+        "900": 15.69
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSAM_RCBS",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCBS",
+      "distanceKm": 26.757,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 3.21,
+        "700": 2.29,
+        "900": 1.78
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSAM_RCQC",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCQC",
+      "distanceKm": 186.968,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 22.44,
+        "700": 16.03,
+        "900": 12.46
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCQC_RCNN",
+      "fromAirport": "RCQC",
+      "toAirport": "RCNN",
+      "distanceKm": 90.481,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 10.86,
+        "700": 7.76,
+        "900": 6.03
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSAM_RCNN",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCNN",
+      "distanceKm": 275.766,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 33.09,
+        "700": 23.64,
+        "900": 18.38
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSFZ_RCTP",
+      "fromAirport": "ZSFZ",
+      "toAirport": "RCTP",
+      "distanceKm": 183.058,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 21.97,
+        "700": 15.69,
+        "900": 12.2
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "ZSFZ_RCFG",
+      "fromAirport": "ZSFZ",
+      "toAirport": "RCFG",
+      "distanceKm": 38.34,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 4.6,
+        "700": 3.29,
+        "900": 2.56
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCFG_RCTP",
+      "fromAirport": "RCFG",
+      "toAirport": "RCTP",
+      "distanceKm": 175.372,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 21.04,
+        "700": 15.03,
+        "900": 11.69
+      },
+      "interpretation": "Lower-bound airport reference-point geometry; not authored combat route, crossing depth, real flight plan, or runway-to-contact time. Excludes takeoff/climb/turns/wind/combat/return/landing."
+    },
+    {
+      "id": "RCTP_RCKH",
+      "fromAirport": "RCTP",
+      "toAirport": "RCKH",
+      "distanceKm": 291.198,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 34.94,
+        "700": 24.96,
+        "900": 19.41
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCTP_RCKW",
+      "fromAirport": "RCTP",
+      "toAirport": "RCKW",
+      "distanceKm": 340.207,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 40.82,
+        "700": 29.16,
+        "900": 22.68
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCTP_RCYU",
+      "fromAirport": "RCTP",
+      "toAirport": "RCYU",
+      "distanceKm": 123.147,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 14.78,
+        "700": 10.56,
+        "900": 8.21
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCYU_RCFN",
+      "fromAirport": "RCYU",
+      "toAirport": "RCFN",
+      "distanceKm": 150.049,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 18.01,
+        "700": 12.86,
+        "900": 10.0
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCFN_RCKH",
+      "fromAirport": "RCFN",
+      "toAirport": "RCKH",
+      "distanceKm": 79.732,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 9.57,
+        "700": 6.83,
+        "900": 5.32
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "ZSAM_RCKH",
+      "fromAirport": "ZSAM",
+      "toAirport": "RCKH",
+      "distanceKm": 314.526,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 37.74,
+        "700": 26.96,
+        "900": 20.97
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "ZSFZ_RCYU",
+      "fromAirport": "ZSFZ",
+      "toAirport": "RCYU",
+      "distanceKm": 288.376,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 34.61,
+        "700": 24.72,
+        "900": 19.23
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    },
+    {
+      "id": "RCQC_RCKH",
+      "fromAirport": "RCQC",
+      "toAirport": "RCKH",
+      "distanceKm": 132.41,
+      "straightLineMinutesAtConstantGroundspeed": {
+        "500": 15.89,
+        "700": 11.35,
+        "900": 8.83
+      },
+      "interpretation": "Airport-reference-point geodesic only. Excludes takeoff/climb/turns/wind/combat/return/landing; across-island reference lines may cross major mountains and do not certify a low-altitude route."
+    }
+  ],
+  "seaSpeedExamples": {
+    "assumedGameTransportSpeedKnots": 20,
+    "assumedGameTransportSpeedKmh": 37.04,
+    "conversion": "1kn=1.852km/h; elapsed minutes=routeKm/37.04×60",
+    "notARealShipSpecification": true,
+    "distanceKmToOneWayMinutes": {
+      "10": 16.2,
+      "20": 32.4,
+      "30": 48.6,
+      "40": 64.79,
+      "80": 129.59,
+      "150": 242.98,
+      "200": 323.97,
+      "250": 404.97
+    },
+    "interpretation": "Explicit game-design sea-leg examples, not measured routes between named actual ports. Valid coastline-avoiding routes, loading/unloading and manoeuvring add time. At20kn a60min round covers at most37.04km without those overheads; a200km leg takes≈324min."
+  },
+  "selectedExtentId": "full_taiwan_strait",
+  "officialMainIslandEnvelopeEvidence": {
+    "datasetPage": "https://data.gov.tw/dataset/7442",
+    "downloadUrl": "https://maps.nlsc.gov.tw/download/%E7%B8%A3%E5%B8%82%E7%95%8C%E7%B7%9A%28TWD97%E7%B6%93%E7%B7%AF%E5%BA%A6%29.zip",
+    "sha256": "0c6fca34a92b92ef3e9a41957e403cb89e814bb64942ca7c7e51c746f913d49d",
+    "actualDatasetMember": "COUNTY_MOI_1090820.shp",
+    "mainIslandCountyOuterRingEnvelopeWgs84": [
+      120.02690556700009,
+      21.895599675000085,
+      122.007494458,
+      25.300305479000087
+    ],
+    "mainIslandEnvelopeDimensionsKm": {
+      "eastWestAtMiddleLatitude": 202.14795908020523,
+      "northSouthAtMiddleLongitude": 377.0802724118878
+    },
+    "selectedTheatreBoundsWgs84": [
+      117.8,
+      21.65,
+      122.35,
+      26.5
+    ],
+    "allSelectedMainIslandRingVerticesInsideTheatre": true
+  }
+}

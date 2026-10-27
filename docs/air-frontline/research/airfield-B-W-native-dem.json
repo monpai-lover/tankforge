@@ -1,0 +1,32 @@
+{
+  "field": "B-W",
+  "centreLonLat": [
+    126.792548,
+    37.763489
+  ],
+  "boundsMeters": [
+    298058.69100202224,
+    4174368.654273628,
+    313058.69100202224,
+    4189368.654273628
+  ],
+  "projection": "EPSG:32652",
+  "cellMeters": 30,
+  "sourceUrl": "https://copernicus-dem-30m.s3.amazonaws.com/Copernicus_DSM_COG_10_N37_00_E126_00_DEM/Copernicus_DSM_COG_10_N37_00_E126_00_DEM.tif",
+  "etag": "\"e4cbc0206e530a2e7919deca4d0a0e95\"",
+  "lastModified": "Mon, 09 May 2022 14:19:29 GMT",
+  "sourcePixelWindow": [
+    2539,
+    603,
+    628,
+    498
+  ],
+  "nativeShape": [
+    498,
+    628
+  ],
+  "nativeFloat32Sha256": "088d43ff3ecf02df709b9051629a73d42cbb9831a6b34f0d8f63875255d7c03f",
+  "method": "Full native source window, then bilinear reprojection to a 30m metric grid; no source overview used",
+  "limitation": "DSM surface including vegetation and structures, not surveyed runway pavement or a bare-earth terrain model",
+  "cacheSha256": "d484a026ec185f81acebdd7c3e4151785949e46daab56f47618196d79bd57921"
+}

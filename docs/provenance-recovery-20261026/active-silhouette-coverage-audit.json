@@ -1,0 +1,270 @@
+{
+  "source": "intake/tank-monpai-root-20261025-identity.html",
+  "scope": "Actual active24 surface catalog packets; unclassified semantics are distinct from missing geometry or runtime registration availability",
+  "rows": [
+    {
+      "spec": "de_pz3_j",
+      "triangles": 89672,
+      "unclassifiedTriangles": 3372,
+      "unclassifiedPercent": 3.76,
+      "declaredTriangles": 86300,
+      "instances": 282,
+      "unknownDeclarations": 355,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "7a89eb4fa9de75dc803b633b9a9ab241ed1780d9298ad583e69a2a8c53d2c83b"
+    },
+    {
+      "spec": "de_pz4_h",
+      "triangles": 88936,
+      "unclassifiedTriangles": 3454,
+      "unclassifiedPercent": 3.88,
+      "declaredTriangles": 85482,
+      "instances": 319,
+      "unknownDeclarations": 490,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "36f2c61c8dde4e82edca248fbb466bec6155348318615a16024028979889146c"
+    },
+    {
+      "spec": "de_tiger_e",
+      "triangles": 92828,
+      "unclassifiedTriangles": 3307,
+      "unclassifiedPercent": 3.56,
+      "declaredTriangles": 89521,
+      "instances": 312,
+      "unknownDeclarations": 425,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "f79576c30bfa5a277368e868e7c8558dafb17e1a3adc4b780a71e33ea0c7e4d5"
+    },
+    {
+      "spec": "de_panther_g",
+      "triangles": 98888,
+      "unclassifiedTriangles": 4254,
+      "unclassifiedPercent": 4.3,
+      "declaredTriangles": 94634,
+      "instances": 298,
+      "unknownDeclarations": 77,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "03b084c9c86ab93bb8c12a92b3315ba1e7f515a59d61e74ddc72c2bcb1edfb03"
+    },
+    {
+      "spec": "de_panther_f",
+      "triangles": 98404,
+      "unclassifiedTriangles": 4202,
+      "unclassifiedPercent": 4.27,
+      "declaredTriangles": 94202,
+      "instances": 298,
+      "unknownDeclarations": 77,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "fda32cfbd3cacf439c2ca394389b3786910d83480c27a42cabf0f06390f37fb4"
+    },
+    {
+      "spec": "de_sdkfz234_2",
+      "triangles": 66791,
+      "unclassifiedTriangles": 846,
+      "unclassifiedPercent": 1.27,
+      "declaredTriangles": 65945,
+      "instances": 29,
+      "unknownDeclarations": 58,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "5adf07bf4e27af7e07c205c195ded40bb431830104670150e757b60cf364ffcd"
+    },
+    {
+      "spec": "su_t34_1940",
+      "triangles": 62455,
+      "unclassifiedTriangles": 4392,
+      "unclassifiedPercent": 7.03,
+      "declaredTriangles": 58063,
+      "instances": 216,
+      "unknownDeclarations": 1593,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "e0fa7a25920500132553a692d1aa241bf628d2a09fc381dcc7b24e1dfc42525a"
+    },
+    {
+      "spec": "su_t34_85",
+      "triangles": 77068,
+      "unclassifiedTriangles": 5440,
+      "unclassifiedPercent": 7.06,
+      "declaredTriangles": 71628,
+      "instances": 217,
+      "unknownDeclarations": 2283,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "f4bb4f46804d815d91c4985b2604875de5315d34b98e9c225ae4f8ef84248514"
+    },
+    {
+      "spec": "su_is2",
+      "triangles": 94567,
+      "unclassifiedTriangles": 29470,
+      "unclassifiedPercent": 31.16,
+      "declaredTriangles": 65097,
+      "instances": 266,
+      "unknownDeclarations": 76,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "17885771210337bec743cd3cf1d41c527eed3b05ccdb1667c7ee3994723fa6e7"
+    },
+    {
+      "spec": "su_t54",
+      "triangles": 91507,
+      "unclassifiedTriangles": 30192,
+      "unclassifiedPercent": 32.99,
+      "declaredTriangles": 61315,
+      "instances": 253,
+      "unknownDeclarations": 207,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "78df96b2ecd3cda54405685271c3a4370921f35069e917cfb4132064c4e720cb"
+    },
+    {
+      "spec": "su_t72a",
+      "triangles": 73290,
+      "unclassifiedTriangles": 256,
+      "unclassifiedPercent": 0.35,
+      "declaredTriangles": 73034,
+      "instances": 291,
+      "unknownDeclarations": 1,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "57cf34dd8f1694e59acef7e3cbf4ae77e5624c919cf89095aa680229e0cff5fe"
+    },
+    {
+      "spec": "us_m8",
+      "triangles": 69652,
+      "unclassifiedTriangles": 6379,
+      "unclassifiedPercent": 9.16,
+      "declaredTriangles": 63273,
+      "instances": 31,
+      "unknownDeclarations": 172,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "51c7eac04d583ae67d1f1ce971ae017d743eca1f92a2fd23d1c8e9ab34593da2"
+    },
+    {
+      "spec": "us_m10",
+      "triangles": 87285,
+      "unclassifiedTriangles": 6855,
+      "unclassifiedPercent": 7.85,
+      "declaredTriangles": 80430,
+      "instances": 254,
+      "unknownDeclarations": 97,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "513ccd19984471a2bf5d6267f962aa1f92d78c8a650234e70b8eec727bd84764"
+    },
+    {
+      "spec": "us_m4a2",
+      "triangles": 89729,
+      "unclassifiedTriangles": 9111,
+      "unclassifiedPercent": 10.15,
+      "declaredTriangles": 80618,
+      "instances": 257,
+      "unknownDeclarations": 225,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "287ee1e9ae825d9b4a7516114c083479010130f87fa44fcad1e32fff37af5d60"
+    },
+    {
+      "spec": "us_m4a3_75w",
+      "triangles": 89093,
+      "unclassifiedTriangles": 8475,
+      "unclassifiedPercent": 9.51,
+      "declaredTriangles": 80618,
+      "instances": 257,
+      "unknownDeclarations": 182,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "bf9118bca6e7f5e4765293367a1955bb25ac904868484a8b6926eb6a59500240"
+    },
+    {
+      "spec": "us_m4a1_76w",
+      "triangles": 89581,
+      "unclassifiedTriangles": 9251,
+      "unclassifiedPercent": 10.33,
+      "declaredTriangles": 80330,
+      "instances": 257,
+      "unknownDeclarations": 138,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "bbca284b64711cd84b72c60a05822c62714a0670df894f389d36b5f7d4c1fa30"
+    },
+    {
+      "spec": "us_m4a3_76w_hvss",
+      "triangles": 99737,
+      "unclassifiedTriangles": 9027,
+      "unclassifiedPercent": 9.05,
+      "declaredTriangles": 90710,
+      "instances": 281,
+      "unknownDeclarations": 189,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "945367dd6c63b8823b74c802d0a94e7317baea4d6a954b2a02c820af2ce8151b"
+    },
+    {
+      "spec": "uk_cromwell_iv",
+      "triangles": 80040,
+      "unclassifiedTriangles": 3560,
+      "unclassifiedPercent": 4.45,
+      "declaredTriangles": 76480,
+      "instances": 339,
+      "unknownDeclarations": 89,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "d6745830b7a935b1f308bab5f72c14d1900618c79ede8f3b5adabed0f1efde79"
+    },
+    {
+      "spec": "xp_w78",
+      "triangles": 64895,
+      "unclassifiedTriangles": 4148,
+      "unclassifiedPercent": 6.39,
+      "declaredTriangles": 60747,
+      "instances": 23,
+      "unknownDeclarations": 383,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "f633802fd10927ea043c06f930576833222fd35449bf43c7f8979181f78c5fee"
+    },
+    {
+      "spec": "de_pzjg1",
+      "triangles": 55022,
+      "unclassifiedTriangles": 3612,
+      "unclassifiedPercent": 6.56,
+      "declaredTriangles": 51410,
+      "instances": 286,
+      "unknownDeclarations": 139,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "e80eaea8734bbfa4e0e1f54f324976a18d6902690c9e9800056bffb0393a605a"
+    },
+    {
+      "spec": "de_hetzer",
+      "triangles": 69131,
+      "unclassifiedTriangles": 6180,
+      "unclassifiedPercent": 8.94,
+      "declaredTriangles": 62951,
+      "instances": 262,
+      "unknownDeclarations": 223,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "c311b483cf1f418522a26efbfde71d5b08d76ca88d4442f0b7754fb2bbb79869"
+    },
+    {
+      "spec": "de_hetzer_flak",
+      "triangles": 74343,
+      "unclassifiedTriangles": 3932,
+      "unclassifiedPercent": 5.29,
+      "declaredTriangles": 70411,
+      "instances": 259,
+      "unknownDeclarations": 126,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "8bfb4ea735c5d7a1aa157bfe4e0e68b9fcf3de892a2fc896c9de8b80b30f3fe0"
+    },
+    {
+      "spec": "de_rso_flak",
+      "triangles": 91899,
+      "unclassifiedTriangles": 4176,
+      "unclassifiedPercent": 4.54,
+      "declaredTriangles": 87723,
+      "instances": 179,
+      "unknownDeclarations": 101,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "3657a71b0ada694f2000a400a438a49ea7b8ac889cfc8606c5749d69777928b2"
+    },
+    {
+      "spec": "uk_cmp_portee",
+      "triangles": 65395,
+      "unclassifiedTriangles": 3580,
+      "unclassifiedPercent": 5.47,
+      "declaredTriangles": 61815,
+      "instances": 20,
+      "unknownDeclarations": 144,
+      "renderPositionDifferences": 0,
+      "sourceManifest": "75d3e39ef413ee9da9e1e6f0c304ee4113f9f1f880dfda811b3f0991729d8976"
+    }
+  ]
+}

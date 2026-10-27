@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "scope": "Collimated reflector/HUD rendering principles; no new aircraft equipment, historical reticle, optical prescription, ballistic computer or weapon capability.",
+  "sources": [
+    {
+      "title": "NASA: Head-up display utility II, runway to HUD transitions monitoring eye focus and decision times",
+      "url": "https://ntrs.nasa.gov/citations/19860049064",
+      "published": "1985-01-01",
+      "use": "The primary experiment describes the virtual symbology at optical infinity and explicitly holds its angle subtended at the eye fixed.",
+      "implementation": "Project a direction from the actual camera, with angular symbol dimensions independent of head translation and viewport resolution. The study does not validate any game's specific historical reticle."
+    },
+    {
+      "title": "NASA-CR-198218: Panoramic, large-screen, 3-D flight display system design",
+      "url": "https://ntrs.nasa.gov/citations/19960009217",
+      "document": "https://ntrs.nasa.gov/api/citations/19960009217/downloads/19960009217.pdf",
+      "published": "1995-10-01",
+      "use": "The technology survey explains that practical collimated displays have a limited head-motion box. Moving outside it can produce vignetting, loss of resolution or complete image loss.",
+      "implementation": "Retain actual glass clipping and finite visibility; no screen-wide reticle when the pane or exit pupil is unavailable."
+    },
+    {
+      "title": "US Army Aeromedical Research Laboratory: Helmet-Mounted Displays, chapter 4, page 110",
+      "url": "https://usaarl.health.mil/assets/docs/hmds/HMD_Book09.pdf",
+      "access": "Primary-host indexed excerpt consulted; full 54MB PDF was not downloaded because the browser size limit rejected it.",
+      "use": "Distinguishes true exit-pupil loss from field-of-view loss and reduced quality outside a designed eye box. Eye movement, vibration and slippage affect the usable viewing region.",
+      "implementation": "Use continuous attenuation and separate lateral/longitudinal eye position. This does not identify an F104 sight or establish its exact eye box."
+    },
+    {
+      "title": "Ansys Optics: Which tools to use when working on a Head-up-Display?",
+      "url": "https://optics.ansys.com/hc/en-us/articles/42661752438035-Which-tools-to-use-when-working-on-a-Head-up-Display",
+      "use": "Defines the virtual image, eye pupil and eye-box constraints and explains forward evaluation of the image actually seen from different eye positions.",
+      "implementation": "Separate actual-camera projection from the optical design eye; keep angular symbols aligned with world directions while the physical pane moves in the picture. Automotive example dimensions are not imported into aircraft."
+    },
+    {
+      "title": "BAE Systems: Digital light engine head-up display, 18-C41-02",
+      "url": "https://www.baesystems.com/dam/jcr:d0c32fed-51e5-40fc-96ef-40c794a15a18",
+      "use": "Manufacturer specifications treat luminance, ambient contrast, angular field and positional accuracy as independent display qualities.",
+      "implementation": "Keep a sharp coloured core with restrained bloom and ambient-dependent display brightness. Modern hardware luminance, angular dimensions, symbols and avionics capabilities are not assigned to F104 or early reflectors."
+    }
+  ],
+  "presentationApproximations": {
+    "eyeBox": "Existing per-model eyeBox extents remain in force. A rounded fourth-power lateral window and smooth axial envelope replace the old max-axis linear ramp; coefficients are game rendering estimates, not measured exit-pupil optics.",
+    "brightness": "Existing renderer sun elevation drives a bounded display contrast curve. The coloured source-over core over additive local bloom is a tone-mapped screen-readability approximation, not absolute photometry or a historical automatic-brightness system.",
+    "ring": "Existing angular ring dimensions and reticle designs are unchanged. Every optical ring now uses the same actual-camera infinity projection as the pipper; the old minimum12pixel computing-ring clamp is removed."
+  },
+  "validation": "CPU analytical projection and actual drawAirOverlay canvas-command regression only. Browser pixels, cockpit visibility and daylight readability remain pending serial GPU review.",
+  "implementation": {
+    "helper": "handoff/tools/aircraft_sight_optics.js",
+    "transplant": "handoff/tools/sync_aircraft_sight_optics.py",
+    "cpuRegression": "handoff/tests/aircraft-sight-optics.test.mjs",
+    "sourceBaselineAppSha256": "870d6dd5de881627c0fa56aede4ae9da888dc32b0703dfd0074cb133a3ed313a",
+    "cpuCases": 12,
+    "browserValidation": "pending serial review; CPU canvas-command capture does not establish pixels or cockpit readability"
+  }
+}

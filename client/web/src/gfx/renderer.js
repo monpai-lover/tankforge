@@ -1,3 +1,4 @@
+import { createAircraftClipReject } from '../../../../handoff/tools/aircraft_performance/aircraft-render-cull.mjs';
 // Dependency-free WebGL2 renderer. The frame is built in linear HDR and graded at the end:
 //
 //   shadow map ─┐
@@ -864,8 +865,9 @@ export class Renderer {
     gl.uniformMatrix4fv(this.depth.u.uLightVP, false, lightVP);
     gl.enable(gl.POLYGON_OFFSET_FILL);
     gl.polygonOffset(2.0, 4.0);
+    const rejectAircraftShadow = createAircraftClipReject(lightVP);
     for (const n of nodes) {
-      if (!n.castShadow) continue;
+      if (!n.castShadow || rejectAircraftShadow(n)) continue;
       this._draw(this.depth, n);
     }
     gl.disable(gl.POLYGON_OFFSET_FILL);
@@ -1167,8 +1169,10 @@ export class Renderer {
     glass.length = 0;
     depths.clear();
     const forward = cam?.forward || [0, 0, 1];
+    const rejectAircraftColour = createAircraftClipReject(cam?.viewProj);
     const bounds = this._meshCenters || (this._meshCenters = new WeakMap());
     for (const n of nodes) {
+      if (rejectAircraftColour(n)) continue;
       if (![6, 7, 10, 13, 15].includes(n.kind)) { drawLit(n); continue; }
       let center = n.replayCenter;
       if (!center) {

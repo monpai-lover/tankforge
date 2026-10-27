@@ -1,0 +1,15 @@
+// Offline actual game paths; only spawn location and observation cameras are fixtures.
+(() => {
+ const tf=__tf,x=__tfx,G=tf.G,q=window.__meQa={};
+ q.ready=async()=>{await tf.coreReady();const a=await x.flightCoreP;tf.pause(true);tf.setQuality('low');G.airHelp=false;G.airAssist=false;G.airBotsOn=false;G.padBots=false;return {core:a.core_version(),models:Object.keys(x.data.aircraftModels),cards:['me262','me262a2a','me262u4'].map(id=>!!document.querySelector(`[data-air="${id}"]`))};};
+ q.pause=()=>tf.pause(true);
+ q.air=()=>{const p=G.air.plane;p.spawn(-8000,3000,-8000,0,170,false);G.airInputFocused=true;tf.advance(.1,[],true);q.originalCamera=p.camera.bind(p);return q.probe();};
+ q.probe=()=>{const a=G.air,p=a.plane,gl=tf.renderer.gl;return {id:p.type.id,core:p.api.core_version(),finite:p.cur.every(Number.isFinite),crashed:p.crashed,state:Array.from(p.cur),axes:Array.from(p.aero.slice(36,40)),internal:p.sourceInternalNodes.map(n=>({id:n.sourceModule.id,triangles:n.mesh.count/3,kind:n.kind,damageIds:n.damageIds})),fallback:p.partNodes.map(n=>n.part.id),guns:a.guns.map(g=>({id:g.id,mount:g.mount,mounts:g.mounts,ammo:g.ammo,belt:g.belt,fired:g.fired})),stores:a.stores.items.map(i=>({socket:i.sourceStore?.id,p:i.p,sourceSocket:i.sourceSocket,owner:i.owner,count:i.count,gone:!!i.gone,visible:i.node?.visible,source:!!i.node?.sourceStore,rack:!!i.rackNode,vertices:i.node?.mesh.count})),eye:p.cockpitEye,sight:p.sightGlass,aimHidden:x.airEl.aim.hidden,noseHidden:x.airEl.nose.hidden,gpuBuffers:p.meshes.filter(m=>gl.isBuffer(m.buf)).length,meshCount:p.meshes.length};};
+ q.camera=offset=>{const p=G.air.plane;p.state.camera=0;p.camera=()=>{const centre=p.drawPos||p.position,len=Math.hypot(...offset);return{camPos:centre.map((v,i)=>v+offset[i]),fwd:offset.map(v=>-v/len),fovY:.85};};tf.advance(1/60,[],true);return q.probe();};
+ q.cockpit=()=>{const p=G.air.plane;p.camera=q.originalCamera;p.state.camera=1;tf.advance(1/60,[],true);return q.probe();};
+ q.xray=on=>{G.air.plane.setXray(on);tf.advance(1/60,[],true);return q.probe();};
+ q.gear=()=>{const p=G.air.plane,samples=[];p.toggle('KeyG');for(let i=0;i<105;i++){tf.advance(1/12,[],false);samples.push({t:p.cur[23],axes:Array.from(p.aero.slice(36,40)),gear:p.cur[33]});}tf.advance(1/60,[],true);return {samples,end:q.probe()};};
+ q.mount=index=>{const a=G.air;a.stores=x.mountStores(a.plane,a.plane.type.id,index);x.applyStoreLoad(a);tf.advance(1/60,[],true);return q.probe();};
+ q.releaseAll=()=>{const a=G.air,n=a.stores.items.length,out=[];for(let i=0;i<n;i++){const before=a.stores.items.filter(q=>!q.gone).length;if(!x.releaseStore(a))throw Error('Actual release failed '+i);const o=x.airOrdnance.at(-1);x.drawOrdnance(o,0);const after=a.stores.items.filter(q=>!q.gone).length;out.push({before,after,source:!!o.node.sourceStore,vertices:o.node.mesh.count,racks:a.stores.items.filter(q=>q.rackNode?.visible).length});}tf.advance(1/60,[],true);return out;};
+ q.cleanup=()=>{tf.pause(true);x.clearBots();if(G.air?.active)x.exitAircraft(true);tf.toGarage();return{online:!!G.online,mode:G.mode};};
+})();
