@@ -41,7 +41,14 @@ test('actual local decoy eligibility defers tested mark until angle and seeker v
 });
 test('patch is idempotent and embeds accepted graphics, shared control sequence and lifecycle hooks',()=>{
   assert.ok(app.includes('// TF_NATIVE_CM_BEGIN'));assert.equal(patchFrontlineCountermeasures(app),app);
-  for(const needle of ['nextSequence:()=>++f.seq','nativeCM.accept(air,unit','TFNativeCMVisual.accept(f.aircrafts',"TFNativeCMVisual.write(this.add,this.addCount,cam,TFNativeCMVisual.context(),'flares')",'nativeCM.clear();TFNativeCMVisual.clear()'])assert.ok(app.includes(needle),needle);
+  const precise=app.includes('/* TF_RENDER_PRECISION_BEGIN */'),camera=precise?'relativeCam':'cam';
+  if(precise){
+    assert.equal(app.split('/* TF_RENDER_PRECISION_BEGIN */').length,2);assert.equal(app.split('/* TF_RENDER_PRECISION_END */').length,2);
+    assert.equal(app.split('      this.renderOrigin = cam.pos.slice();\n      const relativeCam = {...cam, renderOrigin:this.renderOrigin};').length,2,'Exactly one actual Effects.build camera-relative packing boundary');
+  }
+  for(const needle of ['nextSequence:()=>++f.seq','nativeCM.accept(air,unit','TFNativeCMVisual.accept(f.aircrafts',
+    `TFNativeCMVisual.write(this.add,this.addCount,${camera},TFNativeCMVisual.context(),'flares')`,
+    `TFNativeCMVisual.write(this.alpha,this.alphaCount,${camera},TFNativeCMVisual.context(),'chaff')`,'nativeCM.clear();TFNativeCMVisual.clear()'])assert.ok(app.includes(needle),needle);
   if(original.includes('function frontlineCountermeasureReason('))assert.equal(app,original);else assert.notEqual(app,original);
 });
 test('patch rejects a recomposition that removed its runtime hook instead of silently claiming installation',()=>{
@@ -98,6 +105,27 @@ test('actual Effects.build writes accepted flare/chaff graphics into existing bo
   assert.equal(effects.addCount,6);assert.equal(effects.alphaCount,6);assert.equal(effects.particles.length,0);assert.equal(effects.glows.length,0);
   assert.ok(effects.add.subarray(0,54).every(Number.isFinite));G4.mode='garage';effects.build(cam);assert.equal(effects.addCount,0);assert.equal(effects.alphaCount,0);
 });
+
+test('actual accepted far-world decoys pack at the camera origin without changing stock, identity or source positions',()=>{
+  const G4={mode:'battle',time:20},context=vm.createContext({console,Math,G4,FLOATS:9,SOFT_FLOATS:13,Float32Array,Float64Array,
+    TFAirVortex:{write:(_b,n)=>n,context:()=>G4}});
+  vm.runInContext(cut('  // TF_NATIVE_CM_BEGIN','  // TF_NATIVE_CM_END')+cut('  var Effects = class {','  // client/web/src/game/audioReload.js'),context);
+  context.TFNativeCMVisual.context=()=>G4;
+  const origin=app.includes('/* TF_RENDER_PRECISION_BEGIN */')?[10000000,5000000,-8000000]:[0,0,0],right=[.6,0,.8],up=[0,1,0],local=[1.125,2.25,3.375];
+  const decoys=['flares','chaff'].map((kind,index)=>({id:index+1,kind,pos:local.map((v,k)=>v+origin[k]),velocity:[0,0,0],age:0,ttl:4}));
+  const source=JSON.stringify(decoys),unit={unit:{battle:7,unit:4,life:2},countermeasures:{flares:30,chaff:60},decoys};
+  context.TFNativeCMVisual.accept([unit],{battle:7,tick:1,time:20});
+  const effects=new context.Effects(4);effects.build({pos:origin.slice(),right,up});
+  assert.equal(effects.addCount,6);assert.equal(effects.alphaCount,6);assert.equal(context.TFNativeCMVisual.stats.live,2);
+  for(const [buffer,size]of [[effects.add,.3],[effects.alpha,.65]])for(let v=0;v<6;v++){
+    const rx=v===1||v===2||v===4?1:-1,uy=v===2||v===4||v===5?1:-1;
+    for(let k=0;k<3;k++)assert.ok(Math.abs(buffer[v*9+k]-(local[k]+(right[k]*rx+up[k]*uy)*size))<1e-6,
+      `actual ${size===.3?'flare':'chaff'} vertex ${v}/${k} retains the same local billboard after one Float32 pack`);
+  }
+  assert.equal(JSON.stringify(decoys),source,'render-origin conversion cannot rewrite authoritative world positions');
+  assert.deepEqual(unit.countermeasures,{flares:30,chaff:60});
+  assert.deepEqual(Array.from(context.TFNativeCMVisual.slots.find(s=>s.key==='7:4:2:1').pos),decoys[0].pos);
+});
 test('native CM denial reasons are readable in both languages and unknown codes use a plain safe fallback',()=>{
   const context=vm.createContext({});vm.runInContext(cut('  // TF_NATIVE_CM_BEGIN','  // TF_NATIVE_CM_END'),context);
   assert.equal(typeof context.frontlineCountermeasureReason,'function','Authoritative rejection reasons require a presentation translator');
@@ -124,8 +152,14 @@ test('actual authoritative error hook translates cooldown and race denials witho
 test('CM UI upgrade preserves the complete previous authority helper bytes and upgrades only its pinned owned block plus feedback hook',()=>{
   const helper=fs.readFileSync(new URL('../tools/frontline_countermeasures.js',import.meta.url),'utf8').replace(/\r\n/g,'\n'),marker='\n// TF_NATIVE_CM_REASONS_V2';
   const added=helper.indexOf(marker);assert.ok(added>0,'Reason-map upgrade must be a declared append to the reviewed authority helper');
-  const prior=helper.slice(0,added),sha=x=>createHash('sha256').update(x).digest('hex');
-  assert.equal(sha(prior),'032acd38e647fcc492fc1885e82f3f61f033dfa3c313498525f6a0683cd89fbb','Original authority/visual implementation is byte-identical');
+  let prior=helper.slice(0,added);const sha=x=>createHash('sha256').update(x).digest('hex');
+  const frozenAuthoritySha='032acd38e647fcc492fc1885e82f3f61f033dfa3c313498525f6a0683cd89fbb';
+  if(sha(prior)!==frozenAuthoritySha)for(let axis=0;axis<3;axis++){
+    const edit=`-(cam.renderOrigin?.[${axis}]||0)`;
+    assert.equal(prior.split(edit).length,2,'Exactly one reviewed render-origin subtraction per packed CM position axis');
+    prior=prior.replace(edit,'');
+  }
+  assert.equal(sha(prior),frozenAuthoritySha,'Original authority/visual implementation is byte-identical after only three declared render-origin coordinate conversions');
   const begin='  // TF_NATIVE_CM_BEGIN\n',end='  // TF_NATIVE_CM_END\n',a=app.indexOf(begin),b=app.indexOf(end,a)+end.length;
   const previous=begin+prior+'\n  var TFNativeCMVisual=Object.assign(createFrontlineCountermeasureVisual(),{context:()=>null});\n'+end;
   assert.equal(sha(previous),'127eebfb755925b59da905040072b41576ef472d6192d9c832c163f91adfb74c');

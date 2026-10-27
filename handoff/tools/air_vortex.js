@@ -81,7 +81,7 @@ export function createAirVortex({capacity=64,maxSegments=96}={}) {
       for(let vertex=0;vertex<6;vertex++){
         const end=vertex===2||vertex===4||vertex===5,positive=vertex===1||vertex===2||vertex===4;
         const direction=positive?1:-1,o=(count+vertex)*9;
-        buffer[o]=(end?bx:ax)+nx*direction;buffer[o+1]=(end?by:ay)+ny*direction;buffer[o+2]=(end?bz:az)+nz*direction;
+        buffer[o]=(end?bx:ax)+nx*direction-(cam.renderOrigin?.[0]||0);buffer[o+1]=(end?by:ay)+ny*direction-(cam.renderOrigin?.[1]||0);buffer[o+2]=(end?bz:az)+nz*direction-(cam.renderOrigin?.[2]||0);
         buffer[o+3]=positive?1:-1;buffer[o+4]=2;
         buffer[o+5]=.86;buffer[o+6]=.90;buffer[o+7]=.94;buffer[o+8]=opacity;
       }

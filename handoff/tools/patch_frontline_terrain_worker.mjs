@@ -1,0 +1,25 @@
+import fs from 'node:fs';
+const read=name=>fs.readFileSync(new URL(name,import.meta.url),'utf8');
+export function patchFrontlineTerrainWorker(source){
+ const helper=read('./frontline_terrain_worker.js'),client=read('./frontline_client.js').replaceAll('\r\n','\n');
+ const a=client.indexOf('      function rebuildTerrain(){'),b=client.indexOf('      function poseModel',a);
+ if(a<0||b<a)throw Error('Missing source terrain builder boundaries');
+ const section=client.slice(a,b),expected=section.slice(section.indexOf('      function rebuildTerrainImmediate(){')).replace('function rebuildTerrainImmediate(){','function rebuildTerrain(){');
+ const helperBegin='/* TF_TERRAIN_WORKER_BEGIN */\n',helperEnd='/* TF_TERRAIN_WORKER_END */\n',helperBlock=helperBegin+helper+helperEnd;
+ if(!source.includes('/* TF_TERRAIN_WORKER_BEGIN */')){
+   const marker='  // END NATIVE FRONTLINE GLOBAL HELPERS\n';if(source.split(marker).length!==2)throw Error('Unique global boundary required');
+   source=source.replace(marker,helperBlock+marker);
+ }else{
+   if(source.split(helperBegin).length!==2||source.split(helperEnd).length!==2)throw Error('Unique complete terrain helper boundaries required');
+   const h=source.indexOf(helperBegin),e=source.indexOf(helperEnd,h)+helperEnd.length;
+   if(source.slice(h,e)!==helperBlock)throw Error('Terrain helper source differs from the reviewed embedded helper');
+ }
+ const start=source.indexOf('      function rebuildTerrain(){'),end=source.indexOf('      function poseModel',start);if(start<0||end<start)throw Error('Missing canonical terrain boundaries');
+ const previous=source.slice(start,end);if(previous!==section&&previous!==expected)throw Error('Canonical terrain source changed outside reviewed worker wrapper');
+ source=source.slice(0,start)+section+source.slice(end);
+ const before='frontlineDisposed=true;',after='frontlineDisposed=true;frontline.terrainWorker?.dispose();';
+ if(source.includes(after))return source;
+ if(source.split(before).length!==2)throw Error('Missing unique terrain disposal anchor');
+ source=source.replace(before,after);
+ return source;
+}

@@ -1,0 +1,28 @@
+✔ actual native cmRelease diverts to authoritative intent before any local stock/lure/sound path (15.2383ms)
+✔ actual legacy cmRelease retains paired local release, stock consumption and interval refusal (10.967ms)
+✔ actual local decoy eligibility defers tested mark until angle and seeker visibility succeed (10.8702ms)
+✔ patch is idempotent and embeds accepted graphics, shared control sequence and lifecycle hooks (229.3173ms)
+✔ patch rejects a recomposition that removed its runtime hook instead of silently claiming installation (85.2849ms)
+✔ actual established native runtime projects accepted stock and sends CM through its shared control owner (20.4399ms)
+✔ actual receive-frame composition admits only filtered aircraft decoys to the visual pool (20.0432ms)
+✔ actual hostile PublicAirPose conversion carries visible decoys without stock and retires them on lost observation (20.5325ms)
+✔ actual Effects.build writes accepted flare/chaff graphics into existing bounded GPU buffers (31.2848ms)
+✔ actual accepted far-world decoys pack at the camera origin without changing stock, identity or source positions (30.7228ms)
+✔ native CM denial reasons are readable in both languages and unknown codes use a plain safe fallback (9.8005ms)
+✔ actual authoritative error hook translates cooldown and race denials without stock, lure, sound or control fallback (20.9695ms)
+✔ CM UI upgrade preserves the complete previous authority helper bytes and upgrades only its pinned owned block plus feedback hook (385.1583ms)
+✔ native CM sends scoped intent using the shared sequence and changes no inventory before acceptance (8.3757ms)
+✔ accepted CM counters project to original HUD and sound only once per accepted event (2.4004ms)
+✔ native program and periodic controls remain UI intent, invalid/lost lives cannot spend or send (1.2485ms)
+✔ life or epoch change resets accepted event sound history and missing counters grant no stock (1.135ms)
+✔ bounded visuals draw only accepted filtered per-life decoys and never feed local seeker lists (2.0089ms)
+✔ visuals reject stale/malformed frames, isolate life identity, and clear on hangar or stale time (2.8735ms)
+✔ visual interpolation is cosmetic, bounded and expires at accepted TTL (1.5677ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1373.2914

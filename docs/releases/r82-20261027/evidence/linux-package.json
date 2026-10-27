@@ -1,0 +1,14 @@
+{
+  "archive": "C:\\Users\\24908\\Downloads\\tankforge-r82-airwar-linux-amd64-20261027.tar.gz",
+  "bytes": 299085201,
+  "sha256": "00dba38f5669e69aa4054474ac160284a6b1e16913d16e5935a83ad5eac469bb",
+  "verifiedFiles": 2696,
+  "htmlSha256": "eeac869b23139cbcfd05512e3c6ab016c8032015704e4bb0168af5d4cc22ee3f",
+  "serverSha256": "18fdb026e18d4d69d2a2a91743cce0a68718f8f261f0a6b1f7fdd2f2f251bafe",
+  "elf": {
+    "format": "ELF64",
+    "machine": "x86_64",
+    "dynamicInterpreter": false,
+    "executedOnLinux": false
+  }
+}

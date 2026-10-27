@@ -435,7 +435,7 @@ fn selected_surface_visit_preserves_exact_posed_vertices_and_instance_range_iden
     let before = surface_triangle_visits_for_test();
     let mut selections = 0;
     let mut selected = vec![];
-    geometry.visit_surface_triangles_selected(|instance, surface| {
+    geometry.visit_surface_triangles_selected(None,|instance, surface| {
         selections += 1;
         (instance == "instance-1" && surface.key == "surface-b").then_some(17usize)
     }, |instance, surface, owner, vertices| {
@@ -448,6 +448,38 @@ fn selected_surface_visit_preserves_exact_posed_vertices_and_instance_range_iden
 }
 
 #[test]
+fn finite_anatomy_sphere_keeps_exact_tangencies_reflections_and_current_pose() {
+    let positions=[[-1.,-1.,0.],[1.,-1.,0.],[1.,1.,0.],[-1.,1.,0.],
+        [-1.,-1.,1.],[1.,-1.,1.],[1.,1.,1.],[-1.,1.,1.]];
+    let indices=[[0,2,1],[0,3,2],[4,6,5],[4,7,6]];
+    let (mut geometry,_,_)=synthetic(&positions,&indices,2,true);
+    for translation in [0.,7.,1e12] {
+        geometry.refit(&[("instance-1".into(),[-2.,0.,0.,0.,0.,3.,0.,0.,0.,0.,0.5,0.,translation,-4.,2.,1.])]).unwrap();
+        let mut reference=vec![];
+        geometry.visit_surface_triangles(|instance,surface,vertices|reference.push((instance.to_owned(),surface.key.clone(),vertices))).unwrap();
+        for (instance,surface,vertices) in &reference {
+            for center in *vertices {
+                let mut candidates=vec![];
+                geometry.visit_surface_triangles_selected(Some((center,0.)),|_,_|Some(()),|i,s,(),v|{
+                    candidates.push((i.to_owned(),s.key.clone(),v));
+                }).unwrap();
+                assert!(candidates.contains(&(instance.clone(),surface.clone(),*vertices)),
+                    "a represented vertex on a radius-zero sphere must remain a candidate under the exact accepted affine pose");
+                assert!(candidates.iter().all(|row|reference.contains(row)),"bounds cannot change emitted world triangle values or membership");
+            }
+        }
+    }
+    let mut distant=0;
+    geometry.visit_surface_triangles_selected(Some(([1e15;3],1.)),|_,_|Some(()),|_,_,(),_|distant+=1).unwrap();
+    assert_eq!(distant,0,"fully distant real instances require no transformed triangles");
+    for sphere in [([f64::NAN,0.,0.],1.),([0.;3],f64::INFINITY)] {
+        let mut visits=0;
+        geometry.visit_surface_triangles_selected(Some(sphere),|_,_|Some(()),|_,_,(),_|visits+=1).unwrap();
+        assert_eq!(visits,8,"unverifiable bounds cannot certify a rejection");
+    }
+}
+
+#[test]
 fn surface_lookup_visit_uses_registered_ordinals_without_linear_key_search() {
     let positions = [[-1., -1., 0.], [1., -1., 0.], [1., 1., 0.], [-1., 1., 0.],
         [-1., -1., 1.], [1., -1., 1.], [1., 1., 1.], [-1., 1., 1.]];
@@ -455,7 +487,7 @@ fn surface_lookup_visit_uses_registered_ordinals_without_linear_key_search() {
     let (geometry, _, _) = synthetic(&positions, &indices, 2, true);
     let before = surface_key_comparisons_for_test();
     let mut visited = 0;
-    geometry.visit_surface_triangles_selected(|_,_|Some(()),|_,_,(),_|visited+=1).unwrap();
+    geometry.visit_surface_triangles_selected(None,|_,_|Some(()),|_,_,(),_|visited+=1).unwrap();
     assert_eq!(visited, 8, "the cost optimization must retain every requested triangle");
     assert_eq!(surface_key_comparisons_for_test() - before, 0,
         "surface keys are pinned at registration; a blast must not repeat a linear key search for every mesh range");
@@ -481,7 +513,7 @@ fn surface_lookup_rebuilds_on_registration_and_rejects_in_place_surface_reorder(
     // The public diagnostic manifest must not permit a stale ordinal to
     // select another surface after an unregistered membership/order change.
     geometry.manifest.surfaces.swap(0,1);
-    assert!(geometry.visit_surface_triangles_selected(|_,_|Some(()),|_,_,(),_|{}).is_err(),
+    assert!(geometry.visit_surface_triangles_selected(None,|_,_|Some(()),|_,_,(),_|{}).is_err(),
         "in-place surface reordering must fail closed; rebuild through Geometry::register");
 }
 

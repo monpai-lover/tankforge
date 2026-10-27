@@ -27,7 +27,8 @@ function createFrontlineExistingRuntime({f,mine,controlled,controlledAirModel,se
     return {guns:projection.guns,stores,fuel:projection.fuel,resourceRevision:unit.resource_revision};
   }
   function weaponSelection(air){
-    const group=storeGroup(air.stores),program=group?releaseProgram(air.stores,group.def).id:'single';
+    const group=storeGroup(air.stores),guided=group?.def.kind==='aam'||group?.def.kind==='agm';
+    const program=group&&!guided?releaseProgram(air.stores,group.def).id:'single';
     return {store_id:group?.id||null,store_index:null,program,
       gun_mode:air.fireAll||air.inputFireAll?'all':air.fireCannon||air.inputFireCannon?'cannon':'all'};
   }

@@ -14,6 +14,14 @@ use std::{
 };
 use tg_shared::Vec3;
 #[cfg(test)]
+std::thread_local! {
+    static DAMAGE_REGISTRATION_CHECKS: std::cell::Cell<u64> = const { std::cell::Cell::new(0) };
+}
+#[cfg(test)]
+pub(crate) fn damage_registration_checks_for_test() -> u64 {
+    DAMAGE_REGISTRATION_CHECKS.with(std::cell::Cell::get)
+}
+#[cfg(test)]
 #[path="barrel_scene_tests.rs"]
 mod barrel_scene_tests;
 #[cfg(test)]
@@ -610,6 +618,8 @@ impl CombatScene {
         }
     }
     pub fn accepts(&self, target: &Target) -> bool {
+        #[cfg(test)]
+        DAMAGE_REGISTRATION_CHECKS.with(|count| count.set(count.get() + 1));
         self.target_id == target.def.id && self.target_signature==target.registration_hash()
     }
     pub fn context(&self)->&QueryContext {&self.context}
@@ -770,12 +780,21 @@ impl CombatScene {
         at: Vec3,
         max: f32,
     ) -> Result<Vec<(EvKind, f32, SurfaceCrossingV1)>, String> {
+        self.pressure_anatomy(at,max,false)
+    }
+    /// An initiated interior charge shares air around registered anatomy.
+    /// Crew and ordinary modules are not sealed bulkheads; authored armor and
+    /// unknown physical surfaces still bound every station independently.
+    pub(crate) fn exposed_anatomy_inside(&self,at:Vec3,max:f32) -> Result<Vec<(EvKind,f32,SurfaceCrossingV1)>,String> {
+        self.pressure_anatomy(at,max,true)
+    }
+    fn pressure_anatomy(&self,at:Vec3,max:f32,inside:bool) -> Result<Vec<(EvKind,f32,SurfaceCrossingV1)>,String> {
         let origin = at.to_array().map(f64::from);
         let mut nearest: HashMap<EvKind, (f64, Point)> = HashMap::new();
         let found = self
             .geometry
             .borrow()
-            .visit_surface_triangles_selected(|instance, surface| {
+            .visit_surface_triangles_selected(Some((origin,max as f64)),|instance, surface| {
                 let kind=self.binding(instance,surface.response_ref.as_deref(),&surface.key)?.kind;
                 matches!(kind,EvKind::Module(_)|EvKind::Crew(_)).then_some(kind)
             }, |_, _, kind, vertices| {
@@ -827,6 +846,9 @@ impl CombatScene {
                     return Err(e);
                 };
                 if matches!(binding.kind, EvKind::Decoration) {
+                    continue;
+                }
+                if inside && binding.kind != kind && matches!(binding.kind,EvKind::Module(_)|EvKind::Crew(_)) {
                     continue;
                 }
                 if binding.kind == kind {

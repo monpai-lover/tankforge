@@ -86,10 +86,11 @@ fn dynamic_bridge_shared_ground_cas_restore_and_pristine_cache_are_room_local() 
     );
     assert!(air_ground.ground_navigation_allowed(0.0, 30.0));
     let fresh = MapGround::load(&data(), &map).unwrap();
-    assert!(Arc::ptr_eq(
-        fresh.policy.as_ref().unwrap(),
-        a.ground.policy.as_ref().unwrap()
-    ));
+    // A bounded global cache may have evicted this source while other rooms
+    // compile. Recompilation must preserve immutable policy content, not an
+    // allocation address that the cache never promises to retain forever.
+    assert_eq!(format!("{:?}",fresh.policy.as_ref().unwrap()),
+        format!("{:?}",a.ground.policy.as_ref().unwrap()));
     assert_eq!(fresh.bridge_state("deck-A").unwrap().revision, 1);
     assert_eq!(fresh.height(0.0, 30.0).to_bits(), original);
     assert!(a
@@ -101,6 +102,33 @@ fn dynamic_bridge_shared_ground_cas_restore_and_pristine_cache_are_room_local() 
     // state when making globally cached barriers.
     template.ground.select_navigation_scene(&map).unwrap();
     assert_eq!(template.ground.height(0.0, 30.0).to_bits(), original);
+}
+
+#[test]
+fn concurrent_ground_policy_compilers_publish_one_cached_arc_and_keep_the_four_entry_bound() {
+    let map = wet_map();
+    let ground = MapGround::load(&data(),&map).unwrap();
+    let compile = || {
+        let mut policy = GroundPolicy::load(&map,&ground).unwrap();
+        policy.barriers(&ground);
+        Arc::new(policy)
+    };
+    // Deterministic real interleaving: A and B both finish compiling a cold
+    // source before either publishes. The real production publish operation
+    // runs under its mutex; the second publisher must adopt the accepted Arc.
+    let first = compile();
+    let second = compile();
+    assert!(!Arc::ptr_eq(&first,&second));
+    let key = serde_json::to_vec(&map).unwrap();
+    let mut entries = Vec::new();
+    let accepted = publish_ground_policy(&mut entries,key.clone(),first);
+    let raced = publish_ground_policy(&mut entries,key.clone(),second);
+    assert!(Arc::ptr_eq(&accepted,&raced),"a duplicate compiler must return the existing published policy");
+    assert_eq!(entries.len(),1);
+    assert_eq!(entries[0].0,key);
+    for serial in 0..5 { publish_ground_policy(&mut entries,vec![serial],accepted.clone()); }
+    assert_eq!(entries.len(),4,"concurrent deduplication cannot make the cache unbounded");
+    assert_eq!(entries.iter().map(|(key,_)|key.clone()).collect::<Vec<_>>(),vec![vec![1],vec![2],vec![3],vec![4]]);
 }
 
 #[test]

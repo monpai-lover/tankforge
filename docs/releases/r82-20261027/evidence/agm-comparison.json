@@ -1,0 +1,218 @@
+[
+  {
+    "route": "legacy",
+    "vehicle": "de_pzjg1",
+    "scenario": "direct-top",
+    "before_kills": 9,
+    "after_kills": 9,
+    "before_total_crew_health": 920.0058059692383,
+    "after_total_crew_health": 879.5921630859375
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_pzjg1",
+    "scenario": "direct-side",
+    "before_kills": 12,
+    "after_kills": 12,
+    "before_total_crew_health": 500.0,
+    "after_total_crew_health": 500.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_pzjg1",
+    "scenario": "near-2m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 3900.0,
+    "after_total_crew_health": 3900.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_pzjg1",
+    "scenario": "near-5m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 3900.0,
+    "after_total_crew_health": 3900.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "us_m8",
+    "scenario": "direct-top",
+    "before_kills": 9,
+    "after_kills": 9,
+    "before_total_crew_health": 1052.7633819580078,
+    "after_total_crew_health": 1029.6818618774414
+  },
+  {
+    "route": "legacy",
+    "vehicle": "us_m8",
+    "scenario": "direct-side",
+    "before_kills": 13,
+    "after_kills": 13,
+    "before_total_crew_health": 1600.0,
+    "after_total_crew_health": 1600.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "us_m8",
+    "scenario": "near-2m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 5200.0,
+    "after_total_crew_health": 5200.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "us_m8",
+    "scenario": "near-5m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 4206.7899169921875,
+    "after_total_crew_health": 4160.088611602783
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_tiger_e",
+    "scenario": "direct-top",
+    "before_kills": 9,
+    "after_kills": 9,
+    "before_total_crew_health": 1819.8626594543457,
+    "after_total_crew_health": 1813.857509613037
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_tiger_e",
+    "scenario": "direct-side",
+    "before_kills": 13,
+    "after_kills": 13,
+    "before_total_crew_health": 1600.0,
+    "after_total_crew_health": 1600.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_tiger_e",
+    "scenario": "near-2m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 6500.0,
+    "after_total_crew_health": 6500.0
+  },
+  {
+    "route": "legacy",
+    "vehicle": "de_tiger_e",
+    "scenario": "near-5m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 6500.0,
+    "after_total_crew_health": 6500.0
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_pzjg1",
+    "scenario": "direct-top",
+    "before_kills": 9,
+    "after_kills": 9,
+    "before_total_crew_health": 1660.062858581543,
+    "after_total_crew_health": 1639.8480606079102
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_pzjg1",
+    "scenario": "direct-side",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 3900.0,
+    "after_total_crew_health": 3900.0
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_pzjg1",
+    "scenario": "near-2m",
+    "before_kills": 11,
+    "after_kills": 11,
+    "before_total_crew_health": 2682.119789123535,
+    "after_total_crew_health": 2676.6304244995117
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_pzjg1",
+    "scenario": "near-5m",
+    "before_kills": 2,
+    "after_kills": 2,
+    "before_total_crew_health": 2412.92472076416,
+    "after_total_crew_health": 2384.3295974731445
+  },
+  {
+    "route": "surface",
+    "vehicle": "us_m8",
+    "scenario": "direct-top",
+    "before_kills": 0,
+    "after_kills": 9,
+    "before_total_crew_health": 2745.3558597564697,
+    "after_total_crew_health": 2700.425588607788
+  },
+  {
+    "route": "surface",
+    "vehicle": "us_m8",
+    "scenario": "direct-side",
+    "before_kills": 13,
+    "after_kills": 13,
+    "before_total_crew_health": 400.0,
+    "after_total_crew_health": 400.0
+  },
+  {
+    "route": "surface",
+    "vehicle": "us_m8",
+    "scenario": "near-2m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 4600.0,
+    "after_total_crew_health": 4600.0
+  },
+  {
+    "route": "surface",
+    "vehicle": "us_m8",
+    "scenario": "near-5m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 3816.380012512207,
+    "after_total_crew_health": 3815.554023742676
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_tiger_e",
+    "scenario": "direct-top",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 4519.720317840576,
+    "after_total_crew_health": 3613.5792694091797
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_tiger_e",
+    "scenario": "direct-side",
+    "before_kills": 13,
+    "after_kills": 13,
+    "before_total_crew_health": 1600.0,
+    "after_total_crew_health": 1600.0
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_tiger_e",
+    "scenario": "near-2m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 6500.0,
+    "after_total_crew_health": 6500.0
+  },
+  {
+    "route": "surface",
+    "vehicle": "de_tiger_e",
+    "scenario": "near-5m",
+    "before_kills": 0,
+    "after_kills": 0,
+    "before_total_crew_health": 6500.0,
+    "after_total_crew_health": 6500.0
+  }
+]

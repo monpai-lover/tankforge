@@ -2,11 +2,17 @@ use super::*;
 use tg_armor::ArmorKind;
 use tg_weapon::CurvePoint;
 
+#[path = "surface_impact_budget_tests.rs"]
+mod surface_impact_budget_regressions;
+
 #[path = "near_burst_tests.rs"]
 mod near_burst_regressions;
 
 #[path = "near_burst_budget_tests.rs"]
 mod near_burst_budget_regressions;
+
+#[path = "explosive_equivalence_tests.rs"]
+mod explosive_equivalence_regressions;
 
 fn near_burst_wall(mm:f32,behind:Option<f32>)->Target {
     let mut def=box_tank(false).def;def.turret=None;def.modules.clear();
@@ -1217,7 +1223,7 @@ fn narrow_turret_module(kind: ModuleKind) -> Target {
 
 fn work<'a>(t: &'a Target, st: &TargetState, yaw: f32) -> Work<'a> {
     let rep = shoot(t, st, &Shot { origin: Vec3::new(20.0, 20.0, 20.0), dir: Vec3::new(0.0, 1.0, 0.0), ..side_shot(ap(), 1) });
-    Work { scene:None,context:None,t, p: t.posed(yaw), st: st.clone(), rng: Rng::new(1), rep,
+    Work { scene:None,context:None,t, p: t.posed(yaw), st: st.clone(), rng: Rng::new(1), explosive_re_factor:1., rep,
         mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] }
 }
 
@@ -1814,7 +1820,7 @@ fn engine_block_shields_what_is_behind_it() {
     let t = box_tank(false);
     let mut st = t.fresh_state();
     let p = t.posed(0.0);
-    let mut w = Work { scene:None,context:None,t: &t, p, st: st.clone(), rng: Rng::new(1), rep: shoot(&t, &st, &side_shot(ap(), 1)), mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] };
+    let mut w = Work { scene:None,context:None,t: &t, p, st: st.clone(), rng: Rng::new(1), explosive_re_factor:1., rep: shoot(&t, &st, &side_shot(ap(), 1)), mod_dmg: HashMap::new(), crew_dmg: HashMap::new(), newly_destroyed: vec![], newly_killed: vec![] };
     w.rep.fragments.clear();
     // a fragment straight through the engine towards the rear wall stops in the block
     w.fragment(Vec3::new(0.0, 1.0, -0.8), Vec3::new(0.0, 0.0, -1.0), 8000.0, "spall", 4.0);

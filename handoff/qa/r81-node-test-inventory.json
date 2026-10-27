@@ -1,6 +1,6 @@
 {
   "schema": "TankForgeR8NodeInventoryV1",
-  "reference": "R8 complete110-file inventory plus R8.1 penetration regressions",
+  "reference": "R8.1 complete inventory plus R8.2 fuel, multiplayer HUD, high-rate impacts and large-world rendering regressions",
   "selected": [
     "handoff/tests/air-deployment-coast-20261026.test.mjs",
     "handoff/tests/air-frontline-accepted-stores.test.mjs",
@@ -124,7 +124,15 @@
     "handoff/tests/frontline_countermeasures.integration.test.mjs",
     "handoff/tests/frontline_countermeasures_profile.test.mjs",
     "handoff/tests/frontline-ground-point.test.mjs",
-    "handoff/tests/agm-ground-point-runtime.test.mjs"
+    "handoff/tests/agm-ground-point-runtime.test.mjs",
+    "handoff/tests/frontline-terrain-worker-real.test.mjs",
+    "handoff/tests/frontline-terrain-worker.test.mjs",
+    "handoff/tests/large-world-render-precision.test.mjs",
+    "handoff/tests/r82-runtime-integration.test.mjs",
+    "handoff/tests/native-mp-inventory-consumers.test.mjs",
+    "handoff/tests/vulcan-ground-hotpath.test.mjs",
+    "handoff/tests/aircraft-fuel-r82-contract.test.mjs",
+    "handoff/tests/native-guided-weapon-selection.test.mjs"
   ],
   "notRun": [
     {

@@ -1,0 +1,17 @@
+TAP version 13
+# {"proof":"actual_Taiwan_worker_geometry_byte_parity","ticks":161,"maxTimerDelayMs":18.177099999999882,"maxRequestMs":0.2878000000000611,"worker":{"requests":2,"completed":2,"discarded":0,"uploads":8,"swaps":2,"errors":0},"expected":[[{"name":"terrain","kind":20,"shadow":true,"sha":"6159e9adc5e4f30cff2e263a6a27d06438b82700c49d7e116906c444e0ec1fcf","bytes":4492800},{"name":"far-source-terrain","kind":20,"shadow":false,"sha":"1a8c368ceb252b4b284e2d12f349fa4c65fbafc46637dfe9135a150893357999","bytes":6815796},{"name":"source-roads","kind":21,"shadow":false,"sha":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","bytes":0},{"name":"registered-water-polygons","kind":22,"shadow":false,"sha":"44eba3ec6e934f66aaffe236cfeb7707b0387e43100112f27c60903b0c3e2c65","bytes":713856}],[{"name":"terrain","kind":20,"shadow":true,"sha":"70fabeea57dafb2af8f0a7c4b15b4ab5872d1013cab2a9b3b1b102a7794f3fb5","bytes":4492800},{"name":"far-source-terrain","kind":20,"shadow":false,"sha":"0680ba21f3afeebe5f5b384fb5dffba25d35005288fc1960e92bc21952058570","bytes":6815796},{"name":"source-roads","kind":21,"shadow":false,"sha":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","bytes":0},{"name":"registered-water-polygons","kind":22,"shadow":false,"sha":"44eba3ec6e934f66aaffe236cfeb7707b0387e43100112f27c60903b0c3e2c65","bytes":713856}]]}
+# Subtest: full Taiwan geometry in actual worker is byte-identical to source builder across moving cells
+ok 1 - full Taiwan geometry in actual worker is byte-identical to source builder across moving cells
+  ---
+  duration_ms: 6753.5003
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7009.7751

@@ -1,0 +1,784 @@
+{
+  "source_root": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "baseline_commit": "a3caa8d",
+  "command": "cargo test --locked -p tg-server --lib fuel -- --nocapture",
+  "cargo_target_dir": "D:/TankForge-validation/rust-fuel-100-target-20261027",
+  "red": {
+    "failed": 6,
+    "passed": 7,
+    "log": "D:/TankForge-validation/fuel-100-20261027/native/red.log",
+    "exit_code": 101
+  },
+  "green": {
+    "failed": 0,
+    "log": "D:/TankForge-validation/fuel-100-20261027/native/green-final.log",
+    "passed": 13,
+    "filtered_out": 438,
+    "exit_code": 0
+  },
+  "reference_throttle": 1.0,
+  "afterburner_reference": false,
+  "minutes": [
+    10,
+    20,
+    30,
+    45
+  ],
+  "null_means_full": true,
+  "capacity_preserved": true,
+  "profile_count": 28,
+  "increased_same_choice_count": 106,
+  "unchanged_same_choice_at_capacity_count": 6,
+  "ai_cruise_reserve_changed": false,
+  "actual_fuel_flow_changed": false,
+  "preserved_inputs": [
+    {
+      "Path": "D:\\TankForge-workspaces\\r81-push-20261027\\crates\\server\\src\\frontline_air.rs",
+      "Hash": "A951ADBF0885F8152DA9D771622D49B94D1F34B5FC49833F510E5887DD2BAC68"
+    },
+    {
+      "Path": "D:\\TankForge-workspaces\\r81-push-20261027\\data\\aircraft\\frontline.json",
+      "Hash": "C68F81A71409424D52E3EEA3D67B42972F932DE2AB21A7022DBA52CEFE21EACE"
+    }
+  ],
+  "changed_native_files": [
+    {
+      "Path": "D:\\TankForge-workspaces\\r81-push-20261027\\crates\\server\\src\\frontline_air_fuel.rs",
+      "Hash": "040F07084A949A281FBD1ED10184C5147CC920D8B8C07B99DC62503B846F7D19"
+    },
+    {
+      "Path": "D:\\TankForge-workspaces\\r81-push-20261027\\crates\\server\\src\\frontline_air_fuel_domain_tests.rs",
+      "Hash": "BF3BC0ACD8B1F43D19F342F6DDAAC7ABE97DB8CA12F8A611D79168EAE2F668A6"
+    }
+  ],
+  "profiles": [
+    {
+      "full_capacity_kg": 4850.0,
+      "id": "a10a",
+      "selections": [
+        {
+          "accepted_kg": 507.78,
+          "minutes": 10,
+          "previous_kg": 330.057
+        },
+        {
+          "accepted_kg": 1015.56,
+          "minutes": 20,
+          "previous_kg": 660.114
+        },
+        {
+          "accepted_kg": 1523.34,
+          "minutes": 30,
+          "previous_kg": 990.171
+        },
+        {
+          "accepted_kg": 2285.0099999999998,
+          "minutes": 45,
+          "previous_kg": 1485.2565
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 390.0,
+      "id": "a6m2",
+      "selections": [
+        {
+          "accepted_kg": 36.0,
+          "minutes": 10,
+          "previous_kg": 23.4
+        },
+        {
+          "accepted_kg": 72.0,
+          "minutes": 20,
+          "previous_kg": 46.8
+        },
+        {
+          "accepted_kg": 108.0,
+          "minutes": 30,
+          "previous_kg": 70.2
+        },
+        {
+          "accepted_kg": 162.0,
+          "minutes": 45,
+          "previous_kg": 105.3
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 300.0,
+      "id": "bf109g",
+      "selections": [
+        {
+          "accepted_kg": 54.0,
+          "minutes": 10,
+          "previous_kg": 35.099999999999994
+        },
+        {
+          "accepted_kg": 108.0,
+          "minutes": 20,
+          "previous_kg": 70.19999999999999
+        },
+        {
+          "accepted_kg": 162.0,
+          "minutes": 30,
+          "previous_kg": 105.3
+        },
+        {
+          "accepted_kg": 243.0,
+          "minutes": 45,
+          "previous_kg": 157.95
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 2700.0,
+      "id": "f104g",
+      "selections": [
+        {
+          "accepted_kg": 640.8000000000001,
+          "minutes": 10,
+          "previous_kg": 416.52000000000004
+        },
+        {
+          "accepted_kg": 1281.6000000000001,
+          "minutes": 20,
+          "previous_kg": 833.0400000000001
+        },
+        {
+          "accepted_kg": 1922.4,
+          "minutes": 30,
+          "previous_kg": 1249.5600000000002
+        },
+        {
+          "accepted_kg": 2700.0,
+          "minutes": 45,
+          "previous_kg": 1874.3400000000001
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 6100.0,
+      "id": "f15c",
+      "selections": [
+        {
+          "accepted_kg": 1557.6000000000001,
+          "minutes": 10,
+          "previous_kg": 1012.44
+        },
+        {
+          "accepted_kg": 3115.2000000000003,
+          "minutes": 20,
+          "previous_kg": 2024.88
+        },
+        {
+          "accepted_kg": 4672.8,
+          "minutes": 30,
+          "previous_kg": 3037.32
+        },
+        {
+          "accepted_kg": 6100.0,
+          "minutes": 45,
+          "previous_kg": 4555.9800000000005
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 3200.0,
+      "id": "f16v",
+      "selections": [
+        {
+          "accepted_kg": 778.8000000000001,
+          "minutes": 10,
+          "previous_kg": 506.22
+        },
+        {
+          "accepted_kg": 1557.6000000000001,
+          "minutes": 20,
+          "previous_kg": 1012.44
+        },
+        {
+          "accepted_kg": 2336.4,
+          "minutes": 30,
+          "previous_kg": 1518.66
+        },
+        {
+          "accepted_kg": 3200.0,
+          "minutes": 45,
+          "previous_kg": 2277.9900000000002
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 5750.0,
+      "id": "f4e",
+      "selections": [
+        {
+          "accepted_kg": 1520.64,
+          "minutes": 10,
+          "previous_kg": 988.416
+        },
+        {
+          "accepted_kg": 3041.28,
+          "minutes": 20,
+          "previous_kg": 1976.832
+        },
+        {
+          "accepted_kg": 4561.92,
+          "minutes": 30,
+          "previous_kg": 2965.2480000000005
+        },
+        {
+          "accepted_kg": 5750.0,
+          "minutes": 45,
+          "previous_kg": 4447.872
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 650.0,
+      "id": "f4u1d",
+      "selections": [
+        {
+          "accepted_kg": 78.0,
+          "minutes": 10,
+          "previous_kg": 50.7
+        },
+        {
+          "accepted_kg": 156.0,
+          "minutes": 20,
+          "previous_kg": 101.4
+        },
+        {
+          "accepted_kg": 234.0,
+          "minutes": 30,
+          "previous_kg": 152.10000000000002
+        },
+        {
+          "accepted_kg": 351.0,
+          "minutes": 45,
+          "previous_kg": 228.15
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 1300.0,
+      "id": "f86f",
+      "selections": [
+        {
+          "accepted_kg": 457.62,
+          "minutes": 10,
+          "previous_kg": 297.45300000000003
+        },
+        {
+          "accepted_kg": 915.24,
+          "minutes": 20,
+          "previous_kg": 594.9060000000001
+        },
+        {
+          "accepted_kg": 1300.0,
+          "minutes": 30,
+          "previous_kg": 892.3590000000002
+        },
+        {
+          "accepted_kg": 1300.0,
+          "minutes": 45,
+          "previous_kg": 1300.0
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 470.0,
+      "id": "fw190a8",
+      "selections": [
+        {
+          "accepted_kg": 66.0,
+          "minutes": 10,
+          "previous_kg": 42.900000000000006
+        },
+        {
+          "accepted_kg": 132.0,
+          "minutes": 20,
+          "previous_kg": 85.80000000000001
+        },
+        {
+          "accepted_kg": 198.0,
+          "minutes": 30,
+          "previous_kg": 128.70000000000002
+        },
+        {
+          "accepted_kg": 297.0,
+          "minutes": 45,
+          "previous_kg": 193.05
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 2600.0,
+      "id": "hunter6",
+      "selections": [
+        {
+          "accepted_kg": 757.68,
+          "minutes": 10,
+          "previous_kg": 492.492
+        },
+        {
+          "accepted_kg": 1515.36,
+          "minutes": 20,
+          "previous_kg": 984.984
+        },
+        {
+          "accepted_kg": 2273.04,
+          "minutes": 30,
+          "previous_kg": 1477.4759999999999
+        },
+        {
+          "accepted_kg": 2600.0,
+          "minutes": 45,
+          "previous_kg": 2216.214
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 1800.0,
+      "id": "me262",
+      "selections": [
+        {
+          "accepted_kg": 359.04,
+          "minutes": 10,
+          "previous_kg": 233.376
+        },
+        {
+          "accepted_kg": 718.08,
+          "minutes": 20,
+          "previous_kg": 466.752
+        },
+        {
+          "accepted_kg": 1077.1200000000001,
+          "minutes": 30,
+          "previous_kg": 700.128
+        },
+        {
+          "accepted_kg": 1615.68,
+          "minutes": 45,
+          "previous_kg": 1050.192
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 1800.0,
+      "id": "me262a2a",
+      "selections": [
+        {
+          "accepted_kg": 359.04,
+          "minutes": 10,
+          "previous_kg": 233.376
+        },
+        {
+          "accepted_kg": 718.08,
+          "minutes": 20,
+          "previous_kg": 466.752
+        },
+        {
+          "accepted_kg": 1077.1200000000001,
+          "minutes": 30,
+          "previous_kg": 700.128
+        },
+        {
+          "accepted_kg": 1615.68,
+          "minutes": 45,
+          "previous_kg": 1050.192
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 1800.0,
+      "id": "me262u4",
+      "selections": [
+        {
+          "accepted_kg": 359.04,
+          "minutes": 10,
+          "previous_kg": 233.376
+        },
+        {
+          "accepted_kg": 718.08,
+          "minutes": 20,
+          "previous_kg": 466.752
+        },
+        {
+          "accepted_kg": 1077.1200000000001,
+          "minutes": 30,
+          "previous_kg": 700.128
+        },
+        {
+          "accepted_kg": 1615.68,
+          "minutes": 45,
+          "previous_kg": 1050.192
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 1170.0,
+      "id": "mig15",
+      "selections": [
+        {
+          "accepted_kg": 477.0,
+          "minutes": 10,
+          "previous_kg": 310.05
+        },
+        {
+          "accepted_kg": 954.0,
+          "minutes": 20,
+          "previous_kg": 620.1
+        },
+        {
+          "accepted_kg": 1170.0,
+          "minutes": 30,
+          "previous_kg": 930.1500000000001
+        },
+        {
+          "accepted_kg": 1170.0,
+          "minutes": 45,
+          "previous_kg": 1170.0
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 1170.0,
+      "id": "mig17f",
+      "selections": [
+        {
+          "accepted_kg": 477.0,
+          "minutes": 10,
+          "previous_kg": 310.05
+        },
+        {
+          "accepted_kg": 954.0,
+          "minutes": 20,
+          "previous_kg": 620.1
+        },
+        {
+          "accepted_kg": 1170.0,
+          "minutes": 30,
+          "previous_kg": 930.1500000000001
+        },
+        {
+          "accepted_kg": 1170.0,
+          "minutes": 45,
+          "previous_kg": 1170.0
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 2200.0,
+      "id": "mig21",
+      "selections": [
+        {
+          "accepted_kg": 620.46,
+          "minutes": 10,
+          "previous_kg": 403.29900000000004
+        },
+        {
+          "accepted_kg": 1240.92,
+          "minutes": 20,
+          "previous_kg": 806.5980000000001
+        },
+        {
+          "accepted_kg": 1861.38,
+          "minutes": 30,
+          "previous_kg": 1209.897
+        },
+        {
+          "accepted_kg": 2200.0,
+          "minutes": 45,
+          "previous_kg": 1814.8455000000001
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 3500.0,
+      "id": "mig29",
+      "selections": [
+        {
+          "accepted_kg": 1304.16,
+          "minutes": 10,
+          "previous_kg": 847.7040000000001
+        },
+        {
+          "accepted_kg": 2608.32,
+          "minutes": 20,
+          "previous_kg": 1695.4080000000001
+        },
+        {
+          "accepted_kg": 3500.0,
+          "minutes": 30,
+          "previous_kg": 2543.112
+        },
+        {
+          "accepted_kg": 3500.0,
+          "minutes": 45,
+          "previous_kg": 3500.0
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 3500.0,
+      "id": "mig29smt",
+      "selections": [
+        {
+          "accepted_kg": 1304.16,
+          "minutes": 10,
+          "previous_kg": 847.7040000000001
+        },
+        {
+          "accepted_kg": 2608.32,
+          "minutes": 20,
+          "previous_kg": 1695.4080000000001
+        },
+        {
+          "accepted_kg": 3500.0,
+          "minutes": 30,
+          "previous_kg": 2543.112
+        },
+        {
+          "accepted_kg": 3500.0,
+          "minutes": 45,
+          "previous_kg": 3500.0
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 2400.0,
+      "id": "mirage3e",
+      "selections": [
+        {
+          "accepted_kg": 654.732,
+          "minutes": 10,
+          "previous_kg": 425.57579999999996
+        },
+        {
+          "accepted_kg": 1309.464,
+          "minutes": 20,
+          "previous_kg": 851.1515999999999
+        },
+        {
+          "accepted_kg": 1964.1959999999997,
+          "minutes": 30,
+          "previous_kg": 1276.7274
+        },
+        {
+          "accepted_kg": 2400.0,
+          "minutes": 45,
+          "previous_kg": 1915.0910999999999
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 500.0,
+      "id": "nf01",
+      "selections": [
+        {
+          "accepted_kg": 48.0,
+          "minutes": 10,
+          "previous_kg": 31.200000000000003
+        },
+        {
+          "accepted_kg": 96.0,
+          "minutes": 20,
+          "previous_kg": 62.400000000000006
+        },
+        {
+          "accepted_kg": 144.0,
+          "minutes": 30,
+          "previous_kg": 93.60000000000001
+        },
+        {
+          "accepted_kg": 216.0,
+          "minutes": 45,
+          "previous_kg": 140.4
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 4000.0,
+      "id": "nf02",
+      "selections": [
+        {
+          "accepted_kg": 691.2,
+          "minutes": 10,
+          "previous_kg": 449.2800000000001
+        },
+        {
+          "accepted_kg": 1382.4,
+          "minutes": 20,
+          "previous_kg": 898.5600000000002
+        },
+        {
+          "accepted_kg": 2073.6000000000004,
+          "minutes": 30,
+          "previous_kg": 1347.8400000000001
+        },
+        {
+          "accepted_kg": 3110.4000000000005,
+          "minutes": 45,
+          "previous_kg": 2021.7600000000004
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 730.0,
+      "id": "p51d",
+      "selections": [
+        {
+          "accepted_kg": 60.0,
+          "minutes": 10,
+          "previous_kg": 39.0
+        },
+        {
+          "accepted_kg": 120.0,
+          "minutes": 20,
+          "previous_kg": 78.0
+        },
+        {
+          "accepted_kg": 180.0,
+          "minutes": 30,
+          "previous_kg": 117.0
+        },
+        {
+          "accepted_kg": 270.0,
+          "minutes": 45,
+          "previous_kg": 175.5
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 280.0,
+      "id": "spitfire9",
+      "selections": [
+        {
+          "accepted_kg": 54.0,
+          "minutes": 10,
+          "previous_kg": 35.099999999999994
+        },
+        {
+          "accepted_kg": 108.0,
+          "minutes": 20,
+          "previous_kg": 70.19999999999999
+        },
+        {
+          "accepted_kg": 162.0,
+          "minutes": 30,
+          "previous_kg": 105.3
+        },
+        {
+          "accepted_kg": 243.0,
+          "minutes": 45,
+          "previous_kg": 157.95
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 3000.0,
+      "id": "su25",
+      "selections": [
+        {
+          "accepted_kg": 1157.76,
+          "minutes": 10,
+          "previous_kg": 752.544
+        },
+        {
+          "accepted_kg": 2315.52,
+          "minutes": 20,
+          "previous_kg": 1505.088
+        },
+        {
+          "accepted_kg": 3000.0,
+          "minutes": 30,
+          "previous_kg": 2257.632
+        },
+        {
+          "accepted_kg": 3000.0,
+          "minutes": 45,
+          "previous_kg": 3000.0
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 9400.0,
+      "id": "su27",
+      "selections": [
+        {
+          "accepted_kg": 1698.6,
+          "minutes": 10,
+          "previous_kg": 1104.09
+        },
+        {
+          "accepted_kg": 3397.2,
+          "minutes": 20,
+          "previous_kg": 2208.18
+        },
+        {
+          "accepted_kg": 5095.8,
+          "minutes": 30,
+          "previous_kg": 3312.27
+        },
+        {
+          "accepted_kg": 7643.7,
+          "minutes": 45,
+          "previous_kg": 4968.405
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 9400.0,
+      "id": "su27skm",
+      "selections": [
+        {
+          "accepted_kg": 1698.6,
+          "minutes": 10,
+          "previous_kg": 1104.09
+        },
+        {
+          "accepted_kg": 3397.2,
+          "minutes": 20,
+          "previous_kg": 2208.18
+        },
+        {
+          "accepted_kg": 5095.8,
+          "minutes": 30,
+          "previous_kg": 3312.27
+        },
+        {
+          "accepted_kg": 7643.7,
+          "minutes": 45,
+          "previous_kg": 4968.405
+        }
+      ]
+    },
+    {
+      "full_capacity_kg": 330.0,
+      "id": "yak9u",
+      "selections": [
+        {
+          "accepted_kg": 54.0,
+          "minutes": 10,
+          "previous_kg": 35.099999999999994
+        },
+        {
+          "accepted_kg": 108.0,
+          "minutes": 20,
+          "previous_kg": 70.19999999999999
+        },
+        {
+          "accepted_kg": 162.0,
+          "minutes": 30,
+          "previous_kg": 105.3
+        },
+        {
+          "accepted_kg": 243.0,
+          "minutes": 45,
+          "previous_kg": 157.95
+        }
+      ]
+    }
+  ]
+}

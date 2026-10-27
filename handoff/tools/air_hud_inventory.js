@@ -128,7 +128,9 @@ function createAirHudInventory(options = {}) {
 
   function report(air, dt = 0, context = {}) {
     const gunGroups = guns(air), storeReport = stores(air), inventory = fuelInventory(air);
-    const plane = air?.plane, identity = object(plane) ? plane : object(air) ? air : null;
+    // Independent viewers may use different clocks and lifecycle contexts for
+    // the same plane. Keep their smoothing histories separate when requested.
+    const plane = air?.plane, identity = object(context.historyKey) ? context.historyKey : object(plane) ? plane : object(air) ? air : null;
     let history = identity && histories.get(identity);
     const lifeKey = context.lifeKey ?? air?.lifeKey ?? air?.lifeId ?? plane?.lifeId;
     const gunTotal = gunGroups.reduce((sum, g) => sum + g.rounds, 0);

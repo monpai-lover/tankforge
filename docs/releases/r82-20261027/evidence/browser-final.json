@@ -1,0 +1,561 @@
+{
+  "url": "http://127.0.0.1:8892/",
+  "startedUnix": 1793109548.3155212,
+  "checks": {
+    "served_page_sha256": {
+      "passed": true,
+      "detail": {
+        "sha256": "eeac869b23139cbcfd05512e3c6ab016c8032015704e4bb0168af5d4cc22ee3f",
+        "bytes": 418811885
+      }
+    },
+    "actual_full_page_webgl_boot": {
+      "passed": true,
+      "detail": {
+        "ready": true,
+        "mode": "garage",
+        "frameError": null,
+        "webgl": true,
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "renderer": "WebKit WebGL",
+        "lost": false,
+        "drawCalls": 92,
+        "shaders": {
+          "lit": true,
+          "depth": true,
+          "litUniforms": [
+            "uModel",
+            "uViewProj",
+            "uLightVP",
+            "uModelViewProj",
+            "uModelLightVP",
+            "uInstanced",
+            "uTerrain",
+            "uTerrainFine",
+            "uCamPos",
+            "uDeformWin",
+            "uMapOn",
+            "uMapRect",
+            "uKind",
+            "uArmorN",
+            "uZoneCount",
+            "uNoiseRange",
+            "uSunDir",
+            "uSunColor",
+            "uSkyColor",
+            "uGroundColor",
+            "uMud",
+            "uScroll",
+            "uAlpha",
+            "uDirtHeight",
+            "uWet",
+            "uReplayCutaway",
+            "uAircraftShell",
+            "uHighlight",
+            "uArmorShell",
+            "uArmorChem",
+            "uNormOn",
+            "uZoneRect",
+            "uZoneColor",
+            "uRoad",
+            "uHole",
+            "uWind",
+            "uCloud",
+            "uClock",
+            "uDeform",
+            "uMapH",
+            "uMapC",
+            "uTex",
+            "uNormTex",
+            "uDome",
+            "uShadowMap",
+            "uArmor",
+            "uNoise"
+          ],
+          "depthUniforms": [
+            "uModel",
+            "uModelLightVP",
+            "uInstanced"
+          ]
+        },
+        "frontline": {
+          "active": false,
+          "tick": 0,
+          "error": null,
+          "map": null,
+          "room": null,
+          "frameStats": null,
+          "terrainWorker": null,
+          "terrainWorkerFailed": null,
+          "terrainChildren": null,
+          "ground": 0,
+          "facilityReady": false
+        }
+      }
+    },
+    "precision_shader_programs_linked": {
+      "passed": true,
+      "detail": {
+        "lit": true,
+        "depth": true,
+        "litUniforms": [
+          "uModel",
+          "uViewProj",
+          "uLightVP",
+          "uModelViewProj",
+          "uModelLightVP",
+          "uInstanced",
+          "uTerrain",
+          "uTerrainFine",
+          "uCamPos",
+          "uDeformWin",
+          "uMapOn",
+          "uMapRect",
+          "uKind",
+          "uArmorN",
+          "uZoneCount",
+          "uNoiseRange",
+          "uSunDir",
+          "uSunColor",
+          "uSkyColor",
+          "uGroundColor",
+          "uMud",
+          "uScroll",
+          "uAlpha",
+          "uDirtHeight",
+          "uWet",
+          "uReplayCutaway",
+          "uAircraftShell",
+          "uHighlight",
+          "uArmorShell",
+          "uArmorChem",
+          "uNormOn",
+          "uZoneRect",
+          "uZoneColor",
+          "uRoad",
+          "uHole",
+          "uWind",
+          "uCloud",
+          "uClock",
+          "uDeform",
+          "uMapH",
+          "uMapC",
+          "uTex",
+          "uNormTex",
+          "uDome",
+          "uShadowMap",
+          "uArmor",
+          "uNoise"
+        ],
+        "depthUniforms": [
+          "uModel",
+          "uModelLightVP",
+          "uInstanced"
+        ]
+      }
+    },
+    "real_taiwan_worker_atomic_swap": {
+      "passed": true,
+      "detail": {
+        "requests": 1,
+        "completed": 1,
+        "discarded": 0,
+        "uploads": 4,
+        "swaps": 1,
+        "errors": 0
+      }
+    },
+    "actual_taiwan_frame_without_error": {
+      "passed": true,
+      "detail": {
+        "ready": true,
+        "mode": "battle",
+        "frameError": null,
+        "webgl": true,
+        "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+        "renderer": "WebKit WebGL",
+        "lost": false,
+        "drawCalls": 259,
+        "shaders": {
+          "lit": true,
+          "depth": true,
+          "litUniforms": [
+            "uModel",
+            "uViewProj",
+            "uLightVP",
+            "uModelViewProj",
+            "uModelLightVP",
+            "uInstanced",
+            "uTerrain",
+            "uTerrainFine",
+            "uCamPos",
+            "uDeformWin",
+            "uMapOn",
+            "uMapRect",
+            "uKind",
+            "uArmorN",
+            "uZoneCount",
+            "uNoiseRange",
+            "uSunDir",
+            "uSunColor",
+            "uSkyColor",
+            "uGroundColor",
+            "uMud",
+            "uScroll",
+            "uAlpha",
+            "uDirtHeight",
+            "uWet",
+            "uReplayCutaway",
+            "uAircraftShell",
+            "uHighlight",
+            "uArmorShell",
+            "uArmorChem",
+            "uNormOn",
+            "uZoneRect",
+            "uZoneColor",
+            "uRoad",
+            "uHole",
+            "uWind",
+            "uCloud",
+            "uClock",
+            "uDeform",
+            "uMapH",
+            "uMapC",
+            "uTex",
+            "uNormTex",
+            "uDome",
+            "uShadowMap",
+            "uArmor",
+            "uNoise"
+          ],
+          "depthUniforms": [
+            "uModel",
+            "uModelLightVP",
+            "uInstanced"
+          ]
+        },
+        "frontline": {
+          "active": true,
+          "tick": 210,
+          "error": null,
+          "map": "taiwan",
+          "room": 5,
+          "frameStats": {
+            "wallFrameMs": 377.8000000715256,
+            "modelsMs": 4.199999928474426,
+            "aircraftMs": 0.10000002384185791,
+            "terrainMs": 0.10000002384185791,
+            "sceneMs": 0.5,
+            "cameraEffectsMs": 0.2999999523162842,
+            "renderSubmitMs": 4.899999976158142,
+            "mapUiMs": 1.7000000476837158,
+            "totalMs": 11.799999952316284,
+            "tick": 204,
+            "fullModels": 2,
+            "drawCalls": 259
+          },
+          "terrainWorker": {
+            "requests": 1,
+            "completed": 1,
+            "discarded": 0,
+            "uploads": 4,
+            "swaps": 1,
+            "errors": 0
+          },
+          "terrainWorkerFailed": false,
+          "terrainChildren": [
+            {
+              "name": "terrain",
+              "vertices": 120252
+            },
+            {
+              "name": "far-source-terrain",
+              "vertices": 123123
+            },
+            {
+              "name": "source-roads",
+              "vertices": 2136
+            },
+            {
+              "name": "registered-water-polygons",
+              "vertices": 1338
+            }
+          ],
+          "ground": 60,
+          "facilityReady": true
+        }
+      }
+    },
+    "no_uncaught_page_errors": {
+      "passed": true,
+      "detail": [
+        {
+          "kind": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        }
+      ]
+    }
+  },
+  "phases": {
+    "boot": {
+      "ready": true,
+      "mode": "garage",
+      "frameError": null,
+      "webgl": true,
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "WebKit WebGL",
+      "lost": false,
+      "drawCalls": 92,
+      "shaders": {
+        "lit": true,
+        "depth": true,
+        "litUniforms": [
+          "uModel",
+          "uViewProj",
+          "uLightVP",
+          "uModelViewProj",
+          "uModelLightVP",
+          "uInstanced",
+          "uTerrain",
+          "uTerrainFine",
+          "uCamPos",
+          "uDeformWin",
+          "uMapOn",
+          "uMapRect",
+          "uKind",
+          "uArmorN",
+          "uZoneCount",
+          "uNoiseRange",
+          "uSunDir",
+          "uSunColor",
+          "uSkyColor",
+          "uGroundColor",
+          "uMud",
+          "uScroll",
+          "uAlpha",
+          "uDirtHeight",
+          "uWet",
+          "uReplayCutaway",
+          "uAircraftShell",
+          "uHighlight",
+          "uArmorShell",
+          "uArmorChem",
+          "uNormOn",
+          "uZoneRect",
+          "uZoneColor",
+          "uRoad",
+          "uHole",
+          "uWind",
+          "uCloud",
+          "uClock",
+          "uDeform",
+          "uMapH",
+          "uMapC",
+          "uTex",
+          "uNormTex",
+          "uDome",
+          "uShadowMap",
+          "uArmor",
+          "uNoise"
+        ],
+        "depthUniforms": [
+          "uModel",
+          "uModelLightVP",
+          "uInstanced"
+        ]
+      },
+      "frontline": {
+        "active": false,
+        "tick": 0,
+        "error": null,
+        "map": null,
+        "room": null,
+        "frameStats": null,
+        "terrainWorker": null,
+        "terrainWorkerFailed": null,
+        "terrainChildren": null,
+        "ground": 0,
+        "facilityReady": false
+      }
+    },
+    "taiwanObserver": {
+      "ready": true,
+      "mode": "battle",
+      "frameError": null,
+      "webgl": true,
+      "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "renderer": "WebKit WebGL",
+      "lost": false,
+      "drawCalls": 259,
+      "shaders": {
+        "lit": true,
+        "depth": true,
+        "litUniforms": [
+          "uModel",
+          "uViewProj",
+          "uLightVP",
+          "uModelViewProj",
+          "uModelLightVP",
+          "uInstanced",
+          "uTerrain",
+          "uTerrainFine",
+          "uCamPos",
+          "uDeformWin",
+          "uMapOn",
+          "uMapRect",
+          "uKind",
+          "uArmorN",
+          "uZoneCount",
+          "uNoiseRange",
+          "uSunDir",
+          "uSunColor",
+          "uSkyColor",
+          "uGroundColor",
+          "uMud",
+          "uScroll",
+          "uAlpha",
+          "uDirtHeight",
+          "uWet",
+          "uReplayCutaway",
+          "uAircraftShell",
+          "uHighlight",
+          "uArmorShell",
+          "uArmorChem",
+          "uNormOn",
+          "uZoneRect",
+          "uZoneColor",
+          "uRoad",
+          "uHole",
+          "uWind",
+          "uCloud",
+          "uClock",
+          "uDeform",
+          "uMapH",
+          "uMapC",
+          "uTex",
+          "uNormTex",
+          "uDome",
+          "uShadowMap",
+          "uArmor",
+          "uNoise"
+        ],
+        "depthUniforms": [
+          "uModel",
+          "uModelLightVP",
+          "uInstanced"
+        ]
+      },
+      "frontline": {
+        "active": true,
+        "tick": 210,
+        "error": null,
+        "map": "taiwan",
+        "room": 5,
+        "frameStats": {
+          "wallFrameMs": 377.8000000715256,
+          "modelsMs": 4.199999928474426,
+          "aircraftMs": 0.10000002384185791,
+          "terrainMs": 0.10000002384185791,
+          "sceneMs": 0.5,
+          "cameraEffectsMs": 0.2999999523162842,
+          "renderSubmitMs": 4.899999976158142,
+          "mapUiMs": 1.7000000476837158,
+          "totalMs": 11.799999952316284,
+          "tick": 204,
+          "fullModels": 2,
+          "drawCalls": 259
+        },
+        "terrainWorker": {
+          "requests": 1,
+          "completed": 1,
+          "discarded": 0,
+          "uploads": 4,
+          "swaps": 1,
+          "errors": 0
+        },
+        "terrainWorkerFailed": false,
+        "terrainChildren": [
+          {
+            "name": "terrain",
+            "vertices": 120252
+          },
+          {
+            "name": "far-source-terrain",
+            "vertices": 123123
+          },
+          {
+            "name": "source-roads",
+            "vertices": 2136
+          },
+          {
+            "name": "registered-water-polygons",
+            "vertices": 1338
+          }
+        ],
+        "ground": 60,
+        "facilityReady": true
+      }
+    }
+  },
+  "captures": {
+    "garage-full-page": {
+      "path": "D:\\TankForge-validation\\fuel-100-20261027\\browser-smoke-final\\garage-full-page.png",
+      "bytes": 714722
+    },
+    "taiwan-observer-worker": {
+      "path": "D:\\TankForge-validation\\fuel-100-20261027\\browser-smoke-final\\taiwan-observer-worker.png",
+      "bytes": 554693
+    }
+  },
+  "cleanup": [
+    {
+      "explicitSharedLeaveAcknowledged": true
+    }
+  ],
+  "scope": "Full served page in actual headless Microsoft Edge with WebGL2/SwiftShader; normal lobby UI creates/starts a Taiwan observer room. No pose/damage/resource injection or performance claim.",
+  "servedPage": {
+    "sha256": "eeac869b23139cbcfd05512e3c6ab016c8032015704e4bb0168af5d4cc22ee3f",
+    "bytes": 418811885
+  },
+  "browserVersion": "156.0.4314.42",
+  "passed": true,
+  "logs": [
+    {
+      "kind": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0x28e400419200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    }
+  ],
+  "finishedUnix": 1793109592.6315167
+}

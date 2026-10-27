@@ -20,11 +20,18 @@ export function patchFrontlineCountermeasures(source,helper=fs.readFileSync(new 
     const begin='  // TF_NATIVE_CM_BEGIN\n',end='  // TF_NATIVE_CM_END\n';
     assert.equal(text.split(begin).length-1,1,'One owned native CM block required');assert.equal(text.split(end).length-1,1,'One owned native CM block end required');
     const start=text.indexOf(begin),stop=text.indexOf(end,start)+end.length,prior=text.slice(start,stop);
-    if(prior!==block)assert.equal(sha(prior),PREVIOUS_CM_BLOCK_SHA256,'Installed native CM helper block hash differs; preserve source and review');
+    if(prior!==block){
+      const accepted=[PREVIOUS_CM_BLOCK_SHA256];
+      // Exact previous owned block after the reviewed optional render-origin
+      // packing change, before the existing readable-reasons migration.
+      if(text.includes('/* TF_RENDER_PRECISION_BEGIN */'))accepted.push('bcce82c4912d5ce84cbfb5bcf263499de486abca720b981752bf639857d7949c');
+      assert.ok(accepted.includes(sha(prior)),'Installed native CM helper block hash differs; preserve source and review');
+    }
     assert.ok(text.includes('TF_CM_ELIGIBLE_PAIR'),'Installed local decoy eligibility hook missing');
+    const fxCamera=text.includes('/* TF_RENDER_PRECISION_BEGIN */')?'relativeCam':'cam';
     for(const hook of ['const nativeCM=createFrontlineCountermeasureControl','nativeCM.accept(air,unit','nativeCM.action(air,controlled(),name)','value.decoys=Array.isArray(pose.decoys)?pose.decoys:[];',
-      'TFNativeCMVisual.accept(f.aircrafts',"TFNativeCMVisual.write(this.add,this.addCount,cam,TFNativeCMVisual.context(),'flares')",
-      "TFNativeCMVisual.write(this.alpha,this.alphaCount,cam,TFNativeCMVisual.context(),'chaff')",'nativeCM.clear();TFNativeCMVisual.clear()',
+      'TFNativeCMVisual.accept(f.aircrafts',`TFNativeCMVisual.write(this.add,this.addCount,${fxCamera},TFNativeCMVisual.context(),'flares')`,
+      `TFNativeCMVisual.write(this.alpha,this.alphaCount,${fxCamera},TFNativeCMVisual.context(),'chaff')`,'nativeCM.clear();TFNativeCMVisual.clear()',
       "if(air.nativeAuthority)return G4.frontline?.handleAircraftAction('cm')??false;"])
       assert.equal(text.split(hook).length-1,hook==='nativeCM.clear();TFNativeCMVisual.clear()'?3:1,'Installed native CM integration hook differs after source recomposition: '+hook);
     if(prior!==block)text=text.slice(0,start)+block+text.slice(stop);

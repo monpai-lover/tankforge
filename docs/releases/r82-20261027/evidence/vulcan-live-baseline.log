@@ -1,0 +1,11 @@
+VULCAN_GROUND_LIVE {"fired":100,"ammo":625,"remaining":0,"calls":{"coreHits":100,"trace":101,"replayAppends":99},"sessionCount":1,"concurrent":64,"elapsedMs":846.5063,"p95FrameMs":19.48999999999978,"reportHash":"c27007b30a8f644550fc86ab0164f76cdc09d029190ac8637696ded71a4d4ba2"}
+✔ real M61 6000rpm scheduler retains ammunition, finite hits and one multi-round replay view (4602.2969ms)
+✔ released M61 trigger does not synthesize discharges, hits or replay sessions (1224.9838ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7132.0096

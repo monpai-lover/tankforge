@@ -1062,6 +1062,7 @@ struct Work<'a> {
     p: Posed,
     st: TargetState,
     rng: Rng,
+    explosive_re_factor: f32,
     rep: Report,
     mod_dmg: HashMap<usize, f32>,
     crew_dmg: HashMap<usize, f32>,
@@ -1424,9 +1425,10 @@ impl<'a> Work<'a> {
     /// The blast of a filler inside a compartment: whoever and whatever is close.
     fn blast_inside(&mut self, at: Vec3, kg: f32) {
         if self.scene.is_some(){self.blast_surface(at,kg,true);return;}
-        let r = blast_radius_m(kg);
+        let equivalent_kg = kg * self.explosive_re_factor;
+        let r = blast_radius_m(equivalent_kg);
         // a bigger charge is deadlier at the same share of its radius
-        let power = 150.0 * (kg.max(0.005) / 0.05).powf(0.25);
+        let power = 150.0 * (equivalent_kg.max(0.005) / 0.05).powf(0.25);
         for i in 0..self.p.crew.len() {
             let dist = (self.p.crew[i] - at).length();
             if dist < r {
@@ -1457,29 +1459,31 @@ impl<'a> Work<'a> {
     /// Keep the actual detonation in the report. A contact can supply a
     /// millimetre exterior query offset without moving that detonation.
     fn blast_outside_query(&mut self, at: Vec3, query_at: Vec3, kg: f32) {
-        let r = outside_radius_m(kg);
-        self.external_exposure(query_at, kg, r);
+        let equivalent_kg = kg * self.explosive_re_factor;
+        let r = outside_radius_m(equivalent_kg);
+        self.external_exposure(query_at, equivalent_kg, r);
         self.rep.bursts.push(Burst { pos: at, radius: r, inside: false, explosive_kg: kg,
             time_s:None, armed_at_s:None, delay_s:None, detonation_id:None, mechanism:None });
     }
     /// Existing radial pressure law, now bounded by actual modeled anatomy and
     /// surface line of sight. This is not a pressure-cell/reflection simulation.
     fn blast_surface(&mut self,at:Vec3,kg:f32,inside:bool){
-        let scene=self.scene.unwrap();let r=if inside{blast_radius_m(kg)}else{outside_radius_m(kg)};
-        let exposure=scene.exposed_anatomy(at,r*1.4);
+        let scene=self.scene.unwrap();let equivalent_kg=kg*self.explosive_re_factor;
+        let r=if inside{blast_radius_m(equivalent_kg)}else{outside_radius_m(equivalent_kg)};
+        let exposure=if inside{scene.exposed_anatomy_inside(at,r*1.4)}else{scene.exposed_anatomy(at,r*1.4)};
         let Ok(exposure)=exposure else{return};
         for (kind,dist,contact) in exposure {
             let (damage,hit)=match kind {
                 EvKind::Module(i)=>{
                     let module=&self.t.def.modules[i];if module.is_external()==inside || empty_rack(self.t,&self.st,i){continue;}
                     let radius=if inside{r*0.8}else{r};if dist>=radius {continue;}
-                    let power=if inside{70.}else{140.*(kg/0.7).powf(0.35)};let requested=power*(1.-(dist/radius).powi(2));
+                    let power=if inside{70.}else{140.*(equivalent_kg/0.7).powf(0.35)};let requested=power*(1.-(dist/radius).powi(2));
                     let name=module.id.clone();(self.hurt_module(i,requested,if inside{0.6}else{0.}),name)
                 },
                 EvKind::Crew(i)=>{
                     if !inside && !self.t.def.open_top {continue;}
                     let radius=if inside{r}else{r*1.4};if dist>=radius {continue;}
-                    let power=if inside{150.*(kg.max(0.005)/0.05).powf(0.25)}else{120.*(kg/0.7).powf(0.35)};
+                    let power=if inside{150.*(equivalent_kg.max(0.005)/0.05).powf(0.25)}else{120.*(equivalent_kg/0.7).powf(0.35)};
                     (self.hurt_crew(i,power*(1.-(dist/radius).powi(2))),format!("crew:{i}"))
                 },_=>continue,
             };
@@ -1494,7 +1498,7 @@ impl<'a> Work<'a> {
     fn burst_fragments(&mut self, at: Vec3, d: Vec3, v: f32, shell: &ProjectileDef) {
         let kg = shell.explosive_mass_kg.max(0.005);
         let casing = (shell.mass_kg * 0.85).max(0.05);
-        let ratio = kg / casing;
+        let ratio = kg * self.explosive_re_factor / casing;
         let gurney = 2400.0 * (ratio / (1.0 + 0.5 * ratio)).sqrt();
         let n = (30.0 + kg * 400.0).clamp(30.0, 90.0) as usize;
         let each_mass = casing / n as f32;
@@ -1522,7 +1526,7 @@ impl<'a> Work<'a> {
         if inside {
             let kg = shell.explosive_mass_kg;
             let casing = (shell.mass_kg * 0.85).max(0.05);
-            let ratio = kg / casing;
+            let ratio = kg * self.explosive_re_factor / casing;
             let gurney = 2400.0 * (ratio / (1.0 + 0.5 * ratio)).sqrt();
             let n = (30.0 + kg * 400.0).clamp(30.0, 90.0) as usize;
             let each_mass = casing / n as f32;
@@ -1599,8 +1603,14 @@ pub fn shoot(t: &Target, st: &TargetState, shot: &Shot) -> Report {
 }
 /// Resolve a finite accepted flight segment against posed renderer triangles.
 pub fn shoot_surface(t:&Target,st:&TargetState,shot:&Shot,scene:&geometry::combat_scene::CombatScene,end:Vec3,context:Option<&causes::DamageContext>)->Result<Report,String> {
+    if !scene.accepts(t) {return Err("invalid finite surface shot identity/segment".into());}
+    shoot_surface_registered(t,st,shot,scene,end,context)
+}
+// The caller has checked this exact immutable borrow in the current synchronous
+// transaction. No proof is retained between rounds or across targets.
+fn shoot_surface_registered(t:&Target,st:&TargetState,shot:&Shot,scene:&geometry::combat_scene::CombatScene,end:Vec3,context:Option<&causes::DamageContext>)->Result<Report,String> {
     let delta=end-shot.origin;let span=delta.length();let d=shot.dir.normalized();
-    if !scene.accepts(t) || !span.is_finite() || span<=0.0 || (delta-d*span).length()>span*1e-5 || context.is_some_and(|c|!c.valid()) {return Err("invalid finite surface shot identity/segment".into());}
+    if !span.is_finite() || span<=0.0 || (delta-d*span).length()>span*1e-5 || context.is_some_and(|c|!c.valid()) {return Err("invalid finite surface shot identity/segment".into());}
     scene.reset_error();let report=shoot_internal(t,st,shot,context,Some((scene,span)));
     if let Some(error)=scene.take_error(){return Err(error);} Ok(report)
 }
@@ -1611,9 +1621,9 @@ pub fn shoot_surface(t:&Target,st:&TargetState,shot:&Shot,scene:&geometry::comba
 pub fn shoot_surface_impact(t:&Target,st:&TargetState,shot:&Shot,scene:&geometry::combat_scene::CombatScene,incoming_end:Vec3,context:Option<&causes::DamageContext>)->Result<Report,String>{
     let delta=incoming_end-shot.origin;let length=delta.length();let dir=shot.dir.normalized();
     if !scene.accepts(t) || !length.is_finite() || length<=0. || (delta-dir*length).length()>length*1e-5 {return Err("invalid incoming surface segment".into());}
-    if scene.crossings(shot.origin,incoming_end)?.is_empty(){return shoot_surface(t,st,shot,scene,incoming_end,context);}
+    if scene.crossings(shot.origin,incoming_end)?.is_empty(){return shoot_surface_registered(t,st,shot,scene,incoming_end,context);}
     let end=scene.continuation_end(shot.origin,dir)?;
-    let mut report=shoot_surface(t,st,shot,scene,end,context)?;
+    let mut report=shoot_surface_registered(t,st,shot,scene,end,context)?;
     report.events.push("fixed_pose_internal_surface_continuation".into());Ok(report)
 }
 
@@ -1631,6 +1641,7 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
         p: t.posed(shot.turret_yaw),
         st: st.clone(),
         rng: Rng::new(shot.seed.max(1)),
+        explosive_re_factor: tg_weapon::explosive_re_factor(&shell.explosive_type),
         rep: Report {
             geometry_contacts:vec![],primary_geometry_contacts:vec![],primary_module_destructions:vec![],
             cause_transitions:vec![],
@@ -1871,9 +1882,9 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                     let rating = if hesh {
                         pen
                     } else if pen > 0.5 {
-                        pen.max(he_pen_mm(kg) * 0.8)
+                        pen.max(he_pen_mm(kg * w.explosive_re_factor) * 0.8)
                     } else {
-                        he_pen_mm(kg)
+                        he_pen_mm(kg * w.explosive_re_factor)
                     };
                     let inner = if ev.contact.is_some(){measured_exit.unwrap_or(point)+d*0.03}else{point + d * (pl.thickness_mm * 0.001 + 0.03)};
                     if pl.zone != ArmorZone::Skirt && rating >= pl.thickness_mm {
@@ -1891,9 +1902,9 @@ fn shoot_internal<'a>(t: &'a Target, st: &TargetState, shot: &Shot, context:Opti
                         // the blast breaks in: a scab of the plate flies inwards, the shock wounds
                         let n = if hesh { 30 } else { 18 };
                         let each = if hesh {
-                            6000.0 * (kg / 1.0).sqrt()
+                            6000.0 * (kg * w.explosive_re_factor / 1.0).sqrt()
                         } else {
-                            3000.0 * (kg / 0.5).sqrt()
+                            3000.0 * (kg * w.explosive_re_factor / 0.5).sqrt()
                         };
                         let into = if entering { d } else { -pl.normal };
                         for _ in 0..n {
@@ -2379,6 +2390,7 @@ pub fn splash(t: &Target, st: &TargetState, at: Vec3, explosive_kg: f32, turret_
         p: t.posed(turret_yaw),
         st: st.clone(),
         rng: Rng::new(seed.max(1)),
+        explosive_re_factor: 1.0,
         rep: Report {
             geometry_contacts:vec![],primary_geometry_contacts:vec![],primary_module_destructions:vec![],
             cause_transitions:vec![],

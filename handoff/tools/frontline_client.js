@@ -100,7 +100,7 @@
       const guns=(unit.guns||[]).map(host=>{const pod=podFeeds.get(host.id),g=oldGuns.get(host.id)||{...p.gunMetadata.get(host.id),id:host.id};g.ammo=host.ammo;g.owner=host.owner;
         if(pod){g.kind='cannon';g.belt=pod.def.gun.belt;g.podItem=pod;}else if(host.id.startsWith('air_pod_'))g.podItem=p.orphanPod||(p.orphanPod={gone:true});
         return g;});p.guns.splice(0,p.guns.length,...guns);
-      const report=reader.report(p,0,{timeSeconds:unit.state[23],lifeKey:`${unit.unit.battle}:${unit.unit.unit}:${unit.unit.life}`,resetKey:unit.loadout});
+      const report=reader.report(p,0,{historyKey:p,timeSeconds:unit.state[23],lifeKey:`${unit.unit.battle}:${unit.unit.unit}:${unit.unit.life}`,resetKey:unit.loadout});
       if(stores.some(s=>s.def.kind==='tank'&&!s.gone&&s.connected!==false&&!p.plane.damage?.dead?.(s.owner)&&!Number.isFinite(s.fuel)))Object.assign(report.fuel,{usableKg:null,externalKg:null,enduranceSeconds:null,timeText:'—',state:'unavailable',statusZh:'外置油箱数据未就绪'});
       const fuel=report.fuel,format=(n,d=0)=>Number.isFinite(n)?n.toFixed(d):'—';
       const gunText=report.guns.map(g=>`${g.labelZh.replace('吊艙機炮','吊舱机炮').replace('機炮','机炮')} ${g.unknownAmmo?'—':g.rounds}`).join('　');
@@ -363,6 +363,20 @@
         send({op:'support_order',unit:unit.unit,kind,facility_id:target.facility_id,expected_revision:target.revision,seq:f.supportSeq});
       }
       function rebuildTerrain(){
+        if(f.map?.id==='taiwan'&&typeof createFrontlineTerrainWorker==='function'&&typeof Worker==='function'){
+          if(f.terrainWorkerMap!==f.map){f.terrainWorker?.dispose();f.terrainWorker=null;f.terrainWorkerMap=f.map;f.terrainWorkerFailed=false;}
+          if(!f.terrainWorker&&!f.terrainWorkerFailed){
+            f.terrainWorker=createFrontlineTerrainWorker({f,renderer,Node,build:rebuildTerrainImmediate,grid,height,
+              definitions:{m4,mul,translation,scaling,rotX,rotY,rotZ,compose,sub,add,scale,dot,cross,len,norm,transformPoint,transformDir,triangulate,hexToLinear,GeoBuilder,buildFrontlineTerrainGeometry,buildFrontlineWaterGeometry,buildFrontlineBridgeGeometry,createFrontlineWaterCutout,createFrontlineFarTerrainGeometry}});
+            if(!f.terrainWorker)f.terrainWorkerFailed=true;
+          }
+          const aerial=!!controlled()?.aircraft||!!f.aircrafts.find(u=>unitKey(u.unit)===f.follow);
+          if(f.terrainWorker?.request({focus:f.focus,aerial,facilityReady:f.facilityPresentation.ready}))return;
+          if(f.terrainWorker){f.terrainWorker.dispose();f.terrainWorkerFailed=true;}
+        }
+        rebuildTerrainImmediate();
+      }
+      function rebuildTerrainImmediate(){
         const cx=Math.floor(f.focus[0]/750)*750,cz=Math.floor(f.focus[2]/750)*750;
         const aerial=!!controlled()?.aircraft||!!f.aircrafts.find(u=>unitKey(u.unit)===f.follow);
         if(f.terrainOrigin?.[0]===cx&&f.terrainOrigin?.[1]===cz&&f.terrainAerial===aerial)return;
@@ -715,5 +729,5 @@
     servicePanel.prepend(serviceChoice);serviceChoice.onchange=()=>{const unit=frontline.shared.controlled();if(unit){G4.airLoadout[unit.aircraft]=Number(serviceChoice.value);saveAirArms();}};
     const configureService=document.createElement('button');configureService.type='button';configureService.textContent='逐挂点配置整备挂载';configureService.onclick=()=>{const unit=frontline.shared.controlled();if(unit){airGarage.sel=unit.aircraft;openNativeArmEditor(unit.aircraft);}};servicePanel.prepend(configureService);
     let frontlineDisposed=false;
-    frontline.dispose=()=>{if(frontlineDisposed)return;frontlineDisposed=true;frontline.ordnancePresentation.dispose();frontline.sharedLobby.dispose();frontline.shared.dispose();armObserver.disconnect();clearInterval(frontline.inputTimer);frontline.clearInput();};
+    frontline.dispose=()=>{if(frontlineDisposed)return;frontlineDisposed=true;frontline.terrainWorker?.dispose();frontline.ordnancePresentation.dispose();frontline.sharedLobby.dispose();frontline.shared.dispose();armObserver.disconnect();clearInterval(frontline.inputTimer);frontline.clearInput();};
     window.addEventListener('pagehide',event=>{if(!event.persisted)frontline.dispose();});

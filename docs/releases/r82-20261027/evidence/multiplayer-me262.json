@@ -1,0 +1,403 @@
+{
+  "passed": true,
+  "error": null,
+  "url": "ws://127.0.0.1:8892/ws",
+  "scenarioName": "me262",
+  "scenario": {
+    "aircraft": "me262",
+    "loadout": 1
+  },
+  "source": {
+    "appSha256": "d4ffc8b9fccd6a50de5996f723d056914d8ce49a2df8768bf8f609dddb4e563c",
+    "runtimeSha256": "aaa461251b63d84b50c152786b72f3b0c4ce2bd885444d7ea7b29ae4d84b2e1c",
+    "clientSha256": "1335b6408eb46d09fa6457e152b87c7675ef612a97c0999c2ee1046045866eb1",
+    "serverExe": "D:/TankForge-validation/rust-vulcan-target-20261027/release/tg-server.exe",
+    "serverSha256": "b994824aa91d42fdcd8d2a6c8fccd1ac2605c9d4149b306b64f4a5952d3c4f15"
+  },
+  "scope": "Actual sockets plus shipped NetClient/wire, established runtime/bridge, Aircraft pilot input and local shared flight WASM. Guided control and original seekerCaptureRequest/groundAlong produce direction intent; real host resolves capture/flight/inventory. Renderer/audio/system presentation and nonauthoritative sensor display are stubbed; local ground is flat because only aerial movement is measured. AAM out-of-range coverage is a denial probe, not a successful launch. Existing old 8877 binary is a baseline, not the new release.",
+  "checks": {
+    "runtime-blue-321544": {
+      "aircraft": "me262",
+      "guns": [
+        {
+          "ammo": 87,
+          "id": "air_mk108_0",
+          "owner": "body"
+        },
+        {
+          "ammo": 87,
+          "id": "air_mk108_1",
+          "owner": "body"
+        },
+        {
+          "ammo": 67,
+          "id": "air_mk108_2",
+          "owner": "body"
+        },
+        {
+          "ammo": 67,
+          "id": "air_mk108_3",
+          "owner": "body"
+        }
+      ],
+      "beforeAmmo": 360,
+      "afterAmmo": 308,
+      "beforeStores": 24,
+      "afterStores": 23,
+      "seekerBefore": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      },
+      "seekerAfter": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      },
+      "fuelLoadOption": {
+        "capacity_kg": 1800,
+        "minutes": [
+          10,
+          20,
+          30,
+          45
+        ],
+        "nominal_flow_kg_s": 0.5984,
+        "reference_throttle": 1,
+        "scope": "internal_only_external_tanks_unchanged",
+        "version": 1
+      },
+      "fuelBefore": 1798.903695382908,
+      "fuelAfter": 1797.4122107471353,
+      "flow": 0.5984,
+      "throttleCommandRange": [
+        0.72,
+        1.0238080749999996
+      ],
+      "localThrottle": 1.0140206813812256,
+      "hostThrottle": 1.0131175518035889,
+      "weaponControl": {
+        "gun_mode": "all",
+        "program": "held",
+        "store_id": "r4m",
+        "store_index": null
+      },
+      "inputCount": 72,
+      "fireInputs": 19,
+      "releaseInputs": 1,
+      "stickInputs": 19,
+      "poseCount": 65,
+      "poseAcknowledgements": 62,
+      "localMoved": 247.6166553020701,
+      "localBankChanged": 0.14539365236612412,
+      "panelFuelKg": 1797.4122107471353,
+      "panelFuelState": "current",
+      "errors": [
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "flight_teleport_rejected"
+        }
+      ]
+    },
+    "runtime-red-321544": {
+      "aircraft": "me262",
+      "guns": [
+        {
+          "ammo": 87,
+          "id": "air_mk108_0",
+          "owner": "body"
+        },
+        {
+          "ammo": 87,
+          "id": "air_mk108_1",
+          "owner": "body"
+        },
+        {
+          "ammo": 67,
+          "id": "air_mk108_2",
+          "owner": "body"
+        },
+        {
+          "ammo": 67,
+          "id": "air_mk108_3",
+          "owner": "body"
+        }
+      ],
+      "beforeAmmo": 360,
+      "afterAmmo": 308,
+      "beforeStores": 24,
+      "afterStores": 23,
+      "seekerBefore": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      },
+      "seekerAfter": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      },
+      "fuelLoadOption": {
+        "capacity_kg": 1800,
+        "minutes": [
+          10,
+          20,
+          30,
+          45
+        ],
+        "nominal_flow_kg_s": 0.5984,
+        "reference_throttle": 1,
+        "scope": "internal_only_external_tanks_unchanged",
+        "version": 1
+      },
+      "fuelBefore": 1798.9184985618833,
+      "fuelAfter": 1797.4349590081574,
+      "flow": 0.5984,
+      "throttleCommandRange": [
+        0.72,
+        1.0238080749999996
+      ],
+      "localThrottle": 1.0140206813812256,
+      "hostThrottle": 1.0122324228286743,
+      "weaponControl": {
+        "gun_mode": "all",
+        "program": "held",
+        "store_id": "r4m",
+        "store_index": null
+      },
+      "inputCount": 72,
+      "fireInputs": 19,
+      "releaseInputs": 1,
+      "stickInputs": 19,
+      "poseCount": 69,
+      "poseAcknowledgements": 62,
+      "localMoved": 248.03481654375764,
+      "localBankChanged": 0.837489410889475,
+      "panelFuelKg": 1797.4349590081574,
+      "panelFuelState": "current",
+      "errors": [
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        }
+      ]
+    },
+    "cleanup": [
+      {
+        "peer": "runtime-red-321544",
+        "left": true
+      },
+      {
+        "peer": "runtime-blue-321544",
+        "left": true
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "seconds": 0.1271908,
+      "action": "runtime-blue-321544:connected",
+      "player": 1,
+      "wire": 2
+    },
+    {
+      "seconds": 0.1274978,
+      "action": "runtime-red-321544:connected",
+      "player": 2,
+      "wire": 2
+    },
+    {
+      "seconds": 1.0674137000000001,
+      "action": "runtime-blue-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.2334863,
+      "action": "runtime-blue-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.2790104,
+      "action": "runtime-red-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.3046251,
+      "action": "runtime-red-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.3470423,
+      "action": "runtime-red-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.359872,
+      "action": "runtime-red-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.3882567,
+      "action": "runtime-red-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.4119196,
+      "action": "runtime-red-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.6123296,
+      "action": "runtime-blue-321544:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "flight_teleport_rejected"
+    },
+    {
+      "seconds": 2.8922152,
+      "action": "runtime-blue-321544:original-action",
+      "name": "space",
+      "group": "r4m",
+      "kind": "rocket",
+      "host": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      }
+    },
+    {
+      "seconds": 2.8926564000000003,
+      "action": "runtime-red-321544:original-action",
+      "name": "space",
+      "group": "r4m",
+      "kind": "rocket",
+      "host": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      }
+    }
+  ]
+}

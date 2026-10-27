@@ -1,0 +1,317 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.09s
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_armor-90d713e67abad452.exe)
+
+running 6 tests
+test tests::sixty_degree_incidence_measured_from_normal ... ok
+test tests::a_hull_hinge_moves_the_armor_surface_and_its_ray_intersections ... ok
+test tests::los_60_degrees_doubles_thickness ... ok
+test tests::hinge_fraction_and_bad_axes_cannot_create_nonfinite_armor ... ok
+test tests::out_of_bounds_misses ... ok
+test tests::head_on_hit_has_zero_incidence ... ok
+
+test result: ok. 6 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_ballistics-da18425890df56ce.exe)
+
+running 5 tests
+test tests::elevation_at_interpolates_the_table ... ok
+test tests::drag_slows_the_projectile ... ok
+test tests::vacuum_drop_matches_half_g_t_squared ... ok
+test tests::vacuum_elevation_matches_closed_form_and_drag_needs_more ... ok
+test tests::range_table_is_monotonic_and_stops_when_out_of_reach ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.01s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_damage-b00c167c14b8356b.exe)
+
+running 19 tests
+test module_state::tests::all_curves_improve_monotonically_with_health ... ok
+test tests::a_missing_dedicated_loader_uses_the_same_gunner_loading_fallback ... ok
+test tests::destroyed_breech_disables_firing_and_ammo_rack_detonates ... ok
+test tests::aabb_module_is_hit ... ok
+test module_state::tests::health_bounds_levels_and_actual_loss_agree ... ok
+test tests::dead_gunner_disables_firing_dead_loader_slows_reload ... ok
+test module_state::tests::curves_have_approved_endpoints_and_partial_values ... ok
+test tests::excessive_crew_damage_is_clamped_and_records_actual_loss ... ok
+test tests::allocated_serial_contacts_debit_local_energy_and_freeze_pre_hit_absorption ... ok
+test tests::explicitly_empty_rack_is_not_hit_and_does_not_shield_crew ... ok
+test tests::fragment_kills_crew_in_its_path_and_stops_there ... ok
+test tests::independent_launcher_groups_require_every_critical_part_of_one_complete_assembly ... ok
+test tests::unsupported_zero_capacity_weapon_parts_are_not_operational ... ok
+test tests::legacy_and_positive_capacity_racks_remain_physical_after_destruction ... ok
+test tests::workshop_capability_curves_respect_combined_crew_and_empty_racks ... ok
+test tests::zero_energy_allocated_core_does_not_create_solid_damage ... ok
+test tests::excessive_module_damage_is_clamped_and_destroyed_module_keeps_shielding ... ok
+test tests::explicitly_empty_rack_does_not_shield_a_module_behind_it ... ok
+test tests::generation_is_deterministic_and_conserves_energy ... ok
+
+test result: ok. 19 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_gameplay-3abf360b7fadfb43.exe)
+
+running 3 tests
+test tests::exact_shared_rules_and_cached_identity ... ok
+test tests::ammo_resupply_shared_policy_is_strict_and_source_derived ... ok
+test tests::strict_mode_ids_and_room_version ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_missile-7764e64b595a9dde.exe)
+
+running 31 tests
+test terrain::tests::bilinear_between_texel_centres_and_a_hill_blocks_the_view ... ok
+test tests::debug_trace_rocket ... ignored
+test tests::debug_trace_single_tow ... ignored
+test tests::debug_two_sides ... ignored
+test tests::aps_pose_enabled_carry_and_equal_bore_rehandoff_keep_motor_rates ... ok
+test v::tests::bearing_round_trip_and_wrap ... ok
+test tests::aps_pose_moving_tilted_parent_preserves_physical_carry_at_damaged_rates ... ok
+test tests::low_g_lift_cannot_cancel_gravity_for_free ... ok
+test tests::aps_pose_tilted_stop_is_rate_bounded_in_the_mechanical_frame ... ok
+test tests::actor_damage_multipliers_apply_to_independent_aps_servos_without_changing_definition ... ok
+test tests::g_limited_guidance_is_independent_of_outer_step_size ... ok
+test tests::max_g_caps_actual_control_load_and_high_speed_turn_radius ... ok
+test tests::negative_g_and_invalid_legacy_acceleration_are_rejected_when_loading ... ok
+test tests::unguided_rocket_ignores_guidance_even_with_an_optional_g_limit ... ok
+test v::tests::rng_is_repeatable_and_spread ... ok
+test tests::command_jumps_and_damage_drift_share_the_normal_load_envelope ... ok
+test tests::a_tow_flies_its_speed_schedule_and_rides_the_line_to_the_target ... ok
+test tests::legacy_acceleration_and_guidance_lag_remain_compatible ... ok
+test tests::a_hill_hides_a_missile_from_the_radar ... ok
+test tests::every_kill_is_a_bullet_that_reached_the_missile ... ok
+test tests::aps_pose_adoption_only_changes_four_fields_and_rejects_untrusted_inputs ... ok
+test tests::aps_damage_changes_actual_bullet_scatter_with_same_seed_and_cyclic_rate ... ok
+test tests::the_same_seeds_give_the_same_battle ... ok
+test tests::barrels_overheat_and_the_rate_stays_inside_its_range ... ok
+test tests::no_rounds_a_broken_gun_a_dead_radar_or_switched_off_means_no_defence ... ok
+test tests::a_missile_skimming_the_ground_is_still_seen_and_engaged ... ok
+test tests::missiles_from_two_sides_are_taken_one_after_the_other ... ok
+test tests::the_oplot_mo_detects_tracks_leads_and_shoots_a_single_tow_down ... ok
+test tests::a_salvo_can_saturate_it ... ok
+test tests::an_ambush_from_close_in_leaves_too_little_time ... ok
+test tests::speed_matters_and_shot_faster_than_the_gun_can_handle_is_left_alone ... ok
+
+test result: ok. 28 passed; 0 failed; 3 ignored; 0 measured; 0 filtered out; finished in 0.56s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_penetration-043a961ca6998f45.exe)
+
+running 15 tests
+test impact_tests::plate_spall_is_a_finite_allocation_of_work ... ok
+test impact_tests::one_traversal_is_subdivision_and_duplicate_safe ... ok
+test impact_tests::subcal_mass_is_estimated_and_core_dimensions_remain_unknown ... ok
+test tests::rha80_at_60_uses_los_with_normalization ... ok
+test impact_tests::invalid_updates_and_charge_transfer_are_atomic ... ok
+test stack::tests::layers_are_beaten_in_order_and_residual_shrinks ... ok
+test stack::tests::two_physical_plates_use_the_same_energy_law_as_two_single_contacts ... ok
+test tests::residual_speed_grows_with_margin ... ok
+test impact_tests::active_single_and_stack_progress_keep_one_fixed_physical_layer ... ok
+test tests::rha100_pen150_at_0_penetrates ... ok
+test stack::tests::single_plate_matches_the_single_plate_engine ... ok
+test stack::tests::heat_jet_loses_to_spaced_armour_but_kinetic_does_not ... ok
+test tests::rha100_pen90_at_0_is_stopped ... ok
+test tests::steep_angle_ricochets_but_overmatch_prevents_it ... ok
+test stack::tests::ricochet_only_on_fresh_impacts_and_probability_is_monotone ... ok
+
+test result: ok. 15 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_physics-f9480d0d1de49f97.exe)
+
+running 57 tests
+test tank::obstacle::cache_tests::obstacle_cache_microtiming_near_bank_many_boxes ... ignored, Explicit release-only local microdiagnostic; not a whole-world budget/performance gate
+test tank::road_wheel::tests::the_track_bridges_a_narrow_dip_and_wraps_a_hump ... ok
+test tank::obstacle::cache_tests::obstacle_cache_preserves_faces_height_edges_friction_threshold_and_force_cap ... ok
+test tank::obstacle::cache_tests::obstacle_cache_oracle_scope_restores_on_panic_without_affecting_other_threads ... ok
+test tank::tests::running_gear_vk1602_and_uneven_discs_match_source_volume_mass_distribution ... ok
+test tank::tests::running_gear_estimate_shrinks_and_interleaved_volume_is_preserved ... ok
+test tank::tests::running_gear_coupled_damping_cannot_add_energy_for_opposing_velocities ... ok
+test tank::tests::running_gear_cached_response_matches_the_mass_solve_and_expires ... ok
+test tank::tests::design_inertia_is_used_when_given ... ok
+test tank::tests::running_gear_cloned_entities_reject_each_others_cache_after_equal_refresh_counts ... ok
+test tank::tests::running_gear_force_accelerates_assembly_and_freefall_is_shared ... ok
+test tank::track_path::tests::links_sit_pin_to_pin_along_the_tangent ... ok
+test tank::tests::running_gear_hint_roundtrip_and_invalid_legacy_fallback ... ok
+test terra::tests::pressure_factor_is_one_at_the_reference_pressure ... ok
+test terra::tests::sinkage_follows_the_pressure_sinkage_relation ... ok
+test tank::tests::running_gear_overflowing_json_hint_preserves_legacy_motion_and_strict_outer_fields ... ok
+test tank::track_path::tests::the_track_keeps_its_length_whatever_the_wheels_do ... ok
+test terra::tests::shear_curve_saturates_and_inverts ... ok
+test gameplay::tests::gameplay_preserves_source_and_historical_identity ... ok
+test tank::tests::running_gear_bad_json_hint_does_not_discard_valid_legacy_motion ... ok
+test gameplay::tests::gameplay_native_force_and_governed_speed_match_js_transform ... ok
+test tests::brakes_to_a_full_stop_and_stays_parked_on_a_slope ... ok
+test tank::tests::running_gear_static_mass_com_and_tensor_recombine_exactly ... ok
+test tests::terrain_rules_catch_bad_values ... ok
+test tests::terrain_data_is_valid ... ok
+test tests::accelerates_to_30_kmh_quickly_on_road ... ok
+test tests::hard_turn_at_speed_drifts_on_mud_but_grips_on_road ... ok
+test tests::neutral_steer_rotates_in_place ... ok
+test tests::mud_slips_and_is_slower_than_road ... ok
+test tests::climbs_gentle_slope_without_gear_hunting_but_not_a_cliff ... ok
+test tests::reverse_speed_is_limited_and_rollback_recovers ... ok
+test tests::simulation_is_deterministic_and_stable_at_30hz ... ok
+test tank::obstacle::cache_tests::obstacle_cache_empty_far_then_near_and_each_new_pose_do_not_reuse_stale_points ... ok
+test tests::top_speed_is_governed ... ok
+test tank::terrain::support_tests::support_default_profiles_match_actual_previous_wheel_function_bit_for_bit ... ok
+test tests::tracks_slip_to_make_thrust ... ok
+test tank::terrain::support_tests::no_support_edge_normals_are_finite_and_contacts_never_interpolate_a_water_floor ... ok
+test tank::tests::running_gear_internal_impulse_preserves_free_assembly_momentum_and_bias_energy ... ok
+test tank::tests::running_gear_terrain_step_is_inertial ... ok
+test tank::obstacle::cache_tests::obstacle_cache_matches_old_force_and_pose_bits_on_all_source_running_gears ... ok
+test tests::historical_vehicles_match_their_data ... ok
+test tank::terrain::support_tests::no_support_has_no_wheel_run_belly_or_friction_and_actual_body_falls_through_height_plane ... ok
+test tank::tests::running_gear_unload_landing_bogie_decay_and_stops_are_finite ... ok
+test tank::tests::the_js_mirror_and_this_model_stay_in_lockstep ... ok
+test tank::tests::the_tracks_and_hull_collide_with_obstacles ... ok
+test tank::tests::a_track_shot_off_leaves_the_vehicle_all_but_stuck ... ok
+test tank::tests::a_remote_client_rebuilds_the_wheels_from_the_sent_hull_pose ... ok
+test tank::tests::the_simulation_is_deterministic ... ok
+test tank::tests::heavy_tanks_shift_up_in_mud_instead_of_crawling_in_first ... ok
+test tank::tests::stands_level_on_its_springs_every_wheel_loaded_nothing_in_the_ground ... ok
+test tank::tests::one_track_on_a_kerb_rolls_the_hull_and_staggered_waves_roll_it_both_ways ... ok
+test tank::tests::driveline_launch_builds_force_and_restarts_without_reusing_the_previous_peak ... ok
+test tank::tests::damage_power_reduces_real_launch_and_disables_pivot_without_changing_healthy_drive ... ok
+test tank::tests::weight_moves_back_accelerating_forward_braking_and_onto_the_low_end_of_a_slope ... ok
+test tank::tests::differential_drive_turns_pivots_and_a_fast_turn_slides ... ok
+test tank::obstacle::cache_tests::obstacle_cache_actual_tank_steps_net_and_running_gear_stay_bit_exact ... ok
+test tank::tests::over_sine_waves_the_wheels_rise_in_turn_the_hull_follows_slower_and_settles ... ok
+
+test result: ok. 56 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 8.06s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_replay-2d7ad5f605e6b374.exe)
+
+running 3 tests
+test tests::flight_is_slowed_down ... ok
+test tests::interior_phase_only_when_penetrated ... ok
+test tests::event_roundtrips_through_json_shape ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_shared-6f0e03ce6deca735.exe)
+
+running 3 tests
+test tests::cross_and_normalize ... ok
+test tests::hull_pose_round_trips_and_turns_clockwise ... ok
+test tests::rng_is_deterministic_and_in_range ... ok
+
+test result: ok. 3 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_sim_slice-477f79942554bfb3.exe)
+
+running 8 tests
+test tests::weak_gun_is_stopped_by_armor ... ok
+test tests::shot_that_misses_reports_miss ... ok
+test impact_tests::slice_plate_exit_time_is_shared_even_when_passed_with_zero_energy ... ok
+test impact_tests::slice_real_flight_uses_actual_vector_and_reaches_second_plate ... ok
+test impact_tests::slice_primary_target_is_not_deposited_again_across_plate_segments ... ok
+test tests::full_chain_penetrates_and_generates_spall ... ok
+test tests::same_seed_same_event ... ok
+test impact_tests::all_five_active_owners_share_raw_two_layer_state ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_vehicle-50b73e609d5b38d5.exe)
+
+running 31 tests
+test files::tests::legacy_secondary_without_hinge_still_loads ... ok
+test validate::tests::material_rules ... ok
+test files::tests::source_conversion_coax_hinge_survives_weapon_roundtrip ... ok
+test files::tests::fold_safe_weapon_stages_roundtrip_negative_depression_and_default_for_legacy_data ... ok
+test validate::tests::projectile_rules ... ok
+test validate::tests::rangefinder_rejects_nonfinite_numbers_and_requires_positive_legacy_time ... ok
+test files::tests::rangefinder_kind_is_optional_strict_and_roundtrips_through_weapons ... ok
+test validate::tests::typo_in_json_is_rejected_by_loader_types ... ok
+test validate::tests::path_traversal_in_file_references_is_rejected ... ok
+test validate::tests::tree_validation_rejects_invalid_missile_g_data ... ok
+test validate::tests::ammo_must_exist_and_match_caliber ... ok
+test validate::tests::fold_safe_arcs_allow_required_elevation_and_reject_malformed_stages ... ok
+test validate::tests::missing_exterior_is_reported ... ok
+test files::tests::authored_weapon_damage_metadata_loads_from_an_actual_vehicle_folder ... ok
+test validate::tests::unknown_material_and_bad_thickness ... ok
+test validate::tests::engine_and_gearbox_rules ... ok
+test validate::tests::non_unit_or_skewed_axes_are_errors ... ok
+test validate::tests::physics_tuning_and_power_consistency ... ok
+test validate::tests::center_of_mass_and_ring ... ok
+test validate::tests::required_modules_and_roles ... ok
+test validate::tests::ordinary_secondary_bounds_and_legacy_pintle_default_remain_effective ... ok
+test validate::tests::sight_reload_and_muzzle_rules ... ok
+test validate::tests::module_and_crew_outside_volume ... ok
+test validate::tests::nominal_tube_and_measured_trunnion_offset_are_independent_but_the_mouth_is_bounded ... ok
+test validate::tests::external_modules_may_sit_outside_but_internal_ones_may_not ... ok
+test validate::tests::launcher_apparatus_cannot_replace_a_conventional_cannon_breech ... ok
+test validate::tests::zone_normal_mismatch_is_flagged ... ok
+test validate::tests::multi_turret_vehicle_is_valid_and_its_rules_bite ... ok
+test validate::tests::roof_pintles_reject_bad_posts_and_unsupported_vertical_or_lateral_anchors ... ok
+test validate::tests::roof_pintles_are_valid_when_their_actual_posts_reach_the_original_vehicle_anchor ... ok
+test validate::tests::shipped_sample_data_is_clean ... FAILED
+
+failures:
+
+---- validate::tests::shipped_sample_data_is_clean stdout ----
+
+thread 'validate::tests::shipped_sample_data_is_clean' (330632) panicked at crates\vehicle\src\validate.rs:831:9:
+
+[ERROR] P008 vehicles/de_pz4_h/armor.json[14](schuerzen_r): plate centre lies outside the hull/turret volume
+[ERROR] P008 vehicles/de_pz4_h/armor.json[15](schuerzen_l): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[31](turret_floor): normal does not match zone TurretRoof (forward=+Z, side=±X, up=+Y)
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[32](mantlet): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[33](mantlet_2): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[33](mantlet_2): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[34](mantlet_3): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[34](mantlet_3): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[35](mantlet_4): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[35](mantlet_4): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[36](mantlet_5): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[36](mantlet_5): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[37](mantlet_6): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[37](mantlet_6): plate centre lies outside the hull/turret volume
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[38](mantlet_7): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[39](mantlet_8): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[39](mantlet_8): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[40](mantlet_9): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[40](mantlet_9): plate centre lies outside the hull/turret volume
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[44](mantlet_pivot): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[48](mantlet_pivot_5): normal does not match zone GunMantlet (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[49](mantlet_pivot_6): plate centre lies outside the hull/turret volume
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[50](turret_ring): normal does not match zone TurretSide (forward=+Z, side=±X, up=+Y)
+[WARN ] P006 vehicles/de_vk3002_db/armor.json[58](cupola_wall_2): normal does not match zone TurretSide (forward=+Z, side=±X, up=+Y)
+[ERROR] P008 vehicles/de_vk3002_db/armor.json[60](cupola_lid): plate centre lies outside the hull/turret volume
+[ERROR] L003 vehicles/ru_pantsir_sm_sv: D:\TankForge-workspaces\r81-push-20261027\crates\vehicle\../../data\vehicles\ru_pantsir_sm_sv\vehicle.json: unknown field `surface_armor`, expected one of `armor`, `weapons`, `engine`, `crew`, `modules`, `visual` at line 13 column 17
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    validate::tests::shipped_sample_data_is_clean
+
+test result: FAILED. 30 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p tg-vehicle --lib`
+     Running unittests src\lib.rs (D:/TankForge-validation/rust-fuel-100-target-20261027\debug\deps\tg_weapon-9c9be0a44be412bb.exe)
+
+running 21 tests
+test design::tests::bigger_turrets_with_heavier_guns_turn_slower ... ok
+test design::tests::derived_values_land_near_historical_guns ... ok
+test design::tests::layout_reload_matches_a_heavy_tank_layout ... ok
+test fire::tests::dispersion_stays_in_cone_and_is_deterministic ... ok
+test design::tests::designed_gun_is_self_consistent ... ok
+test turret::tests::traverse_is_rate_limited_then_settles_on_target ... ok
+test turret::tests::limited_arc_stops_at_its_edge_and_never_crosses_the_blocked_sector ... ok
+test loading::tests::two_loaders_work_in_parallel_and_take_the_longest_waiting_gun ... ok
+test loading::tests::no_dedicated_loader_is_slower ... ok
+test mg::tests::ball_mount_stays_inside_its_arc_and_a_pintle_swings_all_the_way_round ... ok
+test mg::tests::cyclic_rate_belt_change_overheating_and_cooling ... ok
+test mg::tests::tracers_come_at_the_belt_interval ... ok
+test loading::tests::one_loader_reloads_six_guns_one_after_another ... ok
+test tests::curve_interpolates_and_clamps ... ok
+test turret::tests::jammed_drives_do_not_move ... ok
+test turret::tests::muzzle_follows_yaw_pitch_and_hull_pose ... ok
+test turret::tests::pitch_respects_depression_and_elevation_limits ... ok
+test loading::tests::fitted_mechanized_worker_is_independent_of_manual_gunner_work ... ok
+test turret::tests::yaw_takes_the_shortest_way_across_180 ... ok
+test turret::tests::elevate_matches_aim_step_limits ... ok
+test fire::tests::reload_and_crew_gates ... ok
+
+test result: ok. 21 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: 1 target failed:
+    `-p tg-vehicle --lib`

@@ -1,0 +1,53 @@
+   Compiling tg-missile v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\missile)
+   Compiling tg-gameplay v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\gameplay)
+   Compiling tg-shared v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\shared)
+   Compiling tg-armor v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\armor)
+   Compiling tg-weapon v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\weapon)
+   Compiling tg-ballistics v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\ballistics)
+   Compiling tg-penetration v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\penetration)
+   Compiling tg-replay v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\replay)
+   Compiling tg-damage v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\damage)
+   Compiling tg-vehicle v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\vehicle)
+   Compiling tg-physics v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\physics)
+   Compiling tg-design v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\design)
+error[E0432]: unresolved import `tg_physics::tank::suspension_force`
+  --> crates\design\src\tests.rs:12:27
+   |
+12 |     use tg_physics::tank::suspension_force::ForceProfile;
+   |                           ^^^^^^^^^^^^^^^^ could not find `suspension_force` in `tank`
+
+warning: unused import: `crate::model::*`
+ --> crates\design\src\tests.rs:4:5
+  |
+4 | use crate::model::*;
+  |     ^^^^^^^^^^^^^^^
+  |
+  = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+error[E0609]: no field `force_profile` on type `SuspensionSystem`
+  --> crates\design\src\tests.rs:23:26
+   |
+23 |         assert_ne!(tm.sp.force_profile,ForceProfile::LegacyGeneric,"{kind} actual force dispatch");
+   |                          ^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `stations`, `units`, `k`, `c`, `freq` ... and 7 others
+
+error[E0609]: no field `force_profile` on type `SuspensionSystem`
+  --> crates\design\src\tests.rs:24:58
+   |
+24 |         assert_eq!(tm.sp.units[0].members.len(),if tm.sp.force_profile.is_bogie(){2}else{1});
+   |                                                          ^^^^^^^^^^^^^ unknown field
+   |
+   = note: available fields are: `stations`, `units`, `k`, `c`, `freq` ... and 7 others
+
+error[E0599]: no method named `force_sample` found for struct `SuspensionSystem` in the current scope
+  --> crates\design\src\tests.rs:25:21
+   |
+25 |         let s=tm.sp.force_sample(&tm.sp.units[0],0.0,0.0,false);
+   |                     ^^^^^^^^^^^^ method not found in `SuspensionSystem`
+
+Some errors have detailed explanations: E0432, E0599, E0609.
+For more information about an error, try `rustc --explain E0432`.
+warning: `tg-design` (lib test) generated 1 warning
+error: could not compile `tg-design` (lib test) due to 4 previous errors; 1 warning emitted
+warning: build failed, waiting for other jobs to finish...

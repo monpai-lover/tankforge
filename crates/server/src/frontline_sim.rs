@@ -684,6 +684,15 @@ struct GroundPolicy {
     banks: Vec<Obstacle>,
     bank_cells: BTreeMap<(i64, i64), Vec<usize>>,
 }
+type CachedGroundPolicies = Vec<(Vec<u8>, Arc<GroundPolicy>)>;
+fn publish_ground_policy(entries: &mut CachedGroundPolicies, key: Vec<u8>, policy: Arc<GroundPolicy>) -> Arc<GroundPolicy> {
+    // Another compiler can publish this immutable source while our expensive
+    // compilation runs outside the cache lock. Adopt that accepted allocation.
+    if let Some((_, existing)) = entries.iter().find(|(k, _)| k == &key) { return existing.clone(); }
+    if entries.len() >= 4 { entries.remove(0); }
+    entries.push((key, policy.clone()));
+    policy
+}
 fn ring_relation(ring: &[[f64; 2]], x: f64, z: f64) -> u8 {
     let mut inside = false;
     for p in ring.windows(2) {
@@ -1511,8 +1520,7 @@ impl MapGround {
         if map["navigation"].get("hydroCoverage").is_some() {
             // A bounded immutable cache shares expensive source-derived contacts across rooms/tests.
             // The full canonical bytes are compared, not a lossy coordinate or hash-only identity.
-            type CachedPolicy = Vec<(Vec<u8>, Arc<GroundPolicy>)>;
-            static CACHE: std::sync::OnceLock<std::sync::Mutex<CachedPolicy>> =
+            static CACHE: std::sync::OnceLock<std::sync::Mutex<CachedGroundPolicies>> =
                 std::sync::OnceLock::new();
             let key = serde_json::to_vec(&json!([
                 &self.terrain,
@@ -1536,13 +1544,7 @@ impl MapGround {
                 policy.barriers(self);
                 let policy = Arc::new(policy);
                 let mut entries = cache.lock().map_err(|_| "Hydro cache poisoned")?;
-                if !entries.iter().any(|(k, _)| k == &key) {
-                    if entries.len() >= 4 {
-                        entries.remove(0);
-                    }
-                    entries.push((key, policy.clone()));
-                }
-                policy
+                publish_ground_policy(&mut entries, key, policy)
             };
             let ids: BTreeMap<_, _> = policy
                 .bridges
@@ -2499,6 +2501,7 @@ fn accepted_world_bursts(
         let mut record = serde_json::to_value(burst).expect("native burst serializes");
         record["world_position"] = json!(world_point(burst.pos.to_array().map(|v| v as f64)));
         record["raw_explosive_kg"] = json!(burst.explosive_kg);
+        record["tnt_equivalent_kg"] = json!(burst.explosive_kg * tg_weapon::explosive_re_factor(&shell.explosive_type));
         record["explosive_type"] = json!(shell.explosive_type);
         if burst.mechanism.is_none() && has_immediate_contact_explosion(shell) {
             record["mechanism"] = json!("immediate_he");
@@ -2521,6 +2524,7 @@ fn immediate_world_bursts(shell: &ProjectileDef, pos: [f64; 3]) -> Vec<Value> {
         "time_s": 0.0,
         "explosive_kg": shell.explosive_mass_kg,
         "raw_explosive_kg": shell.explosive_mass_kg,
+        "tnt_equivalent_kg": shell.tnt_equivalent_kg(),
         "explosive_type": shell.explosive_type
     })]
 }
@@ -2534,7 +2538,7 @@ fn accepted_air_blast(
 ) {
     for target in scene.blast(
         pos,
-        r.shell.explosive_mass_kg as f64,
+        r.shell.tnt_equivalent_kg() as f64,
         r.team,
         r.seed,
         friendly_damage,
@@ -4221,7 +4225,7 @@ impl SimWorld {
                         team: r.team,
                         energy_j: 0.5 * r.shell.mass_kg as f64 * speed * speed,
                         tnt_kg: if has_immediate_contact_explosion(&r.shell) {
-                            r.shell.explosive_mass_kg as f64
+                            r.shell.tnt_equivalent_kg() as f64
                         } else { 0.0 },
                         friendly_damage: self.friendly_damage,
                     },
@@ -4407,7 +4411,7 @@ impl SimWorld {
             .facilities
             .blast(
                 pos,
-                r.shell.explosive_mass_kg as f64,
+                r.shell.tnt_equivalent_kg() as f64,
                 r.team,
                 self.friendly_damage,
                 r.id,
@@ -4417,7 +4421,7 @@ impl SimWorld {
         self.accept_facility_events(facility_blast, r.shooter, events);
         // Candidate radius only. Per-station declared geometry and individual
         // physical casing paths decide damage; the sphere itself never kills.
-        let radius = (12.0 + 8.0 * r.shell.explosive_mass_kg.cbrt()).min(60.0) as f64 + 8.0;
+        let radius = (12.0 + 8.0 * r.shell.tnt_equivalent_kg().cbrt()).min(60.0) as f64 + 8.0;
         for u in self.units.values_mut() {
             if exclude == Some(u.id)
                 || (!self.friendly_damage && u.team == r.team)

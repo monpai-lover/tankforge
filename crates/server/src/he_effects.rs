@@ -2,6 +2,7 @@
 //! still uses declared planes/anatomy, explicitly not registered-triangle parity.
 //! Never relocate charges to guessed hull centers or crew stations.
 use tg_combat::{Report, Shot, Target, TargetState};
+#[cfg(test)]
 use tg_shared::Vec3;
 use tg_weapon::{ProjectileDef, ProjectileKind};
 
@@ -9,21 +10,12 @@ use tg_weapon::{ProjectileDef, ProjectileKind};
 /// Wikipedia "TNT equivalent". Amatol (0.91-1.10 by ratio), explosive D (ammonium picrate, not
 /// listed), A-IX-1 (96% RDX) and A-IX-2 (aluminised RDX, taken as hexal) are estimates.
 pub fn re_factor(explosive_type: &str) -> f32 {
-    match explosive_type {
-        "petn" => 1.66,
-        "hexogen" | "rdx" | "okfol" => 1.6,
-        "comp_b" => 1.33,
-        "explosive_d" => 0.95,
-        "a_ix_1" => 1.54,
-        "a_ix_2" => 1.35,
-        _ => 1.0,
-    }
+    tg_weapon::explosive_re_factor(explosive_type)
 }
 
 /// The filler as TNT (kg); zero for none or invalid data.
 pub fn tnt_kg(shell: &ProjectileDef) -> f32 {
-    let kg = shell.explosive_mass_kg;
-    if kg.is_finite() && kg > 0.0 { kg * re_factor(&shell.explosive_type) } else { 0.0 }
+    shell.tnt_equivalent_kg()
 }
 
 fn merge(into: &mut Report, add: Report) {

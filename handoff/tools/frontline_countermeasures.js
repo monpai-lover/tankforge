@@ -97,7 +97,7 @@ function createFrontlineCountermeasureVisual({maxEntries=192,staleSeconds=.35}={
       const flare=kind==='flares',size=flare?.3:.65+age*.08,alpha=(flare?.9:.4)*Math.min(1,(s.ttl-age)/.3);
       for(let v=0;v<6;v++){
         const right=v===1||v===2||v===4?1:-1,up=v===2||v===4||v===5?1:-1,at=(count+v)*9;
-        buffer[at]=x+(cam.right[0]*right+cam.up[0]*up)*size;buffer[at+1]=y+(cam.right[1]*right+cam.up[1]*up)*size;buffer[at+2]=z+(cam.right[2]*right+cam.up[2]*up)*size;
+        buffer[at]=x+(cam.right[0]*right+cam.up[0]*up)*size-(cam.renderOrigin?.[0]||0);buffer[at+1]=y+(cam.right[1]*right+cam.up[1]*up)*size-(cam.renderOrigin?.[1]||0);buffer[at+2]=z+(cam.right[2]*right+cam.up[2]*up)*size-(cam.renderOrigin?.[2]||0);
         buffer[at+3]=right;buffer[at+4]=up;buffer[at+5]=flare?1:.78;buffer[at+6]=flare?.65:.82;buffer[at+7]=flare?.22:.86;buffer[at+8]=alpha;
       }
       count+=6;

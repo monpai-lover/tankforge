@@ -251,16 +251,40 @@ impl Geometry {
     pub fn bounds(&self)->Option<Bounds>{self.tlas.nodes.first().map(|n|n.bounds)}
     #[cfg(test)]
     pub(crate) fn visit_surface_triangles(&self,mut visit:impl FnMut(&str,&manifest::Surface,[Point;3]))->Result<(),String>{
-        self.visit_surface_triangles_selected(|_,_|Some(()),|instance,surface,(),vertices|visit(instance,surface,vertices))
+        self.visit_surface_triangles_selected(None,|_,_|Some(()),|instance,surface,(),vertices|visit(instance,surface,vertices))
     }
     /// Select complete instance/surface ranges before transforming vertices.
     /// Selection only limits candidate construction; exact occlusion traces
     /// continue to consume the full registered geometry, including unknowns.
     pub(crate) fn visit_surface_triangles_selected<T:Copy>(&self,
+        sphere:Option<(Point,f64)>,
         mut select:impl FnMut(&str,&manifest::Surface)->Option<T>,
         mut visit:impl FnMut(&str,&manifest::Surface,T,[Point;3]))->Result<(),String>{
         let mut work=0u64;
         for instance in &self.instances {
+            // This is only a candidate rejection against the exact posed
+            // instance's bounds. Preserve full range/membership/work checks
+            // below, and leave all admitted contacts to the triangle predicate.
+            let in_radius=sphere.map_or(true,|(center,radius)|{
+                if !ray::finite(center)||!radius.is_finite()||radius<0. {return true;}
+                let local=instance.mesh.data.bounds;
+                let mut scale=radius.max(1.);
+                for k in 0..3 {
+                    let mut terms=instance.affine.forward[12+k].abs();
+                    for axis in 0..3 {terms+=instance.affine.forward[axis*4+k].abs()*local.lo[axis].abs().max(local.hi[axis].abs());}
+                    scale=scale.max(terms).max(center[k].abs()).max(instance.bounds.lo[k].abs()).max(instance.bounds.hi[k].abs());
+                }
+                if !scale.is_finite(){return true;}
+                // Outward arithmetic error only, including absolute affine
+                // terms before cancellation and the distance subtraction.
+                let pad=128.*f64::EPSILON*scale;
+                let distance2=(0..3).map(|k|{
+                    let d=(instance.bounds.lo[k]-center[k]).max(center[k]-instance.bounds.hi[k]).max(0.);
+                    (d-pad).max(0.).powi(2)
+                }).sum::<f64>();
+                let radius2=(radius+pad).powi(2);
+                !distance2.is_finite()||!radius2.is_finite()||distance2<=radius2
+            });
             let mesh=&self.manifest.meshes[instance.mesh_record];
             let ordinals=self.range_surface_ordinals.get(instance.mesh_record)
                 .filter(|indices|indices.len()==mesh.ranges.len()).ok_or("registered surface ranges changed")?;
@@ -275,6 +299,7 @@ impl Geometry {
                 work=work.checked_add(range.count as u64).ok_or("anatomy surface work limit")?;
                 if work>MAX_OCCUPANCY_TRIANGLE_TESTS {return Err("anatomy surface work limit".into());}
                 let Some(selected)=select(&instance.record.key,surface) else {continue;};
+                if !in_radius {continue;}
                 for triangle in range.first..range.first+range.count {
                     #[cfg(test)]
                     SURFACE_TRIANGLE_VISITS.with(|count| count.set(count.get() + 1));

@@ -63,12 +63,19 @@ const lobbyEdits=[
 const edits=(source,rows)=>rows.reduce((text,[old,next])=>once(text,old,next),source);
 export function patchFrontlineFuelClient(source){return edits(source,clientEdits);}
 export function patchFrontlineFuelLobby(source){return edits(source,lobbyEdits);}
+export function patchAircraftFuelLoadHelper(source){
+  const begin='/* TF_AIRCRAFT_FUEL_LOAD_BEGIN */',end='/* TF_AIRCRAFT_FUEL_LOAD_END */';
+  for(const marker of [begin,end])assert.equal(source.split(marker).length,2,'One complete fuel helper boundary required: '+marker);
+  const a=source.indexOf(begin),b=source.indexOf(end);assert.ok(b>a,'Ordered fuel helper boundaries required');
+  const previous=source.slice(a,b+end.length),crlf=previous.includes('\r\n')&&!/(?<!\r)\n/.test(previous);
+  const replacement=helper.trimEnd().replace(/\r?\n/g,crlf?'\r\n':'\n');
+  return source.slice(0,a)+replacement+source.slice(b+end.length);
+}
 export function patchAircraftFuelLoad(source){
   let text=source;
-  const begin='/* TF_AIRCRAFT_FUEL_LOAD_BEGIN */',end='/* TF_AIRCRAFT_FUEL_LOAD_END */';
+  const begin='/* TF_AIRCRAFT_FUEL_LOAD_BEGIN */';
   if(text.includes(begin)){
-    const a=text.indexOf(begin),b=text.indexOf(end,a);assert.ok(b>a,'Complete fuel helper required');
-    text=text.slice(0,a)+helper.trimEnd()+text.slice(b+end.length);
+    text=patchAircraftFuelLoadHelper(text);
   }else text=once(text,'  var FLIGHT_FIXED = ',helper.trimEnd()+'\n  var FLIGHT_FIXED = ');
   text=patchFrontlineFuelClient(text);text=patchFrontlineFuelLobby(text);
   text=once(text,'        plane.instrumentContext = air;\n        air.stores = mountStores(plane, typeId, G4.airLoadout[typeId] || 0);','        plane.instrumentContext = air;\n        aircraftFuelLoad.initializeAir(air, true);\n        air.stores = mountStores(plane, typeId, G4.airLoadout[typeId] || 0);');

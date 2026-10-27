@@ -1,0 +1,500 @@
+{
+  "passed": true,
+  "error": null,
+  "url": "ws://127.0.0.1:8892/ws",
+  "scenarioName": "f16-agm",
+  "scenario": {
+    "aircraft": "f16v",
+    "loadout": 3,
+    "store": "agm65g",
+    "guidance": "point"
+  },
+  "source": {
+    "appSha256": "d4ffc8b9fccd6a50de5996f723d056914d8ce49a2df8768bf8f609dddb4e563c",
+    "runtimeSha256": "aaa461251b63d84b50c152786b72f3b0c4ce2bd885444d7ea7b29ae4d84b2e1c",
+    "clientSha256": "1335b6408eb46d09fa6457e152b87c7675ef612a97c0999c2ee1046045866eb1",
+    "serverExe": "D:/TankForge-validation/rust-vulcan-target-20261027/release/tg-server.exe",
+    "serverSha256": "b994824aa91d42fdcd8d2a6c8fccd1ac2605c9d4149b306b64f4a5952d3c4f15"
+  },
+  "scope": "Actual sockets plus shipped NetClient/wire, established runtime/bridge, Aircraft pilot input and local shared flight WASM. Guided control and original seekerCaptureRequest/groundAlong produce direction intent; real host resolves capture/flight/inventory. Renderer/audio/system presentation and nonauthoritative sensor display are stubbed; local ground is flat because only aerial movement is measured. AAM out-of-range coverage is a denial probe, not a successful launch. Existing old 8877 binary is a baseline, not the new release.",
+  "checks": {
+    "runtime-blue-333108": {
+      "aircraft": "f16v",
+      "guns": [
+        {
+          "ammo": 386,
+          "id": "air_m61_0",
+          "owner": "body"
+        }
+      ],
+      "beforeAmmo": 511,
+      "afterAmmo": 386,
+      "beforeStores": 6,
+      "afterStores": 5,
+      "seekerBefore": {
+        "accepted_capture_seq": 65,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": [
+          16886.228039571113,
+          42.984085234497186,
+          50104.77318140755
+        ],
+        "progress_s": 2.2999999999999945,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "track",
+        "target": null
+      },
+      "seekerAfter": {
+        "accepted_capture_seq": 65,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": [
+          16886.228039571113,
+          42.984085234497186,
+          50104.77318140755
+        ],
+        "progress_s": 1.7666666666666628,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "capturing",
+        "target": null
+      },
+      "fuelLoadOption": {
+        "capacity_kg": 3200,
+        "minutes": [
+          10,
+          20,
+          30,
+          45
+        ],
+        "nominal_flow_kg_s": 1.298,
+        "reference_throttle": 1,
+        "scope": "internal_only_external_tanks_unchanged",
+        "version": 1
+      },
+      "fuelBefore": 3195.2376577623763,
+      "fuelAfter": 3191.8905046982936,
+      "flow": 1.8708736497988405,
+      "throttleCommandRange": [
+        0.72,
+        1.0230971499999995
+      ],
+      "localThrottle": 1.0132704973220825,
+      "hostThrottle": 1.0118153095245361,
+      "weaponControl": {
+        "gun_mode": "all",
+        "program": "single",
+        "store_id": "agm65g",
+        "store_index": null
+      },
+      "inputCount": 113,
+      "fireInputs": 20,
+      "releaseInputs": 1,
+      "stickInputs": 20,
+      "poseCount": 108,
+      "poseAcknowledgements": 103,
+      "localMoved": 264.72321563086547,
+      "localBankChanged": 0.18344465804693755,
+      "panelFuelKg": 3191.8905046982936,
+      "panelFuelState": "current",
+      "errors": [
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "flight_teleport_rejected"
+        }
+      ]
+    },
+    "runtime-red-333108": {
+      "aircraft": "f16v",
+      "guns": [
+        {
+          "ammo": 386,
+          "id": "air_m61_0",
+          "owner": "body"
+        }
+      ],
+      "beforeAmmo": 511,
+      "afterAmmo": 386,
+      "beforeStores": 6,
+      "afterStores": 5,
+      "seekerBefore": {
+        "accepted_capture_seq": 64,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": [
+          -10688.892192701216,
+          115.62057437669884,
+          -50174.19309919613
+        ],
+        "progress_s": 2.2999999999999945,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "track",
+        "target": null
+      },
+      "seekerAfter": {
+        "accepted_capture_seq": 64,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": [
+          -10688.892192701216,
+          115.62057437669884,
+          -50174.19309919613
+        ],
+        "progress_s": 1.7583333333333295,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "capturing",
+        "target": null
+      },
+      "fuelLoadOption": {
+        "capacity_kg": 3200,
+        "minutes": [
+          10,
+          20,
+          30,
+          45
+        ],
+        "nominal_flow_kg_s": 1.298,
+        "reference_throttle": 1,
+        "scope": "internal_only_external_tanks_unchanged",
+        "version": 1
+      },
+      "fuelBefore": 3195.2376577623763,
+      "fuelAfter": 3191.8905046982936,
+      "flow": 1.8708736497988405,
+      "throttleCommandRange": [
+        0.72,
+        1.0230971499999995
+      ],
+      "localThrottle": 1.0132704973220825,
+      "hostThrottle": 1.0118153095245361,
+      "weaponControl": {
+        "gun_mode": "all",
+        "program": "single",
+        "store_id": "agm65g",
+        "store_index": null
+      },
+      "inputCount": 113,
+      "fireInputs": 20,
+      "releaseInputs": 1,
+      "stickInputs": 20,
+      "poseCount": 107,
+      "poseAcknowledgements": 104,
+      "localMoved": 264.738955206826,
+      "localBankChanged": 0.7915752486119345,
+      "panelFuelKg": 3191.8905046982936,
+      "panelFuelState": "current",
+      "errors": [
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        },
+        {
+          "op": "error",
+          "code": "air_pose_rejected",
+          "message": "stale_initial_flight_pose"
+        }
+      ]
+    },
+    "cleanup": [
+      {
+        "peer": "runtime-red-333108",
+        "left": true
+      },
+      {
+        "peer": "runtime-blue-333108",
+        "left": true
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "seconds": 0.1219512,
+      "action": "runtime-blue-333108:connected",
+      "player": 3,
+      "wire": 2
+    },
+    {
+      "seconds": 0.12224439999999999,
+      "action": "runtime-red-333108:connected",
+      "player": 4,
+      "wire": 2
+    },
+    {
+      "seconds": 1.053066,
+      "action": "runtime-red-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.0832798000000001,
+      "action": "runtime-red-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.1564328000000001,
+      "action": "runtime-blue-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.2983614,
+      "action": "runtime-red-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.3135682999999998,
+      "action": "runtime-blue-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.3468346999999998,
+      "action": "runtime-blue-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.3869612,
+      "action": "runtime-blue-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "stale_initial_flight_pose"
+    },
+    {
+      "seconds": 1.6148705,
+      "action": "runtime-blue-333108:native-rejection",
+      "code": "air_pose_rejected",
+      "message": "flight_teleport_rejected"
+    },
+    {
+      "seconds": 2.8667551000000002,
+      "action": "runtime-blue-333108:original-action",
+      "name": "space",
+      "result": true,
+      "group": "agm65g",
+      "kind": "agm",
+      "guidance": "iir",
+      "host": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      }
+    },
+    {
+      "seconds": 2.8668478,
+      "action": "runtime-red-333108:original-action",
+      "name": "space",
+      "result": true,
+      "group": "agm65g",
+      "kind": "agm",
+      "guidance": "iir",
+      "host": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": false,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "off",
+        "target": null
+      }
+    },
+    {
+      "seconds": 3.1126963,
+      "action": "runtime-blue-333108:original-action",
+      "name": "space",
+      "result": true,
+      "group": "agm65g",
+      "kind": "agm",
+      "guidance": "iir",
+      "host": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": "no_valid_target_in_seeker",
+        "requested": null,
+        "status": "search",
+        "target": null
+      }
+    },
+    {
+      "seconds": 3.1140885000000003,
+      "action": "runtime-red-333108:original-action",
+      "name": "space",
+      "result": true,
+      "group": "agm65g",
+      "kind": "agm",
+      "guidance": "iir",
+      "host": {
+        "accepted_capture_seq": 0,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": null,
+        "progress_s": 0,
+        "radar": false,
+        "reason": "no_valid_target_in_seeker",
+        "requested": null,
+        "status": "search",
+        "target": null
+      }
+    },
+    {
+      "seconds": 5.4861156,
+      "action": "runtime-blue-333108:original-action",
+      "name": "fire",
+      "result": true,
+      "group": "agm65g",
+      "kind": "agm",
+      "guidance": "iir",
+      "host": {
+        "accepted_capture_seq": 65,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": [
+          16886.228039571113,
+          42.984085234497186,
+          50104.77318140755
+        ],
+        "progress_s": 2.2999999999999945,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "track",
+        "target": null
+      }
+    },
+    {
+      "seconds": 5.4865964,
+      "action": "runtime-red-333108:original-action",
+      "name": "fire",
+      "result": true,
+      "group": "agm65g",
+      "kind": "agm",
+      "guidance": "iir",
+      "host": {
+        "accepted_capture_seq": 64,
+        "designation_point": null,
+        "ecm": false,
+        "enabled": true,
+        "laser": false,
+        "manual": [
+          0,
+          0
+        ],
+        "point": [
+          -10688.892192701216,
+          115.62057437669884,
+          -50174.19309919613
+        ],
+        "progress_s": 2.2999999999999945,
+        "radar": false,
+        "reason": null,
+        "requested": null,
+        "status": "track",
+        "target": null
+      }
+    }
+  ]
+}

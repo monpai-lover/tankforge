@@ -6,19 +6,28 @@ use serde_json::json;
 // station has a separate armored (or explicitly unknown) screen. Engineering
 // planes and global open_top deliberately cannot stand in for these triangles.
 fn exposed_stations(unknown_screen: bool, open_top: bool) -> (Target, geometry::combat_scene::CombatScene) {
+    exposed_stations_with_occluders(unknown_screen, open_top, None)
+}
+
+fn exposed_stations_with_occluders(unknown_screen: bool, open_top: bool, breech: Option<bool>) -> (Target, geometry::combat_scene::CombatScene) {
     let mut def = box_tank(false).def;
     def.id = "blast-stations".into();
     def.turret = None;
     def.modules.clear();
     def.open_top = open_top;
     def.crew = vec![crew(CrewRole::Gunner, [-0.5, 0., 0.8]), crew(CrewRole::Driver, [0.5, 0., 0.8])];
+    if breech.is_some() { def.crew.push(crew(CrewRole::Loader, [-0.65, 0., 1.4])); }
+    if breech == Some(true) { def.modules.push(module("breech", ModuleKind::GunBreech, [-0.5,0.,0.4], [0.4,0.4,0.1], 100.)); }
     def.plates = vec![plate("screen", ArmorZone::HullSide, 250., [0.5, 0., 0.], [0., 0., -1.], [1., 0., 0.], 0.4, 1.)];
     let target = Target::new(def, &rha());
     let anatomy = json!({"armor":target.def.plates,"modules":target.def.modules,"crew":target.def.crew,"weapons":target.def.weapons});
     let ah = sha256(&serde_json::to_vec(&anatomy).unwrap());
     let mut positions = Vec::<[f32; 3]>::new();
     let mut triangles = Vec::<[u32; 3]>::new();
-    for (x0, x1, y0, y1, z) in [(0.1, 1., -1., 1., 0.), (-0.65, -0.35, -0.2, 0.2, 0.8), (0.35, 0.65, -0.2, 0.2, 0.8)] {
+    let mut quads = vec![(0.1, 1., -1., 1., 0.), (-0.65, -0.35, -0.2, 0.2, 0.8), (0.35, 0.65, -0.2, 0.2, 0.8)];
+    if breech.is_some() { quads.push((-0.8,-0.5,-0.2,0.2,1.4)); }
+    if breech == Some(true) { quads.push((-0.9,-0.1,-0.4,0.4,0.4)); }
+    for (x0, x1, y0, y1, z) in quads {
         let first = positions.len() as u32;
         positions.extend([[x0, y0, z], [x1, y0, z], [x1, y1, z], [x0, y1, z]]);
         triangles.extend([[first, first + 2, first + 1], [first, first + 3, first + 2]]);
@@ -35,24 +44,28 @@ fn exposed_stations(unknown_screen: bool, open_top: bool) -> (Target, geometry::
     let mut declarations = vec![];
     let mut ranges = vec![];
     let mut surfaces = vec![];
-    for (ordinal, key) in ["screen", "gunner", "driver"].into_iter().enumerate() {
+    let mut keys = vec!["screen", "gunner", "driver"];
+    if breech.is_some() { keys.push("loader"); }
+    if breech == Some(true) { keys.push("breech"); }
+    for (ordinal, key) in keys.into_iter().enumerate() {
         let armor = ordinal == 0 && !unknown_screen;
-        let role = if ordinal > 0 { "crew" } else if armor { "armor" } else { "unknown" };
+        let is_crew = ordinal > 0 && key != "breech";
+        let role = if key == "breech" { "module" } else if is_crew { "crew" } else if armor { "armor" } else { "unknown" };
         let mut d = json!({"meshKey":"mesh","first":ordinal*2,"count":2,"sourceKey":"stations-fixture","partId":key,"material":{},"role":role,"topology":{"kind":"open_sheet"},
             "armorBinding":{"status":if armor{"declared"}else{"none"},"armorRefs":if armor{vec!["screen"]}else{vec![]},"layerKey":if armor{Some("wall")}else{None},"boundarySide":if armor{"outer"}else{"none"},"thicknessSource":if armor{"authored_engineering"}else{"none"},"pairing":"same_material_region"},
-            "moduleRef":null,"crewSlot":if ordinal>0{Some(json!({"index":ordinal-1,"role":target.def.crew[ordinal-1].role,"anatomyHash":ah}))}else{None},
-            "contactEligible":true,"fuseEligible":armor,"resistancePolicy":if armor{"authored_thickness"}else if ordinal>0{"crew"}else{"unsupported"},"declaration":{"revision":"test","basis":"authored_station_screen"},"owners":[]});
+            "moduleRef":if key=="breech"{Some("breech")}else{None},"crewSlot":if is_crew{Some(json!({"index":ordinal-1,"role":target.def.crew[ordinal-1].role,"anatomyHash":ah}))}else{None},
+            "contactEligible":true,"fuseEligible":armor,"resistancePolicy":if armor{"authored_thickness"}else if is_crew{"crew"}else if key=="breech"{"module"}else{"unsupported"},"declaration":{"revision":"test","basis":"authored_station_screen"},"owners":[]});
         let dh = sha256(&serde_json::to_vec(&d).unwrap());
         let dk = format!("decl:{dh}");
         d["key"] = json!(dk); d["declaration"]["contentHash"] = json!(dh);
         declarations.push(d);
         ranges.push(json!({"first":ordinal*2,"count":2,"sourceKey":"stations-fixture","surfaceKey":key,"solidKey":null,"bindingKey":null}));
-        surfaces.push(json!({"key":key,"role":if role=="unknown"{"audit_pending"}else{role},"topology":"open_sheet","winding":"emitted","responseRef":dk,"armorLayerKey":if armor{Some("wall")}else{None},"moduleKey":null,"crewKey":if ordinal>0{Some(key)}else{None},"fuseEligible":armor,"contactEligible":true}));
+        surfaces.push(json!({"key":key,"role":if role=="unknown"{"audit_pending"}else{role},"topology":"open_sheet","winding":"emitted","responseRef":dk,"armorLayerKey":if armor{Some("wall")}else{None},"moduleKey":if key=="breech"{Some("breech")}else{None},"crewKey":if is_crew{Some(key)}else{None},"fuseEligible":armor,"contactEligible":true}));
     }
     let mut m = json!({"schema":"HitMeshManifestV1","format":"THMESH1","endianness":"LE","generator":{"revision":"test","sha256":zero},"buildRecipeHash":zero,"specId":target.def.id,"buildHash":zero,"renderGeometryHash":zero,"anatomyDataHash":ah,"sources":{"assets":[]},
         "meshes":[{"key":"mesh","payloadHash":ph,"positionsHash":mesh.data.position_hash,"renderBufferHash":zero,"vertexCount":positions.len(),"triangleCount":triangles.len(),"bounds":mesh.data.bounds,"ranges":ranges,"bvh":null}],
         "assemblies":[{"key":"root","parent":null,"baseTransformBits":ident,"pivot":[0,0,0],"joint":{},"allowedMotionFields":[]}],
-        "meshInstances":[{"key":"instance","meshKey":"mesh","assemblyKey":"root","sourceKey":"stations-fixture","worldBits":ident,"instanceBits":ident,"materialFeature":{},"activityPolicy":"static_fixture"}],"bindings":[{"key":"wall"},{"key":"gunner"},{"key":"driver"}],"surfaces":surfaces,
+        "meshInstances":[{"key":"instance","meshKey":"mesh","assemblyKey":"root","sourceKey":"stations-fixture","worldBits":ident,"instanceBits":ident,"materialFeature":{},"activityPolicy":"static_fixture"}],"bindings":[{"key":"wall"},{"key":"gunner"},{"key":"driver"},{"key":"loader"},{"key":"breech"}],"surfaces":surfaces,
         "audits":{"certification":"audit_pending_diagnostic","triangleCoverage":triangles.len(),"unclassifiedPhysicalTriangles":if unknown_screen{2}else{0},"degenerateCount":0,"boundaryEdges":0,"nonmanifoldEdges":0,"missingBindings":0,"ambiguousBindings":0,"renderPositionDifferences":0,"topologyPending":false,"declaredOpenBoundaries":null,"shaderDeformation":"none","activity":"static_fixture"}});
     m["manifestHash"] = json!(sha256(&serde_json::to_vec(&m).unwrap()));
     let mb = serde_json::to_vec(&m).unwrap();
@@ -65,6 +78,38 @@ fn exposed_stations(unknown_screen: bool, open_top: bool) -> (Target, geometry::
     let ctx = geometry::surface::QueryContext { entity_id:"blast-actor".into(),spawn_epoch:1,build_hash:zero,pose_revision:7,geometry_revision:0,shape_hash:None };
     let scene = geometry::combat_scene::CombatScene::new(geo, &mh, &cb, &sha256(&cb), &target, ctx).unwrap();
     (target, scene)
+}
+
+fn surface_pressure_only(target: &Target, scene: &geometry::combat_scene::CombatScene, inside: bool) -> Report {
+    let at = Vec3::new(0.,0.,-1.);
+    let state = target.fresh_state();
+    let mut work = Work { scene:Some(scene),context:None,t:target,p:target.posed(0.),st:state.clone(),
+        rng:Rng::new(3),explosive_re_factor:1.,rep:splash(target,&state,at,0.,0.,3),mod_dmg:HashMap::new(),crew_dmg:HashMap::new(),
+        newly_destroyed:vec![],newly_killed:vec![] };
+    work.blast_surface(at, 39., inside);
+    finish(&mut work);
+    work.rep
+}
+
+#[test]
+fn internal_pressure_does_not_treat_registered_crew_or_breech_as_sealed_compartment_walls() {
+    for breech in [false, true] {
+        for unknown_screen in [false, true] {
+            let (target, scene) = exposed_stations_with_occluders(unknown_screen, false, Some(breech));
+            let report = surface_pressure_only(&target,&scene,true);
+            assert!(report.state.crew[0] < 100., "an ordinary registered breech is not a gas-tight compartment wall");
+            assert!(report.state.crew[2] < 100., "one crew body cannot seal the rest of the same open air path");
+            assert_eq!(report.state.crew[1], 100., "a registered armor or unknown surface still separates the protected station");
+        }
+    }
+}
+
+#[test]
+fn external_pressure_keeps_registered_module_and_crew_line_of_sight_policy() {
+    let (target, scene) = exposed_stations_with_occluders(false, true, Some(true));
+    let report = surface_pressure_only(&target,&scene,false);
+    assert_eq!(report.state.crew,target.fresh_state().crew,
+        "external pressure does not gain an unmodeled route through any physical occluder");
 }
 
 #[test]

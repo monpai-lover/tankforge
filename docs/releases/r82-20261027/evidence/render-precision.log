@@ -1,0 +1,46 @@
+TAP version 13
+# Subtest: actual Node and renderer preserve sub-centimetre aircraft/weapon alignment at 350km
+ok 1 - actual Node and renderer preserve sub-centimetre aircraft/weapon alignment at 350km
+  ---
+  duration_ms: 32.7967
+  type: 'test'
+  ...
+# Subtest: actual tracer/particle/decal packing subtracts camera before Float32 upload
+ok 2 - actual tracer/particle/decal packing subtracts camera before Float32 upload
+  ---
+  duration_ms: 17.9272
+  type: 'test'
+  ...
+# Subtest: precision patch is idempotent, validates anchors, and keeps inset/shadow shaders wired
+ok 3 - precision patch is idempotent, validates anchors, and keeps inset/shadow shaders wired
+  ---
+  duration_ms: 114.1024
+  type: 'test'
+  ...
+# Subtest: aircraft quaternion root retains precise presentation translation and HUD agrees at far coordinates
+ok 4 - aircraft quaternion root retains precise presentation translation and HUD agrees at far coordinates
+  ---
+  duration_ms: 28.6091
+  type: 'test'
+  ...
+# Subtest: orthographic status inset keeps its authored projection
+ok 5 - orthographic status inset keeps its authored projection
+  ---
+  duration_ms: 23.2523
+  type: 'test'
+  ...
+# Subtest: accepted replay world replacement overrides the earlier presentation pose
+ok 6 - accepted replay world replacement overrides the earlier presentation pose
+  ---
+  duration_ms: 23.7601
+  type: 'test'
+  ...
+1..6
+# tests 6
+# suites 0
+# pass 6
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 483.944

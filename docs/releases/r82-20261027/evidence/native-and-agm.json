@@ -1,0 +1,337 @@
+{
+  "schema": "TankForgeR82AgmDamageAndNativeVerificationV1",
+  "source_root": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "baseline_commit": "a3caa8d",
+  "changes": [
+    "Use existing shared explosive RE factors in native and WASM explosive response while retaining raw filler/casing mass and raw burst receipts.",
+    "Inside-only pressure traversal skips other registered crew/modules; registered armor and unknown surfaces still block. Outside pressure traversal is unchanged.",
+    "Native bounded ground-policy cache adopts the existing published Arc after duplicate concurrent compilation; capacity stays four."
+  ],
+  "source_data_preservation": {
+    "baselineCommit": "a3caa8d",
+    "preserved": {
+      "aircraft": true,
+      "shells": true,
+      "storeDefinitions": true
+    },
+    "aircraftCount": 28
+  },
+  "no_inferred_pbxn_factor": true,
+  "no_fuel_file_edits_during_agm": true,
+  "tests": {
+    "combat": {
+      "command": "cargo test --locked -p tg-combat --lib -- --nocapture",
+      "failed": 0,
+      "log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/green-combat.log",
+      "passed": 205
+    },
+    "server_final": {
+      "command": "cargo test --locked -p tg-server --lib",
+      "passed": 453,
+      "seconds": 223.04,
+      "log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/final-server-full-after-cache.log",
+      "failed": 0,
+      "exit_code": 0
+    },
+    "server_focused": {
+      "contact_tests": 3,
+      "all_passed": true,
+      "explosive_tests": 7
+    },
+    "ground_policy_and_bridges": {
+      "failed": 0,
+      "green_log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/green-ground-policy-and-bridges.log",
+      "passed": 8,
+      "red_log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/red-ground-policy-publish.log"
+    },
+    "native_agm_matrix": {
+      "measurements": 325,
+      "scope": "13 source AGMs, five source vehicles, top/front/side plus near-side contacts. Diagnostic current behavior; initial broadphase-bound near misses were corrected to actual-contact/declared-side positions and are not a paired before/after radius comparison.",
+      "log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/green-final-matrix.log",
+      "passed": true
+    },
+    "workspace": {
+      "logs": [
+        "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/final-workspace-libs.log",
+        "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/final-workspace-supported-all-results.log"
+      ],
+      "penetration_passed": 15,
+      "ignored": 4,
+      "weapon_passed": 21,
+      "physics_passed": 56,
+      "supported_lib_passed": 197,
+      "replay_passed": 3,
+      "all_green": false,
+      "unmodified_baseline_failures": [
+        "tg-design lib tests reference missing suspension_force::ForceProfile, force_profile and force_sample APIs.",
+        "tg-vehicle shipped_sample_data_is_clean reports existing P008 armor-volume errors, P006 normal warnings and L003 Pantsir surface_armor loader-field mismatch."
+      ],
+      "supported_lib_failed": 1,
+      "failed_areas_unchanged_by_git_diff": true
+    }
+  },
+  "red_evidence": {
+    "pressure_behavior_failure": "A registered crew body prevented pressure reaching the next station along the same air path.",
+    "pressure_log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/red-internal-pressure-final.log",
+    "equivalence_behavior_failures": [
+      "Actual AGM45 Composition B 96mm direct breach was Blast instead of Overpressure.",
+      "Near-burst radius used raw filler instead of its admitted 1.33 equivalent response."
+    ],
+    "equivalence_log": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/red-combat.log"
+  },
+  "actual_wasm_comparison": {
+    "candidate_app": "D:/TankForge-validation/fuel-100-20261027/app-r82.candidate.html",
+    "baseline_wasm_sha256": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32",
+    "candidate_json": "D:/TankForge-validation/fuel-100-20261027/agm-damage/candidate/agm-damage-measurements.json",
+    "scenario_labels": {
+      "near-5m": "Existing nominal label: actual fixed burst point [7.5,0.1,0], not a measured 5m surface offset.",
+      "direct-top": "Vertical ray from y12 to y-2 at mean crew x/z.",
+      "direct-side": "Horizontal ray x12 to x-12 at y1.3 and mean crew z.",
+      "near-2m": "Existing nominal label: actual fixed burst point [4.5,0.1,0], not a measured 2m surface offset."
+    },
+    "baseline_app": "D:\\TankForge-workspaces\\r81-push-20261027\\handoff\\bundle\\app.js.html",
+    "scope": "CPU execution of actual storeWarhead, embedded WASM, registered rendered triangles, production heContactEffects queue and nearBurst; no browser/GPU/manual-play claim.",
+    "baseline_app_sha256": "6c7e7d8e630ff598524bfd18a82e7ea9dada655e9a7ec9d20815bb0a7f056a91",
+    "summary": [
+      {
+        "route": "legacy",
+        "vehicle": "de_pzjg1",
+        "scenario": "direct-top",
+        "before_kills": 9,
+        "after_kills": 9,
+        "before_total_crew_health": 920.0058059692383,
+        "after_total_crew_health": 879.5921630859375
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_pzjg1",
+        "scenario": "direct-side",
+        "before_kills": 12,
+        "after_kills": 12,
+        "before_total_crew_health": 500.0,
+        "after_total_crew_health": 500.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_pzjg1",
+        "scenario": "near-2m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 3900.0,
+        "after_total_crew_health": 3900.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_pzjg1",
+        "scenario": "near-5m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 3900.0,
+        "after_total_crew_health": 3900.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "us_m8",
+        "scenario": "direct-top",
+        "before_kills": 9,
+        "after_kills": 9,
+        "before_total_crew_health": 1052.7633819580078,
+        "after_total_crew_health": 1029.6818618774414
+      },
+      {
+        "route": "legacy",
+        "vehicle": "us_m8",
+        "scenario": "direct-side",
+        "before_kills": 13,
+        "after_kills": 13,
+        "before_total_crew_health": 1600.0,
+        "after_total_crew_health": 1600.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "us_m8",
+        "scenario": "near-2m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 5200.0,
+        "after_total_crew_health": 5200.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "us_m8",
+        "scenario": "near-5m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 4206.7899169921875,
+        "after_total_crew_health": 4160.088611602783
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_tiger_e",
+        "scenario": "direct-top",
+        "before_kills": 9,
+        "after_kills": 9,
+        "before_total_crew_health": 1819.8626594543457,
+        "after_total_crew_health": 1813.857509613037
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_tiger_e",
+        "scenario": "direct-side",
+        "before_kills": 13,
+        "after_kills": 13,
+        "before_total_crew_health": 1600.0,
+        "after_total_crew_health": 1600.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_tiger_e",
+        "scenario": "near-2m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 6500.0,
+        "after_total_crew_health": 6500.0
+      },
+      {
+        "route": "legacy",
+        "vehicle": "de_tiger_e",
+        "scenario": "near-5m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 6500.0,
+        "after_total_crew_health": 6500.0
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_pzjg1",
+        "scenario": "direct-top",
+        "before_kills": 9,
+        "after_kills": 9,
+        "before_total_crew_health": 1660.062858581543,
+        "after_total_crew_health": 1639.8480606079102
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_pzjg1",
+        "scenario": "direct-side",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 3900.0,
+        "after_total_crew_health": 3900.0
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_pzjg1",
+        "scenario": "near-2m",
+        "before_kills": 11,
+        "after_kills": 11,
+        "before_total_crew_health": 2682.119789123535,
+        "after_total_crew_health": 2676.6304244995117
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_pzjg1",
+        "scenario": "near-5m",
+        "before_kills": 2,
+        "after_kills": 2,
+        "before_total_crew_health": 2412.92472076416,
+        "after_total_crew_health": 2384.3295974731445
+      },
+      {
+        "route": "surface",
+        "vehicle": "us_m8",
+        "scenario": "direct-top",
+        "before_kills": 0,
+        "after_kills": 9,
+        "before_total_crew_health": 2745.3558597564697,
+        "after_total_crew_health": 2700.425588607788
+      },
+      {
+        "route": "surface",
+        "vehicle": "us_m8",
+        "scenario": "direct-side",
+        "before_kills": 13,
+        "after_kills": 13,
+        "before_total_crew_health": 400.0,
+        "after_total_crew_health": 400.0
+      },
+      {
+        "route": "surface",
+        "vehicle": "us_m8",
+        "scenario": "near-2m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 4600.0,
+        "after_total_crew_health": 4600.0
+      },
+      {
+        "route": "surface",
+        "vehicle": "us_m8",
+        "scenario": "near-5m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 3816.380012512207,
+        "after_total_crew_health": 3815.554023742676
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_tiger_e",
+        "scenario": "direct-top",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 4519.720317840576,
+        "after_total_crew_health": 3613.5792694091797
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_tiger_e",
+        "scenario": "direct-side",
+        "before_kills": 13,
+        "after_kills": 13,
+        "before_total_crew_health": 1600.0,
+        "after_total_crew_health": 1600.0
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_tiger_e",
+        "scenario": "near-2m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 6500.0,
+        "after_total_crew_health": 6500.0
+      },
+      {
+        "route": "surface",
+        "vehicle": "de_tiger_e",
+        "scenario": "near-5m",
+        "before_kills": 0,
+        "after_kills": 0,
+        "before_total_crew_health": 6500.0,
+        "after_total_crew_health": 6500.0
+      }
+    ],
+    "candidate_app_sha256": "e1ec3c17b044afe44c1c16b3ad35045018914d8189a78e00889aaa87c079d973",
+    "baseline_json": "D:/TankForge-validation/fuel-100-20261027/agm-damage/baseline-delivered-wasm-measurements.json",
+    "seed": 37,
+    "candidate_wasm_sha256": "468be618033ade4767913414f8fbbe6e984a5c6f1f6f469aafe9395f48e8df35",
+    "per_cohort_measurements": 312
+  },
+  "native_inputs": {
+    "count": 189,
+    "after": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/final-source-inputs-after.json",
+    "before": "D:/TankForge-validation/fuel-100-20261027/agm-damage/native/final-source-inputs-before.json",
+    "drift_count": 0
+  },
+  "diff_check": {
+    "command": "git -c core.whitespace=cr-at-eol diff --check -- [owned files]",
+    "reason": "Preserve the tracked CRLF line endings.",
+    "exit_code": 0
+  },
+  "boundaries": [
+    "In this fixed audit M8 surface top kills improve from 0/13 to 9/13 through actual internal module pressure and ammunition detonation; four HEAT choices remain non-guaranteed kills.",
+    "Tiger surface top crew damage improves but driver/radio compartment protection remains; no surface-top blanket kill was added.",
+    "Tiger fixed near-miss control points remain 0/13 kills and no crew injury in both cohorts.",
+    "PzJg1 side unsupported_surface_resistance still fails closed.",
+    "Existing AGM65E/G definitions still approximate their real delayed-fuze penetrator warheads as immediate HE; filler mass was not inflated to total warhead mass."
+  ]
+}

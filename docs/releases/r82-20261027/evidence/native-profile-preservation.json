@@ -1,0 +1,9 @@
+{
+  "baselineCommit": "a3caa8d",
+  "preserved": {
+    "aircraft": true,
+    "shells": true,
+    "storeDefinitions": true
+  },
+  "aircraftCount": 28
+}

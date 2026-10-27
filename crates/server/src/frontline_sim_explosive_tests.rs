@@ -189,3 +189,24 @@ fn accepted_he_terrain_and_facility_contacts_publish_explicit_world_bursts() {
         assert_eq!(bursts[0]["raw_explosive_kg"], 5.0);
     }
 }
+
+#[test]
+fn actual_comp_b_agm_terrain_burst_converts_response_once_and_keeps_raw_filler_receipt() {
+    let source: Value = serde_json::from_slice(&std::fs::read(data().join("aircraft/frontline.json")).unwrap()).unwrap();
+    let charge: ProjectileDef = serde_json::from_value(source["shells"]["he_agm45"].clone()).unwrap();
+    assert_eq!(charge.explosive_mass_kg,22.);
+    let mut world = SimWorld::load(&data(), &map(false)).unwrap();
+    world.spawn_unit(2,"de_pzjg1",0,[2.5,0.,0.],0.).unwrap();
+    launch(&mut world,charge,[0.,10.,0.],[0.,-200.,0.]);
+    let events = advance(&mut world,0.3);
+    let impact = events.iter().find(|event|event.kind=="terrain_impact").unwrap();
+    let burst = &impact.detail["world_bursts"][0];
+    assert_eq!(burst["raw_explosive_kg"],22.);
+    assert_eq!(burst["explosive_kg"],22.);
+    assert!((burst["tnt_equivalent_kg"].as_f64().unwrap()-22.*1.33).abs()<1e-5);
+    let blast = events.iter().find(|event|event.kind=="blast"&&event.target==Some(2)).unwrap();
+    let accepted = &blast.detail["report"]["bursts"][0];
+    assert_eq!(accepted["explosive_kg"],22.);
+    assert!((accepted["radius"].as_f64().unwrap()-f64::from(tg_combat::outside_radius_m(22.*1.33))).abs()<1e-6,
+        "raw source charge reaches native near-burst once; reporting or splash must not apply the factor a second time");
+}

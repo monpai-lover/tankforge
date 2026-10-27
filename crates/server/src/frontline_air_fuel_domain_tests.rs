@@ -42,7 +42,7 @@ fn native_fuel_choice_is_real_internal_stock_and_loaded_airframe_mass() {
     let p=profile();
     for minutes in [10,20,30,45] {
         let mut h=setup();deploy(&mut h,json!(minutes));let u=view(&h);
-        let expected=(minutes as f64*60.0*crate::frontline_air::fuel_flow(&p,0.65)).min(p.fuel.capacity);
+        let expected=(minutes as f64*60.0*crate::frontline_air::fuel_flow(&p,1.0)).min(p.fuel.capacity);
         assert_eq!(u.fuel["kg"],json!(expected));assert_eq!(u.fuel["max"],json!(p.fuel.capacity));assert_eq!(u.fuel["selected_minutes"],minutes);
         assert!((u.flight.airframe[0]-(p.physics.airframe[0]-(p.fuel.capacity-expected)as f32)).abs()<0.001);
     }
@@ -67,9 +67,9 @@ fn native_fuel_service_stages_selected_target_without_partial_grant_or_duplicate
 }
 
 #[test]
-fn native_fuel_options_advertise_actual_source_cruise_consumption_without_profile_rewrite() {
+fn native_fuel_options_advertise_actual_source_full_throttle_consumption_without_profile_rewrite() {
     let h=setup();let options=serde_json::to_value(h.rooms[&1].air.options(1976)).unwrap();let option=options.as_array().unwrap().iter().find(|a|a["id"]=="f86f").unwrap();let p=profile();
-    assert_eq!(option["fuel_load"]["version"],1);assert_eq!(option["fuel_load"]["minutes"],json!([10,20,30,45]));assert_eq!(option["fuel_load"]["capacity_kg"],json!(p.fuel.capacity));assert_eq!(option["fuel_load"]["nominal_flow_kg_s"],json!(crate::frontline_air::fuel_flow(&p,0.65)));
+    assert_eq!(option["fuel_load"]["version"],1);assert_eq!(option["fuel_load"]["minutes"],json!([10,20,30,45]));assert_eq!(option["fuel_load"]["capacity_kg"],json!(p.fuel.capacity));assert_eq!(option["fuel_load"]["reference_throttle"],1.0);assert_eq!(option["fuel_load"]["nominal_flow_kg_s"],json!(crate::frontline_air::fuel_flow(&p,1.0)));
 }
 
 #[test]
@@ -80,7 +80,7 @@ fn native_fuel_service_completes_selected_target_once_after_fifteen_native_secon
     let waiting=view(&h);assert_eq!(waiting.fuel,before.fuel);assert_eq!(waiting.resource_revision,before.resource_revision);
     assert!(waiting.service.elapsed_s>14.99&&waiting.service.remaining_s>0.0);
     let events=native_steps(&mut h,1);assert_eq!(events.iter().filter(|e|e.kind=="air_service_complete").count(),1);
-    let complete=view(&h);let p=profile();let target=(20.0*60.0*crate::frontline_air::fuel_flow(&p,0.65)).min(p.fuel.capacity);
+    let complete=view(&h);let p=profile();let target=(20.0*60.0*crate::frontline_air::fuel_flow(&p,1.0)).min(p.fuel.capacity);
     assert_eq!(complete.unit,before.unit);assert_eq!(complete.fuel["kg"],json!(target));assert_eq!(complete.fuel["max"],json!(p.fuel.capacity));
     assert_eq!(complete.fuel["selected_minutes"],20);assert_eq!(complete.resource_revision,before.resource_revision+1);assert_eq!(complete.service.status,"complete");
     assert!((complete.flight.airframe[0]-(p.physics.airframe[0]-(p.fuel.capacity-target)as f32)).abs()<0.001);

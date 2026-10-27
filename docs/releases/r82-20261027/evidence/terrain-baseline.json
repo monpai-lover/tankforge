@@ -1,0 +1,110 @@
+{
+  "scope": "Actual current frontend rebuild CPU, no GL or browser FPS",
+  "preparedMs": 2092.253,
+  "upload": {
+    "count": 16,
+    "bytes": 48084348
+  },
+  "samples": [
+    {
+      "x": 32000,
+      "ms": 539.6310000000003,
+      "stats": {
+        "coarseCells": 14400,
+        "fineCells": 0,
+        "fanCells": 0,
+        "stitchedEdges": 0,
+        "sourceTriangles": 28800,
+        "clippedTriangles": 28800,
+        "sourceHeightSamples": 14641,
+        "vertices": 86400,
+        "sharedNormalVertices": 14641,
+        "degenerateUploadedTriangles": 0
+      },
+      "far": {
+        "cachedTriangles": 43129,
+        "clippedSourceTriangles": 48,
+        "omittedTriangles": 50,
+        "detailHeightSamples": 474,
+        "baseHeightSamplesAdded": 89,
+        "outputTriangles": 43691,
+        "vertices": 131073
+      }
+    },
+    {
+      "x": 32750,
+      "ms": 479.3381000000004,
+      "stats": {
+        "coarseCells": 14400,
+        "fineCells": 0,
+        "fanCells": 0,
+        "stitchedEdges": 0,
+        "sourceTriangles": 28800,
+        "clippedTriangles": 28800,
+        "sourceHeightSamples": 14641,
+        "vertices": 86400,
+        "sharedNormalVertices": 14641,
+        "degenerateUploadedTriangles": 0
+      },
+      "far": {
+        "cachedTriangles": 43129,
+        "clippedSourceTriangles": 48,
+        "omittedTriangles": 50,
+        "detailHeightSamples": 473,
+        "baseHeightSamplesAdded": 89,
+        "outputTriangles": 43691,
+        "vertices": 131073
+      }
+    },
+    {
+      "x": 33500,
+      "ms": 481.89930000000004,
+      "stats": {
+        "coarseCells": 14400,
+        "fineCells": 0,
+        "fanCells": 0,
+        "stitchedEdges": 0,
+        "sourceTriangles": 28800,
+        "clippedTriangles": 28800,
+        "sourceHeightSamples": 14641,
+        "vertices": 86400,
+        "sharedNormalVertices": 14641,
+        "degenerateUploadedTriangles": 0
+      },
+      "far": {
+        "cachedTriangles": 43129,
+        "clippedSourceTriangles": 48,
+        "omittedTriangles": 50,
+        "detailHeightSamples": 455,
+        "baseHeightSamplesAdded": 89,
+        "outputTriangles": 43671,
+        "vertices": 131013
+      }
+    },
+    {
+      "x": 34250,
+      "ms": 476.4613999999997,
+      "stats": {
+        "coarseCells": 14400,
+        "fineCells": 0,
+        "fanCells": 0,
+        "stitchedEdges": 0,
+        "sourceTriangles": 28800,
+        "clippedTriangles": 28800,
+        "sourceHeightSamples": 14641,
+        "vertices": 86400,
+        "sharedNormalVertices": 14641,
+        "degenerateUploadedTriangles": 0
+      },
+      "far": {
+        "cachedTriangles": 43129,
+        "clippedSourceTriangles": 48,
+        "omittedTriangles": 50,
+        "detailHeightSamples": 460,
+        "baseHeightSamplesAdded": 89,
+        "outputTriangles": 43676,
+        "vertices": 131028
+      }
+    }
+  ]
+}

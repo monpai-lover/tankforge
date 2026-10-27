@@ -1,5 +1,5 @@
 /* TF_AIRCRAFT_FUEL_LOAD_BEGIN */
-// Internal fuel choices reuse the existing native AI cruise reference (0.65).
+// Internal fuel choices use 100% dry throttle (1.0, without afterburner).
 // Aircraft capacity, external tanks and the live throttle/burn law stay owned by
 // the original source fuel model. Minutes are a nominal reserve, not a timer.
 var TFAircraftFuelLoad = (() => {
@@ -11,9 +11,9 @@ var TFAircraftFuelLoad = (() => {
   }
   function spec(capacityKg,flow){
     if(!Number.isFinite(capacityKg)||capacityKg<=0)throw Error('Invalid internal fuel capacity');
-    const nominalFlowKgS=typeof flow==='function'?flow(.65):NaN;
+    const nominalFlowKgS=typeof flow==='function'?flow(1):NaN;
     if(!Number.isFinite(nominalFlowKgS)||nominalFlowKgS<=0)throw Error('Invalid nominal fuel flow');
-    return Object.freeze({capacityKg,nominalFlowKgS,referenceThrottle:.65});
+    return Object.freeze({capacityKg,nominalFlowKgS,referenceThrottle:1});
   }
   function load(source,value){
     const selected_minutes=normalize(value),requested=selected_minutes===null?source.capacityKg:selected_minutes*60*source.nominalFlowKgS;
@@ -29,7 +29,8 @@ var TFAircraftFuelLoad = (() => {
     try{storage?.setItem(key,JSON.stringify(game.airFuelMinutes));}catch{}
     return choice;
   }
-  function intent(game,id,capability){return capability?.version===1?{fuel_minutes:selected(game,id)}:{};}
+  const compatible=capability=>capability?.version===1&&capability.reference_throttle===1;
+  function intent(game,id,capability){return compatible(capability)?{fuel_minutes:selected(game,id)}:{};}
   function initialize(air,source,value,fresh){
     if(!fresh)return air.fuel;
     const amount=load(source,value);
@@ -37,15 +38,15 @@ var TFAircraftFuelLoad = (() => {
     return air.fuel;
   }
   const escape=value=>String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  function html(game,id,source,enabled=true,language='zh'){
+  function html(game,id,source,enabled=true,language='zh',unavailableReason=null){
     const en=language==='en',choice=enabled?selected(game,id):null,amount=load(source,choice),kg=Number(amount.kg.toFixed(1));
     const fullMinutes=(source.capacityKg/source.nominalFlowKgS/60).toFixed(1),carriedMinutes=(amount.kg/source.nominalFlowKgS/60).toFixed(1);
-    const label=en?'Internal cruise endurance':'内油可飞行时长',full=en?`Full (${fullMinutes} minutes)`:`满油（约${fullMinutes}分钟）`;
+    const label=en?'Internal endurance at 100% throttle':'内油可飞行时长（100%节流阀）',full=en?`Full (${fullMinutes} minutes at 100% throttle)`:`满油（约${fullMinutes}分钟，100%节流阀）`;
     const options=[...minutes,null].map(n=>`<option value="${n===null?'full':n}"${n===choice?' selected':''}>${n===null?full:n+(en?' minutes':' 分钟')}</option>`).join('');
     const cap=amount.capped?(en?' · capacity limit':' · 已达油箱容量上限'):'';
-    const note=en?'Nominal cruise at 65% throttle; actual consumption follows throttle. External tanks unchanged.':'按65%巡航油门估算；实际消耗随油门变化。外挂副油箱不变。';
-    const unavailable=!enabled?(en?' Server supports full fuel only.':' 当前服务器只支持满油。'):'';
-    const endurance=en?`Estimated endurance: ${carriedMinutes} minutes`:`预计可飞行 ${carriedMinutes} 分钟`;
+    const note=en?'At 100% throttle, without afterburner; actual consumption follows throttle. External tanks unchanged.':'按100%节流阀、不加力估算；实际消耗随油门变化。外挂副油箱不变。';
+    const unavailable=!enabled?(unavailableReason||(en?' Server supports full fuel only.':' 当前服务器只支持满油。')):'';
+    const endurance=en?`Endurance at 100% throttle: ${carriedMinutes} minutes`:`100%节流阀预计可飞行 ${carriedMinutes} 分钟`;
     return `<div class="air-fuel-load"><label>${label} <select data-air-fuel="${escape(id)}" aria-label="${label}"${enabled?'':' disabled'}>${options}</select></label><p>${endurance} · ${kg} kg${cap} · ${note}${unavailable}</p></div>`;
   }
   function create({game,types,tuples,flow,storage,document,native=()=>false,nativeOption=()=>null,onChange=()=>{},language=()=> 'zh'}){
@@ -55,15 +56,20 @@ var TFAircraftFuelLoad = (() => {
       return spec(tuples[id][0],engine=>flow({type,cur:{27:engine}}));
     };
     const capability=id=>nativeOption(id)?.fuel_load;
-    const shownSpec=id=>{const host=capability(id);return native()&&host?.version===1?spec(host.capacity_kg,()=>host.nominal_flow_kg_s):sourceSpec(id);};
+    const shownSpec=id=>{const host=capability(id);return native()&&compatible(host)?spec(host.capacity_kg,()=>host.nominal_flow_kg_s):sourceSpec(id);};
+    const unavailableReason=id=>{
+      const host=capability(id);if(!native()||host?.version!==1||compatible(host))return null;
+      const known=Number.isFinite(host.reference_throttle),percent=known?Number((host.reference_throttle*100).toFixed(1)):null;
+      return language()==='en'?` Server fuel reference is ${known?percent+'% throttle':'unknown'}; update the server to use 100% fuel choices. Endurance shown uses the local source at 100% throttle.`:` 当前服务器燃油基准为${known?percent+'%节流阀':'未知'}；请更新服务器以使用100%燃油选择。所示时长按本地来源的100%节流阀计算。`;
+    };
     document?.addEventListener('change',event=>{
       const id=event.target?.dataset?.airFuel;if(!id||!types[id])return;
-      if(native()&&capability(id)?.version!==1)return;
+      if(native()&&!compatible(capability(id)))return;
       const value=event.target.value==='full'?null:Number(event.target.value);
       choose(game,id,value,storage);onChange(id);
     });
     return Object.freeze({
-      htmlFor:id=>html(game,id,shownSpec(id),!native()||capability(id)?.version===1,language()),
+      htmlFor:id=>html(game,id,shownSpec(id),!native()||compatible(capability(id)),language(),unavailableReason(id)),
       intentFor:id=>intent(game,id,capability(id)),
       initializeAir:(air,fresh)=>initialize(air,sourceSpec(air.plane.type.id),selected(game,air.plane.type.id),fresh)
     });

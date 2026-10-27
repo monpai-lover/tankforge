@@ -47,6 +47,7 @@ fn evaluate_response(t:&Target,st:&TargetState,at:Vec3,shell:&ProjectileDef,yaw:
         p: t.posed(yaw),
         st: st.clone(),
         rng: Rng::new(seed.max(1)),
+        explosive_re_factor: tg_weapon::explosive_re_factor(&shell.explosive_type),
         rep: Report {
             geometry_contacts: vec![],primary_geometry_contacts:vec![],primary_module_destructions:vec![],
             cause_transitions: vec![],
@@ -102,7 +103,8 @@ fn evaluate_response(t:&Target,st:&TargetState,at:Vec3,shell:&ProjectileDef,yaw:
         "unknown_pressure_boundary".into(),
         "uncalibrated_fragment_penetration_v1".into(),
     ]);
-    let radius = outside_radius_m(kg);
+    let equivalent_kg = shell.tnt_equivalent_kg();
+    let radius = outside_radius_m(equivalent_kg);
     if include_pressure {w.rep.bursts.push(Burst {time_s:None,armed_at_s:None,delay_s:None,detonation_id:None,mechanism:None,
         pos: at,
         radius,
@@ -112,7 +114,7 @@ fn evaluate_response(t:&Target,st:&TargetState,at:Vec3,shell:&ProjectileDef,yaw:
     // Primary direct exposure and casing are independent. A registered scene
     // owns each physical visibility contact; native legacy calls retain a named
     // declared-plane fallback, never a guessed whole-compartment pressure.
-    if include_pressure {w.external_exposure(at, kg, radius);}
+    if include_pressure {w.external_exposure(at, equivalent_kg, radius);}
     else {w.rep.events.push("primary_blast_already_recorded".into());}
     let casing = (shell.mass_kg - kg) as f64;
     if casing > 0. {
@@ -121,13 +123,13 @@ fn evaluate_response(t:&Target,st:&TargetState,at:Vec3,shell:&ProjectileDef,yaw:
         // health damage only; all penetration/work/drag uses ONE actual piece.
         let scale = ((shell.caliber_mm as f64 / 420.).powi(2)).clamp(0.02, 1.);
         let velocity =
-            (2400. * ((kg as f64 / casing) / (1. + 0.5 * kg as f64 / casing)).sqrt()) as f32;
+            (2400. * ((equivalent_kg as f64 / casing) / (1. + 0.5 * equivalent_kg as f64 / casing)).sqrt()) as f32;
         let phase = w.rng.next_f32() * std::f32::consts::TAU;
         let source = context.map_or_else(
             || format!("near:{}:{seed}", shell.id),
             |c| c.event_id.clone(),
         );
-        let range = (12. + 8. * kg.cbrt()).min(60.);
+        let range = (12. + 8. * equivalent_kg.cbrt()).min(60.);
         let (center, bound) = scene
             .and_then(|s| s.sampling_ball())
             .unwrap_or(((t.lo + t.hi) * 0.5, (t.hi - t.lo).length() * 0.5));

@@ -48,6 +48,20 @@ fn default_shatter() -> f32 {
     90.0
 }
 
+/// Existing admitted TNT relative-effectiveness factors. Unknown or generic
+/// filler labels retain 1.0; this table does not infer a PBXN formulation.
+pub fn explosive_re_factor(explosive_type: &str) -> f32 {
+    match explosive_type {
+        "petn" => 1.66,
+        "hexogen" | "rdx" | "okfol" => 1.6,
+        "comp_b" => 1.33,
+        "explosive_d" => 0.95,
+        "a_ix_1" => 1.54,
+        "a_ix_2" => 1.35,
+        _ => 1.0,
+    }
+}
+
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct ProjectileDef {
     pub id: String,
@@ -75,6 +89,13 @@ pub struct ProjectileDef {
 }
 
 impl ProjectileDef {
+    /// Explosive response in kg TNT, without changing the physical filler or
+    /// casing masses. Callers must continue validating those raw masses.
+    pub fn tnt_equivalent_kg(&self) -> f32 {
+        let kg = self.explosive_mass_kg;
+        if kg.is_finite() && kg > 0.0 { kg * explosive_re_factor(&self.explosive_type) } else { 0.0 }
+    }
+
     /// Linear interpolation of the penetration curve; clamped at both ends.
     pub fn pen_at(&self, distance_m: f32) -> f32 {
         let c = &self.penetration_curve;

@@ -1,0 +1,53 @@
+{
+  "scope": "M61/Vulcan actual local ground-impact CPU path",
+  "worktree": "D:/TankForge-workspaces/r81-push-20261027",
+  "baseline_commit": "a3caa8d",
+  "baseline_wasm_sha256": "ad3d62b8a311f3c23a127317e55f4930a902fbcd4cb64e3f8638585e42335f32",
+  "performance_only_wasm_sha256": "de9c34bfd032d50a186f0abf072a2e3770f3bd920c5eb0d2706f334255717204",
+  "changes": [
+    "Check current Target registration once per synchronous incoming/continuation transaction; every new round and target still validates current anatomy",
+    "Reject anatomy candidate instances proven outside a finite blast sphere using actual refit bounds and outward arithmetic padding; exact surface occlusion remains unchanged"
+  ],
+  "direct_100_actual_impacts": {
+    "baseline_ms": 522.5618,
+    "candidate_ms": 341.3228,
+    "baseline_core_ms": 406.993,
+    "candidate_core_ms": 229.7788,
+    "full_report_state_replay_sha256_both": "26f913ced974c48bda44b102e570f293fa29c8b83646ec538ca7336de3f525f8"
+  },
+  "actual_fire_step_hit_replay_chain": {
+    "path": "stepAircraftGuns -> updateBullets -> Enemy.intersect -> surfaceCollisionQuery -> combatHit -> Combat.shoot -> actual design WASM -> HitCam.show/session.append",
+    "rate_rpm": 6000,
+    "simulated_seconds": 1,
+    "rounds_fired": 100,
+    "ammunition_before": 725,
+    "ammunition_after": 625,
+    "core_damage_calls": 100,
+    "exact_surface_trace_calls": 101,
+    "valid_impact_replays": 100,
+    "existing_session_appends": 99,
+    "session_count": 1,
+    "maximum_concurrently_visible_recorded_projectiles": 64,
+    "baseline_cpu_ms": 846.5063,
+    "candidate_cpu_ms": 644.0593,
+    "baseline_p95_frame_cpu_ms": 19.49,
+    "candidate_p95_frame_cpu_ms": 13.7423,
+    "full_report_state_replay_sha256_both": "c27007b30a8f644550fc86ab0164f76cdc09d029190ac8637696ded71a4d4ba2",
+    "candidate_repeat_cpu_ms": 647.2133,
+    "candidate_repeat_p95_frame_cpu_ms": 15.0408
+  },
+  "tests": {
+    "red": "2 expected budget failures, 1 state/target mutation test pass",
+    "green": "3 budget/behavior tests pass",
+    "sphere_edges": "1 test pass: radius-zero tangencies, reflected/nonuniform pose, translations up to 1e12, invalid-bound fallback",
+    "live_chain": "3 tests pass: 100 real emitted/hitting rounds and one replay view, released trigger, 100 actual fired misses retired by original lifetime",
+    "presentation_regressions": "19 tests pass: canonical replay ownership, same-view followups, projectile broadphase reentrancy and legacy membership",
+    "combined_source_native_independent_review": "explosive_equivalence 3/3, pressure_ 4/4, tg-weapon 21/21 pass"
+  },
+  "limits": [
+    "CPU measurements use shipped JavaScript owners and actual WASM on Node in one JS realm; they are not browser FPS or GPU timings",
+    "DOM/audio/GPU submission are observation sinks; flight dynamics are not stepped in this ground-impact harness",
+    "The performance-only WASM predates separate TNT/inside-pressure fixes; final combined artifact must be rebuilt and the live test rerun",
+    "Canonical app bundle, fuel files, geometry assets, damage policy, firing rate and ammo capacity were not edited by this performance task"
+  ]
+}

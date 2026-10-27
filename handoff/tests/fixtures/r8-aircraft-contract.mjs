@@ -331,6 +331,38 @@ const sectionAnchors={
  'Aircraft.spawn':['    spawn(x, y, z, heading, airspeed = 0, onGround = true) {','      this.api.spawn(x, y, z, heading, airspeed, onGround ? 1 : 0);'],
 };
 function once(source,oldText,newText,label){assert.equal(source.split(oldText).length,2,label+' exact allowed edit appears once');return source.replace(oldText,newText);}
+/** Reverse only the source-pinned R8.2 100% fuel reference/presentation migration.
+ * The R8.1 helper and its R7 non-HTML controller pins below remain authoritative;
+ * aircraft fuel capacities, flow laws, physics, guns and loadouts are untouched.
+ */
+export function normalizeReviewedFullThrottleFuelSource(text){
+ assert.equal(digest(text),'41469e40501e58992631f7a7a57d94a8ffd9628526e0182d15c50a8f5c00deb4','Exact reviewed R8.2 full-throttle fuel helper');
+ const edits=[
+  ['// Internal fuel choices use 100% dry throttle (1.0, without afterburner).','// Internal fuel choices reuse the existing native AI cruise reference (0.65).'],
+  ["const nominalFlowKgS=typeof flow==='function'?flow(1):NaN;","const nominalFlowKgS=typeof flow==='function'?flow(.65):NaN;"],
+  ['return Object.freeze({capacityKg,nominalFlowKgS,referenceThrottle:1});','return Object.freeze({capacityKg,nominalFlowKgS,referenceThrottle:.65});'],
+  ['  const compatible=capability=>capability?.version===1&&capability.reference_throttle===1;\n  function intent(game,id,capability){return compatible(capability)?{fuel_minutes:selected(game,id)}:{};}',
+   '  function intent(game,id,capability){return capability?.version===1?{fuel_minutes:selected(game,id)}:{};}'],
+  ["function html(game,id,source,enabled=true,language='zh',unavailableReason=null){","function html(game,id,source,enabled=true,language='zh'){"],
+  ["const label=en?'Internal endurance at 100% throttle':'内油可飞行时长（100%节流阀）',full=en?`Full (${fullMinutes} minutes at 100% throttle)`:`满油（约${fullMinutes}分钟，100%节流阀）`;",
+   "const label=en?'Internal cruise endurance':'内油可飞行时长',full=en?`Full (${fullMinutes} minutes)`:`满油（约${fullMinutes}分钟）`;"],
+  ["const note=en?'At 100% throttle, without afterburner; actual consumption follows throttle. External tanks unchanged.':'按100%节流阀、不加力估算；实际消耗随油门变化。外挂副油箱不变。';",
+   "const note=en?'Nominal cruise at 65% throttle; actual consumption follows throttle. External tanks unchanged.':'按65%巡航油门估算；实际消耗随油门变化。外挂副油箱不变。';"],
+  ["const unavailable=!enabled?(unavailableReason||(en?' Server supports full fuel only.':' 当前服务器只支持满油。')):'';",
+   "const unavailable=!enabled?(en?' Server supports full fuel only.':' 当前服务器只支持满油。'):'';"],
+  ['const endurance=en?`Endurance at 100% throttle: ${carriedMinutes} minutes`:`100%节流阀预计可飞行 ${carriedMinutes} 分钟`;',
+   'const endurance=en?`Estimated endurance: ${carriedMinutes} minutes`:`预计可飞行 ${carriedMinutes} 分钟`;'],
+  ['const shownSpec=id=>{const host=capability(id);return native()&&compatible(host)?spec(host.capacity_kg,()=>host.nominal_flow_kg_s):sourceSpec(id);};',
+   'const shownSpec=id=>{const host=capability(id);return native()&&host?.version===1?spec(host.capacity_kg,()=>host.nominal_flow_kg_s):sourceSpec(id);};'],
+  ["    const unavailableReason=id=>{\n      const host=capability(id);if(!native()||host?.version!==1||compatible(host))return null;\n      const known=Number.isFinite(host.reference_throttle),percent=known?Number((host.reference_throttle*100).toFixed(1)):null;\n      return language()==='en'?` Server fuel reference is ${known?percent+'% throttle':'unknown'}; update the server to use 100% fuel choices. Endurance shown uses the local source at 100% throttle.`:` 当前服务器燃油基准为${known?percent+'%节流阀':'未知'}；请更新服务器以使用100%燃油选择。所示时长按本地来源的100%节流阀计算。`;\n    };\n",''],
+  ['if(native()&&!compatible(capability(id)))return;','if(native()&&capability(id)?.version!==1)return;'],
+  ['htmlFor:id=>html(game,id,shownSpec(id),!native()||compatible(capability(id)),language(),unavailableReason(id)),',
+   'htmlFor:id=>html(game,id,shownSpec(id),!native()||capability(id)?.version===1,language()),']
+ ];
+ for(const [current,previous]of edits)text=once(text,current,previous,'Reviewed R8.2 fuel migration');
+ assert.equal(digest(text),'3ca46ffe6a6c202d831f382859b6a40c5433705075cc19e1e309e41a2ea2f5a5','R8.2 inverse migration reproduces the exact frozen R8.1 fuel helper');
+ return text;
+}
 /** Remove only the reviewed visual lifecycle hook, then retain the old physical hash. */
 export function normalizeReviewedSpawnSource(text){
  const normalized=once(text,'      this._airVortexLife=(this._airVortexLife||0)+1;if(typeof TFAirVortex!=="undefined")TFAirVortex.remove(this);\n','','Reviewed vortex visual lifecycle reset');
@@ -366,10 +398,10 @@ function sourceContract(fresh){
  assert.equal(digest(helperBytes),HELPER_SHA256,'Reviewed R8 historical helper body is exact');
  assert.equal(app.split(helper).length,2,'Actual app embeds the reviewed helper exactly once');
  const fuelBytes=fs.readFileSync(new URL('handoff/tools/aircraft_fuel_load.js',root)),fuelHelper=fuelBytes.toString('utf8');
- assert.equal(digest(fuelBytes),'3ca46ffe6a6c202d831f382859b6a40c5433705075cc19e1e309e41a2ea2f5a5','Reviewed fuel-endurance presentation helper');
+ const historicalFuelHelper=normalizeReviewedFullThrottleFuelSource(fuelHelper);
  assert.equal(app.split(fuelHelper.trim()).length,2,'Actual app embeds the exact source fuel UI helper');
- const htmlAt=fuelHelper.indexOf('  function html('),createAt=fuelHelper.indexOf('  function create(');assert.ok(htmlAt>=0&&createAt>htmlAt,'Fuel UI extraction boundaries');
- assert.equal(digest(fuelHelper.slice(0,htmlAt)+fuelHelper.slice(createAt)),'bf11fb5bcc0c2602d411a59fb41fe6e0979ce5f20d378656089ee70c7a2cecf5','Fuel normalize/spec/load/selection/intent/initialization/controller methods retain the R7 bytes');
+ const htmlAt=historicalFuelHelper.indexOf('  function html('),createAt=historicalFuelHelper.indexOf('  function create(');assert.ok(htmlAt>=0&&createAt>htmlAt,'Fuel UI extraction boundaries');
+ assert.equal(digest(historicalFuelHelper.slice(0,htmlAt)+historicalFuelHelper.slice(createAt)),'bf11fb5bcc0c2602d411a59fb41fe6e0979ce5f20d378656089ee70c7a2cecf5','Fuel normalize/spec/load/selection/intent/initialization/controller methods retain the R7 bytes after only the exact R8.2 migration');
  const context=vm.createContext({});vm.runInContext(helper,context);
  assert.deepEqual(JSON.parse(JSON.stringify(context.TFHistoricalAircraftLoadouts.presets)),Object.fromEntries(Object.entries(R8_PRESETS).map(([id,rows])=>[id,rows.map(r=>[r.name,r.entries])])),'Exactly the 12 reviewed source configurations');
  const cm=countermeasureContract(fresh,app);
