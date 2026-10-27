@@ -14,6 +14,17 @@ GLOBAL_END='  // END NATIVE FRONTLINE GLOBAL HELPERS\n'
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args()
     path=ROOT/'bundle/app.js.html';text=path.read_bytes().decode('utf-8')
+    # R8.3 carries separately owned CM/guidance/precision/worker extensions.
+    # Its canonical client must only be updated through reviewed narrow owners;
+    # replacing the entire block would silently erase installed extensions.
+    if '/* TF_AIRWAR_PRESENTATION_BEGIN */' in text:
+        composed = subprocess.run(['node', '--input-type=module', '-e',
+            'import fs from "node:fs"; import {applyR82AirwarFixes} from "./handoff/tools/apply_r82_airwar_fixes.mjs"; import {applyR83AirwarFixes} from "./handoff/tools/apply_r83_airwar_fixes.mjs"; process.stdout.write(applyR83AirwarFixes(applyR82AirwarFixes(fs.readFileSync(0,"utf8"))));'],
+            input=text.encode('utf-8'),capture_output=True,cwd=ROOT.parent,check=True)
+        expected=composed.stdout.decode('utf-8')
+        if args.check:assert text==expected,'Run the reviewed R8.3 narrow client owners'
+        else:path.write_bytes(expected.encode('utf-8'))
+        return
     # NetClient and Renderer are outside initialise(); their helpers must share
     # that outer closure. Local-only model/UI helpers keep their existing scope.
     global_source='\n'.join((ROOT/'tools'/name).read_text() for name in
@@ -27,7 +38,7 @@ def main():
         anchor='<script>(() => {\n';assert text.count(anchor)==1
         text=text.replace(anchor,anchor+global_block)
     source='\n'.join((ROOT/'tools'/name).read_text() for name in
-        ['frontline_lod.js','frontline_contact_visual.js','frontline_local_flight.js','frontline_aircraft_visual.js','frontline_existing_aircraft.js','frontline_guided_control.js','frontline_ordnance_visual.js','frontline_existing_runtime.js','frontline_render_gate.js','frontline_facility_visual.js','frontline_support_visual.js','frontline_shared_lobby.js','frontline_client.js'])
+        ['frontline_lod.js','frontline_contact_visual.js','frontline_local_flight.js','frontline_aircraft_visual.js','frontline_existing_aircraft.js','frontline_guided_control.js','frontline_ordnance_visual.js','frontline_gun_tracer_visual.js','frontline_airwar_presentation.js','frontline_naval_visual.js','frontline_existing_runtime.js','frontline_render_gate.js','frontline_facility_visual.js','frontline_support_visual.js','frontline_shared_lobby.js','frontline_client.js'])
     block=START+source+END
     if START in text:
         first=text.index(START);last=text.index(END,first)+len(END)

@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -30,6 +31,7 @@ test('actual frontend frame keeps accepted state and camera following live while
  const x=fixture();x.gate.submitted();
  const f={map:{},focus:[0,0,0],follow:'1',keys:new Set(),renderStats:{drawDt:0}},unit={unit:{unit:1},pos:[10,2,30]},original=JSON.stringify(unit),G4={time:0};
  Object.assign(x.c,{f,G4,renderGate:x.gate,controlled:()=>unit,allUnits:()=>[unit],unitKey:r=>String(r.unit),updateModels(){throw Error('Busy GPU must not start model reconstruction')}});
+ installCurrentPresentation(x.c);
  const a=source.indexOf('      function frame(dt){'),b=source.indexOf('      return Object.assign(f,',a);vm.runInContext(source.slice(a,b),x.c);
  for(let n=0;n<20;n++)x.c.frame(.05);
  assert.ok(Math.abs(G4.time-1)<1e-10);assert.ok(Math.abs(f.renderStats.drawDt-1)<1e-10);assert.ok(f.focus[0]>9&&f.focus[2]>29);

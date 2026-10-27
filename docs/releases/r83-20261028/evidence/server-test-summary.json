@@ -1,0 +1,11 @@
+{
+  "command": "cargo test --locked -p tg-server --lib",
+  "exitCode": 0,
+  "tests": 496,
+  "passed": 496,
+  "failed": 0,
+  "ignored": 0,
+  "durationSeconds": 369.57,
+  "output": "test result: ok. 496 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 369.57s",
+  "scope": "Actual current source lib suite on Windows; no claim of Linux runtime execution"
+}

@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
+import {normalizeConventionalProfile,normalizeConventionalSourceSection} from './r83-conventional-contract.mjs';
 import {createHash} from 'node:crypto';
 const bytes=fs.readFileSync(new URL('../historical-aircraft-r7-baseline.json',import.meta.url));
 const digest=x=>createHash('sha256').update(x).digest('hex');
@@ -421,7 +422,7 @@ function sourceContract(fresh){
    }
    actualSections[name]={startLine:app.slice(0,start).split('\n').length,sha256:digest(text)};
   }
-  let normalized=text;
+  let normalized=normalizeConventionalSourceSection(name,text,app);
   if(name==='storeDefinitions')normalized=once(normalized,helper+'\n    TFHistoricalAircraftLoadouts.correctStoreDefinitions(AIR_STORE_DEFS);\n','','R4M correction helper/call');
   if(name==='weaponStatusCompatibilityLoadouts')normalized=once(normalized,'\n    TFHistoricalAircraftLoadouts.installLoadouts(AIR_LOADOUTS, AIRCRAFT_TYPES);','','Historical append call');
   if(name==='Aircraft.spawn')normalized=normalizeReviewedSpawnSource(normalized);
@@ -437,6 +438,7 @@ function sourceContract(fresh){
 
 /** Strict validation returns a separately cloned R7 weapon view for legacy aggregate gates. */
 export function assertR8HistoricalExportContract(fresh,migration,originalIds,allIds){
+ fresh=normalizeConventionalProfile(fresh);
  const legacySensors=sourceContract(fresh);
  assert.deepEqual(Object.keys(fresh.aircraft).sort(),allIds);
  assert.equal(hash(R7_R4M_STORE),baseline.storeHashes.r4m,'Frozen old rocket definition authenticity');

@@ -70,6 +70,7 @@ export async function exportProfiles({baseline,appPath}={}){
     ['aircraftCull','/* TF_AIRCRAFT_CULL_BEGIN */','/* TF_AIRCRAFT_CULL_END */']
   ])if(app.includes(begin)){assert.equal(app.split(begin).length,2,`Ambiguous delivered prelude:${name}`);run(section(name,begin,end));}
   if(app.includes('/* TF_GUIDED_AIRCRAFT_VARIANTS_BEGIN */'))run(section('guidedAircraftVariants','/* TF_GUIDED_AIRCRAFT_VARIANTS_BEGIN */','/* TF_GUIDED_AIRCRAFT_VARIANTS_END */'));
+  if(app.includes('/* TF_SOVIET_CONVENTIONAL_STORES_BEGIN */'))run(section('sovietConventionalStores','/* TF_SOVIET_CONVENTIONAL_STORES_BEGIN */','/* TF_SOVIET_CONVENTIONAL_STORES_END */'));
   if(app.includes('var TFEngineLayout = '))run(section('modelUpgradePrelude','  var FLIGHT_FIXED = ','  var aircraftGeometry = '));
   else run(aircraftPerformancePrelude());
   run(section('aircraftGeometry','  var aircraftGeometry = (() => {','  // NF-01 gear'));

@@ -193,11 +193,11 @@ function createFrontlineExistingRuntime({f,mine,controlled,controlledAirModel,se
   }
   function groundTargets(){
     const team=mine()?.team,present=new Set(),result=[];
-    for(const unit of f.units||[]){
-      if(!unit.alive||unit.team===team)continue;
+    for(const unit of (f.units||[]).concat(f.vessels||[])){
+      if(!unit.alive||(unit.team===0?'blue':unit.team===1?'red':unit.team)===team)continue;
       const id=key(unit.unit);present.add(id);let view=groundViews.get(id);
       if(!view){view={unit:null,enemy:{alive:true,unitRef:{...unit.unit},veh:{body:{origin:()=>view.unit.pos.slice()}}}};view.enemy.airTarget={unitRef:view.enemy.unitRef,enemy:view.enemy};groundViews.set(id,view);}
-      view.unit=unit;const e=view.enemy;e.alive=unit.alive;e.x=unit.pos[0];e.z=unit.pos[2];e.vx=unit.net?.v?.[0]||0;e.vz=unit.net?.v?.[2]||0;e.name=unit.vehicle;e.box={top:data.vehicles[unit.vehicle]?.vehicle?.hull?.size_m?.[1]||2};
+      view.unit=unit;const e=view.enemy;e.alive=unit.alive;e.x=unit.pos[0];e.z=unit.pos[2];e.vx=unit.velocity?.[0]??unit.net?.v?.[0]??0;e.vz=unit.velocity?.[2]??unit.net?.v?.[2]??0;e.name=unit.vehicle||unit.model||unit.role;e.box={top:unit.geometry_id?8:data.vehicles[unit.vehicle]?.vehicle?.hull?.size_m?.[1]||2};
       result.push(e);
     }
     for(const id of groundViews.keys())if(!present.has(id))groundViews.delete(id);
@@ -211,6 +211,6 @@ function createFrontlineExistingRuntime({f,mine,controlled,controlledAirModel,se
   function release(leaving=false){guided?.clear();groundViews.clear();bridge.unbind();shownLife=null;weaponSignature=seekerSignature=null;serviceSignature=null;if(leaving){garageContext=null;document.getElementById('native-air-garage')?.remove();for(const card of airGarage.cards.values()){card.button.disabled=false;card.button.title='';}for(const saved of sharedHeaderOriginal||[]){saved.node.innerHTML=saved.html;saved.node.title=saved.title;}sharedHeaderOriginal=null;}}
   return {sync,step,transmit,clear,garage,deployment,refreshGarageControls,launch,returnToGarage,action,targets,groundTargets,release,rejectWeaponControl,rejectSeekerControl,
     targetAlive:target=>!!resolveTarget(target),radioSteer:(dx,dy,dt)=>guided?.radioSteer(bridge.getair(),dx,dy,dt),
-    view:(dt)=>bridge.view(dt,height),draw:(m,w,h)=>bridge.draw(m,w,h),getair:bridge.getair,
+    present:(dt)=>bridge.present(dt),view:(dt)=>bridge.view(dt,height),draw:(m,w,h)=>bridge.draw(m,w,h),getair:bridge.getair,
     garageContext:()=>garageContext};
 }

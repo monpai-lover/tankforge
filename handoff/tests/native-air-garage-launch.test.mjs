@@ -14,7 +14,7 @@ function fixture({battlefield=false}={}){
  let selected='f86f',deployOpens=0,deployCloses=0;
  const member={player:7,team:'blue',observer:false,air_sorties_remaining:1,air_sortie_eligible:true};
  const options=Object.entries(catalog.aircraft).filter(([,value])=>value.metadata.year&&value.metadata.year<=2022).map(([id,value])=>({id,name:value.metadata.name,year:value.metadata.year,loadouts:[{index:0,name:'Guns'},{index:1,name:'Preset'}],slots:id==='f86f'?[{key:'inner:-1',station:'inner',side:-1,options:{anm64:1,aim9b:1},unsupported:{aim9b:'AAM native guidance unavailable'}}]:[]}));
- const f={room:{id:8,battle:3,battle_mode:'air_frontline',round_state:'battle',started:true,host:7,era:2022,members:[member],team_score:[0,0],score_limit:1000},rooms:[],units:[],aircrafts:[],objectives:[],aircraftOptions:options,availableMaps:[{id:'korea',name:'Korea'},{id:'taiwan',name:'Taiwan'}],map:{name:'Taiwan',terrain:{x0:-100,z0:-100,width:3,height:3,cellX:100,cellZ:100},airspawns:[{enabled:true,team:0,pos:[0,1000,0],yawRad:0}],airfields:[{enabled:true,team:0,runway:{center:[10,20],forward:[0,1]}}]},control:null};
+ const f={room:{id:8,battle:3,battle_mode:'air_frontline',round_state:'battle',started:true,host:7,era:2022,members:[member],team_score:[0,0],score_limit:1000},rooms:[],units:[],aircrafts:[],objectives:[],aircraftOptions:options,availableMaps:[{id:'korea',name:'Korea'},{id:'taiwan',name:'Taiwan'},{id:'taiwan-escort',name:'Taiwan Escort'}],map:{name:'Taiwan',terrain:{x0:-100,z0:-100,width:3,height:3,cellX:100,cellZ:100},airspawns:[{enabled:true,team:0,pos:[0,1000,0],yawRad:0}],airfields:[{enabled:true,team:0,runway:{center:[10,20],forward:[0,1]}}]},control:null};
  const net={id:7,open:true,room:null,rooms:[]};
  const c=vm.createContext({console});vm.runInContext(helpers+adapter,c);
  const shared=c.createFrontlineSharedApi({f,net,send:message=>sent.push(plain(message)),ensureMapOptions:async()=>{},ensureMap:async()=>{},mine:()=>member,controlled:()=>f.aircrafts.find(unit=>f.control&&unit.unit.unit===f.control.unit)||null,clearInput(){},note:message=>notices.push(message)});
@@ -63,15 +63,15 @@ test('native aircraft garage admits the complete dated server pool across nation
  for(const id of ['a6m2','bf109g','me262','f86f','mig21','f16v'])assert.ok(ids.includes('air:'+id),id+' incorrectly filtered by nation or lower-era limit');assert.ok(!ids.includes('air:nf01'));assert.ok(!ids.includes('air:nf02'));x.api.dispose();
 });
 
-test('native room creation defaults to Taiwan and 2022 while preserving subsequent explicit map choice',()=>{
- const x=fixture();x.f.room=null;x.api.refresh();x.api.setMode('air_frontline');assert.equal(x.node('#lb-map').value,'taiwan');assert.equal(x.node('#lb-era').value,'2022');
+test('native room creation defaults to the registered Taiwan escort scene and 2022 while preserving subsequent explicit map choice',()=>{
+ const x=fixture();x.f.room=null;x.api.refresh();x.api.setMode('air_frontline');assert.equal(x.node('#lb-map').value,'taiwan-escort');assert.equal(x.node('#lb-era').value,'2022');
  x.node('#lb-map').value='korea';x.lobby.change({target:{id:'lb-map',value:'korea'}});x.api.setMode('air_frontline');assert.equal(x.node('#lb-map').value,'korea');x.api.dispose();
 });
-test('deferred or temporarily empty map catalogs preserve Taiwan default and a later explicit Korea choice',()=>{
+test('deferred or temporarily empty map catalogs preserve the Taiwan escort default and a later explicit Korea choice',()=>{
  const x=fixture();x.f.room=null;x.f.availableMaps=[];x.lobby.el.hidden=false;x.api.refresh();x.api.setMode('air_frontline');assert.equal(x.node('#lb-map').value,'');
- x.f.availableMaps=[{id:'korea',name:'Korea'},{id:'taiwan',name:'Taiwan'}];x.shared.notify();assert.equal(x.node('#lb-map').value,'taiwan','Loading the catalog must retain the intended Taiwan default');
+ x.f.availableMaps=[{id:'korea',name:'Korea'},{id:'taiwan',name:'Taiwan'},{id:'taiwan-escort',name:'Taiwan Escort'}];x.shared.notify();assert.equal(x.node('#lb-map').value,'taiwan-escort','Loading the catalog must retain the intended Taiwan escort default');
  x.node('#lb-map').value='korea';x.lobby.change({target:{id:'lb-map',value:'korea'}});x.f.availableMaps=[];x.shared.notify();assert.equal(x.node('#lb-map').value,'');
- x.f.availableMaps=[{id:'taiwan',name:'Taiwan'},{id:'korea',name:'Korea'}];x.shared.notify();assert.equal(x.node('#lb-map').value,'korea','Refreshing the catalog must retain the player’s explicit Korea choice');x.api.dispose();
+ x.f.availableMaps=[{id:'taiwan-escort',name:'Taiwan Escort'},{id:'taiwan',name:'Taiwan'},{id:'korea',name:'Korea'}];x.shared.notify();assert.equal(x.node('#lb-map').value,'korea','Refreshing the catalog must retain the player’s explicit Korea choice');x.api.dispose();
 });
 
 test('actual native room rows reserve a full second row for scores instead of squeezing the player name into one character',()=>{

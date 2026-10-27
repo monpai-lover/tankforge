@@ -1901,6 +1901,30 @@ struct Round {
     distance: f64,
     seed: u64,
     air: Option<AirOrdnance>,
+    gun_tracer: Option<AirGunTracerStyle>,
+}
+/// Display provenance set only after an aircraft gun round was accepted.
+#[derive(Clone, Debug)]
+pub(crate) struct AirGunTracerStyle {
+    pub shooter: UnitRef,
+    pub color: [f64; 3],
+    pub style: &'static str,
+    pub width_scale: f64,
+}
+#[derive(Clone, Debug, PartialEq, Serialize)]
+pub struct AirGunTracerView {
+    pub shot_id: u64,
+    pub shooter: UnitRef,
+    pub team: u8,
+    pub projectile_id: String,
+    pub pos: [f64; 3],
+    pub velocity: [f64; 3],
+    pub age: f64,
+    pub distance_m: f64,
+    pub color: [f64; 3],
+    pub caliber_mm: f32,
+    pub style: &'static str,
+    pub width_scale: f64,
 }
 /// Host-admitted store dynamics. Guided stores retain the same projectile/contact owner.
 #[derive(Clone, Debug)]
@@ -1938,6 +1962,7 @@ impl Default for FacilityWorkerRoles {
 pub struct SimWorld {
     models: BTreeMap<String, Arc<Model>>,
     units: BTreeMap<u64, Unit>,
+    naval: Option<crate::frontline_naval::NavalWorld>,
     pub ground: MapGround,
     facilities: FacilityWorld,
     facility_boxes: Vec<Obstacle>,
@@ -1960,6 +1985,7 @@ impl Clone for SimWorld {
         Self {
             models: self.models.clone(),
             units: self.units.clone(),
+            naval: self.naval.clone(),
             ground: self.ground.fork_world(),
             facilities: self.facilities.clone(),
             facility_boxes: self.facility_boxes.clone(),
@@ -2548,6 +2574,31 @@ fn accepted_air_blast(
     }
 }
 impl SimWorld {
+    pub(crate) fn install_naval(&mut self, config: &crate::frontline_naval::NavalConfig, next: &mut u64) -> Result<(), String> {
+        if self.naval.is_some() {return Err("naval fleet already installed".into());}
+        for ship in &config.vessels {
+            if !self.projectiles.contains_key(&ship.shell_id) || !self.ground.contains(ship.pos[0],ship.pos[2])
+                || ship.route.iter().any(|p|!self.ground.contains(p[0],p[1])) {return Err("invalid naval source weapon/route".into());}
+        }
+        self.naval=Some(crate::frontline_naval::NavalWorld::new(config,self.battle_id,next)?);Ok(())
+    }
+    pub(crate) fn naval_views(&self) -> Vec<crate::frontline_naval::VesselView> {
+        self.naval.as_ref().map(|n|n.views()).unwrap_or_default()
+    }
+    pub(crate) fn naval_geometry_catalog(&self) -> Vec<Value> {
+        self.naval.as_ref().map(|n|n.geometry_catalog()).unwrap_or_default()
+    }
+    fn step_naval(&mut self, events:&mut Vec<SimEvent>) {
+        let Some(mut naval)=self.naval.take() else{return;};
+        let shots=naval.step(FIXED_DT,|observer,target,a,b|self.perception_los(observer,target,a,b));
+        self.naval=Some(naval);
+        for shot in shots {
+            let Some(shell)=self.projectiles.get(&shot.shell_id).cloned() else{continue;};
+            if let Ok(mut event)=self.launch_air_round(shot.shooter.unit,shot.team,shell,shot.pos,shot.velocity,None,"naval_gun",shot.ammo_revision) {
+                event.detail["airborne"]=json!(false);event.detail["naval"]=json!(true);events.push(event);
+            }
+        }
+    }
     pub fn load(data: &Path, map: &Value) -> Result<Self, String> {
         let ground = MapGround::load(data, map)?;
         let facilities = load_facilities(map, &ground)?;
@@ -2619,6 +2670,7 @@ impl SimWorld {
         Ok(Self {
             models,
             units: BTreeMap::new(),
+            naval: None,
             facility_boxes: facility_obstacles(&facilities),
             facility_applied_revision: facilities.revision(),
             facilities,
@@ -2647,6 +2699,7 @@ impl SimWorld {
         Ok(Self {
             models: self.models.clone(),
             units: BTreeMap::new(),
+            naval: None,
             ground,
             facility_boxes: facility_obstacles(&facilities),
             facility_applied_revision: facilities.revision(),
@@ -3693,6 +3746,7 @@ impl SimWorld {
             distance: 0.0,
             seed,
             air: None,
+            gun_tracer: None,
         });
         Ok(SimEvent {
             kind: "shot".into(),
@@ -3751,6 +3805,7 @@ impl SimWorld {
             distance: 0.0,
             seed: self.serial.wrapping_mul(0x9e3779b97f4a7c15) ^ shooter,
             air,
+            gun_tracer: None,
         });
         Ok(SimEvent {
             kind: "shot".into(),
@@ -3762,6 +3817,14 @@ impl SimWorld {
     }
     pub fn snapshots(&self) -> Vec<SimSnapshot> {
         self.units.values().map(snapshot).collect()
+    }
+    /// Metadata never launches, advances, contacts or removes a combat round.
+    pub(crate) fn mark_air_gun_tracer(&mut self, shot_id: u64, style: AirGunTracerStyle) {
+        if let Some(round) = self.rounds.last_mut().filter(|r| r.id == shot_id
+            && r.shooter == style.shooter.unit && r.air.is_none()
+            && style.shooter.battle == self.battle_id) {
+            round.gun_tracer = Some(style);
+        }
     }
     pub fn kinematics(&self) -> Vec<SimKinematics> {
         self.units
@@ -3776,17 +3839,32 @@ impl SimWorld {
             .collect()
     }
     pub(crate) fn guidance_targets(&self)->Vec<crate::frontline_air::guided::Target>{
-        self.units.values().map(|u|crate::frontline_air::guided::Target{
+        let mut targets:Vec<_>=self.units.values().map(|u|crate::frontline_air::guided::Target{
             reference:UnitRef{battle:self.battle_id,unit:u.id,life:u.life},team:u.team,air:false,alive:!u.state.destroyed,
             pos:u.tank.body.world_point(((u.model.target.lo+u.model.target.hi)*0.5).to_array().map(|x|x as f64)),
             velocity:u.tank.body.v,emitting:false,jam_search:0.0,jam_track:0.0,
-        }).collect()
+        }).collect();
+        targets.extend(self.naval_views().into_iter().map(|u|crate::frontline_air::guided::Target{
+            reference:u.unit,team:u.team,air:false,alive:u.alive,pos:[u.pos[0],u.pos[1]+1.5,u.pos[2]],velocity:u.velocity,
+            emitting:false,jam_search:0.,jam_track:0.}));targets
     }
     pub(crate) fn guidance_target(&self,reference:UnitRef)->Option<crate::frontline_air::guided::Target>{
         self.guidance_targets().into_iter().find(|t|t.reference==reference)
     }
     pub(crate) fn guided_ordnance_views(&self)->Vec<crate::frontline_air::guided::View>{
         self.rounds.iter().filter_map(|r|{let d=r.air.as_ref()?;Some(crate::frontline_air::guided::View{shot_id:r.id,shooter:r.shooter,team:r.team,store_id:d.store_id.clone(),pos:r.pos,velocity:r.velocity,age:r.age,phase:d.guided.as_ref().map(|g|g.phase.as_str()).unwrap_or("ballistic").into()})}).collect()
+    }
+    pub(crate) fn air_gun_tracer_views(&self)->Vec<AirGunTracerView>{
+        // Newest surviving native rounds have priority under the display cap.
+        self.rounds.iter().rev().filter_map(|r| {
+            let d=r.gun_tracer.as_ref()?;
+            let lifetime=if d.style=="bullet" {3.2}else{15.0};
+            (r.age<=lifetime).then(||AirGunTracerView {
+                shot_id:r.id,shooter:d.shooter,team:r.team,projectile_id:r.shell.id.clone(),
+                pos:r.pos,velocity:r.velocity,age:r.age,distance_m:r.distance,
+                color:d.color,caliber_mm:r.shell.caliber_mm,style:d.style,width_scale:d.width_scale,
+            })
+        }).take(512).collect()
     }
     pub(crate) fn has_radio_missile(&self,launcher:UnitRef)->bool{
         self.rounds.iter().any(|r|r.air.as_ref().and_then(|d|d.guided.as_ref()).is_some_and(|g|g.launcher==launcher&&g.config.mode==crate::frontline_air::guided::Mode::Radio&&!g.lost))
@@ -3856,6 +3934,7 @@ impl SimWorld {
             &&self.facilities.first_contact(a,b).is_ok_and(|hit|hit.is_none_or(|h|h.fraction<=1e-6||h.distance>=distance-0.02))
             &&self.units.iter().all(|(&id,unit)|id==observer||!segment_box(unit.tank.body.local_point(a),unit.tank.body.local_point(b),
                 unit.model.target.lo.to_array().map(|v|v as f64),unit.model.target.hi.to_array().map(|v|v as f64)))
+            &&self.naval.as_ref().is_none_or(|n|n.first_contact(a,b,Some(observer)).is_none_or(|h|length(sub(h.pos,a))>=distance-0.02))
     }
     fn perception_segment_los(&self,observer:u64,target:Option<u64>,a:[f64;3],b:[f64;3])->bool{
         a.iter().chain(&b).all(|v| v.is_finite())
@@ -3864,6 +3943,7 @@ impl SimWorld {
                 .facilities
                 .first_contact(a, b)
                 .is_ok_and(|hit| hit.is_none_or(|h| h.fraction <= 1e-6 || h.fraction >= 1.0 - 1e-6))
+            && self.naval.as_ref().is_none_or(|n|n.first_contact(a,b,Some(observer)).is_none_or(|h|Some(h.unit.unit)==target))
             && self.units.iter().all(|(&id, unit)| {
                 id == observer
                     || Some(id) == target
@@ -3882,10 +3962,13 @@ impl SimWorld {
         let b=add(a,scale(sight,range));
         let facility=self.facilities.first_contact(a,b)?;
         let terrain=self.guidance_terrain_contact(a,b);
-        let point=match (terrain,facility){
+        let mut point=match (terrain,facility){
             (Some((p,d)),Some(h))=>Some(if h.distance<=d{h.position}else{p}),
             (Some((p,_)),None)=>Some(p),(None,Some(h))=>Some(h.position),(None,None)=>None,
         };
+        if let Some(hit)=self.naval.as_ref().and_then(|n|n.first_contact(a,b,Some(observer))) {
+            if point.is_none_or(|p|length(sub(hit.pos,a))<length(sub(p,a))) {point=Some(hit.pos);}
+        }
         if point.is_some_and(|p|!self.guidance_point_visible(observer,a,p)){return Err("point_blocked".into());}
         Ok(point)
     }
@@ -3907,6 +3990,7 @@ impl SimWorld {
         while self.accumulator + 1e-10 >= FIXED_DT {
             self.accumulator -= FIXED_DT;
             self.now += FIXED_DT;
+            self.step_naval(&mut events);
             self.fixed_step(&mut events, None)
         }
         events
@@ -3924,6 +4008,7 @@ impl SimWorld {
         while self.accumulator + 1e-10 >= FIXED_DT {
             self.accumulator -= FIXED_DT;
             self.now += FIXED_DT;
+            self.step_naval(&mut events);
             let air_start = self.timing.as_ref().map(|_| Instant::now());
             air.sync_facility_availability(self);
             events.extend(air.step(FIXED_DT, self));
@@ -4143,6 +4228,8 @@ impl SimWorld {
             let air_hit = air
                 .as_deref()
                 .and_then(|scene| scene.first_contact(a, b, r.shooter));
+            let naval_hit=self.naval.as_ref().and_then(|n|n.first_contact(a,b,Some(r.shooter)));
+            let naval_distance=naval_hit.as_ref().map(|h|h.fraction*segment);
             let mut contact: Option<(f64, u64, tg_combat::Report, [f64; 3])> = None;
             for (id, u) in &self.units {
                 if *id == r.shooter {
@@ -4196,6 +4283,7 @@ impl SimWorld {
                                 * (hit.position[1].abs()
                                     + 0.2 * (hit.position[0].abs() + hit.position[2].abs()));
                 (ground_hit.is_none_or(|(_, g)| hit.distance <= g) || quant_tie)
+                    && naval_distance.is_none_or(|d|hit.distance<d)
                     && air_hit.as_ref().is_none_or(|(d, _, _)| hit.distance < *d)
                     && contact
                         .as_ref()
@@ -4205,6 +4293,7 @@ impl SimWorld {
                 let target=guidance_targets.iter().find(|t|Some(t.reference)==g.target).copied()?;
                 let pos=g.proximity(a,b,target,FIXED_DT)?;let distance=length(sub(pos,a));
                 (ground_hit.is_none_or(|(_,d)|distance<d)
+                    &&naval_distance.is_none_or(|d|distance<d)
                     &&facility_first.as_ref().is_none_or(|h|distance<h.distance)
                     &&air_hit.as_ref().is_none_or(|(d,_,_)|distance<*d)
                     &&contact.as_ref().is_none_or(|(d,_,_,_)|distance<*d)
@@ -4215,6 +4304,25 @@ impl SimWorld {
                     detail:json!({"shot_id":r.id,"projectile_id":r.shell.id,"store_id":r.air.as_ref().and_then(|d|d.guided.as_ref()).map(|g|g.store_id.as_str()),"mechanism":"swept_aircraft_proximity_fuze","world_bursts":immediate_world_bursts(&r.shell,pos)})});
                 self.splash(&r,pos,events,None);
                 if let Some(scene)=air.as_deref_mut(){accepted_air_blast(scene,&r,pos,self.friendly_damage,None,events);}
+                continue;
+            }
+            if let Some(hit)=naval_hit.filter(|h|{
+                let d=h.fraction*segment;
+                ground_hit.is_none_or(|(_,g)|d<g)&&facility_first.as_ref().is_none_or(|f|d<f.distance)
+                    &&air_hit.as_ref().is_none_or(|(a,_,_)|d<*a)&&contact.as_ref().is_none_or(|(c,_,_,_)|d<*c)
+            }) {
+                let naval=self.naval.as_mut().unwrap();
+                let alive=naval.views().iter().any(|s|s.unit==hit.unit&&s.alive);
+                let changed=naval.impact(&hit,&r.shell,r.velocity,r.team,self.friendly_damage);
+                let sunk=alive&&naval.views().iter().any(|s|s.unit==hit.unit&&!s.alive);
+                events.push(SimEvent{kind:"impact".into(),shooter:Some(r.shooter),target:Some(hit.unit.unit),pos:hit.pos,
+                    detail:json!({"shot_id":r.id,"projectile_id":r.shell.id,"naval":true,"contact_model":"same_visible_float32_naval_triangles",
+                        "contact":hit,"damage_applied":changed,"damage_changed":changed,"world_bursts":immediate_world_bursts(&r.shell,hit.pos)})});
+                if sunk {events.push(SimEvent{kind:"destroyed".into(),shooter:Some(r.shooter),target:Some(hit.unit.unit),pos:hit.pos,detail:json!({"shot_id":r.id,"naval":true})});}
+                if has_immediate_contact_explosion(&r.shell) {
+                    self.splash(&r,hit.pos,events,Some(hit.unit.unit));
+                    if let Some(scene)=air.as_deref_mut(){accepted_air_blast(scene,&r,hit.pos,self.friendly_damage,None,events);}
+                }
                 continue;
             }
             if let Some(hit) = facility_first {
@@ -4400,6 +4508,16 @@ impl SimWorld {
         }
         None
     }
+    fn blast_visible(&self,shooter:u64,a:[f64;3],b:[f64;3])->bool {
+        let delta=sub(b,a);let span=length(delta);
+        if !span.is_finite()||span<=0. {return false;}
+        // A detonation can be exactly on an accepted facility surface. Move
+        // only the visibility origin ten micrometres toward this sample: an
+        // inward ray must then encounter the real exit wall, while an outward
+        // ray is not rejected by its own t=0 impact. The detonation is unchanged.
+        let shifted=add(a,scale(delta,(1e-5_f64).min(span*0.25)/span));
+        self.guidance_point_visible(shooter,shifted,b)
+    }
     fn splash(
         &mut self,
         r: &Round,
@@ -4407,6 +4525,18 @@ impl SimWorld {
         events: &mut Vec<SimEvent>,
         exclude: Option<u64>,
     ) {
+        if let Some(mut naval)=self.naval.take() {
+            let before=naval.views();
+            for id in naval.blast_with_los(pos,r.shell.tnt_equivalent_kg() as f64,r.team,self.friendly_damage,exclude,
+                |a,b|self.blast_visible(r.shooter,a,b)) {
+                events.push(SimEvent{kind:"blast".into(),shooter:Some(r.shooter),target:Some(id),pos,
+                    detail:json!({"shot_id":r.id,"naval":true,"damage_applied":true,"damage_changed":true})});
+                if before.iter().any(|s|s.unit.unit==id&&s.alive)&&naval.views().iter().any(|s|s.unit.unit==id&&!s.alive) {
+                    events.push(SimEvent{kind:"destroyed".into(),shooter:Some(r.shooter),target:Some(id),pos,detail:json!({"shot_id":r.id,"naval":true})});
+                }
+            }
+            self.naval=Some(naval);
+        }
         let facility_blast = self
             .facilities
             .blast(
@@ -4590,6 +4720,9 @@ mod support_runtime_tests;
 #[cfg(test)]
 #[path = "frontline_sim_explosive_tests.rs"]
 mod explosive_contact_tests;
+#[cfg(test)]
+#[path = "frontline_naval_integration_tests.rs"]
+mod naval_integration_tests;
 
 #[cfg(test)]
 mod native_guidance_capacity_tests {

@@ -112,7 +112,7 @@
       const state=room.round_state||(room.started?'battle':'waiting'),elapsed=Number.isFinite(room.round_elapsed_s)?Math.max(0,room.round_elapsed_s):0;
       const clock=`${String(Math.floor(elapsed/60)).padStart(2,'0')}:${String(Math.floor(elapsed%60)).padStart(2,'0')}`,number=room.round_number||1;
       const winner=room.result?.winner,verdict=winner?(winner==='blue'?'蓝方':'红方')+'获胜':'平局';
-      const reason=({frontline:'战线突破',readiness:'战备耗尽',time:'时间结束',score:'达到目标分数',score_limit:'达到目标分数',air_elimination:'敌方空军全灭'})[room.result?.reason]||'本局结束';
+      const reason=({frontline:'战线突破',readiness:'战备耗尽',time:'时间结束',score:'达到目标分数',score_limit:'达到目标分数',air_elimination:'敌方空军全灭',landing_completed:'登陆完成',attacker_fleet_annihilated:'进攻舰队全灭',landing_timeout:'登陆超时'})[room.result?.reason]||'本局结束';
       return {state,text:state==='intermission'?`第 ${number} 局结束 · ${verdict} · ${reason}${Number.isFinite(room.next_round_s)?` · 下一局 ${Math.ceil(Math.max(0,room.next_round_s))} 秒`:' · 正在结算'}`:state==='battle'?`第 ${number} 局 · ${clock}`:'等待开始'};
     }
     // The shared UI sends intents only. Accepted room/life/resources stay native-owned.
@@ -165,7 +165,7 @@
         const label={W2:'A',C2:'B',E2:'C'},view=frontlineDeploymentMapView(map);
         return {name:map.id==='taiwan'?'台湾海峡 · 空中战区':map.name,mode:'纯空战 · 三战区',picture:frontlineDeploymentMapPicture(map,view),...view,grid:6,spawns,team:member.team,points:(f.objectives||[]).filter(o=>Object.hasOwn(label,o.id)).map(o=>({id:o.label||label[o.id],nativeId:o.id,x:o.pos[0],z:o.pos[2],r:o.radius,radius:o.radius,owner:o.owner,progress:o.progress,contested:o.contested})),tickets:native()?.team_score||null,others:(f.units||[]).concat(f.aircrafts||[]).map(u=>({x:u.pos[0],z:u.pos[2],alive:u.alive,friend:u.team===member.team}))};
       }
-      const api={room:native,rooms:()=>f.rooms||[],maps:()=>f.availableMaps||[],self:mine,controlled,aircraftOptions:()=>f.aircraftOptions||[],deploymentError:()=>f.lastDeploymentError||'',deploymentMap,availability,configuration,retained,
+      const api={room:native,spectating:()=>f.spectator||f.lossPending,rooms:()=>f.rooms||[],maps:()=>f.availableMaps||[],self:mine,controlled,aircraftOptions:()=>f.aircraftOptions||[],deploymentError:()=>f.lastDeploymentError||'',deploymentMap,availability,configuration,retained,
         async list(){ensureConnected();await ensureMapOptions(net.url,true);send({op:'list'});api.notify();},
         create({map,era,name='',observer=false}){ensureConnected();if(native()||net.room)deny('请先离开当前房间');if(!(f.availableMaps||[]).some(m=>m.id===map)||!eras.has(era))deny('请选择有效地图与年代');send({op:'create',map,era,name,observer:!!observer});},
         join({room,observer=false}){ensureConnected();if(native()||net.room)deny('请先离开当前房间');if(!(f.rooms||[]).some(r=>r.id===room&&r.battle_mode==='air_frontline'))deny('空战房间已变化，请刷新或更新服务器');send({op:'join',room,observer:!!observer});},
@@ -230,6 +230,7 @@
       document.head.append(style);
       style.textContent += '#frontline-flight-readout{position:fixed;left:16px;top:16px;z-index:1250;white-space:pre-wrap;color:#e9efdc;text-shadow:0 1px 3px #000;font:14px/1.6 monospace;pointer-events:none}.fl-air-touch[hidden]{display:none!important}';
       style.textContent += '#frontline-ui [data-fl=air-service-status]{white-space:pre-wrap;color:#cbdcbe;padding:7px 0}';
+      style.textContent+='body[data-frontline-watch="1"] #drive,body[data-frontline-watch="1"] #gunbox,body[data-frontline-watch="1"] #lock-hint,body[data-frontline-watch="1"] #veh-name,body[data-frontline-watch="1"] #gameplay-rule,body[data-frontline-watch="1"] #help,body[data-frontline-watch="1"] #touch{display:none!important}';
       const open = null; // The existing #net-btn / LobbyUi is the only connection entry.
       const reticle = document.createElement('div');reticle.hidden=true;
       const flightReadout=document.createElement('output');flightReadout.hidden=true;
@@ -237,6 +238,13 @@
       el('server').value=defaultServer();
       const f={active:false,room:null,rooms:[],units:[],aircrafts:[],missiles:[],aircraftOptions:[],companies:[],vehicles:[],objectives:[],staging:[],control:null,epoch:0,seq:0,orderSeq:0,order:null,map:null,models:new Map(),airModels:new Map(),root:new Node('frontline-world'),terrain:null,terrainOrigin:null,keys:new Set(),yaw:0,pitch:-.32,distance:45,focus:null,follow:null,fire:false,sendAt:0,mouse:null,autoStart:false,lastTick:0,events:[],mapScale:1,mapCentre:null,error:null};
       f.ordnancePresentation=createFrontlineOrdnanceVisual({Node,storeMesh,storeDefs:AIR_STORE_DEFS,quatMatrix,aqLook,fx});f.root.add(f.ordnancePresentation.root);
+      f.gunTracerPresentation=createFrontlineGunTracerVisual({fx});
+      f.vessels=[];f.navalCatalog=[];f.scenario=null;f.spectator=null;f.lossPending=false;
+      f.navalPresentation=createFrontlineNavalVisual({Node,renderer,GeoBuilder});f.root.add(f.navalPresentation.root);
+      f.airportPresentation=createFrontlineAirwarAirports({Node,renderer,GeoBuilder,identity:IDENTITY,fx});f.root.add(f.airportPresentation.root);
+      const airwarOverlay=document.createElement('aside');airwarOverlay.id='frontline-airwar-mission';airwarOverlay.hidden=true;airwarOverlay.style.cssText='position:fixed;bottom:28px;left:50%;transform:translateX(-50%);max-width:65vw;background:#10202cd9;color:#e5f0ed;border:1px solid #708c93;padding:7px 12px;font:13px/1.5 system-ui;z-index:1240;text-align:center';
+      const airwarText=document.createElement('div'),spectatorNext=document.createElement('button');spectatorNext.type='button';spectatorNext.textContent='下一位队友';spectatorNext.style.cssText='margin:5px 0 0;padding:4px 12px;color:#ecf6f3;background:#284350;border:1px solid #8cabae';airwarOverlay.append(airwarText,spectatorNext);document.body.appendChild(airwarOverlay);
+      spectatorNext.onclick=()=>{const friends=f.aircrafts.filter(u=>u.alive&&u.team===mine()?.team);if(friends.length){const i=friends.findIndex(u=>unitKey(u.unit)===f.follow);f.follow=unitKey(friends[(i+1)%friends.length].unit);syncAirwarSpectator();}};
       const renderGate=createFrontlineRenderGate(renderer);
       f.facilities=[];f.facilityJobs=[];f.supportSeq=0;
       f.facilityPresentation=createFrontlineFacilityPresentation({renderer});f.root.add(f.facilityPresentation.root);
@@ -248,12 +256,14 @@
       const mine=()=>f.room?.members.find(p=>p.player===net.id);
       const owned=()=>f.companies.find(c=>c.owner===net.id);
       const allUnits=()=>f.units.concat(f.aircrafts);
-      const controlled=()=>allUnits().find(u=>same(u.unit,f.control));
+      const controlled=()=>allUnits().find(u=>u.alive&&same(u.unit,f.control));
       const controlledAirModel=()=>f.airModels.get(unitKey(f.control));
       const sharedApi=createFrontlineSharedApi({f,net,send,ensureMapOptions,ensureMap,mine,controlled,clearInput,note,fuelPolicy:typeof TFAircraftFuelLoad!=='undefined'?TFAircraftFuelLoad:null,fuelIntent:id=>typeof aircraftFuelLoad!=='undefined'?aircraftFuelLoad.intentFor(id):{}});
       f.establishedFlight=createFrontlineExistingRuntime({f,mine,controlled,controlledAirModel,send,height,note,shared:sharedApi});
       function note(message){el('status').textContent=message;if(G4.air?.nativeAuthority)airReason(G4.air,message,3);}
       function resetBattlePresentation(){
+        f.navalPresentation.clear();f.airportPresentation.clear();f.vessels=[];f.navalCatalog=[];f.scenario=null;f.spectator=null;f.lossPending=false;airwarOverlay.hidden=true;
+        f.gunTracerPresentation.clear();
         f.ordnancePresentation.clear();f.missiles=[];
         f.establishedFlight.release();
         renderGate.clear();f.renderStats.drawDt=0;f.renderStats.lastDrawAt=undefined;
@@ -261,6 +271,7 @@
         for(const item of f.airModels.values())item.dispose();
         f.models.clear();f.airModels.clear();f.facilityPresentation.dispose();f.facilityIdentity=null;f.facilityCatalog=null;
         f.root.children=f.terrain?[f.terrain,f.facilityPresentation.root,f.ordnancePresentation.root]:[f.facilityPresentation.root,f.ordnancePresentation.root];f.terrainOrigin=null;
+        for(const n of [f.navalPresentation.root,f.airportPresentation.root])if(!f.root.children.includes(n))f.root.add(n);
         f.contactPresentation=null;f.contacts=[];f.events=[];f.units=[];f.aircrafts=[];f.companies=[];f.objectives=[];f.facilities=[];f.facilityJobs=[];
         f.control=null;f.epoch=0;f.seq=0;f.orderSeq=0;f.supportSeq=0;f.lastTick=0;f.order=null;f.follow=null;f.fire=false;f.mouse=null;f.inputTime=undefined;f.audioCamera=null;f.lastServiceRejection=null;f.keys.clear();f.active=false;f.error=null;f.airDeploymentPending=false;f.lastDeploymentError=null;
         sound.cancelFull?.();for(const key of ['particles','decals','beams'])if(Array.isArray(fx[key]))fx[key].length=0;
@@ -314,7 +325,7 @@
           const response=await fetch(url);if(!response.ok)throw Error('前线地形读取失败');
           const text=await response.text();if(revision&&(!/^[a-f0-9]{64}$/.test(revision)||sha256Text(text)!==revision))throw Error('地图数据已变化，请重新连接对局');
           const map=JSON.parse(text);if(f.mapId!==mapId||f.mapServer!==server||f.mapRevision!==revision)return;
-          f.map=map;if(f.map.schemaVersion!==1||!f.map.terrain?.heights?.length)throw Error('前线地形版本不同');
+          f.map=map;f.airportPresentation.install(map);if(f.map.schemaVersion!==1||!f.map.terrain?.heights?.length)throw Error('前线地形版本不同');
           // Prepare the whole Taiwan coast once while deployment waits for its
           // accepted map; flying750m never repeats source/water preparation.
           f.farTerrain=map.id==='taiwan'?createFrontlineFarTerrainGeometry({GeoBuilder,terrain:map.terrain,bounds:map.bounds,step:4000,createWaterCutout:createFrontlineWaterCutout,material:{color:hexToLinear('#6e7954'),rough:1,metal:0}}):null;
@@ -363,7 +374,7 @@
         send({op:'support_order',unit:unit.unit,kind,facility_id:target.facility_id,expected_revision:target.revision,seq:f.supportSeq});
       }
       function rebuildTerrain(){
-        if(f.map?.id==='taiwan'&&typeof createFrontlineTerrainWorker==='function'&&typeof Worker==='function'){
+        if(['taiwan','taiwan-escort'].includes(f.map?.id)&&typeof createFrontlineTerrainWorker==='function'&&typeof Worker==='function'){
           if(f.terrainWorkerMap!==f.map){f.terrainWorker?.dispose();f.terrainWorker=null;f.terrainWorkerMap=f.map;f.terrainWorkerFailed=false;}
           if(!f.terrainWorker&&!f.terrainWorkerFailed){
             f.terrainWorker=createFrontlineTerrainWorker({f,renderer,Node,build:rebuildTerrainImmediate,grid,height,
@@ -371,20 +382,20 @@
             if(!f.terrainWorker)f.terrainWorkerFailed=true;
           }
           const aerial=!!controlled()?.aircraft||!!f.aircrafts.find(u=>unitKey(u.unit)===f.follow);
-          if(f.terrainWorker?.request({focus:f.focus,aerial,facilityReady:f.facilityPresentation.ready}))return;
+          if(f.terrainWorker?.request({focus:f.map.scenario==='taiwan_landing_escort'?[0,0,0]:f.focus,aerial,facilityReady:f.facilityPresentation.ready}))return;
           if(f.terrainWorker){f.terrainWorker.dispose();f.terrainWorkerFailed=true;}
         }
         rebuildTerrainImmediate();
       }
       function rebuildTerrainImmediate(){
-        const cx=Math.floor(f.focus[0]/750)*750,cz=Math.floor(f.focus[2]/750)*750;
+        const compact=f.map.scenario==='taiwan_landing_escort',cx=compact?0:Math.floor(f.focus[0]/750)*750,cz=compact?0:Math.floor(f.focus[2]/750)*750;
         const aerial=!!controlled()?.aircraft||!!f.aircrafts.find(u=>unitKey(u.unit)===f.follow);
         if(f.terrainOrigin?.[0]===cx&&f.terrainOrigin?.[1]===cz&&f.terrainAerial===aerial)return;
         if(f.terrain){f.root.children=f.root.children.filter(n=>n!==f.terrain);for(const node of f.terrain.children)if(node.mesh)renderer.freeMesh(node.mesh);}
         f.terrainOrigin=[cx,cz];f.terrainAerial=aerial;f.terrain=new Node('frontline-terrain');f.root.add(f.terrain);
         const sampledHeights=new Map(),surface=(x,z)=>{const key=`${x},${z}`;if(!sampledHeights.has(key))sampledHeights.set(key,height(x,z));return sampledHeights.get(key);};
         const material={color:hexToLinear('#6e7954'),rough:1,metal:0};
-        const radius=aerial?12000:2500,step=aerial?200:50;
+        const radius=compact?3600:aerial?12000:2500,step=compact?50:aerial?200:50;
         // Registered water polygons have no invented bed elevation. Cut their
         // exact union out of the visual terrain, including raised road earth
         // beneath bridges; native support still comes from its registered deck.
@@ -404,7 +415,7 @@
           f.farTerrainStats={prepared:f.farTerrain.stats,last:far.stats};
         }
         const r=new GeoBuilder(),roadMaterial={color:hexToLinear('#8d876e'),rough:1,metal:0};
-        for(const road of f.map.roads||[]){if(!road.connected||!road.navEnabled)continue;const points=road.points||[];
+        for(const road of compact?[]:f.map.roads||[]){if(!road.connected||!road.navEnabled)continue;const points=road.points||[];
           for(let i=1;i<points.length;i++){const a=points[i-1],v=points[i];if(Math.hypot((a[0]+v[0])/2-cx,(a[2]+v[2])/2-cz)>radius)continue;const length=Math.hypot(v[0]-a[0],v[2]-a[2]);if(length<.01)continue;const dx=-(v[2]-a[2])/length*(road.halfWidth||3),dz=(v[0]-a[0])/length*(road.halfWidth||3);
             const p=(q,s)=>[q[0]+dx*s,surface(q[0]+dx*s,q[2]+dz*s)+.08,q[2]+dz*s];
             r.quad(IDENTITY,false,p(a,-1),p(v,-1),p(v,1),p(a,1),roadMaterial);
@@ -467,13 +478,23 @@
           if(!item){item=createFrontlineAircraftVisual(renderer,u.aircraft,{interpolate:true,
             createFlightCore:()=>loadFlightCore(createFrontlineFlightWorld(f,height)),flightError:error=>note(`本机飞行启动失败：${error.message}`),
             mountAcceptedStores:(plane,aircraftId,stores)=>mountFrontlineAcceptedStores({renderer,plane,aircraftId,stores,storeMesh,sourceStoreMesh,storeDefs:AIR_STORE_DEFS}),mountPublicStores:(plane,aircraftId,stores)=>mountFrontlinePublicStores({renderer,plane,aircraftId,stores,storeMesh,sourceStoreMesh})});f.airModels.set(key,item);f.root.add(item.root);if(same(u.unit,f.control)){f.focus=[u.pos[0],u.pos[1]+2,u.pos[2]];f.yaw=u.yaw;}}
-          item.accept(u,u.sensed?u.sampleTick:f.lastTick);item.setControlled(same(u.unit,f.control));
+          item.accept(u,u.sensed?u.sampleTick:f.lastTick);item.setControlled(u.alive&&same(u.unit,f.control));
         }
         for(const [key,item] of f.airModels)if(!present.has(key)){f.root.children=f.root.children.filter(n=>n!==item.root);item.dispose();f.airModels.delete(key);}
         f.establishedFlight.sync();
       }
+      function drawAirwarAirportTags(camera,w,h){
+        const tags=[];for(const field of f.map?.airfields||[]){if(!field.enabled||!field.runway)continue;const p=field.pos,pr=project(camera.viewProj,[p[0],p[1]+12,p[2]]);if(pr[2]<=0||Math.abs(pr[0])>.98||Math.abs(pr[1])>.95)continue;const d=Math.hypot(p[0]-camera.pos[0],p[1]-camera.pos[1],p[2]-camera.pos[2]);tags.push({x:(pr[0]*.5+.5)*w,y:(1-(pr[1]*.5+.5))*h,text:'✈ '+(field.name||field.id)+' · '+(d/1000).toFixed(1)+' km'});}hud.drawLabels(tags);
+      }
+      function syncAirwarSpectator(){
+        const choice=frontlineAirwarSpectator({member:mine(),current:controlled(),aircrafts:f.aircrafts,vessels:f.vessels,airfields:f.map?.airfields,previous:f.follow});
+        const previous=f.spectator;f.spectator=choice;
+        if(!choice)return;f.lossPending=false;
+        if(!previous){f.establishedFlight.release();clearInput();deploy.close();f.deploymentVisible=false;renderer.setMap(null);renderer.zones=[];setMode('battle');f.pitch=-.18;f.distance=45;}
+        if(previous?.key!==choice.key){f.follow=choice.kind==='aircraft'||choice.kind==='vessel'?choice.key:null;f.audioCamera=null;if(choice.target){const p=choice.target.pos;f.focus=[p[0],p[1]+(choice.kind==='base'?30:3),p[2]];f.yaw=choice.target.yaw||0;}if(choice.kind==='vessel')f.distance=180;if(choice.kind==='base')f.distance=350;}
+      }
       function refreshUi(){
-        const member=mine(),company=owned(),current=controlled(),round=frontlineRoundPresentation(f.room);
+        const member=mine(),company=owned(),current=controlled(),round=frontlineRoundPresentation(f.room);document.body.dataset.frontlineWatch=f.active&&!current&&!f.deploymentVisible?'1':'0';
         ui.querySelector('.fl-setup').hidden=true;ui.hidden=true;
         const scores=f.room?.team_score;el('room').textContent=f.room?`房间 ${f.room.id} · ${f.room.era} · ${round.text} · ${Array.isArray(scores)?`蓝 ${scores[0]} / 红 ${scores[1]} · 目标 ${f.room.score_limit}`:'分数待服务器同步'}`:'';
         el('start').disabled=!f.room||f.room.host!==net.id||round.state!=='waiting';
@@ -509,6 +530,7 @@
         const playerScore=(f.room?.scoreboard||[]).find(row=>row.player===net.id),companyText=playerScore?`\n个人 ${playerScore.score} 分 · 击落 ${playerScore.air_kills} / 对地 ${playerScore.ground_kills} · 损失 ${playerScore.deaths}`:'';
         el('inventory').textContent=flying?aircraftInventory+companyText:current?`驾驶 #${current.unit.unit}　主炮弹药 ${current.ammo}\n${current.alive?'状态：'+(current.caps?.can_move===false?'失去机动':'作战中'):'载具已损失'}${companyText}`:`${member?.observer?'AI 观战 · 自由镜头 / 跟随单位':'在共用出击界面选择飞机与挂载'}\n地面 ${f.units.length}　飞机 ${f.aircrafts.length}　服务器帧 ${f.lastTick}`;
         flightReadout.hidden=true;
+        airwarOverlay.hidden=!f.active||G4.mode!=='battle'||!!f.deploymentVisible;airwarText.textContent=[f.spectator?.label,frontlineAirwarMissionText(f.scenario,member?.team)].filter(Boolean).join(' · ');if(!airwarText.textContent)airwarOverlay.hidden=true;spectatorNext.hidden=!f.spectator||!f.aircrafts.some(u=>u.alive&&u.team===member?.team);
         ui.querySelector('.fl-air-touch').hidden=!flying;
         el('help').textContent=flying?'飞行：W 俯冲 / S 拉起，A/D 滚转，Q/E 方向舵，Shift/Ctrl 调油门；G 起落架、F 襟翼、B 减速板、I 教官、L 平飞、V 座舱；右键拖动鼠标瞄准，左键机炮，空格投放。地面 AI 自主进攻与占领 A/B/C；Tab 返回出击界面。':'玩家只驾驶飞机；地面 AI 自主进攻与占点。观战：WASD 移动、Q/E 升降；滚轮缩放。Tab 打开共用出击界面。';
         for(const button of ui.querySelectorAll('.fl-touch [data-held]')){const labels=flying?{KeyW:'俯冲',KeyS:'拉起',KeyA:'左滚',KeyD:'右滚',Space:'投放'}:{KeyW:'前进',KeyS:'后退',KeyA:'左转',KeyD:'右转',Space:'制动'};if(labels[button.dataset.held])button.textContent=labels[button.dataset.held];}
@@ -527,7 +549,7 @@
       }
       async function receive(message){
         if(message.version!==1){note('前线版本不同，请更新游戏');return;}const m=message.message;
-        if(m.op==='left'){f.ordnancePresentation.clear();f.missiles=[];}
+        if(m.op==='left'){f.ordnancePresentation.clear();f.gunTracerPresentation.clear();f.missiles=[];}
         if(m.op==='error'){
           if(m.code==='air_pose_rejected')controlledAirModel()?.rejectLocalPose?.();
           if(m.code==='weapon_control_rejected')f.establishedFlight.rejectWeaponControl(m.message);
@@ -541,7 +563,7 @@
         if(m.op==='rooms'){
           f.rooms=m.rooms.filter(room=>room.battle_mode==='air_frontline');f.shared?.notify();el('rooms').replaceChildren(...f.rooms.map(room=>{const row=document.createElement('div'),join=document.createElement('button'),watch=document.createElement('button');row.textContent=`#${room.id} ${room.name}　`;join.textContent='参战';watch.textContent='观战';join.onclick=()=>send({op:'join',room:room.id,observer:false});watch.onclick=()=>send({op:'join',room:room.id,observer:true});row.append(join,watch);return row;}));return;
         }
-        if(m.op==='left'){f.establishedFlight.release(true);renderGate.clear();f.renderStats.drawDt=0;f.active=false;f.room=null;f.control=null;f.epoch=0;f.seq=0;f.orderSeq=0;f.supportSeq=0;f.inputTime=undefined;f.fire=false;f.units=[];f.aircrafts=[];f.companies=[];f.staging=[];f.facilities=[];f.facilityJobs=[];f.facilityIdentity=null;f.facilityPresentation.dispose();f.follow=null;f.order=null;for(const item of f.models.values()){releaseGroundDetail(item);item.lod.dispose();}for(const item of f.airModels.values())item.dispose();f.models.clear();f.airModels.clear();f.root.children=f.terrain?[f.terrain,f.facilityPresentation.root]:[f.facilityPresentation.root];net.frontlineRoom=null;reticle.hidden=flightReadout.hidden=true;f.keys.clear();setMode('garage');note('已退出空战对局');refreshUi();f.airDeploymentPending=false;f.shared?.notify();return;}
+        if(m.op==='left'){f.navalPresentation.clear();f.airportPresentation.clear();f.vessels=[];f.navalCatalog=[];f.scenario=null;f.spectator=null;f.lossPending=false;airwarOverlay.hidden=true;f.establishedFlight.release(true);renderGate.clear();f.renderStats.drawDt=0;f.active=false;f.room=null;f.control=null;f.epoch=0;f.seq=0;f.orderSeq=0;f.supportSeq=0;f.inputTime=undefined;f.fire=false;f.units=[];f.aircrafts=[];f.companies=[];f.staging=[];f.facilities=[];f.facilityJobs=[];f.facilityIdentity=null;f.facilityPresentation.dispose();f.follow=null;f.order=null;for(const item of f.models.values()){releaseGroundDetail(item);item.lod.dispose();}for(const item of f.airModels.values())item.dispose();f.models.clear();f.airModels.clear();f.root.children=f.terrain?[f.terrain,f.facilityPresentation.root]:[f.facilityPresentation.root];for(const n of [f.navalPresentation.root,f.airportPresentation.root])f.root.add(n);net.frontlineRoom=null;reticle.hidden=flightReadout.hidden=true;f.keys.clear();setMode('garage');note('已退出空战对局');refreshUi();f.airDeploymentPending=false;f.shared?.notify();return;}
         if(m.op==='room'||m.op==='snapshot'){
           if(f.room&&(m.room.id!==f.room.id||m.room.battle<f.room.battle))return;
           if(!f.room||m.room.battle!==f.room.battle)resetBattlePresentation();
@@ -552,8 +574,11 @@
         }
         if(m.op==='snapshot'||m.op==='frame'){
           if(m.op==='frame'&&m.battle!==f.room?.battle)return;
+          if(Array.isArray(m.vessels))f.vessels=m.vessels;if(Array.isArray(m.naval_geometry_catalog))f.navalCatalog=m.naval_geometry_catalog;if(Object.hasOwn(m,'scenario'))f.scenario=m.scenario;
+          f.navalPresentation.accept(f.navalCatalog,f.vessels,{battle:m.battle??f.room?.battle,tick:m.tick??f.lastTick});
           f.missiles=Array.isArray(m.missiles)?m.missiles:[];
           f.ordnancePresentation.accept(f.missiles,{battle:m.battle??f.room?.battle,tick:m.tick??f.lastTick});
+          f.gunTracerPresentation.accept(Array.isArray(m.tracers)?m.tracers:[],{battle:m.battle??f.room?.battle,tick:m.tick??f.lastTick});
           if(Array.isArray(m.staging))f.staging=m.staging;
           if(Array.isArray(m.facilities))f.facilities=m.facilities;
           if(Array.isArray(m.facility_jobs))f.facilityJobs=m.facility_jobs;
@@ -589,15 +614,15 @@
               f.facilityCatalog=m.facility_geometry_catalog;f.terrainOrigin=null;
             }
           }
-          if(f.room?.started&&!f.active){f.active=true;G4.keys.clear();G4.fireHeld=G4.mgHeld=false;hud.loading(null);el('map-range').value='theatre';el('map-follow').checked=false;if(mine()?.observer&&f.units.length){renderer.setMap(null);renderer.zones=[];setMode('battle');const unit=f.units[0];f.follow=unitKey(unit.unit);f.focus=[unit.pos[0],unit.pos[1]+2,unit.pos[2]];f.yaw=unit.yaw;}note(mine()?.observer?'正在观看两队 AI 交战。':'在原机库选择飞机和挂载并起飞。');}
+          if(f.room?.started&&!f.active){f.active=true;G4.keys.clear();G4.fireHeld=G4.mgHeld=false;hud.loading(null);el('map-range').value='theatre';el('map-follow').checked=false;if(mine()?.observer&&(f.units.length||f.vessels.length)){renderer.setMap(null);renderer.zones=[];setMode('battle');const unit=f.vessels[0]||f.units[0];f.follow=unitKey(unit.unit);f.focus=[unit.pos[0],unit.pos[1]+2,unit.pos[2]];f.yaw=unit.yaw;}note(mine()?.observer?'正在观看两队 AI 交战。':'在原机库选择飞机和挂载并起飞。');}
           const member=mine();if(member&&m.op==='snapshot')applyControl(member.controlled,member.epoch);
           // Accepted flight buffers, part pose and control ownership follow the
           // network admission, even when the next drawing frame is delayed.
-          updateAircraftModels(0);
+          updateAircraftModels(0);syncAirwarSpectator();
           if(controlled()?.service?.status==='servicing'||controlled()?.service?.status==='complete')f.lastServiceRejection=null;
         }
         if(m.op==='air_pose_accepted'){f.airModels.get(unitKey(m.unit))?.ackLocalPose?.(m);return;}
-        if(m.op==='control'){f.airDeploymentPending=false;f.lastDeploymentError=null;applyControl(m.unit,m.epoch);if(f.map)updateAircraftModels(0);}
+        if(m.op==='control'){if(m.reason==='controlled_loss')f.lossPending=true;f.airDeploymentPending=false;f.lastDeploymentError=null;applyControl(m.unit,m.epoch);if(f.map)updateAircraftModels(0);}
         if(m.op==='order_accepted')note('服务器已接受连队命令。');
         if(m.op==='support_order_accepted')note('支援任务已接受，车辆将沿可通行路线前往。');
         if(m.op==='ended'&&m.battle===f.room?.battle){
@@ -631,7 +656,7 @@
       el('support-repair').disabled=el('support-supply').disabled=true;
       el('support-unit').onchange=el('support-target').onchange=refreshSupportUi;
       el('return').onclick=()=>f.shared.returnToDeployment();el('leave').onclick=()=>f.shared.leave();
-      el('follow').onchange=()=>{f.follow=el('follow').value||null;f.audioCamera=null;};
+      el('follow').onchange=()=>{f.follow=el('follow').value||null;f.audioCamera=null;syncAirwarSpectator();};
       el('takeover').disabled=true;
       ui.querySelectorAll('[data-order]').forEach(button=>{button.disabled=true;});
       ui.querySelectorAll('[data-air-toggle]').forEach(button=>button.onclick=()=>{controlledAirModel()?.plane.toggle(button.dataset.airToggle);transmitInput();});
@@ -641,23 +666,25 @@
       };
       function drawMap(){
         if(!f.mapCentre)return;const g=mapG,w=mapCv.width,h=mapCv.height,theatre=el('map-range').value==='theatre'?frontlineTheatreMapView(f.map.terrain,w,h):null;
-        if(theatre){f.mapScale=theatre.scale;f.mapCentre=theatre.centre;}else{f.mapScale=Number(el('map-range').value)||14;if(el('map-follow').checked&&f.focus)f.mapCentre=[f.focus[0],f.focus[2]];}
+        const local=frontlineAirwarMapView(f.focus,w,h);
+        if(f.room?.battle_mode==='air_frontline'){f.mapScale=local.scale;f.mapCentre=local.centre;}else if(theatre){f.mapScale=theatre.scale;f.mapCentre=theatre.centre;}else{f.mapScale=Number(el('map-range').value)||14;if(el('map-follow').checked&&f.focus)f.mapCentre=[f.focus[0],f.focus[2]];}
         const point=p=>[(p[0]-f.mapCentre[0])/f.mapScale+w/2,(p[2]-f.mapCentre[1])/f.mapScale+h/2];
         if(f.mapBackgroundMap!==f.map){f.mapBackground=createFrontlineMapBackground(f.map);f.mapBackgroundMap=f.map;}
         f.mapBackground.draw(g,{width:w,height:h,centre:f.mapCentre,scale:f.mapScale});
-        g.strokeStyle='#607461';g.lineWidth=2;for(const road of f.map.roads||[]){if(!road.connected)continue;g.beginPath();road.points.forEach((p,i)=>{const q=point(p);i?g.lineTo(...q):g.moveTo(...q);});g.stroke();}
-        for(const o of f.objectives){const member=mine(),view=frontlineObjectivePresentation(o,member?.observer?null:member?.team),q=point(o.pos),radius=Math.max(5,o.radius/f.mapScale),ownerColor=o.owner==='blue'?'#71b9ff':o.owner==='red'?'#ff9984':'#e7c36d';g.strokeStyle=view.contested?'#f4da84':ownerColor;g.setLineDash(view.locked?[3,3]:[]);g.beginPath();g.arc(...q,radius,0,Math.PI*2);g.stroke();g.setLineDash([]);if(view.progress!==0){g.strokeStyle=view.progress>0?'#71b9ff':'#ff9984';g.beginPath();g.arc(...q,radius+3,-Math.PI/2,-Math.PI/2+Math.abs(view.progress)*Math.PI*2);g.stroke();}g.fillStyle=view.contested?'#f4da84':ownerColor;g.font='11px sans-serif';g.fillText(view.label,q[0]+8,q[1]-8);}
-        for(const source of f.staging||[]){if(!mine()?.observer&&source.team!==mine()?.team)continue;const q=point(source.pos),selected=source.id===el('ground-staging').value;g.strokeStyle=source.available?(source.team==='blue'?'#76bdff':'#ff9984'):'#78888a';g.setLineDash(source.available?[]:[3,3]);g.strokeRect(q[0]-5,q[1]-5,10,10);if(selected)g.strokeRect(q[0]-8,q[1]-8,16,16);g.setLineDash([]);g.fillStyle=g.strokeStyle;g.fillText(`${frontlineFrontLabel(source.front)}部署${source.available?'':' · 暂停'}`,q[0]+9,q[1]+4);}
-        for(const u of f.units){const q=point(u.pos);g.fillStyle=!u.alive?'#747775':u.team==='blue'?'#76bdff':'#ff9984';g.fillRect(q[0]-2,q[1]-2,4,4);if(u.alive&&u.role&&u.role!=='combat'){g.font='10px sans-serif';g.fillText(u.role==='engineer'?'工':'补',q[0]+4,q[1]+3);}if(same(u.unit,f.control)){g.strokeStyle='#fff';g.strokeRect(q[0]-5,q[1]-5,10,10);}}
+        g.strokeStyle='#607461';g.lineWidth=2;for(const road of f.scenario?[]:f.map.roads||[]){if(!road.connected)continue;g.beginPath();road.points.forEach((p,i)=>{const q=point(p);i?g.lineTo(...q):g.moveTo(...q);});g.stroke();}
+        for(const o of f.scenario?[]:f.objectives){const member=mine(),view=frontlineObjectivePresentation(o,member?.observer?null:member?.team),q=point(o.pos),radius=Math.max(5,o.radius/f.mapScale),ownerColor=o.owner==='blue'?'#71b9ff':o.owner==='red'?'#ff9984':'#e7c36d';g.strokeStyle=view.contested?'#f4da84':ownerColor;g.setLineDash(view.locked?[3,3]:[]);g.beginPath();g.arc(...q,radius,0,Math.PI*2);g.stroke();g.setLineDash([]);if(view.progress!==0){g.strokeStyle=view.progress>0?'#71b9ff':'#ff9984';g.beginPath();g.arc(...q,radius+3,-Math.PI/2,-Math.PI/2+Math.abs(view.progress)*Math.PI*2);g.stroke();}g.fillStyle=view.contested?'#f4da84':ownerColor;g.font='11px sans-serif';g.fillText(view.label,q[0]+8,q[1]-8);}
+        for(const source of f.scenario?[]:f.staging||[]){if(!mine()?.observer&&source.team!==mine()?.team)continue;const q=point(source.pos),selected=source.id===el('ground-staging').value;g.strokeStyle=source.available?(source.team==='blue'?'#76bdff':'#ff9984'):'#78888a';g.setLineDash(source.available?[]:[3,3]);g.strokeRect(q[0]-5,q[1]-5,10,10);if(selected)g.strokeRect(q[0]-8,q[1]-8,16,16);g.setLineDash([]);g.fillStyle=g.strokeStyle;g.fillText(`${frontlineFrontLabel(source.front)}部署${source.available?'':' · 暂停'}`,q[0]+9,q[1]+4);}
+        for(const u of f.units){if(!frontlineAirwarNearby(u.pos,local))continue;const q=point(u.pos);g.fillStyle=!u.alive?'#747775':u.team==='blue'?'#76bdff':'#ff9984';g.fillRect(q[0]-2,q[1]-2,4,4);if(u.alive&&u.role&&u.role!=='combat'){g.font='10px sans-serif';g.fillText(u.role==='engineer'?'工':'补',q[0]+4,q[1]+3);}if(same(u.unit,f.control)){g.strokeStyle='#fff';g.strokeRect(q[0]-5,q[1]-5,10,10);}}
         for(const facility of f.facilities){if(facility.damage_state==='intact')continue;const geometry=f.facilityCatalog?.find(v=>v.facility_id===facility.facility_id);if(!geometry)continue;const [a,b]=geometry.bounds,q=point([(a[0]+b[0])/2,0,(a[2]+b[2])/2]);g.strokeStyle=facility.damage_state==='destroyed'?'#ffab78':'#ead078';g.beginPath();g.moveTo(q[0]-4,q[1]-4);g.lineTo(q[0]+4,q[1]+4);g.moveTo(q[0]+4,q[1]-4);g.lineTo(q[0]-4,q[1]+4);g.stroke();}
-        for(const contact of f.contacts||[])if(contact.status==='last_known'){
+        for(const contact of f.contacts||[])if(contact.status==='last_known'&&frontlineAirwarNearby(contact.pos,local)){
           const q=point(contact.pos),age=Math.max(0,(f.lastTick-contact.last_seen_tick)*.05);g.save();g.globalAlpha=.6;g.strokeStyle=contact.team==='blue'?'#76bdff':'#ff9984';g.setLineDash([3,3]);g.beginPath();g.arc(...q,5,0,Math.PI*2);g.stroke();g.setLineDash([]);g.fillStyle=g.strokeStyle;g.fillText(`最后位置 ${Math.floor(age)}秒`,q[0]+8,q[1]+10);g.restore();
         }
-        for(const field of f.map.airfields||[]){if(!field.enabled||!field.runway)continue;const runway=field.runway,[x,z]=runway.center,[fx,fz]=runway.forward,a=point([x-fx*runway.lengthMeters/2,0,z-fz*runway.lengthMeters/2]),b=point([x+fx*runway.lengthMeters/2,0,z+fz*runway.lengthMeters/2]);g.strokeStyle=field.team===0?'#76bdff':'#ff9984';g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();}
-        for(const u of f.aircrafts){const q=point(u.pos),heading=u.yaw;g.save();g.translate(...q);g.rotate(-heading);g.strokeStyle=!u.alive?'#747775':u.team==='blue'?'#76bdff':'#ff9984';g.beginPath();g.moveTo(0,7);g.lineTo(-5,-5);g.lineTo(0,-2);g.lineTo(5,-5);g.closePath();g.stroke();if(same(u.unit,f.control))g.strokeRect(-8,-8,16,16);g.restore();}
+        for(const field of f.map.airfields||[]){if(!field.enabled||!field.runway||!frontlineAirwarNearby(field.pos,local))continue;const runway=field.runway,[x,z]=runway.center,[fx,fz]=runway.forward,a=point([x-fx*runway.lengthMeters/2,0,z-fz*runway.lengthMeters/2]),b=point([x+fx*runway.lengthMeters/2,0,z+fz*runway.lengthMeters/2]);g.strokeStyle=field.team===0?'#76bdff':'#ff9984';g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();const q=point(field.pos);g.strokeRect(q[0]-5,q[1]-5,10,10);g.font='bold 11px system-ui';g.fillStyle=g.strokeStyle;g.fillText(field.name||field.id,q[0]+8,q[1]-8);}
+        for(const ship of f.vessels||[]){if(!frontlineAirwarNearby(ship.pos,local))continue;const q=point(ship.pos);g.fillStyle=!ship.alive?'#747775':ship.team===0?'#76bdff':'#ff9984';g.fillRect(q[0]-3,q[1]-5,6,10);if(ship.role==='transport'){g.font='10px system-ui';g.fillText('登陆舰',q[0]+7,q[1]+8);}}
+        for(const u of f.aircrafts){if(!frontlineAirwarNearby(u.pos,local))continue;const q=point(u.pos),heading=u.yaw;g.save();g.translate(...q);g.rotate(-heading);g.strokeStyle=!u.alive?'#747775':u.team==='blue'?'#76bdff':'#ff9984';g.beginPath();g.moveTo(0,7);g.lineTo(-5,-5);g.lineTo(0,-2);g.lineTo(5,-5);g.closePath();g.stroke();if(same(u.unit,f.control))g.strokeRect(-8,-8,16,16);g.restore();}
         for(const c of f.companies)if(c.owner===net.id)for(const order of c.orders){const q=point([order.target[0],0,order.target[1]]);g.strokeStyle='#f8d39b';g.beginPath();g.arc(...q,6,0,Math.PI*2);g.stroke();}
         const scaleDistance=f.mapScale>500?100000:f.mapScale>50?10000:1000;
-        g.strokeStyle='#c7d6d3';g.beginPath();g.moveTo(15,h-16);g.lineTo(15+scaleDistance/f.mapScale,h-16);g.stroke();g.fillStyle='#c7d6d3';g.fillText(`${scaleDistance/1000} km`,15,h-24);g.font='bold 13px system-ui';g.fillText(f.map.name||'台海海峡',12,20);
+        g.strokeStyle='#c7d6d3';g.beginPath();g.moveTo(15,h-16);g.lineTo(15+scaleDistance/f.mapScale,h-16);g.stroke();g.fillStyle='#c7d6d3';g.fillText(`${scaleDistance/1000} km`,15,h-24);g.font='bold 13px system-ui';g.fillText(f.map.name||'台海海峡',12,20);g.font='11px system-ui';g.fillText('附近 10 km',12,36);
       }
       function transmitInput(){
         if(!f.active||!net.open||f.room?.round_state==='intermission')return;const current=controlled();if(!current?.aircraft)return;
@@ -683,8 +710,8 @@
         // Shared HUD timers follow the original frame cadence, including frames
         // that yield to a busy GPU. The garage may have hidden this canvas.
         if(f.active&&G4.mode==='battle'){hud.tick(dt);hud.overlay.style.visibility='visible';}
-        if(!f.map||!f.focus)return;const current=controlled(),target=allUnits().find(u=>unitKey(u.unit)===f.follow);
-        if(current?.aircraft)f.establishedFlight.step(dt);
+        if(!f.map||!f.focus)return;syncAirwarSpectator();const current=controlled(),target=allUnits().concat(f.vessels||[]).find(u=>unitKey(u.unit)===f.follow);
+        f.airportPresentation.install(f.map);if(current?.aircraft)f.establishedFlight.step(dt);
         if(f.room?.facility_layout_version===1&&!f.facilityPresentation.ready)return;
         if(target){const desired=[target.pos[0],target.pos[1]+2,target.pos[2]];f.focus=f.focus.map((v,i)=>v+(desired[i]-v)*(1-Math.exp(-dt*8)));}
         else if(!current){const speed=(f.keys.has('ShiftLeft')?100:25)*dt,forward=(f.keys.has('KeyW')?1:0)-(f.keys.has('KeyS')?1:0),right=(f.keys.has('KeyD')?1:0)-(f.keys.has('KeyA')?1:0);f.focus[0]+=(Math.sin(f.yaw)*forward+Math.cos(f.yaw)*right)*speed;f.focus[2]+=(Math.cos(f.yaw)*forward-Math.sin(f.yaw)*right)*speed;f.focus[1]+=((f.keys.has('KeyE')?1:0)-(f.keys.has('KeyQ')?1:0))*speed;}
@@ -704,7 +731,7 @@
         else{const cp=Math.cos(f.pitch),dir=[Math.sin(f.yaw)*cp,Math.sin(f.pitch),Math.cos(f.yaw)*cp];eye=f.focus.map((v,i)=>v-dir[i]*f.distance);eye[1]=Math.max(eye[1],height(eye[0],eye[2])+2);forward=f.focus.map((v,i)=>v-eye[i]);}
         const look=lookAtLH(eye,forward,up),[cw,ch]=renderer.resize(),tanY=Math.tan(fov/2),camera={pos:eye,viewProj:mul(perspective(fov,cw/ch,near,far),look.view),forward:look.forward,right:look.right,up:look.up,tanX:tanY*cw/ch,tanY,near,far};
         G4.camPos=eye.slice();sound.setListener?.({position:eye,forward:look.forward,up:look.up,velocity:f.audioCamera&&dt>0?eye.map((v,i)=>(v-f.audioCamera[i])/dt):[0,0,0],time:G4.time});f.audioCamera=eye.slice();
-        fx.update(dt);fx.build(camera);renderer.advance(dt);renderer.pixelSize=0;mark('cameraEffectsMs');renderer.render(nodes,camera,f.focus,fx);renderGate.submitted();mark('renderSubmitMs');hud.resize(cw,ch);hud.clear();reticle.hidden=true;if(current?.aircraft){f.establishedFlight.draw(camera.viewProj,cw,ch);const plane=G4.air.plane;hud.drawCompass(Math.atan2(look.forward[0],look.forward[2]),plane.heading,plane.heading,canvas.clientWidth<760);}drawMap();refreshUi();mark('mapUiMs');
+        fx.update(dt);if(current?.aircraft)f.establishedFlight.present(dt);f.gunTracerPresentation.step(dt,camera.pos);f.airportPresentation.draw(camera.pos);fx.build(camera);renderer.advance(dt);renderer.pixelSize=0;mark('cameraEffectsMs');renderer.render(nodes,camera,f.focus,fx);renderGate.submitted();mark('renderSubmitMs');hud.resize(cw,ch);hud.clear();reticle.hidden=true;if(current?.aircraft){f.establishedFlight.draw(camera.viewProj,cw,ch);const plane=G4.air.plane;hud.drawCompass(Math.atan2(look.forward[0],look.forward[2]),plane.heading,plane.heading,canvas.clientWidth<760);}drawAirwarAirportTags(camera,cw,ch);drawMap();refreshUi();mark('mapUiMs');
         phase.totalMs=performance.now()-began;phase.tick=f.lastTick;phase.fullModels=[...f.models.values()].filter(m=>m.fullDetail).length;phase.drawCalls=renderer.drawCalls;
         f.renderStats.last=phase;f.renderStats.frames++;for(const key of ['modelsMs','aircraftMs','terrainMs','sceneMs','cameraEffectsMs','renderSubmitMs','mapUiMs','totalMs'])f.renderStats.max[key]=Math.max(f.renderStats.max[key]||0,phase[key]);
       }
@@ -729,5 +756,5 @@
     servicePanel.prepend(serviceChoice);serviceChoice.onchange=()=>{const unit=frontline.shared.controlled();if(unit){G4.airLoadout[unit.aircraft]=Number(serviceChoice.value);saveAirArms();}};
     const configureService=document.createElement('button');configureService.type='button';configureService.textContent='逐挂点配置整备挂载';configureService.onclick=()=>{const unit=frontline.shared.controlled();if(unit){airGarage.sel=unit.aircraft;openNativeArmEditor(unit.aircraft);}};servicePanel.prepend(configureService);
     let frontlineDisposed=false;
-    frontline.dispose=()=>{if(frontlineDisposed)return;frontlineDisposed=true;frontline.terrainWorker?.dispose();frontline.ordnancePresentation.dispose();frontline.sharedLobby.dispose();frontline.shared.dispose();armObserver.disconnect();clearInterval(frontline.inputTimer);frontline.clearInput();};
+    frontline.dispose=()=>{if(frontlineDisposed)return;frontlineDisposed=true;frontline.terrainWorker?.dispose();frontline.navalPresentation.dispose();frontline.airportPresentation.dispose();document.getElementById('frontline-airwar-mission')?.remove();frontline.ordnancePresentation.dispose();frontline.gunTracerPresentation.dispose();frontline.sharedLobby.dispose();frontline.shared.dispose();armObserver.disconnect();clearInterval(frontline.inputTimer);frontline.clearInput();};
     window.addEventListener('pagehide',event=>{if(!event.persisted)frontline.dispose();});

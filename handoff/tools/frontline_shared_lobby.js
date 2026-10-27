@@ -11,7 +11,7 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
   if(aircraft.openBattlefield!==undefined&&typeof aircraft.openBattlefield!=='function')throw Error('Invalid battlefield deployment callback');
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const saved=[];
-  let chosenMode='casual',nativeMap='taiwan',nativeEra=2022,legacyFields=null,opened=false,garageOpened=false,lastBattle=null,lastNative=false,disposed=false,deploymentError='';
+  let chosenMode='casual',nativeMap='taiwan-escort',nativeEra=2022,legacyFields=null,opened=false,garageOpened=false,lastBattle=null,lastNative=false,disposed=false,deploymentError='';
   const originalLobby={render:lobby.render,click:lobby.click,change:lobby.change,show:lobby.show,connect:lobby.connect,sendVehicle:lobby.sendVehicle};
   const originalDeploy={click:deploy.click,airChoice:deploy.airChoice,update:deploy.update,renderAmmo:deploy.renderAmmo,renderTop:deploy.renderTop,drawMap:deploy.drawMap};
   const native=()=>!!frontline.room();
@@ -172,7 +172,7 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
     const target=this.el.querySelector('#dp-ammo');if(!target)return;
     if(!this.isAir()){target.innerHTML='<p class="dp-note">请选择飞机</p>';return;}
     const id=this.vehicle.slice(4),choice=selection(),name=admitted(id)?.name||id;
-    const retained=frontline.retained?.(),lost=frontline.self()?.air_sortie_eligible===false&&!retained,error=deploymentError||frontline.deploymentError?.();const html=`<h3>${esc(name)}</h3>`+choice.list.map(lo=>`<button type="button" class="dp-airlo" data-act="airlo" data-i="${lo.index}" aria-pressed="${lo.index===choice.selected}" ${lo.online?'':`disabled title="${esc(lo.why)}"`}><b>${esc(lo.name)}</b><small>${esc(lo.online?lo.what:lo.why)}</small></button>`).join('')+(aircraft.fuelHtml?.(id)||'')+`<button type="button" class="tool" data-act="configure-air">逐挂点配置武器…</button><p class="dp-note">挂点、武器及库存均由服务器确认。${retained?'原机仍在场，出击只接管原机；新挂载须返回机场整备。':lost?'本局飞机已损失，现在以自由视角观战，请等待下一局。':'本局仅一架，实际出击后使用本局资格。'}</p>${error?`<p class="dp-note" role="status">${esc(error)}</p>`:''}${!choice.lo?'<p class="dp-note" role="status">当前配置尚未开放，请选择可用配置。</p>':''}`;
+    const retained=frontline.retained?.(),lost=frontline.self()?.air_sortie_eligible===false&&!retained,error=deploymentError||frontline.deploymentError?.();const html=`<h3>${esc(name)}</h3>`+choice.list.map(lo=>`<button type="button" class="dp-airlo" data-act="airlo" data-i="${lo.index}" aria-pressed="${lo.index===choice.selected}" ${lo.online?'':`disabled title="${esc(lo.why)}"`}><b>${esc(lo.name)}</b><small>${esc(lo.online?lo.what:lo.why)}</small></button>`).join('')+(aircraft.fuelHtml?.(id)||'')+`<button type="button" class="tool" data-act="configure-air">逐挂点配置武器…</button><p class="dp-note">挂点、武器及库存均由服务器确认。${retained?'原机仍在场，出击只接管原机；新挂载须返回机场整备。':lost?'本局飞机已损失，现在默认观战存活队友，请等待下一局。':'本局仅一架，实际出击后使用本局资格。'}</p>${error?`<p class="dp-note" role="status">${esc(error)}</p>`:''}${!choice.lo?'<p class="dp-note" role="status">当前配置尚未开放，请选择可用配置。</p>':''}`;
     if(target.innerHTML!==html)target.innerHTML=html;
   });
   patch(deploy,'update',function(...args){
@@ -199,7 +199,7 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
     if(isNative&&r.battle!==lastBattle){lastBattle=r.battle;deploy.spawn=0;deploy._mapT=0;deploymentError='';garageOpened=false;}
     if(!isNative&&lastNative){if(opened)deploy.close();frontline.setDeploymentVisible?.(false);opened=garageOpened=false;lastBattle=null;}
     lobby.render();
-    if(isNative){const me=frontline.self();if(!battle()||!me||me.observer||frontline.controlled()){if(opened)deploy.close();frontline.setDeploymentVisible?.(false);opened=garageOpened=false;}else if(aircraft.openGarage&&!aircraft.openBattlefield){if(!garageOpened)openDeployment();}else if(!deploy.visible)openDeployment();else{deploy.renderAmmo();deploy.update();}}
+    if(isNative){const me=frontline.self();if(!battle()||!me||me.observer||frontline.controlled()||frontline.spectating?.()){if(opened)deploy.close();frontline.setDeploymentVisible?.(false);opened=garageOpened=false;}else if(aircraft.openGarage&&!aircraft.openBattlefield){if(!garageOpened)openDeployment();}else if(!deploy.visible)openDeployment();else{deploy.renderAmmo();deploy.update();}}
     lastNative=isNative;
   }
   const unsubscribe=frontline.subscribe(refresh);

@@ -1,0 +1,93 @@
+{
+  "schema": "TankForgeLinuxMuslBuildV1",
+  "status": "PASS",
+  "target": "x86_64-unknown-linux-musl",
+  "sourceRoot": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "sourceHead": "33bd2ba7ee6883b0941be9d07d4c6b90796615bb",
+  "targetDir": "D:/TankForge-validation/rust-r81-target",
+  "buildExitCode": 0,
+  "buildLog": "D:/TankForge-validation/r83-20261027/linux-build/build.log",
+  "binary": "D:/TankForge-validation/r83-20261027/linux-build/tg-server-linux-amd64-musl",
+  "bytes": 6768112,
+  "sha256": "b081325f9a05c53433d0dc95ad5286e09113d97534e9c9889b5afeb226248eb0",
+  "elf": {
+    "format": "ELF64",
+    "endian": "little",
+    "machine": "x86_64",
+    "type": "ET_DYN (static PIE)",
+    "programHeaders": [
+      {
+        "type": 6,
+        "flags": 4,
+        "offset": 64,
+        "fileSize": 560
+      },
+      {
+        "type": 1,
+        "flags": 4,
+        "offset": 0,
+        "fileSize": 864064
+      },
+      {
+        "type": 1,
+        "flags": 5,
+        "offset": 864064,
+        "fileSize": 5813356
+      },
+      {
+        "type": 1,
+        "flags": 6,
+        "offset": 6677424,
+        "fileSize": 85312
+      },
+      {
+        "type": 1,
+        "flags": 6,
+        "offset": 6762752,
+        "fileSize": 3296
+      },
+      {
+        "type": 7,
+        "flags": 4,
+        "offset": 6677424,
+        "fileSize": 49
+      },
+      {
+        "type": 2,
+        "flags": 6,
+        "offset": 6761344,
+        "fileSize": 320
+      },
+      {
+        "type": 1685382482,
+        "flags": 4,
+        "offset": 6677424,
+        "fileSize": 85312
+      },
+      {
+        "type": 1685382480,
+        "flags": 4,
+        "offset": 472772,
+        "fileSize": 50988
+      },
+      {
+        "type": 1685382481,
+        "flags": 6,
+        "offset": 0,
+        "fileSize": 0
+      }
+    ],
+    "dynamicInterpreter": false,
+    "dynamicNeededEntries": 0,
+    "executableStack": false
+  },
+  "featureMarkers": {
+    "taiwan_landing_escort": true,
+    "attacker_fleet_annihilated": true,
+    "same_visible_float32_naval_triangles": true
+  },
+  "inputFilesChecked": 199,
+  "changedDuringBuild": [],
+  "sourceManifestSha256": "5efc2f6dabc92255747343a5e1b1ee9ae6017b87c587f54a4890cda4f584cecb",
+  "executedOnLinux": false
+}

@@ -1,0 +1,521 @@
+{
+  "schema": 1,
+  "sourceCandidateProfileSha256": "22347c4e87f046e77a8fb026ab1b4c78bad684af4da6851951bf2f401396744d",
+  "helperSha256": "e734632b452e5e77f5597805f695187633304400e762a1d01bd595c13e48e7f1",
+  "aircraft": {
+    "su27": {
+      "originalCount": 3,
+      "appended": [
+        {
+          "index": 3,
+          "name": "FAB-100 對地 / 自衛",
+          "entries": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ],
+            [
+              "fab100",
+              2,
+              "center"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "6d7cfb2acee302e7b07017f93a95e785d0cf93b9c1a2d8df761a565169f38b02"
+        },
+        {
+          "index": 4,
+          "name": "FAB-250M-54 對地 / 自衛",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ],
+            [
+              "fab250",
+              2,
+              "center"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "7103448365039db78ba3d0891741ccf63aa9798aba4a2332c23344cf08fb33d4"
+        },
+        {
+          "index": 5,
+          "name": "FAB-500M-62 對地 / 自衛",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "fab500",
+              2,
+              "center"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "b1610f471a35e3a71cfaf9e0bf3c89cb511cebc579c169dd4c7cf051bd0d1ee9"
+        },
+        {
+          "index": 6,
+          "name": "B-8M1 火箭 / 自衛",
+          "entries": [
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "631362438eaabba6cce947f8b6e475fb6cb93f683d540d273d8a58aa5bd62b1c"
+        }
+      ],
+      "slots": {
+        "inner:-1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "1559ad4bd0b728d0483e3bf4e1f1a2e1b0ba993c66399314337a00d6de29f3a7"
+        },
+        "center:0": {
+          "options": {
+            "fab100": 2,
+            "fab250": 2
+          },
+          "itemsSha256": "3f12f911c6353d0d6994c0a28a5705b7f418d35e4144cd69c98bca898c1dd503"
+        },
+        "inner:1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "a16e5cd910663a3643af41b7636459afaecf706c4767a50f21b0bb96569aa179"
+        }
+      }
+    },
+    "su27skm": {
+      "originalCount": 4,
+      "appended": [
+        {
+          "index": 4,
+          "name": "FAB-100 對地 / 自衛",
+          "entries": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ],
+            [
+              "fab100",
+              2,
+              "center"
+            ],
+            [
+              "r73e",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "8d289970644b2f74f5f31a3baa89bd9563cf6ea13b77e670aa061243f01821f9"
+        },
+        {
+          "index": 5,
+          "name": "FAB-250M-54 對地 / 自衛",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ],
+            [
+              "fab250",
+              2,
+              "center"
+            ],
+            [
+              "r73e",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "559b24d1935b7490e47c93d2e254efe7e599914e929ca7e0b365ea296d3f9f91"
+        },
+        {
+          "index": 6,
+          "name": "FAB-500M-62 對地 / 自衛",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "fab500",
+              2,
+              "center"
+            ],
+            [
+              "r73e",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "b7b01019e45022d1d72d3661a654156c5a84fa3aed17b767b119d280725901da"
+        },
+        {
+          "index": 7,
+          "name": "B-8M1 火箭 / 自衛",
+          "entries": [
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "tip"
+            ]
+          ],
+          "sha256": "c71c187f3641b7488c7fc9349afb24804d1183fd80e10fef50cb88d8faf43b1c"
+        }
+      ],
+      "slots": {
+        "inner:-1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "1559ad4bd0b728d0483e3bf4e1f1a2e1b0ba993c66399314337a00d6de29f3a7"
+        },
+        "center:0": {
+          "options": {
+            "fab100": 2,
+            "fab250": 2
+          },
+          "itemsSha256": "3f12f911c6353d0d6994c0a28a5705b7f418d35e4144cd69c98bca898c1dd503"
+        },
+        "inner:1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "a16e5cd910663a3643af41b7636459afaecf706c4767a50f21b0bb96569aa179"
+        }
+      }
+    },
+    "mig29": {
+      "originalCount": 4,
+      "appended": [
+        {
+          "index": 4,
+          "name": "FAB-100 對地 / 自衛",
+          "entries": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "c28fb19567937935241729bbe485391daf29296a05247015c1de3f9eb42c9d73"
+        },
+        {
+          "index": 5,
+          "name": "FAB-250M-54 對地 / 自衛",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "d9a6bc558b4eb90360bd408eab242ec328ea72747512e83b35a12fcd23f14865"
+        },
+        {
+          "index": 6,
+          "name": "FAB-500M-62 對地 / 自衛",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "7b5c9df620150fa198d33acb69990d0ff83cd2dacce890e88182fe06c084c018"
+        },
+        {
+          "index": 7,
+          "name": "B-8M1 火箭 / 自衛",
+          "entries": [
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "ddd413c4983da3d35b681d5c6db72d772c7be3c044183555a8180c52c6a6a5db"
+        },
+        {
+          "index": 8,
+          "name": "UB-16-57 火箭 / 自衛",
+          "entries": [
+            [
+              "ub16",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "65b3227cf3248cc05e2b46ef23f7649f6d0bd4f2107035be944296b90fba5b3c"
+        },
+        {
+          "index": 9,
+          "name": "S-24B 火箭 / 自衛",
+          "entries": [
+            [
+              "s24b",
+              2,
+              "mid"
+            ],
+            [
+              "r73",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "e78f2e1025b4da9209cbd2825c751ff821662aca42c4aca5d9b93dcd53a6748a"
+        }
+      ],
+      "slots": {
+        "inner:-1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "e6358d0c36fb5f6eba6e5307ecbd08a5ef5d4cc1688671353dbaafab13ed36e6",
+          "defaults": {
+            "fab100": 1,
+            "fab250": 1
+          }
+        },
+        "inner:1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "1264bb52c403a1edc8952a7811ab431a16abf27ed44473b955359e06ca673738",
+          "defaults": {
+            "fab100": 1,
+            "fab250": 1
+          }
+        }
+      },
+      "existingOptionDefaultsAdded": {
+        "mid:-1": {
+          "ub16": 1,
+          "s24b": 1
+        },
+        "mid:1": {
+          "ub16": 1,
+          "s24b": 1
+        }
+      }
+    },
+    "mig29smt": {
+      "originalCount": 6,
+      "appended": [
+        {
+          "index": 6,
+          "name": "FAB-100 對地 / 自衛",
+          "entries": [
+            [
+              "fab100",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "7a8e6f2f5d001d21dc2af2d1e4b28fe4b3c2b3373d6c9c2a120693001560f375"
+        },
+        {
+          "index": 7,
+          "name": "FAB-250M-54 對地 / 自衛",
+          "entries": [
+            [
+              "fab250",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "76457f5a15d8a628caea1d44e88118cbbece3da56b7408e82822a223ba42be9e"
+        },
+        {
+          "index": 8,
+          "name": "FAB-500M-62 對地 / 自衛",
+          "entries": [
+            [
+              "fab500",
+              2,
+              "inner"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "a33ac32472e32b37c42c60696705693d9033d44139465d386eaeb0735e1176db"
+        },
+        {
+          "index": 9,
+          "name": "B-8M1 火箭 / 自衛",
+          "entries": [
+            [
+              "b8m1",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "6170655c6a1cac151cfedb798c66df50744f24f5306c657715bb4dc0337521f2"
+        },
+        {
+          "index": 10,
+          "name": "UB-16-57 火箭 / 自衛",
+          "entries": [
+            [
+              "ub16",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "69ab88e4869f95330860a6e623ecaaea645d10d6803be8fa39d3b99dad5be1d0"
+        },
+        {
+          "index": 11,
+          "name": "S-24B 火箭 / 自衛",
+          "entries": [
+            [
+              "s24b",
+              2,
+              "mid"
+            ],
+            [
+              "r73e",
+              2,
+              "outer"
+            ]
+          ],
+          "sha256": "fa82249020b9a9ab735e835b2e6b74c7ae1970556db1a229df964d6362fc1fa9"
+        }
+      ],
+      "slots": {
+        "inner:-1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "e6358d0c36fb5f6eba6e5307ecbd08a5ef5d4cc1688671353dbaafab13ed36e6",
+          "defaults": {
+            "fab100": 1,
+            "fab250": 1
+          }
+        },
+        "inner:1": {
+          "options": {
+            "fab100": 1,
+            "fab250": 1
+          },
+          "itemsSha256": "1264bb52c403a1edc8952a7811ab431a16abf27ed44473b955359e06ca673738",
+          "defaults": {
+            "fab100": 1,
+            "fab250": 1
+          }
+        }
+      },
+      "existingOptionDefaultsAdded": {
+        "mid:-1": {
+          "ub16": 1,
+          "s24b": 1
+        },
+        "mid:1": {
+          "ub16": 1,
+          "s24b": 1
+        }
+      }
+    }
+  },
+  "compatibilityAdded": {
+    "su27skm": {
+      "fab100": "primary",
+      "fab250": "primary"
+    },
+    "mig29smt": {
+      "fab100": "primary",
+      "fab250": "primary"
+    }
+  }
+}

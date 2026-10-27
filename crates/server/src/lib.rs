@@ -19,6 +19,8 @@ pub mod frontline_campaign;
 pub mod frontline_wire;
 pub mod frontline_perception;
 pub mod frontline_facilities;
+pub mod frontline_naval;
+pub mod frontline_scenario;
 
 #[cfg(test)]
 mod frontline_catalog_test_contract;

@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -28,7 +29,7 @@ test('actual frontline frame delegates player aiming to the original aircraft HU
     fx:{update(){},build(){}},sound:{setListener(){}},
     renderer:{resize:()=>[800,600],advance(){},render(){renders++;}},
     lookAtLH:(_,forward,up)=>({view:[],forward,up,right:[1,0,0]}),mul:()=>[],perspective:()=>[]});
-  installOrdnance(c);
+  installOrdnance(c);installCurrentPresentation(c);
   vm.runInContext(source.slice(a,b),c);
   for(const [camera,hidden] of [[0,true],[1,true],[2,true]]){
     plane.state.camera=camera;c.frame(1/60);assert.equal(reticle.hidden,hidden,`camera ${camera}`);

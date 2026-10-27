@@ -1,0 +1,96 @@
+   Compiling memchr v2.8.3
+   Compiling itoa v1.0.18
+   Compiling typenum v1.20.1
+   Compiling bitflags v2.13.2
+   Compiling cpufeatures v0.2.17
+   Compiling cfg-if v1.0.5
+   Compiling wasmi_collections v2.0.0
+   Compiling spin v0.9.9
+   Compiling serde_core v1.0.229
+   Compiling zmij v1.0.23
+   Compiling libm v0.2.16
+   Compiling wasmparser v0.228.0
+   Compiling generic-array v0.14.7
+   Compiling wasmi_core v2.0.0
+   Compiling crypto-common v0.1.7
+   Compiling block-buffer v0.10.4
+   Compiling digest v0.10.7
+   Compiling wasmi_ir v2.0.0
+   Compiling sha2 v0.10.9
+   Compiling serde v1.0.229
+   Compiling serde_json v1.0.151
+   Compiling tg-shared v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\shared)
+   Compiling tg-armor v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\armor)
+   Compiling tg-weapon v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\weapon)
+   Compiling tg-missile v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\missile)
+   Compiling tg-gameplay v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\gameplay)
+   Compiling tg-penetration v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\penetration)
+   Compiling wasmi v2.0.0
+   Compiling tg-damage v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\damage)
+   Compiling tg-vehicle v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\vehicle)
+   Compiling tg-combat v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\combat)
+   Compiling tg-physics v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\physics)
+   Compiling tg-server v0.1.0 (D:\TankForge-workspaces\r81-push-20261027\crates\server)
+warning: method `apply_shot` is never used
+    --> crates\server\src\lobby.rs:2328:8
+     |
+ 738 | impl Lobby {
+     | ---------- method in this implementation
+...
+2328 |     fn apply_shot(&mut self, id: u32, room: u32, target: u32, shell: ProjectileDef, o: Vec3, d: Vec3, speed: f32, dist: f32, seed:...
+     |        ^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `bridge_states` is never used
+    --> crates\server\src\frontline_sim.rs:1595:19
+     |
+1390 | impl MapGround {
+     | -------------- method in this implementation
+...
+1595 |     pub(crate) fn bridge_states(&self) -> Vec<BridgeStateView> {
+     |                   ^^^^^^^^^^^^^
+
+warning: field `route` is never read
+   --> crates\server\src\frontline.rs:568:5
+    |
+531 | struct Room {
+    |        ---- field in this struct
+...
+568 |     route: Vec<[f64; 2]>,
+    |     ^^^^^
+
+warning: method `ai_sortie_view` is never used
+   --> crates\server\src\frontline_air.rs:957:19
+    |
+944 | impl AirWorld {
+    | ------------- method in this implementation
+...
+957 |     pub(crate) fn ai_sortie_view(&self, id: u64) -> Option<AiSortieView> {
+    |                   ^^^^^^^^^^^^^^
+
+warning: method `name` is never used
+    --> crates\server\src\frontline_air.rs:2460:8
+     |
+2459 | impl AiSortiePhase {
+     | ------------------ method in this implementation
+2460 |     fn name(self) -> &'static str {
+     |        ^^^^
+
+warning: struct `AiSortieView` is never constructed
+    --> crates\server\src\frontline_air.rs:2477:19
+     |
+2477 | pub(crate) struct AiSortieView {
+     |                   ^^^^^^^^^^^^
+
+warning: method `view` is never used
+    --> crates\server\src\frontline_air.rs:2572:8
+     |
+2540 | impl AiSortieState {
+     | ------------------ method in this implementation
+...
+2572 |     fn view(&self) -> AiSortieView {
+     |        ^^^^
+
+warning: `tg-server` (lib) generated 7 warnings
+    Finished `release` profile [optimized] target(s) in 2m 30s

@@ -1,3 +1,4 @@
+import {installCurrentPresentation,productionFunction} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -213,10 +214,11 @@ test('actual client.receive updates original Aircraft telemetry and pose while o
     controlled:()=>state.aircrafts.find(u=>key(u.unit)===key(state.control)),
     el:id=>{if(!elements.has(id))elements.set(id,{});return elements.get(id)},note(){},canvas:{focus(){}},
     ensureMap:async()=>{},refreshUi(){},send(){},hud:{loading(){}},reticle:{},flightReadout:{},renderGate:{clear(){}},sound:{cancelFull(){}},fx:{particles:[],decals:[],beams:[]},releaseGroundDetail(){}});
+  installCurrentPresentation(f.context);
   const modelsA=client.indexOf('      function updateAircraftModels('),modelsB=client.indexOf('      function refreshUi(',modelsA);
   const receiveA=client.indexOf('      function applyControl('),receiveB=client.indexOf("      net.on('frontline'",receiveA);
   const resetA=client.indexOf('      function resetBattlePresentation(){'),resetB=client.indexOf('      function send(command)',resetA);
-  vm.runInContext(client.slice(0,client.indexOf('    // Production client for the versioned native frontline world.'))+client.slice(resetA,resetB)+client.slice(modelsA,modelsB)+client.slice(receiveA,receiveB),f.context);
+  vm.runInContext(client.slice(0,client.indexOf('    // Production client for the versioned native frontline world.'))+client.slice(resetA,resetB)+productionFunction('updateAircraftModels',client)+client.slice(receiveA,receiveB),f.context);
   const temporary=f.context.createFrontlineAircraftVisual(f.renderer,'f86f'),u=sample(temporary);temporary.dispose();
   const room={id:1,battle:1,battle_mode:'air_frontline',player_ground_allowed:false,started:true,members:[{player:7,controlled:u.unit,epoch:2,air_sorties_remaining:0,air_sortie_eligible:true}],team_score:[0,0],score_limit:1000};
   await f.context.receive({version:1,message:{op:'snapshot',room,tick:10,units:[],aircrafts:[u],companies:[],objectives:[]}});

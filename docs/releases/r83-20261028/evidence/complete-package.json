@@ -1,0 +1,14 @@
+{
+  "archive": "C:\\Users\\24908\\Downloads\\tankforge-r83-taiwan-airwar-linux-amd64-20261028.tar.gz",
+  "bytes": 299786844,
+  "sha256": "e7984f74e118bb4ac7bc44e9bef46c0ed3e60498a5f458950572d8ce777b2bb1",
+  "verifiedFiles": 2698,
+  "htmlSha256": "96408bd46c2270b70da0351172cf4b8caf510079540c9082e7f737bef5e4b6e6",
+  "serverSha256": "b081325f9a05c53433d0dc95ad5286e09113d97534e9c9889b5afeb226248eb0",
+  "elf": {
+    "format": "ELF64",
+    "machine": "x86_64",
+    "dynamicInterpreter": false,
+    "executedOnLinux": false
+  }
+}

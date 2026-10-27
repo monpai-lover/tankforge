@@ -197,6 +197,10 @@ pub struct FuelProfile {
 #[derive(Clone, Deserialize)]
 pub struct GunProfile {
     pub id: String,
+    #[serde(default)]
+    pub kind: String,
+    #[serde(default)]
+    pub definition: Value,
     #[serde(default = "body_owner", deserialize_with = "gun_owner")]
     pub owner: String,
     /// The legacy constructor divides some finite stocks evenly across barrels.
@@ -282,6 +286,7 @@ pub struct AirTemplate {
     module: Arc<FlightModule>,
     profiles: Arc<BTreeMap<String, AirProfile>>,
     shells: Arc<BTreeMap<String, ProjectileDef>>,
+    shell_tracers: Arc<BTreeMap<String, bool>>,
     definitions: Arc<BTreeMap<String, Value>>,
     damage_types: Arc<std::collections::HashMap<String, AirType>>,
     limits: Arc<airframe_limits::Catalog>,
@@ -869,7 +874,9 @@ impl AirTemplate {
         )
         .map_err(|e| e.to_string())?;
         let mut shells = BTreeMap::new();
+        let mut shell_tracers = BTreeMap::new();
         for (id, value) in catalog.shells {
+            shell_tracers.insert(id.clone(),value["tracer"] != false);
             let shell: ProjectileDef =
                 serde_json::from_value(value).map_err(|e| format!("air projectile {id}: {e}"))?;
             shells.insert(id, shell);
@@ -910,6 +917,7 @@ impl AirTemplate {
             module: FlightModule::bundled().map_err(|e| e.to_string())?,
             profiles: Arc::new(catalog.aircraft),
             shells: Arc::new(shells),
+            shell_tracers: Arc::new(shell_tracers),
             definitions: Arc::new(catalog.store_definitions),
             damage_types: Arc::new(damage.types),
             limits: Arc::new(limits),
@@ -1387,11 +1395,17 @@ impl AirWorld {
                     })
                     .ok_or("no enabled rear air start")?;
                 let base = vector(&source["pos"]).ok_or("invalid air start")?;
-                let forward = normalize([target[0] - base[0], 0.0, target[2] - base[2]]);
+                let authored=self.map["scenario"].as_str()==Some(crate::frontline_scenario::TAIWAN_ESCORT);
+                let heading=if authored {source["yawRad"].as_f64().filter(|v|v.is_finite()).ok_or("invalid scenario air heading")?}
+                    else{(target[0]-base[0]).atan2(target[2]-base[2])};
+                let authored_speed=if authored {Some(source["speed"].as_f64().filter(|v|v.is_finite()&&*v>0.&&*v<=250.).ok_or("invalid scenario air speed")? as f32)}else{None};
+                let forward=if authored {[heading.sin(),0.,heading.cos()]}else{normalize([target[0] - base[0], 0.0, target[2] - base[2]])};
                 let p = (0..32)
                     .map(|slot| {
                         let row = (slot / 8) as f64;
-                        let lateral = ((slot % 8) as f64 - 3.5) * 80.0;
+                        let column=slot%8;
+                        let lateral = if authored {if column==0 {0.}else{((column+1)/2) as f64*80.*if column%2==1 {1.}else{-1.}}}
+                            else{(column as f64 - 3.5) * 80.0};
                         [
                             base[0] + forward[2] * lateral - forward[0] * row * 180.0,
                             base[1] + row * 40.0,
@@ -1408,8 +1422,8 @@ impl AirWorld {
                     .ok_or("rear air-start slots are occupied; wait for clearance")?;
                 (
                     p,
-                    (target[0] - p[0]).atan2(target[2] - p[2]),
-                    if profile.physics.airframe[11] != 0.0 {
+                    if authored {heading}else{(target[0] - p[0]).atan2(target[2] - p[2])},
+                    if let Some(speed)=authored_speed {speed}else if profile.physics.airframe[11] != 0.0 {
                         210.0
                     } else {
                         110.0
@@ -2120,6 +2134,10 @@ impl AirWorld {
                         &g.profile.id,
                         u.resource_revision + 1,
                     ) {
+                        if let Some(style)=gun_tracer_style(&g.profile,&self.template.shells[sid],
+                            g.fired+1,self.template.shell_tracers[sid],u.reference) {
+                            ground.mark_air_gun_tracer(event.detail["shot_id"].as_u64().expect("accepted native shot serial"),style);
+                        }
                         events.push(event);
                         g.ammo -= 1;
                         g.fired += 1;
@@ -3497,6 +3515,28 @@ fn landing(v: &Value) -> Option<LandingArea> {
 fn body_owner() -> String {
     "body".into()
 }
+fn gun_tracer_style(gun:&GunProfile,shell:&ProjectileDef,ordinal:u64,shell_visible:bool,
+    shooter:UnitRef)->Option<crate::frontline_sim::AirGunTracerStyle>{
+    // Match the delivered aircraft-gun presentation. These are display gates,
+    // independent of the already accepted shell/belt/ammunition transaction.
+    let bullet=gun.kind=="mg"||gun.kind=="rotary";
+    if bullet && ordinal % if gun.kind=="rotary" {5}else{3} != 0 || !bullet && !shell_visible {return None;}
+    let (color,width_scale)=if bullet {
+        let rgb:Option<[f64;3]>=serde_json::from_value(gun.definition["tracer_rgb"].clone()).ok();
+        (rgb.filter(|c|c.iter().all(|v|v.is_finite()&&(0.0..=1.0).contains(v))).unwrap_or([1.0,0.55,0.2]),1.0)
+    }else{match shell.kind {
+        tg_weapon::ProjectileKind::He|tg_weapon::ProjectileKind::Hesh=>([1.0,0.62,0.22],1.2),
+        tg_weapon::ProjectileKind::Ap=>([1.0,0.5,0.18],1.0),
+        tg_weapon::ProjectileKind::Aphe=>([1.0,0.4,0.14],1.0),
+        tg_weapon::ProjectileKind::Apcbc=>([1.0,0.45,0.16],1.0),
+        tg_weapon::ProjectileKind::Apcr=>([1.0,0.85,0.6],0.7),
+        tg_weapon::ProjectileKind::Apds=>([1.0,0.9,0.7],0.6),
+        tg_weapon::ProjectileKind::Apfsds=>([1.0,0.9,0.75],0.55),
+        tg_weapon::ProjectileKind::Heat|tg_weapon::ProjectileKind::HeatFs=>([1.0,0.72,0.3],1.1),
+        _=>([1.0,0.55,0.2],1.0),
+    }};
+    Some(crate::frontline_sim::AirGunTracerStyle{shooter,color,style:if bullet {"bullet"}else{"shell"},width_scale})
+}
 fn allocate_feeds(profiles: &[GunProfile]) -> Vec<Gun> {
     let total = profiles.iter().map(|g| g.ammo).sum::<f64>().round() as u64;
     let mut counts: Vec<u32> = profiles.iter().map(|g| g.ammo.floor() as u32).collect();
@@ -3539,6 +3579,8 @@ fn allocate_loaded_feeds(profile: &AirProfile, stores: &[Store]) -> Result<Vec<G
         let side = store.value["side"].as_i64().ok_or("invalid_gunpod_side")?;
         let gun = GunProfile {
             id: format!("air_pod_{station}_{side}"),
+            kind: "cannon".into(),
+            definition: Value::Null,
             owner: store.value["owner"]
                 .as_str()
                 .ok_or("invalid_gunpod_owner")?
@@ -3808,3 +3850,7 @@ fn sensor_can_see(sensor:&Value,pos:[f64;3],pose:&AcceptedModelPose,target:[f64;
 #[cfg(test)]
 #[path = "../../../handoff/tools/agm_launch_fix.native_tests.rs"]
 mod agm_launch_fix_tests;
+
+#[cfg(test)]
+#[path = "frontline_air_tracer_policy_tests.rs"]
+mod tracer_policy_tests;

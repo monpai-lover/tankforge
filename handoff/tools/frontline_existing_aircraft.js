@@ -45,8 +45,11 @@ function createEstablishedAircraftBridge({game,document,airHud,project,clearInpu
   }
   function step(dt) {
     if (!air?.active) return;
-    syncTouch(air,dt);pilotStep(air,dt);systems(air,dt);audio(air,dt);effects(air,dt);
+    syncTouch(air,dt);pilotStep(air,dt);systems(air,dt);audio(air,dt);
   }
+  // Immediate flame/cone geometry belongs to the pose actually being drawn.
+  // Controls continue while the GPU is busy without queuing old attachments.
+  function present(dt) { if (air?.active) effects(air,dt); }
   function intent() {
     if (!air?.active || !air.nativeIntent) return null;
     return {...air.nativeIntent,aim:air.nativeIntent.aim.slice(),
@@ -56,7 +59,7 @@ function createEstablishedAircraftBridge({game,document,airHud,project,clearInpu
   function consumeIntent() {
     if (air) air.storeTap=false;
   }
-  return {bind,unbind,step,intent,consumeIntent,
+  return {bind,unbind,step,present,intent,consumeIntent,
     selection:()=>air?.active?selection(air,host,model):null,
     view:(dt,heightAt)=>air?.active?camera(air,dt,heightAt):null,
     draw:(viewProj,cw,ch)=>air?.active?drawHud(air,viewProj,cw,ch):null,

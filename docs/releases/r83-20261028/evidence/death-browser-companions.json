@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "error": null,
+  "timeline": [
+    {
+      "at": 243.797,
+      "action": "browser-red:connected",
+      "player": 3,
+      "wire": 2
+    },
+    {
+      "at": 270.8364,
+      "action": "browser-friendly:connected",
+      "player": 4,
+      "wire": 2
+    }
+  ]
+}

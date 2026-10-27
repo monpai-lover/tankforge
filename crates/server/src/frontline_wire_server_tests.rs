@@ -48,6 +48,8 @@ fn frame(tick: u64) -> ServerMsg {
     ServerMsg::Frontline {
         version: 1,
         message: Update::Frame {
+            vessels: vec![],
+            scenario: None,
             intel: None,
             battle: 1,
             tick,
@@ -58,6 +60,7 @@ fn frame(tick: u64) -> ServerMsg {
             events: vec![json!({"kind":"transport-fixture","tick":tick})],
             aircrafts: vec![],
             missiles: vec![],
+            tracers: vec![],
             staging: vec![],
             facilities: vec![],
             facility_jobs: vec![],

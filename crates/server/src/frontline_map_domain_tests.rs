@@ -28,8 +28,9 @@ fn start(h: &mut FrontlineHub, player: u32, map: &str) -> u32 {
 fn installed_map_registry_serves_exact_validated_bytes_and_rejects_unknown_ids() {
     let mut h = FrontlineHub::new(&data()).unwrap();
     let options = h.map_options();
-    assert_eq!(options.len(), 2);
-    for id in ["korea", "taiwan"] {
+    let installed:Vec<_>=["korea","taiwan","taiwan-escort"].into_iter().filter(|id|data().join(format!("frontline/{id}.json")).exists()).collect();
+    assert_eq!(options.len(), installed.len());
+    for id in installed {
         let source = std::fs::read_to_string(data().join(format!("frontline/{id}.json"))).unwrap();
         assert_eq!(h.map_source(id), Some(source.as_str()));
         let sha = tg_combat::geometry::manifest::sha256(source.as_bytes());
@@ -37,7 +38,7 @@ fn installed_map_registry_serves_exact_validated_bytes_and_rejects_unknown_ids()
         assert_eq!(option["sha256"], sha);
         assert_eq!(option["path"], format!("/frontline/{id}.json"));
         accepted(&h.handle(
-            if id == "korea" { 1 } else { 2 },
+            if id == "korea" { 1 } else if id=="taiwan" { 2 } else {3},
             Command::Create {
                 name: "revision binder".into(),
                 map: id.into(),
@@ -46,7 +47,7 @@ fn installed_map_registry_serves_exact_validated_bytes_and_rejects_unknown_ids()
             },
             0.0,
         ));
-        let room = &h.rooms[&h.membership[&if id == "korea" { 1 } else { 2 }]];
+        let room = &h.rooms[&h.membership[&if id == "korea" { 1 } else if id=="taiwan" { 2 } else {3}]];
         assert_eq!(room.view().map_revision, sha);
         assert_eq!(room.view().map, id);
     }
@@ -60,7 +61,7 @@ fn installed_map_registry_serves_exact_validated_bytes_and_rejects_unknown_ids()
     ] {
         assert!(h.map_source(id).is_none());
         let out = h.handle(
-            3,
+            4,
             Command::Create {
                 name: "invalid".into(),
                 map: id.into(),

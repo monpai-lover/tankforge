@@ -397,9 +397,13 @@ pub enum Update {
         aircraft_options: Vec<AirOption>,
         aircrafts: Vec<AirUnitView>,
         missiles: Vec<crate::frontline_air::guided::View>,
+        tracers: Vec<crate::frontline_sim::AirGunTracerView>,
         facilities: Vec<Value>,
         facility_jobs: Vec<Value>,
         facility_geometry_catalog: Vec<Value>,
+        vessels: Vec<Value>,
+        naval_geometry_catalog: Vec<Value>,
+        scenario: Option<Value>,
         #[serde(skip_serializing_if = "Option::is_none")]
         intel: Option<TeamPerceptionView>,
     },
@@ -413,9 +417,12 @@ pub enum Update {
         events: Vec<Value>,
         aircrafts: Vec<AirUnitView>,
         missiles: Vec<crate::frontline_air::guided::View>,
+        tracers: Vec<crate::frontline_sim::AirGunTracerView>,
         staging: Vec<StagingView>,
         facilities: Vec<Value>,
         facility_jobs: Vec<Value>,
+        vessels: Vec<Value>,
+        scenario: Option<Value>,
         #[serde(skip_serializing_if = "Option::is_none")]
         intel: Option<TeamPerceptionView>,
     },
@@ -546,6 +553,8 @@ struct Room {
     units: BTreeMap<u64, Unit>,
     sim: SimWorld,
     air: AirWorld,
+    scenario: Option<crate::frontline_scenario::ScenarioState>,
+    naval_public: [Vec<Value>;2],
     perception: PerceptionWorld,
     perception_events: [Vec<Value>; 2],
     perception_error: Option<String>,
@@ -752,11 +761,11 @@ impl FrontlineHub {
         let mut map_revisions = BTreeMap::new();
         // Only explicit installed theatre IDs are addressable. An optional file
         // may be absent; a present invalid asset must fail closed at startup.
-        for id in ["korea", "taiwan"] {
+        for id in ["korea", "taiwan", "taiwan-escort"] {
             let path = data_path.join("frontline").join(format!("{id}.json"));
             let source = match std::fs::read_to_string(&path) {
                 Ok(s) => s,
-                Err(e) if id == "taiwan" && e.kind() == std::io::ErrorKind::NotFound => continue,
+                Err(e) if id != "korea" && e.kind() == std::io::ErrorKind::NotFound => continue,
                 Err(e) => return Err(format!("{}: {e}", path.display())),
             };
             let map: Value = serde_json::from_str(&source)
@@ -2061,8 +2070,10 @@ impl FrontlineHub {
             for _ in 0..steps {
                 room.last_step += STEP;
                 events.extend(room.step(&mut self.next_unit));
-                if !room.player_ground_allowed {
-                    air_outcome = room.air_round_outcome();
+                if room.scenario.is_some() || !room.player_ground_allowed {
+                    air_outcome = if let Some(scenario)=&room.scenario {
+                        scenario.outcome().map(|(team,reason)|(Some(if team==0 {Team::Blue}else{Team::Red}),reason))
+                    }else{room.air_round_outcome()};
                     if air_outcome.is_some() {
                         break;
                     }
@@ -2098,9 +2109,12 @@ impl FrontlineHub {
                 events,
                 aircrafts,
                 missiles:room.sim.guided_ordnance_views(),
+                tracers:room.sim.air_gun_tracer_views(),
                 staging: room.staging_views(),
                 facilities: room.facility_views_for(None),
                 facility_jobs: room.facility_jobs_for(None),
+                vessels: room.vessel_views_for(None),
+                scenario: room.scenario_status(),
                 intel: None,
             };
             if let (Some(t), Some(start)) = (room.timing.as_mut(), views_start) {
@@ -2128,7 +2142,7 @@ impl FrontlineHub {
             }
             let terminal_winner = room.campaign.terminal_winner(&room.objectives);
             if air_outcome.is_some()
-                || room.player_ground_allowed && (terminal_winner.is_some()
+                || room.scenario.is_none() && room.player_ground_allowed && (terminal_winner.is_some()
                     || room.readiness.contains(&0)
                     || room.sim.time() >= room.round_seconds)
             {
@@ -2229,6 +2243,9 @@ mod air_era_policy_tests;
 #[path = "frontline_air_weapon_control_tests.rs"]
 mod air_weapon_control_tests;
 #[cfg(test)]
+#[path = "frontline_air_tracer_tests.rs"]
+mod air_tracer_tests;
+#[cfg(test)]
 #[path = "frontline_air_countermeasure_domain_tests.rs"]
 mod air_countermeasure_domain_tests;
 #[cfg(test)]
@@ -2258,6 +2275,9 @@ mod round_domain_tests;
 #[cfg(test)]
 #[path = "frontline_support_domain_tests.rs"]
 mod support_domain_tests;
+#[cfg(test)]
+#[path = "frontline_naval_domain_tests.rs"]
+mod naval_domain_tests;
 
 impl Room {
     #[allow(clippy::too_many_arguments)]
@@ -2596,6 +2616,8 @@ impl Room {
             units: BTreeMap::new(),
             sim,
             air,
+            scenario: crate::frontline_scenario::ScenarioState::for_map(data)?,
+            naval_public: Default::default(),
             perception: PerceptionWorld::new(battle, PerceptionConfig::default())?,
             perception_events: Default::default(),
             perception_error: None,
@@ -2631,6 +2653,12 @@ impl Room {
         next_unit: &mut u64,
         now: f64,
     ) -> Result<(), Update> {
+        if let Some(scenario)=&self.scenario {
+            self.sim.install_naval(&scenario.config.naval,next_unit).map_err(|e|failure("naval_spawn_failed",e))?;
+            self.started=true;self.started_at=now;self.last_step=now;
+            self.round_seconds=scenario.config.timeout_seconds;
+            return Ok(());
+        }
         let vehicle = self
             .vehicles
             .iter()
@@ -2990,6 +3018,34 @@ impl Room {
             })
             .collect()
     }
+    fn scenario_status(&self)->Option<Value> {
+        self.scenario.as_ref().map(|s|s.status(&self.sim.naval_views()))
+    }
+    fn vessel_views_for(&self, team:Option<Team>)->Vec<Value> {
+        let mut ships=self.sim.naval_views();
+        if let Some(scenario)=&self.scenario {scenario.decorate(&mut ships);}
+        let mut values:Vec<_>=ships.into_iter().filter(|s|team.is_none_or(|t|s.team==t.index() as u8))
+            .map(|s|serde_json::to_value(s).expect("finite accepted naval view")).collect();
+        if let Some(team)=team {values.extend(self.naval_public[team.index()].iter().cloned());}
+        values
+    }
+    fn update_naval_public(&mut self) {
+        if !self.perception.frame().is_some_and(|f|f.scanned) {return;}
+        let ships=self.sim.naval_views();
+        for side in 0..2 {
+            let mut observers:Vec<_>=self.air.combat_targets().into_iter().filter(|s|s.alive&&s.team==side as u8).map(|s|(s.unit.unit,s.pos)).collect();
+            observers.extend(self.sim.kinematics().into_iter().filter(|s|s.alive&&s.team==side as u8).map(|s|(s.id,[s.pos[0],s.pos[1]+2.2,s.pos[2]])));
+            observers.extend(ships.iter().filter(|s|s.alive&&s.team==side as u8).map(|s|(s.unit.unit,[s.pos[0],s.pos[1]+3.,s.pos[2]])));
+            self.naval_public[side]=ships.iter().filter(|s|s.team!=side as u8&&observers.iter().any(|(id,p)|{
+                let target=[s.pos[0],s.pos[1]+2.,s.pos[2]];
+                distance(*p,target)<=12000.&&self.sim.perception_los(*id,s.unit.unit,*p,target)
+            })).map(|s|{
+                let mut value=serde_json::to_value(s).expect("finite naval public pose");
+                if let Some(o)=value.as_object_mut(){for key in ["health","max_health","ammo","ammo_revision","unloading_s"]{o.remove(key);}}
+                value
+            }).collect();
+        }
+    }
     fn snapshot(&self) -> Update {
         Update::Snapshot {
             room: self.view(),
@@ -3000,9 +3056,13 @@ impl Room {
             aircraft_options: self.air.options(self.era),
             aircrafts: self.air.views(),
             missiles:self.sim.guided_ordnance_views(),
+            tracers:self.sim.air_gun_tracer_views(),
             facilities: self.facility_views_for(None),
             facility_jobs: self.facility_jobs_for(None),
             facility_geometry_catalog: self.facility_catalog.clone(),
+            vessels: self.vessel_views_for(None),
+            naval_geometry_catalog: self.sim.naval_geometry_catalog(),
+            scenario: self.scenario_status(),
             intel: None,
         }
     }
@@ -3029,6 +3089,16 @@ impl Room {
         self.sim.guided_ordnance_views().into_iter().filter(|m|m.team==team.index() as u8||observers.iter().any(|(id,p)|{
             let distance=p.iter().zip(m.pos).map(|(a,b)|(a-b).powi(2)).sum::<f64>().sqrt();
             distance<12000.0&&self.sim.perception_los(*id,0,*p,m.pos)
+        })).collect()
+    }
+    fn tracer_views_for(&self,team:Team)->Vec<crate::frontline_sim::AirGunTracerView>{
+        let mut observers:Vec<_>=self.air.combat_targets().into_iter().filter(|t|t.alive&&t.team==team.index() as u8).map(|t|(t.unit.unit,t.pos)).collect();
+        observers.extend(self.sim.kinematics().into_iter().filter(|t|t.alive&&t.team==team.index() as u8).map(|t|(t.id,t.pos)));
+        // Current-point visibility applies to both teams. A friendly muzzle
+        // event does not grant visibility through later terrain/facilities.
+        self.sim.air_gun_tracer_views().into_iter().filter(|trace|observers.iter().any(|(id,p)|{
+            let distance=p.iter().zip(trace.pos).map(|(a,b)|(a-b).powi(2)).sum::<f64>().sqrt();
+            distance<12000.0&&self.sim.perception_los(*id,0,*p,trace.pos)
         })).collect()
     }
     fn facility_views_for(&self, team: Option<Team>) -> Vec<Value> {
@@ -3091,6 +3161,11 @@ impl Room {
             )
             .collect();
         view.friendlies.sort();
+        view.friendlies.extend(self.sim.naval_views().into_iter().filter(|s|s.team==team.index() as u8).map(|s|s.unit));
+        for ship in &self.naval_public[team.index()] {
+            if let Ok(id)=serde_json::from_value::<UnitRef>(ship["unit"].clone()) {view.visible_enemies.push(id);}
+        }
+        view.friendlies.sort();view.visible_enemies.sort();view.visible_enemies.dedup();
         view
     }
     fn command_update_for(&self, player: u32, mut message: Update) -> Option<Update> {
@@ -3105,7 +3180,9 @@ impl Room {
                 units,
                 companies,
                 aircrafts,
+                vessels,
                 missiles,
+                tracers,
                 objectives,
                 facilities,
                 facility_jobs,
@@ -3116,7 +3193,9 @@ impl Room {
                 units.retain(|u| u.team == team);
                 companies.retain(|c| c.team == team);
                 aircrafts.retain(|u| u.team == team);
+                *vessels=self.vessel_views_for(Some(team));
                 *missiles=self.missile_views_for(team);
+                *tracers=self.tracer_views_for(team);
                 for objective in objectives {
                     objective.presence_visible[1 - team.index()] = false;
                 }
@@ -3146,7 +3225,9 @@ impl Room {
             units,
             companies,
             aircrafts,
+            vessels,
             missiles,
+            tracers,
             staging,
             events,
             objectives,
@@ -3159,7 +3240,9 @@ impl Room {
             units.retain(|u| u.team == team);
             companies.retain(|c| c.team == team);
             aircrafts.retain(|u| u.team == team);
+            *vessels=self.vessel_views_for(Some(team));
             *missiles=self.missile_views_for(team);
+            *tracers=self.tracer_views_for(team);
             staging.retain(|s| s.team == team);
             for objective in objectives {
                 objective.presence_visible[1 - team.index()] = false;
@@ -3222,12 +3305,36 @@ impl Room {
             }
             self.perception_error = Some(error);
             self.perception_events = Default::default();
+            self.naval_public = Default::default();
             return;
         }
         self.perception_error = None;
+        self.update_naval_public();
         self.perception_events = Default::default();
         for event in events {
             let kind = event["kind"].as_str().unwrap_or("");
+            if event["detail"]["naval"]==true {
+                let ships=self.sim.naval_views();
+                for team in [Team::Blue,Team::Red] {
+                    let ship_ids=self.vessel_views_for(Some(team));
+                    let visible=|unit:&Value|unit.is_null()||ship_ids.iter().any(|s|s["unit"]==*unit)
+                        || self.air.units.values().any(|u|u.team==team&&json!(u.reference)==*unit);
+                    let own=|unit:&Value|ships.iter().any(|s|s.team==team.index() as u8&&json!(s.unit)==*unit);
+                    let witnessed=point(&event["pos"]).is_some_and(|p|{
+                        let mut eyes:Vec<_>=self.air.combat_targets().into_iter().filter(|s|s.alive&&s.team==team.index() as u8).map(|s|(s.unit.unit,s.pos)).collect();
+                        eyes.extend(ships.iter().filter(|s|s.alive&&s.team==team.index() as u8).map(|s|(s.unit.unit,[s.pos[0],s.pos[1]+3.,s.pos[2]])));
+                        let target=event["target"]["unit"].as_u64().unwrap_or(0);
+                        eyes.into_iter().any(|(id,eye)|distance(eye,p)<=12000.&&self.sim.perception_los(id,target,eye,p))
+                    });
+                    if if kind=="shot" {own(&event["shooter"])||visible(&event["shooter"])}else{own(&event["target"])||witnessed} {
+                        let detail:serde_json::Map<_,_>=["shot_id","projectile_id","caliber_mm","velocity","naval","world_bursts"].iter()
+                            .filter_map(|k|event["detail"].get(*k).map(|v|((*k).to_owned(),v.clone()))).collect();
+                        self.perception_events[team.index()].push(json!({"kind":kind,"shooter":if visible(&event["shooter"]){event["shooter"].clone()}else{Value::Null},
+                            "target":if visible(&event["target"]){event["target"].clone()}else{Value::Null},"pos":event["pos"],"detail":detail}));
+                    }
+                }
+                continue;
+            }
             if matches!(kind, "player_score" | "team_score") {
                 for side in &mut self.perception_events {
                     side.push(event.clone());
@@ -4702,6 +4809,10 @@ impl Room {
                 json!({"kind":"unit_lost","unit":reference,"team":team,"readiness_cost":loss_cost}),
             );
         }
+        if let Some(scenario)=self.scenario.as_mut() {
+            scenario.step(STEP,self.sim.time(),&self.sim.naval_views());
+            return events;
+        }
         let bodies = self.sim.capture_presence();
         let outcome = self.campaign.step(&mut self.objectives, &bodies, STEP);
         for (side, cost) in outcome.readiness_cost.into_iter().enumerate() {
@@ -4726,6 +4837,7 @@ impl Room {
                     .get(&id)
                     .map(|u| json!(u.reference))
                     .or_else(|| self.air.reference(id).map(|r| json!(r)))
+                    .or_else(|| self.sim.naval_views().iter().find(|s|s.unit.unit==id).map(|s|json!(s.unit)))
                     .unwrap_or(Value::Null);
             }
         }

@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -14,7 +15,7 @@ const source=fs.readFileSync(new URL('../tools/frontline_client.js',import.meta.
 function harness(){
  const blasts=[],contacts=[],f={room:{id:1,battle:2,battle_mode:'air_frontline',members:[{player:7,epoch:1,controlled:null}],team_score:[0,0]},active:false,control:null,airModels:new Map(),models:new Map(),keys:new Set(),units:[],aircrafts:[],companies:[],objectives:[],events:[],lastTick:0,establishedFlight:{sync(){},release(){}},root:{children:[]}},nodes=new Map(),key=r=>r?`${r.battle}:${r.unit}:${r.life}`:'';
  const c=vm.createContext({f,G4:{time:2},data:{projectiles:{}},net:{id:7},unitKey:key,same:(a,b)=>key(a)===key(b),mine:()=>f.room.members[0],controlled:()=>null,owned:()=>null,el:id=>{if(!nodes.has(id))nodes.set(id,{});return nodes.get(id)},note(){},canvas:{focus(){}},ensureMap:async()=>{},updateAircraftModels(){},refreshUi(){},fx:{explosion:(p,_,tnt,ground)=>blasts.push({point:[...p],tnt,ground}),armorImpact:p=>contacts.push([...p])},sound:{},renderer:{}});
- installOrdnance(c);
+ installOrdnance(c);installCurrentPresentation(c);
  const a=source.indexOf('      function applyControl('),b=source.indexOf("      net.on('frontline'",a);vm.runInContext(helpers+source.slice(a,b),c);
  const deliver=events=>c.receive({version:1,message:{op:'frame',battle:2,tick:3,units:[],aircrafts:[],companies:[],objectives:[],events}});
  return {c,f,blasts,contacts,deliver};

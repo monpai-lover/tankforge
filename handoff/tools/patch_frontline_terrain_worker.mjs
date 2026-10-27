@@ -1,7 +1,8 @@
 import fs from 'node:fs';
 const read=name=>fs.readFileSync(new URL(name,import.meta.url),'utf8');
 export function patchFrontlineTerrainWorker(source){
- const helper=read('./frontline_terrain_worker.js'),client=read('./frontline_client.js').replaceAll('\r\n','\n');
+ source=source.replaceAll('\r\n','\n');
+ const helper=read('./frontline_terrain_worker.js').replaceAll('\r\n','\n'),client=read('./frontline_client.js').replaceAll('\r\n','\n');
  const a=client.indexOf('      function rebuildTerrain(){'),b=client.indexOf('      function poseModel',a);
  if(a<0||b<a)throw Error('Missing source terrain builder boundaries');
  const section=client.slice(a,b),expected=section.slice(section.indexOf('      function rebuildTerrainImmediate(){')).replace('function rebuildTerrainImmediate(){','function rebuildTerrain(){');

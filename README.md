@@ -1,27 +1,27 @@
 # TankForge
 
-## 当前版本：R8.2（2026-10-27）
+## 当前版本：R8.3（2026-10-28）
 
 当前航空／前线客户端入口是 `handoff/bundle/app.js.html`，资源保存在同目录的
-`head.html` 和五个连续 `data.line.gz.part00..04`。本轮修复现代飞机挂载导致机炮被一同禁用、
-多人燃油读数重置、100% 节流阀续航、高射速对地开销、AGM 爆炸能量与舱内压力路径，
-并加入大地图相机相对精度和后台地形重建。保留原有飞机操纵、服务器伤害与油弹权威。
+`head.html` 和五个连续 `data.line.gz.part00..04`。本轮新增台海 1:100 海空护航剧本、
+10 km 小地图、阵亡队友观战、两岸机场跑道与灯光；修复联机尾焰/音爆云旧位置堆积和机炮曳光，
+扩充四种苏系飞机的常规挂载。保留既有飞行操纵、地图内出击和服务器战斗权威。
 
 从仓库直接重建本次交付的单文件页面（只需 Python 3；输出文件必须不存在）：
 
 ```sh
 python -c "from pathlib import Path; Path('client/web/dist').mkdir(parents=True, exist_ok=True)"
-python tools/rebuild_current_handoff.py --output client/web/dist/tankforge-r82.html
-cargo run --locked --release -p tg-server -- --data data --page client/web/dist/tankforge-r82.html
+python tools/rebuild_current_handoff.py --output client/web/dist/tankforge-r83.html
+cargo run --locked --release -p tg-server -- --data data --page client/web/dist/tankforge-r83.html
 ```
 
-浏览器打开 `http://127.0.0.1:8787/`。重建器流式拼装仓库资源并验证与本次交付相同的
-HTML 哈希；前端和原生服务端需使用同一版本。默认对地操作是空格捕获、右键发射。
+浏览器打开 `http://127.0.0.1:8787/`。选择空中前线的「台海海空护航 · 1:100」。
+前端和原生服务端需使用同一版本；HTTP `/` 与 WebSocket `/ws` 指向同一服务。
 
-当前版本说明、复现测试命令和验证边界见 [R8.2 修复记录](docs/releases/r82-20261027/README.md)。
-之前的 [R8.1 同步记录](docs/releases/r81-20261027/README.md) 保留原来的验证范围与文件指纹。
-下方原有 `client/web` 的 `npm run build` 是较早客户端入口，不能代替上述当前页面的重建。
-历史部署包装脚本和记录保留原字节；其中带本机路径的封存流程不作为跨平台构建入口。
+功能、验证范围和完整／增量包指纹见 [R8.3 交付记录](docs/releases/r83-20261028/README.md)。
+[R8.2 修复记录](docs/releases/r82-20261027/README.md) 与 [R8.1 同步记录](docs/releases/r81-20261027/README.md)
+保留原来的验证范围与文件指纹。下方 `client/web` 的 `npm run build` 是较早客户端入口，
+不能代替上述当前页面的重建。
 
 ## 早期源码工具和历史说明
 

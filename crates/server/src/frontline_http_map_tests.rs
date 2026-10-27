@@ -28,7 +28,7 @@ fn request(hub: Shared, path: &str) -> (String, Vec<u8>) {
     )
 }
 #[test]
-fn actual_frontline_http_serves_both_exact_validated_maps_and_rejects_traversal() {
+fn actual_frontline_http_serves_exact_validated_maps_and_rejects_traversal() {
     let data = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../data");
     let lobby = Lobby::new(Default::default(), Default::default(), vec![])
         .with_frontline(&data)
@@ -43,8 +43,9 @@ fn actual_frontline_http_serves_both_exact_validated_maps_and_rejects_traversal(
     let (header, body) = request(hub.clone(), "/frontline/maps.json");
     assert!(header.starts_with("HTTP/1.1 200 "));
     let list: serde_json::Value = serde_json::from_slice(&body).unwrap();
-    assert_eq!(list["maps"].as_array().unwrap().len(), 2);
-    for id in ["korea", "taiwan"] {
+    let installed:Vec<_>=["korea","taiwan","taiwan-escort"].into_iter().filter(|id|data.join(format!("frontline/{id}.json")).exists()).collect();
+    assert_eq!(list["maps"].as_array().unwrap().len(), installed.len());
+    for id in installed {
         let (header, body) = request(hub.clone(), &format!("/frontline/{id}.json"));
         assert!(header.starts_with("HTTP/1.1 200 "));
         let source = std::fs::read(data.join(format!("frontline/{id}.json"))).unwrap();

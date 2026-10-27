@@ -1,0 +1,169 @@
+{
+  "version": 1,
+  "id": "taiwan_landing_escort",
+  "attacker_team": 0,
+  "defender_team": 1,
+  "unload_seconds": 15,
+  "timeout_seconds": 900,
+  "landing_zone": {
+    "center": [
+      280,
+      -100
+    ],
+    "radius": 30,
+    "max_speed_mps": 2
+  },
+  "naval": {
+    "vessels": [
+      {
+        "id": "blue-transport-1",
+        "team": 0,
+        "role": "transport",
+        "model": "generic_transport",
+        "pos": [
+          -1200,
+          0,
+          -600
+        ],
+        "yaw": 1.25,
+        "route": [
+          [
+            -800,
+            -450
+          ],
+          [
+            -400,
+            -250
+          ],
+          [
+            0,
+            -100
+          ],
+          [
+            280,
+            -100
+          ]
+        ],
+        "speed_mps": 8,
+        "ammo": 120,
+        "shell_id": "he_76_m42a1"
+      },
+      {
+        "id": "blue-escort-1",
+        "team": 0,
+        "role": "escort",
+        "model": "generic_escort",
+        "pos": [
+          -1080,
+          0,
+          -555
+        ],
+        "yaw": 1.25,
+        "route": [
+          [
+            -800,
+            -450
+          ],
+          [
+            -400,
+            -250
+          ],
+          [
+            0,
+            -100
+          ],
+          [
+            220,
+            -160
+          ]
+        ],
+        "speed_mps": 8,
+        "ammo": 240,
+        "shell_id": "he_76_m42a1"
+      },
+      {
+        "id": "blue-escort-2",
+        "team": 0,
+        "role": "escort",
+        "model": "generic_escort",
+        "pos": [
+          -960,
+          0,
+          -510
+        ],
+        "yaw": 1.25,
+        "route": [
+          [
+            -800,
+            -450
+          ],
+          [
+            -400,
+            -250
+          ],
+          [
+            0,
+            -100
+          ],
+          [
+            220,
+            -40
+          ]
+        ],
+        "speed_mps": 8,
+        "ammo": 240,
+        "shell_id": "he_76_m42a1"
+      },
+      {
+        "id": "red-interceptor-1",
+        "team": 1,
+        "role": "interceptor",
+        "model": "generic_interceptor",
+        "pos": [
+          200,
+          0,
+          -350
+        ],
+        "yaw": -1.8,
+        "route": [
+          [
+            -100,
+            -400
+          ],
+          [
+            -500,
+            -450
+          ]
+        ],
+        "speed_mps": 11,
+        "ammo": 240,
+        "shell_id": "he_76_m42a1"
+      },
+      {
+        "id": "red-interceptor-2",
+        "team": 1,
+        "role": "interceptor",
+        "model": "generic_interceptor",
+        "pos": [
+          100,
+          0,
+          -400
+        ],
+        "yaw": -1.8,
+        "route": [
+          [
+            -100,
+            -400
+          ],
+          [
+            -500,
+            -450
+          ]
+        ],
+        "speed_mps": 11,
+        "ammo": 240,
+        "shell_id": "he_76_m42a1"
+      }
+    ]
+  }
+}

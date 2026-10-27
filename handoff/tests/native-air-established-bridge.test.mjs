@@ -56,7 +56,8 @@ test('frame bridge uses the original pilot-input path without advancing accepted
   const before=JSON.stringify({unit,cur:[...plane.cur],prev:[...plane.prev],S:[...plane.S],aero:[...plane.aero],time:plane.time,acc:plane.acc,guns:air.guns,stores:air.stores,fuel:air.fuel,revision:air.resourceRevision,damage:plane.damage.parts.map(p=>[p.hp,p.detached])});
   plane.keys.add('KeyS');plane.keys.add('ShiftLeft');input.mdx=15;input.mdy=-7;
   bridge.step(.04);
-  assert.deepEqual(events.map(e=>e[0]),['touch','pilot','systems','audio','effects']);assert.ok(events.every(e=>e[1]===air&&e[2]===.04));
+  assert.deepEqual(events.map(e=>e[0]),['touch','pilot','systems','audio']);assert.ok(events.every(e=>e[1]===air&&e[2]===.04));
+  bridge.present(.04);assert.deepEqual(events.at(-1),['effects',air,.04],'attached FX belong to the explicit drawn-frame phase');
   const intent=bridge.intent();assert.equal(intent.manual_pitch,1);assert.ok(intent.throttle>.7);assert.ok(intent.aim[0]>0);assert.ok(intent.aim[1]>0);
   assert.equal(JSON.stringify({unit,cur:[...plane.cur],prev:[...plane.prev],S:[...plane.S],aero:[...plane.aero],time:plane.time,acc:plane.acc,guns:air.guns,stores:air.stores,fuel:air.fuel,revision:air.resourceRevision,damage:plane.damage.parts.map(p=>[p.hp,p.detached])}),before);
 });

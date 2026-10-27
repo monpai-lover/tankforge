@@ -1,3 +1,4 @@
+import {airwarHelpers,productionFunction} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -7,12 +8,12 @@ const helpers=source.slice(0,source.indexOf('    // Production client for the ve
 
 test('actual drawMap displays native contest/progress and team capture locks without advancing campaign state',()=>{
   const calls=[],g={};for(const name of ['fillRect','beginPath','arc','stroke','setLineDash','fillText','moveTo','lineTo','strokeRect','save','restore','rect','clip','translate','scale','closePath','fill'])g[name]=(...args)=>calls.push({name,args});
-  const f={mapCentre:[0,0],map:{roads:[],airfields:[],terrain:{x0:-1000,z0:-1000,cellX:1000,cellZ:1000,width:3,height:3,waterAreas:[]}},facilities:[],units:[],aircrafts:[],companies:[],objectives:[
+  const f={focus:[0,0,0],mapCentre:[0,0],map:{roads:[],airfields:[],terrain:{x0:-1000,z0:-1000,cellX:1000,cellZ:1000,width:3,height:3,waterAreas:[]}},facilities:[],units:[],aircrafts:[],companies:[],objectives:[
     {id:'C2',pos:[0,40,0],radius:100,owner:null,progress:.4,lane:'centre',contested:true,capturable:[true,true],supplied:[true,true],presence:[2,1]},
     {id:'E3',pos:[200,40,200],radius:100,owner:'red',progress:-1,lane:'east',contested:false,capturable:[false,true],supplied:[false,true],presence:[0,3]}]};
   const before=JSON.stringify(f),c=vm.createContext({f,mapCv:{width:480,height:340},mapG:g,el:()=>({value:'14'}),mine:()=>({team:'blue',observer:false}),net:{id:7}});
   vm.runInContext(fs.readFileSync(new URL('../tools/frontline_map_background.js',import.meta.url),'utf8'),c);
-  const a=source.indexOf('      function drawMap(){'),b=source.indexOf('      function transmitInput(){',a);vm.runInContext(helpers+source.slice(a,b),c);
+  const a=source.indexOf('      function drawMap(){'),b=source.indexOf('      function transmitInput(){',a);vm.runInContext(airwarHelpers+helpers+productionFunction("drawMap",source),c);
   c.drawMap();assert.ok(calls.some(x=>x.name==='fillText'&&x.args[0]==='C2 争夺 蓝40%'));
   assert.ok(calls.some(x=>x.name==='fillText'&&x.args[0]==='E3 锁定 红100%'));
   assert.ok(calls.some(x=>x.name==='setLineDash'&&JSON.stringify(x.args[0])==='[3,3]'));

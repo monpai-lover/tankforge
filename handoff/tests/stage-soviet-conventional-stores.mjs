@@ -1,0 +1,16 @@
+// Explicit candidate staging and actual production layout/export verification.
+import fs from 'node:fs';import path from 'node:path';import assert from 'node:assert/strict';import crypto from 'node:crypto';
+import {patchSovietConventionalStores} from '../tools/patch_soviet_conventional_stores.mjs';import {exportProfiles} from '../tools/export_frontline_aircraft.mjs';
+const [directory]=process.argv.slice(2);assert.ok(directory,'Separate candidate output directory required');fs.mkdirSync(directory,{recursive:true});
+const original=fs.readFileSync(new URL('../bundle/app.js.html',import.meta.url),'utf8'),updated=patchSovietConventionalStores(original);assert.equal(patchSovietConventionalStores(updated),updated);
+const app=path.join(directory,'soviet-conventional-candidate.html');fs.writeFileSync(app,updated);
+const before=JSON.parse(fs.readFileSync(new URL('../../data/aircraft/frontline.json',import.meta.url),'utf8')),after=JSON.parse(JSON.stringify(await exportProfiles({appPath:app})));
+assert.deepEqual(after.storeDefinitions,before.storeDefinitions,'No existing physical, guidance or explosive definition may change');assert.deepEqual(after.shells,before.shells,'No added or recalibrated combat projectiles');
+const originalCounts={su27:3,su27skm:4,mig29:4,mig29smt:6},counts={};for(const id of ['su27','su27skm','mig29','mig29smt']){
+ const old=before.aircraft[id],next=after.aircraft[id];assert.deepEqual(next.stores.loadouts.slice(0,originalCounts[id]),old.stores.loadouts.slice(0,originalCounts[id]),'Original preset indices and actual mounted items remain stable');
+ for(const field of ['metadata','physics','fuel','guns','sensors','countermeasures','radar'])if(old[field]!==undefined)assert.deepEqual(next[field],old[field],id+'/'+field);
+ const added=next.stores.loadouts.slice(originalCounts[id]);assert.equal(added.length,id.startsWith('su27')?4:6);assert.ok(added.every(l=>l.items.length>0));
+ for(const row of added){assert.ok(row.items.every(it=>it.count>0&&it.p.every(Number.isFinite)&&it.mount.every(Number.isFinite)&&it.owner));for(const id of ['fab100','fab250'])for(const item of row.items.filter(it=>it.id===id))assert.ok(old.stores.slots.some(s=>s.station===item.station&&s.side===item.side&&s.options.fab500),'New bomb mounts reuse existing authorized FAB500 station');}
+ counts[id]={old:originalCounts[id],now:next.stores.loadouts.length,added:added.map(l=>({index:l.index,name:l.name,items:l.items.map(it=>({id:it.id,station:it.station,side:it.side,count:it.count,mount:it.mount,p:it.p}))}))};
+}
+const profile=path.join(directory,'frontline-conventional-candidate.json');fs.writeFileSync(profile,JSON.stringify(after,null,2)+'\n');const digest=v=>crypto.createHash('sha256').update(v).digest('hex');const receipt={passed:true,sourceApp:digest(original),candidateApp:digest(updated),profile:digest(fs.readFileSync(profile)),scope:'Actual production exporter executes source layout, hardpoint rebinding, mounted-detail fitting and unchanged projectile/flight definitions. Presets append; no native firing or browser preview in this check.',counts};fs.writeFileSync(path.join(directory,'receipt.json'),JSON.stringify(receipt,null,2));console.log(JSON.stringify({...receipt,counts:Object.fromEntries(Object.entries(counts).map(([id,row])=>[id,{old:row.old,now:row.now,added:row.added.map(l=>({index:l.index,name:l.name}))}]))}));

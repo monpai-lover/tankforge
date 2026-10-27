@@ -1,0 +1,71 @@
+{
+  "passed": true,
+  "error": null,
+  "url": "ws://127.0.0.1:8893/ws",
+  "scope": "Real native server and three actual WebSockets; shipped NetClient/wire2/shared deployment API; source frame acceptance hook and native tracer visual helper. Beam dependency is counted; GPU rendering is not measured.",
+  "sources": {
+    "app": "de672bb84e5236d28757920a3e1264f7e08265c2fa2df3451ef335fa60709fd9",
+    "client": "fd961a905ae4ba084936c4a8b924b8a787e9409fa790789d5e032d823a306074",
+    "visual": "6bd26241728e58087d2c17d55fbbda01475dddc9bf2d04a1d95b98d80b9d231b",
+    "serverExe": "D:/TankForge-validation/rust-fuel-100-target-20261027/release/tg-server.exe",
+    "serverSha256": "13db45bdd13b855e0c1bab5c63c6ef658a3a06494ccaf08423b5cfeadc716f3e"
+  },
+  "checks": {
+    "accepted": {
+      "shots": 100,
+      "tracers": 20,
+      "beams": 2658,
+      "beforeAmmo": 511,
+      "afterAmmo": 411,
+      "wire": {
+        "version": 2,
+        "stream": "4",
+        "frames": 97,
+        "bytes": 2451893,
+        "full": 1,
+        "delta": 96,
+        "resets": 0
+      },
+      "unit": {
+        "battle": 2,
+        "unit": 66,
+        "life": 1
+      }
+    },
+    "identity": true,
+    "cleanup": [
+      {
+        "peer": "tracer-observer-4172",
+        "left": true
+      },
+      {
+        "peer": "tracer-red-4172",
+        "left": true
+      },
+      {
+        "peer": "tracer-blue-4172",
+        "left": true
+      }
+    ]
+  },
+  "timeline": [
+    {
+      "at": 318.0442,
+      "action": "tracer-blue-4172:connected",
+      "player": 2,
+      "wire": 2
+    },
+    {
+      "at": 318.7771,
+      "action": "tracer-red-4172:connected",
+      "player": 3,
+      "wire": 2
+    },
+    {
+      "at": 318.8868,
+      "action": "tracer-observer-4172:connected",
+      "player": 4,
+      "wire": 2
+    }
+  ]
+}

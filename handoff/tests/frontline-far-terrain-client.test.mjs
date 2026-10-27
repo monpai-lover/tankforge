@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -13,6 +14,7 @@ test('map loading prepares Taiwan far terrain once before flight and replaces it
   const c=vm.createContext({f,net,URL,el:()=>({}),GeoBuilder:function(){},hexToLinear:()=>[.2,.3,.1],createFrontlineWaterCutout(){},height:()=>0,
     fetch:async()=>({ok:true,text:async()=>JSON.stringify(map(f.room.map))}),
     createFrontlineFarTerrainGeometry(options){prepared.push(options);const owner={stats:{gridCells:4},build(){throw Error('Far mesh should not rebuild during loading');}};owners.push(owner);return owner;}});
+  installCurrentPresentation(c,{hooks:false});
   vm.runInContext(section('      async function ensureMap(){','      function refreshGroundDeployment(){'),c);
   await c.ensureMap();
   assert.equal(prepared.length,1,'The distant source grid is prepared as part of map loading');

@@ -1,0 +1,163 @@
+{
+  "url": "http://127.0.0.1:8894/",
+  "checks": {
+    "real_living_friendly_deployed": {
+      "passed": true,
+      "detail": {
+        "ready": true,
+        "friendly": {
+          "battle": 2,
+          "unit": 11,
+          "life": 1
+        }
+      }
+    },
+    "normal_in_map_deployment_screen": {
+      "passed": true,
+      "detail": null
+    },
+    "original_local_flight_active": {
+      "passed": true,
+      "detail": null
+    },
+    "original_keyboard_input_gate_ready": {
+      "passed": true,
+      "detail": {
+        "thumbs": 0,
+        "active": "view",
+        "focused": true,
+        "hidden": false,
+        "panels": [
+          {
+            "id": "net-chat",
+            "hidden": true
+          },
+          {
+            "id": "hangar",
+            "hidden": true
+          },
+          {
+            "id": "air-arm",
+            "hidden": true
+          },
+          {
+            "id": "air-keys",
+            "hidden": true
+          }
+        ]
+      }
+    },
+    "actual_keyboard_dive_input": {
+      "passed": true,
+      "detail": {
+        "keys": [
+          "KeyW"
+        ],
+        "input": [
+          -1,
+          0,
+          0
+        ],
+        "focused": true,
+        "active": "view",
+        "hidden": false,
+        "paused": false,
+        "thumbs": 0,
+        "panels": [
+          {
+            "id": "net-chat",
+            "hidden": true
+          },
+          {
+            "id": "air-keys",
+            "hidden": true
+          },
+          {
+            "id": "hangar",
+            "hidden": true
+          },
+          {
+            "id": "air-arm",
+            "hidden": true
+          }
+        ]
+      }
+    },
+    "death_defaults_to_real_friendly_camera": {
+      "passed": true,
+      "detail": {
+        "spectator": {
+          "kind": "aircraft",
+          "key": "2:11:1",
+          "team": "blue",
+          "unit": {
+            "battle": 2,
+            "life": 1,
+            "unit": 11
+          }
+        },
+        "follow": "2:11:1",
+        "mode": "battle",
+        "pilot": false,
+        "deployment": false,
+        "overlay": "观战队友 · f16v #11 · 护送登陆舰抵达台湾并完成卸载 · 舰队 3 / 登陆舰 1 · 登陆 0.0 / 15 秒\n下一位队友",
+        "error": null,
+        "frameError": null,
+        "member": {
+          "player": 2,
+          "name": "車長2",
+          "team": "blue",
+          "observer": false,
+          "connected": true,
+          "company": null,
+          "controlled": null,
+          "epoch": 4,
+          "air_sorties_remaining": 0,
+          "air_sortie_eligible": true
+        }
+      }
+    },
+    "death_has_no_pilot_or_deployment_menu": {
+      "passed": true,
+      "detail": {
+        "spectator": {
+          "kind": "aircraft",
+          "key": "2:11:1",
+          "team": "blue",
+          "unit": {
+            "battle": 2,
+            "life": 1,
+            "unit": 11
+          }
+        },
+        "follow": "2:11:1",
+        "mode": "battle",
+        "pilot": false,
+        "deployment": false,
+        "overlay": "观战队友 · f16v #11 · 护送登陆舰抵达台湾并完成卸载 · 舰队 3 / 登陆舰 1 · 登陆 0.0 / 15 秒\n下一位队友",
+        "error": null,
+        "frameError": null,
+        "member": {
+          "player": 2,
+          "name": "車長2",
+          "team": "blue",
+          "observer": false,
+          "connected": true,
+          "company": null,
+          "controlled": null,
+          "epoch": 4,
+          "air_sorties_remaining": 0,
+          "air_sortie_eligible": true
+        }
+      }
+    },
+    "no_uncaught_errors": {
+      "passed": true,
+      "detail": []
+    }
+  },
+  "started": 1793120213.7570755,
+  "passed": true,
+  "logs": [],
+  "finished": 1793120259.1626103
+}

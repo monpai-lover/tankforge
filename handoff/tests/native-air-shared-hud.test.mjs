@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -34,13 +35,13 @@ function fixture({ready=true,mode='battle'}={}){
     sound:{},fx:{update:noop,build:noop},reticle:{},canvas:{clientWidth:1000},drawMap:noop,refreshUi:noop,height:()=>0,
     advanceCombat(){throw Error('Shared HUD must not advance local combat');},
     stepAirWeapons(){throw Error('Shared HUD must not spend local aircraft resources');}});
-  installOrdnance(c);
+  installOrdnance(c);installCurrentPresentation(c);
   // Use the real shared HUD timers, including the timer-to-DOM expiry behavior.
   vm.runInContext('globalThis.hud=new class {\n'+app.slice(hudStart,hudEnd)+'\n};',c);
   const hud=c.hud;
   hud.el={toast:{dataset:{}},hint:{dataset:{show:'1'}}};hud.hitTimer=0;hud.hintTimer=.1;
   hud.overlay={style:{visibility:'hidden'}};hud.resize=hud.clear=noop;
-  hud.drawCompass=()=>{calls.compass++;};
+  hud.drawCompass=()=>{calls.compass++;};hud.drawLabels=noop;
   const tick=hud.tick.bind(hud);hud.tick=dt=>{calls.ticks.push(dt);tick(dt);};
   hud.toast('Native battle message',.1);
   vm.runInContext(source.slice(frameStart,frameEnd),c);

@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -15,13 +16,13 @@ const source=fs.readFileSync(new URL('../tools/frontline_client.js',import.meta.
 const helpers=source.slice(0,source.indexOf('    // Production client for the versioned native frontline world.'));
 const section=(start,end)=>source.slice(source.indexOf(start),source.indexOf(end,source.indexOf(start)));
 const reference=(battle,id=1)=>({battle,unit:id,life:1});
-const room=(battle,extra={})=>({id:7,battle,battle_mode:'air_frontline',player_ground_allowed:false,started:true,round_state:'battle',members:[{player:5,epoch:4,controlled:reference(battle),air_sorties_remaining:0,air_sortie_eligible:true}],...extra});
+const room=(battle,extra={})=>({id:7,battle,battle_mode:'air_frontline',player_ground_allowed:false,started:true,round_state:'battle',members:[{player:5,epoch:4,controlled:reference(battle),air_sorties_remaining:1,air_sortie_eligible:true}],...extra});
 
 function harness(){
   const calls=[],elements=new Map(),f={room:room(10),active:true,control:reference(10),epoch:4,seq:8,orderSeq:9,supportSeq:3,lastTick:500,keys:new Set(['KeyW','Space']),fire:true,mouse:{x:1,y:2},models:new Map(),airModels:new Map(),root:{children:[]},facilityPresentation:{root:{name:'facilities'},dispose(){calls.push('dispose facilities');},async install(){calls.push('install');return true;}},renderStats:{drawDt:.4,lastDrawAt:123},units:[],aircrafts:[],companies:[],objectives:[],facilities:[],facilityJobs:[],events:[],map:{},facilityIdentity:'10:old',facilityCatalog:{old:true},contactPresentation:{old:true},contacts:[{old:true}],order:{old:true},follow:'10:1:1',lastServiceRejection:{old:true}};
   f.establishedFlight={release(){calls.push('release original controls');},garage(){calls.push('original garage');},transmit(){calls.push('original transport');}};
   const c=vm.createContext({airGarage:{sel:'f86f'},sharedApi:{deploymentMap:()=>({})},f,calls,net:{id:5,open:true},renderGate:{clear(){calls.push('clear gate');}},sound:{cancelFull(){calls.push('cancel audio');}},fx:{particles:[1],decals:[2],beams:[3]},reticle:{hidden:false},flightReadout:{hidden:false},releaseGroundDetail(){calls.push('release detail');},unitKey:r=>r?`${r.battle}:${r.unit}:${r.life}`:'',same:(a,b)=>JSON.stringify(a)===JSON.stringify(b),mine:()=>f.room?.members.find(m=>m.player===5),owned:()=>null,controlled:()=>f.units.find(u=>JSON.stringify(u.unit)===JSON.stringify(f.control)),controlledAirModel:()=>null,el:key=>{if(!elements.has(key))elements.set(key,{});return elements.get(key);},note:s=>calls.push(['note',s]),send:s=>calls.push(['send',s]),refreshUi:()=>calls.push('refresh'),updateAircraftModels:()=>calls.push('models'),ensureMap:async()=>{},canvas:{focus(){}},G4:{keys:new Set(),fireHeld:false,mgHeld:false},renderer:{setMap(){},zones:[]},setMode:()=>{},hud:{loading(){},toast:s=>calls.push(['toast',s])},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),console,performance:{now:()=>1000},data:{projectiles:{}},frontlineAirServiceReason:s=>s});
-  installOrdnance(c);
+  installOrdnance(c);installCurrentPresentation(c);
   vm.runInContext(helpers+section('      function resetBattlePresentation(){','      function send(command)')+section('      function applyControl(unit,epoch){',"      net.on('frontline'")+section('      function transmitInput(){','      // Input transport'),c);
   return {c,f,calls,elements};
 }

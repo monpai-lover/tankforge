@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import fs from 'node:fs';
 import vm from 'node:vm';
 import test from 'node:test';
@@ -20,7 +21,7 @@ function fixture(){
  const f={staging:structuredClone(sources),room:{started:true,battle:1,members:[]},company:null,current:null,member:{team:'blue',observer:false}},elements=new Map(),sent=[],notes=[];
  const el=id=>{if(!elements.has(id))elements.set(id,{value:'',dataset:{},replaceChildren(...children){this.options=children;}});return elements.get(id)};el('vehicle').value='su_t72a';
  const c=vm.createContext({f,el,Option:class{constructor(text,value){this.text=text;this.value=value;}},mine:()=>f.member,owned:()=>f.company,controlled:()=>f.current,send:m=>sent.push(plain(m)),note:m=>notes.push(m)});
- installOrdnance(c);
+ installOrdnance(c);installCurrentPresentation(c);
  const a=source.indexOf('      function refreshGroundDeployment(){'),b=source.indexOf('      function rebuildTerrain(){',a);vm.runInContext(helpers+source.slice(a,b),c);
  return {c,f,el,sent,notes};
 }
@@ -58,7 +59,7 @@ test('entire-theatre map contains every corner of full island-scale terrain and 
  const x=fixture(),t={x0:-200000,z0:-250000,cellX:1000,cellZ:1000,width:464,height:538,waterAreas:[]},view=x.c.frontlineTheatreMapView(t,480,340);
  for(const a of [t.x0,t.x0+(t.width-1)*t.cellX])for(const z of [t.z0,t.z0+(t.height-1)*t.cellZ]){assert.ok(Math.abs((a-view.centre[0])/view.scale)<240);assert.ok(Math.abs((z-view.centre[1])/view.scale)<170);}
  const labels=[],g={};for(const name of ['fillRect','strokeRect','beginPath','moveTo','lineTo','stroke','setLineDash','arc','fillText','save','restore','rect','clip','translate','scale','closePath','fill'])g[name]=(...args)=>{if(name==='fillText')labels.push(args[0]);};
- Object.assign(x.f,{mapCentre:[0,0],map:{terrain:t,roads:[],airfields:[]},facilities:[],objectives:[],units:[],aircrafts:[],companies:[]});x.el('map-range').value='theatre';x.el('ground-staging').value='B-CENTRE-FRONT';
+ Object.assign(x.f,{focus:[0,0,0],mapCentre:[0,0],map:{terrain:t,roads:[],airfields:[]},facilities:[],objectives:[],units:[],aircrafts:[],companies:[]});x.el('map-range').value='theatre';x.el('ground-staging').value='B-CENTRE-FRONT';
  Object.assign(x.c,{mapG:g,mapCv:{width:480,height:340},net:{id:7}});
  vm.runInContext(fs.readFileSync(new URL('../tools/frontline_map_background.js',import.meta.url),'utf8'),x.c);
  const a=source.indexOf('      function drawMap(){'),b=source.indexOf('      function transmitInput(){',a);vm.runInContext(source.slice(a,b),x.c);

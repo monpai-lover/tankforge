@@ -9,6 +9,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {exportProfiles} from '../tools/export_frontline_aircraft.mjs';
 import {assertCountermeasureExportContract,normalizeReviewedSpawnSource} from './fixtures/r8-aircraft-contract.mjs';
+import {normalizeConventionalProfile} from './fixtures/r83-conventional-contract.mjs';
 
 // Without TF_HISTORICAL_APP this exercises the unchanged delivered baseline.
 // RED therefore proves a missing real preset/filler correction, not a missing import.
@@ -87,7 +88,7 @@ test('R4M physical filler is 520g and derived shell keeps the existing total roc
 });
 
 test('all 28 source identities, 17 imported models, original physics guns fuel and preset indices survive', async () => {
-  const next = await profile();
+  const next = normalizeConventionalProfile(await profile(),process.env.TF_HISTORICAL_APP||new URL('../bundle/app.js.html',import.meta.url));
   const legacySensors=assertCountermeasureExportContract(next,process.env.TF_HISTORICAL_APP||new URL('../bundle/app.js.html',import.meta.url));
   assert.equal(Object.keys(next.aircraft).length, 28);
   assert.equal(next.source.physicalImportedModelCount, 17);
@@ -106,7 +107,7 @@ test('all 28 source identities, 17 imported models, original physics guns fuel a
 });
 
 test('country and variant guards do not borrow Polish MF or upgraded Soviet guided attack presets', async () => {
-  const next = await profile();
+  const next = normalizeConventionalProfile(await profile(),process.env.TF_HISTORICAL_APP||new URL('../bundle/app.js.html',import.meta.url));
   for (const id of ['p51d', 'f4u1d', 'f86f', 'su27', 'mig29', 'su27skm', 'mig29smt', 'yak9u', 'me262u4']) {
     assert.deepEqual(next.aircraft[id].stores.loadouts.map(hash), baseline.aircraft[id].loadouts.map(l => l.sha256), `${id}: no unsourced new preset`);
   }

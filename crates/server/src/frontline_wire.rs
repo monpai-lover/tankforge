@@ -367,7 +367,8 @@ fn frame_scope(frame: &Value) -> Result<(u64, u64)> {
         .filter(|t| *t <= MAX_JS_INTEGER)
         .ok_or(WireError::Invalid("tick"))?;
     let mut units = BTreeSet::new();
-    for field in ["units", "aircrafts"] {
+    for field in ["units", "aircrafts", "vessels"] {
+        if field=="vessels" && frame.get(field).is_none() {continue;}
         let a = frame[field]
             .as_array()
             .ok_or(WireError::Invalid("missing frame entities"))?;
@@ -388,6 +389,21 @@ fn frame_scope(frame: &Value) -> Result<(u64, u64)> {
         }
     }
     Ok((battle, tick))
+}
+
+#[cfg(test)]
+mod naval_scope_tests {
+    use super::*;
+    use serde_json::json;
+    #[test]
+    fn accepted_naval_identity_shares_the_same_cross_kind_wire_scope() {
+        let mut frame=json!({"op":"frame","battle":9,"tick":1,"units":[],"aircrafts":[],"vessels":[{"unit":{"battle":9,"unit":5,"life":1}}]});
+        assert!(frame_scope(&frame).is_ok());
+        frame["aircrafts"]=json!([{"unit":{"battle":9,"unit":5,"life":1}}]);assert!(frame_scope(&frame).is_err());
+        frame["aircrafts"]=json!([]);frame["vessels"][0]["unit"]["battle"]=json!(8);assert!(frame_scope(&frame).is_err());
+        frame["vessels"]=json!({"wrong":"shape"});assert!(frame_scope(&frame).is_err());
+        frame.as_object_mut().unwrap().remove("vessels");assert!(frame_scope(&frame).is_ok(),"older frame producers remain valid");
+    }
 }
 
 /// One connection, after explicit wire2 negotiation. Sharing this state among

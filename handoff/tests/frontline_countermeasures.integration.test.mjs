@@ -1,3 +1,4 @@
+import {installCurrentPresentation} from './fixtures/frontline-current-presentation.mjs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -74,6 +75,7 @@ test('actual receive-frame composition admits only filtered aircraft decoys to t
   const identity={battle:7,unit:4,life:2},known={unit:identity,decoys:[{id:1,kind:'flares',pos:[1,2,3],velocity:[0,0,0],age:0,ttl:4}]};
   const f={room:{battle:7},lastTick:0,ordnancePresentation:{accept(){}},contactPresentation:{accept:()=>({units:[],aircrafts:[known],contacts:[]})}};
   const context=vm.createContext({console,Math,G4:{time:20},f,mine:()=>({observer:false})});
+  installCurrentPresentation(context,{hooks:false});
   const start=app.indexOf("        if(m.op==='snapshot'||m.op==='frame'){");assert.ok(start>=0);
   const end=app.indexOf('          f.companies=m.companies;',start);assert.ok(end>start);
   vm.runInContext(cut('  // TF_NATIVE_CM_BEGIN','  // TF_NATIVE_CM_END')+'function acceptFrame(m){'+app.slice(start,end)+'}}',context);

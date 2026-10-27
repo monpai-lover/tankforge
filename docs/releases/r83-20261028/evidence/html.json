@@ -1,0 +1,15 @@
+{
+  "schema": "TankForgeFrozenHandoffRebuildV1",
+  "root": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "output": "D:\\TankForge-validation\\r83-20261027\\tankforge-r83.html",
+  "bytes": 418843963,
+  "sha256": "96408bd46c2270b70da0351172cf4b8caf510079540c9082e7f737bef5e4b6e6",
+  "expectedSha256": "96408bd46c2270b70da0351172cf4b8caf510079540c9082e7f737bef5e4b6e6",
+  "parts": [
+    "data.line.gz.part00",
+    "data.line.gz.part01",
+    "data.line.gz.part02",
+    "data.line.gz.part03",
+    "data.line.gz.part04"
+  ]
+}
