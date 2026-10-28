@@ -746,6 +746,11 @@ fn build_geometries() -> BTreeMap<String, Geometry> {
         ("generic_transport", 36.0, 9.0, 100.0, 8.0),
         ("generic_escort", 28.0, 6.0, 75.0, 12.0),
         ("generic_interceptor", 18.0, 4.0, 50.0, 18.0),
+        // Authored gameplay prototypes, not replicas or historical equipment
+        // assertions. Shared Float32 construction owns rendering and contact.
+        ("generic_landing_ship", 64.0, 12.0, 145.0, 8.0),
+        ("generic_frigate", 52.0, 8.0, 110.0, 12.0),
+        ("generic_patrol", 24.0, 5.0, 60.0, 18.0),
     ]
     .into_iter()
     .map(|(id, l, w, h, s)| {
@@ -785,7 +790,8 @@ fn build_geometry(id: &str, length: f32, width: f32, health: f64, max_speed: f64
         );
     }
     let mut deck = Part::new("deck", "deck", [0.36, 0.37, 0.33], [0.0; 3], false);
-    let hatch = if id == "generic_transport" { 0.95 } else { 0.6 };
+    let transport = matches!(id,"generic_transport"|"generic_landing_ship");
+    let hatch = if transport { 0.95 } else { 0.6 };
     for (x0, x1, z0, z1) in [
         (-w, -hatch, aft, shoulder),
         (hatch, w, aft, shoulder),
@@ -848,20 +854,32 @@ fn build_geometry(id: &str, length: f32, width: f32, health: f64, max_speed: f64
         }
     }
     let mut parts = vec![hull, deck, bridge, gun, barrel];
-    if id == "generic_transport" {
+    if transport {
         let mut cargo = Part::new("cargo_crates", "cargo", [0.43, 0.38, 0.29], [0.0; 3], false);
         for side in [-1.0, 1.0] {
             cargo.cuboid([side * 2.8 - 0.6, top, -0.8], [side * 2.8 + 0.6, 3.0, 2.0]);
         }
         parts.push(cargo);
     }
-    if id == "generic_escort" {
+    if matches!(id,"generic_escort"|"generic_frigate"|"generic_patrol") {
         let mut mast = Part::new("mast", "fitting", [0.36, 0.4, 0.39], [0.0; 3], false);
         mast.cuboid(
             [-0.12, window + 0.45, bz - 0.12],
             [0.12, window + 3.0, bz + 0.12],
         );
         parts.push(mast);
+    }
+    if id == "generic_landing_ship" {
+        let mut ramp=Part::new("stern_ramp","fitting",[0.31,0.34,0.31],[0.0;3],false);
+        ramp.cuboid([-w*0.7,top,aft+0.1],[w*0.7,top+2.5,aft+0.5]);
+        parts.push(ramp);
+    }
+    if id == "generic_frigate" {
+        let mut fittings=Part::new("deck_fittings","fitting",[0.40,0.43,0.41],[0.0;3],false);
+        for side in [-1.0,1.0] {
+            fittings.cuboid([side*2.7-0.5,top,-1.0],[side*2.7+0.5,3.4,3.0]);
+        }
+        parts.push(fittings);
     }
     let hash = sha256(
         &serde_json::to_vec(&json!({"id":id,"parts":parts}))

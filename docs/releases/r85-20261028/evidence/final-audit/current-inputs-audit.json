@@ -1,0 +1,143 @@
+{
+  "schema": "R85IndependentFinalCurrentInputsAuditV1",
+  "capturedAt": "2026-10-28T10:48:21.233731+00:00",
+  "root": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "headAtAuditStart": "dc106c1a0bf55c74d768d5360b76cc85f2381700",
+  "headAtAuditEnd": "dc106c1a0bf55c74d768d5360b76cc85f2381700",
+  "readOnly": true,
+  "canonicalApp": {
+    "path": "D:\\TankForge-workspaces\\r81-push-20261027\\handoff\\bundle\\app.js.html",
+    "bytes": 34424179,
+    "expectedSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+    "actualSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+    "matchesR4Freeze": true,
+    "profileSourceAppSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+    "profileMatchesApp": true
+  },
+  "compiledInputs": [
+    {
+      "kind": "native",
+      "beforeManifest": "D:\\TankForge-validation\\r85-20261028\\native-release-r4-final\\source-before-release-tests.json",
+      "afterManifest": "D:\\TankForge-validation\\r85-20261028\\native-release-r4-final\\source-after-release-tests.json",
+      "filesChecked": 229,
+      "beforeAfterRecordedMapsMatch": true,
+      "currentMismatches": [
+        {
+          "path": "handoff/tests/r85-state-protection-browser.py",
+          "expected": "c00223c21ac485c333c72d1dbf9d70d8bcbf22a99e3e998667441a64992aa70a",
+          "actual": "a3e19f994c4aad6611f3b8ed4f76b2cdd52d61cb3668865cd419f6d4e9bffadc"
+        }
+      ]
+    },
+    {
+      "kind": "linux",
+      "beforeManifest": "D:\\TankForge-validation\\r85-20261028\\linux-build\\r4-final\\source-start.json",
+      "afterManifest": "D:\\TankForge-validation\\r85-20261028\\linux-build\\r4-final\\source-end.json",
+      "filesChecked": 3084,
+      "beforeAfterRecordedMapsMatch": true,
+      "currentMismatches": [
+        {
+          "path": "handoff/tests/r85-state-protection-browser.py",
+          "expected": "c00223c21ac485c333c72d1dbf9d70d8bcbf22a99e3e998667441a64992aa70a",
+          "actual": "a3e19f994c4aad6611f3b8ed4f76b2cdd52d61cb3668865cd419f6d4e9bffadc"
+        }
+      ]
+    }
+  ],
+  "gzipResourceParts": [
+    {
+      "path": "handoff/bundle/data.line.gz.part00",
+      "bytes": 31457280,
+      "headBlob": "18f61e168d6ec1ccf2f0770335ac49e2cb4d9d10",
+      "currentRawBlob": "18f61e168d6ec1ccf2f0770335ac49e2cb4d9d10",
+      "unchangedFromHead": true
+    },
+    {
+      "path": "handoff/bundle/data.line.gz.part01",
+      "bytes": 31457280,
+      "headBlob": "c7ad753d27806f36e6edfd22a4b8412539eaa301",
+      "currentRawBlob": "c7ad753d27806f36e6edfd22a4b8412539eaa301",
+      "unchangedFromHead": true
+    },
+    {
+      "path": "handoff/bundle/data.line.gz.part02",
+      "bytes": 31457280,
+      "headBlob": "90b8db4afb66d18927650b44d85d7fc1794e5426",
+      "currentRawBlob": "90b8db4afb66d18927650b44d85d7fc1794e5426",
+      "unchangedFromHead": true
+    },
+    {
+      "path": "handoff/bundle/data.line.gz.part03",
+      "bytes": 31457280,
+      "headBlob": "ed6e1fdafd52eb2311a8c6cae995006ddb3cdfab",
+      "currentRawBlob": "ed6e1fdafd52eb2311a8c6cae995006ddb3cdfab",
+      "unchangedFromHead": true
+    },
+    {
+      "path": "handoff/bundle/data.line.gz.part04",
+      "bytes": 12005249,
+      "headBlob": "0332d029665a7dd65be2dce8a2845052c07a5f1b",
+      "currentRawBlob": "0332d029665a7dd65be2dce8a2845052c07a5f1b",
+      "unchangedFromHead": true
+    }
+  ],
+  "artifactFiles": [
+    {
+      "kind": "releaseTestExecutable",
+      "path": "D:/TankForge-validation/rust-fuel-100-target-20261027/release/deps/tg_server-ae44bc34292d8495.exe",
+      "bytes": 18917376,
+      "expectedSha256": "fac3e96cd5feb1e7b2c2cef0c9d0a7b8384746afe8d1452c5842f08565f1e48c",
+      "actualSha256": "fac3e96cd5feb1e7b2c2cef0c9d0a7b8384746afe8d1452c5842f08565f1e48c",
+      "matches": true
+    },
+    {
+      "kind": "linuxProofArtifact",
+      "path": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/tg-server-linux-amd64-musl",
+      "bytes": 6794832,
+      "expectedSha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+      "actualSha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+      "matches": true
+    },
+    {
+      "kind": "currentLinuxBuildOutput",
+      "path": "D:/TankForge-validation/rust-r81-target/x86_64-unknown-linux-musl/release/tg-server",
+      "bytes": 6794832,
+      "expectedSha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+      "actualSha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+      "matches": true
+    },
+    {
+      "kind": "protectedOldWindowsReleaseServer",
+      "path": "D:\\TankForge-validation\\rust-fuel-100-target-20261027\\release\\tg-server.exe",
+      "bytes": 6357504,
+      "expectedSha256": "13db45bdd13b855e0c1bab5c63c6ef658a3a06494ccaf08423b5cfeadc716f3e",
+      "actualSha256": "13db45bdd13b855e0c1bab5c63c6ef658a3a06494ccaf08423b5cfeadc716f3e",
+      "matches": true
+    },
+    {
+      "kind": "protectedOldWindowsReleaseServer",
+      "path": "D:\\TankForge-validation\\rust-fuel-100-target-20261027\\release\\deps\\tg_server-a833102e7b538166.exe",
+      "bytes": 6357504,
+      "expectedSha256": "13db45bdd13b855e0c1bab5c63c6ef658a3a06494ccaf08423b5cfeadc716f3e",
+      "actualSha256": "13db45bdd13b855e0c1bab5c63c6ef658a3a06494ccaf08423b5cfeadc716f3e",
+      "matches": true
+    }
+  ],
+  "completeServedPage": {
+    "path": "D:\\TankForge-validation\\r85-20261028\\tankforge-r85-r4.html",
+    "bytes": 418859637,
+    "expectedBytes": 418859637,
+    "sha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+    "expectedSha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+    "matches": true
+  },
+  "nativeSuiteReceipt": {
+    "path": "D:\\TankForge-validation\\r85-20261028\\native-release-r4-final\\release-tests-receipt.json",
+    "passed": 501,
+    "failed": 0,
+    "expensiveSuiteRerun": false
+  },
+  "linuxExecution": false,
+  "packageReadback": "pending root generation; summary package hashes are not verified evidence",
+  "status": "DRIFT"
+}

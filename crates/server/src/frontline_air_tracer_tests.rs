@@ -11,8 +11,8 @@ impl Fixture {
   accepted(hub.handle(2,Command::Join{room:1,observer:false,team:Some(Team::Blue)},0.));
   accepted(hub.handle(3,Command::Join{room:1,observer:false,team:Some(Team::Red)},0.));
   accepted(hub.handle(1,Command::Start,0.));
-  accepted(hub.handle(2,Command::DeployAir{aircraft:aircraft.into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
-  accepted(hub.handle(3,Command::DeployAir{aircraft:"f16v".into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
+  accepted(hub.handle(2,Command::DeployAir{ custom_counts: None,aircraft:aircraft.into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
+  accepted(hub.handle(3,Command::DeployAir{ custom_counts: None,aircraft:"f16v".into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
   let p=&hub.rooms[&1].members[&2].view;let(reference,epoch)=(p.controlled.unwrap(),p.epoch);
   Self{hub,reference,epoch,seq:0,now:0.}
  }

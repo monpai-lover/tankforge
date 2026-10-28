@@ -1,0 +1,188 @@
+{
+  "schema": "TankForgeR85R4ProfileSourceMetadataV1",
+  "capturedAt": "2026-10-28T10:19:49.973Z",
+  "headProfileSha256": "edbbb218fc1c152fe23c77bbe19322ff4866605df248377312920f3c4bfc8dd6",
+  "firstLinuxBuildProfileSha256": "cf224932ffea0c63f0e568480a26d6bc4ab2ebb243cc918f974fc7cc4070991a",
+  "priorLinuxMetadataProof": "D:/TankForge-validation/r85-20261028/linux-build/final-build/profile-source-metadata-proof.json",
+  "finalProfileSha256": "cf6de36c79246c8f580fe4397ec427e5b2ae1168f6c0680b5c75a3937fbd747c",
+  "canonicalAppSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+  "sourceMetadataOnly": true,
+  "aircraftTypes": 28,
+  "changedJsonPaths": [
+    {
+      "jsonPath": "source.appSha256",
+      "before": "58d417f30f993487c03b825da906f030bfa252402297a0b8c2d4a1d681d5721a",
+      "after": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9"
+    },
+    {
+      "jsonPath": "source.sections.AIRCRAFT_TYPES.startLine",
+      "before": 39037,
+      "after": 39128
+    },
+    {
+      "jsonPath": "source.sections.AIR_PARTS.startLine",
+      "before": 38421,
+      "after": 38512
+    },
+    {
+      "jsonPath": "source.sections.AIR_PARTS_JET.startLine",
+      "before": 39006,
+      "after": 39097
+    },
+    {
+      "jsonPath": "source.sections.AIR_SKIN.startLine",
+      "before": 38436,
+      "after": 38527
+    },
+    {
+      "jsonPath": "source.sections.AIR_SKIN_JET.startLine",
+      "before": 39020,
+      "after": 39111
+    },
+    {
+      "jsonPath": "source.sections.Aircraft.spawn.startLine",
+      "before": 40685,
+      "after": 40776
+    },
+    {
+      "jsonPath": "source.sections.airStationsAndMountPosition.startLine",
+      "before": 43553,
+      "after": 43644
+    },
+    {
+      "jsonPath": "source.sections.airWingSplit.startLine",
+      "before": 38475,
+      "after": 38566
+    },
+    {
+      "jsonPath": "source.sections.aircraftCountermeasureDefinitions.startLine",
+      "before": 43502,
+      "after": 43593
+    },
+    {
+      "jsonPath": "source.sections.aircraftGeometry.startLine",
+      "before": 37484,
+      "after": 37575
+    },
+    {
+      "jsonPath": "source.sections.aircraftInstrumentMeta.startLine",
+      "before": 8062,
+      "after": 8129
+    },
+    {
+      "jsonPath": "source.sections.aircraftRadarDefinitions.startLine",
+      "before": 43484,
+      "after": 43575
+    },
+    {
+      "jsonPath": "source.sections.aircraftSensorDefinitions.startLine",
+      "before": 45406,
+      "after": 45497
+    },
+    {
+      "jsonPath": "source.sections.applyAircraftRebuilds.startLine",
+      "before": 8256,
+      "after": 8323
+    },
+    {
+      "jsonPath": "source.sections.bulletShell.startLine",
+      "before": 5525,
+      "after": 5592
+    },
+    {
+      "jsonPath": "source.sections.configureAircraftSurfaces.startLine",
+      "before": 39947,
+      "after": 40038
+    },
+    {
+      "jsonPath": "source.sections.fightersAndTypeConstruction.startLine",
+      "before": 39189,
+      "after": 39280
+    },
+    {
+      "jsonPath": "source.sections.fuel.startLine",
+      "before": 44266,
+      "after": 44357
+    },
+    {
+      "jsonPath": "source.sections.guidedAircraftVariants.startLine",
+      "before": 39091,
+      "after": 39182
+    },
+    {
+      "jsonPath": "source.sections.guns.startLine",
+      "before": 42848,
+      "after": 42939
+    },
+    {
+      "jsonPath": "source.sections.layoutStores.startLine",
+      "before": 43958,
+      "after": 44049
+    },
+    {
+      "jsonPath": "source.sections.loadFlightCore.startLine",
+      "before": 38359,
+      "after": 38450
+    },
+    {
+      "jsonPath": "source.sections.modelHardpoints.startLine",
+      "before": 43627,
+      "after": 43718
+    },
+    {
+      "jsonPath": "source.sections.modelUpgradePrelude.startLine",
+      "before": 35298,
+      "after": 35389
+    },
+    {
+      "jsonPath": "source.sections.registerAndDecodeModels.startLine",
+      "before": 8011,
+      "after": 8078
+    },
+    {
+      "jsonPath": "source.sections.registerMountedStoreModels.startLine",
+      "before": 43395,
+      "after": 43486
+    },
+    {
+      "jsonPath": "source.sections.slotsAndCustomLoadout.startLine",
+      "before": 44045,
+      "after": 44136
+    },
+    {
+      "jsonPath": "source.sections.sovietConventionalStores.startLine",
+      "before": 39045,
+      "after": 39136
+    },
+    {
+      "jsonPath": "source.sections.storeDefinitions.startLine",
+      "before": 43173,
+      "after": 43264
+    },
+    {
+      "jsonPath": "source.sections.storeSocket.startLine",
+      "before": 8370,
+      "after": 8437
+    },
+    {
+      "jsonPath": "source.sections.storeWarhead.startLine",
+      "before": 43540,
+      "after": 43631
+    },
+    {
+      "jsonPath": "source.sections.syncPodGuns.startLine",
+      "before": 42939,
+      "after": 43030
+    },
+    {
+      "jsonPath": "source.sections.tntEquivalentKg.startLine",
+      "before": 17276,
+      "after": 17343
+    },
+    {
+      "jsonPath": "source.sections.weaponStatusCompatibilityLoadouts.startLine",
+      "before": 43396,
+      "after": 43487
+    }
+  ]
+}

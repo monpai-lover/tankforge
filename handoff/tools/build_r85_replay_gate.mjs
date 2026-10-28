@@ -1,0 +1,33 @@
+// Extend the existing real V3 GPU gate with the R85 synchronous target contract.
+// Only the explicitly requested separate test page is written.
+import fs from 'node:fs';
+import path from 'node:path';
+import assert from 'node:assert/strict';
+import vm from 'node:vm';
+import {spawnSync} from 'node:child_process';
+import {fileURLToPath} from 'node:url';
+const [input,output]=process.argv.slice(2);
+assert.ok(input&&output&&path.resolve(input)!==path.resolve(output),'Usage: node build_r85_replay_gate.mjs <patched-app> <separate-test-app>');
+assert.ok(!fs.existsSync(output),'R85 gate output must be a fresh path');
+const built=spawnSync(process.execPath,[fileURLToPath(new URL('./build_r8_replay_gate.mjs',import.meta.url)),input,output],{encoding:'utf8'});
+assert.equal(built.status,0,built.stderr||built.stdout);
+let page=fs.readFileSync(output,'utf8');
+const anchor="    check('finishedNextTargetImmediate',show(1,1));draw();";
+assert.equal(page.split(anchor).length,2,'R85 unfinished-target GPU anchor');
+page=page.replace(anchor,`    check('unfinishedFollowup',show(50));
+    const previousTarget=hitcam.cur.session;
+    check('unfinishedPhysicalEvidence',previousTarget.filmTimeS<previousTarget.endFilm);
+    check('unfinishedNextTargetImmediate',show(1,1));
+    check('oldTargetReleasedInSameCall',previousTarget.finished&&previousTarget.finishReason==='replaced');
+    check('noDeferredNewTarget',hitcam.deferred.length===0);
+    draw();
+    check('actualV3ReplacementPublished',hitcam.cur.draw.surface?.session===hitcam.cur.draw);`);
+const finished="    status.passed=true;publish();";
+assert.equal(page.split(finished).length,2,'R85 finished-target GPU anchor');
+page=page.replace(finished,`    const finishedTarget=hitcam.cur.session;finishedTarget.finish('fixture_finished_target');
+    check('finishedDifferentTargetImmediate',show(51,0));draw();
+    check('finishedTargetReplacementPublished',hitcam.cur.session.actor.entity===targets[0].actor.entity&&hitcam.cur.draw.surface?.session===hitcam.cur.draw);
+    status.passed=true;publish();`);
+new vm.Script(page.slice(page.indexOf('<script>')+8,page.indexOf('</script>')));
+fs.writeFileSync(output,page);
+console.log('Wrote isolated R85 real V3 target-switch GPU gate',output);

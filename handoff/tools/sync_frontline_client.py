@@ -14,15 +14,18 @@ GLOBAL_END='  // END NATIVE FRONTLINE GLOBAL HELPERS\n'
 def main():
     parser=argparse.ArgumentParser();parser.add_argument('--check',action='store_true');args=parser.parse_args()
     path=ROOT/'bundle/app.js.html';text=path.read_bytes().decode('utf-8')
-    # R8.3 carries separately owned CM/guidance/precision/worker extensions.
+    # Current releases carry separately owned CM/guidance/precision/worker extensions.
     # Its canonical client must only be updated through reviewed narrow owners;
     # replacing the entire block would silently erase installed extensions.
     if '/* TF_AIRWAR_PRESENTATION_BEGIN */' in text:
+        current = 'TF_R85_OCEAN' in text
+        script = ('import fs from "node:fs"; import {applyR85AirwarFixes} from "./handoff/tools/apply_r85_airwar_fixes.mjs"; process.stdout.write(applyR85AirwarFixes(fs.readFileSync(0,"utf8")));'
+                  if current else 'import fs from "node:fs"; import {applyR82AirwarFixes} from "./handoff/tools/apply_r82_airwar_fixes.mjs"; import {applyR83AirwarFixes} from "./handoff/tools/apply_r83_airwar_fixes.mjs"; process.stdout.write(applyR83AirwarFixes(applyR82AirwarFixes(fs.readFileSync(0,"utf8"))));')
         composed = subprocess.run(['node', '--input-type=module', '-e',
-            'import fs from "node:fs"; import {applyR82AirwarFixes} from "./handoff/tools/apply_r82_airwar_fixes.mjs"; import {applyR83AirwarFixes} from "./handoff/tools/apply_r83_airwar_fixes.mjs"; process.stdout.write(applyR83AirwarFixes(applyR82AirwarFixes(fs.readFileSync(0,"utf8"))));'],
+            script],
             input=text.encode('utf-8'),capture_output=True,cwd=ROOT.parent,check=True)
         expected=composed.stdout.decode('utf-8')
-        if args.check:assert text==expected,'Run the reviewed R8.3 narrow client owners'
+        if args.check:assert text==expected,'Run the reviewed current narrow client owners'
         else:path.write_bytes(expected.encode('utf-8'))
         return
     # NetClient and Renderer are outside initialise(); their helpers must share

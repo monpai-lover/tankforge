@@ -10,7 +10,8 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
   if(aircraft.openGarage!==undefined&&typeof aircraft.openGarage!=='function')throw Error('Invalid original aircraft garage callback');
   if(aircraft.openBattlefield!==undefined&&typeof aircraft.openBattlefield!=='function')throw Error('Invalid battlefield deployment callback');
   const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const saved=[];
+  const saved=[],ammoMarkup=new WeakMap(),optionMarkup=new WeakMap(),roomMarkup=new WeakMap();
+  const focused=node=>typeof document!=='undefined'&&document.activeElement===node;
   let chosenMode='casual',nativeMap='taiwan-escort',nativeEra=2022,legacyFields=null,opened=false,garageOpened=false,lastBattle=null,lastNative=false,disposed=false,deploymentError='';
   const originalLobby={render:lobby.render,click:lobby.click,change:lobby.change,show:lobby.show,connect:lobby.connect,sendVehicle:lobby.sendVehicle};
   const originalDeploy={click:deploy.click,airChoice:deploy.airChoice,update:deploy.update,renderAmmo:deploy.renderAmmo,renderTop:deploy.renderTop,drawMap:deploy.drawMap};
@@ -26,10 +27,11 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
   function admitted(id){return options().find(option=>option.id===id);}
   function sourceLoadouts(id){return (aircraft.loadouts(id)||[]).map((entry,i)=>Array.isArray(entry)?{index:i,name:entry[0],source:entry,custom:/自[訂订]|custom/i.test(entry[0])}:{...entry,index:entry.index??i,source:entry});}
   function customPick(id){const value=aircraft.custom?.(id)||{};return {...value};}
+  function customCountPick(id){const value=aircraft.customCounts?.(id);return value&&Object.keys(value).length?{...value}:undefined;}
   function loadouts(id){
     const allowed=new Map((admitted(id)?.loadouts||[]).filter(lo=>Number.isSafeInteger(lo.index)&&lo.index>=0).map(lo=>[lo.index,lo]));
     const source=sourceLoadouts(id);if(Array.isArray(admitted(id)?.slots)&&!source.some(lo=>lo.custom))source.push({index:source.length,name:'自订挂载',custom:true});
-    return source.map(lo=>{const host=allowed.get(lo.index);if(lo.custom){let why='';try{frontline.configuration(id,{custom:customPick(id)});}catch(error){why=error.message;}return {...lo,online:!why,native:admitted(id),why,what:Object.entries(customPick(id)).map(([slot,store])=>`${slot} · ${store}`).join('、')||'仅内置机炮',cost:0};}return {...lo,name:host?.name||lo.name,online:!!host,native:host||null,why:host?'':'当前服务器未开放此挂载配置；请选择已开放的预设',what:lo.what||'',cost:0};});
+    return source.map(lo=>{const host=allowed.get(lo.index);if(lo.custom){let why='';try{frontline.configuration(id,{custom:customPick(id),custom_counts:customCountPick(id)});}catch(error){why=error.message;}return {...lo,online:!why,native:admitted(id),why,what:Object.entries(customPick(id)).map(([slot,store])=>`${slot} · ${store}${customCountPick(id)?.[slot]?` ×${customCountPick(id)[slot]}`:''}`).join('、')||'仅内置机炮',cost:0};}return {...lo,name:host?.name||lo.name,online:!!host,native:host||null,why:host?'':'当前服务器未开放此挂载配置；请选择已开放的预设',what:lo.what||'',cost:0};});
   }
   function lineup(){const allowed=new Set(options().map(option=>option.id));return sourceCards().filter(card=>allowed.has(card.id.replace(/^air:/,''))).map(card=>({...card,id:`air:${card.id.replace(/^air:/,'')}`,usable:true,kind:card.kind||'飞机'}));}
   function selection(){
@@ -75,20 +77,20 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
     const choice=loadouts(id).find(lo=>lo.index===index);if(!Number.isSafeInteger(index)||!choice?.online)throw Error(choice?.why||'当前服务器未开放此挂载配置；请选择已开放的预设');
     const m=sharedMap();if(!Number.isSafeInteger(spawnIndex)||!m.spawns[spawnIndex])throw Error('请选择有效出生点');
     aircraft.select(id);aircraft.selectLoadout(id,index);deploymentError='';
-    return frontline.deployAir({aircraft:id,...(choice.custom?{loadout:0,custom:customPick(id)}:{loadout:index}),spawn:m.spawns[spawnIndex].id});
+    return frontline.deployAir({aircraft:id,...(choice.custom?{loadout:0,custom:customPick(id),...(customCountPick(id)?{custom_counts:customCountPick(id)}:{})}:{loadout:index}),spawn:m.spawns[spawnIndex].id});
   }
   const roomRows=()=>[...(net.rooms||[]).map(room=>({mode:'legacy',key:key('legacy',room.id),room})),...(frontline.rooms()||[]).map(room=>({mode:'air_frontline',key:key('air_frontline',room.id),room}))];
-  function mapOptions(select,values,selected){select.innerHTML=values.map(value=>`<option value="${esc(value.id)}">${esc(value.name)}</option>`).join('');select.value=values.some(value=>String(value.id)===String(selected))?String(selected):String(values[0]?.id??'');}
+  function mapOptions(select,values,selected){const html=values.map(value=>`<option value="${esc(value.id)}">${esc(value.name)}</option>`).join(''),changed=optionMarkup.get(select)!==html;if(changed){select.innerHTML=html;optionMarkup.set(select,html);}const next=values.some(value=>String(value.id)===String(selected))?String(selected):String(values[0]?.id??'');if((changed||!focused(select))&&select.value!==next)select.value=next;}
   function syncModeFields(){
     const mode=lobby.el.querySelector('#lb-gameplay'),map=lobby.el.querySelector('#lb-map'),era=lobby.el.querySelector('#lb-era'),max=lobby.el.querySelector('#lb-max');if(!mode||!map||!era)return;
     if(!mode.querySelector('option[value="air_frontline"]'))mode.insertAdjacentHTML('beforeend','<option value="air_frontline">空中前线</option>');
-    mode.value=chosenMode;
+    if(!focused(mode)&&mode.value!==chosenMode)mode.value=chosenMode;
     if(chosenMode==='air_frontline'){
       if(map.dataset.sharedMode!=='air_frontline'&&!legacyFields)legacyFields={map:map.value,mapHtml:map.innerHTML,era:era.value,eraHtml:era.innerHTML};
       const maps=frontline.maps()||[];mapOptions(map,maps,nativeMap||map.value);if(map.value)nativeMap=map.value;
       mapOptions(era,eras.map(year=>({id:year,name:`${year}`})),nativeEra);nativeEra=Number(era.value);map.dataset.sharedMode='air_frontline';
     }else if(map.dataset.sharedMode==='air_frontline'&&legacyFields){
-      map.innerHTML=legacyFields.mapHtml;map.value=legacyFields.map;era.innerHTML=legacyFields.eraHtml;era.value=legacyFields.era;delete map.dataset.sharedMode;legacyFields=null;
+      optionMarkup.delete(map);optionMarkup.delete(era);map.innerHTML=legacyFields.mapHtml;map.value=legacyFields.map;era.innerHTML=legacyFields.eraHtml;era.value=legacyFields.era;delete map.dataset.sharedMode;legacyFields=null;
     }
     const maxField=max?.closest('label');if(maxField)maxField.hidden=chosenMode==='air_frontline';
     const create=lobby.el.querySelector('[data-act="create"]');
@@ -101,12 +103,13 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
     if(lobby.el.hidden||!net.open||net.room||native())return;
     syncModeFields();
     const rows=lobby.el.querySelector('.lb-rooms');if(!rows)return;
-    for(const stale of rows.querySelectorAll('[data-shared-native]'))stale.remove();
     for(const button of rows.querySelectorAll('[data-act="join"]'))if(!button.dataset.room.includes(':'))button.dataset.room=key('legacy',button.dataset.room);
     const list=frontline.rooms()||[];if(list.length)for(const empty of rows.querySelectorAll('.lb-empty'))empty.remove();
-    for(const r of list){const count=(r.members||[]).filter(member=>!member.observer).length,playing=r.round_state==='battle'||r.started;
-      rows.insertAdjacentHTML('beforeend',`<li data-shared-native="1"><span class="lb-rn">${esc(r.name||`房间 ${r.id}`)}</span><span class="lb-rm">${esc((frontline.maps()||[]).find(map=>map.id===r.map)?.name||r.map)} · 空中前线 · ${esc(r.era)} · ${count} 人 · ${playing?'战斗中':r.round_state==='intermission'?'局间休整':'等待开始'}</span><span><button type="button" class="tool" data-act="join" data-room="${key('air_frontline',r.id)}">加入</button><button type="button" class="tool" data-act="observe" data-room="${key('air_frontline',r.id)}">观战</button></span></li>`);
-    }
+    const html=list.map(r=>{const count=(r.members||[]).filter(member=>!member.observer).length,playing=r.round_state==='battle'||r.started;
+      return `<li data-shared-native="1"><span class="lb-rn">${esc(r.name||`房间 ${r.id}`)}</span><span class="lb-rm">${esc((frontline.maps()||[]).find(map=>map.id===r.map)?.name||r.map)} · 空中前线 · ${esc(r.era)} · ${count} 人 · ${playing?'战斗中':r.round_state==='intermission'?'局间休整':'等待开始'}</span><span><button type="button" class="tool" data-act="join" data-room="${key('air_frontline',r.id)}">加入</button><button type="button" class="tool" data-act="observe" data-room="${key('air_frontline',r.id)}">观战</button></span></li>`;
+    }).join('');
+    const existing=rows.querySelectorAll('[data-shared-native]');if(roomMarkup.get(rows)===html&&existing.length===list.length)return;
+    for(const stale of existing)stale.remove();if(html)rows.insertAdjacentHTML('beforeend',html);roomMarkup.set(rows,html);
   }
   function renderNativeRoom(){
     const r=frontline.room();if(!r||lobby.el.hidden)return;
@@ -168,12 +171,15 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
     return originalDeploy.click.call(this,event);
   });
   patch(deploy,'renderAmmo',function(...args){
-    if(!native())return originalDeploy.renderAmmo.apply(this,args);
+    if(!native()){const previous=this.el.querySelector('#dp-ammo');if(previous)ammoMarkup.delete(previous);return originalDeploy.renderAmmo.apply(this,args);}
     const target=this.el.querySelector('#dp-ammo');if(!target)return;
-    if(!this.isAir()){target.innerHTML='<p class="dp-note">请选择飞机</p>';return;}
+    if(!this.isAir()){ammoMarkup.delete(target);target.innerHTML='<p class="dp-note">请选择飞机</p>';return;}
     const id=this.vehicle.slice(4),choice=selection(),name=admitted(id)?.name||id;
     const retained=frontline.retained?.(),lost=frontline.self()?.air_sortie_eligible===false&&!retained,error=deploymentError||frontline.deploymentError?.();const html=`<h3>${esc(name)}</h3>`+choice.list.map(lo=>`<button type="button" class="dp-airlo" data-act="airlo" data-i="${lo.index}" aria-pressed="${lo.index===choice.selected}" ${lo.online?'':`disabled title="${esc(lo.why)}"`}><b>${esc(lo.name)}</b><small>${esc(lo.online?lo.what:lo.why)}</small></button>`).join('')+(aircraft.fuelHtml?.(id)||'')+`<button type="button" class="tool" data-act="configure-air">逐挂点配置武器…</button><p class="dp-note">挂点、武器及库存均由服务器确认。${retained?'原机仍在场，出击只接管原机；新挂载须返回机场整备。':lost?'本局飞机已损失，现在默认观战存活队友，请等待下一局。':'本局仅一架，实际出击后使用本局资格。'}</p>${error?`<p class="dp-note" role="status">${esc(error)}</p>`:''}${!choice.lo?'<p class="dp-note" role="status">当前配置尚未开放，请选择可用配置。</p>':''}`;
-    if(target.innerHTML!==html)target.innerHTML=html;
+    // Compare our generated markup. Browser serialization rewrites boolean
+    // attributes (selected -> selected=""), which must not replace live controls
+    // on every accepted-frame refresh and swallow an in-progress pointer click.
+    if(ammoMarkup.get(target)!==html){target.innerHTML=html;ammoMarkup.set(target,html);}
   });
   patch(deploy,'update',function(...args){
     if(!native())return originalDeploy.update.apply(this,args);if(!this.visible)return;

@@ -1,6 +1,6 @@
 {
   "schema": "TankForgeR8NodeInventoryV1",
-  "reference": "R8.1 complete inventory plus R8.2-R8.4 airwar, escort scale, minimap content and shipped FX regression checks",
+  "reference": "R8.1 complete inventory plus R8.2-R8.5 air-war, fleet, water, loadout, local lifecycle, armor and replay regressions",
   "selected": [
     "handoff/tests/aam-realism.test.mjs",
     "handoff/tests/agm-ground-point-runtime.test.mjs",
@@ -129,6 +129,13 @@
     "handoff/tests/projectile-surface-batch-reentrancy-20261026.mjs",
     "handoff/tests/r82-runtime-integration.test.mjs",
     "handoff/tests/r83-conventional-contract.test.mjs",
+    "handoff/tests/r85-client-state-queries.test.mjs",
+    "handoff/tests/r85-composition.test.mjs",
+    "handoff/tests/r85-fuel-composer-compat.test.mjs",
+    "handoff/tests/r85-loadout.test.mjs",
+    "handoff/tests/r85-protection-thickness.test.mjs",
+    "handoff/tests/r85-theatre-fleet.test.mjs",
+    "handoff/tests/r85-water.test.mjs",
     "handoff/tests/radar-acm.test.mjs",
     "handoff/tests/range-flight-tag-cost-20261026.mjs",
     "handoff/tests/replay-followup-active-20261026.test.mjs",

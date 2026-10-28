@@ -1,0 +1,1502 @@
+{
+  "url": "http://127.0.0.1:8896/",
+  "started": 1793183360.321903,
+  "phases": {
+    "opened": {
+      "tick": 26,
+      "error": null,
+      "room": 3,
+      "control": null,
+      "selected": {},
+      "custom": {},
+      "counts": {},
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "true",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂仅内置机炮"
+          }
+        ]
+      },
+      "aircrafts": []
+    },
+    "preset": {
+      "tick": 77,
+      "error": null,
+      "room": 3,
+      "control": null,
+      "selected": {
+        "f15c": 1
+      },
+      "custom": {},
+      "counts": {},
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "true",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂仅内置机炮"
+          }
+        ]
+      },
+      "aircrafts": []
+    },
+    "custom": {
+      "tick": 164,
+      "error": null,
+      "room": 3,
+      "control": null,
+      "selected": {
+        "f15c": 12
+      },
+      "custom": {
+        "f15c": {
+          "mid:-1": "aim9l",
+          "mid:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1
+        }
+      },
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "true",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂仅内置机炮"
+          }
+        ]
+      },
+      "aircrafts": []
+    },
+    "accepted": {
+      "tick": 195,
+      "error": null,
+      "room": 3,
+      "control": {
+        "battle": 3,
+        "unit": 135,
+        "life": 1
+      },
+      "selected": {
+        "f15c": 12
+      },
+      "custom": {
+        "f15c": {
+          "mid:-1": "aim9l",
+          "mid:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂mid:-1 · aim9l ×1、mid:1 · aim9l ×1"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 3,
+            "life": 1,
+            "unit": 135
+          },
+          "aircraft": "f15c",
+          "owner": 3,
+          "controller": 3,
+          "loadout": 0,
+          "custom": {
+            "mid:-1": "aim9l",
+            "mid:1": "aim9l"
+          },
+          "custom_counts": {
+            "mid:-1": 1,
+            "mid:1": 1
+          },
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:4",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "left_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "mid"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:5",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "right_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "mid"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 6100,
+            "max": 6100,
+            "selected_minutes": null,
+            "total_kg": 6100
+          },
+          "guns": [
+            {
+              "ammo": 940,
+              "id": "air_m61_0",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "returnedPreset": {
+      "tick": 247,
+      "error": null,
+      "room": 3,
+      "control": null,
+      "selected": {
+        "f15c": 2
+      },
+      "custom": {
+        "f15c": {
+          "mid:-1": "aim9l",
+          "mid:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1
+        }
+      },
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "true",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂mid:-1 · aim9l ×1、mid:1 · aim9l ×1"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 3,
+            "life": 1,
+            "unit": 135
+          },
+          "aircraft": "f15c",
+          "owner": 3,
+          "controller": null,
+          "loadout": 0,
+          "custom": {
+            "mid:-1": "aim9l",
+            "mid:1": "aim9l"
+          },
+          "custom_counts": {
+            "mid:-1": 1,
+            "mid:1": 1
+          },
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:4",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "left_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "mid"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:5",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "right_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "mid"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 6100,
+            "max": 6100,
+            "selected_minutes": null,
+            "total_kg": 6100
+          },
+          "guns": [
+            {
+              "ammo": 940,
+              "id": "air_m61_0",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "reclaimed": {
+      "tick": 277,
+      "error": null,
+      "room": 3,
+      "control": {
+        "battle": 3,
+        "unit": 135,
+        "life": 1
+      },
+      "selected": {
+        "f15c": 12
+      },
+      "custom": {
+        "f15c": {
+          "outer:-1": "aim9l",
+          "outer:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1,
+          "outer:-1": 1,
+          "outer:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂outer:-1 · aim9l、outer:1 · aim9l"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 3,
+            "life": 1,
+            "unit": 135
+          },
+          "aircraft": "f15c",
+          "owner": 3,
+          "controller": 3,
+          "loadout": 0,
+          "custom": {
+            "mid:-1": "aim9l",
+            "mid:1": "aim9l"
+          },
+          "custom_counts": {
+            "mid:-1": 1,
+            "mid:1": 1
+          },
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:4",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "left_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "mid"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:5",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "right_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "mid"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 6100,
+            "max": 6100,
+            "selected_minutes": null,
+            "total_kg": 6100
+          },
+          "guns": [
+            {
+              "ammo": 940,
+              "id": "air_m61_0",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "visibleServiceControls": {
+      "tick": 305,
+      "error": null,
+      "room": 3,
+      "control": {
+        "battle": 3,
+        "unit": 135,
+        "life": 1
+      },
+      "selected": {
+        "f15c": 12
+      },
+      "custom": {
+        "f15c": {
+          "outer:-1": "aim9l",
+          "outer:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1,
+          "outer:-1": 1,
+          "outer:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂outer:-1 · aim9l、outer:1 · aim9l"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 3,
+            "life": 1,
+            "unit": 135
+          },
+          "aircraft": "f15c",
+          "owner": 3,
+          "controller": 3,
+          "loadout": 0,
+          "custom": {
+            "mid:-1": "aim9l",
+            "mid:1": "aim9l"
+          },
+          "custom_counts": {
+            "mid:-1": 1,
+            "mid:1": 1
+          },
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:4",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "left_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "mid"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:5",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "right_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "mid"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 6100,
+            "max": 6100,
+            "selected_minutes": null,
+            "total_kg": 6100
+          },
+          "guns": [
+            {
+              "ammo": 940,
+              "id": "air_m61_0",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "serviceRequested": {
+      "tick": 319,
+      "error": null,
+      "room": 3,
+      "control": {
+        "battle": 3,
+        "unit": 135,
+        "life": 1
+      },
+      "selected": {
+        "f15c": 0
+      },
+      "custom": {
+        "f15c": {
+          "outer:-1": "aim9l",
+          "outer:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1,
+          "outer:-1": 1,
+          "outer:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂outer:-1 · aim9l、outer:1 · aim9l"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 3,
+            "life": 1,
+            "unit": 135
+          },
+          "aircraft": "f15c",
+          "owner": 3,
+          "controller": 3,
+          "loadout": 0,
+          "custom": {
+            "mid:-1": "aim9l",
+            "mid:1": "aim9l"
+          },
+          "custom_counts": {
+            "mid:-1": 1,
+            "mid:1": 1
+          },
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:4",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "left_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "mid"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "f15c:5",
+              "fuel": 0,
+              "gone": false,
+              "id": "aim9l",
+              "modelHardpoint": "right_wing_rail_inner",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.538717375093214,
+                -0.6343199850857569,
+                1.37751677852349
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.538717375093214,
+                -0.716819985085757,
+                1.37751677852349
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "mid"
+            }
+          ],
+          "service": {
+            "airfield": "ZSQZ",
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0.15,
+            "fuel_minutes": null,
+            "loadout": 0,
+            "reason": null,
+            "remaining_s": 14.85,
+            "revision": 1,
+            "status": "servicing"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 6100,
+            "max": 6100,
+            "selected_minutes": null,
+            "total_kg": 6100
+          },
+          "guns": [
+            {
+              "ammo": 940,
+              "id": "air_m61_0",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "serviceCompleted": {
+      "tick": 617,
+      "error": null,
+      "room": 3,
+      "control": {
+        "battle": 3,
+        "unit": 135,
+        "life": 1
+      },
+      "selected": {
+        "f15c": 0
+      },
+      "custom": {
+        "f15c": {
+          "outer:-1": "aim9l",
+          "outer:1": "aim9l"
+        }
+      },
+      "counts": {
+        "f15c": {
+          "mid:-1": 1,
+          "mid:1": 1,
+          "outer:-1": 1,
+          "outer:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "對地"
+          },
+          {
+            "i": "4",
+            "pressed": "false",
+            "disabled": false,
+            "text": "空戰（7M／9M）"
+          },
+          {
+            "i": "5",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AMRAAM（120B／C）"
+          },
+          {
+            "i": "6",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65B TV"
+          },
+          {
+            "i": "7",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65D IIR"
+          },
+          {
+            "i": "8",
+            "pressed": "false",
+            "disabled": false,
+            "text": "AGM-65G IIR 重彈頭"
+          },
+          {
+            "i": "9",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-10 / LANTIRN"
+          },
+          {
+            "i": "10",
+            "pressed": "false",
+            "disabled": false,
+            "text": "GBU-12 / LANTIRN"
+          },
+          {
+            "i": "11",
+            "pressed": "false",
+            "disabled": false,
+            "text": "CBU-87 雙掛"
+          },
+          {
+            "i": "12",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂outer:-1 · aim9l、outer:1 · aim9l"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 3,
+            "life": 1,
+            "unit": 135
+          },
+          "aircraft": "f15c",
+          "owner": 3,
+          "controller": 3,
+          "loadout": 0,
+          "custom": null,
+          "custom_counts": null,
+          "stores": [],
+          "service": {
+            "airfield": "ZSQZ",
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 15,
+            "fuel_minutes": null,
+            "loadout": 0,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 2,
+            "status": "complete"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 6100,
+            "max": 6100,
+            "selected_minutes": null,
+            "total_kg": 6100
+          },
+          "guns": [
+            {
+              "ammo": 940,
+              "id": "air_m61_0",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": [],
+  "servedPageSha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+  "passed": true,
+  "evidenceScope": {
+    "sourceReceipt": "D:\\TankForge-validation\\r85-20261028\\loadout-f15-r4-final\\receipt.json",
+    "sourceReceiptSha256": "5f44f85538ce2cf0c7880a493eccfb49f33b400ff03a1ee7731d3887b1db77c9",
+    "omitted": "Only repeated per-phase options catalog snapshots; all other fields retained unchanged."
+  }
+}

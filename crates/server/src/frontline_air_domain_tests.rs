@@ -46,7 +46,7 @@ fn hub_for_era(observer: bool, era: u32) -> FrontlineHub {
 }
 
 fn sortie(aircraft: &str, spawn: &str, loadout: u32) -> Command {
-    Command::DeployAir {
+    Command::DeployAir { custom_counts: None,
         aircraft: aircraft.into(),
         spawn: spawn.into(),
         loadout,

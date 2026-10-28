@@ -21,7 +21,7 @@ fn hub(map: &str, two_teams: bool) -> FrontlineHub {
     hub
 }
 fn deploy(hub: &mut FrontlineHub, player: u32) -> UnitRef {
-    accepted(hub.handle(player, Command::DeployAir {
+    accepted(hub.handle(player, Command::DeployAir { custom_counts: None,
         aircraft: "me262".into(), spawn: "air".into(), loadout: 0, custom: None, fuel_minutes: None,
     }, 0.0));
     hub.rooms[&1].members[&player].view.controlled.unwrap()

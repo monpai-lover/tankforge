@@ -23,6 +23,9 @@ function harness(){
   f.establishedFlight={release(){calls.push('release original controls');},garage(){calls.push('original garage');},transmit(){calls.push('original transport');}};
   const c=vm.createContext({airGarage:{sel:'f86f'},sharedApi:{deploymentMap:()=>({})},f,calls,net:{id:5,open:true},renderGate:{clear(){calls.push('clear gate');}},sound:{cancelFull(){calls.push('cancel audio');}},fx:{particles:[1],decals:[2],beams:[3]},reticle:{hidden:false},flightReadout:{hidden:false},releaseGroundDetail(){calls.push('release detail');},unitKey:r=>r?`${r.battle}:${r.unit}:${r.life}`:'',same:(a,b)=>JSON.stringify(a)===JSON.stringify(b),mine:()=>f.room?.members.find(m=>m.player===5),owned:()=>null,controlled:()=>f.units.find(u=>JSON.stringify(u.unit)===JSON.stringify(f.control)),controlledAirModel:()=>null,el:key=>{if(!elements.has(key))elements.set(key,{});return elements.get(key);},note:s=>calls.push(['note',s]),send:s=>calls.push(['send',s]),refreshUi:()=>calls.push('refresh'),updateAircraftModels:()=>calls.push('models'),ensureMap:async()=>{},canvas:{focus(){}},G4:{keys:new Set(),fireHeld:false,mgHeld:false},renderer:{setMap(){},zones:[]},setMode:()=>{},hud:{loading(){},toast:s=>calls.push(['toast',s])},clamp:(v,a,b)=>Math.max(a,Math.min(b,v)),console,performance:{now:()=>1000},data:{projectiles:{}},frontlineAirServiceReason:s=>s});
   installOrdnance(c);installCurrentPresentation(c);
+  // The receiver owns native scope cleanup; the original local garage owner
+  // is outside this fixture and is executed in r85-client-state-queries.test.
+  c.toGarage=()=>calls.push('local garage');
   vm.runInContext(helpers+section('      function resetBattlePresentation(){','      function send(command)')+section('      function applyControl(unit,epoch){',"      net.on('frontline'")+section('      function transmitInput(){','      // Input transport'),c);
   return {c,f,calls,elements};
 }
@@ -82,8 +85,8 @@ test('accepted end clears held controls and blocks further transport until next 
   assert.equal(f.keys.size,0);assert.equal(f.fire,false);assert.equal(f.control,null);assert.equal(f.room.round_state,'intermission');assert.equal(f.room.result.winner,'blue');
 });
 test('actual Return epoch2 then Left and a new room admits epoch1 without an orphan control poisoning the new scope',async()=>{
- const {c,f}=harness();f.epoch=1;f.room.members[0].epoch=1;await deliver(c,{op:'control',unit:null,epoch:2});assert.equal(f.epoch,2);f.seq=41;f.orderSeq=42;f.supportSeq=43;f.inputTime=99;
- await deliver(c,{op:'left'});assert.equal(f.room,null);assert.equal(f.control,null);assert.equal(f.epoch,0);assert.equal(f.seq,0);assert.equal(f.orderSeq,0);assert.equal(f.supportSeq,0);assert.equal(f.inputTime,undefined);
+ const {c,f,calls}=harness();f.epoch=1;f.room.members[0].epoch=1;await deliver(c,{op:'control',unit:null,epoch:2});assert.equal(f.epoch,2);f.seq=41;f.orderSeq=42;f.supportSeq=43;f.inputTime=99;
+ await deliver(c,{op:'left'});assert.equal(f.room,null);assert.equal(f.control,null);assert.equal(f.epoch,0);assert.equal(f.seq,0);assert.equal(f.orderSeq,0);assert.equal(f.supportSeq,0);assert.equal(f.inputTime,undefined);assert.equal(calls.filter(call=>call==='local garage').length,1);
  await deliver(c,{op:'control',unit:null,epoch:99});assert.equal(f.epoch,0);await deliver(c,{op:'control',unit:reference(10),epoch:100});assert.equal(f.control,null);
  await deliver(c,{op:'room',room:room(20,{id:8,members:[{player:5,epoch:0,controlled:null}]})});await deliver(c,{op:'control',unit:reference(20),epoch:1});assert.equal(f.epoch,1);assert.equal(f.control.battle,20);assert.equal(f.room.members[0].epoch,1);
 });

@@ -62,12 +62,11 @@ test('100 rounds per second retire fading decoration before rejecting new physic
  assert.equal(rejected,0,`${rejected} fresh rounds hidden by old fading traces`);
  assert.ok(s.events.length<=64&&s.summaries.length<=64);
 });
-test('queued next target takes over when evidence finishes without the same-target10 second hold',()=>{
+test('next target takes over immediately while previous evidence is still playing',()=>{
  const {hc,target,show}=facade(),a=target(2),b=target(3);
- assert.equal(show(a,1),true);assert.equal(show(b,1),false);
- const finishedEvidence=hc.cur.session.endFilm;
- hc.tick(finishedEvidence+.3);
- assert.equal(hc.cur?.session.actor.entity,3,'stale target is still monopolizing the hold');
+ assert.equal(show(a,1),true);const prior=hc.cur.session;assert.ok(prior.filmTimeS<prior.endFilm);
+ assert.equal(show(b,1),true);
+ assert.equal(hc.cur?.session.actor.entity,3,'next target must acquire before another tick');
  assert.equal(a.releases,1);assert.equal(hc.deferred.length,0);hc.hide();assert.equal(b.releases,1);
 });
 test('a fresh shot reacquires an already finished same actor session and does not replay appended duplicates',()=>{
@@ -88,10 +87,10 @@ test('a locally timed fatal followup becomes the victim camera source immediatel
  assert.equal(f.event.id,e.event_id);assert.ok(f.cameraProjectile.nose[2]<0,'camera must follow the fatal incoming recorded body');
  assert.ok(f.cameraBlend>=0&&f.cameraBlend<=1);assert.equal(s.clock.physicalAt(.25),runtime.createReplaySession(null,s.target,evidence(1),'offensive',{catalog}).clock.physicalAt(.25));
 });
-test('a failed deferred target acquisition cannot strand a later valid target',()=>{
+test('a failed immediate target acquisition keeps current playback and allows the next valid target',()=>{
  const {hc,target,show}=facade(),a=target(2),b=target(3),c=target(4);
- show(a,1);show(b,1);show(c,1);const factory=hc.env.replayDrawFactory;
+ show(a,1);const current=hc.cur,factory=hc.env.replayDrawFactory;
  hc.env.replayDrawFactory=(renderer,snapshot,...args)=>{if(snapshot.actor.entity===3)throw Error('unavailable target');return factory(renderer,snapshot,...args);};
- hc.tick(hc.cur.session.endFilm+.3);hc.tick(.01);
+ assert.equal(show(b,1),false);assert.equal(hc.cur,current);assert.equal(show(c,1),true);
  assert.equal(hc.cur?.session.actor.entity,4);assert.equal(b.releases,1);hc.hide();
 });

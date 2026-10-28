@@ -1,0 +1,14 @@
+{
+  "archive": "D:\\TankForge-validation\\r85-20261028\\delivery\\tankforge-r85-airwar-water-linux-amd64-20261028.tar.gz",
+  "bytes": 299837892,
+  "sha256": "ef6aa3f0750b8c0f0458206cd01b85905725c1aaea95c1186b3da84f52a09f41",
+  "verifiedFiles": 2700,
+  "htmlSha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+  "serverSha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+  "elf": {
+    "format": "ELF64",
+    "machine": "x86_64",
+    "dynamicInterpreter": false,
+    "executedOnLinux": false
+  }
+}

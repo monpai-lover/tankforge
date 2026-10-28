@@ -219,3 +219,10 @@ MIT 授權條款要求保留版權聲明:
   - 外形來源：「Pantsir SM-SV (War Thunder) Ninth Wave」，Sketchfab 上由 KojfDiscord 以 CC BY 4.0 標示發布（https://sketchfab.com/3d-models/pantsir-sm-sv-war-thunder-ninth-wave-0838ed8759f84ece8d3939a9894a6ded）。
   - 套件自述：原始 GLB 沒有裝甲厚度、內部配置、性能或彈道資料；套件裡的厚度、模組、乘員、武器、發動機都是遊戲用估計值，不是原廠資料。
   - 套件原有的說明文件、驗證報告與證據原樣保存在 `data/vehicles/ru_pantsir_sm_sv/source/`（不含 GLB 與 .blend）。安裝工具：`tools/install_pantsir.py`。
+
+## 2026-10-28 水面著色器
+
+- 水面波形改編自 afl_ext 的「Very fast procedural ocean」，Shadertoy `MdXyzX`，原碼標示 afl_ext 2017-2024／MIT。
+  - 原作：https://www.shadertoy.com/view/MdXyzX 。已核對的公開原碼：https://github.com/xscreensaver/xscreensaver/blob/8ddbc080a77d6236939a6cde59c559f21c6e187a/hacks/glx/glsl/prococean.glsl 。
+  - 保留原碼與授權於 `docs/third-party/afl_ext-prococean-reference.glsl`、`docs/third-party/afl_ext-prococean-LICENSE.txt`。
+  - 遊戲適配使用八層過濾解析法線、現有天空與陽光；未導入原作整屏步進、攝像機、大氣或色調曲線。幾何、海面高度和碰撞沿用遊戲資料。接入與驗證範圍見 `handoff/tools/r85-water-sources.md`。

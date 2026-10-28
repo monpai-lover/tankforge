@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reassemble the current R8.4 HTML without changing its source assets.
+"""Reassemble the current R8.5 HTML without changing its source assets.
 
 Only Python's standard library is required. The default root follows this file,
 so the command can run from any working directory. The output must be new; a
@@ -19,7 +19,7 @@ import tempfile
 import zlib
 
 
-RELEASE_SHA256 = '4f3ce0ace34bca9eac736ea912c931858a2d825b10e8df623762f0c7a20ac696'
+RELEASE_SHA256 = 'c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5'
 CHUNK_BYTES = 1024 * 1024
 PART_NAMES = tuple(f'data.line.gz.part{index:02d}' for index in range(5))
 
@@ -121,7 +121,7 @@ def main(argv=None):
     parser.add_argument('--output', type=Path, required=True,
                         help='New HTML path in an existing directory; never overwritten')
     parser.add_argument('--expected-sha256', default=RELEASE_SHA256,
-                        help='Expected complete HTML SHA-256 (default: current R8.4 release)')
+                        help='Expected complete HTML SHA-256 (default: current R8.5 release)')
     args = parser.parse_args(argv)
     try:
         result = rebuild(args.root, args.output, args.expected_sha256)

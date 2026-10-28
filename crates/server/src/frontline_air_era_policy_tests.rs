@@ -32,7 +32,7 @@ fn pool(hub: &mut FrontlineHub, player: u32) -> BTreeSet<String> {
     }).expect("real native snapshot aircraft options")
 }
 fn deploy(hub: &mut FrontlineHub, player: u32, aircraft: &str, spawn: &str) -> UnitRef {
-    accepted(hub.handle(player,Command::DeployAir {
+    accepted(hub.handle(player,Command::DeployAir { custom_counts: None,
         aircraft:aircraft.into(),spawn:spawn.into(),loadout:0,custom:None, fuel_minutes: None,
     },0.0));
     hub.rooms[&hub.membership[&player]].members[&player].view.controlled.expect("accepted actual aircraft control")
@@ -94,7 +94,7 @@ fn air_era_ceiling_excludes_future_models_but_allows_both_teams_the_same_older_r
     }
     accepted(hub.handle(1,Command::Start,0.0));
     for (player,team) in [(2,Team::Blue),(3,Team::Red)] {
-        let denied=hub.handle(player,Command::DeployAir {aircraft:"p51d".into(),spawn:"air".into(),loadout:0,custom:None, fuel_minutes: None},0.0);
+        let denied=hub.handle(player,Command::DeployAir { custom_counts: None,aircraft:"p51d".into(),spawn:"air".into(),loadout:0,custom:None, fuel_minutes: None},0.0);
         assert!(denied.iter().any(|(_,u)|matches!(u,Update::Error{code,..} if code=="era_or_loadout")),"future aircraft must remain denied: {denied:?}");
         let reference=deploy(&mut hub,player,"a6m2","runway");
         let aircraft=&hub.rooms[&room].air.units[&reference.unit];

@@ -1,0 +1,1043 @@
+{
+  "url": "http://127.0.0.1:8896/",
+  "started": 1793183409.2932544,
+  "phases": {
+    "opened": {
+      "tick": 25,
+      "error": null,
+      "room": 4,
+      "control": null,
+      "selected": {},
+      "custom": {},
+      "counts": {},
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "true",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂仅内置机炮"
+          }
+        ]
+      },
+      "aircrafts": []
+    },
+    "preset": {
+      "tick": 75,
+      "error": null,
+      "room": 4,
+      "control": null,
+      "selected": {
+        "mig17f": 1
+      },
+      "custom": {},
+      "counts": {},
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "true",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂仅内置机炮"
+          }
+        ]
+      },
+      "aircrafts": []
+    },
+    "custom": {
+      "tick": 159,
+      "error": null,
+      "room": 4,
+      "control": null,
+      "selected": {
+        "mig17f": 3
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "true",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂仅内置机炮"
+          }
+        ]
+      },
+      "aircrafts": []
+    },
+    "accepted": {
+      "tick": 190,
+      "error": null,
+      "room": 4,
+      "control": {
+        "battle": 4,
+        "unit": 150,
+        "life": 1
+      },
+      "selected": {
+        "mig17f": 3
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂inner:-1 · fab250、inner:1 · fab250"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 4,
+            "life": 1,
+            "unit": 150
+          },
+          "aircraft": "mig17f",
+          "owner": 4,
+          "controller": 4,
+          "loadout": 0,
+          "custom": {
+            "inner:-1": "fab250",
+            "inner:1": "fab250"
+          },
+          "custom_counts": null,
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:0",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "inner"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:1",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "inner"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 1170,
+            "max": 1170,
+            "selected_minutes": null,
+            "total_kg": 1170
+          },
+          "guns": [
+            {
+              "ammo": 40,
+              "id": "air_n37_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_1",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "returnedPreset": {
+      "tick": 245,
+      "error": null,
+      "room": 4,
+      "control": null,
+      "selected": {
+        "mig17f": 2
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": true,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "true",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "false",
+            "disabled": false,
+            "text": "自訂inner:-1 · fab250、inner:1 · fab250"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 4,
+            "life": 1,
+            "unit": 150
+          },
+          "aircraft": "mig17f",
+          "owner": 4,
+          "controller": null,
+          "loadout": 0,
+          "custom": {
+            "inner:-1": "fab250",
+            "inner:1": "fab250"
+          },
+          "custom_counts": null,
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:0",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "inner"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:1",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "inner"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 1170,
+            "max": 1170,
+            "selected_minutes": null,
+            "total_kg": 1170
+          },
+          "guns": [
+            {
+              "ammo": 40,
+              "id": "air_n37_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_1",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "reclaimed": {
+      "tick": 275,
+      "error": null,
+      "room": 4,
+      "control": {
+        "battle": 4,
+        "unit": 150,
+        "life": 1
+      },
+      "selected": {
+        "mig17f": 3
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂inner:-1 · fab250、inner:1 · fab250"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 4,
+            "life": 1,
+            "unit": 150
+          },
+          "aircraft": "mig17f",
+          "owner": 4,
+          "controller": 4,
+          "loadout": 0,
+          "custom": {
+            "inner:-1": "fab250",
+            "inner:1": "fab250"
+          },
+          "custom_counts": null,
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:0",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "inner"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:1",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "inner"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 1170,
+            "max": 1170,
+            "selected_minutes": null,
+            "total_kg": 1170
+          },
+          "guns": [
+            {
+              "ammo": 40,
+              "id": "air_n37_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_1",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "visibleServiceControls": {
+      "tick": 302,
+      "error": null,
+      "room": 4,
+      "control": {
+        "battle": 4,
+        "unit": 150,
+        "life": 1
+      },
+      "selected": {
+        "mig17f": 3
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂inner:-1 · fab250、inner:1 · fab250"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 4,
+            "life": 1,
+            "unit": 150
+          },
+          "aircraft": "mig17f",
+          "owner": 4,
+          "controller": 4,
+          "loadout": 0,
+          "custom": {
+            "inner:-1": "fab250",
+            "inner:1": "fab250"
+          },
+          "custom_counts": null,
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:0",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "inner"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:1",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "inner"
+            }
+          ],
+          "service": {
+            "airfield": null,
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0,
+            "fuel_minutes": null,
+            "loadout": null,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 0,
+            "status": "idle"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 1170,
+            "max": 1170,
+            "selected_minutes": null,
+            "total_kg": 1170
+          },
+          "guns": [
+            {
+              "ammo": 40,
+              "id": "air_n37_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_1",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "serviceRequested": {
+      "tick": 317,
+      "error": null,
+      "room": 4,
+      "control": {
+        "battle": 4,
+        "unit": 150,
+        "life": 1
+      },
+      "selected": {
+        "mig17f": 0
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂inner:-1 · fab250、inner:1 · fab250"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 4,
+            "life": 1,
+            "unit": 150
+          },
+          "aircraft": "mig17f",
+          "owner": 4,
+          "controller": 4,
+          "loadout": 0,
+          "custom": {
+            "inner:-1": "fab250",
+            "inner:1": "fab250"
+          },
+          "custom_counts": null,
+          "stores": [
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:0",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                -2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_l",
+              "p": [
+                -2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": -1,
+              "station": "inner"
+            },
+            {
+              "count": 1,
+              "fittedMountKey": "mig17f:1",
+              "fuel": 0,
+              "gone": false,
+              "id": "fab250",
+              "modelMountBasis": "whole_mesh_clearance_with_physical_airframe_adapter",
+              "mount": [
+                2.3503,
+                -0.6227,
+                -0.3395
+              ],
+              "mountFitVersion": "mounted-details-v4",
+              "nativePylon": true,
+              "owner": "wing_r",
+              "p": [
+                2.3503,
+                -0.7852,
+                -0.18350000000000002
+              ],
+              "pylon": null,
+              "side": 1,
+              "station": "inner"
+            }
+          ],
+          "service": {
+            "airfield": "ZSQZ",
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 0.19999999999999998,
+            "fuel_minutes": null,
+            "loadout": 0,
+            "reason": null,
+            "remaining_s": 14.8,
+            "revision": 1,
+            "status": "servicing"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 1170,
+            "max": 1170,
+            "selected_minutes": null,
+            "total_kg": 1170
+          },
+          "guns": [
+            {
+              "ammo": 40,
+              "id": "air_n37_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_1",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    },
+    "serviceCompleted": {
+      "tick": 616,
+      "error": null,
+      "room": 4,
+      "control": {
+        "battle": 4,
+        "unit": 150,
+        "life": 1
+      },
+      "selected": {
+        "mig17f": 0
+      },
+      "custom": {
+        "mig17f": {
+          "inner:-1": "fab250",
+          "inner:1": "fab250"
+        }
+      },
+      "counts": {
+        "mig17f": {
+          "inner:-1": 1,
+          "inner:1": 1
+        }
+      },
+      "deploy": {
+        "visible": false,
+        "buttons": [
+          {
+            "i": "0",
+            "pressed": "false",
+            "disabled": false,
+            "text": "僅機砲"
+          },
+          {
+            "i": "1",
+            "pressed": "false",
+            "disabled": false,
+            "text": "炸彈"
+          },
+          {
+            "i": "2",
+            "pressed": "false",
+            "disabled": false,
+            "text": "火箭"
+          },
+          {
+            "i": "3",
+            "pressed": "true",
+            "disabled": false,
+            "text": "自訂inner:-1 · fab250、inner:1 · fab250"
+          }
+        ]
+      },
+      "aircrafts": [
+        {
+          "unit": {
+            "battle": 4,
+            "life": 1,
+            "unit": 150
+          },
+          "aircraft": "mig17f",
+          "owner": 4,
+          "controller": 4,
+          "loadout": 0,
+          "custom": null,
+          "custom_counts": null,
+          "stores": [],
+          "service": {
+            "airfield": "ZSQZ",
+            "custom": null,
+            "custom_counts": null,
+            "duration_s": 15,
+            "elapsed_s": 15,
+            "fuel_minutes": null,
+            "loadout": 0,
+            "reason": null,
+            "remaining_s": 0,
+            "revision": 2,
+            "status": "complete"
+          },
+          "fuel": {
+            "flow": 0,
+            "kg": 1170,
+            "max": 1170,
+            "selected_minutes": null,
+            "total_kg": 1170
+          },
+          "guns": [
+            {
+              "ammo": 40,
+              "id": "air_n37_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_0",
+              "owner": "body"
+            },
+            {
+              "ammo": 80,
+              "id": "air_nr23_1",
+              "owner": "body"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "errors": [],
+  "servedPageSha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+  "passed": true,
+  "evidenceScope": {
+    "sourceReceipt": "D:\\TankForge-validation\\r85-20261028\\loadout-mig17-r4-final\\receipt.json",
+    "sourceReceiptSha256": "354337f50460aef212001b2e4e1aaac530d309822470a561e4d3d43c83a0ebc9",
+    "omitted": "Only repeated per-phase options catalog snapshots; all other fields retained unchanged."
+  }
+}

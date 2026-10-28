@@ -11,7 +11,7 @@ impl Fixture {
             (1,Command::Create{name:"Local flight pose".into(),map:"taiwan".into(),observer:true,era:2022}),
             (2,Command::Join{room:1,observer:false,team:Some(Team::Blue)}),
             (1,Command::Start),
-            (2,Command::DeployAir{aircraft:"me262".into(),spawn:"air".into(),loadout:0,custom:None, fuel_minutes: None})
+            (2,Command::DeployAir{ custom_counts: None,aircraft:"me262".into(),spawn:"air".into(),loadout:0,custom:None, fuel_minutes: None})
         ] { let out=hub.handle(player,command,0.0);assert!(!out.iter().any(|(_,u)|matches!(u,Update::Error{..})),"{out:?}"); }
         let member=&hub.rooms[&1].members[&2].view;
         Self{unit:member.controlled.unwrap(),epoch:member.epoch,hub}

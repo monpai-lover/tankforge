@@ -301,6 +301,7 @@ pub struct AirOption {
     /// `unsupported` reason; a browser never invents an attachment or quantity.
     pub slots: Vec<Value>,
     pub fuel_load: Value,
+    pub custom_counts_version: u32,
 }
 #[derive(Clone, Debug, Deserialize)]
 pub struct AirInput {
@@ -391,6 +392,7 @@ pub struct AirServiceView {
     pub airfield: Option<String>,
     pub loadout: Option<u32>,
     pub custom: Option<BTreeMap<String, String>>,
+    pub custom_counts: Option<BTreeMap<String, u32>>,
     pub elapsed_s: f64,
     pub duration_s: f64,
     pub remaining_s: f64,
@@ -407,6 +409,7 @@ struct AirServiceState {
 struct AcceptedAirLoadout {
     index: u32,
     custom: Option<BTreeMap<String, String>>,
+    custom_counts: Option<BTreeMap<String, u32>>,
     value: Value,
 }
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -469,6 +472,7 @@ impl Default for AirServiceState {
                 airfield: None,
                 loadout: None,
                 custom: None,
+                custom_counts: None,
                 elapsed_s: 0.0,
                 duration_s: AIR_SERVICE_SECONDS,
                 remaining_s: 0.0,
@@ -497,6 +501,7 @@ pub struct AirUnitView {
     pub aircraft: String,
     pub loadout: u32,
     pub custom: Option<BTreeMap<String, String>>,
+    pub custom_counts: Option<BTreeMap<String, u32>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub weapon_control: Option<AirWeaponControlView>,
     pub seeker: guided::Seeker,
@@ -689,6 +694,7 @@ impl AirUnit {
             aircraft: self.aircraft.clone(),
             loadout: self.loadout,
             custom: self.custom.clone(),
+            custom_counts: self.accepted_loadout.custom_counts.clone(),
             weapon_control: self.weapon_control.clone(),
             seeker: self.seeker.clone(),
             countermeasures: self.countermeasures.view(),
@@ -1007,6 +1013,7 @@ impl AirWorld {
                 Some(AirOption {
                     id: id.clone(),
                     fuel_load: fuel_load::options(p),
+                    custom_counts_version: 1,
                     name: p.metadata["name"].as_str().unwrap_or(id).into(),
                     year,
                     loadouts: p.stores["loadouts"]
@@ -1044,6 +1051,16 @@ impl AirWorld {
                                 }
                             }
                             out["unsupported"] = Value::Object(unsupported);
+                            let mut quantities = serde_json::Map::new();
+                            for (store, count) in slot["options"].as_object().into_iter().flatten() {
+                                if adjustable_store_quantity(id, slot, store) {
+                                    let max = count.as_u64().unwrap_or(0);
+                                    if max > 0 && max <= 64 {
+                                        quantities.insert(store.clone(), json!((1..=max).collect::<Vec<_>>()));
+                                    }
+                                }
+                            }
+                            out["quantity_options"] = Value::Object(quantities);
                             out
                         })
                         .collect(),
@@ -1110,12 +1127,22 @@ impl AirWorld {
         loadout: u32,
         custom: Option<&BTreeMap<String, String>>,
     ) -> Result<AcceptedAirLoadout, String> {
+        self.accept_loadout_counts(aircraft, loadout, custom, None)
+    }
+    fn accept_loadout_counts(
+        &self,
+        aircraft: &str,
+        loadout: u32,
+        custom: Option<&BTreeMap<String, String>>,
+        custom_counts: Option<&BTreeMap<String, u32>>,
+    ) -> Result<AcceptedAirLoadout, String> {
         let profile = self
             .template
             .profiles
             .get(aircraft)
             .ok_or("unknown_aircraft")?;
         let Some(custom) = custom else {
+            if custom_counts.is_some() { return Err("custom_counts_require_custom_loadout".into()); }
             let lo = profile.stores["loadouts"]
                 .as_array()
                 .and_then(|v| {
@@ -1132,12 +1159,16 @@ impl AirWorld {
             return Ok(AcceptedAirLoadout {
                 index: loadout,
                 custom: None,
+                custom_counts: None,
                 value: lo.clone(),
             });
         };
         let slots = profile.stores["slots"]
             .as_array()
             .ok_or("missing_aircraft_slots")?;
+        if custom_counts.is_some_and(|counts| counts.keys().any(|key| !custom.contains_key(key))) {
+            return Err("unknown_custom_count_slot".into());
+        }
         if custom.len() > slots.len()
             || custom.keys().any(|key| {
                 !slots
@@ -1162,6 +1193,7 @@ impl AirWorld {
         }
         let mut items = Vec::new();
         let mut entries = Vec::new();
+        let mut accepted_counts = BTreeMap::new();
         for slot in selected {
             let key = slot["key"].as_str().ok_or("invalid_aircraft_slot")?;
             let id = &custom[key];
@@ -1173,6 +1205,14 @@ impl AirWorld {
             if let Some(reason) = self.store_unsupported_reason(id) {
                 return Err(format!("{reason}:{key}:{id}"));
             }
+            let selected_count = custom_counts.and_then(|counts| counts.get(key)).copied();
+            let selected_count = match selected_count {
+                Some(n) if n > 0 && n as u64 <= count && adjustable_store_quantity(aircraft, slot, id) => n as u64,
+                Some(_) => return Err(format!("invalid_custom_store_count:{key}:{id}")),
+                None => count,
+            };
+            // Subset only immutable, catalog-fitted attachment points. The client
+            // cannot submit geometry, pod contents, gun feeds or arbitrary stock.
             items.extend(slot_items(
                 profile,
                 slot,
@@ -1180,12 +1220,16 @@ impl AirWorld {
                 count,
                 &self.template.definitions,
                 &self.template.damage_types[aircraft].parts,
-            )?);
-            entries.push(json!([id, count, slot["station"], slot["side"]]));
+            )?.into_iter().take(selected_count as usize));
+            if adjustable_store_quantity(aircraft, slot, id) {
+                accepted_counts.insert(key.to_string(), selected_count as u32);
+            }
+            entries.push(json!([id, selected_count, slot["station"], slot["side"]]));
         }
         Ok(AcceptedAirLoadout {
             index: 0,
             custom: Some(custom.clone()),
+            custom_counts: if accepted_counts.is_empty() { None } else { Some(accepted_counts) },
             value: json!({"index":0,"name":"自訂","entries":entries,"items":items}),
         })
     }
@@ -1197,9 +1241,19 @@ impl AirWorld {
         loadout: u32,
         custom: Option<&BTreeMap<String, String>>,
     ) -> Result<bool, String> {
+        self.loadout_matches_counts(id, loadout, custom, None)
+    }
+    pub fn loadout_matches_counts(
+        &self,
+        id: u64,
+        loadout: u32,
+        custom: Option<&BTreeMap<String, String>>,
+        custom_counts: Option<&BTreeMap<String, u32>>,
+    ) -> Result<bool, String> {
         let u = self.units.get(&id).ok_or("unknown_aircraft")?;
-        let accepted = self.accept_loadout(&u.aircraft, loadout, custom)?;
-        Ok(u.loadout == accepted.index && u.custom == accepted.custom)
+        let accepted = self.accept_loadout_counts(&u.aircraft, loadout, custom, custom_counts)?;
+        Ok(u.loadout == accepted.index && u.custom == accepted.custom
+            && u.accepted_loadout.custom_counts == accepted.custom_counts)
     }
     pub fn reference(&self, id: u64) -> Option<UnitRef> {
         self.units.get(&id).map(|u| u.reference)
@@ -1247,6 +1301,17 @@ impl AirWorld {
         fuel_minutes: Option<FuelMinutes>,
         now: f64,
     ) -> Result<AirServiceView, String> {
+        self.request_service_counts_fuel(id, loadout, custom, None, fuel_minutes, now)
+    }
+    pub fn request_service_counts_fuel(
+        &mut self,
+        id: u64,
+        loadout: u32,
+        custom: Option<&BTreeMap<String, String>>,
+        custom_counts: Option<&BTreeMap<String, u32>>,
+        fuel_minutes: Option<FuelMinutes>,
+        now: f64,
+    ) -> Result<AirServiceView, String> {
         if !now.is_finite() || now < 0.0 {
             return Err("invalid_service_time".into());
         }
@@ -1255,7 +1320,7 @@ impl AirWorld {
             return Err("not_controlled".into());
         }
         let field = service_location(u, &self.map, &self.service_availability, &self.ground)?;
-        let accepted = self.accept_loadout(&u.aircraft, loadout, custom)?;
+        let accepted = self.accept_loadout_counts(&u.aircraft, loadout, custom, custom_counts)?;
         // Validate the whole candidate before recording a service request. The
         // actual resources/loadout remain unchanged until completion.
         let candidate = stores_from_loadout(&accepted.value, &self.template.definitions)?;
@@ -1280,6 +1345,7 @@ impl AirWorld {
             airfield: Some(field),
             loadout: Some(accepted.index),
             custom: accepted.custom,
+            custom_counts: accepted.custom_counts,
             fuel_minutes,
             elapsed_s: 0.0,
             duration_s: AIR_SERVICE_SECONDS,
@@ -1354,6 +1420,20 @@ impl AirWorld {
         custom: Option<&BTreeMap<String, String>>,
         fuel_minutes: Option<FuelMinutes>,
     ) -> Result<(), String> {
+        self.spawn_configured_counts_fuel(reference, aircraft, team, owner, kind, loadout, custom, None, fuel_minutes)
+    }
+    pub fn spawn_configured_counts_fuel(
+        &mut self,
+        reference: UnitRef,
+        aircraft: &str,
+        team: Team,
+        owner: Option<u32>,
+        kind: &str,
+        loadout: u32,
+        custom: Option<&BTreeMap<String, String>>,
+        custom_counts: Option<&BTreeMap<String, u32>>,
+        fuel_minutes: Option<FuelMinutes>,
+    ) -> Result<(), String> {
         if self.units.contains_key(&reference.unit) {
             return Err("duplicate air unit".into());
         }
@@ -1363,7 +1443,7 @@ impl AirWorld {
             .get(aircraft)
             .ok_or("unknown aircraft")?
             .clone();
-        let accepted = self.accept_loadout(aircraft, loadout, custom)?;
+        let accepted = self.accept_loadout_counts(aircraft, loadout, custom, custom_counts)?;
         let ti = if team == Team::Blue { 0 } else { 1 };
         let fields = self.map["airfields"]
             .as_array()
@@ -2262,7 +2342,7 @@ impl AirWorld {
                             shooter: Some(u.reference.unit),
                             target: Some(u.reference.unit),
                             pos: u.pos(),
-                            detail: json!({"unit":u.reference,"loadout":u.loadout,"custom":u.custom,
+                            detail: json!({"unit":u.reference,"loadout":u.loadout,"custom":u.custom,"custom_counts":u.accepted_loadout.custom_counts,
                                 "resource_revision":u.resource_revision,
                                 "service_revision":u.service.view.revision,
                                 "service":u.service.view}),
@@ -2874,6 +2954,7 @@ fn begin_ai_service(
         airfield: Some(field),
         loadout: Some(u.loadout),
         custom: u.custom.clone(),
+        custom_counts: u.accepted_loadout.custom_counts.clone(),
         fuel_minutes: None,
         elapsed_s: 0.0,
         duration_s: AIR_SERVICE_SECONDS,
@@ -3293,6 +3374,14 @@ fn service_location(
         return Err("availability_unavailable".into());
     }
     Ok(id.into())
+}
+// Same quantity controls offered by the existing source editor. A rack/pod's
+// internal ammunition remains fixed by its definition and cannot be set here.
+fn adjustable_store_quantity(aircraft: &str, slot: &Value, store: &str) -> bool {
+    let station = slot["station"].as_str().unwrap_or("");
+    (store.starts_with("aim9") || store.starts_with("aim120"))
+        && ((aircraft == "f15c" && matches!(station, "mid" | "belly"))
+            || (aircraft == "f4e" && station == "mid"))
 }
 fn slots_clash(a: &Value, b: &Value) -> bool {
     let (pa, pb) = (&a["pylon"], &b["pylon"]);
@@ -3810,6 +3899,9 @@ fn normalize(a: [f64; 3]) -> [f64; 3] {
 #[cfg(test)]
 #[path = "frontline_air_custom_tests.rs"]
 mod custom_tests;
+#[cfg(test)]
+#[path = "frontline_air_custom_counts_tests.rs"]
+mod custom_counts_tests;
 #[cfg(test)]
 #[path = "frontline_air_service_tests.rs"]
 mod service_tests;

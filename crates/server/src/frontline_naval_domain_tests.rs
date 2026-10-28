@@ -12,9 +12,9 @@ fn hub()->(FrontlineHub,u32){let(mut h,id)=waiting();accepted(&h.handle(1,Comman
 fn installed_escort_scene_owns_unique_lives_geometry_and_skips_old_land_ai() {
     let (mut h,id)=hub();let room=&h.rooms[&id];
     assert!(room.scenario.is_some());assert!(room.units.is_empty());assert!(room.companies.is_empty());
-    let ships=room.sim.naval_views();assert_eq!(ships.len(),5);
-    let ids:BTreeSet<_>=ships.iter().map(|s|s.unit).collect();assert_eq!(ids.len(),5);assert!(ids.iter().all(|s|s.battle==room.battle&&s.life==1));
-    let snapshot=serde_json::to_value(room.snapshot()).unwrap();assert_eq!(snapshot["naval_geometry_catalog"].as_array().unwrap().len(),3);
+    let ships=room.sim.naval_views();assert_eq!(ships.len(),14);
+    let ids:BTreeSet<_>=ships.iter().map(|s|s.unit).collect();assert_eq!(ids.len(),14);assert!(ids.iter().all(|s|s.battle==room.battle&&s.life==1));
+    let snapshot=serde_json::to_value(room.snapshot()).unwrap();assert_eq!(snapshot["naval_geometry_catalog"].as_array().unwrap().len(),6);
     h.rooms.get_mut(&id).unwrap().team_score=[9999,0];
     let output=h.tick(0.05);assert!(!output.iter().any(|(_,u)|matches!(u,Update::Ended{..})),"legacy score cannot finish convoy mission");
     assert!(h.rooms[&id].started);
@@ -25,10 +25,10 @@ fn actual_room_navals_fire_real_accepted_projectiles_and_audience_views_hide_res
     let mut fired=false;
     // Geography expands, while vessel speed and the 1800m gun range remain
     // metric. Allow the authored fleets to approach before expecting fire.
-    for tick in 1..=6000 {
+    for tick in 1..=20000 {
         let output=h.tick(tick as f64*0.05);
         fired|=output.iter().any(|(_,u)|match u{Update::Frame{events,..}=>events.iter().any(|e|e["kind"]=="shot"&&e["detail"]["naval"]==true),_=>false});
-        if fired {println!("actual 1:30 naval AI first accepted fire at {}s",tick as f64*0.05);break;}
+        if fired {println!("actual 1:10 naval AI first accepted fire at {}s",tick as f64*0.05);break;}
     }
     assert!(fired,"accepted AI fire must enter the shared physical round queue");
     let room=&h.rooms[&id];let after:u32=room.sim.naval_views().iter().map(|s|s.ammo).sum();assert!(after<before);
@@ -77,14 +77,14 @@ fn native_projectiles_must_sink_both_transports_and_escorts_to_end_the_fleet_mis
 #[test]
 fn scenario_actual_air_sorties_use_authored_position_heading_and_speed_for_both_factions() {
     let(mut h,id)=hub();let map:Value=serde_json::from_str(h.map_source("taiwan-escort").unwrap()).unwrap();
-    assert!((map["coordinateFrame"]["worldScale"].as_f64().unwrap()-1.0/30.0).abs()<1e-15);
+    assert!((map["coordinateFrame"]["worldScale"].as_f64().unwrap()-1.0/10.0).abs()<1e-15);
     for (player,team) in [(2,Team::Blue),(3,Team::Red)] {
         accepted(&h.handle(player,Command::Join{room:id,observer:false,team:Some(team)},0.));
-        accepted(&h.handle(player,Command::DeployAir{aircraft:"f86f".into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
+        accepted(&h.handle(player,Command::DeployAir{ custom_counts: None,aircraft:"f86f".into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
         let view=h.rooms[&id].air.views().into_iter().find(|v|v.owner==Some(player)).unwrap();
         let source=map["airspawns"].as_array().unwrap().iter().find(|s|s["team"]==team.index()).unwrap();
-        let expected=if team==Team::Blue {[-1700.*100./30.,650.,-1000.*100./30.]}else{[900.*100./30.,650.,100.*100./30.]};
-        assert_eq!(point(&source["pos"]).unwrap(),expected,"only authored XZ expands from 1:100; airborne altitude stays 650m");
+        let expected=if team==Team::Blue {[-17500.,650.,-13000.]}else{[7000.+2000./3.,650.,5000.-4000./3.]};
+        assert_eq!(point(&source["pos"]).unwrap(),expected,"world airport expands to 1:10; local airborne offsets/650m altitude stay metric");
         let pos=point(&source["pos"]).unwrap();for k in 0..3 {assert!((view.pos[k]-pos[k]).abs()<0.001,"faction {team:?} axis{k}: {:?} vs {pos:?}",view.pos);}
         assert!((view.yaw-source["yawRad"].as_f64().unwrap()).abs()<1e-5);
         let speed=view.state[7..10].iter().map(|v|f64::from(*v).powi(2)).sum::<f64>().sqrt();
@@ -96,7 +96,7 @@ fn scenario_actual_runway_sorties_use_same_native_five_metre_game_airport_surfac
     let(mut h,id)=hub();let map:Value=serde_json::from_str(h.map_source("taiwan-escort").unwrap()).unwrap();
     for (player,team) in [(2,Team::Blue),(3,Team::Red)] {
         accepted(&h.handle(player,Command::Join{room:id,observer:false,team:Some(team)},0.));
-        accepted(&h.handle(player,Command::DeployAir{aircraft:"f86f".into(),spawn:"runway".into(),loadout:0,custom:None,fuel_minutes:None},0.));
+        accepted(&h.handle(player,Command::DeployAir{ custom_counts: None,aircraft:"f86f".into(),spawn:"runway".into(),loadout:0,custom:None,fuel_minutes:None},0.));
         let room=&h.rooms[&id];let view=room.air.views().into_iter().find(|v|v.owner==Some(player)).unwrap();
         let field=map["airfields"].as_array().unwrap().iter().find(|f|f["enabled"]==true&&f["team"]==team.index()).unwrap();
         let height=field["runway"]["height"].as_f64().unwrap();assert_eq!(height,5.);

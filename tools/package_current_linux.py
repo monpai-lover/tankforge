@@ -36,17 +36,17 @@ def package(root,page,server,output):
     if not output.parent.is_dir():raise ValueError('Output parent must exist')
     elf=inspect_elf(server)
     if sha(page)!=RELEASE_SHA256:raise ValueError('Page does not match the current verified release pin')
-    files={'tg-server':server,'tankforge-r84.html':page}
+    files={'tg-server':server,'tankforge-r85.html':page}
     for folder in ['data','config']:
         for path in sorted((root/folder).rglob('*')):
             if path.is_symlink():raise ValueError('Symlink input refused: '+str(path))
             if path.is_file():files[path.relative_to(root).as_posix()]=path
-    for name in ['SOURCES.md']:
+    for name in ['SOURCES.md','docs/third-party/afl_ext-prococean-LICENSE.txt','docs/third-party/afl_ext-prococean-reference.glsl']:
         if (root/name).is_file():files[name]=root/name
     manifest={name:{'bytes':path.stat().st_size,'sha256':sha(path)}for name,path in files.items()}
     embedded={
-      'start.sh':b'#!/bin/sh\nset -eu\ncd -- "$(dirname -- "$0")"\nexec ./tg-server --bind "${TF_BIND:-0.0.0.0}" --port "${TF_PORT:-8787}" --data ./data --page ./tankforge-r84.html\n',
-      'README.txt':('TankForge R8.4 Linux amd64 complete server + client\n\n'
+      'start.sh':b'#!/bin/sh\nset -eu\ncd -- "$(dirname -- "$0")"\nexec ./tg-server --bind "${TF_BIND:-0.0.0.0}" --port "${TF_PORT:-8787}" --data ./data --page ./tankforge-r85.html\n',
+      'README.txt':('TankForge R8.5 Linux amd64 complete server + client\n\n'
         'Extract to a NEW directory. Stop the old service before switching it.\n'
         'Run: chmod +x tg-server start.sh && ./start.sh\n'
         'Default HTTP/WebSocket port: 8787; override TF_PORT / TF_BIND as needed.\n'
@@ -79,7 +79,7 @@ def package(root,page,server,output):
                 while b:=f.read(1024*1024):h.update(b);size+=len(b)
             if size!=expected['bytes']or h.hexdigest()!=expected['sha256']:raise ValueError('Archive mismatch: '+name)
             verified+=1
-    result={'archive':str(output),'bytes':output.stat().st_size,'sha256':sha(output),'verifiedFiles':verified,'htmlSha256':manifest['tankforge-r84.html']['sha256'],'serverSha256':manifest['tg-server']['sha256'],'elf':elf}
+    result={'archive':str(output),'bytes':output.stat().st_size,'sha256':sha(output),'verifiedFiles':verified,'htmlSha256':manifest['tankforge-r85.html']['sha256'],'serverSha256':manifest['tg-server']['sha256'],'elf':elf}
     output.with_name(output.name+'.receipt.json').write_text(json.dumps(result,indent=2)+'\n')
     return result
 

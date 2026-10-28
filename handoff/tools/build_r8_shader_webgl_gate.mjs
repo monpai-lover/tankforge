@@ -99,7 +99,9 @@ function runGate(shaders) {
     gl.disable(gl.BLEND);
     gl.disable(gl.DEPTH_TEST);
     gl.disable(gl.CULL_FACE);
-    gl.clearColor(0.01,0.01,0.01,1);
+    // A missing transform must remain black and fail readback, not pass as
+    // the old nonblack clear color. Support both legacy and precise shaders.
+    gl.clearColor(0,0,0,1);
     gl.clear(gl.COLOR_BUFFER_BIT);
     const identity = new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1]);
     const topDown = new Float32Array([1,0,0,0,0,0,0,0,0,1,0,0,0,0,0,1]);
@@ -124,6 +126,8 @@ function runGate(shaders) {
       set('uModel','uniformMatrix4fv',false,identity);
       set('uViewProj','uniformMatrix4fv',false,topDown);
       set('uLightVP','uniformMatrix4fv',false,identity);
+      set('uModelViewProj','uniformMatrix4fv',false,topDown);
+      set('uModelLightVP','uniformMatrix4fv',false,identity);
       for(const [name,value] of Object.entries({uInstanced:0,uTerrain:0,uTerrainFine:0.15,uMapOn:0,uScroll:0,uAlpha:1,uDirtHeight:1.5,uWet:0.6,uNormOn:0,uArmorChem:0,uAircraftShell:0,uClock:12})) set(name,'uniform1f',value);
       for(const [name,value] of Object.entries({uZoneCount:0,uArmorN:0})) set(name,'uniform1i',value);
       for(const [name,value] of Object.entries({uCamPos:[0,4,4],uSunDir:[0.3,0.9,0.2],uSunColor:[0.6,0.55,0.5],uSkyColor:[0.25,0.3,0.4],uGroundColor:[0.11,0.1,0.06],uMud:[0.115,0.095,0.065],uWind:[0,0,0]})) set(name,'uniform3fv',value);

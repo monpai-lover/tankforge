@@ -83,7 +83,7 @@ impl Fixture {
         accepted(
             &h.handle(
                 1,
-                Command::DeployAir {
+                Command::DeployAir { custom_counts: None,
                     aircraft: "f86f".into(),
                     spawn: "air".into(),
                     loadout: 4,
@@ -256,7 +256,7 @@ impl Fixture {
         accepted(
             &self.h.handle(
                 1,
-                Command::ServiceAir {
+                Command::ServiceAir { custom_counts: None,
                     unit: self.unit,
                     epoch: self.epoch,
                     seq: self.seq,
@@ -399,7 +399,7 @@ fn actual_service_admission_and_shared_action_sequences_reject_without_inventory
     rejected(
         &f.h.handle(
             1,
-            Command::ServiceAir {
+            Command::ServiceAir { custom_counts: None,
                 unit: f.unit,
                 epoch: f.epoch,
                 seq: f.seq + 1,
@@ -459,7 +459,7 @@ fn actual_service_admission_and_shared_action_sequences_reject_without_inventory
         rejected(
             &f.h.handle(
                 player,
-                Command::ServiceAir {
+                Command::ServiceAir { custom_counts: None,
                     unit: r,
                     epoch,
                     seq: 999,
@@ -476,7 +476,7 @@ fn actual_service_admission_and_shared_action_sequences_reject_without_inventory
     rejected(
         &f.h.handle(
             1,
-            Command::ServiceAir {
+            Command::ServiceAir { custom_counts: None,
                 unit: f.unit,
                 epoch: f.epoch,
                 seq: 999,
@@ -518,7 +518,7 @@ fn actual_service_admission_and_shared_action_sequences_reject_without_inventory
     rejected(
         &f.h.handle(
             1,
-            Command::ServiceAir {
+            Command::ServiceAir { custom_counts: None,
                 unit: f.unit,
                 epoch: f.epoch,
                 seq: 999,
@@ -574,7 +574,7 @@ fn actual_service_admission_and_shared_action_sequences_reject_without_inventory
     rejected(
         &f.h.handle(
             1,
-            Command::ServiceAir {
+            Command::ServiceAir { custom_counts: None,
                 unit: f.unit,
                 epoch: f.epoch,
                 seq: f.seq,
@@ -702,7 +702,7 @@ fn return_cancels_service_and_parked_loadout_switch_requires_explicit_service() 
     rejected(
         &f.h.handle(
             1,
-            Command::DeployAir {
+            Command::DeployAir { custom_counts: None,
                 aircraft: "f86f".into(),
                 spawn: "runway".into(),
                 loadout: 3,
@@ -717,7 +717,7 @@ fn return_cancels_service_and_parked_loadout_switch_requires_explicit_service() 
     accepted(
         &f.h.handle(
             1,
-            Command::DeployAir {
+            Command::DeployAir { custom_counts: None,
                 aircraft: "f86f".into(),
                 spawn: "runway".into(),
                 loadout: 4,

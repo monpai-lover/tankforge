@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "source": {
-    "appSha256": "58d417f30f993487c03b825da906f030bfa252402297a0b8c2d4a1d681d5721a",
+    "appSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
     "baselineSha256": "7a35444f326a3234f7bdf6ad84ff8d2a561edc00d1824740ebc236dd6bf46bd4",
     "baselineRangeNames": [
       "projectiles",
@@ -30,67 +30,67 @@
         "sha256": "11590e2a0f9c4a2890b872febdb94b2806637554684c5cb0168cd01ab125b69b"
       },
       "guidedAircraftVariants": {
-        "startLine": 39091,
+        "startLine": 39182,
         "sha256": "856bbe0c79448ca2d961bb590cd19c248221c88bf380e36432d4fecd9ea9f28a"
       },
       "sovietConventionalStores": {
-        "startLine": 39045,
+        "startLine": 39136,
         "sha256": "c827af0c6180c157479407460224c076d9999c531beb3593305ac3437e61c4f5"
       },
       "modelUpgradePrelude": {
-        "startLine": 35298,
+        "startLine": 35389,
         "sha256": "00034508829aa214ac16946c9adc8ff5f961c8e0094fbe8a8d9c2a9e070b35f9"
       },
       "aircraftGeometry": {
-        "startLine": 37484,
+        "startLine": 37575,
         "sha256": "6d1defd89691ac6f95884cd7061e2803248d14ccfab0d4686e3735b9209bd85f"
       },
       "AIR_PARTS": {
-        "startLine": 38421,
+        "startLine": 38512,
         "sha256": "b21d65cc36ddf1c37919db24035a4b3fcbb54cc00a1b322704fecf41d9d5e769"
       },
       "AIR_SKIN": {
-        "startLine": 38436,
+        "startLine": 38527,
         "sha256": "5b62aa458046735add9c562e4e5b974dffb6027b2ed1b3e03b58e3d61af62b3e"
       },
       "AIR_PARTS_JET": {
-        "startLine": 39006,
+        "startLine": 39097,
         "sha256": "ba2ee475adf5eaa373406ee3f10ec8e6a809d0e0956035ce37fb867142ef8d01"
       },
       "AIR_SKIN_JET": {
-        "startLine": 39020,
+        "startLine": 39111,
         "sha256": "20c36f4eb37d57dcc12e348c5624cee0f1bb2354db6721a66c0a29fb8e0e1999"
       },
       "AIRCRAFT_TYPES": {
-        "startLine": 39037,
+        "startLine": 39128,
         "sha256": "9b1c6e42e531e5a84eaf7f893c7aa999381e895689e924ddc6e391bfac6db160"
       },
       "fightersAndTypeConstruction": {
-        "startLine": 39189,
+        "startLine": 39280,
         "sha256": "f416d909ca3f1eac72747dc7d08215cecf60378a8f511e1c8e5f9b3c148af48b"
       },
       "registerAndDecodeModels": {
-        "startLine": 8011,
+        "startLine": 8078,
         "sha256": "87f359b5a7047ffd5fa5a1a241a5b16da47db834cf6031edb54a2fa7ae4bc0f6"
       },
       "aircraftInstrumentMeta": {
-        "startLine": 8062,
+        "startLine": 8129,
         "sha256": "24b45d07e30f6785ef12f2af7930e878520859ae9957936be57fe1dc8e244fb0"
       },
       "applyAircraftRebuilds": {
-        "startLine": 8256,
+        "startLine": 8323,
         "sha256": "64e0728bdb2fe7b8f54ee2f37bf155c81c18dbeef8998f0568b81ca2d2c60107"
       },
       "configureAircraftSurfaces": {
-        "startLine": 39947,
+        "startLine": 40038,
         "sha256": "8db9b431ae6dbaca7c478b4ca20e88f1d7d6b938952c6a4ae87e98d45bc7947c"
       },
       "bulletShell": {
-        "startLine": 5525,
+        "startLine": 5592,
         "sha256": "eed3c433eabd08323b10abae2e409badb0146c5be703eda20c023f1e23d7b02e"
       },
       "guns": {
-        "startLine": 42848,
+        "startLine": 42939,
         "sha256": "47fb3c7332f6d16a6facc1428a9dcecd851d6a12e4b9f3d9f7cbef1fdba17629"
       },
       "aircraftResources": {
@@ -98,75 +98,75 @@
         "sha256": "22273e551a4921becff686f8af9650df68df271897feff0d2b2116c0834c04d5"
       },
       "syncPodGuns": {
-        "startLine": 42939,
+        "startLine": 43030,
         "sha256": "31c05b228c0d5fc94d2480b06e5277c36dd9b7a5848a85402dee63763292dcf6"
       },
       "storeDefinitions": {
-        "startLine": 43173,
+        "startLine": 43264,
         "sha256": "c853ab2cbb520f69fc490029f35bad84f26c6f0bee0f39fe8ae08d4765b6907f"
       },
       "registerMountedStoreModels": {
-        "startLine": 43395,
+        "startLine": 43486,
         "sha256": "b64ae30e8db161e6b4e8195c8a7645fe4c9cf12c2d189b0d37b07928f15f34ef"
       },
       "tntEquivalentKg": {
-        "startLine": 17276,
+        "startLine": 17343,
         "sha256": "6f9dd12c0b490b9da4a03cf61607df98a6627bbfa2e08c50b223a558814d7218"
       },
       "weaponStatusCompatibilityLoadouts": {
-        "startLine": 43396,
+        "startLine": 43487,
         "sha256": "58ec9c86c40de308f150e5484cda304c760744166fb94f8ac898ace6979f7665"
       },
       "airStationsAndMountPosition": {
-        "startLine": 43553,
+        "startLine": 43644,
         "sha256": "2b1c3eb5746ae9603ba5cae7cfc345570438212e2b8cc94e0e1f018a351ca4d1"
       },
       "modelHardpoints": {
-        "startLine": 43627,
+        "startLine": 43718,
         "sha256": "f364ecd6044ebf7bd7089d3570ba88761d6beac5201273db8ec43136500e4c09"
       },
       "layoutStores": {
-        "startLine": 43958,
+        "startLine": 44049,
         "sha256": "3ce59f69c3caa348ac3908cd6f0ebcc3e76c7c37e27869bb862ac58a9829c934"
       },
       "slotsAndCustomLoadout": {
-        "startLine": 44045,
+        "startLine": 44136,
         "sha256": "014bacf9e7480703e9bd86df8aee70ea2cf0fe47e36421b874dc1983d9dbfe2b"
       },
       "storeSocket": {
-        "startLine": 8370,
+        "startLine": 8437,
         "sha256": "0de18989e05dd2e6beb15068760ab0416c4e854fd87592440ec73e7d33fcd80b"
       },
       "airWingSplit": {
-        "startLine": 38475,
+        "startLine": 38566,
         "sha256": "2c511172ef40027b9de377b1ff19868298f0893aeb6b4aa7a784fe40a1d82a0c"
       },
       "fuel": {
-        "startLine": 44266,
+        "startLine": 44357,
         "sha256": "d23a483ce3712f8e3932cf017026c078a73856ddad7e2dda14b9157c4098debe"
       },
       "aircraftRadarDefinitions": {
-        "startLine": 43484,
+        "startLine": 43575,
         "sha256": "b7b930837fda9f76250dcbd0a3b4a8bdb2d8fb0ea100bf853696b5615ec06744"
       },
       "aircraftCountermeasureDefinitions": {
-        "startLine": 43502,
+        "startLine": 43593,
         "sha256": "7083921e22671983f5ae50fed815001b2f9abbe70315809a7793be63bac51297"
       },
       "aircraftSensorDefinitions": {
-        "startLine": 45406,
+        "startLine": 45497,
         "sha256": "c7d825cfc42a2fa38e37a16905f81efcc0f29a3eb2c890efcb4cc436229c1d62"
       },
       "storeWarhead": {
-        "startLine": 43540,
+        "startLine": 43631,
         "sha256": "5ece42c71873333a7aa1fe3c5ef204fc043ce73f38e0258931d4dbbed6e3f54a"
       },
       "loadFlightCore": {
-        "startLine": 38359,
+        "startLine": 38450,
         "sha256": "c79bbcbdc858458f20127506f7dffce33e017f1d05b162276291392fe8c80eb3"
       },
       "Aircraft.spawn": {
-        "startLine": 40685,
+        "startLine": 40776,
         "sha256": "1949a288f2acc46a2e74b6f53f76b7e0a01250eb2b0fbe730f3873ea5b4585eb"
       }
     }

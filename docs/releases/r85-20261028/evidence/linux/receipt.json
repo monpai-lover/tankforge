@@ -1,0 +1,190 @@
+{
+  "schema": "TankForgeR85R4FinalLinuxMuslBuildV1",
+  "status": "PASS",
+  "target": "x86_64-unknown-linux-musl",
+  "sourceRoot": "D:/TankForge-workspaces/r81-push-20261027",
+  "firstBuildReceipt": "D:/TankForge-validation/r85-20261028/linux-build/receipt.json",
+  "firstBuildBinarySha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+  "binaryMatchesFirstBuild": true,
+  "changedInputsFromFirstBuild": [
+    "data/aircraft/frontline.json"
+  ],
+  "profileSourceMetadataProof": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/profile-source-metadata-proof.json",
+  "finalCanonicalAppSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+  "sourceHeadBefore": "dc106c1a0bf55c74d768d5360b76cc85f2381700",
+  "sourceHeadAfter": "dc106c1a0bf55c74d768d5360b76cc85f2381700",
+  "sourceTreeDirtyBefore": true,
+  "sourceTreeDirtyAfter": true,
+  "gitStatusBefore": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/git-status-start.txt",
+  "gitStatusAfter": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/git-status-end.txt",
+  "command": [
+    "C:\\Users\\24908\\.codex\\scratch\\tankforge-rust\\cargo\\bin\\cargo.exe",
+    "build",
+    "-p",
+    "tg-server",
+    "--bin",
+    "tg-server",
+    "--target",
+    "x86_64-unknown-linux-musl",
+    "--release",
+    "--locked"
+  ],
+  "environment": {
+    "CARGO_HOME": "C:/Users/24908/.codex/scratch/tankforge-rust/cargo",
+    "RUSTUP_HOME": "C:/Users/24908/.codex/scratch/tankforge-rust/rustup",
+    "CARGO_TARGET_DIR": "D:/TankForge-validation/rust-r81-target",
+    "CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER": "C:/Users/24908/.codex/scratch/tankforge-rust/rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/x86_64-pc-windows-gnu/bin/rust-lld.exe",
+    "CARGO_BUILD_JOBS": "4"
+  },
+  "effectiveBuildEnvironment": [
+    {
+      "name": "CARGO_BUILD_JOBS",
+      "value": "4"
+    },
+    {
+      "name": "CARGO_HOME",
+      "value": "C:/Users/24908/.codex/scratch/tankforge-rust/cargo"
+    },
+    {
+      "name": "CARGO_TARGET_DIR",
+      "value": "D:/TankForge-validation/rust-r81-target"
+    },
+    {
+      "name": "CARGO_TARGET_X86_64_UNKNOWN_LINUX_MUSL_LINKER",
+      "value": "C:/Users/24908/.codex/scratch/tankforge-rust/rustup/toolchains/stable-x86_64-pc-windows-gnu/lib/rustlib/x86_64-pc-windows-gnu/bin/rust-lld.exe"
+    },
+    {
+      "name": "RUST_LOG",
+      "value": "warn"
+    },
+    {
+      "name": "RUSTUP_HOME",
+      "value": "C:/Users/24908/.codex/scratch/tankforge-rust/rustup"
+    }
+  ],
+  "releaseProfile": {
+    "optLevel": 3,
+    "lto": true,
+    "codegenUnits": 1,
+    "panic": "abort",
+    "strip": true,
+    "source": "Cargo.toml"
+  },
+  "toolchain": "cargo 1.99.0 (5f94df478 2026-08-27)\r\nrustc 1.99.0 (b940084d7 2026-09-28)\r\nbinary: rustc\r\ncommit-hash: b940084d7eb6a299eb4bfeb8e34901bc051e7ac4\r\ncommit-date: 2026-09-28\r\nhost: x86_64-pc-windows-gnu\r\nrelease: 1.99.0\r\nLLVM version: 23.1.1",
+  "toolchainLog": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/toolchain.log",
+  "buildOutput": "D:/TankForge-validation/rust-r81-target/x86_64-unknown-linux-musl/release/tg-server",
+  "buildExitCode": 0,
+  "startedAt": "2026-10-28T10:19:54.0847682Z",
+  "finishedAt": "2026-10-28T10:19:54.6697715Z",
+  "elapsedSeconds": 0.5881853,
+  "buildLog": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/build.log",
+  "buildLogSha256": "6d6f2c0beaebc275bf4bae99bd475aab09fc1779fba6d390e699d63f214bf49a",
+  "binary": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/tg-server-linux-amd64-musl",
+  "bytes": 6794832,
+  "sha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+  "elf": {
+    "format": "ELF64",
+    "endian": "little",
+    "machine": "x86_64",
+    "type": "ET_DYN (static PIE)",
+    "programHeaders": [
+      {
+        "type": 6,
+        "flags": 4,
+        "offset": 64,
+        "fileSize": 560
+      },
+      {
+        "type": 1,
+        "flags": 4,
+        "offset": 0,
+        "fileSize": 870520
+      },
+      {
+        "type": 1,
+        "flags": 5,
+        "offset": 870528,
+        "fileSize": 5833516
+      },
+      {
+        "type": 1,
+        "flags": 6,
+        "offset": 6704048,
+        "fileSize": 85424
+      },
+      {
+        "type": 1,
+        "flags": 6,
+        "offset": 6789472,
+        "fileSize": 3296
+      },
+      {
+        "type": 7,
+        "flags": 4,
+        "offset": 6704048,
+        "fileSize": 49
+      },
+      {
+        "type": 2,
+        "flags": 6,
+        "offset": 6788080,
+        "fileSize": 320
+      },
+      {
+        "type": 1685382482,
+        "flags": 4,
+        "offset": 6704048,
+        "fileSize": 85424
+      },
+      {
+        "type": 1685382480,
+        "flags": 4,
+        "offset": 478276,
+        "fileSize": 51068
+      },
+      {
+        "type": 1685382481,
+        "flags": 6,
+        "offset": 0,
+        "fileSize": 0
+      }
+    ],
+    "dynamicInterpreter": false,
+    "dynamicNeededEntries": 0,
+    "gnuStackPresent": true,
+    "executableStack": false
+  },
+  "featureMarkers": {
+    "taiwan_landing_escort": true,
+    "attacker_fleet_annihilated": true,
+    "same_visible_float32_naval_triangles": true,
+    "custom_counts_require_custom_loadout": true
+  },
+  "embeddedScenarioExactBytes": true,
+  "embeddedScenarioSha256": "06ea8df832f34932dac1f93f5d403320ca672ff96571e99054d5bdf6a50fcf6b",
+  "scenario": {
+    "vessels": 14,
+    "models": 6,
+    "timeoutSeconds": 2700
+  },
+  "frozenInputs": {
+    "data/aircraft/frontline.json": "cf6de36c79246c8f580fe4397ec427e5b2ae1168f6c0680b5c75a3937fbd747c",
+    "data/frontline/taiwan-escort.json": "ac400c133d8b182dcbbd213d645b5644ebfff9557f6938f0aa6822884ea664fd",
+    "data/frontline/scenarios/taiwan-landing-escort.json": "06ea8df832f34932dac1f93f5d403320ca672ff96571e99054d5bdf6a50fcf6b"
+  },
+  "aircraftBytes": 1526062,
+  "inputFilesChecked": 3084,
+  "changedDuringBuild": [],
+  "addedDuringBuild": [],
+  "sourceManifest": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/source-start.json",
+  "sourceManifestSha256": "85fc794bd5b6ccf13eafaf6f8f8cd18d7a49c76f792a4fd92dbf098b07b14661",
+  "sourceEndManifest": "D:/TankForge-validation/r85-20261028/linux-build/r4-final/source-end.json",
+  "sourceEndManifestSha256": "81ae8653f23bc33ab1b6295516c5cdcf2f267017a9d937e6d5527a9ae55f0c56",
+  "executedOnLinux": false,
+  "binaryExecuted": false,
+  "limitations": [
+    "Cross-compiled on Windows. Linux binary was inspected as ELF data only and was not executed.",
+    "Dirty frozen runtime sources were built on base HEAD dc106c1; the base commit alone does not describe this artifact. Use the source manifests and final release source archive.",
+    "Runtime map and aircraft data must be packaged with the matching frozen input hashes."
+  ]
+}

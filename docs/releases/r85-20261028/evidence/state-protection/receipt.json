@@ -1,0 +1,620 @@
+{
+  "url": "http://127.0.0.1:8896/",
+  "startedUnix": 1793182971.6738515,
+  "checks": {
+    "frozen_final_page_sha256": {
+      "passed": true,
+      "detail": {
+        "sha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+        "bytes": 418859637
+      }
+    },
+    "accepted_observer_owns_multiplayer_frame": {
+      "passed": true,
+      "detail": {
+        "mode": "battle",
+        "id": "de_pz3_j",
+        "frameError": null,
+        "frontlineError": null,
+        "frontend": {
+          "active": true,
+          "room": 2,
+          "observer": true,
+          "spectator": null,
+          "tick": 8
+        },
+        "view": "third",
+        "free": false,
+        "nativeAir": false,
+        "air": false,
+        "keys": [],
+        "position": {
+          "x": -45.99999694408218,
+          "z": -51.999997887430496,
+          "u": -0.00036639630479813807
+        },
+        "bodyMode": "battle",
+        "frontlineWatch": "1",
+        "protect": null,
+        "protectionText": "",
+        "panelText": "",
+        "webglLost": false,
+        "drawCalls": 285
+      }
+    },
+    "accepted_leave_restores_local_camera_and_input": {
+      "passed": true,
+      "detail": {
+        "mode": "garage",
+        "id": "de_pz3_j",
+        "frameError": null,
+        "frontlineError": null,
+        "frontend": {
+          "active": false,
+          "room": null,
+          "observer": null,
+          "spectator": null,
+          "tick": 24
+        },
+        "view": "third",
+        "free": false,
+        "nativeAir": false,
+        "air": false,
+        "keys": [],
+        "position": {
+          "x": -45.99999827698941,
+          "z": -51.99999978579139,
+          "u": 0.0008017365310839482
+        },
+        "bodyMode": "garage",
+        "frontlineWatch": "0",
+        "protect": null,
+        "protectionText": "",
+        "panelText": "",
+        "webglLost": false,
+        "drawCalls": 79
+      }
+    },
+    "solo_control_accelerates_original_player": {
+      "passed": true,
+      "detail": {
+        "mode": "battle",
+        "id": "de_pz3_j",
+        "frameError": null,
+        "frontlineError": null,
+        "frontend": {
+          "active": false,
+          "room": null,
+          "observer": null,
+          "spectator": null,
+          "tick": 24
+        },
+        "view": "third",
+        "free": false,
+        "nativeAir": false,
+        "air": false,
+        "keys": [],
+        "position": {
+          "x": -5.356646189532636e-07,
+          "z": 0.021147465105964967,
+          "u": 0.1129556557678566
+        },
+        "bodyMode": "battle",
+        "frontlineWatch": "0",
+        "protect": null,
+        "protectionText": "",
+        "panelText": "",
+        "webglLost": false,
+        "drawCalls": 830
+      }
+    },
+    "actual_uploaded_armor_has_visible_hover_points": {
+      "passed": true,
+      "detail": {
+        "count": 36
+      }
+    },
+    "normal_hover_reports_real_authored_thickness": {
+      "passed": true,
+      "detail": {
+        "point": {
+          "x": 441.14376183111995,
+          "y": 330.2108744117008,
+          "node": "hull",
+          "triangle": 210,
+          "distance": 10.786923542189744
+        },
+        "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+        "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+        "cursor": "等效 66.0 mm · 可擊穿\n穿深 371.2 mm · 入射 40.7° · 外部零件後方"
+      }
+    },
+    "ten_independent_hover_rays_keep_authored_thickness": {
+      "passed": true,
+      "detail": [
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19999999999999996,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19818181818181824,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19999999999999996,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19818181818181824,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19999999999999996,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19818181818181824,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19999999999999996,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19818181818181824,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19999999999999996,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        },
+        {
+          "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+          "ndc": [
+            -0.19818181818181824,
+            0.08333333333333337
+          ],
+          "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+        }
+      ]
+    },
+    "final_renderer_and_state_have_no_runtime_error": {
+      "passed": true,
+      "detail": {
+        "mode": "garage",
+        "id": "de_pz3_j",
+        "frameError": null,
+        "frontlineError": null,
+        "frontend": {
+          "active": false,
+          "room": null,
+          "observer": null,
+          "spectator": null,
+          "tick": 24
+        },
+        "view": "third",
+        "free": false,
+        "nativeAir": false,
+        "air": false,
+        "keys": [],
+        "position": {
+          "x": -45.99999694133529,
+          "z": -51.999997886304854,
+          "u": -0.0003647994059336845
+        },
+        "bodyMode": "garage",
+        "frontlineWatch": "0",
+        "protect": true,
+        "protectionText": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+        "panelText": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+        "webglLost": false,
+        "drawCalls": 79
+      }
+    },
+    "no_uncaught_page_errors": {
+      "passed": true,
+      "detail": [
+        {
+          "kind": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+        },
+        {
+          "kind": "warning",
+          "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+        },
+        {
+          "kind": "error",
+          "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+        }
+      ]
+    }
+  },
+  "phases": {
+    "boot": {
+      "mode": "garage",
+      "id": "de_pz3_j",
+      "frameError": null,
+      "frontlineError": null,
+      "frontend": {
+        "active": false,
+        "room": null,
+        "observer": null,
+        "spectator": null,
+        "tick": 0
+      },
+      "view": "third",
+      "free": false,
+      "nativeAir": false,
+      "air": false,
+      "keys": [],
+      "position": {
+        "x": -45.999997665476805,
+        "z": -51.9999987848146,
+        "u": 0.00021731097436401077
+      },
+      "bodyMode": "garage",
+      "frontlineWatch": null,
+      "protect": null,
+      "protectionText": "",
+      "panelText": "",
+      "webglLost": false,
+      "drawCalls": 78
+    },
+    "observer": {
+      "mode": "battle",
+      "id": "de_pz3_j",
+      "frameError": null,
+      "frontlineError": null,
+      "frontend": {
+        "active": true,
+        "room": 2,
+        "observer": true,
+        "spectator": null,
+        "tick": 8
+      },
+      "view": "third",
+      "free": false,
+      "nativeAir": false,
+      "air": false,
+      "keys": [],
+      "position": {
+        "x": -45.99999694408218,
+        "z": -51.999997887430496,
+        "u": -0.00036639630479813807
+      },
+      "bodyMode": "battle",
+      "frontlineWatch": "1",
+      "protect": null,
+      "protectionText": "",
+      "panelText": "",
+      "webglLost": false,
+      "drawCalls": 285
+    },
+    "acceptedLeave": {
+      "mode": "garage",
+      "id": "de_pz3_j",
+      "frameError": null,
+      "frontlineError": null,
+      "frontend": {
+        "active": false,
+        "room": null,
+        "observer": null,
+        "spectator": null,
+        "tick": 24
+      },
+      "view": "third",
+      "free": false,
+      "nativeAir": false,
+      "air": false,
+      "keys": [],
+      "position": {
+        "x": -45.99999827698941,
+        "z": -51.99999978579139,
+        "u": 0.0008017365310839482
+      },
+      "bodyMode": "garage",
+      "frontlineWatch": "0",
+      "protect": null,
+      "protectionText": "",
+      "panelText": "",
+      "webglLost": false,
+      "drawCalls": 79
+    },
+    "soloBeforeInput": {
+      "mode": "battle",
+      "id": "de_pz3_j",
+      "frameError": null,
+      "frontlineError": null,
+      "frontend": {
+        "active": false,
+        "room": null,
+        "observer": null,
+        "spectator": null,
+        "tick": 24
+      },
+      "view": "third",
+      "free": false,
+      "nativeAir": false,
+      "air": false,
+      "keys": [],
+      "position": {
+        "x": -6.623390496571257e-07,
+        "z": 5.685156577317285e-06,
+        "u": -0.0014964046742094572
+      },
+      "bodyMode": "battle",
+      "frontlineWatch": "0",
+      "protect": null,
+      "protectionText": "",
+      "panelText": "",
+      "webglLost": false,
+      "drawCalls": 830
+    },
+    "soloAfterInput": {
+      "mode": "battle",
+      "id": "de_pz3_j",
+      "frameError": null,
+      "frontlineError": null,
+      "frontend": {
+        "active": false,
+        "room": null,
+        "observer": null,
+        "spectator": null,
+        "tick": 24
+      },
+      "view": "third",
+      "free": false,
+      "nativeAir": false,
+      "air": false,
+      "keys": [],
+      "position": {
+        "x": -5.356646189532636e-07,
+        "z": 0.021147465105964967,
+        "u": 0.1129556557678566
+      },
+      "bodyMode": "battle",
+      "frontlineWatch": "0",
+      "protect": null,
+      "protectionText": "",
+      "panelText": "",
+      "webglLost": false,
+      "drawCalls": 830
+    },
+    "protection": {
+      "mode": "garage",
+      "id": "de_pz3_j",
+      "frameError": null,
+      "frontlineError": null,
+      "frontend": {
+        "active": false,
+        "room": null,
+        "observer": null,
+        "spectator": null,
+        "tick": 24
+      },
+      "view": "third",
+      "free": false,
+      "nativeAir": false,
+      "air": false,
+      "keys": [],
+      "position": {
+        "x": -45.99999694133529,
+        "z": -51.999997886304854,
+        "u": -0.0003647994059336845
+      },
+      "bodyMode": "garage",
+      "frontlineWatch": "0",
+      "protect": true,
+      "protectionText": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "panelText": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "webglLost": false,
+      "drawCalls": 79
+    }
+  },
+  "captures": {
+    "accepted-observer": {
+      "path": "D:\\TankForge-validation\\r85-20261028\\state-protection-final-r4-repeat\\accepted-observer.png",
+      "bytes": 590097
+    },
+    "solo-player-control": {
+      "path": "D:\\TankForge-validation\\r85-20261028\\state-protection-final-r4-repeat\\solo-player-control.png",
+      "bytes": 670266
+    },
+    "actual-armor-thickness-hover": {
+      "path": "D:\\TankForge-validation\\r85-20261028\\state-protection-final-r4-repeat\\actual-armor-thickness-hover.png",
+      "bytes": 682929
+    }
+  },
+  "cleanup": [],
+  "scope": "Final served page, actual Edge/WebGL, accepted native observer admission/leave, ordinary solo W input and ordinary armor-analysis cursor. Read-only uploaded-triangle projection chooses hover screen coordinates.",
+  "servedPage": {
+    "sha256": "c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5",
+    "bytes": 418859637
+  },
+  "browserVersion": "156.0.4314.42",
+  "leaveRoute": "existing_shared_leave_api",
+  "hoverSamples": [
+    {
+      "point": {
+        "x": 441.14376183111995,
+        "y": 330.2108744117008,
+        "node": "hull",
+        "triangle": 210,
+        "distance": 10.786923542189744
+      },
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 379 mm　→ 可擊穿",
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 379 mm　→ 可擊穿",
+      "cursor": "等效 65.9 mm · 可擊穿\n穿深 379.2 mm · 入射 40.7° · 外部零件後方"
+    },
+    {
+      "point": {
+        "x": 441.14376183111995,
+        "y": 330.2108744117008,
+        "node": "hull",
+        "triangle": 210,
+        "distance": 10.786923542189744
+      },
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "cursor": "等效 66.0 mm · 可擊穿\n穿深 371.2 mm · 入射 40.7° · 外部零件後方"
+    }
+  ],
+  "repeatHoverSamples": [
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19999999999999996,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19818181818181824,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19999999999999996,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19818181818181824,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19999999999999996,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19818181818181824,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19999999999999996,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19818181818181824,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19999999999999996,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    },
+    {
+      "text": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿",
+      "ndc": [
+        -0.19818181818181824,
+        0.08333333333333337
+      ],
+      "panel": "車體上部正面（hull_upper_front）　均質鋼 50 mm　入射 41°　等效 66 mm　穿深 371 mm　→ 可擊穿"
+    }
+  ],
+  "passed": true,
+  "logs": [
+    {
+      "kind": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels"
+    },
+    {
+      "kind": "warning",
+      "text": "[.WebGL-0xec0041c000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+    },
+    {
+      "kind": "error",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+    }
+  ],
+  "finishedUnix": 1793183078.7771993
+}

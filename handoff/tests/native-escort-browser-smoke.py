@@ -66,6 +66,8 @@ async def run(args):
         boot=await page.evaluate(PROBE);result['phases']['boot']=boot
         check('actual_full_page_webgl_boot',boot['webgl'] and not boot['lost'] and not boot['frameError'],boot)
         check('precision_shader_programs_linked',boot['shaders']['lit'] and boot['shaders']['depth'] and 'uModelViewProj' in boot['shaders']['litUniforms'] and 'uModelLightVP' in boot['shaders']['depthUniforms'],boot['shaders'])
+        if args.ships>5:
+            await page.evaluate("""(()=>{const h=__tf.hud,old=h.drawLabels;window.__shipHintProbe={max:0,labels:[]};h.drawLabels=function(tags){const ships=tags.filter(t=>/运输|登陆|护卫|护航|巡逻|截击/.test(t.text||''));if(ships.length>__shipHintProbe.max)__shipHintProbe={max:ships.length,labels:ships.map(t=>({text:t.text,crew:t.crew}))};return old.apply(this,arguments);};})()""")
         await capture('garage-full-page')
         print('PHASE normal lobby and Taiwan observer',flush=True)
         await page.locator('#net-btn').click()
@@ -85,11 +87,18 @@ async def run(args):
         terrain=await page.evaluate(PROBE);result['phases']['taiwanObserver']=terrain
         worker=terrain['frontline']['terrainWorker']
         check('real_taiwan_worker_atomic_swap',worker and worker['swaps']>=1 and worker['errors']==0 and not terrain['frontline']['terrainWorkerFailed'],worker)
-        check('accepted_five_native_ships_rendered',terrain['frontline']['vessels']==5 and terrain['frontline']['naval']['live']==5,terrain['frontline']['naval'])
+        check('accepted_native_ships_rendered',terrain['frontline']['vessels']==args.ships and terrain['frontline']['naval']['live']==args.ships,terrain['frontline']['naval'])
         check('registered_airport_lights_visible',terrain['frontline']['airportLights']>=120,terrain['frontline']['airportLights'])
         check('local_ten_km_minimap',await page.evaluate('Math.abs(__tf.G.frontline.mapScale-20000/Math.min(document.getElementById("minimap").width,document.getElementById("minimap").height))<1e-6'),terrain['frontline']['mapScale'])
         check('actual_taiwan_frame_without_error',not terrain['frameError'] and not terrain['frontline']['error'] and terrain['drawCalls']>0,terrain)
         await capture('taiwan-observer-worker')
+        if args.ships>5:
+            q=await page.evaluate('''(()=>{const f=__tf.G.frontline,c=document.getElementById('minimap'),r=c.getBoundingClientRect(),p=f.vessels.find(s=>s.alive).pos;return {x:r.x+((p[0]-f.mapCentre[0])/f.mapScale+c.width/2)/c.width*r.width,y:r.y+((p[2]-f.mapCentre[1])/f.mapScale+c.height/2)/c.height*r.height}})()''')
+            await page.mouse.click(q['x'],q['y']);await page.mouse.move(500,350);await page.mouse.wheel(0,1800)
+            await page.wait_for_function('__shipHintProbe.max>0',timeout=30000)
+            hints=await page.evaluate('__shipHintProbe');result['phases']['shipHints']=hints
+            check('actual_overhead_ship_hints_rendered',hints['max']>0,hints)
+            await capture('fleet-overhead-hints-water')
         # Use the existing minimap pointer route to inspect a registered airport.
         q=await page.evaluate('''(()=>{const f=__tf.G.frontline,c=document.getElementById('minimap'),r=c.getBoundingClientRect(),a=f.map.airfields.find(a=>a.enabled&&a.team===0);return {x:r.x+((a.pos[0]-f.mapCentre[0])/f.mapScale+c.width/2)/c.width*r.width,y:r.y+((a.pos[2]-f.mapCentre[1])/f.mapScale+c.height/2)/c.height*r.height}})()''')
         await page.mouse.click(q['x'],q['y'])
@@ -128,5 +137,5 @@ async def run(args):
     return result.get('passed',False)
 
 if __name__=='__main__':
-    parser=argparse.ArgumentParser();parser.add_argument('url');parser.add_argument('--out',type=Path,required=True);parser.add_argument('--sha256');args=parser.parse_args()
+    parser=argparse.ArgumentParser();parser.add_argument('url');parser.add_argument('--out',type=Path,required=True);parser.add_argument('--sha256');parser.add_argument('--ships',type=int,default=5);args=parser.parse_args()
     raise SystemExit(0 if asyncio.run(run(args)) else 1)

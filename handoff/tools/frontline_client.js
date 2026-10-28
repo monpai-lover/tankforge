@@ -143,11 +143,23 @@
           result[key]=store;
         }return result;
       }
-      function configuration(id,{loadout,custom,fuel_minutes}={}){
+      // TF_R85_LOADOUT: quantities are admitted by native catalog capability.
+      function customCountChoice(id,custom,counts){
+        if(!counts||typeof counts!=='object'||Array.isArray(counts))deny('自订挂载数量无效');
+        const entries=Object.entries(counts),result={};
+        if(entries.length&&option(id)?.custom_counts_version!==1)deny('当前服务器尚未开放自订数量，请更新服务器');
+        for(const [key,count] of entries){
+          const store=custom?.[key],slot=option(id)?.slots?.find(s=>s.key===key),allowed=slot?.quantity_options?.[store];
+          if(!store||!Number.isSafeInteger(count)||count<1||!Array.isArray(allowed)||!allowed.includes(count)||count>slot.options[store])deny('挂点 '+key+' 的武器数量未获服务器开放');
+          result[key]=count;
+        }return result;
+      }
+      function configuration(id,{loadout,custom,custom_counts,fuel_minutes}={}){
         if(!option(id))deny('当前服务器未开放此飞机');
         let cfg;
         if(custom!==undefined&&custom!==null)cfg={loadout:0,custom:customChoice(id,custom)};
         else{if(!Number.isSafeInteger(loadout)||!option(id).loadouts?.some(lo=>lo.index===loadout))deny('当前服务器未开放此挂载配置');cfg={loadout};}
+        if(custom_counts!==undefined){if(cfg.custom===undefined)deny('自订数量必须对应自订挂点配置');cfg.custom_counts=customCountChoice(id,cfg.custom,custom_counts);}
         if(fuel_minutes!==undefined){
           if(option(id).fuel_load?.version===1&&fuelPolicy)cfg.fuel_minutes=fuelPolicy.normalize(fuel_minutes);
           else if(fuel_minutes!==null)deny('当前服务器只支持满油；不能发送燃油选择');
@@ -171,9 +183,9 @@
         join({room,observer=false}){ensureConnected();if(native()||net.room)deny('请先离开当前房间');if(!(f.rooms||[]).some(r=>r.id===room&&r.battle_mode==='air_frontline'))deny('空战房间已变化，请刷新或更新服务器');send({op:'join',room,observer:!!observer});},
         start(){ensureConnected();if(native()?.host!==net.id||state()!=='waiting')deny('当前不能开始空战');send({op:'start'});},
         leave(){ensureConnected();if(!native())return;clearInput();send({op:'leave'});},
-        deployAir({aircraft,loadout,custom,spawn,fuel_minutes}){ensureConnected();const a=availability();if(!a.allowed)deny(a.reason);if(!deploymentMap().spawns.some(s=>s.id===spawn))deny('请选择有效出生点');const pick=fuel_minutes===undefined?(fuelIntent?.(aircraft)||{}):{fuel_minutes},cfg=configuration(aircraft,{loadout,custom,...pick});if(a.retained&&a.retained.aircraft!==aircraft)deny('原机仍在场，不能更换机型');if(a.retained){const accepted=a.retained.custom!=null?{loadout:0,custom:{...a.retained.custom}}:{loadout:a.retained.loadout};note?.('接管原机，沿用原机损伤、库存和挂载；新配置须在机场整备。');send({op:'deploy_air',aircraft,...accepted,spawn});}else send({op:'deploy_air',aircraft,...cfg,spawn});f.lastDeploymentError=null;f.airDeploymentPending=true;},
+        deployAir({aircraft,loadout,custom,custom_counts,spawn,fuel_minutes}){ensureConnected();const a=availability();if(!a.allowed)deny(a.reason);if(!deploymentMap().spawns.some(s=>s.id===spawn))deny('请选择有效出生点');const pick=fuel_minutes===undefined?(fuelIntent?.(aircraft)||{}):{fuel_minutes},cfg=configuration(aircraft,{loadout,custom,custom_counts,...pick});if(a.retained&&a.retained.aircraft!==aircraft)deny('原机仍在场，不能更换机型');if(a.retained){const accepted=a.retained.custom!=null?{loadout:0,custom:{...a.retained.custom},...(a.retained.custom_counts?{custom_counts:{...a.retained.custom_counts}}:{})}:{loadout:a.retained.loadout};note?.('接管原机，沿用原机损伤、库存和挂载；新配置须在机场整备。');send({op:'deploy_air',aircraft,...accepted,spawn});}else send({op:'deploy_air',aircraft,...cfg,spawn});f.lastDeploymentError=null;f.airDeploymentPending=true;},
         returnToDeployment(){ensureConnected();clearInput();send({op:'return'});},
-        serviceAir({loadout,custom,fuel_minutes,cancel=false}={}){ensureConnected();const unit=controlled();if(!unit?.aircraft)deny('尚未接管飞机');const pick=fuel_minutes===undefined?(fuelIntent?.(unit.aircraft)||{}):{fuel_minutes},cfg=cancel?{}:configuration(unit.aircraft,{loadout,custom,...pick});send({op:cancel?'cancel_air_service':'service_air',unit:unit.unit,epoch:f.epoch,seq:++f.seq,...cfg});},
+        serviceAir({loadout,custom,custom_counts,fuel_minutes,cancel=false}={}){ensureConnected();const unit=controlled();if(!unit?.aircraft)deny('尚未接管飞机');const pick=fuel_minutes===undefined?(fuelIntent?.(unit.aircraft)||{}):{fuel_minutes},cfg=cancel?{}:configuration(unit.aircraft,{loadout,custom,custom_counts,...pick});send({op:cancel?'cancel_air_service':'service_air',unit:unit.unit,epoch:f.epoch,seq:++f.seq,...cfg});},
         subscribe(fn){if(typeof fn!=='function')deny('Invalid UI subscriber');listeners.add(fn);return()=>listeners.delete(fn);},
         notify(){if(!disposed)for(const fn of listeners)fn();},
         setDeploymentVisible(on){f.deploymentVisible=!!on;},
@@ -234,7 +246,9 @@
       const open = null; // The existing #net-btn / LobbyUi is the only connection entry.
       const reticle = document.createElement('div');reticle.hidden=true;
       const flightReadout=document.createElement('output');flightReadout.hidden=true;
-      const el = key => ui.querySelector(`[data-fl="${key}"]`);
+      // TF_R85_LOADOUT_SERVICE_ACCESS: keep existing controls addressable after moving them into the original aircraft HUD.
+      const sharedControls=new Map([...ui.querySelectorAll("[data-fl]")].map(node=>[node.dataset.fl,node]));
+      const el = key => sharedControls.get(key)||ui.querySelector(`[data-fl="${key}"]`);
       el('server').value=defaultServer();
       const f={active:false,room:null,rooms:[],units:[],aircrafts:[],missiles:[],aircraftOptions:[],companies:[],vehicles:[],objectives:[],staging:[],control:null,epoch:0,seq:0,orderSeq:0,order:null,map:null,models:new Map(),airModels:new Map(),root:new Node('frontline-world'),terrain:null,terrainOrigin:null,keys:new Set(),yaw:0,pitch:-.32,distance:45,focus:null,follow:null,fire:false,sendAt:0,mouse:null,autoStart:false,lastTick:0,events:[],mapScale:1,mapCentre:null,error:null};
       f.ordnancePresentation=createFrontlineOrdnanceVisual({Node,storeMesh,storeDefs:AIR_STORE_DEFS,quatMatrix,aqLook,fx});f.root.add(f.ordnancePresentation.root);
@@ -395,7 +409,7 @@
         f.terrainOrigin=[cx,cz];f.terrainAerial=aerial;f.terrain=new Node('frontline-terrain');f.root.add(f.terrain);
         const sampledHeights=new Map(),surface=(x,z)=>{const key=`${x},${z}`;if(!sampledHeights.has(key))sampledHeights.set(key,height(x,z));return sampledHeights.get(key);};
         const material={color:hexToLinear('#6e7954'),rough:1,metal:0};
-        const radius=compact?Math.ceil(Math.max(...Object.values(f.map.bounds).map(Math.abs))/200)*200+200:aerial?12000:2500,step=compact?100:aerial?200:50; // TF_R84_ESCORT_TERRAIN
+        const radius=compact?Math.ceil(Math.max(...Object.values(f.map.bounds).map(Math.abs))/300)*300+300:aerial?12000:2500,step=compact?300:aerial?200:50; // TF_R85_ESCORT_TERRAIN
         // Registered water polygons have no invented bed elevation. Cut their
         // exact union out of the visual terrain, including raised road earth
         // beneath bridges; native support still comes from its registered deck.
@@ -483,8 +497,37 @@
         for(const [key,item] of f.airModels)if(!present.has(key)){f.root.children=f.root.children.filter(n=>n!==item.root);item.dispose();f.airModels.delete(key);}
         f.establishedFlight.sync();
       }
+/* TF_SHIP_MARKERS_R85_BEGIN */
+// Stateless labels for permitted native vessel snapshots. Reuses hud.drawLabels
+// for leader lines, contrast backing and overlap placement; no second overlay.
+var TFShipMarkersR85=(()=>{
+  const names=Object.freeze({generic_transport:'运输舰',generic_landing_ship:'登陆舰',generic_escort:'护航舰',generic_frigate:'护卫舰',generic_interceptor:'快艇',generic_patrol:'巡逻艇'});
+  const point=p=>(Array.isArray(p)||ArrayBuffer.isView(p))&&p.length===3&&p.every(Number.isFinite);
+  function layout({vessels,camera,project,width,height,team}={}){
+    if(!Array.isArray(vessels)||!point(camera?.pos)||typeof project!=='function'||!Number.isFinite(width)||!Number.isFinite(height)||width<1||height<1)return [];
+    const memberTeam=team==='blue'?0:team==='red'?1:team;
+    const seen=new Set(),candidates=[];
+    for(const vessel of vessels.slice(0,64)){
+      if(!vessel?.alive||!point(vessel.pos)||![0,1].includes(vessel.team))continue;
+      const ref=vessel.unit;if(!ref||![ref.battle,ref.unit,ref.life].every(n=>Number.isSafeInteger(n)&&n>0))continue;
+      const key=`${ref.battle}:${ref.unit}:${ref.life}`;if(seen.has(key))continue;seen.add(key);
+      const p=vessel.pos,d=Math.hypot(p[0]-camera.pos[0],p[1]-camera.pos[1],p[2]-camera.pos[2]);if(d>10000)continue;
+      const projected=project(camera.viewProj,[p[0],p[1]+14,p[2]]);
+      if(!point(projected)||projected[2]<=0||Math.abs(projected[0])>.9||Math.abs(projected[1])>.86)continue;
+      const number=String(vessel.id||'').match(/-(\d+)$/)?.[1]||String(ref.unit);
+      const name=names[vessel.model]||({transport:'运输舰',escort:'护航舰',interceptor:'拦截舰'}[vessel.role])||'舰船';
+      candidates.push({x:(projected[0]*.5+.5)*width,y:(.5-projected[1]*.5)*height,
+        text:`${vessel.team===0?'蓝方':'红方'} · ${name} ${number} · ${(d/1000).toFixed(1)} km`,crew:vessel.team===memberTeam,d,key});
+    }
+    // Nearest-first admission bounds clutter; shared HUD owns final placement.
+    return candidates.sort((a,b)=>a.d-b.d||a.key.localeCompare(b.key)).slice(0,16).map(({d,key,...tag})=>tag);
+  }
+  return Object.freeze({layout});
+})();
+/* TF_SHIP_MARKERS_R85_END */
+
       function drawAirwarAirportTags(camera,w,h){
-        const tags=[];for(const field of f.map?.airfields||[]){if(!field.enabled||!field.runway)continue;const p=field.pos,pr=project(camera.viewProj,[p[0],p[1]+12,p[2]]);if(pr[2]<=0||Math.abs(pr[0])>.98||Math.abs(pr[1])>.95)continue;const d=Math.hypot(p[0]-camera.pos[0],p[1]-camera.pos[1],p[2]-camera.pos[2]);tags.push({x:(pr[0]*.5+.5)*w,y:(1-(pr[1]*.5+.5))*h,text:'✈ '+(field.name||field.id)+' · '+(d/1000).toFixed(1)+' km'});}hud.drawLabels(tags);
+        const tags=[];for(const field of f.map?.airfields||[]){if(!field.enabled||!field.runway)continue;const p=field.pos,pr=project(camera.viewProj,[p[0],p[1]+12,p[2]]);if(pr[2]<=0||Math.abs(pr[0])>.98||Math.abs(pr[1])>.95)continue;const d=Math.hypot(p[0]-camera.pos[0],p[1]-camera.pos[1],p[2]-camera.pos[2]);tags.push({x:(pr[0]*.5+.5)*w,y:(1-(pr[1]*.5+.5))*h,text:'✈ '+(field.name||field.id)+' · '+(d/1000).toFixed(1)+' km'});}tags.push(...TFShipMarkersR85.layout({vessels:f.vessels,camera,project,width:w,height:h,team:mine()?.team}));hud.drawLabels(tags);
       }
       function syncAirwarSpectator(){
         const choice=frontlineAirwarSpectator({member:mine(),current:controlled(),aircrafts:f.aircrafts,vessels:f.vessels,airfields:f.map?.airfields,previous:f.follow});
@@ -507,10 +550,10 @@
         const airSignature=f.aircraftOptions.map(v=>v.id).join('|');
         if(el('aircraft').dataset.signature!==airSignature){const chosen=el('aircraft').value;el('aircraft').replaceChildren(...f.aircraftOptions.map(v=>new Option(`${v.name} (${v.year})`,v.id)));el('aircraft').value=f.aircraftOptions.some(v=>v.id===chosen)?chosen:f.aircraftOptions[0]?.id||'';el('aircraft').dataset.signature=airSignature;}
         const chosenType=current?.aircraft||G4.airGarage?.sel;if(chosenType&&f.aircraftOptions.some(a=>a.id===chosenType))el('aircraft').value=chosenType;
-        const airOption=f.aircraftOptions.find(v=>v.id===el('aircraft').value),loadouts=f.sharedLobby?.loadouts(airOption?.id)||airOption?.loadouts||[],loadoutSignature=`${airOption?.id}:`+loadouts.map(lo=>`${lo.index}:${lo.name}`).join('|');
+        const airOption=f.aircraftOptions.find(v=>v.id===el('aircraft').value),loadouts=f.sharedLobby?.loadouts(airOption?.id)||airOption?.loadouts||[],loadoutSignature=`${airOption?.id}:`+JSON.stringify(loadouts.map(lo=>[lo.index,lo.name,lo.online!==false,lo.why||'']));
         if(el('air-loadout').dataset.signature!==loadoutSignature){const selected=el('air-loadout').value;el('air-loadout').replaceChildren(...loadouts.map(lo=>Object.assign(new Option(lo.name,String(lo.index)),{disabled:lo.online===false,title:lo.why||''})));const preferred=String(G4.airLoadout?.[airOption?.id]??selected);el('air-loadout').value=loadouts.some(lo=>String(lo.index)===preferred)?preferred:String(loadouts[0]?.index??0);el('air-loadout').dataset.signature=loadoutSignature;}
-        const fuelHtml=airOption&&typeof aircraftFuelLoad!=='undefined'?aircraftFuelLoad.htmlFor(airOption.id):'';if(el('air-fuel-choice').innerHTML!==fuelHtml)el('air-fuel-choice').innerHTML=fuelHtml;
-        const retained=f.aircrafts.find(u=>u.owner===net.id&&u.alive),requestedLoadout=G4.airLoadout?.[airOption?.id]??Number(el('air-loadout').value);el('air-loadout').value=String(requestedLoadout);
+        const fuelHtml=airOption&&typeof aircraftFuelLoad!=='undefined'?aircraftFuelLoad.htmlFor(airOption.id):'';const fuelChoice=el('air-fuel-choice');if(fuelChoice.__frontlineFuelMarkup!==fuelHtml){fuelChoice.innerHTML=fuelHtml;fuelChoice.__frontlineFuelMarkup=fuelHtml;}
+        const retained=f.aircrafts.find(u=>u.owner===net.id&&u.alive),requestedLoadout=G4.airLoadout?.[airOption?.id]??Number(el('air-loadout').value);const loadoutChoice=el('air-loadout');if(document.activeElement!==loadoutChoice&&loadoutChoice.value!==String(requestedLoadout))loadoutChoice.value=String(requestedLoadout);
         el('air-deployment-note').textContent=retained?`原机 #${retained.unit.unit} 的损伤、油弹和现有挂载继续保留。${retained.aircraft!==el('aircraft').value?'原机仍在场，不能借重新出击更换机型。':requestedLoadout!==retained.loadout?'接管时保留原挂载；所选新挂载须在机场完成15秒整备后更换。':'接管原机不会补充油弹；补给请使用机场整备。'}`:'';
         el('deploy-air').textContent=retained?'接管原机':'飞机出击';
         if(retained&&retained.aircraft!==el('aircraft').value)el('deploy-air').disabled=true;
@@ -520,6 +563,7 @@
         const format=(n,d=0)=>Number.isFinite(n)?n.toFixed(d):'—',flying=!!current?.aircraft;
         const pilot=flying?controlledAirModel()?.plane:null,service=flying?frontlineAirServicePresentation(current,f.map,{throttle:pilot?.state.throttle,axes:pilot?pilot._inputs():[],fire:f.fire||f.keys.has('fire'),release:f.keys.has('Space'),sequencedGear:!!AIRCRAFT_TYPES[current.aircraft]?.fighter?.spec.gearSequence}):null;
         el('air-service-panel').hidden=!flying;
+        const serviceAccess=document.getElementById('frontline-air-service');if(serviceAccess)serviceAccess.hidden=!flying;
         const sameAircraft=flying&&el('aircraft').value===current.aircraft;
         el('service-air').disabled=!service?.eligible||service.status==='servicing'||!sameAircraft;
         el('service-air').textContent=flying&&requestedLoadout!==current.loadout?'整备并更换挂载（15秒）':'开始15秒整备';
@@ -563,7 +607,7 @@
         if(m.op==='rooms'){
           f.rooms=m.rooms.filter(room=>room.battle_mode==='air_frontline');f.shared?.notify();el('rooms').replaceChildren(...f.rooms.map(room=>{const row=document.createElement('div'),join=document.createElement('button'),watch=document.createElement('button');row.textContent=`#${room.id} ${room.name}　`;join.textContent='参战';watch.textContent='观战';join.onclick=()=>send({op:'join',room:room.id,observer:false});watch.onclick=()=>send({op:'join',room:room.id,observer:true});row.append(join,watch);return row;}));return;
         }
-        if(m.op==='left'){f.navalPresentation.clear();f.airportPresentation.clear();f.vessels=[];f.navalCatalog=[];f.scenario=null;f.spectator=null;f.lossPending=false;airwarOverlay.hidden=true;f.establishedFlight.release(true);renderGate.clear();f.renderStats.drawDt=0;f.active=false;f.room=null;f.control=null;f.epoch=0;f.seq=0;f.orderSeq=0;f.supportSeq=0;f.inputTime=undefined;f.fire=false;f.units=[];f.aircrafts=[];f.companies=[];f.staging=[];f.facilities=[];f.facilityJobs=[];f.facilityIdentity=null;f.facilityPresentation.dispose();f.follow=null;f.order=null;for(const item of f.models.values()){releaseGroundDetail(item);item.lod.dispose();}for(const item of f.airModels.values())item.dispose();f.models.clear();f.airModels.clear();f.root.children=f.terrain?[f.terrain,f.facilityPresentation.root]:[f.facilityPresentation.root];for(const n of [f.navalPresentation.root,f.airportPresentation.root])f.root.add(n);net.frontlineRoom=null;reticle.hidden=flightReadout.hidden=true;f.keys.clear();setMode('garage');note('已退出空战对局');refreshUi();f.airDeploymentPending=false;f.shared?.notify();return;}
+        if(m.op==='left'){f.navalPresentation.clear();f.airportPresentation.clear();f.vessels=[];f.navalCatalog=[];f.scenario=null;f.spectator=null;f.lossPending=false;airwarOverlay.hidden=true;f.establishedFlight.release(true);renderGate.clear();f.renderStats.drawDt=0;f.active=false;f.room=null;f.control=null;f.epoch=0;f.seq=0;f.orderSeq=0;f.supportSeq=0;f.inputTime=undefined;f.fire=false;f.units=[];f.aircrafts=[];f.companies=[];f.staging=[];f.facilities=[];f.facilityJobs=[];f.facilityIdentity=null;f.facilityPresentation.dispose();f.follow=null;f.order=null;for(const item of f.models.values()){releaseGroundDetail(item);item.lod.dispose();}for(const item of f.airModels.values())item.dispose();f.models.clear();f.airModels.clear();f.root.children=f.terrain?[f.terrain,f.facilityPresentation.root]:[f.facilityPresentation.root];for(const n of [f.navalPresentation.root,f.airportPresentation.root])f.root.add(n);net.frontlineRoom=null;reticle.hidden=flightReadout.hidden=true;f.keys.clear();/* TF_R85_LOCAL_GARAGE_EXIT */toGarage();note('已退出空战对局');refreshUi();f.airDeploymentPending=false;f.shared?.notify();return;}
         if(m.op==='room'||m.op==='snapshot'){
           if(f.room&&(m.room.id!==f.room.id||m.room.battle<f.room.battle))return;
           if(!f.room||m.room.battle!==f.room.battle)resetBattlePresentation();
@@ -650,7 +694,7 @@
         if(!cancel&&el('aircraft').value!==current.aircraft){note('请先选择当前飞机的整备挂载。');return;}
         f.lastServiceRejection=null;
         const index=G4.airLoadout?.[current.aircraft]??Number(el('air-loadout').value),source=airLoadouts(current.aircraft)[index];
-        try{f.shared.serviceAir({cancel,...(/自[訂订]|custom/i.test(source?.[0]||'')?{custom:{...(G4.airCustom[current.aircraft]||{})}}:{loadout:index})});}catch(error){note(error.message);}
+        try{f.shared.serviceAir({cancel,...(/自[訂订]|custom/i.test(source?.[0]||'')?{custom:{...(G4.airCustom[current.aircraft]||{})},custom_counts:frontlineCustomCountPick(current.aircraft)}:{loadout:index})});}catch(error){note(error.message);}
       }
       el('service-air').onclick=()=>requestAirService();el('cancel-air-service').onclick=()=>requestAirService(true);
       el('support-repair').disabled=el('support-supply').disabled=true;
@@ -743,6 +787,12 @@
         groundTargets:()=>f.establishedFlight.groundTargets(),sensorTargetAlive:target=>f.establishedFlight.targetAlive(target),radioSteer:(dx,dy,dt)=>f.establishedFlight.radioSteer(dx,dy,dt)});
     })();
     G4.frontline=frontline;
+    // TF_R85_LOADOUT_COUNT_PICK: preserve the editor's supported quantity choices.
+    function frontlineCustomCountPick(id){
+      const pick=G4.airCustom[id]||{},counts={};
+      for(const slot of airSlots(id)){const store=pick[slot.key];if(store&&TFMountedDetails.quantityEnabled(id,slot,store))counts[slot.key]=TFMountedDetails.quantity(G4,id,slot,store);}
+      return Object.keys(counts).length?counts:undefined;
+    }
     function nativeArmReason(id,slotKey,store){const slot=frontline.shared.aircraftOptions().find(o=>o.id===id)?.slots?.find(s=>s.key===slotKey);return slot?.unsupported?.[store]||slot?.incomplete?.[store]||(!slot||!Object.hasOwn(slot.options||{},store)?'服务器未开放此挂点武器':'');}
     function constrainNativeArmEditor(){if(!frontline.shared.room()||armEd.hidden)return;for(const button of armEd.querySelectorAll('.air-arm-cell[data-slot]')){const why=nativeArmReason(armEd.dataset.air,button.dataset.slot,button.dataset.store);if(why){button.disabled=true;button.title=String(why);button.classList.add('todo');}}}
     function openNativeArmEditor(id){frontline.clearInput();openArmEditor(id);constrainNativeArmEditor();}
@@ -751,12 +801,15 @@
     frontline.sharedLobby=installFrontlineSharedLobby({lobby,deploy,net,frontline:frontline.shared,aircraft:{
       lineup:()=>airOnlineLineup(),selectedId:()=>airGarage.sel,selectedLoadout:id=>frontlineLoadoutIndex(G4.airLoadout[id]??0),
       select(id){airGarage.sel=id;G4.lastAirType=id;},
-      selectLoadout(id,index){G4.airLoadout[id]=index;saveAirArms();},loadouts:id=>airLoadouts(id),custom:id=>({...G4.airCustom[id]}),fuelHtml:id=>typeof aircraftFuelLoad!=='undefined'?aircraftFuelLoad.htmlFor(id):'',openConfiguration:openNativeArmEditor,
+      selectLoadout(id,index){G4.airLoadout[id]=index;saveAirArms();},loadouts:id=>airLoadouts(id),custom:id=>({...G4.airCustom[id]}),customCounts:id=>frontlineCustomCountPick(id),fuelHtml:id=>typeof aircraftFuelLoad!=='undefined'?aircraftFuelLoad.htmlFor(id):'',openConfiguration:openNativeArmEditor,
       openBattlefield:context=>frontline.establishedFlight.deployment(context)
     }});
     const serviceChoice=frontline.ui.querySelector('[data-fl=air-loadout]'),servicePanel=frontline.ui.querySelector('[data-fl=air-service-panel]');
     servicePanel.prepend(serviceChoice);serviceChoice.onchange=()=>{const unit=frontline.shared.controlled();if(unit){G4.airLoadout[unit.aircraft]=Number(serviceChoice.value);saveAirArms();}};
     const configureService=document.createElement('button');configureService.type='button';configureService.textContent='逐挂点配置整备挂载';configureService.onclick=()=>{const unit=frontline.shared.controlled();if(unit){airGarage.sel=unit.aircraft;openNativeArmEditor(unit.aircraft);}};servicePanel.prepend(configureService);
+    const serviceAccess=document.createElement('details');serviceAccess.id='frontline-air-service';serviceAccess.hidden=true;serviceAccess.style.cssText='position:fixed;right:14px;top:80px;z-index:1350;max-width:min(330px,calc(100vw - 28px));padding:8px;background:#142027ed;border:1px solid #647778;color:#e9ede6;font:13px/1.5 system-ui;pointer-events:auto';
+    const serviceSummary=document.createElement('summary');serviceSummary.textContent='机场整备与挂载';serviceAccess.append(serviceSummary,servicePanel);airHud.appendChild(serviceAccess);
+    servicePanel.style.cssText='display:grid;gap:7px;margin-top:7px';
     let frontlineDisposed=false;
-    frontline.dispose=()=>{if(frontlineDisposed)return;frontlineDisposed=true;frontline.terrainWorker?.dispose();frontline.navalPresentation.dispose();frontline.airportPresentation.dispose();document.getElementById('frontline-airwar-mission')?.remove();frontline.ordnancePresentation.dispose();frontline.gunTracerPresentation.dispose();frontline.sharedLobby.dispose();frontline.shared.dispose();armObserver.disconnect();clearInterval(frontline.inputTimer);frontline.clearInput();};
+    frontline.dispose=()=>{if(frontlineDisposed)return;frontlineDisposed=true;frontline.terrainWorker?.dispose();frontline.navalPresentation.dispose();frontline.airportPresentation.dispose();document.getElementById('frontline-airwar-mission')?.remove();frontline.ordnancePresentation.dispose();frontline.gunTracerPresentation.dispose();document.getElementById('frontline-air-service')?.remove();frontline.sharedLobby.dispose();frontline.shared.dispose();armObserver.disconnect();clearInterval(frontline.inputTimer);frontline.clearInput();};
     window.addEventListener('pagehide',event=>{if(!event.persisted)frontline.dispose();});

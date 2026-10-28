@@ -97,6 +97,8 @@ pub enum Command {
         #[serde(default)]
         custom: Option<BTreeMap<String, String>>,
         #[serde(default)]
+        custom_counts: Option<BTreeMap<String, u32>>,
+        #[serde(default)]
         fuel_minutes: Option<crate::frontline_air::FuelMinutes>,
     },
     ServiceAir {
@@ -106,6 +108,8 @@ pub enum Command {
         loadout: u32,
         #[serde(default)]
         custom: Option<BTreeMap<String, String>>,
+        #[serde(default)]
+        custom_counts: Option<BTreeMap<String, u32>>,
         #[serde(default)]
         fuel_minutes: Option<crate::frontline_air::FuelMinutes>,
     },
@@ -1326,6 +1330,7 @@ impl FrontlineHub {
                     spawn,
                     loadout,
                     custom,
+                    custom_counts,
                     fuel_minutes,
                 } => {
                     if !room.started {
@@ -1370,7 +1375,7 @@ impl FrontlineHub {
                         })
                         .map(|u| u.reference);
                     let reference = if let Some(r) = parked {
-                        if !room.air.loadout_matches(r.unit, loadout, custom.as_ref())
+                        if !room.air.loadout_matches_counts(r.unit, loadout, custom.as_ref(), custom_counts.as_ref())
                             .map_err(|e| failure("era_or_loadout", e))? {
                             return Err(failure("service_required", "Rejoin the surviving aircraft with its current loadout, then complete15-second friendly-airfield service to change its stores"));
                         }
@@ -1393,7 +1398,7 @@ impl FrontlineHub {
                             life: 1,
                         };
                         room.air
-                            .spawn_configured_fuel(
+                            .spawn_configured_counts_fuel(
                                 reference,
                                 &aircraft,
                                 p.view.team,
@@ -1401,6 +1406,7 @@ impl FrontlineHub {
                                 &spawn,
                                 loadout,
                                 custom.as_ref(),
+                                custom_counts.as_ref(),
                                 fuel_minutes,
                             )
                             .map_err(|e| failure("air_spawn_failed", e))?;
@@ -1420,6 +1426,7 @@ impl FrontlineHub {
                     seq,
                     loadout,
                     custom,
+                    custom_counts,
                     fuel_minutes,
                 } => {
                     room.validate_air_control(player, unit, epoch, seq)?;
@@ -1436,7 +1443,7 @@ impl FrontlineHub {
                         ));
                     }
                     room.air
-                        .request_service_fuel(unit.unit, loadout, custom.as_ref(), fuel_minutes, now)
+                        .request_service_counts_fuel(unit.unit, loadout, custom.as_ref(), custom_counts.as_ref(), fuel_minutes, now)
                         .map_err(|e| failure("service_rejected", e))?;
                     room.air.units.get_mut(&unit.unit).unwrap().last_seq = seq;
                     Ok(vec![(player, room.snapshot())])

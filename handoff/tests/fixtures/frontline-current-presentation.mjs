@@ -8,7 +8,7 @@ import {Renderer} from '../../../client/web/src/gfx/renderer.js';
 const read=name=>fs.readFileSync(new URL(`../../tools/${name}`,import.meta.url),'utf8');
 export const currentClientSource=read('frontline_client.js');
 export const airwarHelpers=read('frontline_airwar_presentation.js')+read('frontline_minimap_labels_r84.js');
-const owners=airwarHelpers+read('frontline_naval_visual.js')+read('frontline_gun_tracer_visual.js');
+const owners=airwarHelpers+read('frontline_ship_markers_r85.js')+read('frontline_naval_visual.js')+read('frontline_gun_tracer_visual.js');
 // Find one declaration and let the real JS parser certify its closing brace.
 // Adjacent helpers and unrelated UI initialization never execute in this fixture.
 export function productionFunction(name,source=currentClientSource){

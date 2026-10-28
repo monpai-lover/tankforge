@@ -7,6 +7,7 @@ import {fileURLToPath} from 'node:url';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {fuelSourceParts} from './fixtures/aircraft-fuel-source-fixture.mjs';
+import {productionFunction} from './fixtures/frontline-current-presentation.mjs';
 const root=fileURLToPath(new URL('../../',import.meta.url)),appPath=path.join(root,'handoff/bundle/app.js.html'),original=fs.readFileSync(appPath,'utf8'),runtime=fs.readFileSync(new URL('../tools/frontline_existing_runtime.js',import.meta.url),'utf8'),profile=JSON.parse(fs.readFileSync(new URL('../../data/aircraft/frontline.json',import.meta.url))),client=fs.readFileSync(new URL('../tools/frontline_client.js',import.meta.url),'utf8'),adapter=fs.readFileSync(new URL('../tools/frontline_shared_lobby.js',import.meta.url),'utf8'),helpers=client.slice(0,client.indexOf('    // Production client for the versioned native frontline world.'));
 const cut=(s,a,b)=>{const i=s.indexOf(a),j=s.indexOf(b,i);assert.ok(i>=0&&j>i,a);return s.slice(i,j);};
 const historicalPrelude=fs.readFileSync(new URL('../tools/historical_aircraft_loadouts.js',import.meta.url),'utf8');
@@ -55,7 +56,9 @@ function installLauncher(x){
  x.c.lobby={el:{...base},o:{},render(){},show(){},click(){},change(){},connect(){},sendVehicle(){}};
  x.c.deploy={el:{...base},o:{},visible:false,spawn:0,open(context){Object.assign(this,context);this.visible=true;},close(){this.visible=false;},click(){},airChoice(){},renderAmmo(){},renderTop(){},drawMap(){},update(){}};
  Object.assign(x.c,{frontline:x.f,net,airOnlineLineup:()=>['p51d','me262u4'].map(id=>({id:'air:'+id,name:profile.aircraft[id].metadata.name})),openNativeArmEditor:id=>x.c.openArmEditor(id)});
- vm.runInContext(cut(client,'    frontline.sharedLobby=installFrontlineSharedLobby(', '    const serviceChoice='),x.c);
+ // Match the extracted adapter's production quantity callback and its existing
+ // mounted-details/slot dependencies instead of inventing a quantity result.
+ vm.runInContext(productionFunction('frontlineCustomCountPick',client)+cut(client,'    frontline.sharedLobby=installFrontlineSharedLobby(', '    const serviceChoice='),x.c);
  // These retained garage-component tests enter that component explicitly. The
  // online production adapter now enters the battlefield DeployScreen instead.
  x.r.garage({aircraftId:'p51d',map:x.f.shared.deploymentMap(),availability:{allowed:true}});

@@ -18,7 +18,7 @@ impl Fixture {
         accepted(hub.handle(1,Command::Create{name:"Native selected weapons".into(),map:"taiwan".into(),observer:true,era:2022},0.0));
         accepted(hub.handle(2,Command::Join{room:1,observer:false,team:Some(Team::Blue)},0.0));
         accepted(hub.handle(1,Command::Start,0.0));
-        accepted(hub.handle(2,Command::DeployAir{aircraft:aircraft.into(),spawn:"air".into(),loadout:0,custom, fuel_minutes: None},0.0));
+        accepted(hub.handle(2,Command::DeployAir{ custom_counts: None,aircraft:aircraft.into(),spawn:"air".into(),loadout:0,custom, fuel_minutes: None},0.0));
         let member=&hub.rooms[&1].members[&2].view;
         let (reference,epoch)=(member.controlled.unwrap(),member.epoch);
         Self{hub,reference,epoch,seq:0,now:0.0}

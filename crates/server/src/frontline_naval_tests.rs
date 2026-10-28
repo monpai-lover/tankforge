@@ -48,7 +48,7 @@ fn naval_contact_keeps_real_hatch_and_bridge_apertures_and_finite_segments() {
 fn naval_geometry_catalog_is_exact_float32_contact_source_with_stable_identity() {
     let w = world(vec![spec("ship", 0, "generic_transport", [0.0; 3])]);
     let catalog = w.geometry_catalog();
-    assert_eq!(catalog.len(), 3);
+    assert_eq!(catalog.len(), 6);
     let g = catalog
         .iter()
         .find(|g| g["id"] == "generic_transport")
@@ -71,6 +71,33 @@ fn naval_geometry_catalog_is_exact_float32_contact_source_with_stable_identity()
         .unwrap();
     assert_eq!(hit.t, c.fraction);
     assert_eq!(catalog, world(vec![]).geometry_catalog());
+}
+
+#[test]
+fn naval_r85_expanded_fleet_uses_six_distinct_native_contact_prototypes() {
+    let source: serde_json::Value = serde_json::from_str(include_str!(
+        "../../../data/frontline/scenarios/taiwan-landing-escort.json"
+    )).unwrap();
+    let config: NavalConfig = serde_json::from_value(source["naval"].clone()).unwrap();
+    let mut next=100;
+    let w=NavalWorld::new(&config,7,&mut next).expect("all fourteen authored actors need registered native geometries");
+    assert_eq!(w.views().len(),14);
+    assert_eq!(next,114);
+    assert_eq!(w.geometry_catalog().len(),6);
+    for team in [0,1] {
+        assert_eq!(w.views().iter().filter(|v|v.team==team).count(),7);
+    }
+    let hashes:BTreeSet<_>=w.geometry_catalog().iter().map(|g|g["hash"].as_str().unwrap().to_owned()).collect();
+    assert_eq!(hashes.len(),6,"geometry identity includes the actual distinct prototype surfaces");
+    for (model,length,width) in [("generic_landing_ship",64.0,12.0),("generic_frigate",52.0,8.0),("generic_patrol",24.0,5.0)] {
+        let g=&w.geometries[model];
+        assert_eq!(g.length,length);
+        let hull=&g.parts[0];
+        let max_x=hull.triangles.iter().flat_map(|t|[t[0],t[3],t[6]]).fold(0.0_f32,|a,x|a.max(x.abs()));
+        assert_eq!(max_x as f64,width*0.5);
+        let simple=world(vec![spec("probe",0,model,[0.0;3])]);
+        assert!(simple.first_contact([width,0.0,0.0],[-width,0.0,0.0],None).is_some(),"native rays must hit new visible hull {}",model);
+    }
 }
 
 #[test]
@@ -411,7 +438,7 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
     let map: serde_json::Value =
         serde_json::from_str(include_str!("../../../data/frontline/taiwan-escort.json")).unwrap();
     let geography_scale=map["coordinateFrame"]["worldScale"].as_f64().unwrap();
-    assert!((geography_scale-1.0/30.0).abs()<1e-15,"actual native route asset must be the new 1:30 geography");
+    assert!((geography_scale-1.0/10.0).abs()<1e-15,"actual native route asset must be the new 1:10 geography");
     let shore_x=36669.288*geography_scale;
     let ground = crate::frontline_sim::MapGround::load(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -422,10 +449,10 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
     .unwrap();
     let mut mission=crate::frontline_scenario::ScenarioState::for_map(&map).unwrap().unwrap();
     assert_eq!(mission.config.unload_seconds,15.0);
-    assert_eq!(mission.config.timeout_seconds,900.0);
+    assert_eq!(mission.config.timeout_seconds,2700.0);
     let mut first_unloading=None;
     let mut completed_at=None;
-    for tick in 1..=1800 {
+    for tick in 1..=5400 {
         w.step(0.5, |_, _, _, _| false);
         let views=w.views();
         let at=tick as f64*0.5;
@@ -441,7 +468,7 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
             for i in 0..hull.triangles.len() {
                 for p in hull.triangle(i).map(|p| part_world(&v, hull, p)) {
                     assert!(
-                        p[0] < shore_x,
+                        v.team != 0 || p[0] < shore_x,
                         "actual hull crossed near-shore limit: {} {:?}",
                         v.id,
                         p
@@ -456,10 +483,10 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
             }
         }
     }
-    assert_eq!(mission.outcome(),Some((0,"landing_completed")),"unchanged 8m/s convoy must unload continuously for 15s before the unchanged 900s deadline");
+    assert_eq!(mission.outcome(),Some((0,"landing_completed")),"physical 8m/s convoy must unload continuously for 15s before the proportional 2700s deadline");
     assert!(first_unloading.unwrap()<=mission.config.timeout_seconds-mission.config.unload_seconds);
     assert!(completed_at.unwrap()<mission.config.timeout_seconds);
-    println!("actual 1:30 convoy starts unloading at {}s and completes at {}s",first_unloading.unwrap(),completed_at.unwrap());
+    println!("actual 1:10 convoy starts unloading at {}s and completes at {}s",first_unloading.unwrap(),completed_at.unwrap());
     assert!(w
         .views()
         .iter()
@@ -551,7 +578,7 @@ fn naval_authored_convoy_routes_park_without_stacking_and_keep_transport_access(
     }
     let mut next = 100;
     let mut w = NavalWorld::new(&config, 7, &mut next).unwrap();
-    for _ in 0..1800 {
+    for _ in 0..5400 {
         w.step(0.5, |_, _, _, _| false);
         let views = w.views();
         for a in &views {

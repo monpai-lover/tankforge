@@ -173,7 +173,7 @@ function createFrontlineExistingRuntime({f,mine,controlled,controlledAirModel,se
     const handled=guided?.action(air,controlled(),name,stamp);if(handled!==undefined)return handled;
     if(name==='rearm'){
       const id=air.plane.type.id,index=G4.airLoadout[id]??0,source=airLoadouts(id)[index];
-      try{shared.serviceAir(/自[訂订]|custom/i.test(source?.[0]||'')?{custom:{...(G4.airCustom[id]||{})}}:{loadout:index});airReason(air,'已请求机场整备，须在己方跑道停稳并保持低油门15秒',3);}catch(error){airReason(air,error.message,3);}
+      try{shared.serviceAir(/自[訂订]|custom/i.test(source?.[0]||'')?{custom:{...(G4.airCustom[id]||{})},custom_counts:typeof frontlineCustomCountPick==='function'?frontlineCustomCountPick(id):undefined}:{loadout:index});airReason(air,'已请求机场整备，须在己方跑道停稳并保持低油门15秒',3);}catch(error){airReason(air,error.message,3);}
       return true;
     }
     if(['bots','jettison','engine','cm','cmPeriodic','cmProgram'].includes(name)){

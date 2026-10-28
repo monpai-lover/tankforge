@@ -992,7 +992,7 @@ fn physical_reinforcement_batch_waits_forty_five_native_seconds_and_preserves_fl
     no_error(&h.handle(1, Command::Return, STEP));
     no_error(&h.handle(
         1,
-        Command::DeployAir {
+        Command::DeployAir { custom_counts: None,
             aircraft: "mig21".into(),
             spawn: "air".into(),
             loadout: 0,

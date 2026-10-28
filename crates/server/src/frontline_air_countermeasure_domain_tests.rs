@@ -11,7 +11,7 @@ impl Fixture {
             (2,Command::Join{room:1,observer:false,team:Some(Team::Blue)}),
             (3,Command::Join{room:1,observer:false,team:Some(Team::Blue)}),
             (1,Command::Start),
-            (2,Command::DeployAir{aircraft:aircraft.into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None}),
+            (2,Command::DeployAir{ custom_counts: None,aircraft:aircraft.into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None}),
         ] {let out=hub.handle(player,command,0.0);assert!(!out.iter().any(|(_,m)|matches!(m,Update::Error{..})),"aircraft fixture {aircraft}: {out:?}");}
         let p=&hub.rooms[&1].members[&2].view;
         let (unit,epoch)=(p.controlled.unwrap(),p.epoch);

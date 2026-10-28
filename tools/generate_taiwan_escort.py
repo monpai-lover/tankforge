@@ -8,7 +8,7 @@ import math
 from pathlib import Path
 
 ROOT=Path(__file__).resolve().parents[1]
-WORLD_DENOMINATOR=30
+WORLD_DENOMINATOR=10
 WORLD_SCALE=1/WORLD_DENOMINATOR
 def encoded(value):return (json.dumps(value,ensure_ascii=False,separators=(',',':'))+'\n').encode()
 def p3(p):return [v/WORLD_DENOMINATOR for v in p]
@@ -20,27 +20,42 @@ def layout_pos(p):return [p[0]*100/WORLD_DENOMINATOR,p[1],p[2]*100/WORLD_DENOMIN
 
 def build_scenario():
     blue_route=[[-800,-450],[-400,-250],[0,-100],[280,-100]]
-    red_route=[[-100,-400],[-500,-450]]
+    def blue_lane(offset,end):return [[x,z+offset]for x,z in blue_route[:-1]]+[end]
+    def red_lane(offset,end):return [[-100,-400+offset],end]
+    # Fourteen native-owned game vessels, using six shared authored prototypes.
+    # These are generic gameplay classes, not historical fleet/weapon claims.
+    # Parallel sea lanes and separate final berths keep the landing access open.
     specs=[
         ('blue-transport-1',0,'transport','generic_transport',[-1200,0,-600],1.25,blue_route,8,120),
-        ('blue-escort-1',0,'escort','generic_escort',[-1080,0,-555],1.25,blue_route[:-1]+[[220,-160]],8,240),
-        ('blue-escort-2',0,'escort','generic_escort',[-960,0,-510],1.25,blue_route[:-1]+[[220,-40]],8,240),
-        ('red-interceptor-1',1,'interceptor','generic_interceptor',[200,0,-350],-1.8,red_route,11,240),
-        ('red-interceptor-2',1,'interceptor','generic_interceptor',[100,0,-400],-1.8,red_route,11,240),
+        ('blue-transport-2',0,'transport','generic_landing_ship',[-1230,0,-575],1.25,blue_lane(16,[275,-82]),8,120),
+        ('blue-escort-1',0,'escort','generic_escort',[-1080,0,-555],1.25,blue_lane(-60,[220,-160]),8,240),
+        ('blue-escort-2',0,'escort','generic_escort',[-960,0,-510],1.25,blue_lane(60,[220,-40]),8,240),
+        ('blue-frigate-1',0,'escort','generic_frigate',[-1020,0,-660],1.25,blue_lane(-120,[160,-220]),10,240),
+        ('blue-frigate-2',0,'escort','generic_frigate',[-1140,0,-420],1.25,blue_lane(120,[160,20]),10,240),
+        ('blue-patrol-1',0,'escort','generic_patrol',[-900,0,-720],1.25,blue_lane(-180,[100,-280]),12,240),
+        ('red-interceptor-1',1,'interceptor','generic_interceptor',[200,0,-350],-1.8,red_lane(0,[-500,-450]),11,240),
+        ('red-interceptor-2',1,'interceptor','generic_interceptor',[100,0,-400],-1.8,red_lane(50,[-500,-400]),11,240),
+        ('red-frigate-1',1,'interceptor','generic_frigate',[280,0,-500],-1.8,red_lane(-50,[-550,-500]),10,240),
+        ('red-frigate-2',1,'interceptor','generic_frigate',[180,0,-250],-1.8,red_lane(100,[-550,-350]),10,240),
+        ('red-escort-1',1,'interceptor','generic_escort',[360,0,-600],-1.8,red_lane(-100,[-600,-550]),11,240),
+        ('red-patrol-1',1,'interceptor','generic_patrol',[300,0,-180],-1.8,red_lane(150,[-600,-300]),14,240),
+        ('red-patrol-2',1,'interceptor','generic_patrol',[440,0,-700],-1.8,red_lane(-150,[-650,-600]),14,240),
     ]
     vessels=[{'id':name,'team':team,'role':role,'model':model,'pos':layout_pos(pos),'yaw':yaw,
               'route':[layout_xz(p)for p in route],'speed_mps':speed,'ammo':ammo,'shell_id':'he_76_m42a1'}
              for name,team,role,model,pos,yaw,route,speed,ammo in specs]
     return {'version':1,'id':'taiwan_landing_escort','attacker_team':0,'defender_team':1,
-            'unload_seconds':15,'timeout_seconds':900,
+            # Route is 3x the R8.4 1:30 length. Extend the bounded mission clock
+            # by the same factor; do not accelerate physical boats or unloading.
+            'unload_seconds':15,'timeout_seconds':2700,
             'landing_zone':{'center':layout_xz([280,-100]),'radius':30*100/WORLD_DENOMINATOR,'max_speed_mps':2},
             'naval':{'vessels':vessels}}
 
 def build(source):
-    m=copy.deepcopy(source);m.update(id='taiwan-escort',name='台海海空护航 · 1:30',scenario='taiwan_landing_escort',status='authored_compressed_naval_airwar')
+    m=copy.deepcopy(source);m.update(id='taiwan-escort',name='台海海空护航 · 1:10',scenario='taiwan_landing_escort',status='authored_compressed_naval_airwar')
     m['derivation']={'baseId':source['id'],'baseSha256':hashlib.sha256(encoded(source)).hexdigest(),'worldScale':WORLD_SCALE,'localEntityScale':1,'airportLayout':'Explicit fitted 1600m game runways; source reference positions retained separately. Not surveyed operational airfields.'}
     m['coordinateFrame']['sourceCoordinateFrame']=copy.deepcopy(source['coordinateFrame']);m['coordinateFrame']['worldScale']=WORLD_SCALE
-    m['coordinateFrame']['x']='(easting-originE)/30';m['coordinateFrame']['z']='(originN-northing)/30';m['coordinateFrame']['y']='source height / 30, followed by authored metric airport grading'
+    m['coordinateFrame']['x']='(easting-originE)/10';m['coordinateFrame']['z']='(originN-northing)/10';m['coordinateFrame']['y']='source height / 10, followed by authored metric airport grading'
     m['bounds']={k:v/WORLD_DENOMINATOR for k,v in source['bounds'].items()}
     t=m['terrain']
     for k in ['x0','z0','cellX','cellZ']:t[k]/=WORLD_DENOMINATOR
@@ -89,7 +104,11 @@ def build(source):
         t['runways'].append({'id':'escort-runway-'+airport,'center':center,'forward':[0,1],'halfSize':[22.5,800],'height':height,'blendMeters':25,'authored':True})
         selected.append(f)
     m['airfields']=selected+[f for f in m['airfields']if not f['enabled']]
-    m['airspawns']=[{'id':'ESCORT-B-AIR','team':0,'enabled':True,'airportId':'ZSQZ','pos':layout_pos([-1700,650,-1000]),'yawRad':1.5707963267948966,'speed':180,'authored':True}, {'id':'ESCORT-R-AIR','team':1,'enabled':True,'airportId':'RCMQ','pos':layout_pos([900,650,100]),'yawRad':-1.5707963267948966,'speed':180,'authored':True}]
+    # Airborne deployment is a metric local airport facility, like the runway.
+    # Keep its R8.4 offset within 2km rather than expanding it to a 4.5km gap.
+    m['airspawns']=[]
+    for field,offset,yaw in zip(selected,[[250,1500],[2000/3,-4000/3]],[math.pi/2,-math.pi/2]):
+        x,_,z=field['pos'];m['airspawns'].append({'id':'ESCORT-'+('B'if field['team']==0 else 'R')+'-AIR','team':field['team'],'enabled':True,'airportId':field['id'],'pos':[x+offset[0],650,z+offset[1]],'yawRad':yaw,'speed':180,'authored':True})
     coverage=copy.deepcopy(source['navigation']['hydroCoverage'])
     for c in coverage:c['bounds']={k:v/WORLD_DENOMINATOR for k,v in c['bounds'].items()}
     m['navigation'].update(hydroCoverage=coverage,crossStraitGroundEdges=[],crossLaneNavigationEdges=[],surfacePolicy='no_player_ground_deployment_in_naval_escort')
@@ -97,7 +116,7 @@ def build(source):
     m['initialScene']['id']='taiwan-landing-escort-compressed';m['initialScene']['groundScenarioCompatibilityOnly']=True
     transport=build_scenario()['naval']['vessels'][0]
     m['geography']['maritime']={'implemented':True,'worldScale':WORLD_SCALE,'groundCrossesWater':False,'seaRoutes':[[transport['pos'][::2]]+transport['route']],'bathymetry':None,'navigationBasis':'Authored route corridor verified against the scaled strategic coastline; no bathymetric or real operational certification.'}
-    m['provenance']['derivedFor']='Fictional compressed escort game scenario; 1:30 geography with metric local vehicles/runways.'
+    m['provenance']['derivedFor']='Fictional compressed escort game scenario; 1:10 geography with metric local vehicles/runways. Fourteen generic authored naval actors; 2700s proportional route deadline, 15s unloading.'
     return m
 
 if __name__=='__main__':

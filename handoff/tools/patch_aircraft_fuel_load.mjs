@@ -5,10 +5,11 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 const helper=fs.readFileSync(new URL('./aircraft_fuel_load.js',import.meta.url),'utf8');
-function once(source,old,next){
+function once(source,old,next,reviewedInstalled=null){
   const crlf=source.includes('\r\n')&&!/(?<!\r)\n/.test(source);
-  if(crlf){old=old.replace(/\r?\n/g,'\r\n');next=next.replace(/\r?\n/g,'\r\n');}
-  if(source.split(next).length===2)return source;
+  if(crlf){old=old.replace(/\r?\n/g,'\r\n');next=next.replace(/\r?\n/g,'\r\n');if(reviewedInstalled)reviewedInstalled=reviewedInstalled.replace(/\r?\n/g,'\r\n');}
+  const installed=[next,...(reviewedInstalled?[reviewedInstalled]:[])].reduce((n,value)=>n+source.split(value).length-1,0);
+  if(installed){assert.equal(installed,1,'One reviewed installed fuel integration hook required: '+next.slice(0,100));return source;}
   assert.equal(source.split(old).length,2,'One reviewed fuel integration hook required: '+old.slice(0,100));
   return source.replace(old,next);
 }
@@ -61,7 +62,21 @@ const lobbyEdits=[
   ]
 ];
 const edits=(source,rows)=>rows.reduce((text,[old,next])=>once(text,old,next),source);
-export function patchFrontlineFuelClient(source){return edits(source,clientEdits);}
+// Reviewed R85 quantity extensions retain the exact fuel guards and intent
+// selection. Recognize those complete installed forms, never a broad marker skip.
+const r85CountGuard="        if(custom_counts!==undefined){if(cfg.custom===undefined)deny('自订数量必须对应自订挂点配置');cfg.custom_counts=customCountChoice(id,cfg.custom,custom_counts);}\n";
+const r85Installed=new Map([
+  [clientEdits[1][1],clientEdits[1][1]
+    .replace('configuration(id,{loadout,custom,fuel_minutes}', 'configuration(id,{loadout,custom,custom_counts,fuel_minutes}')
+    .replace('        if(fuel_minutes!==undefined){',r85CountGuard+'        if(fuel_minutes!==undefined){')],
+  [clientEdits[2][1],'deployAir({aircraft,loadout,custom,custom_counts,spawn,fuel_minutes}){'],
+  [clientEdits[3][1],clientEdits[3][1].replace('configuration(aircraft,{loadout,custom,...pick})','configuration(aircraft,{loadout,custom,custom_counts,...pick})')],
+  [clientEdits[4][1],'serviceAir({loadout,custom,custom_counts,fuel_minutes,cancel=false}={})'],
+  [clientEdits[5][1],clientEdits[5][1].replace('configuration(unit.aircraft,{loadout,custom,...pick})','configuration(unit.aircraft,{loadout,custom,custom_counts,...pick})')],
+  [clientEdits[7][1],clientEdits[7][1].replace('),fuelHtml:', '),customCounts:id=>frontlineCustomCountPick(id),fuelHtml:')],
+  [clientEdits[9][1],clientEdits[9][1].replace("if(el('air-fuel-choice').innerHTML!==fuelHtml)el('air-fuel-choice').innerHTML=fuelHtml;", "const fuelChoice=el('air-fuel-choice');if(fuelChoice.__frontlineFuelMarkup!==fuelHtml){fuelChoice.innerHTML=fuelHtml;fuelChoice.__frontlineFuelMarkup=fuelHtml;}")]
+]);
+export function patchFrontlineFuelClient(source){return clientEdits.reduce((text,[old,next])=>once(text,old,next,r85Installed.get(next)),source);}
 export function patchFrontlineFuelLobby(source){return edits(source,lobbyEdits);}
 export function patchAircraftFuelLoadHelper(source){
   const begin='/* TF_AIRCRAFT_FUEL_LOAD_BEGIN */',end='/* TF_AIRCRAFT_FUEL_LOAD_END */';
