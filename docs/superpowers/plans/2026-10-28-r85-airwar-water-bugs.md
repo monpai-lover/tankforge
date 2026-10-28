@@ -40,7 +40,7 @@
 - [x] Root composes all scoped patches in `handoff/tools/apply_r85_airwar_fixes.mjs`, updates source composition lists and synchronizes canonical `handoff/bundle/app.js.html`. Export `data/aircraft/frontline.json` from that exact bundle.
 - [x] Run focused tests and source/canonical checks, then freeze inputs. Run the full selected Node gate and optimized native library gate; preserve any failures and historical NOT_RUN explicitly.
 - [x] Rebuild exact R8.5 HTML, start a new local port, and test normal multiplayer deployment/custom selection, fleet markers, leave-to-single-player, protection query and replay target switching against that final page.
-- [ ] Build Linux amd64 once from frozen inputs; create verified complete and R8.4-based incremental archives, document scope and hashes, independently review, commit and push the existing feature branch. Do not deploy production.
+- [x] Build Linux amd64 once from frozen inputs; create verified complete and R8.4-based incremental archives, document scope and hashes, independently review, commit and push the existing feature branch. Do not deploy production.
 
 ## Acceptance examples
 
@@ -49,3 +49,7 @@
 - Hovering an actual armor plate in protection analysis reports that surface's nominal/effective thickness; empty space reports no plate.
 - If replay target A is playing or finished, a new accepted hit on target B displays B in the same update; a second hit on B adds its own path/explosion without resetting B's camera.
 - Water remains finite and visually stable at 1:10 map coordinates, at grazing angles and as the camera moves; terrain, tanks and replay materials remain unchanged by the water patch.
+
+## Publication receipt
+
+Implementation commit `43d94df4774469cb682c4e639a08b6bc0eb9e28a` was pushed to `origin/codex/r81-airwar-agm-fixes` and verified with `ls-remote`. Production was not deployed. Release packages and runtime hashes are recorded in `docs/releases/r85-20261028/README.md`.

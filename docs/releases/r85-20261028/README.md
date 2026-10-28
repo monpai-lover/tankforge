@@ -67,3 +67,7 @@ cargo test --locked --release -p tg-server --lib
 ```
 
 当前页面仍由 `tools/rebuild_current_handoff.py` 重建，`client/web` 的旧 npm 构建入口不能代替它。浏览器回归入口包括 `r85-loadout-browser.py`、`r85-state-protection-browser.py`、`r85-live-replay-browser.py` 与 `r85-water-browser.py`；全前端门禁沿用 `run_r81_node_gate.mjs` 和已更新清单。
+
+## 仓库交付
+
+实现提交 [`43d94df`](https://github.com/monpai-lover/tankforge/commit/43d94df4774469cb682c4e639a08b6bc0eb9e28a) 已推送并核对远端分支 `codex/r81-airwar-agm-fixes`。本次没有部署生产服务；最后的文档收尾提交不改变运行时或交付包。

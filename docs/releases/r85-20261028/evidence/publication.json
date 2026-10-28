@@ -1,0 +1,11 @@
+{
+  "schema": "TankForgeR85ImplementationPublicationV1",
+  "checkedAtUtc": "2026-10-28T10:56:40.555654+00:00",
+  "repository": "https://github.com/monpai-lover/tankforge.git",
+  "branch": "codex/r81-airwar-agm-fixes",
+  "implementationCommit": "43d94df4774469cb682c4e639a08b6bc0eb9e28a",
+  "verifiedRemoteCommit": "43d94df4774469cb682c4e639a08b6bc0eb9e28a",
+  "verification": "git ls-remote origin refs/heads/codex/r81-airwar-agm-fixes returned the exact implementation commit after successful normal push",
+  "productionDeployed": false,
+  "scope": "Implementation publication; final documentation closure commit may follow with no runtime or package changes."
+}
