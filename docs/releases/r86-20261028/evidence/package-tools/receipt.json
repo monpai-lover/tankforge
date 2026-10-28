@@ -1,0 +1,30 @@
+{
+  "schema": "TankForgeR86DeliveryToolsTestsV2",
+  "startedUtc": "2026-10-28T11:24:27.710170+00:00",
+  "finishedUtc": "2026-10-28T11:24:28.886416+00:00",
+  "command": [
+    "python",
+    "tools/test_package_r86_full.py"
+  ],
+  "exitCode": 0,
+  "tests": 11,
+  "passed": true,
+  "inputsBefore": {
+    "tools/package_r86_full.py": "2e37edaf5ae20bd32eab19b54241c8b4ca467a909309c22d352b86d943e87c8c",
+    "tools/test_package_r86_full.py": "eb0ba78ec7c35cced416107d909c9440cbb786dd98e1422b1387e362e442be14",
+    "docs/releases/r86-20261028/CODEX_VPS_UPGRADE.md": "f87f34ba059ddb6fc6e10388f3913715c40599941b036c6cff81a89657d97bd7"
+  },
+  "inputsAfter": {
+    "tools/package_r86_full.py": "2e37edaf5ae20bd32eab19b54241c8b4ca467a909309c22d352b86d943e87c8c",
+    "tools/test_package_r86_full.py": "eb0ba78ec7c35cced416107d909c9440cbb786dd98e1422b1387e362e442be14",
+    "docs/releases/r86-20261028/CODEX_VPS_UPGRADE.md": "f87f34ba059ddb6fc6e10388f3913715c40599941b036c6cff81a89657d97bd7"
+  },
+  "inputsStable": true,
+  "logSha256": "b15d55c199341e3fe02a176f84c70de50b34e3109ae9459d64a3e3c0c906bae5",
+  "reviewCorrections": [
+    "Bounded exact HTML suffix comparison against canonical app; unrelated page with matching explicit page SHA is rejected.",
+    "Recollect payload membership after archive readback/input rehash and before publication; added file injection rejected without published output."
+  ],
+  "redBeforeFix": "Both new regression tests failed as expected with ValueError not raised; original nine tests continued to pass.",
+  "scope": "Small real-file fixtures; metadata ELF fixture inspected only. No actual release packaging, Linux execution or deployment."
+}

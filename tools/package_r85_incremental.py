@@ -3,7 +3,8 @@
 import argparse,hashlib,io,json,tarfile
 from pathlib import Path
 from package_current_linux import inspect_elf,sha
-from rebuild_current_handoff import RELEASE_SHA256
+# Archived R8.5 packager: preserve its original identity after current releases advance.
+RELEASE_SHA256 = 'c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5'
 
 def package(root,page,server,output):
     root,page,server,output=map(lambda p:Path(p).resolve(),(root,page,server,output))

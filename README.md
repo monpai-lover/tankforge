@@ -1,30 +1,22 @@
 # TankForge
 
-## 当前版本：R8.5（2026-10-28）
+## 当前版本：R8.6（2026-10-28）
 
-当前航空／前线客户端入口是 `handoff/bundle/app.js.html`，资源保存在同目录的
-`head.html` 和五个连续 `data.line.gz.part00..04`。本轮将台海实际地理比例调整为 1:10，
-扩充到双方各七艘、六类舰船并增加头顶标记；小地图保持原框、位置和 10 km 半径。
-接入 MIT 海水波形，修复挂载点击被刷新吞掉、自定义数量、退出空战后的单人状态、
-防护分析连续查询，以及新目标回放仍需排队的问题。保留原飞控、地图内出击和服务器战斗权威。
+当前航空／前线客户端是 `handoff/bundle/app.js.html`，资源由同目录 `head.html` 和五个连续 `data.line.gz.part00..04` 提供。本轮修复驾驶飞机时舰队标记不可见、底部任务条遮挡，并接入用户提供的海水参考；保留 1:10 台海、14 艘舰队、原飞控及服务端战斗权威。
 
-从仓库直接重建本次交付的单文件页面（只需 Python 3；输出文件必须不存在）：
+海水适配部分为 **CC BY-NC-SA 3.0**，来源与许可随代码、HTML 和交付包保留。当前完整包及 VPS Codex 升级说明见 [R8.6 交付记录](docs/releases/r86-20261028/README.md)。
+
+从仓库重建当前完整页面（输出文件必须不存在）：
 
 ```sh
 python -c "from pathlib import Path; Path('client/web/dist').mkdir(parents=True, exist_ok=True)"
-python tools/rebuild_current_handoff.py --output client/web/dist/tankforge-r85.html
-cargo run --locked --release -p tg-server -- --data data --page client/web/dist/tankforge-r85.html
+python tools/rebuild_current_handoff.py --output client/web/dist/tankforge-r86.html
+cargo run --locked --release -p tg-server -- --data data --page client/web/dist/tankforge-r86.html
 ```
 
-浏览器打开 `http://127.0.0.1:8787/`。选择空中前线的「台海海空护航 · 1:10」。
-前端和原生服务端需使用同一版本；HTTP `/` 与 WebSocket `/ws` 指向同一服务。
+浏览器打开 `http://127.0.0.1:8787/`，选择空中前线的「台海海空护航 · 1:10」。HTTP `/` 与 WebSocket `/ws` 指向同一服务。`tools/package_r86_full.py` 是当前完整打包入口；旧 `client/web` npm 构建不能代替当前页面重建。
 
-功能、验证范围和完整／增量包指纹见 [R8.5 交付记录](docs/releases/r85-20261028/README.md)。
-[R8.4 比例与特效修复](docs/releases/r84-20261028/README.md)、
-[R8.3 台海剧本记录](docs/releases/r83-20261028/README.md)、
-[R8.2 修复记录](docs/releases/r82-20261027/README.md) 与 [R8.1 同步记录](docs/releases/r81-20261027/README.md)
-保留原来的验证范围与文件指纹。下方 `client/web` 的 `npm run build` 是较早客户端入口，
-不能代替上述当前页面的重建。
+[R8.5 挂载／回放／防护修复](docs/releases/r85-20261028/README.md)、[R8.4 比例与特效修复](docs/releases/r84-20261028/README.md)、[R8.3 台海剧本](docs/releases/r83-20261028/README.md)、[R8.2](docs/releases/r82-20261027/README.md) 与 [R8.1](docs/releases/r81-20261027/README.md) 保留各自验证范围与文件指纹。
 
 ## 早期源码工具和历史说明
 

@@ -1,0 +1,50 @@
+{
+  "schema": "TankForgeR86ValidationSummaryV1",
+  "recordedUtc": "2026-10-28T12:19:23.134443+00:00",
+  "frontend": {
+    "files": 152,
+    "tests": 933,
+    "passed": 933,
+    "inputsStable": true,
+    "historicalNotRun": 2
+  },
+  "actualPilotedFlight": {
+    "checks": 15,
+    "passed": 15,
+    "aircraft": "su27",
+    "cameraModes": [
+      "third-person",
+      "cockpit"
+    ],
+    "dpr": 2,
+    "normalUiDeployment": true,
+    "nativeControl": true,
+    "canvasObservationOnly": true
+  },
+  "pythonChecks": {
+    "rebuild": {
+      "tests": 8,
+      "passed": 8,
+      "command": "python tools/test_rebuild_current_handoff.py"
+    },
+    "packaging": {
+      "tests": 11,
+      "passed": 11,
+      "command": "python tools/test_package_r86_full.py"
+    }
+  },
+  "linux": {
+    "crossBuilt": true,
+    "binaryExecuted": false,
+    "productionDeployed": false,
+    "nativeBehaviorUnchanged": true,
+    "freshNative501SuiteRun": false,
+    "priorNativeReceipt": "docs/releases/r85-20261028/evidence/native/receipt.json"
+  },
+  "limits": [
+    "SwiftShader functional/render checks do not establish hardware FPS.",
+    "Historical NOT_RUN tests are preserved explicitly.",
+    "No Linux runtime test or production upgrade was performed.",
+    "Intermediate R1 failure/reproduction records are preserved in the external validation directory, not presented as final passing evidence."
+  ]
+}

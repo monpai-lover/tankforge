@@ -1,0 +1,20 @@
+{
+  "schema": "TankForgeR86R2FinalLinuxReadOnlyAuditV1",
+  "capturedAt": "2026-10-28T11:57:03.862665+00:00",
+  "candidate": "R2",
+  "status": "PASS",
+  "dataConfigTrackedFilesChecked": 2693,
+  "onlyRawChangedDataConfig": [
+    "data/aircraft/frontline.json"
+  ],
+  "untrackedDataConfig": [],
+  "aircraftBusinessDataProof": "profile-source-metadata-proof.json",
+  "allOtherDataConfigRawMatchHead": true,
+  "compiledInputFilesChecked": 2890,
+  "compiledInputsAndMembershipStable": true,
+  "binarySha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+  "binaryMatchesBuildReceipt": true,
+  "r1ProofPreserved": true,
+  "linuxExecution": false,
+  "productionDeployment": false
+}

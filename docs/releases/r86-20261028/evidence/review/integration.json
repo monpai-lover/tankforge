@@ -1,0 +1,24 @@
+{
+  "schema": "TankForgeR86ReadOnlyIntegrationReviewV1",
+  "recordedUtc": "2026-10-28T12:38:28.097027+00:00",
+  "reviewer": "r85_state_replay_armor",
+  "result": "No actionable issues found",
+  "scope": [
+    "Pure leaf imports; no composer backedge or cycle",
+    "Exact newer-owner normalization and reapplication around legacy narrow owners",
+    "R85 replay, lifecycle, protection and loadout fixes preserved",
+    "Current sync branch avoids whole-client replacement",
+    "CRLF preservation and strict multiplicity/drift rejection"
+  ],
+  "sourceFiles": {
+    "handoff/tools/r86_presentation_state.mjs": "80976c4c3c4aef4630331629af9078de4d27cc249e54346fc468469f7d5f083d",
+    "handoff/tools/apply_r86_airwar_fixes.mjs": "0268cc16237ac6dcbd9d5973ef076d36176396ce0e38e11d6b5d94352e38eebe",
+    "handoff/tools/apply_r82_airwar_fixes.mjs": "5b41e1398ae34aa77195f40c169da14425e5805dbe46537e6aa48a3ab1e59e93",
+    "handoff/tools/apply_r83_airwar_fixes.mjs": "b7d32aaf5f4a3ddaf938577585e6b049219d965e74aab2a429e53f990d224e70",
+    "handoff/tools/apply_r84_airwar_fixes.mjs": "c37274e2d04754a51eecfff4f7cd273d62805189b12dd5b04f4b7ab597ffceba",
+    "handoff/tools/apply_r85_airwar_fixes.mjs": "6e3958154df805660d7447bb3d0b6bca2f56c3d78c1c0fe16751b1925d142079",
+    "handoff/tools/patch_frontline_terrain_worker.mjs": "d88cf7c1d98faff464a3fc06fd24dea2c1d167b53e2b585ad8a2a2f20a18f374",
+    "handoff/tools/sync_frontline_client.py": "1827cfb63f694f48598588c7eda71eaa5ef92837011aca26a5644b2b281c8e95"
+  },
+  "limits": "Read-only code review; reviewer did not perform additional runtime tests. Root final Node/browser evidence is separate."
+}

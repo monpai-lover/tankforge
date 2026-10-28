@@ -1,0 +1,36 @@
+Water / Clouds shader attribution and license notice
+
+Created by Frank Hugenroth, 03/2013.
+The original source also credits noise and raymarching concepts/code from
+shaders by Inigo Quilez.
+
+Original license declaration:
+"License Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License."
+
+License: CC BY-NC-SA 3.0 Unported
+https://creativecommons.org/licenses/by-nc-sa/3.0/
+Legal text: https://creativecommons.org/licenses/by-nc-sa/3.0/legalcode
+
+This is an attribution/license notice, not a reproduction of the complete
+Creative Commons legal text. The linked license requires attribution,
+noncommercial use, and ShareAlike for adaptations. It is not an MIT license.
+
+Provenance: the user supplied the GLSL text on 2026-10-28 and explicitly selected
+it as TankForge's water reference. No original online shader URL/title was
+provided or independently established. Exact supplied source is retained in
+frank-hugenroth-water-reference.glsl (9794 bytes), SHA-256:
+14804fe126af4f1e5ce3881611d5bca15c847bfcdf3cc6ed7db81e9f37c42261
+
+TankForge R8.6 adaptation (2026-10-28):
+- Reuse the five crossing swell components, four fBm scales, seven choppy-noise
+  scales, reflected-ray weighting, and broad/narrow sun reflection lobes.
+- Replace the missing iChannel0 noise image with the game's deterministic hash
+  lattice, evaluate analytic gradients, filter each unresolved screen-space
+  scale, smooth the abs cusp and bound the final normal slope.
+- Reuse the game's sky, cloud/shadow field, exposure and shoreline alpha; add
+  no texture/sampler, render target, camera, raymarcher or volumetric clouds.
+- Preserve the registered water geometry, heights, collision and physics.
+
+The adapted water GLSL and corresponding CPU reference in
+handoff/tools/patch_r86_water.mjs carry this attribution and CC BY-NC-SA notice.
+Retain this notice, its license link, and the source attribution with copies.

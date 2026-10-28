@@ -10,7 +10,8 @@ import json
 from pathlib import Path
 import struct
 import tarfile
-from rebuild_current_handoff import RELEASE_SHA256
+# Archived R8.5 packager: preserve its original identity after current releases advance.
+RELEASE_SHA256 = 'c40762271537e5377100b660289db7081d65c6f3401dd6876c0b0e2def6980b5'
 
 def sha(path):
     h=hashlib.sha256()

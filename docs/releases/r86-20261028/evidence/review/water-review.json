@@ -1,0 +1,45 @@
+{
+  "schema": "R86IndependentWaterLeafReadOnlyReviewV1",
+  "ready": true,
+  "findings": [],
+  "sourceFile": "D:\\TankForge-workspaces\\r81-push-20261027\\handoff\\tools\\patch_r86_water.mjs",
+  "sourceSha256": "2df4b3a4577f5eee00d6652e24c300e9c233d0a51728c4f44b564afe78f71cd7",
+  "referenceBytes": 9794,
+  "referenceSha256": "14804fe126af4f1e5ce3881611d5bca15c847bfcdf3cc6ed7db81e9f37c42261",
+  "license": "CC BY-NC-SA3.0 Unported,Frank Hugenroth03/2013; original reference also creditsInigoQuilez",
+  "licenseNoticeSha256": "1b212fcc57b9273ec87e7c80be63e943f8bc85851409e84679714c830915fcef",
+  "confirmed": [
+    "five crossing-wave source coefficients/phasevelocities retained",
+    "sourcecolumn-vectorfBm androw-vectorchop transformations distinguished correctly in GLSL/CPU",
+    "analytictranspose-transformnoisegradientchainand smoothedabsderivative correct",
+    "onlyfirst-orderpixelderivativesofworldp captured; no nested derivatives ornewtexturesamplers/uniforms/geometry/cameras",
+    "bounded11noiseoctaves+5swells,normal slope.45 andpixel-unresolvedroughening",
+    "water-onlynormal/opticschange; existingdepth,shorelinealpha,uKind22opaque andnonwaterbranches preserved",
+    "missingiChannel0texture substitution withgamehash isexplicit andadaptation/licenseattributionhonest"
+  ],
+  "independentChecks": {
+    "independentNonzeroFootprintGradientSamples": 30,
+    "maxRawGradientCentralDifferenceError": 3.956845393005004e-9,
+    "calculusPass": true,
+    "normalizerExact": true,
+    "uniformListUnchanged": true,
+    "firstOrderDerivatives": [
+      "dFdx(p)",
+      "dFdy(p)"
+    ],
+    "nestedDerivativeTokens": false,
+    "textureSamplesAdded": false,
+    "limits": "CPUdoubleprecisioncalculusand algebraicGPUtranslationreview; GPUfloatbitparity/hardwareFPSnotclaimed; rootownsactualcompiledfullpageGPUvalidation"
+  },
+  "limits": [
+    "GPUfloatrounding/hashvaluesare not provenbit-identicaltoCPUdouble; CPUreferenceis numericalcalculus only",
+    "ActualfullpageGLSLcompile/renderandhardwareperformanceare root integration responsibilities"
+  ],
+  "sourceEdited": false,
+  "previousReviewedSourceSha256": "5a3cbcc3712df1d95acdc0cf1ad5f2a810eb0242d534159f9abd27175dab4427",
+  "newlineCompatibilityReview": {
+    "crlfRoundtripExact": true,
+    "crlfIdempotent": true,
+    "noBareLfInCrlfResult": true
+  }
+}

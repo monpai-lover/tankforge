@@ -1,0 +1,309 @@
+{
+  "started": 1793188705.6898372,
+  "passed": true,
+  "scope": "actual shader fixtures; no hardware FPS or whole-game acceptance",
+  "gate": {
+    "schema": "tankforge-r8-webgl2-surface-gate-v1",
+    "pass": true,
+    "webglAvailable": true,
+    "variants": [
+      {
+        "name": "fragmentHDR",
+        "compiled": true,
+        "linked": true,
+        "fixtures": [
+          {
+            "kind": 2,
+            "replayCutaway": false,
+            "pixel": [
+              11,
+              14,
+              7,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 20,
+            "replayCutaway": false,
+            "pixel": [
+              11,
+              14,
+              7,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 22,
+            "replayCutaway": false,
+            "pixel": [
+              15,
+              21,
+              28,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 0,
+            "replayCutaway": false,
+            "pixel": [
+              14,
+              16,
+              10,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 18,
+            "replayCutaway": false,
+            "pixel": [
+              14,
+              16,
+              8,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 18,
+            "replayCutaway": true,
+            "pixel": [
+              14,
+              16,
+              8,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          }
+        ]
+      },
+      {
+        "name": "fragmentFallback",
+        "compiled": true,
+        "linked": true,
+        "fixtures": [
+          {
+            "kind": 2,
+            "replayCutaway": false,
+            "pixel": [
+              13,
+              15,
+              11,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 20,
+            "replayCutaway": false,
+            "pixel": [
+              13,
+              15,
+              11,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 22,
+            "replayCutaway": false,
+            "pixel": [
+              40,
+              39,
+              37,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 0,
+            "replayCutaway": false,
+            "pixel": [
+              15,
+              16,
+              13,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 18,
+            "replayCutaway": false,
+            "pixel": [
+              17,
+              18,
+              13,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          },
+          {
+            "kind": 18,
+            "replayCutaway": true,
+            "pixel": [
+              17,
+              18,
+              13,
+              255
+            ],
+            "glError": 0,
+            "pass": true
+          }
+        ]
+      }
+    ],
+    "visualAccepted": false,
+    "hardwarePerformanceMeasured": false,
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "WebKit WebGL",
+    "renderReadback": true
+  },
+  "comparison": {
+    "schema": "tankforge-r8-paired-shader-comparison-v1",
+    "ready": true,
+    "sourceHashes": {
+      "before": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+      "after": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda"
+    },
+    "visualAccepted": false,
+    "hardwarePerformanceMeasured": false,
+    "encoding": "actual RGBA8 ENC/DEC fallback, main composite ACES",
+    "scenes": [
+      "close terrain",
+      "steep terrain",
+      "water"
+    ],
+    "compiledPrograms": 3,
+    "glError": 0,
+    "frames": 5,
+    "timeSeconds": 0,
+    "exposure": 1
+  },
+  "pixels": {
+    "rows": [
+      {
+        "row": 0,
+        "changedPixels": 147397,
+        "changedBeyondDither": 93511,
+        "meanChannelDifference": 41.03490277777778,
+        "nonblackChannels": 504000
+      },
+      {
+        "row": 1,
+        "changedPixels": 109479,
+        "changedBeyondDither": 0,
+        "meanChannelDifference": 0.38746825396825396,
+        "nonblackChannels": 504000
+      },
+      {
+        "row": 2,
+        "changedPixels": 108790,
+        "changedBeyondDither": 0,
+        "meanChannelDifference": 0.38874603174603173,
+        "nonblackChannels": 504000
+      }
+    ],
+    "glError": 0
+  },
+  "final": {
+    "status": {
+      "schema": "tankforge-r8-paired-shader-comparison-v1",
+      "ready": true,
+      "sourceHashes": {
+        "before": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
+        "after": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda"
+      },
+      "visualAccepted": false,
+      "hardwarePerformanceMeasured": false,
+      "encoding": "actual RGBA8 ENC/DEC fallback, main composite ACES",
+      "scenes": [
+        "close terrain",
+        "steep terrain",
+        "water"
+      ],
+      "compiledPrograms": 3,
+      "glError": 0,
+      "frames": 6,
+      "timeSeconds": 3,
+      "exposure": 1
+    },
+    "pixels": [
+      {
+        "row": 0,
+        "col": 0,
+        "rgba": [
+          155,
+          155,
+          90,
+          255
+        ]
+      },
+      {
+        "row": 0,
+        "col": 1,
+        "rgba": [
+          154,
+          155,
+          90,
+          255
+        ]
+      },
+      {
+        "row": 1,
+        "col": 0,
+        "rgba": [
+          160,
+          156,
+          91,
+          255
+        ]
+      },
+      {
+        "row": 1,
+        "col": 1,
+        "rgba": [
+          159,
+          155,
+          90,
+          255
+        ]
+      },
+      {
+        "row": 2,
+        "col": 0,
+        "rgba": [
+          114,
+          142,
+          165,
+          255
+        ]
+      },
+      {
+        "row": 2,
+        "col": 1,
+        "rgba": [
+          176,
+          181,
+          189,
+          255
+        ]
+      }
+    ]
+  },
+  "errors": [],
+  "finished": 1793188714.0592813
+}

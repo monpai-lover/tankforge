@@ -1,0 +1,66 @@
+warning: method `apply_shot` is never used
+    --> crates\server\src\lobby.rs:2328:8
+     |
+ 738 | impl Lobby {
+     | ---------- method in this implementation
+...
+2328 |     fn apply_shot(&mut self, id: u32, room: u32, target: u32, shell: ProjectileDef, o: Vec3, d: Vec3, speed: f32, dist: f32, seed:...
+     |        ^^^^^^^^^^
+     |
+     = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `bridge_states` is never used
+    --> crates\server\src\frontline_sim.rs:1595:19
+     |
+1390 | impl MapGround {
+     | -------------- method in this implementation
+...
+1595 |     pub(crate) fn bridge_states(&self) -> Vec<BridgeStateView> {
+     |                   ^^^^^^^^^^^^^
+
+warning: field `route` is never read
+   --> crates\server\src\frontline.rs:572:5
+    |
+535 | struct Room {
+    |        ---- field in this struct
+...
+572 |     route: Vec<[f64; 2]>,
+    |     ^^^^^
+
+warning: methods `ai_sortie_view` and `accept_loadout` are never used
+    --> crates\server\src\frontline_air.rs:963:19
+     |
+ 950 | impl AirWorld {
+     | ------------- methods in this implementation
+...
+ 963 |     pub(crate) fn ai_sortie_view(&self, id: u64) -> Option<AiSortieView> {
+     |                   ^^^^^^^^^^^^^^
+...
+1124 |     fn accept_loadout(
+     |        ^^^^^^^^^^^^^^
+
+warning: method `name` is never used
+    --> crates\server\src\frontline_air.rs:2540:8
+     |
+2539 | impl AiSortiePhase {
+     | ------------------ method in this implementation
+2540 |     fn name(self) -> &'static str {
+     |        ^^^^
+
+warning: struct `AiSortieView` is never constructed
+    --> crates\server\src\frontline_air.rs:2557:19
+     |
+2557 | pub(crate) struct AiSortieView {
+     |                   ^^^^^^^^^^^^
+
+warning: method `view` is never used
+    --> crates\server\src\frontline_air.rs:2652:8
+     |
+2620 | impl AiSortieState {
+     | ------------------ method in this implementation
+...
+2652 |     fn view(&self) -> AiSortieView {
+     |        ^^^^
+
+warning: `tg-server` (lib) generated 7 warnings
+    Finished `release` profile [optimized] target(s) in 0.10s

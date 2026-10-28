@@ -18,6 +18,14 @@ def main():
     # Its canonical client must only be updated through reviewed narrow owners;
     # replacing the entire block would silently erase installed extensions.
     if '/* TF_AIRWAR_PRESENTATION_BEGIN */' in text:
+        if 'TF_R86_WATER_BEGIN' in text or 'TF_R86_AIRWAR_HUD_BEGIN' in text:
+            composed = subprocess.run(['node', '--input-type=module', '-e',
+                'import fs from "node:fs"; import {applyR86AirwarFixes} from "./handoff/tools/apply_r86_airwar_fixes.mjs"; process.stdout.write(applyR86AirwarFixes(fs.readFileSync(0,"utf8")));'],
+                input=text.encode('utf-8'),capture_output=True,cwd=ROOT.parent,check=True)
+            expected=composed.stdout.decode('utf-8')
+            if args.check:assert text==expected,'Run the reviewed R8.6 current narrow client owners'
+            else:path.write_bytes(expected.encode('utf-8'))
+            return
         current = 'TF_R85_OCEAN' in text
         script = ('import fs from "node:fs"; import {applyR85AirwarFixes} from "./handoff/tools/apply_r85_airwar_fixes.mjs"; process.stdout.write(applyR85AirwarFixes(fs.readFileSync(0,"utf8")));'
                   if current else 'import fs from "node:fs"; import {applyR82AirwarFixes} from "./handoff/tools/apply_r82_airwar_fixes.mjs"; import {applyR83AirwarFixes} from "./handoff/tools/apply_r83_airwar_fixes.mjs"; process.stdout.write(applyR83AirwarFixes(applyR82AirwarFixes(fs.readFileSync(0,"utf8"))));')

@@ -1,7 +1,8 @@
+import {preserveR86Presentation} from './r86_presentation_state.mjs';
 import fs from 'node:fs';
 import {normalizeR85TheatreFleet,patchR85TheatreFleet} from './patch_r85_theatre_fleet.mjs';
 const read=name=>fs.readFileSync(new URL(name,import.meta.url),'utf8');
-export function patchFrontlineTerrainWorker(source){
+function patchFrontlineTerrainWorkerBase(source){
  source=source.replaceAll('\r\n','\n');
  const r85=source.includes('/* TF_SHIP_MARKERS_R85_BEGIN */');
  if(r85)source=normalizeR85TheatreFleet(source);
@@ -28,3 +29,5 @@ export function patchFrontlineTerrainWorker(source){
  source=source.replace(before,after);
  return finish(source);
 }
+
+export function patchFrontlineTerrainWorker(source){return preserveR86Presentation(source,patchFrontlineTerrainWorkerBase);}

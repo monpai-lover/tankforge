@@ -1,3 +1,4 @@
+import {preserveR86Presentation} from './r86_presentation_state.mjs';
 // Exact, idempotent source-owned runtime patches. Combat WASM is synchronized
 // separately by sync_design_core.mjs after a source-matched native build.
 import fs from 'node:fs';
@@ -10,7 +11,8 @@ import {patchLargeWorldRender} from './patch_large_world_render.mjs';
 import {patchNativeGuidedWeaponSelection} from './patch_native_guided_weapon_selection.mjs';
 import {patchFrontlineCountermeasures} from './frontline_countermeasures_patch.mjs';
 const app=new URL('../bundle/app.js.html',import.meta.url);
-export function applyR82AirwarFixes(source){return patchFrontlineCountermeasures(patchNativeGuidedWeaponSelection(patchLargeWorldRender(patchFrontlineTerrainWorker(patchNativeInventoryHistory(patchAircraftFuelLoadHelper(source))))));}
+function applyR82AirwarFixesBase(source){return patchFrontlineCountermeasures(patchNativeGuidedWeaponSelection(patchLargeWorldRender(patchFrontlineTerrainWorker(patchNativeInventoryHistory(patchAircraftFuelLoadHelper(source))))));}
+export function applyR82AirwarFixes(source){return preserveR86Presentation(source,applyR82AirwarFixesBase);}
 if(process.argv[1]&&import.meta.url===pathToFileURL(path.resolve(process.argv[1])).href){
  if(process.argv.includes('--write'))fs.writeFileSync(app,applyR82AirwarFixes(fs.readFileSync(app,'utf8')));
  else if(process.argv.includes('--check')){if(applyR82AirwarFixes(fs.readFileSync(app,'utf8'))!==fs.readFileSync(app,'utf8'))throw Error('Current bundle needs R8.2 source patches');}

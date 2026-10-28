@@ -226,3 +226,9 @@ MIT 授權條款要求保留版權聲明:
   - 原作：https://www.shadertoy.com/view/MdXyzX 。已核對的公開原碼：https://github.com/xscreensaver/xscreensaver/blob/8ddbc080a77d6236939a6cde59c559f21c6e187a/hacks/glx/glsl/prococean.glsl 。
   - 保留原碼與授權於 `docs/third-party/afl_ext-prococean-reference.glsl`、`docs/third-party/afl_ext-prococean-LICENSE.txt`。
   - 遊戲適配使用八層過濾解析法線、現有天空與陽光；未導入原作整屏步進、攝像機、大氣或色調曲線。幾何、海面高度和碰撞沿用遊戲資料。接入與驗證範圍見 `handoff/tools/r85-water-sources.md`。
+
+## 2026-10-28 R8.6 使用者指定海水參考
+
+- 海水波形與反射改編自使用者提供的 Frank Hugenroth（03/2013）GLSL。原文標註 **CC BY-NC-SA 3.0 Unported**，並提及 Inigo Quilez 的噪聲與步進概念；這部分並非 MIT。
+- 原始附件逐位元保存在 `docs/third-party/frank-hugenroth-water-reference.glsl`（9794 bytes，SHA-256 `14804fe126af4f1e5ce3881611d5bca15c847bfcdf3cc6ed7db81e9f37c42261`）；授權與改編說明見 `frank-hugenroth-water-LICENSE.txt` 及 `handoff/tools/r86-water-sources.md`。沒有虛構原作線上標題或 Shadertoy ID。
+- 適配其五組交錯長浪、四層 fBm、七層細浪與天空／太陽反射，改用既有噪聲、解析梯度和像素過濾；未搬入示範鏡頭、整屏步進或體積雲。改編碼與對應 CPU 參考保留 CC BY-NC-SA 聲明，HTML 與完整交付包一同保留來源與授權。原 R8.5 MIT 參考與完整授權仍保留作歷史來源。
