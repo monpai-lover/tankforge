@@ -12,10 +12,11 @@ test('current R86 composer installs both leaf owners and legacy composers retain
   const {applyR86AirwarFixes} = await import(path);
   const source = fs.readFileSync(new URL('../bundle/app.js.html', import.meta.url), 'utf8');
   const result = applyR86AirwarFixes(source);
-  assert.match(result, /TF_R86_WATER_BEGIN/);
-  assert.match(result, /TF_R86_AIRWAR_HUD/);
-  assert.equal(applyR86AirwarFixes(result), result);
+  assert.ok(result.includes('TF_R86_WATER_BEGIN'), 'Current water owner missing');
+  assert.ok(result.includes('TF_R86_AIRWAR_HUD'), 'Current aircraft HUD owner missing');
+  assert.ok(result.includes('TF_R86_CLOUDS_BEGIN'), 'Current cloud owner missing');
+  assert.ok(applyR86AirwarFixes(result) === result, 'Current composition must be byte-idempotent');
   for (const compose of [applyR82AirwarFixes, applyR83AirwarFixes, applyR84AirwarFixes, applyR85AirwarFixes]) {
-    assert.equal(compose(result), result, `${compose.name} must preserve newer reviewed owners`);
+    assert.ok(compose(result) === result, `${compose.name} must preserve newer reviewed owners`);
   }
 });

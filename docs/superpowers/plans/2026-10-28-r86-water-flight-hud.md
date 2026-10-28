@@ -2,7 +2,7 @@
 
 > **For agentic workers:** Use superpowers:subagent-driven-development for the independent water, HUD and delivery owners; root integrates the canonical artifact and performs final browser verification.
 
-**Goal:** Remove the escort mission banner that overlaps the control strip, show permitted fleet locations while piloting, use the user's supplied water reference, and deliver a complete Linux amd64 VPS upgrade package.
+**Goal:** Remove the escort mission banner that overlaps the control strip, show permitted fleet locations within 10 km while piloting, use the user's supplied water reference, and deliver a complete Linux amd64 VPS upgrade package.
 
 **Architecture:** Continue the isolated R8.5 checkout at `D:/TankForge-workspaces/r81-push-20261027`, base `64e657b`. Add reversible R8.6 leaf patches with exact R8.5 normalization. Legacy composers preserve installed R8.6 state; the current composer applies it last. Native authority, water collision heights, ship simulation and the 188×188 / nearby 10 km minimap remain authoritative. The shader reference is Frank Hugenroth's March 2013 CC BY-NC-SA 3.0 source, separately attributed rather than represented as MIT.
 
@@ -21,6 +21,13 @@
 - [x] Add failing stability/composition regressions, then implement `patch_r86_water.mjs` with exact `normalizeR86Water` restoration.
 - [x] Adapt its five crossing long waves, noise detail, reflective sky/sun and cloud shading to the existing surface shader. Keep work bounded and pixel filtered, without its standalone camera or fullscreen cloud/water raymarch.
 - [x] Compile and render actual HDR/fallback GLSL; compare water and unchanged terrain with the same camera/time/exposure, and inspect the final Taiwan page.
+
+## Task 2b: User cloud and SDF references
+
+- [x] Implement original cloud shape/lighting and actual camera-height bounds in the existing shared cloud owner, without copying the restricted Inigo source. Preserve density/sky/shadow consistency, alpha transmittance, old loop budgets and resources.
+- [x] Verify Cineshader opacity semantics through the game alpha contract, not a blind final-alpha swap.
+- [x] Validate near1/absolute-hit SDF math in a separate original diagnostic, including inside/miss/finite/normalized-ray cases; keep it outside game geometry and collision.
+- [x] Integrate and graphically verify the final complete page with clouds, water and nearby-only fleet markers.
 
 ## Task 3: Canonical integration
 

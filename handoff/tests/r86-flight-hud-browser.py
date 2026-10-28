@@ -26,7 +26,7 @@ PROBE = r"""() => {
   const t=__tf,g=t.G,f=g.frontline,a=g.air,cv=document.querySelector('#air-hud .air-ov'),banner=document.getElementById('frontline-airwar-mission');
   const visible=n=>!!n&&!n.hidden&&getComputedStyle(n).display!=='none'&&getComputedStyle(n).visibility!=='hidden'&&n.getBoundingClientRect().width>0;
   return {mode:g.mode,airActive:!!a?.active,native:!!a?.nativeAuthority,camera:a?.plane?.state?.camera,view:a?.ctl?.view,
-    control:f.control,own:f.aircrafts.find(u=>u.controller===t.net.id)?.unit,vessels:f.vessels.map(u=>({id:u.id,unit:u.unit,pos:u.pos,alive:u.alive,team:u.team})),
+    control:f.control,own:f.aircrafts.find(u=>u.controller===t.net.id)?.unit,cameraWorld:t.renderer._renderCamera?.pos?Array.from(t.renderer._renderCamera.pos):null,vessels:f.vessels.map(u=>({id:u.id,unit:u.unit,pos:u.pos,alive:u.alive,team:u.team})),
     airCanvasVisible:visible(cv),airCanvas:cv?{width:cv.width,height:cv.height,rect:cv.getBoundingClientRect().toJSON(),texts:cv.__r86Texts||[],labelRects:cv.__r86Rects||[]}:null,
     banner:{visible:visible(banner),hidden:banner?.hidden,text:banner?.textContent},
     minimap:{width:t.hud.map?.width,height:t.hud.map?.height,rect:t.hud.map?.getBoundingClientRect().toJSON(),texts:t.hud.map?.__r86Texts||[]},
@@ -83,6 +83,9 @@ async def run(args):
                 r['checks'][name+'_actual_native_control']=state['airActive'] and state['native'] and state['control']==state['own']
                 r['checks'][name+'_correct_camera']=state['camera']==camera
                 r['checks'][name+'_visible_pilot_fleet_labels']=state['airCanvasVisible'] and bool(tags)
+                import re
+                distances=[float(m.group(1)) for tag in tags for m in [re.search(r'(\d+(?:\.\d+)?)\s*km',tag['text'])] if m]
+                r['checks'][name+'_nearby_only_fleet_labels']=bool(distances) and all(d<=10 for d in distances)
                 boxes=state['airCanvas']['labelRects'];bounds=state['airCanvas']['rect']
                 r['checks'][name+'_label_boxes_in_view']=bool(boxes) and all(b['x']>=-1 and b['y']>=-1 and b['x']+b['w']<=bounds['width']+1 and b['y']+b['h']<=bounds['height']+1 for b in boxes)
                 r['checks'][name+'_no_bottom_banner']=not state['banner']['visible']

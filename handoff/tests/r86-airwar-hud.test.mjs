@@ -34,15 +34,21 @@ test('in-flight bottom banner is hidden without deleting observer controls or ho
  const s=await candidate(),line=s.match(/airwarOverlay\.hidden=!f\.active[^;]+;/)?.[0];assert.ok(line);
  const run=aircraft=>{const x={f:{active:true,deploymentVisible:false},G4:{mode:'battle'},current:{aircraft},airwarOverlay:{hidden:false}};vm.runInNewContext(line,x);return x.airwarOverlay.hidden;};assert.equal(run('f15c'),true);assert.equal(run(undefined),false);assert.ok(s.includes('frontlineAirwarMissionText(f.scenario,member?.team)'));assert.ok(s.includes('spectatorNext.hidden='));
 });
-test('controlled flight gives bounded theatre-range fleet cues using only provided live permitted snapshots',async()=>{
+test('controlled flight gives nearby fleet hints only within10km from provided live permitted snapshots',async()=>{
  assert.ok(fs.existsSync(patchUrl),'new scoped R86 HUD patch required');const {R86_AIRWAR_HUD_HELPER}=await import(patchUrl),ctx=vm.createContext({});vm.runInContext(R86_AIRWAR_HUD_HELPER,ctx);const api=ctx.TFAirwarHudR86,view={camera:{pos:[0,650,0],viewProj:[]},project:()=>[0,0,1],width:1280,height:720,team:'blue',aircraft:true};
- assert.equal(api.strategicRangeMeters,80000);const far=api.layout({...view,vessels:[ship({pos:[0,0,15000]})]});assert.equal(far.length,1);assert.match(far[0].text,/15\.0 km/);
+ assert.equal(api.strategicRangeMeters,10000);const far=api.layout({...view,vessels:[ship({pos:[0,0,15000]})]});assert.equal(far.length,0);
  const fleet=Array.from({length:14},(_,i)=>ship({team:i%2,id:'ship-'+i,pos:[0,0,3000+i],unit:{battle:4,unit:i+1,life:1}})),before=JSON.stringify(fleet);
  const cues=api.layout({...view,project:()=>[2,-.2,1],vessels:fleet});assert.equal(cues.length,2);assert.ok(cues.every(t=>t.fleetCue));assert.equal(new Set(cues.map(c=>c.team)).size,2);assert.equal(JSON.stringify(fleet),before);
  assert.equal(api.layout({...view,aircraft:false,project:()=>[2,0,1],vessels:fleet}).length,0);
- for(const row of [ship({alive:false}),ship({pos:[NaN,0,0]}),ship({pos:[0,0,80001]})])assert.equal(api.layout({...view,vessels:[row]}).length,0);
+ for(const row of [ship({alive:false}),ship({pos:[NaN,0,0]}),ship({pos:[0,0,10001]})])assert.equal(api.layout({...view,vessels:[row]}).length,0);
  assert.equal(api.layout({...view,vessels:[]}).length,0,'an absent hidden enemy never creates a cue');
  const behind=api.layout({...view,project:()=>[0,0,-1],vessels:[ship()]});assert.equal(behind.length,1);assert.match(behind[0].text,/后方/);
+});
+test('10km exact near/far boundary applies equally to names, offscreen and behind fleet cues',async()=>{
+ const {R86_AIRWAR_HUD_HELPER}=await import(patchUrl),ctx=vm.createContext({});vm.runInContext(R86_AIRWAR_HUD_HELPER,ctx);const api=ctx.TFAirwarHudR86,view={camera:{pos:[0,0,0],viewProj:[]},width:1280,height:720,team:'blue',aircraft:true};
+ for(const projected of[[0,0,1],[2,0,1],[0,0,-1]])for(const[distance,count]of[[9999.99,1],[10000,1],[10000.01,0]]){
+  const tags=api.layout({...view,project:()=>projected,vessels:[ship({pos:[0,0,distance]})]});assert.equal(tags.length,count,'distance'+distance+' projection'+projected);if(count){assert.equal(!!tags[0].fleetCue,projected[0]===2||projected[2]<0);assert.match(tags[0].text,/10\.0 km/);}
+ }
 });
 test('offscreen aircraft cue paints on the visible canvas within viewport bounds',async()=>{
  const x=await fixture({project:()=>[2,-.2,1]});x.draw();assert.equal(x.flight.calls.filter(c=>c.op==='text'&&/蓝方舰队/.test(c.text)).length,1);assert.equal(x.ground.calls.length,0);

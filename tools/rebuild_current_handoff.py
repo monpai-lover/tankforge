@@ -19,7 +19,7 @@ import tempfile
 import zlib
 
 
-RELEASE_SHA256 = 'b67247c1fe3752a5c61a63af578ccb8614691cdb7190c39f0456ae2914dd5dc5'
+RELEASE_SHA256 = 'e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739'
 CHUNK_BYTES = 1024 * 1024
 PART_NAMES = tuple(f'data.line.gz.part{index:02d}' for index in range(5))
 

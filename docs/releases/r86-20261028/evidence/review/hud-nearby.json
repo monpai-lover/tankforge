@@ -1,0 +1,41 @@
+{
+  "schema": "R86HudR3NearbyRangeReviewV1",
+  "ready": true,
+  "findings": [],
+  "baseline": "a8b2ca133e9e00a05970992956d963ad6c08afe9",
+  "reviewScope": "Only sourcehelperrange10000/comment and focusedrange regressions; no geometry/camera/HUDplacement/nativeauthority changes",
+  "productionChangeExactlyOneConstantAndComment": true,
+  "cameraToVesselMetric": "existing3Ddistance unchanged",
+  "inclusiveRangeMeters": 10000,
+  "rangeAffects": [
+    "onscreen vessel class/name/number/distance",
+    "offscreen fleet cues",
+    "behind fleet cues"
+  ],
+  "boundarySamplesMeters": [
+    9999.99,
+    10000,
+    10000.01
+  ],
+  "boundaryExpectedHintCounts": [
+    1,
+    1,
+    0
+  ],
+  "boundaryProjectionCases": [
+    "onscreen",
+    "offscreen",
+    "behind"
+  ],
+  "preserved": [
+    "controlled cockpit andthird-person visibleHUDdestination",
+    "boundedsharedtext/inwardleaderandprojecteddot",
+    "two-factioncue separation",
+    "minimap188frame and10kmradius",
+    "permittedsnapshot-onlyauthority/dead/hidden filtering",
+    "missionstatus andflightbanner removal"
+  ],
+  "oldRecordsPreserved": true,
+  "oldHandoff": "D:/TankForge-validation/r86-20261028/airwar-hud/leaf-handoff.json",
+  "reviewerMode": "focusedsource diff and tests; rootownsfinalcandidatebrowserintegration"
+}

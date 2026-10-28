@@ -104,7 +104,7 @@ class RebuildCurrentHandoffTests(unittest.TestCase):
         result = self.run_cli(expected=False)
         self.assertNotEqual(result.returncode, 0)
         self.assertIn('SHA-256 mismatch', result.stderr)
-        self.assertIn('b67247c1fe3752a5c61a63af578ccb8614691cdb7190c39f0456ae2914dd5dc5', result.stderr)
+        self.assertIn('e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739', result.stderr)
         self.assert_no_partial_output()
 
     def test_default_root_follows_script_from_another_working_directory(self):

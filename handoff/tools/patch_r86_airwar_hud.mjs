@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 // registry lookup or hidden contact source is introduced by this patch.
 export const R86_AIRWAR_HUD_HELPER=String.raw`/* TF_R86_AIRWAR_HUD_BEGIN */
 var TFAirwarHudR86=(()=>{
-  const strategicRangeMeters=80000; // Covers the ~72km diagonal of the 1:10 theatre; minimap remains 10km.
+  const strategicRangeMeters=10000; // Nearby-only ship names and fleet direction cues; minimap remains 10km.
   const names={generic_transport:'运输舰',generic_landing_ship:'登陆舰',generic_escort:'护航舰',generic_frigate:'护卫舰',generic_interceptor:'快艇',generic_patrol:'巡逻艇'};
   const point=p=>(Array.isArray(p)||ArrayBuffer.isView(p))&&p.length===3&&p.every(Number.isFinite);
   const side=t=>t==='blue'?0:t==='red'?1:t;

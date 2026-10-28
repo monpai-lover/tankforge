@@ -1,10 +1,10 @@
 {
   "schema": "TankForgeFrozenHandoffRebuildV1",
   "root": "D:\\TankForge-workspaces\\r81-push-20261027",
-  "output": "D:\\TankForge-validation\\r86-20261028\\tankforge-r86-r2.html",
-  "bytes": 418872157,
-  "sha256": "b67247c1fe3752a5c61a63af578ccb8614691cdb7190c39f0456ae2914dd5dc5",
-  "expectedSha256": "b67247c1fe3752a5c61a63af578ccb8614691cdb7190c39f0456ae2914dd5dc5",
+  "output": "D:\\TankForge-validation\\r86-20261028\\tankforge-r86-r3.html",
+  "bytes": 418873733,
+  "sha256": "e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739",
+  "expectedSha256": "e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739",
   "parts": [
     "data.line.gz.part00",
     "data.line.gz.part01",
@@ -12,7 +12,7 @@
     "data.line.gz.part03",
     "data.line.gz.part04"
   ],
-  "canonicalAppSha256": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda",
-  "canonicalAppBytes": 34436699,
-  "profileSha256": "11bab4396920c67ca0b98407ed25dbf3adb1358b411a7d5b77cbf809ce65b39f"
+  "canonicalAppSha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9",
+  "canonicalAppBytes": 34438275,
+  "profileSha256": "3ccb10adf5e6199d810526cd8612a33241f477ee0217b4c325d62df08c65e8ab"
 }

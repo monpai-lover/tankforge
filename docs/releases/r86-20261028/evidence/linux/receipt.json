@@ -1,9 +1,10 @@
 {
-  "schema": "TankForgeR86R2FinalLinuxBuildV1",
-  "candidate": "R2",
+  "schema": "TankForgeR86R3FinalLinuxBuildV1",
+  "candidate": "R3",
+  "baselineCommit": "64e657b81eaf87f4e8e93aacbbdb11ce7003e06a",
   "status": "PASS",
   "sourceRoot": "D:\\TankForge-workspaces\\r81-push-20261027",
-  "head": "64e657b81eaf87f4e8e93aacbbdb11ce7003e06a",
+  "head": "a8b2ca133e9e00a05970992956d963ad6c08afe9",
   "sourceTreeDirty": true,
   "command": [
     "C:\\Users\\24908\\.codex\\scratch\\tankforge-rust\\cargo\\bin\\cargo.exe",
@@ -25,12 +26,12 @@
     "CARGO_BUILD_JOBS": "4",
     "RUST_LOG": "warn"
   },
-  "startedUtc": "2026-10-28T11:56:01.826904+00:00",
-  "finishedUtc": "2026-10-28T11:56:08.854530+00:00",
-  "elapsedSeconds": 0.26125839992891997,
+  "startedUtc": "2026-10-28T16:19:33.982028+00:00",
+  "finishedUtc": "2026-10-28T16:19:41.446567+00:00",
+  "elapsedSeconds": 0.2780615999363363,
   "exitCode": 0,
   "buildLog": "build.txt",
-  "buildLogSha256": "a02b2bba36b23eddef86daf994c12fa550b4eda8e2cab7d63d1b13474666af67",
+  "buildLogSha256": "b5cc3b5f4e7231893069d6f04dfb848a8059e8e0c9c148989d5d5db99db137c2",
   "toolchain": "toolchain.txt",
   "sourceStart": "source-start.json",
   "sourceEnd": "source-end.json",
@@ -39,24 +40,24 @@
   "membershipStable": true,
   "runtimePins": {
     "page": {
-      "path": "D:\\TankForge-validation\\r86-20261028\\tankforge-r86-r2.html",
-      "bytes": 418872157,
-      "sha256": "b67247c1fe3752a5c61a63af578ccb8614691cdb7190c39f0456ae2914dd5dc5"
+      "path": "D:\\TankForge-validation\\r86-20261028\\tankforge-r86-r3.html",
+      "bytes": 418873733,
+      "sha256": "e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739"
     },
     "app": {
       "path": "D:\\TankForge-workspaces\\r81-push-20261027\\handoff\\bundle\\app.js.html",
-      "bytes": 34436699,
-      "sha256": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda"
+      "bytes": 34438275,
+      "sha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9"
     },
     "profile": {
       "path": "D:\\TankForge-workspaces\\r81-push-20261027\\data\\aircraft\\frontline.json",
       "bytes": 1526062,
-      "sha256": "11bab4396920c67ca0b98407ed25dbf3adb1358b411a7d5b77cbf809ce65b39f"
+      "sha256": "3ccb10adf5e6199d810526cd8612a33241f477ee0217b4c325d62df08c65e8ab"
     }
   },
   "profileSourceMetadataProof": "profile-source-metadata-proof.json",
-  "rawRustCargoFilesMatchHead": 194,
-  "binary": "D:\\TankForge-validation\\r86-20261028\\linux-build\\r2-final\\tg-server-linux-amd64-musl",
+  "rawRustCargoFilesMatchBaseline": 194,
+  "binary": "D:\\TankForge-validation\\r86-20261028\\linux-build\\r3-final\\tg-server-linux-amd64-musl",
   "bytes": 6794832,
   "sha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
   "previousR85Sha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
@@ -75,6 +76,6 @@
   "executedOnLinux": false,
   "productionDeployed": false,
   "nativeFullSuiteRerun": false,
-  "nativeSuiteBaseline": "R85 501/501; Rust/Cargo raw bytes match baseline HEAD, current data differs only aircraft source metadata.",
+  "nativeSuiteBaseline": "R85 501/501; Rust/Cargo raw bytes match 64e657b baseline, current data differs only aircraft source metadata.",
   "scope": "Actual cached Linux amd64 release build and static ELF inspection on Windows; no Linux runtime or production validation."
 }

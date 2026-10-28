@@ -1,0 +1,137 @@
+{
+  "started": 1793204296.5409863,
+  "passed": true,
+  "scope": "actual cloud shader fixture; not full-page flight or hardware FPS",
+  "gate": {
+    "schema": "TankForgeR86ActualCloudShaderGateV1",
+    "passed": true,
+    "scope": "actual production noise/dome/sky shader fixture; not whole-game visual or hardware FPS acceptance",
+    "beforeSha256": "78c7c8d75af3c702ba2c1050a132c39a73b38ceaccad775f2bf1a7610bf058c0",
+    "afterSha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9",
+    "checks": {
+      "webgl2": {
+        "passed": true,
+        "detail": null
+      },
+      "cloud_density_changed_with_bounded_T": {
+        "passed": true,
+        "detail": {
+          "min": 0,
+          "max": 1,
+          "mean": 0.6559540991690065,
+          "changedPixels": 11054
+        }
+      },
+      "sky_final_alpha_opaque": {
+        "passed": true,
+        "detail": null
+      },
+      "zero_extinction_is_clear": {
+        "passed": true,
+        "detail": {
+          "min": 1,
+          "max": 1,
+          "mean": 1
+        }
+      },
+      "temporal_alpha_stays_transmittance": {
+        "passed": true,
+        "detail": {
+          "min": 0.5490196078431373,
+          "max": 0.5490196078431373,
+          "mean": 0.549019607843144,
+          "expected": 0.5505882352941176
+        }
+      },
+      "camera_altitude_650": {
+        "passed": true,
+        "detail": {
+          "cameraHeight": 650,
+          "min": 0,
+          "max": 1,
+          "mean": 0.6791092218137246
+        }
+      },
+      "camera_altitude_2100": {
+        "passed": true,
+        "detail": {
+          "cameraHeight": 2100,
+          "min": 0,
+          "max": 1,
+          "mean": 0.9149682138480392
+        }
+      },
+      "camera_altitude_5000": {
+        "passed": true,
+        "detail": {
+          "cameraHeight": 5000,
+          "min": 1,
+          "max": 1,
+          "mean": 1
+        }
+      },
+      "float_HDR_target_supported": {
+        "passed": true,
+        "detail": null
+      },
+      "HDR_dome_finite": {
+        "passed": true,
+        "detail": {
+          "min": 0,
+          "max": 1,
+          "mean": 0.6491615637787618
+        }
+      },
+      "HDR_sky_finite_opaque": {
+        "passed": true,
+        "detail": null
+      },
+      "no_GL_error": {
+        "passed": true,
+        "detail": null
+      }
+    },
+    "programs": [
+      "after-domeHDR",
+      "after-domeFallback",
+      "after-skyHDR",
+      "after-skyFallback",
+      "before-domeFallback",
+      "before-skyFallback",
+      "production-noise",
+      "diagnostic-display"
+    ],
+    "errors": [],
+    "renderer": "WebKit WebGL",
+    "noise": {
+      "size": 24,
+      "thresholds": [
+        0.5529411764705883,
+        0.9450980392156862
+      ],
+      "source": "unchanged production NOISE_FS"
+    },
+    "altitudes": [
+      {
+        "cameraHeight": 650,
+        "min": 0,
+        "max": 1,
+        "mean": 0.6791092218137246
+      },
+      {
+        "cameraHeight": 2100,
+        "min": 0,
+        "max": 1,
+        "mean": 0.9149682138480392
+      },
+      {
+        "cameraHeight": 5000,
+        "min": 1,
+        "max": 1,
+        "mean": 1
+      }
+    ]
+  },
+  "errors": [],
+  "finished": 1793204299.8428802
+}

@@ -232,3 +232,9 @@ MIT 授權條款要求保留版權聲明:
 - 海水波形與反射改編自使用者提供的 Frank Hugenroth（03/2013）GLSL。原文標註 **CC BY-NC-SA 3.0 Unported**，並提及 Inigo Quilez 的噪聲與步進概念；這部分並非 MIT。
 - 原始附件逐位元保存在 `docs/third-party/frank-hugenroth-water-reference.glsl`（9794 bytes，SHA-256 `14804fe126af4f1e5ce3881611d5bca15c847bfcdf3cc6ed7db81e9f37c42261`）；授權與改編說明見 `frank-hugenroth-water-LICENSE.txt` 及 `handoff/tools/r86-water-sources.md`。沒有虛構原作線上標題或 Shadertoy ID。
 - 適配其五組交錯長浪、四層 fBm、七層細浪與天空／太陽反射，改用既有噪聲、解析梯度和像素過濾；未搬入示範鏡頭、整屏步進或體積雲。改編碼與對應 CPU 參考保留 CC BY-NC-SA 聲明，HTML 與完整交付包一同保留來源與授權。原 R8.5 MIT 參考與完整授權仍保留作歷史來源。
+
+## R8.6 原創雲層與 SDF 參考說明
+
+- 使用者另提供雲層、透明度和 SDF 示範作視覺／技術參考。Inigo Quilez 附件明確禁止用於產品及再散布；該原碼未納入倉庫、網頁或交付包，也未作程式碼改編。
+- 新雲層以遊戲既有密度場、噪聲材質、光學厚度和分塊天空更新自行實作，保留透射率 alpha 與原有工作預算；來源與限制見 `handoff/tools/r86-clouds-sources.md`。Shadertoy 4sXGRM 僅作使用者指向的參考連結，未虛構授權或複製其整套示範。
+- `r86_sdf_intersection.mjs` 是獨立原創診斷工具，驗證近端 1.0、絕對距離命中及正向步進等通用數學；未載入遊戲畫面、車輛 hitbox、碰撞或雲密度路徑，也未搬入附件完整場景。

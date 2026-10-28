@@ -1,8 +1,8 @@
 {
   "schema": "TankForgeR86LinuxCompiledInputManifestV1",
-  "capturedAt": "2026-10-28T11:56:01.826904+00:00",
+  "capturedAt": "2026-10-28T16:19:33.982028+00:00",
   "root": "D:\\TankForge-workspaces\\r81-push-20261027",
-  "head": "64e657b81eaf87f4e8e93aacbbdb11ce7003e06a",
+  "head": "a8b2ca133e9e00a05970992956d963ad6c08afe9",
   "scope": "All crate files, Cargo TOML/lock, all config/data, .cargo if present, and all literal include_str/include_bytes files. Browser tests and presentation authoring tools are not compiled inputs.",
   "files": {
     "Cargo.lock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
@@ -203,7 +203,7 @@
     "crates/weapon/src/mg.rs": "e82c63007c583fb378b532fbcef3d7fe44524ddfb5a093a0ce4066e4ffa97f7a",
     "crates/weapon/src/turret.rs": "441c2eb41542bd651724a6928edb5176b18b52704d0a6c90e2e9597daae1450b",
     "data/aircraft/aircraft.json": "197bbb1c489058b1208433e5f602e0d00f78057bd26d352dba5d8f6d77e43c87",
-    "data/aircraft/frontline.json": "11bab4396920c67ca0b98407ed25dbf3adb1358b411a7d5b77cbf809ce65b39f",
+    "data/aircraft/frontline.json": "3ccb10adf5e6199d810526cd8612a33241f477ee0217b4c325d62df08c65e8ab",
     "data/aircraft/limits.json": "891ad78f8c46847e52d4ca57a96200f9d1c481fc76e122b663b95bff588401c9",
     "data/barrel-shapes/00731ff0cf3f5755afa798e71fc7d3f36aceade10b503d30f63f100242a30698.json": "00731ff0cf3f5755afa798e71fc7d3f36aceade10b503d30f63f100242a30698",
     "data/barrel-shapes/00d0946c170af01ef3ac6247c4b5241d515948849e3a27a6d0bd568fb8c99602.f32.bin": "00d0946c170af01ef3ac6247c4b5241d515948849e3a27a6d0bd568fb8c99602",
@@ -2898,19 +2898,19 @@
   },
   "frozenRuntime": {
     "page": {
-      "path": "D:\\TankForge-validation\\r86-20261028\\tankforge-r86-r2.html",
-      "bytes": 418872157,
-      "sha256": "b67247c1fe3752a5c61a63af578ccb8614691cdb7190c39f0456ae2914dd5dc5"
+      "path": "D:\\TankForge-validation\\r86-20261028\\tankforge-r86-r3.html",
+      "bytes": 418873733,
+      "sha256": "e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739"
     },
     "app": {
       "path": "D:\\TankForge-workspaces\\r81-push-20261027\\handoff\\bundle\\app.js.html",
-      "bytes": 34436699,
-      "sha256": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda"
+      "bytes": 34438275,
+      "sha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9"
     },
     "profile": {
       "path": "D:\\TankForge-workspaces\\r81-push-20261027\\data\\aircraft\\frontline.json",
       "bytes": 1526062,
-      "sha256": "11bab4396920c67ca0b98407ed25dbf3adb1358b411a7d5b77cbf809ce65b39f"
+      "sha256": "3ccb10adf5e6199d810526cd8612a33241f477ee0217b4c325d62df08c65e8ab"
     }
   }
 }

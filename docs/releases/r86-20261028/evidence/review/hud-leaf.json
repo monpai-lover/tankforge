@@ -1,14 +1,10 @@
 {
-  "schema": "R86AirwarHudLeafHandoffV1",
-  "baseline": "64e657b81eaf87f4e8e93aacbbdb11ce7003e06a",
-  "ownedFiles": {
-    "handoff/tools/patch_r86_airwar_hud.mjs": "2b8c3f2d6a324f4b49268a37cdf05c174dc10b5cd1cb4d21b388e962b5bf4aa1",
-    "handoff/tests/r86-airwar-hud.test.mjs": "8ae58c3d1fc45418282e0e16bc2228f7a74b57b4ede43702ac7565979128629e"
-  },
-  "existingPresentationHelpersUnchanged": {
-    "handoff/tools/frontline_airwar_presentation.js": true,
-    "handoff/tools/frontline_ship_markers_r85.js": true
-  },
+  "schema": "R86AirwarHudLeafHandoffR3NearbyV1",
+  "baseline": "a8b2ca133e9e00a05970992956d963ad6c08afe9",
+  "sourceFile": "handoff/tools/patch_r86_airwar_hud.mjs",
+  "sourceSha256": "19b2af10c888ae8d23a91e488c9cb9cc4ce0cdda90ca1985a86dab0ebf3fb0b6",
+  "testFile": "handoff/tests/r86-airwar-hud.test.mjs",
+  "testSha256": "2677e18a799ffc3ca1b8516dccdd6f95bcf2f12023ae11d54366641a3d32c8d3",
   "exports": [
     "normalizeR86AirwarHud",
     "patchR86AirwarHud",
@@ -17,50 +13,36 @@
   "imports": [
     "node:assert/strict"
   ],
-  "runtimeDependencies": [
-    "existinghud.drawLabelsandshared2Dcontext",
-    "existingairEl.ovvisibleaircraftcanvas",
-    "existingproject/currentcamera/canvasCSSdimensions",
-    "onlynative-permittedf.vesselssnapshots"
+  "strategicRangeMeters": 10000,
+  "rangePolicy": "Names,distanceand offscreen/behindfleetdirectioncues areinclusive at10kmcamera-to-vesseldistance andhiddenbeyond10km; appliesbeforeprojection/cueadmission",
+  "productionChangeExactlyOneConstantAndComment": true,
+  "red": {
+    "passed": 0,
+    "failed": 2,
+    "log": "D:\\TankForge-validation\\r86-20261028\\airwar-hud-r3-nearby\\red.log"
+  },
+  "green": {
+    "newR86Tests": 18,
+    "preservedR85Tests": 7,
+    "totalPassed": 25,
+    "failed": 0,
+    "log": "D:\\TankForge-validation\\r86-20261028\\airwar-hud-r3-nearby\\green.log"
+  },
+  "boundaryCoverage": [
+    "onscreen",
+    "offscreen",
+    "behind"
   ],
-  "rootCause": "body[data-air=\"1\"] hidesground#overlaydisplay:none!important; visibility:visiblecannotundoit. AircraftnativepathalreadydrawstagsafterflightHUD,buttargetcanvaswashidden.",
-  "behavior": {
-    "controlledAircraftDestination": "existingvisibleairEl.ov,afterestablishedFlight.draw; no newcanvas/DOM",
-    "observerDestination": "existing#overlay",
-    "banner": "hiddenonlywhilecurrentaircraftiscontrolled;observernextallycontrolsremain",
-    "missionStatus": "compactpublichostmissioncounts/unloadinginsideexistingminimapheader",
-    "minimapFrameAndRadius": "unchanged188x188and10kmradius",
-    "strategicLabelRangeMeters": 80000,
-    "maxInputPermittedVessels": 64,
-    "maxOnscreenShipNames": 16,
-    "offscreenCues": "controlledonly,nearestperteamwhennoonscreentagforthatside,max2;behinddirectionmarked",
-    "boundedSharedLabels": "aircraftcopiesoptinbounded:true;inwardleader/clampedtextbox/maxWidthandverticalbounds;actualprojecteddotunchanged;nonoptedlegacyplacementunchanged",
-    "scopeReversibility": "fiveexactclienthooks+optionalsharedHUDowner;fullcanonicalandpartialsource supported;normalizeexactrestoresR85includingclassmethod;LF/CRLFpreserved"
-  },
-  "tests": {
-    "initialRed": {
-      "passed": 1,
-      "failed": 6,
-      "log": "D:\\TankForge-validation\\r86-20261028\\airwar-hud\\red.log"
-    },
-    "cueOverlapRed": "D:\\TankForge-validation\\r86-20261028\\airwar-hud\\cue-overlap-red.log",
-    "marginalClipRed": "D:\\TankForge-validation\\r86-20261028\\airwar-hud\\marginal-label-red.log",
-    "finalR86Passed": 17,
-    "preservedR85Passed": 7,
-    "totalPassed": 24,
-    "totalFailed": 0,
-    "finalLog": "D:\\TankForge-validation\\r86-20261028\\airwar-hud\\bounded-labels-final-green.log",
-    "dimensionsCovered": [
-      "1280x720DPR2",
-      "320x240DPR1",
-      "640x360DPR1.25",
-      "320x640DPR2"
-    ],
-    "independentCrossReview": "wateragentconfirmed24/24andactualsharedHUDrectx107.2/1043.2insideviewport;projecteddot70.4/1209.6unchanged"
-  },
-  "rootActualR85FlightRed": "D:/TankForge-validation/r86-20261028/flight-hud-red-2/receipt.json",
-  "limitations": [
-    "RootownsactualR2full-pagecontrolledflightGREENandreleaseintegration.",
-    "Thisleafdidnotwritecanonicalapp,sharedcomposition,currentreleasepins,Rust,physics,orprofiledata."
-  ]
+  "boundarySamplesMeters": [
+    9999.99,
+    10000,
+    10000.01
+  ],
+  "review": "D:\\TankForge-validation\\r86-20261028\\airwar-hud-r3-nearby\\review-scope.json",
+  "priorHandoffPreserved": "D:/TankForge-validation/r86-20261028/airwar-hud/leaf-handoff.json",
+  "canonicalWritten": false,
+  "docsWritten": false,
+  "versionPinsWritten": false,
+  "rustWritten": false,
+  "fullGateRun": false
 }

@@ -1,0 +1,222 @@
+{
+  "schema": "TankForgeR86IndependentCloudSdfReviewV1",
+  "reviewedAt": "2026-10-28T15:56:20.082Z",
+  "workspace": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "head": "a8b2ca133e9e00a05970992956d963ad6c08afe9",
+  "passed": true,
+  "scope": "Independent read-only source/math/fixture review; only this external receipt written. No final package, whole-game flight, native collision execution or hardware FPS acceptance.",
+  "sourceFileSha256": {
+    "handoff/tools/patch_r86_clouds.mjs": "08d16a762621a73823da115f6a94d437005215582438e1a6f9ba19752eab44a8",
+    "handoff/tests/r86-clouds.test.mjs": "2275a1896acb366a6216ba718814fdd54966b4e36255bdccf68c5b220a7e394b",
+    "handoff/tools/r86-clouds-sources.md": "5d7c8eb68354cb76dae69066ddb97e1d882da48ee33ab886f38d32474eefdafd",
+    "handoff/tools/build_r86_cloud_gate.mjs": "60f0dbec31af26d365ca5e1f79d9be00f37173f61c0a260c743410279f0ebd46",
+    "handoff/tests/r86-clouds-browser.py": "4ce1f2c2422474b3a99e64d7ce0b28b8218a292f28216f6a63949de4d59e99a0",
+    "handoff/tools/r86_sdf_intersection.mjs": "7002d479e5efacf37e5ab61cc9dcabfb7749263616f3b31841df7d0b9f7c6917",
+    "handoff/tests/r86-sdf-intersection.test.mjs": "c951ef387e6a8cec740132477a40521404e18d931edf376213f3e4787ff35adf",
+    "handoff/tools/r86-sdf-reference-notes.md": "e5c049302afc848aa40982ac962c7d26a4e5afacef63bbfb170e6ec392f222e2"
+  },
+  "verification": {
+    "command": "node --test handoff/tests/r86-clouds.test.mjs handoff/tests/r86-sdf-intersection.test.mjs",
+    "observedExitCode": 0,
+    "passed": 29,
+    "cloudTests": 7,
+    "sdfTests": 22,
+    "failed": 0,
+    "freshRunObserved": true
+  },
+  "cloud": {
+    "findings": [],
+    "sharedDensity": true,
+    "domeAlphaAndHistory": "transmittance T; opacity is complement; final sky alpha opaque",
+    "cameraHeightBounds": "below layer: positive near/far; inside: near zero; at/above3400m: no upward overhead cloud; inherited upward dome only",
+    "existingBudgets": {
+      "densityTextureLookups": 3,
+      "viewLoopMax": 48,
+      "sunDepthLoopMax": 5,
+      "scatteringLoopMax": 3
+    },
+    "newUniformsTexturesTargetsPasses": 0,
+    "nonCloudOwnersByteIdenticalTest": true,
+    "waterAndNativeCollisionEdits": false,
+    "provenance": "Source is constrained changes to pre-existing game owners and general equations. No submitted reference scene/density/camera/SDF implementation appears. Restricted attachment itself was not available to this reviewer for byte comparison.",
+    "actualBrowserReceipt": {
+      "path": "D:/TankForge-validation/r86-clouds/browser-r2/receipt.json",
+      "sha256": "ca1384e5c80b6895cc2be906edb4db9d82316b2291a2ef43460dccdd4c0108f5",
+      "checks": 12,
+      "passed": true,
+      "scope": "actual cloud shader fixture; not full-page flight or hardware FPS",
+      "fullFixtureByteIdentical": true,
+      "fixtureSha256": "76657ae1b42505e894855c7fe0484402a46f2c6ad75d908abe56fcc37b4115cc",
+      "shaderMatches": {
+        "before": {
+          "vertex": {
+            "matchesRetainedFixture": true,
+            "sha256": "8fd7dd6019bff08c2e42d2b16c4fe9047420d1e5509928f1a22dfb5a29c1943b"
+          },
+          "noise": {
+            "matchesRetainedFixture": true,
+            "sha256": "107063960c0c8de51c698990dc99a65f7b5b5ba405bd6e64033b1cae3cb530a8"
+          },
+          "domeHDR": {
+            "matchesRetainedFixture": true,
+            "sha256": "da1bd0cb44dbf2c93afb63b3233052e00d45ea2733be5895f1b5443c9574b15e"
+          },
+          "domeFallback": {
+            "matchesRetainedFixture": true,
+            "sha256": "b22924ee26bc000aed825194b60254e613564dc4244bad07385f56dcafb03ba6"
+          },
+          "skyHDR": {
+            "matchesRetainedFixture": true,
+            "sha256": "4d72283e829ce0c121de4de10b42b297ccb90f79d24f1a38801cec7c7dba03f3"
+          },
+          "skyFallback": {
+            "matchesRetainedFixture": true,
+            "sha256": "fa85bfdecf68d7fd7ca080fe4c202c3ced5ee54eb2a37adb1783baee064bb6cf"
+          }
+        },
+        "after": {
+          "vertex": {
+            "matchesRetainedFixture": true,
+            "sha256": "8fd7dd6019bff08c2e42d2b16c4fe9047420d1e5509928f1a22dfb5a29c1943b"
+          },
+          "noise": {
+            "matchesRetainedFixture": true,
+            "sha256": "107063960c0c8de51c698990dc99a65f7b5b5ba405bd6e64033b1cae3cb530a8"
+          },
+          "domeHDR": {
+            "matchesRetainedFixture": true,
+            "sha256": "53566e1f39ec084e53e8dab0754aaa13ab450d12a6080c9cd5b798e858033f5c"
+          },
+          "domeFallback": {
+            "matchesRetainedFixture": true,
+            "sha256": "0c119e1acce1ef013d5030c367d7db932572f4c5d371d0abb7c24bf04625e9f0"
+          },
+          "skyHDR": {
+            "matchesRetainedFixture": true,
+            "sha256": "e3022b7bc35cd8048758f84d436e45acc33a61adc97a9e019167ae0f858cdd94"
+          },
+          "skyFallback": {
+            "matchesRetainedFixture": true,
+            "sha256": "957c9783263f510ba99fdd283b8ec2a43e36de77c90af575f1bdd563e3d37b02"
+          }
+        }
+      }
+    },
+    "screenshot": {
+      "path": "D:/TankForge-validation/r86-clouds/browser-r2/cloud-comparison.png",
+      "inspected": true
+    }
+  },
+  "sdf": {
+    "previousP2": "Resolved: directions are scaled by largest absolute component before hypot and division.",
+    "mathReason": "Finite nonzero vectors yield scale>0, scaled components in [-1,1], at least one magnitude1, and norm in [1,sqrt3]; normalization avoids underflow and overflow.",
+    "extremeDirectionProbes": [
+      {
+        "direction": [
+          "5e-324",
+          "5e-324",
+          "0"
+        ],
+        "point": [
+          0.7071067811865475,
+          0.7071067811865475,
+          0
+        ],
+        "t": 1,
+        "length": 1
+      },
+      {
+        "direction": [
+          "1e-320",
+          "1e-320",
+          "0"
+        ],
+        "point": [
+          0.7071067811865475,
+          0.7071067811865475,
+          0
+        ],
+        "t": 1,
+        "length": 1
+      },
+      {
+        "direction": [
+          "1.7976931348623157e+308",
+          "1.7976931348623157e+308",
+          "0"
+        ],
+        "point": [
+          0.7071067811865475,
+          0.7071067811865475,
+          0
+        ],
+        "t": 1,
+        "length": 1
+      },
+      {
+        "direction": [
+          "0",
+          "5e-324",
+          "0"
+        ],
+        "point": [
+          0,
+          1,
+          0
+        ],
+        "t": 1,
+        "length": 1
+      },
+      {
+        "direction": [
+          "-1.7976931348623157e+308",
+          "1.7976931348623157e+308",
+          "1.7976931348623157e+308"
+        ],
+        "point": [
+          -0.5773502691896258,
+          0.5773502691896258,
+          0.5773502691896258
+        ],
+        "t": 1,
+        "length": 1
+      },
+      {
+        "direction": [
+          "1.7976931348623157e+308",
+          "5e-324",
+          "0"
+        ],
+        "point": [
+          1,
+          0,
+          0
+        ],
+        "t": 1,
+        "length": 1
+      },
+      {
+        "direction": [
+          "-1e-320",
+          "2e-320",
+          "3e-320"
+        ],
+        "point": [
+          -0.2672612419124244,
+          0.5345224838248488,
+          0.8017837257372732
+        ],
+        "t": 1,
+        "length": 1
+      }
+    ],
+    "nearDefault": 1,
+    "hitTolerance": "abs(field)<=epsilon",
+    "forwardStep": "abs(field)/declaredLipschitz*safety",
+    "boundedEvaluations": 65536,
+    "explicitMisses": true,
+    "runtimeImports": [],
+    "limitations": "Conservative stepping requires a valid declared Lipschitz bound; epsilon is field residual except for actual unit SDFs."
+  },
+  "remainingFindings": []
+}

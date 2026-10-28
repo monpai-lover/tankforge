@@ -2250,26 +2250,30 @@ uniform vec3 uWind;         // metres the cloud field has drifted so far
 uniform vec4 uCloud;        // coverage 0..1, evolution phase, extinction (1/m), detail erosion
 const float CLOUD_BASE = 1500.0;
 const float CLOUD_TOP = 3400.0;
+// TF_R86_CLOUDS_BEGIN
+// Original refinement on the game's baked multi-octave cloud volume.
+// Reuse the billow/cell channels from one fetch; no new noise resource or march.
 float cloudDensity(vec3 p, float alt, float cheap) {
   float h = (alt - CLOUD_BASE) / (CLOUD_TOP - CLOUD_BASE);
-  if (h <= 0.0 || h >= 1.0) return 0.0;
+  float extinction = max(uCloud.z, 0.0);
+  if (h <= 0.0 || h >= 1.0 || extinction <= 0.0) return 0.0;
   vec3 q = p + uWind;
   float weather = textureLod(uNoise, vec3(q.x / 43000.0, uCloud.y * 0.2, q.z / 43000.0), 0.0).b;
-  float cov = clamp(uCloud.x + (weather - 0.5) * 1.3, 0.0, 1.0);
-  float top = mix(0.5, 1.0, smoothstep(0.4, 0.68, weather));
-  float profile = smoothstep(0.0, 0.1, h) * (1.0 - smoothstep(top * 0.45, top, h));
-  float base = textureLod(uNoise, vec3(q.x, alt * 1.3, q.z) / 7600.0 + vec3(0.0, uCloud.y, 0.0), 0.0).r;
+  float cov = clamp(uCloud.x + (weather - 0.5) * 1.18, 0.0, 1.0);
+  float top = mix(0.56, 1.0, smoothstep(0.3, 0.76, weather));
+  float profile = smoothstep(0.0, 0.08, h) * (1.0 - smoothstep(top * 0.55, top, h));
+  vec4 shape = textureLod(uNoise, vec3(q.x, alt * 1.3, q.z) / 7600.0 + vec3(0.0, uCloud.y, 0.0), 0.0);
+  float body = clamp(shape.r + (shape.a - 0.5) * 0.055, 0.0, 1.0);
   float th = mix(NOISE_HI, NOISE_LO, cov);
-  float d = smoothstep(th, th + 0.11, mix(NOISE_LO * 0.6, base, profile));
-  d *= profile;
+  float d = smoothstep(th, th + 0.105, mix(NOISE_LO * 0.6, body, profile)) * profile;
   if (cheap < 0.5 && d > 0.0) {
     float det = textureLod(uNoise, vec3(q.x, alt, q.z) / 1500.0 - vec3(0.0, uCloud.y * 3.0, 0.0), 0.0).g;
-    float e = det * uCloud.w * (1.0 - d * 0.75);
-    d = clamp((d - e) / (1.0 - e), 0.0, 1.0);
+    float e = det * clamp(uCloud.w, 0.0, 0.95) * (1.0 - d * 0.80);
+    d = clamp((d - e) / max(1.0 - e, 0.05), 0.0, 1.0);
   }
-  return d * uCloud.z;
+  return d * extinction;
 }
-// Sunlight left after passing through the cloud layer above a point near the ground.
+// Shared with the ground and shafts: visible gaps remain shadow gaps.
 float cloudShadow(vec3 p, vec3 sun) {
   float sy = max(sun.y, 0.07);
   float a = 0.0;
@@ -2277,8 +2281,9 @@ float cloudShadow(vec3 p, vec3 sun) {
     float alt = mix(CLOUD_BASE, CLOUD_TOP, 0.22 + 0.3 * float(i));
     a += cloudDensity(p + sun * ((alt - p.y) / sy), alt, 1.0);
   }
-  return exp(-a / uCloud.z * 4.5);
-}`;
+  return exp(-a / max(uCloud.z, 0.000001) * 4.5);
+}
+// TF_R86_CLOUDS_END`;
   var DOME_LOOKUP = `
 vec2 domeUV(vec3 d) {
   return 0.5 + 0.5 * d.xz / ((1.0 + max(d.y, -0.2)) * ${DOME_SCALE.toFixed(3)});
@@ -2366,15 +2371,19 @@ void main() {
   vec3 sky = atmosphere(d, uSunDir, uISun);
   float T = 1.0;
   vec3 L = vec3(0.0);
-  if (d.y > 0.012) {
-    float b = R_PLANET * d.y;
-    float c0 = 2.0 * R_PLANET * CLOUD_BASE + CLOUD_BASE * CLOUD_BASE;
-    float c1 = 2.0 * R_PLANET * CLOUD_TOP + CLOUD_TOP * CLOUD_TOP;
-    float t0 = c0 / (b + sqrt(b * b + c0));
-    float t1 = c1 / (b + sqrt(b * b + c1));
+  if (d.y > 0.012 && uCamPos.y < CLOUD_TOP) {
+    // TF_R86_CLOUD_ALTITUDE_BEGIN
+    // Intersect the current camera's upward ray with the two spherical heights.
+    // The factored radius difference avoids subtracting two planet-size squares.
+    float b = (R_PLANET + uCamPos.y) * d.y;
+    float c0 = (CLOUD_BASE - uCamPos.y) * (2.0 * R_PLANET + CLOUD_BASE + uCamPos.y);
+    float c1 = (CLOUD_TOP - uCamPos.y) * (2.0 * R_PLANET + CLOUD_TOP + uCamPos.y);
+    float t0 = uCamPos.y >= CLOUD_BASE ? 0.0 : c0 / (b + sqrt(max(b * b + c0, 0.0)));
+    float t1 = c1 / (b + sqrt(max(b * b + c1, 0.0)));
+    // TF_R86_CLOUD_ALTITUDE_END
     float fade = 1.0 - smoothstep(26000.0, 52000.0, t0);
     if (fade > 0.0) {
-      float n = float(uSteps);
+      float n = float(clamp(uSteps, 1, 48));
       float dt = (t1 - t0) / n;
       float jitter = hash12(gl_FragCoord.xy + uSeed * 17.13);
       float mu = dot(d, uSunDir);
@@ -2403,14 +2412,23 @@ void main() {
             sunL += a * mix(hg(mu, 0.8 * g), hg(mu, -0.25 * g), 0.3) * exp(-tau * e);
             a *= 0.55; e *= 0.35; g *= 0.5;
           }
+          // TF_R86_CLOUD_LIGHTING_BEGIN
           float hN = clamp((alt - CLOUD_BASE) / (CLOUD_TOP - CLOUD_BASE), 0.0, 1.0);
-          vec3 S = uSunE * sunL * 5.2 + uSkyAmb * (0.35 + 0.75 * hN);
-          float stepT = exp(-dens * dt);
-          float w = T * (1.0 - stepT);
+          float relativeDensity = clamp(dens / max(uCloud.z, 0.000001), 0.0, 1.0);
+          float coreLight = exp(-min(tau, 40.0) * 0.12);
+          float silverRim = pow(max(mu, 0.0), 8.0)
+                          * (1.0 - smoothstep(0.18, 0.72, relativeDensity))
+                          * exp(-min(tau, 40.0) * 0.65);
+          vec3 S = uSunE * (sunL * 5.2 + silverRim * 0.65)
+                 + uSkyAmb * (0.25 + 0.85 * hN) * (0.55 + 0.45 * coreLight);
+          float stepOpacity = 1.0 - exp(-max(dens, 0.0) * max(dt, 0.0));
+          float stepT = 1.0 - stepOpacity;
+          float w = T * stepOpacity;
           L += w * S;
           tMean += w * t;
           wSum += w;
           T *= stepT;
+          // TF_R86_CLOUD_LIGHTING_END
         }
       }
       // distant cloud sinks into the haze
@@ -2422,12 +2440,15 @@ void main() {
   }
   // each refresh starts its march at a different offset; averaging over a few refreshes removes
   // the grain that a low step count would leave (clouds move far too slowly for this to smear)
+  // TF_R86_CLOUD_OPACITY: opacity is the complement, never the stored alpha.
+  float cloudOpacity = clamp(1.0 - T, 0.0, 1.0);
+  T = 1.0 - cloudOpacity;
   vec4 cur = vec4(sky * T + L, T);
   if (uBlend < 1.0) {
     vec4 prev = texture(uPrev, vNdc * 0.5 + 0.5);
     cur = mix(vec4(DEC(prev.rgb), prev.a), cur, uBlend);
   }
-  outColor = vec4(ENC(cur.rgb), cur.a);
+  outColor = vec4(ENC(cur.rgb), clamp(cur.a, 0.0, 1.0));
 }`;
   var LIT_VS = `#version 300 es
 layout(location=0) in vec3 aPos;
@@ -3103,7 +3124,9 @@ void main() {
   vec2 uv = domeUV(d);
   vec4 a = texture(uDomeA, uv), b = texture(uDomeB, uv);
   vec3 col = mix(DEC(a.rgb), DEC(b.rgb), uDomeMix);
-  float T = mix(a.a, b.a, uDomeMix);
+  // TF_R86_CLOUD_SKY: dome alpha is transmittance; final sky remains opaque.
+  float cloudOpacity = clamp(1.0 - mix(a.a, b.a, uDomeMix), 0.0, 1.0);
+  float T = 1.0 - cloudOpacity;
   float ang = length(cross(d, uSunDir));
   float front = step(0.0, dot(d, uSunDir)) * step(0.0, d.y);
   float disc = smoothstep(0.0056, 0.0042, ang);
@@ -56922,7 +56945,7 @@ var TFShipMarkersR85=(()=>{
 
 /* TF_R86_AIRWAR_HUD_BEGIN */
 var TFAirwarHudR86=(()=>{
-  const strategicRangeMeters=80000; // Covers the ~72km diagonal of the 1:10 theatre; minimap remains 10km.
+  const strategicRangeMeters=10000; // Nearby-only ship names and fleet direction cues; minimap remains 10km.
   const names={generic_transport:'运输舰',generic_landing_ship:'登陆舰',generic_escort:'护航舰',generic_frigate:'护卫舰',generic_interceptor:'快艇',generic_patrol:'巡逻艇'};
   const point=p=>(Array.isArray(p)||ArrayBuffer.isView(p))&&p.length===3&&p.every(Number.isFinite);
   const side=t=>t==='blue'?0:t==='red'?1:t;

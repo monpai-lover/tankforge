@@ -1,5 +1,5 @@
 {
-  "started": 1793188705.6898372,
+  "started": 1793204287.3558574,
   "passed": true,
   "scope": "actual shader fixtures; no hardware FPS or whole-game acceptance",
   "gate": {
@@ -177,7 +177,7 @@
     "ready": true,
     "sourceHashes": {
       "before": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
-      "after": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda"
+      "after": "78c7c8d75af3c702ba2c1050a132c39a73b38ceaccad775f2bf1a7610bf058c0"
     },
     "visualAccepted": false,
     "hardwarePerformanceMeasured": false,
@@ -189,7 +189,7 @@
     ],
     "compiledPrograms": 3,
     "glError": 0,
-    "frames": 5,
+    "frames": 3,
     "timeSeconds": 0,
     "exposure": 1
   },
@@ -225,7 +225,7 @@
       "ready": true,
       "sourceHashes": {
         "before": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
-        "after": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda"
+        "after": "78c7c8d75af3c702ba2c1050a132c39a73b38ceaccad775f2bf1a7610bf058c0"
       },
       "visualAccepted": false,
       "hardwarePerformanceMeasured": false,
@@ -237,7 +237,7 @@
       ],
       "compiledPrograms": 3,
       "glError": 0,
-      "frames": 6,
+      "frames": 4,
       "timeSeconds": 3,
       "exposure": 1
     },
@@ -305,5 +305,5 @@
     ]
   },
   "errors": [],
-  "finished": 1793188714.0592813
+  "finished": 1793204295.976666
 }

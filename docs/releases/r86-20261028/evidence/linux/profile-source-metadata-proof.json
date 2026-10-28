@@ -1,15 +1,17 @@
 {
   "schema": "TankForgeR86AircraftProfileMetadataOnlyV1",
-  "head": "64e657b81eaf87f4e8e93aacbbdb11ce7003e06a",
+  "candidate": "R3",
+  "head": "a8b2ca133e9e00a05970992956d963ad6c08afe9",
+  "baselineCommit": "64e657b81eaf87f4e8e93aacbbdb11ce7003e06a",
   "businessEqual": true,
   "businessSha256": "dd6ae8d81dfd7da120fa02f18219513c3df0524d9e2debf77f7470f7639e13da",
-  "currentSourceAppSha256": "72e2374b44fea64665a82b618b6d87529ba8f43b8651b72d141807a4e8ef3cda",
+  "currentSourceAppSha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9",
   "baselineSourceAppSha256": "73946bd782a6e0d4c3af5614d889c563e38b0f4a6615d74eed57e0b3c47f01c9",
   "changedSourceKeys": [
     "appSha256",
     "sections"
   ],
-  "rustCargoTrackedFilesRawHeadMatch": 194,
+  "rustCargoTrackedFilesRawBaselineMatch": 194,
   "rustCargoDiff": "",
   "rustCargoUntracked": ""
 }

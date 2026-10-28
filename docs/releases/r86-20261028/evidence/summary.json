@@ -1,25 +1,26 @@
 {
   "schema": "TankForgeR86ValidationSummaryV1",
-  "recordedUtc": "2026-10-28T12:19:23.134443+00:00",
+  "recordedUtc": "2026-10-28T16:34:13.762604+00:00",
   "frontend": {
-    "files": 152,
-    "tests": 933,
-    "passed": 933,
+    "files": 154,
+    "tests": 963,
+    "passed": 963,
     "inputsStable": true,
     "historicalNotRun": 2
   },
   "actualPilotedFlight": {
-    "checks": 15,
-    "passed": 15,
+    "checks": 17,
+    "passed": 17,
     "aircraft": "su27",
     "cameraModes": [
       "third-person",
       "cockpit"
     ],
-    "dpr": 2,
+    "dpr": 1,
     "normalUiDeployment": true,
     "nativeControl": true,
-    "canvasObservationOnly": true
+    "canvasObservationOnly": true,
+    "rangeMeters": 10000
   },
   "pythonChecks": {
     "rebuild": {
@@ -46,5 +47,22 @@
     "Historical NOT_RUN tests are preserved explicitly.",
     "No Linux runtime test or production upgrade was performed.",
     "Intermediate R1 failure/reproduction records are preserved in the external validation directory, not presented as final passing evidence."
-  ]
+  ],
+  "cloudChecks": {
+    "passed": 12,
+    "total": 12,
+    "opacityContract": "dome alpha is transmittance T; final sky remains opaque",
+    "cameraHeightsMeters": [
+      650,
+      2100,
+      5000
+    ],
+    "sceneDepthOcclusion": false
+  },
+  "sdfDiagnostic": {
+    "tests": 22,
+    "passed": 22,
+    "importedByGame": false,
+    "restrictedSceneCodeDistributed": false
+  }
 }
