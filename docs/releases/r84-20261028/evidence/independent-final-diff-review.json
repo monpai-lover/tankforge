@@ -1,0 +1,34 @@
+{
+  "schema": "R84IndependentFinalDiffReviewV1",
+  "capturedAt": "2026-10-28T00:36:18.174438+00:00",
+  "reviewer": "final_review",
+  "mode": "read_only",
+  "findings": [],
+  "scope": [
+    "native map/scenario generator and installed deterministic assets",
+    "native naval and scenario/spawn/route test updates",
+    "terrain full-scale extent patch and idempotent R83/R84 composition",
+    "minimap label layout and source/fixture composition lists",
+    "native air FX hook prefix-match repair and packaged bridge regression",
+    "R84 page reconstruction and Linux packaging pins"
+  ],
+  "confirmed": [
+    "aircraft profile semantic diff consists only of source.appSha256",
+    "source taiwan.json remains byte-identical to HEAD",
+    "physical runway dimensions1600x45m and surface5m retained",
+    "airspawn height650m and speed180m/s retained",
+    "vessel speeds8/11m/s, weapons/ammo and mission15/900s retained",
+    "landing region and authored XZ positions expand100/30",
+    "HTML release pin4f3ce0ace34bca9eac736ea912c931858a2d825b10e8df623762f0c7a20ac696 is shared by reconstruction/packager",
+    "diff whitespace check passes with CRLF treated as line endings"
+  ],
+  "validation_boundary": {
+    "release_native_suite": "496 passed0 failed0 filtered;151.40s;exit0",
+    "debug_full_suite": "495 passed1 failed",
+    "debug_exact_socket_retest": "0 passed1 failed",
+    "linux_binary_executed": false,
+    "root_cause_confirmed": false
+  },
+  "source_or_packages_modified": false,
+  "release_receipt": "D:\\TankForge-validation\\r84-20261028\\native-release-tests\\release-validation-receipt.json"
+}

@@ -38,7 +38,7 @@ def main():
         anchor='<script>(() => {\n';assert text.count(anchor)==1
         text=text.replace(anchor,anchor+global_block)
     source='\n'.join((ROOT/'tools'/name).read_text() for name in
-        ['frontline_lod.js','frontline_contact_visual.js','frontline_local_flight.js','frontline_aircraft_visual.js','frontline_existing_aircraft.js','frontline_guided_control.js','frontline_ordnance_visual.js','frontline_gun_tracer_visual.js','frontline_airwar_presentation.js','frontline_naval_visual.js','frontline_existing_runtime.js','frontline_render_gate.js','frontline_facility_visual.js','frontline_support_visual.js','frontline_shared_lobby.js','frontline_client.js'])
+        ['frontline_lod.js','frontline_contact_visual.js','frontline_local_flight.js','frontline_aircraft_visual.js','frontline_existing_aircraft.js','frontline_guided_control.js','frontline_ordnance_visual.js','frontline_gun_tracer_visual.js','frontline_airwar_presentation.js','frontline_naval_visual.js','frontline_minimap_labels_r84.js','frontline_existing_runtime.js','frontline_render_gate.js','frontline_facility_visual.js','frontline_support_visual.js','frontline_shared_lobby.js','frontline_client.js'])
     block=START+source+END
     if START in text:
         first=text.index(START);last=text.index(END,first)+len(END)

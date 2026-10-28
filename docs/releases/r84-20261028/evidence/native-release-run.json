@@ -1,0 +1,15 @@
+{
+  "command": "cargo test --locked --release -p tg-server --lib --target-dir D:/TankForge-validation/rust-fuel-100-target-20261027",
+  "profile": "release",
+  "only_library_tests": true,
+  "target_dir": "D:/TankForge-validation/rust-fuel-100-target-20261027",
+  "started_utc": "2026-10-28T00:28:45.4729791Z",
+  "finished_utc": "2026-10-28T00:45:48.0010730Z",
+  "exit_code": 0,
+  "git_head": "4591855aa656358c772381ad80baa26fa00c6689",
+  "log": "D:/TankForge-validation/r84-20261028/native-release-tests/cargo-test-server-lib-release.log",
+  "log_sha256": "3b476dbe3b1ee977278d169cec085af62860059e4e618b38392c249ac9699fe0",
+  "socket_trace": "D:/TankForge-validation/r84-20261028/native-release-tests/release-round-socket-trace.json",
+  "source_or_limits_modified_for_run": false,
+  "preserved_debug_receipt": "D:/TankForge-validation/r84-20261028/native/native-validation-receipt.json"
+}

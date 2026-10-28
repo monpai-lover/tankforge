@@ -1,0 +1,99 @@
+{
+  "schema": "TankForgeR84NativeReleaseValidationV1",
+  "status": "PASS_RELEASE_WITH_PRESERVED_DEBUG_FAILURES",
+  "captured_utc": "2026-10-28T00:46:34.969450+00:00",
+  "run": {
+    "command": "cargo test --locked --release -p tg-server --lib --target-dir D:/TankForge-validation/rust-fuel-100-target-20261027",
+    "profile": "release",
+    "only_library_tests": true,
+    "target_dir": "D:/TankForge-validation/rust-fuel-100-target-20261027",
+    "started_utc": "2026-10-28T00:28:45.4729791Z",
+    "finished_utc": "2026-10-28T00:45:48.0010730Z",
+    "exit_code": 0,
+    "git_head": "4591855aa656358c772381ad80baa26fa00c6689",
+    "log": "D:/TankForge-validation/r84-20261028/native-release-tests/cargo-test-server-lib-release.log",
+    "log_sha256": "3b476dbe3b1ee977278d169cec085af62860059e4e618b38392c249ac9699fe0",
+    "socket_trace": "D:/TankForge-validation/r84-20261028/native-release-tests/release-round-socket-trace.json",
+    "source_or_limits_modified_for_run": false,
+    "preserved_debug_receipt": "D:/TankForge-validation/r84-20261028/native/native-validation-receipt.json"
+  },
+  "result": {
+    "passed": 496,
+    "failed": 0,
+    "ignored": 0,
+    "measured": 0,
+    "filtered": 0,
+    "duration_seconds": 151.4
+  },
+  "test_executable": {
+    "path": "D:\\TankForge-validation\\rust-fuel-100-target-20261027\\release\\deps\\tg_server-ae44bc34292d8495.exe",
+    "sha256": "1c1b43977d9759bcc55957a6e09d68fc6746d6a94aaa29dabe30b4c648ceb2d2",
+    "platform": "x86_64-pc-windows-gnu",
+    "profile": "release",
+    "deployed_server_binary": false
+  },
+  "source_input_count": 201,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "source_before": {
+    "path": "D:\\TankForge-validation\\r84-20261028\\native-release-tests\\source-before-release-tests.json",
+    "sha256": "199454f9f5097ae2aad500bdf02f1be100a5780f9799929ed6f1f3fdc39426c5"
+  },
+  "source_after": {
+    "path": "D:\\TankForge-validation\\r84-20261028\\native-release-tests\\source-after-release-tests.json",
+    "sha256": "238101ca1118e75c91042e24fffa9fe8c36a4ea0f3b874199c6772aadd99216e"
+  },
+  "strict_three_socket_round": {
+    "status": "PASS in complete release suite",
+    "trace_path": "D:\\TankForge-validation\\r84-20261028\\native-release-tests\\release-round-socket-trace.json",
+    "trace_sha256": "0f7d98a6c70f812cab73f0ffc5c3761a291c5742bbb60d803d99f32c33de9488",
+    "old_battle": 1,
+    "new_battle": 2,
+    "peers": {
+      "blue": {
+        "observer": false,
+        "player": 2,
+        "team": "blue",
+        "wire_version": 2
+      },
+      "observer": {
+        "observer": true,
+        "player": 1,
+        "wire_version": 1
+      },
+      "red": {
+        "observer": false,
+        "player": 3,
+        "team": "red",
+        "wire_version": 2
+      }
+    },
+    "assertions": {
+      "actual_old_resource_deficits": true,
+      "fresh_sequence_one_accepted": true,
+      "intermission_deploy_rejected": true,
+      "new_resources_match_initial_stock": true,
+      "observer_deploy_rejected": true,
+      "old_inputs_and_order_rejected": true
+    }
+  },
+  "independent_review": {
+    "path": "D:\\TankForge-validation\\r84-20261028\\native-release-tests\\independent-final-diff-review.json",
+    "sha256": "9f2b07520a2534658f3aef635d9a146bced2c12dec54c7ca556fbff141741b77",
+    "findings": []
+  },
+  "preserved_debug": {
+    "receipt": "D:\\TankForge-validation\\r84-20261028\\native\\native-validation-receipt.json",
+    "receipt_sha256": "24fcc4514c822710e7107bfaf3d62f5206c6d1145c0d8f1dcd4a7884c351265c",
+    "full_suite": "495 passed1 failed",
+    "same_executable_exact_socket_retest": "0 passed1 failed"
+  },
+  "boundaries": {
+    "root_cause_confirmed": false,
+    "source_or_test_limits_modified": false,
+    "new_server_binary_built": false,
+    "packages_rebuilt": false,
+    "linux_binary_executed": false,
+    "endurance_45_minutes_proven": false
+  }
+}

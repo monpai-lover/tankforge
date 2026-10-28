@@ -6,7 +6,7 @@ import assert from 'node:assert/strict';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {patchFrontlineGuidedSourceHooks} from './sync_frontline_guided.mjs';
 import {patchAirframeLimits} from './sync_airframe_limits.mjs';
-const names=['frontline_lod.js','frontline_contact_visual.js','frontline_local_flight.js','frontline_aircraft_visual.js','frontline_existing_aircraft.js','frontline_guided_control.js','frontline_ordnance_visual.js','frontline_gun_tracer_visual.js','frontline_airwar_presentation.js','frontline_naval_visual.js','frontline_existing_runtime.js','frontline_render_gate.js','frontline_facility_visual.js','frontline_support_visual.js','frontline_shared_lobby.js','frontline_client.js'];
+const names=['frontline_lod.js','frontline_contact_visual.js','frontline_local_flight.js','frontline_aircraft_visual.js','frontline_existing_aircraft.js','frontline_guided_control.js','frontline_ordnance_visual.js','frontline_gun_tracer_visual.js','frontline_airwar_presentation.js','frontline_naval_visual.js','frontline_minimap_labels_r84.js','frontline_existing_runtime.js','frontline_render_gate.js','frontline_facility_visual.js','frontline_support_visual.js','frontline_shared_lobby.js','frontline_client.js'];
 export function composeFrontlineGuidedCandidate(source){
   const start='    // BEGIN NATIVE FRONTLINE CLIENT\n',end='    // END NATIVE FRONTLINE CLIENT\n';
   const a=source.indexOf(start),b=source.indexOf(end,a);assert.ok(a>=0&&b>a,'Existing native frontend source block required');

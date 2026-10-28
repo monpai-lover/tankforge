@@ -54277,6 +54277,45 @@ function installAircraftAudioGestures(sound,target,shouldUnlock) {
     queueThumbs(all.map((e) => e.id));
     hud.loading(`\u6574\u5099\u8ECA\u8F1B\u4E2D 0\uFF0F${G4.thumbTotal}`);
     // BEGIN NATIVE FRONTLINE CLIENT
+/* TF_MINIMAP_AIRPORT_LABELS_R84_BEGIN */
+// Map-content presentation only. The existing canvas, projection and 10 km
+// visibility radius remain owned by the frontline map; labels never move icons.
+var TFMinimapLabelsR84=(()=>{
+  const font='bold 11px system-ui',padding=2,margin=4;
+  const finite=Number.isFinite,hit=(a,b,gap=2)=>a.left<b.right+gap&&a.right>b.left-gap&&a.top<b.bottom+gap&&a.bottom>b.top-gap;
+  function layout(rows,{width,height,measureText,scaleBarWidth=width/2}={}){
+    if(!finite(width)||!finite(height)||width<40||height<88||typeof measureText!=='function'||!Array.isArray(rows))return [];
+    const valid=rows.filter(r=>r&&typeof r.id==='string'&&typeof r.text==='string'&&r.text.length&&Array.isArray(r.point)&&r.point.length===2&&r.point.every(finite)&&r.point[0]>=0&&r.point[0]<=width&&r.point[1]>=0&&r.point[1]<=height).slice(0,64).sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);
+    const reserved=[{left:0,top:0,right:width,bottom:44},{left:10,top:height-39,right:Math.min(width-4,20+Math.max(0,scaleBarWidth)),bottom:height-2}];
+    const markers=valid.map(r=>({left:r.point[0]-7,top:r.point[1]-7,right:r.point[0]+7,bottom:r.point[1]+7})),placed=[],seen=new Set();
+    for(const row of valid){
+      if(seen.has(row.id))continue;seen.add(row.id);
+      let text=row.text,metrics=measureText(text),maxWidth=width-margin*2-padding*2;
+      if(!metrics||!finite(metrics.width)||metrics.width<0)continue;
+      if(metrics.width>maxWidth){const letters=Array.from(text);while(letters.length&&measureText(letters.join('')+'…').width>maxWidth)letters.pop();text=letters.join('')+'…';metrics=measureText(text);}
+      if(!finite(metrics.width)||metrics.width>maxWidth)continue;
+      const ascent=finite(metrics.actualBoundingBoxAscent)?Math.max(0,metrics.actualBoundingBoxAscent):9,descent=finite(metrics.actualBoundingBoxDescent)?Math.max(0,metrics.actualBoundingBoxDescent):3;
+      const w=Math.ceil(metrics.width)+padding*2,h=Math.max(14,Math.ceil(ascent+descent)+padding*2),[x,y]=row.point,gap=10;
+      const candidates=[[x+gap,y-gap-h],[x-gap-w,y-gap-h],[x+gap,y+gap],[x-gap-w,y+gap],[x-w/2,y-gap-h],[x-w/2,y+gap],[x+gap,y-h/2],[x-gap-w,y-h/2]];
+      const box=candidates.map(([left,top])=>({left:Math.round(left),top:Math.round(top),right:Math.round(left)+w,bottom:Math.round(top)+h})).find(b=>b.left>=margin&&b.top>=margin&&b.right<=width-margin&&b.bottom<=height-margin&&!reserved.some(r=>hit(b,r))&&!markers.some(r=>hit(b,r))&&!placed.some(r=>hit(b,r)));
+      if(box)placed.push({...box,id:row.id,text,team:row.team,width:w,height:h,x:box.left+padding,y:box.top+padding+ascent});
+    }
+    return placed;
+  }
+  function draw(g,fields,{width,height,point,nearby,scale,scaleBarWidth}={}){
+    if(!g||typeof g.measureText!=='function'||typeof point!=='function'||typeof nearby!=='function')return [];
+    const rows=[];for(const field of fields||[]){if(!field?.enabled||!field.runway||!Array.isArray(field.pos)||field.pos.length!==3||!field.pos.every(finite)||!nearby(field.pos))continue;rows.push({id:field.id,text:field.name||field.id,team:field.team,point:point(field.pos)});}
+    g.save();g.font=font;g.textBaseline='alphabetic';g.textAlign='left';
+    try{
+      const bar=finite(scaleBarWidth)?scaleBarWidth:finite(scale)&&scale>0?(scale>500?100000:scale>50?10000:1000)/scale:width/2;
+      const labels=layout(rows,{width,height,measureText:text=>g.measureText(text),scaleBarWidth:bar});
+      for(const label of labels){g.fillStyle='rgba(7,17,25,.88)';g.fillRect(label.left,label.top,label.width,label.height);g.fillStyle=label.team===0||label.team==='blue'?'#76bdff':'#ff9984';g.fillText(label.text,label.x,label.y);}
+      return labels;
+    }finally{g.restore();}
+  }
+  return Object.freeze({font,layout,draw});
+})();
+/* TF_MINIMAP_AIRPORT_LABELS_R84_END */
 /* TF_NAVAL_VISUAL_BEGIN */
 // Presentation of native-accepted naval samples. This owner never advances
 // movement, ammunition, damage, sinking, effects or a local simulation clock.
@@ -55298,7 +55337,7 @@ function createEstablishedAircraftBridge({game,document,airHud,project,clearInpu
   }
   function step(dt) {
     if (!air?.active) return;
-    syncTouch(air,dt);pilotStep(air,dt);systems(air,dt);audio(air,dt);effects(air,dt);
+    syncTouch(air,dt);pilotStep(air,dt);systems(air,dt);audio(air,dt);
   }
   // Immediate flame/cone geometry belongs to the pose actually being drawn.
   // Controls continue while the GPU is busy without queuing old attachments.
@@ -56546,7 +56585,7 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
         f.terrainOrigin=[cx,cz];f.terrainAerial=aerial;f.terrain=new Node('frontline-terrain');f.root.add(f.terrain);
         const sampledHeights=new Map(),surface=(x,z)=>{const key=`${x},${z}`;if(!sampledHeights.has(key))sampledHeights.set(key,height(x,z));return sampledHeights.get(key);};
         const material={color:hexToLinear('#6e7954'),rough:1,metal:0};
-        const radius=compact?3600:aerial?12000:2500,step=compact?50:aerial?200:50;
+        const radius=compact?Math.ceil(Math.max(...Object.values(f.map.bounds).map(Math.abs))/200)*200+200:aerial?12000:2500,step=compact?100:aerial?200:50; // TF_R84_ESCORT_TERRAIN
         // Registered water polygons have no invented bed elevation. Cut their
         // exact union out of the visual terrain, including raised road earth
         // beneath bridges; native support still comes from its registered deck.
@@ -56831,12 +56870,14 @@ function installFrontlineSharedLobby({lobby,deploy,net,frontline,aircraft,eras=[
         for(const contact of f.contacts||[])if(contact.status==='last_known'&&frontlineAirwarNearby(contact.pos,local)){
           const q=point(contact.pos),age=Math.max(0,(f.lastTick-contact.last_seen_tick)*.05);g.save();g.globalAlpha=.6;g.strokeStyle=contact.team==='blue'?'#76bdff':'#ff9984';g.setLineDash([3,3]);g.beginPath();g.arc(...q,5,0,Math.PI*2);g.stroke();g.setLineDash([]);g.fillStyle=g.strokeStyle;g.fillText(`最后位置 ${Math.floor(age)}秒`,q[0]+8,q[1]+10);g.restore();
         }
-        for(const field of f.map.airfields||[]){if(!field.enabled||!field.runway||!frontlineAirwarNearby(field.pos,local))continue;const runway=field.runway,[x,z]=runway.center,[fx,fz]=runway.forward,a=point([x-fx*runway.lengthMeters/2,0,z-fz*runway.lengthMeters/2]),b=point([x+fx*runway.lengthMeters/2,0,z+fz*runway.lengthMeters/2]);g.strokeStyle=field.team===0?'#76bdff':'#ff9984';g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();const q=point(field.pos);g.strokeRect(q[0]-5,q[1]-5,10,10);g.font='bold 11px system-ui';g.fillStyle=g.strokeStyle;g.fillText(field.name||field.id,q[0]+8,q[1]-8);}
+        for(const field of f.map.airfields||[]){if(!field.enabled||!field.runway||!frontlineAirwarNearby(field.pos,local))continue;const runway=field.runway,[x,z]=runway.center,[fx,fz]=runway.forward,a=point([x-fx*runway.lengthMeters/2,0,z-fz*runway.lengthMeters/2]),b=point([x+fx*runway.lengthMeters/2,0,z+fz*runway.lengthMeters/2]);g.strokeStyle=field.team===0?'#76bdff':'#ff9984';g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();const q=point(field.pos);g.strokeRect(q[0]-5,q[1]-5,10,10);}
+        /* TF_MINIMAP_AIRPORT_LABELS_R84_DRAW */
+        TFMinimapLabelsR84.draw(g,f.map.airfields||[],{width:w,height:h,point,nearby:p=>frontlineAirwarNearby(p,local),scale:f.mapScale});
         for(const ship of f.vessels||[]){if(!frontlineAirwarNearby(ship.pos,local))continue;const q=point(ship.pos);g.fillStyle=!ship.alive?'#747775':ship.team===0?'#76bdff':'#ff9984';g.fillRect(q[0]-3,q[1]-5,6,10);if(ship.role==='transport'){g.font='10px system-ui';g.fillText('登陆舰',q[0]+7,q[1]+8);}}
         for(const u of f.aircrafts){if(!frontlineAirwarNearby(u.pos,local))continue;const q=point(u.pos),heading=u.yaw;g.save();g.translate(...q);g.rotate(-heading);g.strokeStyle=!u.alive?'#747775':u.team==='blue'?'#76bdff':'#ff9984';g.beginPath();g.moveTo(0,7);g.lineTo(-5,-5);g.lineTo(0,-2);g.lineTo(5,-5);g.closePath();g.stroke();if(same(u.unit,f.control))g.strokeRect(-8,-8,16,16);g.restore();}
         for(const c of f.companies)if(c.owner===net.id)for(const order of c.orders){const q=point([order.target[0],0,order.target[1]]);g.strokeStyle='#f8d39b';g.beginPath();g.arc(...q,6,0,Math.PI*2);g.stroke();}
         const scaleDistance=f.mapScale>500?100000:f.mapScale>50?10000:1000;
-        g.strokeStyle='#c7d6d3';g.beginPath();g.moveTo(15,h-16);g.lineTo(15+scaleDistance/f.mapScale,h-16);g.stroke();g.fillStyle='#c7d6d3';g.fillText(`${scaleDistance/1000} km`,15,h-24);g.font='bold 13px system-ui';g.fillText(f.map.name||'台海海峡',12,20);g.font='11px system-ui';g.fillText('附近 10 km',12,36);
+        g.strokeStyle='#c7d6d3';g.beginPath();g.moveTo(15,h-16);g.lineTo(15+scaleDistance/f.mapScale,h-16);g.stroke();g.fillStyle='#c7d6d3';g.font='11px system-ui';g.fillText(`${scaleDistance/1000} km`,15,h-24);g.font='bold 13px system-ui';g.fillText(f.map.name||'台海海峡',12,20);g.font='11px system-ui';g.fillText('附近 10 km',12,36);
       }
       function transmitInput(){
         if(!f.active||!net.open||f.room?.round_state==='intermission')return;const current=controlled();if(!current?.aircraft)return;

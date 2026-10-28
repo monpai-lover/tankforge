@@ -1,0 +1,344 @@
+{
+  "passed": true,
+  "scope": "Exact source drawMap + actual Canvas font metrics + registered current map background/airports; 188 backing/CSS and 10km retained. Isolated content fixture, not a native battle or full HUD layout check.",
+  "map": "台海海空护航 · 1:30",
+  "mapSha256": "b28441f320681d60e2cce476c9f6d1bb1b7fa570659904abc7c42d80ce93f18a",
+  "sourceSha256": "f583d7e0e209d18d3bb1e48291f86349e9931246f677c374a0f130020e9d4641",
+  "reports": [
+    {
+      "name": "overview",
+      "focus": [
+        0,
+        650,
+        0
+      ],
+      "width": 188,
+      "height": 188,
+      "css": [
+        188,
+        188
+      ],
+      "radius": 10000,
+      "scale": 106.38297872340425,
+      "expected": [
+        "福建机场",
+        "台湾机场"
+      ],
+      "labels": [
+        {
+          "text": "台湾机场",
+          "x": 128,
+          "y": 97,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 128,
+            "top": 88,
+            "right": 172,
+            "bottom": 98
+          }
+        },
+        {
+          "text": "福建机场",
+          "x": 50,
+          "y": 70,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 49,
+            "top": 61,
+            "right": 94,
+            "bottom": 71
+          }
+        }
+      ],
+      "scaleText": {
+        "text": "10 km",
+        "x": 15,
+        "y": 164,
+        "font": "11px system-ui",
+        "box": {
+          "left": 15,
+          "top": 155,
+          "right": 47.14501953125,
+          "bottom": 164
+        }
+      },
+      "allTexts": [
+        {
+          "text": "台湾机场",
+          "x": 128,
+          "y": 97,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 128,
+            "top": 88,
+            "right": 172,
+            "bottom": 98
+          }
+        },
+        {
+          "text": "福建机场",
+          "x": 50,
+          "y": 70,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 49,
+            "top": 61,
+            "right": 94,
+            "bottom": 71
+          }
+        },
+        {
+          "text": "10 km",
+          "x": 15,
+          "y": 164,
+          "font": "11px system-ui",
+          "box": {
+            "left": 15,
+            "top": 155,
+            "right": 47.14501953125,
+            "bottom": 164
+          }
+        },
+        {
+          "text": "台海海空护航 · 1:30",
+          "x": 12,
+          "y": 20,
+          "font": "bold 13px system-ui",
+          "box": {
+            "left": 12,
+            "top": 9,
+            "right": 131.20458984375,
+            "bottom": 21
+          }
+        },
+        {
+          "text": "附近 10 km",
+          "x": 12,
+          "y": 36,
+          "font": "11px system-ui",
+          "box": {
+            "left": 12,
+            "top": 26,
+            "right": 69.39990234375,
+            "bottom": 37
+          }
+        }
+      ]
+    },
+    {
+      "name": "ESCORT-B-AIR",
+      "focus": [
+        -5666.666666666667,
+        650,
+        -3333.3333333333335
+      ],
+      "width": 188,
+      "height": 188,
+      "css": [
+        188,
+        188
+      ],
+      "radius": 10000,
+      "scale": 106.38297872340425,
+      "expected": [
+        "福建机场",
+        "台湾机场"
+      ],
+      "labels": [
+        {
+          "text": "台湾机场",
+          "x": 113,
+          "y": 128,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 113,
+            "top": 119,
+            "right": 157,
+            "bottom": 129
+          }
+        },
+        {
+          "text": "福建机场",
+          "x": 104,
+          "y": 67,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 103,
+            "top": 58,
+            "right": 148,
+            "bottom": 68
+          }
+        }
+      ],
+      "scaleText": {
+        "text": "10 km",
+        "x": 15,
+        "y": 164,
+        "font": "11px system-ui",
+        "box": {
+          "left": 15,
+          "top": 155,
+          "right": 47.14501953125,
+          "bottom": 164
+        }
+      },
+      "allTexts": [
+        {
+          "text": "台湾机场",
+          "x": 113,
+          "y": 128,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 113,
+            "top": 119,
+            "right": 157,
+            "bottom": 129
+          }
+        },
+        {
+          "text": "福建机场",
+          "x": 104,
+          "y": 67,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 103,
+            "top": 58,
+            "right": 148,
+            "bottom": 68
+          }
+        },
+        {
+          "text": "10 km",
+          "x": 15,
+          "y": 164,
+          "font": "11px system-ui",
+          "box": {
+            "left": 15,
+            "top": 155,
+            "right": 47.14501953125,
+            "bottom": 164
+          }
+        },
+        {
+          "text": "台海海空护航 · 1:30",
+          "x": 12,
+          "y": 20,
+          "font": "bold 13px system-ui",
+          "box": {
+            "left": 12,
+            "top": 9,
+            "right": 131.20458984375,
+            "bottom": 21
+          }
+        },
+        {
+          "text": "附近 10 km",
+          "x": 12,
+          "y": 36,
+          "font": "11px system-ui",
+          "box": {
+            "left": 12,
+            "top": 26,
+            "right": 69.39990234375,
+            "bottom": 37
+          }
+        }
+      ]
+    },
+    {
+      "name": "ESCORT-R-AIR",
+      "focus": [
+        3000,
+        650,
+        333.3333333333333
+      ],
+      "width": 188,
+      "height": 188,
+      "css": [
+        188,
+        188
+      ],
+      "radius": 10000,
+      "scale": 106.38297872340425,
+      "expected": [
+        "台湾机场"
+      ],
+      "labels": [
+        {
+          "text": "台湾机场",
+          "x": 100,
+          "y": 94,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 100,
+            "top": 85,
+            "right": 144,
+            "bottom": 95
+          }
+        }
+      ],
+      "scaleText": {
+        "text": "10 km",
+        "x": 15,
+        "y": 164,
+        "font": "11px system-ui",
+        "box": {
+          "left": 15,
+          "top": 155,
+          "right": 47.14501953125,
+          "bottom": 164
+        }
+      },
+      "allTexts": [
+        {
+          "text": "台湾机场",
+          "x": 100,
+          "y": 94,
+          "font": "bold 11px system-ui",
+          "box": {
+            "left": 100,
+            "top": 85,
+            "right": 144,
+            "bottom": 95
+          }
+        },
+        {
+          "text": "10 km",
+          "x": 15,
+          "y": 164,
+          "font": "11px system-ui",
+          "box": {
+            "left": 15,
+            "top": 155,
+            "right": 47.14501953125,
+            "bottom": 164
+          }
+        },
+        {
+          "text": "台海海空护航 · 1:30",
+          "x": 12,
+          "y": 20,
+          "font": "bold 13px system-ui",
+          "box": {
+            "left": 12,
+            "top": 9,
+            "right": 131.20458984375,
+            "bottom": 21
+          }
+        },
+        {
+          "text": "附近 10 km",
+          "x": 12,
+          "y": 36,
+          "font": "11px system-ui",
+          "box": {
+            "left": 12,
+            "top": 26,
+            "right": 69.39990234375,
+            "bottom": 37
+          }
+        }
+      ]
+    }
+  ]
+}

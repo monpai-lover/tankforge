@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import assert from 'node:assert/strict';
+import {R84_ESCORT_TERRAIN_HOOK} from './patch_r84_scale30_terrain.mjs';
 const helper=fs.readFileSync(new URL('./frontline_airwar_presentation.js',import.meta.url),'utf8').replaceAll('\r\n','\n');
 const syncSpectator=`      function syncAirwarSpectator(){
         const choice=frontlineAirwarSpectator({member:mine(),current:controlled(),aircrafts:f.aircrafts,vessels:f.vessels,airfields:f.map?.airfields,previous:f.follow});
@@ -71,7 +72,7 @@ const edits=[
 // native client block: installed guided/CM/precision/worker owners remain intact.
 export function patchTaiwanAirwarHooks(source,{partial=false}={}){
   const crlf=source.includes('\r\n')&&!/(?<!\r)\n/.test(source);let s=source.replaceAll('\r\n','\n');
-  for(const [before,after]of edits){if(s.includes(after))continue;if(!s.includes(before)&&partial)continue;assert.equal(s.split(before).length-1,1,`Unique airwar presentation hook: ${before.slice(0,100)}`);s=s.replace(before,after);}
+  for(const [before,after]of edits){if(s.includes(after))continue;if(after.startsWith('        const radius=compact?3600:')&&s.includes(R84_ESCORT_TERRAIN_HOOK)){assert.equal(s.split(R84_ESCORT_TERRAIN_HOOK).length-1,1);continue;}if(!s.includes(before)&&partial)continue;assert.equal(s.split(before).length-1,1,`Unique airwar presentation hook: ${before.slice(0,100)}`);s=s.replace(before,after);}
   // Leave cleanup is present in the source and carries installed CM cleanup in
   // the canonical artifact. Prefix insertion preserves all following owners.
   const leave="if(m.op==='left'){f.establishedFlight.release(true);",next="if(m.op==='left'){f.navalPresentation.clear();f.airportPresentation.clear();f.vessels=[];f.navalCatalog=[];f.scenario=null;f.spectator=null;f.lossPending=false;airwarOverlay.hidden=true;f.establishedFlight.release(true);";

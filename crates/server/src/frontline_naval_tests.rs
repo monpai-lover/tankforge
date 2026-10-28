@@ -410,6 +410,9 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
     let mut w = NavalWorld::new(&config, 7, &mut next).unwrap();
     let map: serde_json::Value =
         serde_json::from_str(include_str!("../../../data/frontline/taiwan-escort.json")).unwrap();
+    let geography_scale=map["coordinateFrame"]["worldScale"].as_f64().unwrap();
+    assert!((geography_scale-1.0/30.0).abs()<1e-15,"actual native route asset must be the new 1:30 geography");
+    let shore_x=36669.288*geography_scale;
     let ground = crate::frontline_sim::MapGround::load(
         std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
             .join("../../data")
@@ -417,14 +420,28 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
         &map,
     )
     .unwrap();
-    for _ in 0..1800 {
+    let mut mission=crate::frontline_scenario::ScenarioState::for_map(&map).unwrap().unwrap();
+    assert_eq!(mission.config.unload_seconds,15.0);
+    assert_eq!(mission.config.timeout_seconds,900.0);
+    let mut first_unloading=None;
+    let mut completed_at=None;
+    for tick in 1..=1800 {
         w.step(0.5, |_, _, _, _| false);
-        for v in w.views() {
+        let views=w.views();
+        let at=tick as f64*0.5;
+        mission.step(0.5,at,&views);
+        if mission.status(&views)["unloading_s"].as_f64().unwrap()>0.0 {
+            first_unloading.get_or_insert(at);
+        }
+        if mission.outcome()==Some((0,"landing_completed")) {
+            completed_at.get_or_insert(at);
+        }
+        for v in views {
             let hull = &w.geometries[&v.model].parts[0];
             for i in 0..hull.triangles.len() {
                 for p in hull.triangle(i).map(|p| part_world(&v, hull, p)) {
                     assert!(
-                        p[0] < 366.69,
+                        p[0] < shore_x,
                         "actual hull crossed near-shore limit: {} {:?}",
                         v.id,
                         p
@@ -439,6 +456,10 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
             }
         }
     }
+    assert_eq!(mission.outcome(),Some((0,"landing_completed")),"unchanged 8m/s convoy must unload continuously for 15s before the unchanged 900s deadline");
+    assert!(first_unloading.unwrap()<=mission.config.timeout_seconds-mission.config.unload_seconds);
+    assert!(completed_at.unwrap()<mission.config.timeout_seconds);
+    println!("actual 1:30 convoy starts unloading at {}s and completes at {}s",first_unloading.unwrap(),completed_at.unwrap());
     assert!(w
         .views()
         .iter()
@@ -449,7 +470,7 @@ fn naval_scenario_actual_hull_footprints_remain_in_water_and_reach_safe_final_st
         .find(|v| v.role == "transport")
         .unwrap();
     assert!(
-        (t.pos[0] - 280.0).hypot(t.pos[2] + 100.0) < 30.0,
+        (t.pos[0] - source["landing_zone"]["center"][0].as_f64().unwrap()).hypot(t.pos[2] - source["landing_zone"]["center"][1].as_f64().unwrap()) < source["landing_zone"]["radius"].as_f64().unwrap(),
         "transport must remain able to unload after escorts park: {:?}",
         t.pos
     );
@@ -556,7 +577,7 @@ fn naval_authored_convoy_routes_park_without_stacking_and_keep_transport_access(
         .find(|v| v.role == "transport")
         .unwrap();
     assert!(
-        (t.pos[0] - 280.0).hypot(t.pos[2] + 100.0) < 30.0,
+        (t.pos[0] - source["landing_zone"]["center"][0].as_f64().unwrap()).hypot(t.pos[2] - source["landing_zone"]["center"][1].as_f64().unwrap()) < source["landing_zone"]["radius"].as_f64().unwrap(),
         "transport cannot access landing: {:?}",
         w.views()
             .iter()

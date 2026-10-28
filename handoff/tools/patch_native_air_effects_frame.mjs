@@ -10,9 +10,13 @@ const edits=[
 export function patchNativeAirEffectsFrame(source){
  for(let [before,after]of edits){
   if(source.includes('\r\n')&&!/(?<!\r)\n/.test(source)){before=before.replaceAll('\n','\r\n');after=after.replaceAll('\n','\r\n');}
-  const nextCount=source.split(after).length-1;
+  // A replacement can be a prefix of the old text (the control-only step is
+  // exactly that). Inspect the complete old call first; substring presence of
+  // the shorter replacement cannot prove that effects have been removed.
+  const oldCount=source.split(before).length-1,nextCount=source.split(after).length-1;
+  if(before.startsWith(after)&&before!==after&&oldCount){assert.equal(oldCount,1,'Unique source-owned native FX hook required');source=source.replace(before,after);continue;}
   if(nextCount){assert.equal(nextCount,1,'One drawn-frame FX hook required');continue;}
-  assert.equal(source.split(before).length-1,1,'Unique source-owned native FX hook required');source=source.replace(before,after);
+  assert.equal(oldCount,1,'Unique source-owned native FX hook required');source=source.replace(before,after);
  }
  return source;
 }

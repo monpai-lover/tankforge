@@ -395,7 +395,7 @@
         f.terrainOrigin=[cx,cz];f.terrainAerial=aerial;f.terrain=new Node('frontline-terrain');f.root.add(f.terrain);
         const sampledHeights=new Map(),surface=(x,z)=>{const key=`${x},${z}`;if(!sampledHeights.has(key))sampledHeights.set(key,height(x,z));return sampledHeights.get(key);};
         const material={color:hexToLinear('#6e7954'),rough:1,metal:0};
-        const radius=compact?3600:aerial?12000:2500,step=compact?50:aerial?200:50;
+        const radius=compact?Math.ceil(Math.max(...Object.values(f.map.bounds).map(Math.abs))/200)*200+200:aerial?12000:2500,step=compact?100:aerial?200:50; // TF_R84_ESCORT_TERRAIN
         // Registered water polygons have no invented bed elevation. Cut their
         // exact union out of the visual terrain, including raised road earth
         // beneath bridges; native support still comes from its registered deck.
@@ -679,12 +679,14 @@
         for(const contact of f.contacts||[])if(contact.status==='last_known'&&frontlineAirwarNearby(contact.pos,local)){
           const q=point(contact.pos),age=Math.max(0,(f.lastTick-contact.last_seen_tick)*.05);g.save();g.globalAlpha=.6;g.strokeStyle=contact.team==='blue'?'#76bdff':'#ff9984';g.setLineDash([3,3]);g.beginPath();g.arc(...q,5,0,Math.PI*2);g.stroke();g.setLineDash([]);g.fillStyle=g.strokeStyle;g.fillText(`最后位置 ${Math.floor(age)}秒`,q[0]+8,q[1]+10);g.restore();
         }
-        for(const field of f.map.airfields||[]){if(!field.enabled||!field.runway||!frontlineAirwarNearby(field.pos,local))continue;const runway=field.runway,[x,z]=runway.center,[fx,fz]=runway.forward,a=point([x-fx*runway.lengthMeters/2,0,z-fz*runway.lengthMeters/2]),b=point([x+fx*runway.lengthMeters/2,0,z+fz*runway.lengthMeters/2]);g.strokeStyle=field.team===0?'#76bdff':'#ff9984';g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();const q=point(field.pos);g.strokeRect(q[0]-5,q[1]-5,10,10);g.font='bold 11px system-ui';g.fillStyle=g.strokeStyle;g.fillText(field.name||field.id,q[0]+8,q[1]-8);}
+        for(const field of f.map.airfields||[]){if(!field.enabled||!field.runway||!frontlineAirwarNearby(field.pos,local))continue;const runway=field.runway,[x,z]=runway.center,[fx,fz]=runway.forward,a=point([x-fx*runway.lengthMeters/2,0,z-fz*runway.lengthMeters/2]),b=point([x+fx*runway.lengthMeters/2,0,z+fz*runway.lengthMeters/2]);g.strokeStyle=field.team===0?'#76bdff':'#ff9984';g.beginPath();g.moveTo(...a);g.lineTo(...b);g.stroke();const q=point(field.pos);g.strokeRect(q[0]-5,q[1]-5,10,10);}
+        /* TF_MINIMAP_AIRPORT_LABELS_R84_DRAW */
+        TFMinimapLabelsR84.draw(g,f.map.airfields||[],{width:w,height:h,point,nearby:p=>frontlineAirwarNearby(p,local),scale:f.mapScale});
         for(const ship of f.vessels||[]){if(!frontlineAirwarNearby(ship.pos,local))continue;const q=point(ship.pos);g.fillStyle=!ship.alive?'#747775':ship.team===0?'#76bdff':'#ff9984';g.fillRect(q[0]-3,q[1]-5,6,10);if(ship.role==='transport'){g.font='10px system-ui';g.fillText('登陆舰',q[0]+7,q[1]+8);}}
         for(const u of f.aircrafts){if(!frontlineAirwarNearby(u.pos,local))continue;const q=point(u.pos),heading=u.yaw;g.save();g.translate(...q);g.rotate(-heading);g.strokeStyle=!u.alive?'#747775':u.team==='blue'?'#76bdff':'#ff9984';g.beginPath();g.moveTo(0,7);g.lineTo(-5,-5);g.lineTo(0,-2);g.lineTo(5,-5);g.closePath();g.stroke();if(same(u.unit,f.control))g.strokeRect(-8,-8,16,16);g.restore();}
         for(const c of f.companies)if(c.owner===net.id)for(const order of c.orders){const q=point([order.target[0],0,order.target[1]]);g.strokeStyle='#f8d39b';g.beginPath();g.arc(...q,6,0,Math.PI*2);g.stroke();}
         const scaleDistance=f.mapScale>500?100000:f.mapScale>50?10000:1000;
-        g.strokeStyle='#c7d6d3';g.beginPath();g.moveTo(15,h-16);g.lineTo(15+scaleDistance/f.mapScale,h-16);g.stroke();g.fillStyle='#c7d6d3';g.fillText(`${scaleDistance/1000} km`,15,h-24);g.font='bold 13px system-ui';g.fillText(f.map.name||'台海海峡',12,20);g.font='11px system-ui';g.fillText('附近 10 km',12,36);
+        g.strokeStyle='#c7d6d3';g.beginPath();g.moveTo(15,h-16);g.lineTo(15+scaleDistance/f.mapScale,h-16);g.stroke();g.fillStyle='#c7d6d3';g.font='11px system-ui';g.fillText(`${scaleDistance/1000} km`,15,h-24);g.font='bold 13px system-ui';g.fillText(f.map.name||'台海海峡',12,20);g.font='11px system-ui';g.fillText('附近 10 km',12,36);
       }
       function transmitInput(){
         if(!f.active||!net.open||f.room?.round_state==='intermission')return;const current=controlled();if(!current?.aircraft)return;

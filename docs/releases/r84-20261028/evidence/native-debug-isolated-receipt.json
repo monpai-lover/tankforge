@@ -1,0 +1,14 @@
+{
+  "command": "D:/TankForge-validation/rust-naval-target-20261027/debug/deps/tg_server-57da0ffb3a2d689c.exe server::frontline_round_socket_tests::actual_three_socket_round_reset_replaces_world_preserves_audiences_and_rejects_old_inputs --exact --test-threads=1 --nocapture",
+  "executable_sha256": "f6fc0d10083cbfbfc12a81547f480267ce6baa6fd34f814bbbb1fd389f534a7b",
+  "reason": "One genuine TCP fixture failed during the full concurrent496-test run; isolated rerun preserves unchanged code and timeout limits",
+  "target_dir": "D:/TankForge-validation/rust-naval-target-20261027",
+  "started_utc": "2026-10-28T00:24:20.0083071Z",
+  "finished_utc": "2026-10-28T00:25:29.8370373Z",
+  "exit_code": 101,
+  "git_head": "4591855aa656358c772381ad80baa26fa00c6689",
+  "log": "D:/TankForge-validation/r84-20261028/native/isolated-round-socket-test.log",
+  "log_sha256": "e68d6b1ea5f193cc540ea0b69d92303f8d315eba45a8ae8432f719a852e9bbbe",
+  "trace_path": "D:/TankForge-validation/r84-20261028/native/isolated-round-socket-trace.json",
+  "source_modified_for_rerun": false
+}

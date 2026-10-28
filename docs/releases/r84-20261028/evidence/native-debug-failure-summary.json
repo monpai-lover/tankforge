@@ -1,0 +1,342 @@
+[
+  {
+    "seq": 56,
+    "at_s": 53.8015368,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 61576
+  },
+  {
+    "seq": 57,
+    "at_s": 53.837785,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 55928
+  },
+  {
+    "seq": 58,
+    "at_s": 53.8487863,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 59,
+    "at_s": 53.848976,
+    "peer": "blue",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 60,
+    "at_s": 53.8878289,
+    "peer": "red",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 61,
+    "at_s": 57.1684407,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "frame",
+    "battle": 1,
+    "tick": 24,
+    "round_state": null
+  },
+  {
+    "seq": 62,
+    "at_s": 57.2021344,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 12072
+  },
+  {
+    "seq": 63,
+    "at_s": 57.2267956,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10812
+  },
+  {
+    "seq": 64,
+    "at_s": 60.5421075,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "frame",
+    "battle": 1,
+    "tick": 28,
+    "round_state": null
+  },
+  {
+    "seq": 65,
+    "at_s": 60.5904438,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 11128
+  },
+  {
+    "seq": 66,
+    "at_s": 60.627497,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10392
+  },
+  {
+    "seq": 67,
+    "at_s": 63.5428306,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "frame",
+    "battle": 1,
+    "tick": 32,
+    "round_state": null
+  },
+  {
+    "seq": 68,
+    "at_s": 63.560507,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 11220
+  },
+  {
+    "seq": 69,
+    "at_s": 63.5781613,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10512
+  },
+  {
+    "seq": 70,
+    "at_s": 65.7257528,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "frame",
+    "battle": 1,
+    "tick": 36,
+    "round_state": null
+  },
+  {
+    "seq": 71,
+    "at_s": 65.7630657,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 11320
+  },
+  {
+    "seq": 72,
+    "at_s": 65.7918706,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10568
+  },
+  {
+    "seq": 73,
+    "at_s": 67.5435426,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "frame",
+    "battle": 1,
+    "tick": 40,
+    "round_state": null
+  },
+  {
+    "seq": 74,
+    "at_s": 67.575934,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 11448
+  },
+  {
+    "seq": 75,
+    "at_s": 67.6046822,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10604
+  },
+  {
+    "seq": 76,
+    "at_s": 67.6066945,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 77,
+    "at_s": 67.6068786,
+    "peer": "blue",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 78,
+    "at_s": 67.6194343,
+    "peer": "red",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 79,
+    "at_s": 69.777179,
+    "peer": "observer",
+    "direction": "received",
+    "t": "frontline",
+    "op": "frame",
+    "battle": 1,
+    "tick": 44,
+    "round_state": null
+  },
+  {
+    "seq": 80,
+    "at_s": 69.8121642,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 11416
+  },
+  {
+    "seq": 81,
+    "at_s": 69.8373312,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10636
+  },
+  {
+    "seq": 82,
+    "at_s": 69.8403957,
+    "peer": "observer",
+    "direction": "received",
+    "kind": "socket_read_error:UnexpectedEof:failed to fill whole buffer"
+  },
+  {
+    "seq": 83,
+    "at_s": 69.8404249,
+    "peer": "observer",
+    "direction": "received",
+    "kind": "socket_close"
+  },
+  {
+    "seq": 84,
+    "at_s": 69.8420126,
+    "peer": "blue",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 85,
+    "at_s": 69.8458279,
+    "peer": "server:127.0.0.1:51626",
+    "direction": "server",
+    "kind": "connection_exit:Err(Os { code: 10060, kind: TimedOut, message: \"由于连接方在一段时间后没有正确答复或连接的主机没有反应，连接尝试失败。\" })"
+  },
+  {
+    "seq": 86,
+    "at_s": 69.8537894,
+    "peer": "red",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 87,
+    "at_s": 71.8119902,
+    "peer": "blue",
+    "direction": "received",
+    "binary_bytes_b64": 11236
+  },
+  {
+    "seq": 88,
+    "at_s": 71.8451443,
+    "peer": "red",
+    "direction": "received",
+    "binary_bytes_b64": 10488
+  },
+  {
+    "seq": 89,
+    "at_s": 71.8497023,
+    "peer": "blue",
+    "direction": "received",
+    "t": "frontline",
+    "op": "room",
+    "battle": null,
+    "tick": null,
+    "round_state": "battle"
+  },
+  {
+    "seq": 90,
+    "at_s": 71.8500025,
+    "peer": "server:127.0.0.1:51628",
+    "direction": "server",
+    "kind": "connection_exit:Ok(())"
+  },
+  {
+    "seq": 91,
+    "at_s": 71.8618032,
+    "peer": "red",
+    "direction": "received",
+    "kind": "socket_read_error:ConnectionAborted:你的主机中的软件中止了一个已建立的连接。 (os error 10053)"
+  },
+  {
+    "seq": 92,
+    "at_s": 71.8618251,
+    "peer": "red",
+    "direction": "received",
+    "kind": "socket_close"
+  },
+  {
+    "seq": 93,
+    "at_s": 73.982661,
+    "peer": "blue",
+    "direction": "received",
+    "kind": "socket_read_error:ConnectionAborted:你的主机中的软件中止了一个已建立的连接。 (os error 10053)"
+  },
+  {
+    "seq": 94,
+    "at_s": 73.9826846,
+    "peer": "blue",
+    "direction": "received",
+    "kind": "socket_close"
+  },
+  {
+    "seq": 95,
+    "at_s": 73.9928324,
+    "peer": "server:127.0.0.1:51627",
+    "direction": "server",
+    "kind": "connection_exit:Ok(())"
+  }
+]

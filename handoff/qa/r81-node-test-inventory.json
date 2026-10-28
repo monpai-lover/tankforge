@@ -1,6 +1,6 @@
 {
   "schema": "TankForgeR8NodeInventoryV1",
-  "reference": "R8.1 complete inventory plus R8.2 and R8.3 airwar, convoy, airport and spectator regressions",
+  "reference": "R8.1 complete inventory plus R8.2-R8.4 airwar, escort scale, minimap content and shipped FX regression checks",
   "selected": [
     "handoff/tests/aam-realism.test.mjs",
     "handoff/tests/agm-ground-point-runtime.test.mjs",
@@ -34,6 +34,7 @@
     "handoff/tests/cockpit-repair.test.mjs",
     "handoff/tests/cockpit_gear.test.mjs",
     "handoff/tests/control_surfaces.test.mjs",
+    "handoff/tests/escort-scale30-terrain.test.mjs",
     "handoff/tests/f104-cockpit-eye.test.mjs",
     "handoff/tests/flight-gear-failure.test.mjs",
     "handoff/tests/flight_artifacts.test.mjs",
@@ -64,6 +65,8 @@
     "handoff/tests/frontline-input.test.mjs",
     "handoff/tests/frontline-local-flight-20261026.mjs",
     "handoff/tests/frontline-map-background.test.mjs",
+    "handoff/tests/frontline-minimap-labels-r84-patch.test.mjs",
+    "handoff/tests/frontline-minimap-labels-r84.test.mjs",
     "handoff/tests/frontline-naval-visual.test.mjs",
     "handoff/tests/frontline-objective-ui.test.mjs",
     "handoff/tests/frontline-ordnance-visual-20261026.mjs",

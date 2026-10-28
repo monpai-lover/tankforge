@@ -1,0 +1,14 @@
+{
+  "archive": "C:\\Users\\24908\\Downloads\\tankforge-r84-scale30-airfx-linux-amd64-20261028.tar.gz",
+  "bytes": 299869751,
+  "sha256": "73fc983ae76eb05f9bcc8463a55245d7e46ca0b3364837edbe6065d79e82ed27",
+  "verifiedFiles": 2698,
+  "htmlSha256": "4f3ce0ace34bca9eac736ea912c931858a2d825b10e8df623762f0c7a20ac696",
+  "serverSha256": "df4c74626062414f72fec1f1d8d04ded2c19847891c05ec97252c7ce649d1832",
+  "elf": {
+    "format": "ELF64",
+    "machine": "x86_64",
+    "dynamicInterpreter": false,
+    "executedOnLinux": false
+  }
+}

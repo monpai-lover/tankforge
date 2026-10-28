@@ -1,0 +1,96 @@
+{
+  "schema": "TankForgeR84NativeValidationV1",
+  "status": "BUILDS_PASS_NATIVE_TESTS_FAILED",
+  "captured_utc": "2026-10-28T00:26:38.325027+00:00",
+  "source_root": "D:\\TankForge-workspaces\\r81-push-20261027",
+  "source_manifest": "D:\\TankForge-validation\\r84-20261028\\linux-build\\source-start.json",
+  "source_manifest_sha256": "0a3ec791611e6c48e31f39f427fb3ae304710e6cde5f888d4962205bcb97a6f5",
+  "source_input_count": 201,
+  "source_inputs_unchanged": true,
+  "changed_inputs": [],
+  "windows": {
+    "platform": "x86_64-pc-windows-gnu",
+    "profile": "debug",
+    "command": "cargo build --locked -p tg-server",
+    "started_utc": "2026-10-28T00:06:51.4979983Z",
+    "finished_utc": "2026-10-28T00:07:35.5337529Z",
+    "exit_code": 0,
+    "source_executable": "D:/TankForge-validation/rust-vulcan-target-20261027/debug/tg-server.exe",
+    "artifact": "D:/TankForge-validation/r84-20261028/native/tg-server.exe",
+    "artifact_sha256": "f9fc713eb46b99d8a5b2bbdb8458ab3964e1c9f2d5cc8a8778e20e877189c419",
+    "artifact_bytes": 187526444,
+    "git_head": "4591855aa656358c772381ad80baa26fa00c6689",
+    "inputs_sha256": {
+      "Cargo.lock": "83ecf8c77c05bd91cc85359a68ac447dd2f58a09f54434d6d88dab087a4ebce6",
+      "data/frontline/taiwan.json": "a319d7f307e4146e5bc139486e3ab45e0eb6229371ddab3c6c35e791f2bd4499",
+      "data/frontline/taiwan-escort.json": "b28441f320681d60e2cce476c9f6d1bb1b7fa570659904abc7c42d80ce93f18a",
+      "data/frontline/scenarios/taiwan-landing-escort.json": "e44f68c100624b80977d3c2c04c8c489f3b1f0daab9ba22ba282646adbb5f310",
+      "data/aircraft/frontline.json": "edbbb218fc1c152fe23c77bbe19322ff4866605df248377312920f3c4bfc8dd6"
+    },
+    "executed_by_builder": false
+  },
+  "linux": {
+    "receipt": "D:\\TankForge-validation\\r84-20261028\\linux-build\\receipt.json",
+    "artifact": "D:/TankForge-validation/r84-20261028/linux-build/tg-server-linux-amd64-musl",
+    "sha256": "df4c74626062414f72fec1f1d8d04ded2c19847891c05ec97252c7ce649d1832",
+    "bytes": 6768624,
+    "build_exit_code": 0,
+    "executed": false
+  },
+  "full_server_lib_tests": {
+    "command": "cargo test --locked -p tg-server --lib",
+    "target_dir": "D:/TankForge-validation/rust-naval-target-20261027",
+    "started_utc": "2026-10-28T00:06:51.4979623Z",
+    "finished_utc": "2026-10-28T00:23:26.4215223Z",
+    "exit_code": 101,
+    "git_head": "4591855aa656358c772381ad80baa26fa00c6689",
+    "log": "D:/TankForge-validation/r84-20261028/native/cargo-test-server-lib.log",
+    "log_sha256": "4b4f657ddbaf976f336fa1338eb50c4a75721bfeebdf85c34f90eb233758d86b",
+    "passed": 495,
+    "failed": 1,
+    "filtered": 0,
+    "duration_seconds": 993.9
+  },
+  "isolated_socket_retest": {
+    "command": "D:/TankForge-validation/rust-naval-target-20261027/debug/deps/tg_server-57da0ffb3a2d689c.exe server::frontline_round_socket_tests::actual_three_socket_round_reset_replaces_world_preserves_audiences_and_rejects_old_inputs --exact --test-threads=1 --nocapture",
+    "executable_sha256": "f6fc0d10083cbfbfc12a81547f480267ce6baa6fd34f814bbbb1fd389f534a7b",
+    "reason": "One genuine TCP fixture failed during the full concurrent496-test run; isolated rerun preserves unchanged code and timeout limits",
+    "target_dir": "D:/TankForge-validation/rust-naval-target-20261027",
+    "started_utc": "2026-10-28T00:24:20.0083071Z",
+    "finished_utc": "2026-10-28T00:25:29.8370373Z",
+    "exit_code": 101,
+    "git_head": "4591855aa656358c772381ad80baa26fa00c6689",
+    "log": "D:/TankForge-validation/r84-20261028/native/isolated-round-socket-test.log",
+    "log_sha256": "e68d6b1ea5f193cc540ea0b69d92303f8d315eba45a8ae8432f719a852e9bbbe",
+    "trace_path": "D:/TankForge-validation/r84-20261028/native/isolated-round-socket-trace.json",
+    "source_modified_for_rerun": false,
+    "passed": 0,
+    "failed": 1,
+    "filtered": 495,
+    "duration_seconds": 67.01
+  },
+  "unresolved_failure": {
+    "test": "server::frontline_round_socket_tests::actual_three_socket_round_reset_replaces_world_preserves_audiences_and_rejects_old_inputs",
+    "full_run_observation": "observer socket disconnected at native tick44; trace includes Windows10060 TCP timeout",
+    "isolated_run_observation": "observer receive Timeout at native tick64 before six-second simulation round ended",
+    "source_or_timeout_changed_for_retest": false,
+    "root_cause_confirmed": false
+  },
+  "failure_evidence": [
+    {
+      "path": "D:\\TankForge-validation\\r84-20261028\\native\\full-suite-round-socket-failure-summary.json",
+      "sha256": "d7a26d07e3566bc2e1d88c7ba83e2ce4d68f4e8157cf3ef904e82bc9f1294b8f",
+      "bytes": 6988
+    },
+    {
+      "path": "D:\\TankForge-validation\\r84-20261028\\native\\full-suite-round-socket-failure-trace.json",
+      "sha256": "62287fcbff042cfbacdc24cf7ec75afac5474420b90adf9ffb3a58235f79d4d5",
+      "bytes": 37163106
+    },
+    {
+      "path": "D:\\TankForge-validation\\r84-20261028\\native\\isolated-round-socket-trace.failure-328408-1793147123709287800.json",
+      "sha256": "5b23763218a2a44c401cc3d2ac96c09fc1339fa7a318c224c9c34011f5df080e",
+      "bytes": 38554473
+    }
+  ]
+}

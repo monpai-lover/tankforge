@@ -23,10 +23,12 @@ fn installed_escort_scene_owns_unique_lives_geometry_and_skips_old_land_ai() {
 fn actual_room_navals_fire_real_accepted_projectiles_and_audience_views_hide_resources() {
     let (mut h,id)=hub();let before:u32=h.rooms[&id].sim.naval_views().iter().map(|s|s.ammo).sum();
     let mut fired=false;
-    for tick in 1..=600 {
+    // Geography expands, while vessel speed and the 1800m gun range remain
+    // metric. Allow the authored fleets to approach before expecting fire.
+    for tick in 1..=6000 {
         let output=h.tick(tick as f64*0.05);
         fired|=output.iter().any(|(_,u)|match u{Update::Frame{events,..}=>events.iter().any(|e|e["kind"]=="shot"&&e["detail"]["naval"]==true),_=>false});
-        if fired {break;}
+        if fired {println!("actual 1:30 naval AI first accepted fire at {}s",tick as f64*0.05);break;}
     }
     assert!(fired,"accepted AI fire must enter the shared physical round queue");
     let room=&h.rooms[&id];let after:u32=room.sim.naval_views().iter().map(|s|s.ammo).sum();assert!(after<before);
@@ -45,7 +47,8 @@ fn escort_timeout_uses_only_scenario_result_and_is_published_once() {
 fn native_room_accepts_fifteen_seconds_of_live_transport_unloading_as_blue_victory() {
     let(mut h,id)=waiting();
     let scenario=h.rooms.get_mut(&id).unwrap().scenario.as_mut().unwrap();
-    for s in &mut scenario.config.naval.vessels {s.ammo=0;if s.role=="transport" {s.pos=[280.,0.,-100.];s.route.clear();}}
+    let landing=scenario.config.landing_zone.center;
+    for s in &mut scenario.config.naval.vessels {s.ammo=0;if s.role=="transport" {s.pos=[landing[0],0.,landing[1]];s.route.clear();}}
     accepted(&h.handle(1,Command::Start,0.));
     let mut ended=Vec::new();for tick in 1..=301 {ended.extend(h.tick(tick as f64*0.05).into_iter().filter_map(|(_,u)|if let Update::Ended{winner,reason,..}=u{Some((winner,reason))}else{None}));}
     assert_eq!(ended,vec![(Some(Team::Blue),"landing_completed".into())]);
@@ -74,11 +77,14 @@ fn native_projectiles_must_sink_both_transports_and_escorts_to_end_the_fleet_mis
 #[test]
 fn scenario_actual_air_sorties_use_authored_position_heading_and_speed_for_both_factions() {
     let(mut h,id)=hub();let map:Value=serde_json::from_str(h.map_source("taiwan-escort").unwrap()).unwrap();
+    assert!((map["coordinateFrame"]["worldScale"].as_f64().unwrap()-1.0/30.0).abs()<1e-15);
     for (player,team) in [(2,Team::Blue),(3,Team::Red)] {
         accepted(&h.handle(player,Command::Join{room:id,observer:false,team:Some(team)},0.));
         accepted(&h.handle(player,Command::DeployAir{aircraft:"f86f".into(),spawn:"air".into(),loadout:0,custom:None,fuel_minutes:None},0.));
         let view=h.rooms[&id].air.views().into_iter().find(|v|v.owner==Some(player)).unwrap();
         let source=map["airspawns"].as_array().unwrap().iter().find(|s|s["team"]==team.index()).unwrap();
+        let expected=if team==Team::Blue {[-1700.*100./30.,650.,-1000.*100./30.]}else{[900.*100./30.,650.,100.*100./30.]};
+        assert_eq!(point(&source["pos"]).unwrap(),expected,"only authored XZ expands from 1:100; airborne altitude stays 650m");
         let pos=point(&source["pos"]).unwrap();for k in 0..3 {assert!((view.pos[k]-pos[k]).abs()<0.001,"faction {team:?} axis{k}: {:?} vs {pos:?}",view.pos);}
         assert!((view.yaw-source["yawRad"].as_f64().unwrap()).abs()<1e-5);
         let speed=view.state[7..10].iter().map(|v|f64::from(*v).powi(2)).sum::<f64>().sqrt();
@@ -94,6 +100,11 @@ fn scenario_actual_runway_sorties_use_same_native_five_metre_game_airport_surfac
         let room=&h.rooms[&id];let view=room.air.views().into_iter().find(|v|v.owner==Some(player)).unwrap();
         let field=map["airfields"].as_array().unwrap().iter().find(|f|f["enabled"]==true&&f["team"]==team.index()).unwrap();
         let height=field["runway"]["height"].as_f64().unwrap();assert_eq!(height,5.);
+        assert_eq!(field["runway"]["lengthMeters"],1600);assert_eq!(field["runway"]["widthMeters"],45);
+        let center=[field["runway"]["center"][0].as_f64().unwrap(),field["runway"]["center"][1].as_f64().unwrap()];
+        for dx in [-22.,0.,22.] {for dz in [-799.,0.,799.] {
+            assert!((room.sim.height(center[0]+dx,center[1]+dz)-height).abs()<0.001,"native 1600x45m runway must share one 5m surface at every sampled edge and center");
+        }}
         assert!((room.sim.height(view.pos[0],view.pos[2])-height).abs()<0.001);
         assert!((view.pos[1]-(height+2.)).abs()<0.001,"accepted runway CG at authored surface+2m");
         // The unchanged flight kernel's parked spawn uses 0.1m/s forward
