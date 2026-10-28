@@ -1,0 +1,42 @@
+{
+  "schema": "TankForgeR86IndependentRestrictedIqExclusionV1",
+  "passed": true,
+  "reviewedAt": "2026-10-28T16:54:10Z",
+  "originalAttachment": {
+    "path": "C:\\Users\\24908\\.codex\\attachments\\281d3e04-c11b-417b-b5cf-988f7a6738e1\\已粘贴的文本.txt",
+    "bytes": 9129,
+    "sha256": "aba78f2a2a45f6aec4c8397125d38e221cc18419061a30b5166398c16ddc4648",
+    "readOnly": true,
+    "copiedIntoRepositoryOrPackage": false
+  },
+  "archive": {
+    "path": "D:\\TankForge-validation\\r86-20261028\\delivery\\tankforge-r86-full-vps-linux-amd64-20261029.tar.gz",
+    "bytes": 300037114,
+    "sha256": "cfff096518f84e85f3ce9ab393410bdb1d94632fc0bba555a958dd15300e23b6",
+    "membersScanned": 2736,
+    "payloadFilesScanned": 2735,
+    "uncompressedMemberBytesScanned": 1449675028
+  },
+  "scan": {
+    "fullFileHashMatches": [],
+    "literalAndSpacingNormalizedSignatureHits": [],
+    "completeOriginalRawAndEolNormalizedSubstringHits": [],
+    "completeMap5WhitespaceCompactedHits": [],
+    "knownDistinctiveSignaturesValidatedOnceInOriginal": [
+      "exclusive_copyright_header",
+      "noise_method_define",
+      "map5_declaration"
+    ],
+    "compactMap5Bytes": 247
+  },
+  "sourceHead": "419a39f0b977b446061fdf1382c2252cb4eafdfd",
+  "sourceTreeCleanBeforeAndAfter": true,
+  "finding": "Restricted user cloud attachment absent from every archive member by exact digest, complete-source substring and distinctive implementation/header signatures, including whitespace/EOL normalization.",
+  "waterBoundary": "The retained 9794-byte Frank Hugenroth CC BY-NC-SA3.0 water reference is a different source; its lawful historical IQ concept credit is not a prohibited-implementation signature.",
+  "notExecuted": {
+    "extraction": false,
+    "targetExecution": false,
+    "fullTests": false,
+    "deployment": false
+  }
+}

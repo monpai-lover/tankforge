@@ -1,0 +1,15 @@
+{
+  "schema": "TankForgeR86IndependentArchiveEnvelopeAuditV1",
+  "passed": true,
+  "gzipStreamReadThroughEofAndCrc": true,
+  "tarHeaderChecksumsVerified": 5467,
+  "rawHeaderTypes": {
+    "x": 2731,
+    "0": 2736
+  },
+  "uncompressedTarBytes": 1454622720,
+  "zeroPaddingBytes": 2560,
+  "nonzeroDataAfterTarEnd": false,
+  "archiveExtracted": false,
+  "targetExecuted": false
+}

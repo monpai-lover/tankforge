@@ -1,0 +1,14 @@
+{
+  "schema": "TankForgeR86PublicationV1",
+  "checkedAtUtc": "2026-10-28T17:02:17.767239+00:00",
+  "repository": "https://github.com/monpai-lover/tankforge.git",
+  "branch": "codex/r81-airwar-agm-fixes",
+  "implementationCommit": "419a39f0b977b446061fdf1382c2252cb4eafdfd",
+  "verifiedRemoteCommit": "419a39f0b977b446061fdf1382c2252cb4eafdfd",
+  "fullPageSha256": "e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739",
+  "archiveSha256": "cfff096518f84e85f3ce9ab393410bdb1d94632fc0bba555a958dd15300e23b6",
+  "archiveFilesVerified": 2735,
+  "linuxExecuted": false,
+  "productionDeployed": false,
+  "scope": "Frozen implementation published; following documentation closure commit does not change runtime/archive."
+}

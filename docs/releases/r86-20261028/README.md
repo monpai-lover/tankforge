@@ -38,3 +38,11 @@
 ## VPS 升级交接
 
 按 [CODEX_VPS_UPGRADE.md](CODEX_VPS_UPGRADE.md) 在新目录核对、试运行、切换和验收；保留线上自定义配置、账号、状态、服务管理及代理／TLS，旧发布目录留作回退。完整包包含网页、amd64 服务端、全部资料／默认配置、来源许可、相关修改源码、文件清单与独立校验器。实际压缩包指纹和逐项读回结果另随交付收据提供。
+
+## 完整包指纹
+
+`tankforge-r86-full-vps-linux-amd64-20261029.tar.gz`：300037114 bytes（约 300 MB），SHA-256 `cfff096518f84e85f3ce9ab393410bdb1d94632fc0bba555a958dd15300e23b6`。全部 **2735 个 payload 文件、2736 个 tar 成员**已由打包器和独立审计逐项读取、核对大小／指纹／权限。包含 2690 个资料文件、3 个默认配置文件及 29 个相关源码文件。
+
+包内源码状态来自干净实现提交 `419a39f0b977b446061fdf1382c2252cb4eafdfd`；后续交付记录提交不改变网页、二进制或包内容。独立审计额外检查了完整 gzip／tar 尾部、路径、重复／链接、清单成员及受限制 IQ 原附件／专属代码特征的排除。结果见 [最终包收据](evidence/package-final/package-receipt.json) 与 [独立审计](evidence/package-final/final-review-r2.json)。
+
+向 VPS Codex 提供压缩包、旁边 receipt 与 [升级说明](CODEX_VPS_UPGRADE.md)。先校验，再在新目录试运行，确认 `/` 与 `/ws` 后按线上现有管理方式切换；不要覆盖账号、定制配置和持久化状态。

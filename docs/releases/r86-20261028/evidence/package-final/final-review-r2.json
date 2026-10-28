@@ -1,0 +1,59 @@
+{
+  "schema": "TankForgeR86IndependentFinalPackageReviewV2",
+  "passed": true,
+  "reviewedAt": "2026-10-28T16:54:10Z",
+  "archive": "D:/TankForge-validation/r86-20261028/delivery/tankforge-r86-full-vps-linux-amd64-20261029.tar.gz",
+  "archiveSha256": "cfff096518f84e85f3ce9ab393410bdb1d94632fc0bba555a958dd15300e23b6",
+  "archiveBytes": 300037114,
+  "sourceHeadAtAudit": "419a39f0b977b446061fdf1382c2252cb4eafdfd",
+  "sourceCleanAtStreamAuditStartAndEnd": true,
+  "receipts": [
+    {
+      "path": "D:\\TankForge-validation\\r86-20261028\\package-independent-review\\review.json",
+      "sha256": "dd6f7ad9d74aec157a11cdcad7edba5d599edcb050f4e0e9e726b00bd05aaf6c"
+    },
+    {
+      "path": "D:\\TankForge-validation\\r86-20261028\\package-independent-review\\raw-envelope.json",
+      "sha256": "72e95f0d10b8b7ba333ed935cdbfcb506ee54cfc93bc23936ede1f5ad2e3830c"
+    },
+    {
+      "path": "D:\\TankForge-validation\\r86-20261028\\package-independent-review\\restricted-iq-exclusion.json",
+      "sha256": "6b54e800122574eb23a143cb9577645bcb8849874609f678d65eea9c788528d1"
+    }
+  ],
+  "totals": {
+    "tarMembers": 2736,
+    "payloadFiles": 2735,
+    "dataFiles": 2690,
+    "configFiles": 3,
+    "scopedSourceFiles": 29,
+    "sha256sumEntries": 2734,
+    "rawTarHeaders": 5467
+  },
+  "independentNoticesAndContentReview": {
+    "reviewer": "archive_notices_review",
+    "blockingFindings": [],
+    "guideStartVerifierChecksumsIncluded": true,
+    "waterReferenceExactBytes": 9794,
+    "waterReferenceSha256": "14804fe126af4f1e5ce3881611d5bca15c847bfcdf3cc6ed7db81e9f37c42261",
+    "waterLicense": "CC BY-NC-SA 3.0",
+    "existingMitNoticeRetained": true,
+    "hudHelperCopiesInFinalHtml": 1,
+    "shipHintsRangeMeters": 10000,
+    "cloudReplacementBlocksMatchScopedSource": true,
+    "sdfDiagnosticNotInjected": true,
+    "prohibitedSourceHeaderFound": false,
+    "suspiciousReferenceFilenameFound": false
+  },
+  "remainingTechnicalFindings": [],
+  "provenanceQualification": null,
+  "limits": "Read-only stream/source/ELF metadata audit. No extraction, Linux execution, deployment, or full-test rerun.",
+  "restrictedIqExclusion": {
+    "verified": true,
+    "originalAttachmentSha256": "aba78f2a2a45f6aec4c8397125d38e221cc18419061a30b5166398c16ddc4648",
+    "membersScanned": 2736,
+    "matches": 0,
+    "receipt": "D:\\TankForge-validation\\r86-20261028\\package-independent-review\\restricted-iq-exclusion.json"
+  },
+  "provenanceFinding": "Restricted user cloud attachment absent from every archive member by exact digest, complete-source substring and distinctive implementation/header signatures, including whitespace/EOL normalization."
+}

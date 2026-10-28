@@ -1,0 +1,36 @@
+{
+  "schema": "TankForgeR86FullVpsHandoffReceiptV1",
+  "archive": "D:\\TankForge-validation\\r86-20261028\\delivery\\tankforge-r86-full-vps-linux-amd64-20261029.tar.gz",
+  "bytes": 300037114,
+  "sha256": "cfff096518f84e85f3ce9ab393410bdb1d94632fc0bba555a958dd15300e23b6",
+  "verifiedFiles": 2735,
+  "totalTarMembers": 2736,
+  "htmlSha256": "e82d8e551db301947b3c1bc4f3e1a1a4ca87ca53c96c0068c63421f23a5c3739",
+  "serverSha256": "a33110aed0ff88d7c6fc896d3b5ea060c54888b33af40233d396389c335d3b70",
+  "canonicalAppSha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9",
+  "sourceInputsStable": true,
+  "dataFiles": 2690,
+  "configFiles": 3,
+  "sourcePatchFiles": 29,
+  "source": {
+    "repository": "https://github.com/monpai-lover/tankforge.git",
+    "branch": "codex/r81-airwar-agm-fixes",
+    "headAtPackaging": "419a39f0b977b446061fdf1382c2252cb4eafdfd",
+    "sourceTreeDirty": false,
+    "note": "source-patches is a scoped audit handoff, not a standalone full source checkout; use the repository branch for development.",
+    "canonicalAppSha256": "407d52d8ae5d5ab34f1984d485649eba863c9e72e0fa9612d33c208e026bd1b9"
+  },
+  "elf": {
+    "format": "ELF64",
+    "machine": "x86_64",
+    "type": "static PIE",
+    "dynamicInterpreter": false,
+    "dynamicDependencies": false,
+    "executableStack": false,
+    "binaryExecuted": false,
+    "executedOnLinux": false
+  },
+  "binaryExecuted": false,
+  "executedOnLinux": false,
+  "productionDeployed": false
+}

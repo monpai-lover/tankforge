@@ -39,10 +39,14 @@
 ## Task 4: Complete VPS handoff
 
 - [x] Cross-build the Linux amd64 server with final source/profile inputs and compare business data/provenance; distinguish static inspection from Linux execution.
-- [ ] Build a complete package containing the HTML, server, all data/config, source/attribution files, manifest and Chinese Codex VPS upgrade/rollback guidance. Preserve live custom configuration and avoid any automatic production deployment.
-- [ ] Independently stream-verify every package member and external archive hash, inspect executable modes, and include verification evidence and the exact repository/source pointers.
-- [ ] Commit only owned R8.6 files, push the existing authorized branch, verify the remote commit, and deliver the full archive plus the local test URL.
+- [x] Build a complete package containing the HTML, server, all data/config, source/attribution files, manifest and Chinese Codex VPS upgrade/rollback guidance. Preserve live custom configuration and avoid any automatic production deployment.
+- [x] Independently stream-verify every package member and external archive hash, inspect executable modes, and include verification evidence and the exact repository/source pointers.
+- [x] Commit only owned R8.6 files, push the existing authorized branch, verify the remote commit, and deliver the full archive plus the local test URL.
 
 ## Acceptance
 
 The bottom controls have no escort banner covering them. In a real controlled aircraft, fleet locations appear through the actual flight HUD in both camera modes. Water renders without shader errors or material changes to land/vehicles. The complete package has matching page/server/data and its limitations state clearly that production deployment and Linux runtime testing have not been performed here.
+
+## Publication
+
+Final R3 runtime commit `419a39f0b977b446061fdf1382c2252cb4eafdfd` is pushed and remote-verified on `codex/r81-airwar-agm-fixes`. Complete VPS archive SHA-256 is `cfff096518f84e85f3ce9ab393410bdb1d94632fc0bba555a958dd15300e23b6`; 2735 payload files passed independent readback. This final documentation closure changes no runtime or package bytes. Linux execution and production deployment remain the VPS handoff steps.
